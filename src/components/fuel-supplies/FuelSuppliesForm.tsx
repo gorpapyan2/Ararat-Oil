@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
-import { CalendarIcon, Calculator, SlidersHorizontal } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 
 import { useQuery } from "@tanstack/react-query";
@@ -57,7 +56,7 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
   const calculateTotalCost = () => {
     const quantity = form.getValues('quantity_liters');
     const price = form.getValues('price_per_liter');
-    form.setValue('total_cost', quantity * price);
+    form.setValue('total_cost', Number((quantity * price).toFixed(2)));
   };
 
   const handleSubmit = (data: Omit<FuelSupply, 'id' | 'created_at'>) => {
@@ -199,35 +198,22 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                   min: { value: 0, message: "Quantity must be positive" }
                 }}
                 render={({ field }) => (
-                  <FormItem className="flex flex-col gap-2">
+                  <FormItem>
                     <FormLabel className="text-base font-medium">
                       Quantity (Liters)
-                      <SlidersHorizontal className="inline-block ml-2 h-4 w-4" />
                     </FormLabel>
                     <FormControl>
-                      <div className="flex flex-col gap-2">
-                        <Input 
-                          type="number" 
-                          step="0.01"
-                          {...field} 
-                          onChange={(e) => {
-                            const value = Math.max(0, e.target.valueAsNumber || 0);
-                            field.onChange(value);
-                            setTimeout(calculateTotalCost, 0);
-                          }}
-                          value={field.value}
-                        />
-                        <Slider
-                          min={0}
-                          max={10000}
-                          step={10}
-                          value={[field.value]}
-                          onValueChange={(value) => {
-                            field.onChange(value[0]);
-                            setTimeout(calculateTotalCost, 0);
-                          }}
-                        />
-                      </div>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        step="0.01"
+                        {...field} 
+                        onChange={(e) => {
+                          const value = Math.max(0, Number(e.target.value));
+                          field.onChange(value);
+                          calculateTotalCost();
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -242,35 +228,22 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                   min: { value: 0, message: "Price must be positive" }
                 }}
                 render={({ field }) => (
-                  <FormItem className="flex flex-col gap-2">
+                  <FormItem>
                     <FormLabel className="text-base font-medium">
                       Price per Liter
-                      <SlidersHorizontal className="inline-block ml-2 h-4 w-4" />
                     </FormLabel>
                     <FormControl>
-                      <div className="flex flex-col gap-2">
-                        <Input 
-                          type="number" 
-                          step="0.01"
-                          {...field} 
-                          onChange={(e) => {
-                            const value = Math.max(0, e.target.valueAsNumber || 0);
-                            field.onChange(value);
-                            setTimeout(calculateTotalCost, 0);
-                          }}
-                          value={field.value}
-                        />
-                        <Slider
-                          min={0}
-                          max={100}
-                          step={0.1}
-                          value={[field.value]}
-                          onValueChange={(value) => {
-                            field.onChange(value[0]);
-                            setTimeout(calculateTotalCost, 0);
-                          }}
-                        />
-                      </div>
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        step="0.01"
+                        {...field} 
+                        onChange={(e) => {
+                          const value = Math.max(0, Number(e.target.value));
+                          field.onChange(value);
+                          calculateTotalCost();
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
