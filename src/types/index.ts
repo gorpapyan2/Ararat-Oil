@@ -1,6 +1,7 @@
 export type FuelType = 'Petrol' | 'Diesel' | 'Gas';
 export type PaymentStatus = 'Paid' | 'Pending';
-export type ExpenseCategory = 
+export type PaymentMethod = "Cash" | "Credit Card" | "Bank Transfer" | "Mobile" | "Other";
+export type ExpenseCategory =
   | 'Rent' 
   | 'Utilities' 
   | 'Salaries' 
@@ -8,7 +9,9 @@ export type ExpenseCategory =
   | 'Supplies' 
   | 'Marketing' 
   | 'Insurance' 
-  | 'Taxes' 
+  | 'Taxes'
+  | 'Travel'
+  | 'Fuel'
   | 'Other';
 export type EmployeeStatus = 'active' | 'on_leave' | 'terminated';
 
@@ -47,6 +50,9 @@ export interface Expense {
   description: string;
   amount: number;
   payment_status: PaymentStatus;
+  payment_method?: PaymentMethod;
+  invoice_number?: string;
+  notes?: string;
   created_at?: string;
 }
 
