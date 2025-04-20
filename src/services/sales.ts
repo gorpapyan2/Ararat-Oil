@@ -7,9 +7,9 @@ export const fetchSales = async (): Promise<Sale[]> => {
     .from('sales')
     .select(`
       *,
-      filling_systems(
+      filling_system:filling_systems(
         name,
-        fuel_tanks(
+        tank:fuel_tanks(
           fuel_type
         )
       )
@@ -21,12 +21,12 @@ export const fetchSales = async (): Promise<Sale[]> => {
   return (data || []).map(item => ({
     id: item.id,
     date: item.date,
-    fuel_type: item.filling_systems?.fuel_tanks?.fuel_type as FuelType || 'Petrol',
+    fuel_type: (item.filling_system?.tank?.fuel_type as FuelType) || 'Petrol',
     quantity: item.total_sold_liters || 0,
     price_per_unit: item.price_per_unit,
     total_sales: item.total_sales,
     payment_status: 'Pending', // Hardcoded since it's not in the database
-    filling_system_name: item.filling_systems?.name || 'Unknown',
+    filling_system_name: item.filling_system?.name || 'Unknown',
     created_at: item.created_at,
     meter_start: item.meter_start || 0,
     meter_end: item.meter_end || 0,
@@ -40,9 +40,9 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
     .from('sales')
     .select(`
       *,
-      filling_systems(
+      filling_system:filling_systems(
         name,
-        fuel_tanks(
+        tank:fuel_tanks(
           fuel_type
         )
       )
@@ -59,12 +59,12 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
   return {
     id: data.id,
     date: data.date,
-    fuel_type: data.filling_systems?.fuel_tanks?.fuel_type as FuelType || 'Petrol',
+    fuel_type: (data.filling_system?.tank?.fuel_type as FuelType) || 'Petrol',
     quantity: data.total_sold_liters || 0,
     price_per_unit: data.price_per_unit,
     total_sales: data.total_sales,
     payment_status: 'Pending',
-    filling_system_name: data.filling_systems?.name || 'Unknown',
+    filling_system_name: data.filling_system?.name || 'Unknown',
     created_at: data.created_at,
     meter_start: data.meter_start || 0,
     meter_end: data.meter_end || 0,
@@ -91,8 +91,10 @@ export const createSale = async (
     .from('filling_systems')
     .select(`
       id,
+      name,
       tank:fuel_tanks (
         id,
+        fuel_type,
         current_level
       )
     `)
@@ -131,11 +133,12 @@ export const createSale = async (
   return {
     id: sale.id,
     date: sale.date,
-    fuel_type: 'Petrol', // Default since we don't have it in the response
+    fuel_type: (fillingSystemData.tank.fuel_type as FuelType) || 'Petrol',
     quantity: sale.total_sold_liters || 0,
     price_per_unit: sale.price_per_unit,
     total_sales: sale.total_sales,
     payment_status: 'Pending',
+    filling_system_name: fillingSystemData.name || 'Unknown',
     created_at: sale.created_at,
     meter_start: sale.meter_start || 0,
     meter_end: sale.meter_end || 0,
