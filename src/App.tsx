@@ -12,7 +12,8 @@ import Employees from "@/pages/Employees";
 import FillingSystems from "@/pages/FillingSystems";
 import Sales from "@/pages/Sales";
 import PetrolProviders from "@/pages/PetrolProviders";
-import FuelSupplies from "@/pages/FuelSupplies";  // Add this line
+import FuelSupplies from "@/pages/FuelSupplies";
+import Expenses from "@/pages/Expenses"; // Add this import
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,8 @@ const App = () => (
             <Route path="/employees" element={<Employees />} />
             <Route path="/sales" element={<Sales />} />
             <Route path="/providers" element={<PetrolProviders />} />
-            <Route path="/fuel-supplies" element={<FuelSupplies />} />  {/* Add this line */}
+            <Route path="/fuel-supplies" element={<FuelSupplies />} />
+            <Route path="/expenses" element={<Expenses />} /> {/* Add this route */}
           </Routes>
         </MainLayout>
       </BrowserRouter>
