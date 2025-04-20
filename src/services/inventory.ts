@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { InventoryItem, FuelType, DailyInventoryRecord, EmployeeStatus } from "@/types";
 
@@ -53,6 +52,19 @@ export const createDailyInventoryRecord = async (record: Omit<DailyInventoryReco
     .insert([record])
     .select()
     .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+export const fetchLatestInventoryRecord = async (tankId: string): Promise<DailyInventoryRecord | null> => {
+  const { data, error } = await supabase
+    .from('daily_inventory_records')
+    .select('*')
+    .eq('tank_id', tankId)
+    .order('date', { ascending: false })
+    .limit(1)
+    .maybeSingle();
     
   if (error) throw error;
   return data;

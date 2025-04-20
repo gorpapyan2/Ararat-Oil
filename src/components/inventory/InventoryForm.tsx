@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +12,9 @@ import { TankSelect } from "./form/TankSelect";
 import { StockInputs } from "./form/StockInputs";
 import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
 import * as z from "zod";
+import { FillingSystemSelect } from "./form/FillingSystemSelect";
+import { fetchLatestInventoryRecord } from "@/services/inventory";
+import { fetchFillingSystems } from "@/services/filling-systems";
 
 interface InventoryFormProps {
   isOpen: boolean;
@@ -24,14 +26,9 @@ interface InventoryFormProps {
 
 // Form validation schema using zod
 const formSchema = z.object({
-  tank_id: z.string({ required_error: "Fuel tank is required" }),
+  filling_system_id: z.string({ required_error: "Filling system is required" }),
   opening_stock: z.coerce.number({ required_error: "Opening stock is required" })
     .nonnegative("Must be a positive number"),
-  received: z.coerce.number({ required_error: "Received amount is required" })
-    .nonnegative("Must be a positive number"),
-  sold: z.coerce.number({ required_error: "Sold amount is required" })
-    .nonnegative("Must be a positive number"),
-  closing_stock: z.coerce.number().optional(),
   unit_price: z.coerce.number({ required_error: "Unit price is required" })
     .positive("Price must be greater than zero"),
   employee_id: z.string({ required_error: "Employee is required" }),
@@ -39,7 +36,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, employees }: InventoryFormProps) {
+export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }: InventoryFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const formattedDate = format(selectedDate, 'yyyy-MM-dd');
@@ -48,15 +45,45 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
     resolver: zodResolver(formSchema),
     defaultValues: {
       opening_stock: 0,
-      received: 0,
-      sold: 0,
-      closing_stock: 0,
       unit_price: 0,
     },
   });
 
+  const { data: fillingSystems } = useQuery({
+    queryKey: ['filling-systems'],
+    queryFn: fetchFillingSystems,
+  });
+
+  const handleFillingSystemSelect = async (systemId: string) => {
+    const system = fillingSystems?.find(s => s.id === systemId);
+    if (system?.tank_id) {
+      try {
+        const lastRecord = await fetchLatestInventoryRecord(system.tank_id);
+        if (lastRecord) {
+          form.setValue('opening_stock', lastRecord.closing_stock);
+        }
+      } catch (error) {
+        console.error('Error fetching last record:', error);
+      }
+    }
+  };
+
   const mutation = useMutation({
-    mutationFn: createDailyInventoryRecord,
+    mutationFn: (data: FormData) => {
+      const fillingSystem = fillingSystems?.find(s => s.id === data.filling_system_id);
+      if (!fillingSystem?.tank_id) throw new Error('No tank associated with this filling system');
+
+      return createDailyInventoryRecord({
+        date: formattedDate,
+        tank_id: fillingSystem.tank_id,
+        employee_id: data.employee_id,
+        opening_stock: Number(data.opening_stock),
+        received: 0,
+        sold: 0,
+        closing_stock: Number(data.opening_stock),
+        unit_price: Number(data.unit_price),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['daily-inventory', formattedDate] });
       toast({
@@ -75,99 +102,75 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
     },
   });
 
-  const updateClosingStock = () => {
-    const opening = Number(form.watch('opening_stock')) || 0;
-    const received = Number(form.watch('received')) || 0;
-    const sold = Number(form.watch('sold')) || 0;
-    const closing = opening + received - sold;
-    form.setValue('closing_stock', closing);
-  };
-
   const onSubmit = (data: FormData) => {
-    // Ensure tank_id is treated as required
-    if (!data.tank_id) {
-      form.setError('tank_id', { 
-        type: 'required', 
-        message: 'Fuel tank is required' 
-      });
-      return;
-    }
-    
-    // Create a record with proper types ensuring tank_id is required
-    const record = {
-      date: formattedDate,
-      tank_id: data.tank_id, // This is now required
-      employee_id: data.employee_id,
-      opening_stock: Number(data.opening_stock),
-      received: Number(data.received),
-      sold: Number(data.sold),
-      closing_stock: Number(data.closing_stock || 0),
-      unit_price: Number(data.unit_price),
-    };
-    
-    // Now TypeScript knows record.tank_id is defined and required
-    mutation.mutate(record);
+    mutation.mutate(data);
   };
 
-  // If this is in a dialog (original design)
-  if (isOpen !== true) {
+  // For full page form
+  if (isOpen === true) {
     return (
-      <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle>Add Daily Inventory Record</DialogTitle>
-            <DialogDescription>
-              Enter the inventory details for {format(selectedDate, 'PP')}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <TankSelect control={form.control} tanks={tanks} />
-              <StockInputs control={form.control} onStockChange={updateClosingStock} />
-              <PriceAndEmployeeInputs control={form.control} employees={employees} />
-              
-              <DialogFooter>
-                <Button 
-                  type="submit" 
-                  disabled={mutation.isPending}
-                  className="w-full sm:w-auto"
-                >
-                  {mutation.isPending ? 'Saving...' : 'Save Record'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid gap-6 mb-6">
+            <FillingSystemSelect 
+              control={form.control} 
+              onSelect={handleFillingSystemSelect}
+            />
+            <StockInputs control={form.control} />
+            <PriceAndEmployeeInputs control={form.control} employees={employees} />
+          </div>
+          
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? 'Saving...' : 'Save Record'}
+            </Button>
+          </div>
+        </form>
+      </Form>
     );
   }
 
-  // For full page form
+  // For dialog form
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid gap-6 mb-6">
-          <TankSelect control={form.control} tanks={tanks} />
-          <StockInputs control={form.control} onStockChange={updateClosingStock} />
-          <PriceAndEmployeeInputs control={form.control} employees={employees} />
-        </div>
-        
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={mutation.isPending}
-          >
-            {mutation.isPending ? 'Saving...' : 'Save Record'}
-          </Button>
-        </div>
-      </form>
-    </Form>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[450px]">
+        <DialogHeader>
+          <DialogTitle>Add Daily Inventory Record</DialogTitle>
+          <DialogDescription>
+            Enter the inventory details for {format(selectedDate, 'PP')}
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FillingSystemSelect 
+              control={form.control} 
+              onSelect={handleFillingSystemSelect}
+            />
+            <StockInputs control={form.control} />
+            <PriceAndEmployeeInputs control={form.control} employees={employees} />
+            
+            <DialogFooter>
+              <Button 
+                type="submit" 
+                disabled={mutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                {mutation.isPending ? 'Saving...' : 'Save Record'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
