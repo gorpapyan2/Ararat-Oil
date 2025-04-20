@@ -301,3 +301,35 @@ export const createDailyInventoryRecord = async (record: Omit<DailyInventoryReco
   if (error) throw error;
   return data;
 };
+
+export const createEmployee = async (employee: Omit<Employee, 'id' | 'created_at'>): Promise<Employee> => {
+  const { data, error } = await supabase
+    .from('employees')
+    .insert([employee])
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+export const updateEmployee = async (id: string, employee: Partial<Employee>): Promise<Employee> => {
+  const { data, error } = await supabase
+    .from('employees')
+    .update(employee)
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+export const deleteEmployee = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('employees')
+    .delete()
+    .eq('id', id);
+    
+  if (error) throw error;
+};

@@ -4,11 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-interface EmployeeDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+import { Employee } from "@/services/supabase";
+import { useEffect } from "react";
 
 interface EmployeeFormData {
   name: string;
@@ -18,7 +15,14 @@ interface EmployeeFormData {
   salary: number;
 }
 
-export function EmployeeDialog({ open, onOpenChange }: EmployeeDialogProps) {
+interface EmployeeDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  employee: Employee | null;
+  onSubmit: (data: EmployeeFormData) => void;
+}
+
+export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: EmployeeDialogProps) {
   const form = useForm<EmployeeFormData>({
     defaultValues: {
       name: "",
@@ -29,19 +33,39 @@ export function EmployeeDialog({ open, onOpenChange }: EmployeeDialogProps) {
     },
   });
 
-  const onSubmit = (data: EmployeeFormData) => {
-    console.log(data);
-    onOpenChange(false);
+  useEffect(() => {
+    if (employee) {
+      form.reset({
+        name: employee.name,
+        position: employee.position,
+        contact: employee.contact,
+        hire_date: employee.hire_date,
+        salary: employee.salary,
+      });
+    } else {
+      form.reset({
+        name: "",
+        position: "",
+        contact: "",
+        hire_date: new Date().toISOString().split('T')[0],
+        salary: 0,
+      });
+    }
+  }, [employee, form]);
+
+  const handleSubmit = (data: EmployeeFormData) => {
+    onSubmit(data);
+    form.reset();
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Employee</DialogTitle>
+          <DialogTitle>{employee ? 'Edit Employee' : 'Add New Employee'}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -116,7 +140,9 @@ export function EmployeeDialog({ open, onOpenChange }: EmployeeDialogProps) {
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Save Employee</Button>
+              <Button type="submit">
+                {employee ? 'Update' : 'Save'} Employee
+              </Button>
             </div>
           </form>
         </Form>
