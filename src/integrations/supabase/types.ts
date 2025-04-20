@@ -14,6 +14,8 @@ export type Database = {
           closing_stock: number
           created_at: string | null
           date: string
+          employee_id: string | null
+          filling_system_id: string | null
           id: string
           opening_stock: number
           received: number
@@ -23,6 +25,8 @@ export type Database = {
           closing_stock: number
           created_at?: string | null
           date: string
+          employee_id?: string | null
+          filling_system_id?: string | null
           id?: string
           opening_stock: number
           received?: number
@@ -32,12 +36,29 @@ export type Database = {
           closing_stock?: number
           created_at?: string | null
           date?: string
+          employee_id?: string | null
+          filling_system_id?: string | null
           id?: string
           opening_stock?: number
           received?: number
           unit_price?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "daily_inventory_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_inventory_records_filling_system_id_fkey"
+            columns: ["filling_system_id"]
+            isOneToOne: false
+            referencedRelation: "filling_systems"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       employees: {
         Row: {

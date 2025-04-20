@@ -20,17 +20,7 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
   // Define the base query
   let query = supabase
     .from('daily_inventory_records')
-    .select(`
-      id, 
-      date, 
-      opening_stock, 
-      received, 
-      closing_stock, 
-      unit_price, 
-      created_at,
-      filling_system_id,
-      employee_id
-    `);
+    .select('*');
     
   if (date) {
     query = query.eq('date', date);
@@ -39,15 +29,21 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
   const { data, error } = await query.order('date', { ascending: false });
   if (error) throw error;
   
-  // Fetch filling systems and employees in separate queries to avoid join errors
-  const recordIds = (data || []).map(r => r.id);
-  
-  if (recordIds.length === 0) {
+  if (data.length === 0) {
     return [];
   }
   
-  // Get all filling system data
-  const { data: fillingSystems } = await supabase
+  // Create a mapping of filling system IDs to fetch associated data
+  const fillingSystemIds = data
+    .filter(record => record.filling_system_id)
+    .map(record => record.filling_system_id);
+  
+  const employeeIds = data
+    .filter(record => record.employee_id)
+    .map(record => record.employee_id);
+    
+  // Fetch filling systems data in a separate query
+  const { data: fillingSystems, error: fsError } = await supabase
     .from('filling_systems')
     .select(`
       id,
@@ -62,17 +58,28 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
         current_level,
         created_at
       )
-    `);
+    `)
+    .in('id', fillingSystemIds);
+    
+  if (fsError) {
+    console.error('Error fetching filling systems:', fsError);
+  }
   
+  // Fetch employees data in a separate query
+  const { data: employees, error: empError } = await supabase
+    .from('employees')
+    .select('*')
+    .in('id', employeeIds);
+    
+  if (empError) {
+    console.error('Error fetching employees:', empError);
+  }
+  
+  // Create lookup maps for faster access
   const fillingSystemsMap = (fillingSystems || []).reduce((acc, fs) => {
     acc[fs.id] = fs;
     return acc;
   }, {} as Record<string, any>);
-  
-  // Get all employee data
-  const { data: employees } = await supabase
-    .from('employees')
-    .select('*');
   
   const employeesMap = (employees || []).reduce((acc, emp) => {
     acc[emp.id] = emp;
@@ -96,8 +103,8 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
     };
 
     // Add filling system data if available
-    const fillingSystem = record.filling_system_id ? fillingSystemsMap[record.filling_system_id] : null;
-    if (fillingSystem) {
+    if (record.filling_system_id && fillingSystemsMap[record.filling_system_id]) {
+      const fillingSystem = fillingSystemsMap[record.filling_system_id];
       result.filling_system = {
         id: fillingSystem.id,
         name: fillingSystem.name,
@@ -119,8 +126,8 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
     }
 
     // Add employee data if available
-    const employee = record.employee_id ? employeesMap[record.employee_id] : null;
-    if (employee) {
+    if (record.employee_id && employeesMap[record.employee_id]) {
+      const employee = employeesMap[record.employee_id];
       result.employee = {
         id: employee.id,
         name: employee.name,
@@ -157,8 +164,8 @@ export const createDailyInventoryRecord = async (record: Omit<DailyInventoryReco
   return {
     id: data.id,
     date: data.date,
-    filling_system_id: record.filling_system_id, 
-    employee_id: record.employee_id,
+    filling_system_id: data.filling_system_id || '', 
+    employee_id: data.employee_id || '',
     opening_stock: data.opening_stock,
     received: data.received,
     sold: record.sold || 0,
@@ -184,7 +191,7 @@ export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemI
   return {
     id: data.id,
     date: data.date,
-    filling_system_id: fillingSystemId,
+    filling_system_id: data.filling_system_id || '',
     employee_id: data.employee_id || '',
     opening_stock: data.opening_stock,
     received: data.received || 0,
