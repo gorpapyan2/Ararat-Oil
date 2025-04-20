@@ -13,11 +13,11 @@ export const fetchSales = async (): Promise<Sale[]> => {
   return (data || []).map(item => ({
     id: item.id,
     date: item.date,
-    fuel_type: item.fuel_type as FuelType,
+    fuel_type: item.fuel_type as FuelType || 'Petrol', // Use a default if missing
     quantity: item.meter_end - item.meter_start,
     price_per_unit: item.price_per_unit,
     total_sales: item.total_sales,
-    payment_status: item.payment_status as PaymentStatus,
+    payment_status: item.payment_status as PaymentStatus || 'Pending', // Use a default if missing
     created_at: item.created_at,
     meter_start: item.meter_start,
     meter_end: item.meter_end,
@@ -42,11 +42,11 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
   return {
     id: data.id,
     date: data.date,
-    fuel_type: data.fuel_type as FuelType,
+    fuel_type: data.fuel_type as FuelType || 'Petrol', // Use a default if missing
     quantity: data.meter_end - data.meter_start,
     price_per_unit: data.price_per_unit,
     total_sales: data.total_sales,
-    payment_status: data.payment_status as PaymentStatus,
+    payment_status: data.payment_status as PaymentStatus || 'Pending', // Use a default if missing
     created_at: data.created_at,
     meter_start: data.meter_start,
     meter_end: data.meter_end,
@@ -90,11 +90,11 @@ export const createSale = async (
   return {
     id: sale.id,
     date: sale.date,
-    fuel_type: sale.fuel_type as FuelType,
+    fuel_type: sale.fuel_type as FuelType || data.fuel_type, // Use input as fallback
     quantity: sale.meter_end - sale.meter_start,
     price_per_unit: sale.price_per_unit,
     total_sales: sale.total_sales,
-    payment_status: sale.payment_status as PaymentStatus,
+    payment_status: sale.payment_status as PaymentStatus || 'Pending', // Use default if missing
     created_at: sale.created_at,
     meter_start: sale.meter_start,
     meter_end: sale.meter_end,
