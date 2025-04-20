@@ -12,7 +12,7 @@ import { DeliveryDateProvider } from "./form/DeliveryDateProvider";
 import { QuantityAndPrice } from "./form/QuantityAndPrice";
 import { TankEmployee } from "./form/TankEmployee";
 import { CommentsField } from "./form/CommentsField";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface FuelSuppliesFormProps {
   open: boolean;
@@ -31,24 +31,24 @@ export function FuelSuppliesForm({
     queryKey: ['petrol-providers'],
     queryFn: fetchPetrolProviders
   });
-  
+
   const {
     data: tanks
   } = useQuery({
     queryKey: ['fuel-tanks'],
     queryFn: fetchFuelTanks
   });
-  
+
   const {
     data: employees
   } = useQuery({
     queryKey: ['employees'],
     queryFn: fetchEmployees
   });
-  
+
   const form = useForm<Omit<FuelSupply, 'id' | 'created_at'>>({
     defaultValues: {
-      delivery_date: new Date().toISOString().split('T')[0],
+      delivery_date: new Date(), // JavaScript Date object
       provider_id: '',
       tank_id: '',
       quantity_liters: undefined,
@@ -59,12 +59,33 @@ export function FuelSuppliesForm({
     }
   });
 
+  // Fix delivery_date type for useForm
+  useEffect(() => {
+    const val = form.getValues('delivery_date');
+    if (!(val instanceof Date)) {
+      form.setValue('delivery_date', new Date());
+    }
+    // eslint-disable-next-line
+  }, []);
+
   // Watch for changes in quantity and price to calculate the total
   const quantity = form.watch('quantity_liters');
   const price = form.watch('price_per_liter');
-  
+  const selectedTankId = form.watch('tank_id');
+
+  // Get max quantity available for selected tank
+  const selectedTank = useMemo(() => {
+    if (!tanks || !selectedTankId) return null;
+    return tanks.find(t => t.id === selectedTankId);
+  }, [tanks, selectedTankId]);
+
+  const maxQuantity = useMemo(() => {
+    if (!selectedTank) return undefined;
+    return Number(selectedTank.capacity) - Number(selectedTank.current_level);
+  }, [selectedTank]);
+
   useEffect(() => {
-    if (quantity && price) {
+    if ((quantity && price) && !isNaN(Number(quantity)) && !isNaN(Number(price))) {
       const total = Number(quantity) * Number(price);
       form.setValue('total_cost', Number(total.toFixed(2)));
     } else {
@@ -98,6 +119,8 @@ export function FuelSuppliesForm({
             <QuantityAndPrice 
               control={form.control}
               totalCost={form.getValues('total_cost')}
+              maxQuantity={maxQuantity}
+              selectedTank={selectedTank}
             />
 
             <CommentsField control={form.control} />
