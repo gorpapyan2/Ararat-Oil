@@ -15,12 +15,21 @@ export function TankManager() {
     queryFn: fetchFuelTanks,
     // Ensure tanks data is always fresh
     staleTime: 0,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always" // Always refetch when the component mounts
   });
 
   // Refetch on mount to ensure fresh data
   useEffect(() => {
+    // Immediately refetch when the component mounts
     refetch();
+    
+    // Set up an interval to refetch data every few seconds when this component is visible
+    const intervalId = setInterval(() => {
+      refetch();
+    }, 5000); // Refresh every 5 seconds
+    
+    return () => clearInterval(intervalId); // Clean up interval on unmount
   }, [refetch]);
 
   return (
