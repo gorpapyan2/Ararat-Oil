@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CalendarIcon, ChevronDown, FileText, DollarSign, CreditCard, NoteText } from "lucide-react";
+import { CalendarIcon, ChevronDown, FileText, DollarSign, CreditCard, AlignLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -151,7 +151,19 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
             <FormItem>
               <FormLabel>Amount</FormLabel>
               <FormControl>
-                <Input {...field} type="number" min={0} placeholder="0.00" step="0.01" startAdornment={<DollarSign />} />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <DollarSign className="h-4 w-4" />
+                  </span>
+                  <Input 
+                    {...field} 
+                    type="number" 
+                    min={0} 
+                    placeholder="0.00" 
+                    step="0.01"
+                    className="pl-10" 
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
