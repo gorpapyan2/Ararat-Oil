@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchDailyInventoryRecords } from "@/services/supabase";
+import { fetchDailyInventoryRecords } from "@/services/inventory";
 import { InventoryHeader } from "./inventory/InventoryHeader";
 import { InventoryTable } from "./inventory/InventoryTable";
 import { useNavigate } from "react-router-dom";

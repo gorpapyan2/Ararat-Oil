@@ -55,12 +55,8 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
   // Watch received and unit_price to calculate total price
   const received = form.watch("received");
   const unitPrice = form.watch("unit_price");
+  const totalPrice = received * unitPrice;
   
-  useEffect(() => {
-    const totalPrice = received * unitPrice;
-    form.setValue("total_price", totalPrice);
-  }, [received, unitPrice, form]);
-
   const mutation = useMutation({
     mutationFn: (data: FormData) => {
       return createDailyInventoryRecord({
@@ -70,9 +66,11 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
         employee_id: data.employee_id,
         opening_stock: Number(data.opening_stock),
         received: Number(data.received),
+        sold: 0, // Default to 0 since this is a new record
         closing_stock: Number(data.closing_stock),
         unit_price: Number(data.unit_price),
         total_price: Number(data.received) * Number(data.unit_price),
+        filling_system_id: "", // This will be set on the backend if needed
       });
     },
     onSuccess: () => {
@@ -116,7 +114,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
             </div>
             
             <div className="text-muted-foreground text-sm">
-              Total Price: ${(received * unitPrice).toFixed(2)}
+              Total Price: ${totalPrice.toFixed(2)}
             </div>
             
             <DialogFooter>

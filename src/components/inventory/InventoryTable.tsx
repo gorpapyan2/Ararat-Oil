@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { format } from "date-fns";
 import type { DailyInventoryRecord } from "@/types";
 
 interface InventoryTableProps {
@@ -52,8 +53,8 @@ export function InventoryTable({ records, isLoading }: InventoryTableProps) {
         <TableBody>
           {records.map((record) => (
             <TableRow key={record.id} className="hover:bg-muted/50">
-              <TableCell>{record.tank?.name}</TableCell>
-              <TableCell>{record.provider?.name}</TableCell>
+              <TableCell>{record.tank?.name || 'N/A'}</TableCell>
+              <TableCell>{record.provider?.name || 'N/A'}</TableCell>
               <TableCell className="text-right">{record.opening_stock}</TableCell>
               <TableCell className="text-right">{record.received}</TableCell>
               <TableCell className="text-right">{record.sold}</TableCell>
@@ -61,7 +62,7 @@ export function InventoryTable({ records, isLoading }: InventoryTableProps) {
               <TableCell className="text-right">${record.unit_price.toFixed(2)}</TableCell>
               <TableCell className="text-right">${record.total_price.toFixed(2)}</TableCell>
               <TableCell>{record.last_refill_date ? format(new Date(record.last_refill_date), 'PP') : 'N/A'}</TableCell>
-              <TableCell>{record.employee?.name}</TableCell>
+              <TableCell>{record.employee?.name || 'N/A'}</TableCell>
             </TableRow>
           ))}
         </TableBody>

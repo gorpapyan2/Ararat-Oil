@@ -97,6 +97,14 @@ export interface FillingSystem {
   created_at?: string;
 }
 
+export interface PetrolProvider {
+  id: string;
+  name: string;
+  contact: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface DailyInventoryRecord {
   id: string;
   filling_system_id: string;
@@ -111,7 +119,9 @@ export interface DailyInventoryRecord {
   total_price: number;
   employee_id?: string;
   created_at?: string;
+  last_refill_date?: string;
   filling_system?: FillingSystem;
+  tank?: FuelTank;
   provider?: PetrolProvider;
   employee?: Employee;
 }
