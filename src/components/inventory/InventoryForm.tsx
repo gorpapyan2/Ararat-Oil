@@ -3,13 +3,14 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { createDailyInventoryRecord } from "@/services/supabase";
 import type { Employee, FuelTank } from "@/services/supabase";
+import { TankSelect } from "./form/TankSelect";
+import { StockInputs } from "./form/StockInputs";
+import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
 
 interface InventoryFormProps {
   isOpen: boolean;
@@ -64,6 +65,14 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
     },
   });
 
+  const updateClosingStock = () => {
+    const opening = Number(form.watch('opening_stock')) || 0;
+    const received = Number(form.watch('received')) || 0;
+    const sold = Number(form.watch('sold')) || 0;
+    const closing = opening + received - sold;
+    form.setValue('closing_stock', closing);
+  };
+
   const onSubmit = (data: FormData) => {
     const record = {
       ...data,
@@ -78,18 +87,6 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
     mutation.mutate(record);
   };
 
-  const watchOpeningStock = form.watch('opening_stock');
-  const watchReceived = form.watch('received');
-  const watchSold = form.watch('sold');
-
-  const updateClosingStock = () => {
-    const opening = Number(watchOpeningStock) || 0;
-    const received = Number(watchReceived) || 0;
-    const sold = Number(watchSold) || 0;
-    const closing = opening + received - sold;
-    form.setValue('closing_stock', closing);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px]">
@@ -100,153 +97,10 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="tank_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Fuel Tank</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select fuel tank" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {tanks?.map((tank) => (
-                        <SelectItem key={tank.id} value={tank.id}>
-                          {tank.name} ({tank.fuel_type})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="opening_stock"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Opening Stock</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field} 
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setTimeout(updateClosingStock, 0);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="received"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Received</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field} 
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setTimeout(updateClosingStock, 0);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="sold"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sold</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      {...field} 
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setTimeout(updateClosingStock, 0);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="closing_stock"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Closing Stock</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} readOnly />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="unit_price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Unit Price</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="employee_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Employee</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select employee" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {employees?.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id}>
-                          {employee.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <TankSelect control={form.control} tanks={tanks} />
+            <StockInputs control={form.control} onStockChange={updateClosingStock} />
+            <PriceAndEmployeeInputs control={form.control} employees={employees} />
             
             <DialogFooter>
               <Button 
