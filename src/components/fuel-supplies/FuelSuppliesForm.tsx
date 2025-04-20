@@ -204,11 +204,15 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                     <FormControl>
                       <Input 
                         type="number" 
+                        step="0.01"
                         {...field} 
                         onChange={(e) => {
-                          field.onChange(parseFloat(e.target.value) || 0);
-                          calculateTotalCost();
+                          // Convert string to number to ensure it's treated as a number
+                          const value = e.target.valueAsNumber || 0;
+                          field.onChange(value);
+                          setTimeout(calculateTotalCost, 0);
                         }}
+                        value={field.value}
                       />
                     </FormControl>
                     <FormMessage />
@@ -229,11 +233,15 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                     <FormControl>
                       <Input 
                         type="number" 
+                        step="0.01"
                         {...field} 
                         onChange={(e) => {
-                          field.onChange(parseFloat(e.target.value) || 0);
-                          calculateTotalCost();
+                          // Convert string to number to ensure it's treated as a number
+                          const value = e.target.valueAsNumber || 0;
+                          field.onChange(value);
+                          setTimeout(calculateTotalCost, 0);
                         }}
+                        value={field.value}
                       />
                     </FormControl>
                     <FormMessage />
