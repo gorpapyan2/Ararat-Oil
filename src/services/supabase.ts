@@ -180,7 +180,9 @@ export const fetchFuelTanks = async (): Promise<FuelTank[]> => {
   
   return (data || []).map(item => ({
     ...item,
-    fuel_type: item.fuel_type as FuelType
+    fuel_type: item.fuel_type as FuelType,
+    // Ensure current_level is included and correctly typed
+    current_level: item.current_level ?? 0
   }));
 };
 
@@ -192,7 +194,13 @@ export const createFuelTank = async (tank: Omit<FuelTank, 'id' | 'created_at'>):
     .single();
     
   if (error) throw error;
-  return data;
+  
+  // Make sure the returned data includes current_level
+  return {
+    ...data,
+    fuel_type: data.fuel_type as FuelType,
+    current_level: data.current_level ?? 0
+  };
 };
 
 export interface TankLevelUpdateParams {
@@ -229,7 +237,12 @@ export const updateTankLevel = async (params: TankLevelUpdateParams): Promise<Fu
     
   if (changeError) throw changeError;
   
-  return tankData;
+  // Make sure the returned data includes current_level
+  return {
+    ...tankData,
+    fuel_type: tankData.fuel_type as FuelType,
+    current_level: tankData.current_level
+  };
 };
 
 export const fetchTankLevelChanges = async (tankId: string): Promise<TankLevelChange[]> => {
@@ -264,7 +277,8 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
     ...record,
     tank: record.tank ? {
       ...record.tank,
-      fuel_type: record.tank.fuel_type as FuelType
+      fuel_type: record.tank.fuel_type as FuelType,
+      current_level: record.tank.current_level ?? 0
     } : undefined,
     employee: record.employee
   }));
