@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 interface ProviderDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: { name: string; contact: string }) => Promise<void>;
+  onSubmit: (data: { name: string; contact: string }) => Promise<any>;
   initialData?: PetrolProvider;
   title: string;
 }
