@@ -93,9 +93,11 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
       return;
     }
     
+    // Create a record with proper types ensuring tank_id is required
     const record = {
-      ...data,
       date: formattedDate,
+      tank_id: data.tank_id, // This is now required
+      employee_id: data.employee_id,
       opening_stock: Number(data.opening_stock),
       received: Number(data.received),
       sold: Number(data.sold),
@@ -103,6 +105,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
       unit_price: Number(data.unit_price),
     };
     
+    // Now TypeScript knows record.tank_id is defined and required
     mutation.mutate(record);
   };
 
