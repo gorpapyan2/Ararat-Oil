@@ -8,11 +8,23 @@ import { Sale } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { SalesForm } from "./SalesForm";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 export function SalesManager() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [saleToDelete, setSaleToDelete] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -27,10 +39,13 @@ export function SalesManager() {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       toast({
         title: "Success",
-        description: "Sale deleted successfully",
+        description: "Sale deleted successfully and tank level restored",
       });
+      setIsDeleteDialogOpen(false);
+      setSaleToDelete(null);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Delete error:", error);
       toast({
         title: "Error",
         description: "Failed to delete sale",
@@ -49,7 +64,8 @@ export function SalesManager() {
       });
       setIsEditDialogOpen(false);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Update error:", error);
       toast({
         title: "Error",
         description: "Failed to update sale",
@@ -64,7 +80,14 @@ export function SalesManager() {
   };
 
   const handleDelete = (id: string) => {
-    deleteMutation.mutate(id);
+    setSaleToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (saleToDelete) {
+      deleteMutation.mutate(saleToDelete);
+    }
   };
 
   const handleView = (sale: Sale) => {
@@ -102,6 +125,22 @@ export function SalesManager() {
           />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will delete the sale record and restore the fuel to the tank.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Sale, PaymentStatus, FuelType } from "@/types";
 
@@ -251,10 +252,59 @@ export const updateSale = async (
 };
 
 export const deleteSale = async (id: string): Promise<void> => {
-  const { error } = await supabase
+  // First get the sale details to determine how much fuel was sold
+  const { data: saleData, error: saleError } = await supabase
     .from('sales')
-    .delete()
-    .eq('id', id);
+    .select(`
+      id,
+      total_sold_liters,
+      filling_system_id,
+      filling_system:filling_systems(
+        tank_id
+      )
+    `)
+    .eq('id', id)
+    .single();
     
-  if (error) throw error;
+  if (saleError) throw saleError;
+  
+  if (!saleData || !saleData.filling_system || !saleData.filling_system.tank_id) {
+    throw new Error('Sale data or related tank information not found');
+  }
+  
+  const tankId = saleData.filling_system.tank_id;
+  const soldLiters = saleData.total_sold_liters || 0;
+  
+  // Get current tank level
+  const { data: tankData, error: tankError } = await supabase
+    .from('fuel_tanks')
+    .select('current_level')
+    .eq('id', tankId)
+    .single();
+    
+  if (tankError) throw tankError;
+  
+  const currentLevel = tankData.current_level;
+  const newLevel = currentLevel + soldLiters;
+  
+  // Start a transaction to delete the sale and update the tank level
+  const { error: deleteError } = await supabase.rpc('delete_sale_and_restore_tank', {
+    p_sale_id: id,
+    p_tank_id: tankId,
+    p_previous_level: currentLevel,
+    p_new_level: newLevel,
+    p_change_amount: soldLiters
+  });
+  
+  if (deleteError) {
+    console.error("Error in delete transaction:", deleteError);
+    
+    // If the RPC fails, attempt to delete just the sale as a fallback
+    const { error } = await supabase
+      .from('sales')
+      .delete()
+      .eq('id', id);
+      
+    if (error) throw error;
+  }
 };
