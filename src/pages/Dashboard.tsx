@@ -1,7 +1,38 @@
 
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { fetchSales, fetchExpenses, fetchInventory } from "@/services/supabase";
 
 export default function Dashboard() {
+  const { data: salesData, isLoading: isSalesLoading } = useQuery({
+    queryKey: ['sales'],
+    queryFn: fetchSales,
+  });
+
+  const { data: expensesData, isLoading: isExpensesLoading } = useQuery({
+    queryKey: ['expenses'],
+    queryFn: fetchExpenses,
+  });
+
+  const { data: inventoryData, isLoading: isInventoryLoading } = useQuery({
+    queryKey: ['inventory'],
+    queryFn: fetchInventory,
+  });
+
+  // Calculate total sales
+  const totalSales = salesData?.reduce((sum, sale) => sum + Number(sale.total_sales || 0), 0) || 0;
+  
+  // Calculate total expenses
+  const totalExpenses = expensesData?.reduce((sum, expense) => sum + Number(expense.amount || 0), 0) || 0;
+  
+  // Calculate net profit
+  const netProfit = totalSales - totalExpenses;
+  
+  // Calculate inventory value
+  const inventoryValue = inventoryData?.reduce((sum, item) => 
+    sum + (Number(item.closing_stock || 0)), 0) || 0;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -14,7 +45,9 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$0.00</div>
+            <div className="text-2xl font-bold">
+              ${isSalesLoading ? "Loading..." : totalSales.toFixed(2)}
+            </div>
           </CardContent>
         </Card>
 
@@ -23,7 +56,9 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$0.00</div>
+            <div className="text-2xl font-bold">
+              ${isExpensesLoading ? "Loading..." : totalExpenses.toFixed(2)}
+            </div>
           </CardContent>
         </Card>
 
@@ -32,7 +67,9 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$0.00</div>
+            <div className={`text-2xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              ${isSalesLoading || isExpensesLoading ? "Loading..." : netProfit.toFixed(2)}
+            </div>
           </CardContent>
         </Card>
 
@@ -41,7 +78,9 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$0.00</div>
+            <div className="text-2xl font-bold">
+              ${isInventoryLoading ? "Loading..." : inventoryValue.toFixed(2)}
+            </div>
           </CardContent>
         </Card>
       </div>

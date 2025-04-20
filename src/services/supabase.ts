@@ -23,7 +23,7 @@ export const fetchSales = async () => {
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return data;
+  return data || [];
 };
 
 export const fetchInventory = async () => {
@@ -33,7 +33,7 @@ export const fetchInventory = async () => {
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return data;
+  return data || [];
 };
 
 export const fetchExpenses = async () => {
@@ -43,7 +43,7 @@ export const fetchExpenses = async () => {
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return data;
+  return data || [];
 };
 
 export const fetchProfitLoss = async () => {
@@ -53,7 +53,7 @@ export const fetchProfitLoss = async () => {
     .order('period', { ascending: false });
     
   if (error) throw error;
-  return data;
+  return data || [];
 };
 
 export const fetchEmployees = async () => {
@@ -63,5 +63,5 @@ export const fetchEmployees = async () => {
     .order('name', { ascending: true });
     
   if (error) throw error;
-  return data;
+  return data || [];
 };
