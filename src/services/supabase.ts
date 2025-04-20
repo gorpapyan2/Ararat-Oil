@@ -13,6 +13,7 @@ export type ExpenseCategory =
   | 'Insurance' 
   | 'Taxes' 
   | 'Other';
+export type EmployeeStatus = 'active' | 'on_leave' | 'terminated';
 
 // Define the data models for each table
 export interface Sale {
@@ -64,6 +65,7 @@ export interface Employee {
   contact: string;
   hire_date: string;
   salary: number;
+  status: EmployeeStatus;
   created_at?: string;
 }
 

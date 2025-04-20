@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Employee } from "@/services/supabase";
 import { useEffect } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface EmployeeFormData {
   name: string;
@@ -13,6 +14,7 @@ interface EmployeeFormData {
   contact: string;
   hire_date: string;
   salary: number;
+  status: Employee['status'];
 }
 
 interface EmployeeDialogProps {
@@ -30,6 +32,7 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
       contact: "",
       hire_date: new Date().toISOString().split('T')[0],
       salary: 0,
+      status: "active",
     },
   });
 
@@ -41,6 +44,7 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
         contact: employee.contact,
         hire_date: employee.hire_date,
         salary: employee.salary,
+        status: employee.status,
       });
     } else {
       form.reset({
@@ -49,6 +53,7 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
         contact: "",
         hire_date: new Date().toISOString().split('T')[0],
         salary: 0,
+        status: "active",
       });
     }
   }, [employee, form]);
@@ -132,6 +137,28 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
                       onChange={e => field.onChange(parseFloat(e.target.value))}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select employee status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="on_leave">On Leave</SelectItem>
+                      <SelectItem value="terminated">Terminated</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

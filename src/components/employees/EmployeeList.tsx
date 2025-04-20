@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Employee } from "@/services/supabase";
 
 interface EmployeeListProps {
@@ -19,6 +20,32 @@ interface EmployeeListProps {
 }
 
 export function EmployeeList({ employees, isLoading, onEdit, onDelete }: EmployeeListProps) {
+  const getStatusBadgeVariant = (status: Employee['status']) => {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'on_leave':
+        return 'warning';
+      case 'terminated':
+        return 'destructive';
+      default:
+        return 'secondary';
+    }
+  };
+
+  const formatStatus = (status: Employee['status']) => {
+    switch (status) {
+      case 'active':
+        return 'Active';
+      case 'on_leave':
+        return 'On Leave';
+      case 'terminated':
+        return 'Terminated';
+      default:
+        return status;
+    }
+  };
+
   if (isLoading) {
     return <div className="text-center">Loading employees...</div>;
   }
@@ -33,6 +60,7 @@ export function EmployeeList({ employees, isLoading, onEdit, onDelete }: Employe
             <TableHead>Contact</TableHead>
             <TableHead>Hire Date</TableHead>
             <TableHead>Salary</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -44,6 +72,11 @@ export function EmployeeList({ employees, isLoading, onEdit, onDelete }: Employe
               <TableCell>{employee.contact}</TableCell>
               <TableCell>{new Date(employee.hire_date).toLocaleDateString()}</TableCell>
               <TableCell>${employee.salary.toLocaleString()}</TableCell>
+              <TableCell>
+                <Badge variant={getStatusBadgeVariant(employee.status)}>
+                  {formatStatus(employee.status)}
+                </Badge>
+              </TableCell>
               <TableCell>
                 <div className="flex gap-2">
                   <Button

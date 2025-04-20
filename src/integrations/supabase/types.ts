@@ -72,6 +72,7 @@ export type Database = {
           name: string
           position: string
           salary: number
+          status: string
         }
         Insert: {
           contact: string
@@ -81,6 +82,7 @@ export type Database = {
           name: string
           position: string
           salary: number
+          status?: string
         }
         Update: {
           contact?: string
@@ -90,6 +92,7 @@ export type Database = {
           name?: string
           position?: string
           salary?: number
+          status?: string
         }
         Relationships: []
       }
