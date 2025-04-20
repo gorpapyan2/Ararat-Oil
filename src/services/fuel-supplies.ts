@@ -26,7 +26,6 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
 }
 
 export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_at'>): Promise<FuelSupply> {
-  // First, get the current tank level
   const { data: tankData, error: tankError } = await supabase
     .from('fuel_tanks')
     .select('current_level')
@@ -35,11 +34,9 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
     
   if (tankError) throw tankError;
   
-  // Calculate new level
   const previousLevel = tankData.current_level;
   const newLevel = previousLevel + supply.quantity_liters;
   
-  // Create the supply record
   const { data, error } = await supabase
     .from('fuel_supplies')
     .insert({
@@ -62,7 +59,6 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
     
   if (error) throw error;
 
-  // 1. Update tank level in fuel_tanks table
   const { error: updateTankError } = await supabase
     .from('fuel_tanks')
     .update({ current_level: newLevel })
@@ -70,7 +66,6 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
 
   if (updateTankError) throw updateTankError;
 
-  // 2. Record the tank level change for audit/history
   const { error: updateError } = await supabase
     .rpc('record_tank_level_change', {
       p_tank_id: supply.tank_id,
@@ -91,4 +86,36 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
     },
     employee: data.employee
   };
+}
+
+export async function updateFuelSupply(id: string, updates: Partial<Omit<FuelSupply, 'id' | 'created_at'>>): Promise<FuelSupply> {
+  const { data, error } = await supabase
+    .from('fuel_supplies')
+    .update(updates)
+    .eq('id', id)
+    .select(
+      `*,
+      provider:petrol_providers(id, name),
+      tank:fuel_tanks(id, name, fuel_type),
+      employee:employees(id, name)`
+    )
+    .single();
+  if (error) throw error;
+  return {
+    ...data,
+    provider: data.provider,
+    tank: {
+      ...data.tank,
+      fuel_type: data.tank.fuel_type as FuelType
+    },
+    employee: data.employee
+  };
+}
+
+export async function deleteFuelSupply(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('fuel_supplies')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
 }
