@@ -22,7 +22,7 @@ export const fetchSales = async (): Promise<Sale[]> => {
     id: item.id,
     date: item.date,
     fuel_type: item.filling_system?.tank?.fuel_type as FuelType || 'Petrol',
-    quantity: item.meter_end - item.meter_start,
+    quantity: item.total_sold_liters || 0,
     price_per_unit: item.price_per_unit,
     total_sales: item.total_sales,
     payment_status: 'Pending',
@@ -59,7 +59,7 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
     id: data.id,
     date: data.date,
     fuel_type: data.filling_system?.tank?.fuel_type as FuelType || 'Petrol',
-    quantity: data.meter_end - data.meter_start,
+    quantity: data.total_sold_liters || 0,
     price_per_unit: data.price_per_unit,
     total_sales: data.total_sales,
     payment_status: 'Pending',
@@ -81,8 +81,8 @@ export const createSale = async (
     employee_id: string;
   }
 ): Promise<Sale> => {
-  const quantity = data.quantity || (data.meter_end - data.meter_start);
-  const total_sales = quantity * data.unit_price;
+  const total_sold_liters = data.meter_end - data.meter_start;
+  const total_sales = total_sold_liters * data.unit_price;
 
   const { data: sale, error } = await supabase
     .from('sales')
@@ -90,6 +90,7 @@ export const createSale = async (
       date: new Date().toISOString().split('T')[0],
       price_per_unit: data.unit_price,
       total_sales,
+      total_sold_liters,
       meter_start: data.meter_start,
       meter_end: data.meter_end,
       filling_system_id: data.filling_system_id,
@@ -112,7 +113,7 @@ export const createSale = async (
     id: sale.id,
     date: sale.date,
     fuel_type: sale.filling_system?.tank?.fuel_type as FuelType || 'Petrol',
-    quantity: sale.meter_end - sale.meter_start,
+    quantity: sale.total_sold_liters || 0,
     price_per_unit: sale.price_per_unit,
     total_sales: sale.total_sales,
     payment_status: 'Pending',

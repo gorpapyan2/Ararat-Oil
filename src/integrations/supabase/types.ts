@@ -267,6 +267,7 @@ export type Database = {
           meter_start: number | null
           price_per_unit: number
           total_sales: number
+          total_sold_liters: number
         }
         Insert: {
           created_at?: string | null
@@ -278,6 +279,7 @@ export type Database = {
           meter_start?: number | null
           price_per_unit: number
           total_sales: number
+          total_sold_liters?: number
         }
         Update: {
           created_at?: string | null
@@ -289,6 +291,7 @@ export type Database = {
           meter_start?: number | null
           price_per_unit?: number
           total_sales?: number
+          total_sold_liters?: number
         }
         Relationships: [
           {
