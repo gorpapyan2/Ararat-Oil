@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Sale, PaymentStatus, FuelType } from "@/types";
 
@@ -83,28 +84,45 @@ export const createSale = async (
   const total_sold_liters = data.meter_end - data.meter_start;
   const total_sales = total_sold_liters * data.unit_price;
 
-  const { data: sale, error } = await supabase
-    .from('sales')
-    .insert([{
-      date: new Date().toISOString().split('T')[0],
-      price_per_unit: data.unit_price,
-      total_sales,
-      total_sold_liters,
-      meter_start: data.meter_start,
-      meter_end: data.meter_end,
-      filling_system_id: data.filling_system_id,
-      employee_id: data.employee_id
-    }])
+  // First, get the filling system's tank information
+  const { data: fillingSystemData, error: fillingSystemError } = await supabase
+    .from('filling_systems')
     .select(`
-      *,
-      filling_system:filling_systems(
-        name,
-        tank:fuel_tanks(
-          fuel_type
-        )
+      id,
+      tank:fuel_tanks (
+        id,
+        current_level
       )
     `)
+    .eq('id', data.filling_system_id)
     .single();
+
+  if (fillingSystemError) throw fillingSystemError;
+  if (!fillingSystemData?.tank) throw new Error('No tank found for this filling system');
+
+  const tankId = fillingSystemData.tank.id;
+  const currentLevel = fillingSystemData.tank.current_level;
+  const newLevel = currentLevel - total_sold_liters;
+
+  if (newLevel < 0) {
+    throw new Error('Insufficient fuel in tank');
+  }
+
+  // Start a transaction to update both sales and tank level
+  const { data: sale, error } = await supabase.rpc('create_sale_and_update_tank', {
+    p_date: new Date().toISOString().split('T')[0],
+    p_price_per_unit: data.unit_price,
+    p_total_sales: total_sales,
+    p_total_sold_liters: total_sold_liters,
+    p_meter_start: data.meter_start,
+    p_meter_end: data.meter_end,
+    p_filling_system_id: data.filling_system_id,
+    p_employee_id: data.employee_id,
+    p_tank_id: tankId,
+    p_previous_level: currentLevel,
+    p_new_level: newLevel,
+    p_change_amount: total_sold_liters
+  });
 
   if (error) throw error;
   
@@ -123,3 +141,4 @@ export const createSale = async (
     employee_id: sale.employee_id
   };
 };
+
