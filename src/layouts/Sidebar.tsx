@@ -39,7 +39,7 @@ const menuItems = [{
 }];
 export function Sidebar() {
   const location = useLocation();
-  return <div className="w-64 min-h-screen p-4 border-r bg-gray-950">
+  return <div className="w-64 min-h-screen p-4 border-r bg-gray-50">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Ararat Oil</h1>
       </div>
