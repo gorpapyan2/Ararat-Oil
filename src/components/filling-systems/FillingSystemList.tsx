@@ -55,7 +55,7 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
         {fillingSystems.map((system) => (
           <TableRow key={system.id}>
             <TableCell>{system.name}</TableCell>
-            <TableCell>{(system.tank as any)?.name || 'N/A'}</TableCell>
+            <TableCell>{system.tank?.name || 'N/A'}</TableCell>
             <TableCell>
               <Button
                 variant="destructive"

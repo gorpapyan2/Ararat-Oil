@@ -1,10 +1,12 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { FuelTank } from "@/types";
 
 export interface FillingSystem {
   id: string;
   name: string;
   tank_id: string;
+  tank?: FuelTank;
   created_at?: string;
 }
 
