@@ -5,6 +5,8 @@ import { FuelTank } from "@/services/supabase";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TankLevelEditor } from "./TankLevelEditor";
+import { Button } from "@/components/ui/button";
+import { TankHistory } from "./TankHistory";
 
 interface TankListProps {
   tanks: FuelTank[];
@@ -46,12 +48,10 @@ export function TankList({ tanks, isLoading, isEditMode, onEditComplete }: TankL
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {tanks.map((tank) => {
-        // Calculate percentage
         const fillPercentage = tank.capacity > 0 
           ? Math.min(100, Math.round((tank.current_level / tank.capacity) * 100)) 
           : 0;
         
-        // Determine color based on percentage
         let progressColor = "bg-blue-500";
         if (fillPercentage < 20) progressColor = "bg-red-500";
         else if (fillPercentage < 50) progressColor = "bg-yellow-500";
@@ -105,6 +105,11 @@ export function TankList({ tanks, isLoading, isEditMode, onEditComplete }: TankL
                   )}
                 </div>
               )}
+
+              {/* Show tank history below the tank info */}
+              <div className="mt-6">
+                <TankHistory tankId={tank.id} />
+              </div>
             </CardContent>
           </Card>
         );
@@ -112,5 +117,3 @@ export function TankList({ tanks, isLoading, isEditMode, onEditComplete }: TankL
     </div>
   );
 }
-
-import { Button } from "@/components/ui/button";
