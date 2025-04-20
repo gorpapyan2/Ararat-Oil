@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { FuelTank } from "@/types";
+import { FuelTank, FuelType } from "@/types";
 
 export interface FillingSystem {
   id: string;
@@ -31,7 +31,15 @@ export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
     .order('name');
     
   if (error) throw error;
-  return data || [];
+  
+  // Transform the data to ensure proper typing of nested tank objects
+  return (data || []).map(item => ({
+    ...item,
+    tank: item.tank ? {
+      ...item.tank,
+      fuel_type: item.tank.fuel_type as FuelType // Cast string to FuelType
+    } : undefined
+  }));
 };
 
 export const deleteFillingSystem = async (id: string): Promise<void> => {
