@@ -125,7 +125,10 @@ export const createSale = async (
     p_change_amount: total_sold_liters
   });
 
-  if (error) throw error;
+  if (error) {
+    console.error("Error creating sale:", error);
+    throw error;
+  }
   
   return {
     id: sale.id,
@@ -251,7 +254,6 @@ export const updateSale = async (
 };
 
 export const deleteSale = async (id: string): Promise<void> => {
-  // First get the sale details to determine how much fuel was sold
   const { data: saleData, error: saleError } = await supabase
     .from('sales')
     .select(`
@@ -274,7 +276,6 @@ export const deleteSale = async (id: string): Promise<void> => {
   const tankId = saleData.filling_system.tank_id;
   const soldLiters = saleData.total_sold_liters || 0;
   
-  // Get current tank level
   const { data: tankData, error: tankError } = await supabase
     .from('fuel_tanks')
     .select('current_level')
@@ -286,7 +287,6 @@ export const deleteSale = async (id: string): Promise<void> => {
   const currentLevel = tankData.current_level;
   const newLevel = currentLevel + soldLiters;
   
-  // Start a transaction to delete the sale and update the tank level
   const { error: deleteError } = await supabase
     .from('sales')
     .delete()
@@ -294,7 +294,6 @@ export const deleteSale = async (id: string): Promise<void> => {
     
   if (deleteError) throw deleteError;
   
-  // Update the tank level
   const { error: tankUpdateError } = await supabase
     .from('fuel_tanks')
     .update({ current_level: newLevel })
@@ -302,7 +301,6 @@ export const deleteSale = async (id: string): Promise<void> => {
     
   if (tankUpdateError) throw tankUpdateError;
   
-  // Record the tank level change
   const { error: levelChangeError } = await supabase
     .from('tank_level_changes')
     .insert({

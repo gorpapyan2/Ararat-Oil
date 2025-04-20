@@ -15,9 +15,15 @@ export const fetchTankByFillingSystemId = async (fillingSystemId: string): Promi
     .eq('id', fillingSystemId)
     .maybeSingle();
     
-  if (error) throw error;
+  if (error) {
+    console.error("Error fetching tank by filling system ID:", error);
+    throw error;
+  }
   
-  if (!data || !data.tank || !data.tank[0]) return null;
+  if (!data || !data.tank || !data.tank[0]) {
+    console.log("No tank found for filling system ID:", fillingSystemId);
+    return null;
+  }
   
   return data.tank[0] as FuelTank;
 };

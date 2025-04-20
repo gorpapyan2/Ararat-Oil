@@ -36,7 +36,10 @@ export function SalesManager() {
   const deleteMutation = useMutation({
     mutationFn: deleteSale,
     onSuccess: () => {
+      // Invalidate multiple queries to ensure all relevant data is refreshed
       queryClient.invalidateQueries({ queryKey: ["sales"] });
+      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+      
       toast({
         title: "Success",
         description: "Sale deleted successfully and tank level restored",
@@ -57,10 +60,14 @@ export function SalesManager() {
   const updateMutation = useMutation({
     mutationFn: updateSale,
     onSuccess: () => {
+      // Invalidate multiple queries to ensure all relevant data is refreshed
       queryClient.invalidateQueries({ queryKey: ["sales"] });
+      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+      queryClient.invalidateQueries({ queryKey: ["latest-sale"] });
+      
       toast({
         title: "Success",
-        description: "Sale updated successfully",
+        description: "Sale updated successfully and tank level adjusted",
       });
       setIsEditDialogOpen(false);
     },

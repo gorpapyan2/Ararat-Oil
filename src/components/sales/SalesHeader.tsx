@@ -20,16 +20,22 @@ export function SalesHeader({ selectedDate, onDateChange }: SalesHeaderProps) {
   const handleSubmit = async (data: any) => {
     try {
       await createSale(data);
+      
+      // Invalidate multiple queries to ensure all relevant data is refreshed
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ['fuel-tanks'] });
+      queryClient.invalidateQueries({ queryKey: ['latest-sale'] });
+      
       toast({
         title: "Success",
-        description: "Sale created successfully",
+        description: "Sale created successfully and tank level updated",
       });
+      
       setIsOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['sales'] });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to create sale",
+        description: error.message || "Failed to create sale",
         variant: "destructive",
       });
       console.error("Error creating sale:", error);
