@@ -84,13 +84,22 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
   };
 
   const onSubmit = (data: FormData) => {
+    // Ensure tank_id is treated as required
+    if (!data.tank_id) {
+      form.setError('tank_id', { 
+        type: 'required', 
+        message: 'Fuel tank is required' 
+      });
+      return;
+    }
+    
     const record = {
       ...data,
       date: formattedDate,
       opening_stock: Number(data.opening_stock),
       received: Number(data.received),
       sold: Number(data.sold),
-      closing_stock: Number(data.closing_stock),
+      closing_stock: Number(data.closing_stock || 0),
       unit_price: Number(data.unit_price),
     };
     
