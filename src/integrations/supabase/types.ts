@@ -127,6 +127,7 @@ export type Database = {
         Row: {
           capacity: number
           created_at: string | null
+          current_level: number
           fuel_type: string
           id: string
           name: string
@@ -134,6 +135,7 @@ export type Database = {
         Insert: {
           capacity: number
           created_at?: string | null
+          current_level?: number
           fuel_type: string
           id?: string
           name: string
@@ -141,6 +143,7 @@ export type Database = {
         Update: {
           capacity?: number
           created_at?: string | null
+          current_level?: number
           fuel_type?: string
           id?: string
           name?: string
@@ -254,12 +257,59 @@ export type Database = {
         }
         Relationships: []
       }
+      tank_level_changes: {
+        Row: {
+          change_amount: number
+          change_type: string
+          created_at: string | null
+          id: string
+          new_level: number
+          previous_level: number
+          tank_id: string
+        }
+        Insert: {
+          change_amount: number
+          change_type: string
+          created_at?: string | null
+          id?: string
+          new_level: number
+          previous_level: number
+          tank_id: string
+        }
+        Update: {
+          change_amount?: number
+          change_type?: string
+          created_at?: string | null
+          id?: string
+          new_level?: number
+          previous_level?: number
+          tank_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tank_level_changes_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_tanks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      record_tank_level_change: {
+        Args: {
+          p_tank_id: string
+          p_change_amount: number
+          p_previous_level: number
+          p_new_level: number
+          p_change_type: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

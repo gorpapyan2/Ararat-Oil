@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 // Types
@@ -74,7 +73,7 @@ export interface FuelTank {
   fuel_type: FuelType;
   capacity: number;
   current_level: number;
-  created_at?: string;
+  created_at?: string | null;
 }
 
 export interface TankLevelChange {
@@ -223,7 +222,7 @@ export const updateTankLevel = async (params: TankLevelUpdateParams): Promise<Fu
   if (tankError) throw tankError;
   
   // Then record the change in the tank_level_changes table
-  // Using raw SQL or RPC call since the table might not be in the TypeScript types yet
+  // Using RPC call to record tank level change
   const { error: changeError } = await supabase
     .rpc('record_tank_level_change', {
       p_tank_id: tankId,
@@ -235,7 +234,6 @@ export const updateTankLevel = async (params: TankLevelUpdateParams): Promise<Fu
     
   if (changeError) {
     console.error("Error recording tank level change:", changeError);
-    // Continue anyway since the tank level was updated successfully
   }
   
   return {
@@ -246,7 +244,6 @@ export const updateTankLevel = async (params: TankLevelUpdateParams): Promise<Fu
 };
 
 export const fetchTankLevelChanges = async (tankId: string): Promise<TankLevelChange[]> => {
-  // We need to use raw SQL since the tank_level_changes table isn't in the TypeScript types
   const { data, error } = await supabase
     .from('tank_level_changes')
     .select('*')
