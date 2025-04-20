@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { FuelSupply } from "@/types";
+import { FuelSupply, FuelType } from "@/types";
 
 export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
   const { data, error } = await supabase
@@ -18,7 +18,10 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
   return (data || []).map(record => ({
     ...record,
     provider: record.provider,
-    tank: record.tank,
+    tank: {
+      ...record.tank,
+      fuel_type: record.tank.fuel_type as FuelType // Cast to FuelType enum
+    },
     employee: record.employee
   }));
 }
@@ -49,7 +52,10 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
   return {
     ...data,
     provider: data.provider,
-    tank: data.tank,
+    tank: {
+      ...data.tank,
+      fuel_type: data.tank.fuel_type as FuelType // Cast to FuelType enum
+    },
     employee: data.employee
   };
 }
