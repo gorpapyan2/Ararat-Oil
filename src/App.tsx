@@ -10,6 +10,7 @@ import Inventory from "@/pages/Inventory";
 import InventoryForm from "@/pages/InventoryForm";
 import Tanks from "@/pages/Tanks";
 import Employees from "@/pages/Employees";
+import FillingSystems from "@/pages/FillingSystems";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/inventory/new" element={<InventoryForm />} />
             <Route path="/tanks" element={<Tanks />} />
             <Route path="/employees" element={<Employees />} />
+            <Route path="/filling-systems" element={<FillingSystems />} />
           </Routes>
         </MainLayout>
       </BrowserRouter>

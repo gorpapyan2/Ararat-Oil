@@ -126,6 +126,35 @@ export type Database = {
         }
         Relationships: []
       }
+      filling_systems: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          tank_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          tank_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          tank_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "filling_systems_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_tanks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fuel_tanks: {
         Row: {
           capacity: number
