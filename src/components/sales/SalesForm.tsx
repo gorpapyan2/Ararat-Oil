@@ -17,6 +17,7 @@ import { fetchEmployees } from "@/services/employees";
 import { fetchLatestSale } from "@/services/sales";
 import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
+import { Sale } from "@/types";
 
 interface SalesFormValues {
   filling_system_id: string;
@@ -26,10 +27,24 @@ interface SalesFormValues {
   employee_id: string;
 }
 
-export function SalesForm({ onSubmit }: { onSubmit: (data: SalesFormValues) => void }) {
-  const form = useForm<SalesFormValues>();
+interface SalesFormProps {
+  onSubmit: (data: SalesFormValues) => void;
+  sale?: Sale | null;
+}
+
+export function SalesForm({ onSubmit, sale }: SalesFormProps) {
+  const form = useForm<SalesFormValues>({
+    defaultValues: sale ? {
+      filling_system_id: sale.filling_system_id,
+      meter_start: sale.meter_start,
+      meter_end: sale.meter_end,
+      unit_price: sale.price_per_unit,
+      employee_id: sale.employee_id,
+    } : undefined
+  });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFillingSystem, setSelectedFillingSystem] = useState<string>("");
+  const [selectedFillingSystem, setSelectedFillingSystem] = useState<string>(sale?.filling_system_id || "");
 
   const { data: employees } = useQuery({
     queryKey: ['employees'],
@@ -39,16 +54,31 @@ export function SalesForm({ onSubmit }: { onSubmit: (data: SalesFormValues) => v
   const { data: latestSale } = useQuery({
     queryKey: ['latest-sale', selectedFillingSystem],
     queryFn: () => selectedFillingSystem ? fetchLatestSale(selectedFillingSystem) : null,
-    enabled: !!selectedFillingSystem
+    enabled: !!selectedFillingSystem && !sale // Only fetch latest sale if no sale prop is provided
   });
 
   // Update default values when filling system changes or latest sale is loaded
   useEffect(() => {
-    if (latestSale) {
+    if (latestSale && !sale) {
       form.setValue('meter_start', latestSale.meter_end);
       form.setValue('unit_price', latestSale.price_per_unit);
     }
-  }, [latestSale, form]);
+  }, [latestSale, form, sale]);
+
+  // Set initial values if sale prop is provided
+  useEffect(() => {
+    if (sale) {
+      form.reset({
+        filling_system_id: sale.filling_system_id,
+        meter_start: sale.meter_start,
+        meter_end: sale.meter_end,
+        unit_price: sale.price_per_unit,
+        employee_id: sale.employee_id,
+      });
+      
+      setSelectedFillingSystem(sale.filling_system_id);
+    }
+  }, [sale, form]);
 
   const handleFillingSystemChange = (value: string) => {
     setSelectedFillingSystem(value);
@@ -59,7 +89,7 @@ export function SalesForm({ onSubmit }: { onSubmit: (data: SalesFormValues) => v
     try {
       setIsSubmitting(true);
       await onSubmit(data);
-      form.reset();
+      if (!sale) form.reset(); // Only reset if creating a new sale
     } finally {
       setIsSubmitting(false);
     }
@@ -69,9 +99,9 @@ export function SalesForm({ onSubmit }: { onSubmit: (data: SalesFormValues) => v
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <DialogHeader>
-          <h2 className="text-lg font-semibold">New Sale</h2>
+          <h2 className="text-lg font-semibold">{sale ? 'Edit Sale' : 'New Sale'}</h2>
           <p className="text-sm text-muted-foreground">
-            Record a new sale by filling in the details below
+            {sale ? 'Edit sale details below' : 'Record a new sale by filling in the details below'}
           </p>
         </DialogHeader>
 
@@ -79,6 +109,7 @@ export function SalesForm({ onSubmit }: { onSubmit: (data: SalesFormValues) => v
           <FillingSystemSelect 
             control={form.control} 
             onChange={handleFillingSystemChange}
+            value={selectedFillingSystem}
           />
 
           <FormField
@@ -119,7 +150,7 @@ export function SalesForm({ onSubmit }: { onSubmit: (data: SalesFormValues) => v
 
         <DialogFooter>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Sale"}
+            {isSubmitting ? "Saving..." : (sale ? "Update Sale" : "Create Sale")}
           </Button>
         </DialogFooter>
       </form>

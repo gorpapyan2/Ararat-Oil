@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SalesHeader } from "./SalesHeader";
 import { SalesTable } from "./SalesTable";
-import { fetchSales, deleteSale } from "@/services/sales";
+import { fetchSales, deleteSale, updateSale } from "@/services/sales";
 import { Sale } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -34,6 +34,25 @@ export function SalesManager() {
       toast({
         title: "Error",
         description: "Failed to delete sale",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: updateSale,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sales"] });
+      toast({
+        title: "Success",
+        description: "Sale updated successfully",
+      });
+      setIsEditDialogOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update sale",
         variant: "destructive",
       });
     },
@@ -73,9 +92,12 @@ export function SalesManager() {
           <SalesForm 
             sale={selectedSale}
             onSubmit={(data) => {
-              // Handle edit submission
-              console.log("Editing sale:", data);
-              setIsEditDialogOpen(false);
+              if (selectedSale) {
+                updateMutation.mutate({
+                  id: selectedSale.id,
+                  ...data
+                });
+              }
             }}
           />
         </DialogContent>
