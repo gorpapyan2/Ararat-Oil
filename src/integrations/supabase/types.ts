@@ -262,13 +262,10 @@ export type Database = {
           date: string
           employee_id: string | null
           filling_system_id: string | null
-          fuel_type: string
           id: string
           meter_end: number | null
           meter_start: number | null
-          payment_status: string
           price_per_unit: number
-          quantity: number
           total_sales: number
         }
         Insert: {
@@ -276,13 +273,10 @@ export type Database = {
           date: string
           employee_id?: string | null
           filling_system_id?: string | null
-          fuel_type: string
           id?: string
           meter_end?: number | null
           meter_start?: number | null
-          payment_status: string
           price_per_unit: number
-          quantity: number
           total_sales: number
         }
         Update: {
@@ -290,16 +284,20 @@ export type Database = {
           date?: string
           employee_id?: string | null
           filling_system_id?: string | null
-          fuel_type?: string
           id?: string
           meter_end?: number | null
           meter_start?: number | null
-          payment_status?: string
           price_per_unit?: number
-          quantity?: number
           total_sales?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "sales_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sales_filling_system_id_fkey"
             columns: ["filling_system_id"]
