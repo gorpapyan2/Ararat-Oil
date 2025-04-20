@@ -27,6 +27,20 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
 }
 
 export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_at'>): Promise<FuelSupply> {
+  // First, get the current tank level
+  const { data: tankData, error: tankError } = await supabase
+    .from('fuel_tanks')
+    .select('current_level')
+    .eq('id', supply.tank_id)
+    .single();
+    
+  if (tankError) throw tankError;
+  
+  // Calculate new level
+  const previousLevel = tankData.current_level;
+  const newLevel = previousLevel + supply.quantity_liters;
+  
+  // Create the supply record
   const { data, error } = await supabase
     .from('fuel_supplies')
     .insert({
@@ -48,13 +62,25 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
     .single();
     
   if (error) throw error;
+
+  // Update tank level and record the change
+  const { error: updateError } = await supabase
+    .rpc('record_tank_level_change', {
+      p_tank_id: supply.tank_id,
+      p_change_amount: supply.quantity_liters,
+      p_previous_level: previousLevel,
+      p_new_level: newLevel,
+      p_change_type: 'add'
+    });
+    
+  if (updateError) throw updateError;
   
   return {
     ...data,
     provider: data.provider,
     tank: {
       ...data.tank,
-      fuel_type: data.tank.fuel_type as FuelType // Cast to FuelType enum
+      fuel_type: data.tank.fuel_type as FuelType
     },
     employee: data.employee
   };
