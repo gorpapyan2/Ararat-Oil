@@ -33,19 +33,23 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
   const { data, error } = await query;
   if (error) throw error;
   
-  return (data || []).map(record => ({
-    ...record,
-    received: record.received || 0, // Ensure received property is present
-    tank: record.tank ? {
-      ...record.tank,
-      fuel_type: record.tank.fuel_type as FuelType,
-      current_level: typeof record.tank.current_level === 'number' ? record.tank.current_level : 0
-    } : undefined,
-    employee: record.employee ? {
-      ...record.employee,
-      status: record.employee.status as EmployeeStatus
-    } : undefined
-  }));
+  return (data || []).map(record => {
+    // Create a properly typed record with all required fields
+    const typedRecord: DailyInventoryRecord = {
+      ...record,
+      received: 0, // Add default received value
+      tank: record.tank ? {
+        ...record.tank,
+        fuel_type: record.tank.fuel_type as FuelType,
+        current_level: typeof record.tank.current_level === 'number' ? record.tank.current_level : 0
+      } : undefined,
+      employee: record.employee ? {
+        ...record.employee,
+        status: record.employee.status as EmployeeStatus
+      } : undefined
+    };
+    return typedRecord;
+  });
 };
 
 export const createDailyInventoryRecord = async (record: Omit<DailyInventoryRecord, 'id' | 'created_at'>): Promise<DailyInventoryRecord> => {
@@ -62,7 +66,12 @@ export const createDailyInventoryRecord = async (record: Omit<DailyInventoryReco
     .single();
     
   if (error) throw error;
-  return data;
+  
+  // Ensure the returned data has the received field
+  return {
+    ...data,
+    received: data.received || 0
+  };
 };
 
 export const fetchLatestInventoryRecord = async (tankId: string): Promise<DailyInventoryRecord | null> => {
@@ -75,7 +84,14 @@ export const fetchLatestInventoryRecord = async (tankId: string): Promise<DailyI
     .maybeSingle();
     
   if (error) throw error;
-  return data ? { ...data, received: data.received || 0 } : null;
+  
+  if (!data) return null;
+  
+  // Ensure the record has the received field
+  return {
+    ...data,
+    received: 0 // Add default received value
+  };
 };
 
 export const fetchLatestInventoryRecordByTankId = async (tankId: string): Promise<DailyInventoryRecord | null> => {
@@ -88,7 +104,14 @@ export const fetchLatestInventoryRecordByTankId = async (tankId: string): Promis
     .maybeSingle();
     
   if (error) throw error;
-  return data ? { ...data, received: data.received || 0 } : null;
+  
+  if (!data) return null;
+  
+  // Ensure the record has the received field
+  return {
+    ...data,
+    received: 0 // Add default received value
+  };
 };
 
 export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemId: string): Promise<DailyInventoryRecord | null> => {
@@ -113,5 +136,12 @@ export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemI
     .maybeSingle();
     
   if (error) throw error;
-  return data ? { ...data, received: data.received || 0 } : null;
+  
+  if (!data) return null;
+  
+  // Ensure the record has the received field
+  return {
+    ...data,
+    received: 0 // Add default received value
+  };
 };
