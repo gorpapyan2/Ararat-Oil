@@ -1,24 +1,25 @@
 
 import { DailyInventory } from "@/components/DailyInventory";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { TankManager } from "@/components/tanks/TankManager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Inventory() {
-  const { toast } = useToast();
-  
-  const handleTestToast = () => {
-    toast({
-      title: "Toast Test",
-      description: "If you can see this, toasts are working correctly!",
-    });
-  };
-
   return (
     <div className="max-w-[1600px] mx-auto">
-      <div className="mb-4">
-        <Button onClick={handleTestToast}>Test Toast</Button>
-      </div>
-      <DailyInventory />
+      <Tabs defaultValue="inventory" className="space-y-6">
+        <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+          <TabsTrigger value="inventory">Daily Inventory</TabsTrigger>
+          <TabsTrigger value="tanks">Fuel Tanks</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="inventory" className="mt-6">
+          <DailyInventory />
+        </TabsContent>
+        
+        <TabsContent value="tanks" className="mt-6">
+          <TankManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
