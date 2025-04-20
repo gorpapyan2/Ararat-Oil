@@ -10,7 +10,7 @@ interface MainLayoutProps {
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <ThemeProvider defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className="min-h-screen flex dark:bg-gray-900">
         <Sidebar />
         <main className="flex-1 p-8 overflow-auto">
