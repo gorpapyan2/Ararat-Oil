@@ -88,7 +88,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
         tank_id: fillingSystem.tank_id,
         employee_id: data.employee_id,
         opening_stock: Number(data.opening_stock),
-        received: 0,
+        received: 0, // Adding the received field with default value
         sold: 0,
         closing_stock: Number(data.closing_stock),
         unit_price: Number(data.unit_price),

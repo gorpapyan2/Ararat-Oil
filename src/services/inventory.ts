@@ -35,6 +35,7 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
   
   return (data || []).map(record => ({
     ...record,
+    received: record.received || 0, // Ensure received property is present
     tank: record.tank ? {
       ...record.tank,
       fuel_type: record.tank.fuel_type as FuelType,
@@ -48,9 +49,15 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
 };
 
 export const createDailyInventoryRecord = async (record: Omit<DailyInventoryRecord, 'id' | 'created_at'>): Promise<DailyInventoryRecord> => {
+  // Make sure record has a received field
+  const recordWithReceived = {
+    ...record,
+    received: record.received || 0
+  };
+  
   const { data, error } = await supabase
     .from('daily_inventory_records')
-    .insert([record])
+    .insert([recordWithReceived])
     .select()
     .single();
     
@@ -68,7 +75,7 @@ export const fetchLatestInventoryRecord = async (tankId: string): Promise<DailyI
     .maybeSingle();
     
   if (error) throw error;
-  return data;
+  return data ? { ...data, received: data.received || 0 } : null;
 };
 
 export const fetchLatestInventoryRecordByTankId = async (tankId: string): Promise<DailyInventoryRecord | null> => {
@@ -81,7 +88,7 @@ export const fetchLatestInventoryRecordByTankId = async (tankId: string): Promis
     .maybeSingle();
     
   if (error) throw error;
-  return data;
+  return data ? { ...data, received: data.received || 0 } : null;
 };
 
 export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemId: string): Promise<DailyInventoryRecord | null> => {
@@ -106,5 +113,5 @@ export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemI
     .maybeSingle();
     
   if (error) throw error;
-  return data;
+  return data ? { ...data, received: data.received || 0 } : null;
 };
