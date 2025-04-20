@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { DailyInventoryRecord } from "@/types";
+import { DailyInventoryRecord, FuelType } from "@/types";
 
 export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyInventoryRecord[]> => {
   let query = supabase
@@ -55,7 +55,8 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
     date: record.date,
     opening_stock: record.opening_stock,
     received: record.received || 0,
-    sold: record.sold || 0,
+    // Add default value for sold if it doesn't exist
+    sold: 0,
     closing_stock: record.closing_stock,
     unit_price: record.unit_price,
     total_price: record.total_price || 0,
@@ -65,10 +66,16 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
     employee_id: record.employee_id || '',
     created_at: record.created_at,
     last_refill_date: record.tank_id ? refillDatesMap[record.tank_id] || null : null,
-    filling_system: record.filling_system,
+    filling_system: record.filling_system ? {
+      ...record.filling_system,
+      tank: record.filling_system.tank ? {
+        ...record.filling_system.tank,
+        // Ensure fuel_type is cast to the FuelType type
+        fuel_type: record.filling_system.tank.fuel_type as FuelType
+      } : undefined
+    } : undefined,
     provider: record.provider,
-    employee: record.employee,
-    tank: record.filling_system?.tank
+    employee: record.employee
   }));
 };
 
@@ -83,7 +90,6 @@ export const createDailyInventoryRecord = async (record: Omit<DailyInventoryReco
       employee_id: record.employee_id,
       opening_stock: record.opening_stock,
       received: record.received,
-      sold: record.sold || 0,
       closing_stock: record.closing_stock,
       unit_price: record.unit_price,
       total_price: record.total_price
@@ -106,8 +112,10 @@ export const createDailyInventoryRecord = async (record: Omit<DailyInventoryReco
     ...data,
     filling_system_id: data.filling_system_id || '',
     employee_id: data.employee_id || '',
-    sold: data.sold || 0,
-    total_price: data.total_price || 0,
-    tank: data.filling_system?.tank
+    sold: 0, // Provide default sold value
+    tank: data.filling_system?.tank ? {
+      ...data.filling_system.tank,
+      fuel_type: data.filling_system.tank.fuel_type as FuelType
+    } : undefined
   } as DailyInventoryRecord;
 };

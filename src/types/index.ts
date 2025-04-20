@@ -1,3 +1,4 @@
+
 export type FuelType = 'Petrol' | 'Diesel' | 'Gas';
 export type PaymentStatus = 'Paid' | 'Pending';
 export type ExpenseCategory = 

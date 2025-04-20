@@ -17,7 +17,6 @@ export type Database = {
           employee_id: string | null
           filling_system_id: string | null
           id: string
-          opening_stock: number
           provider_id: string | null
           received: number
           tank_id: string | null
@@ -31,7 +30,6 @@ export type Database = {
           employee_id?: string | null
           filling_system_id?: string | null
           id?: string
-          opening_stock: number
           provider_id?: string | null
           received?: number
           tank_id?: string | null
@@ -45,7 +43,6 @@ export type Database = {
           employee_id?: string | null
           filling_system_id?: string | null
           id?: string
-          opening_stock?: number
           provider_id?: string | null
           received?: number
           tank_id?: string | null
