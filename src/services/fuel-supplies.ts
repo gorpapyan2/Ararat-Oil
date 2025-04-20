@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { FuelSupply, FuelType } from "@/types";
 
@@ -20,7 +19,7 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
     provider: record.provider,
     tank: {
       ...record.tank,
-      fuel_type: record.tank.fuel_type as FuelType // Cast to FuelType enum
+      fuel_type: record.tank.fuel_type as FuelType
     },
     employee: record.employee
   }));
@@ -63,7 +62,15 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
     
   if (error) throw error;
 
-  // Update tank level and record the change
+  // 1. Update tank level in fuel_tanks table
+  const { error: updateTankError } = await supabase
+    .from('fuel_tanks')
+    .update({ current_level: newLevel })
+    .eq('id', supply.tank_id);
+
+  if (updateTankError) throw updateTankError;
+
+  // 2. Record the tank level change for audit/history
   const { error: updateError } = await supabase
     .rpc('record_tank_level_change', {
       p_tank_id: supply.tank_id,
