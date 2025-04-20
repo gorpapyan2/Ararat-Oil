@@ -26,27 +26,25 @@ export function SalesTable({ sales, isLoading }: SalesTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
-            <TableHead>Fuel Type</TableHead>
+            <TableHead>Filling System</TableHead>
             <TableHead>Total Liters</TableHead>
             <TableHead>Price/Unit (AMD)</TableHead>
             <TableHead>Total Sales (AMD)</TableHead>
-            <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sales.map((sale) => (
             <TableRow key={sale.id}>
               <TableCell>{format(new Date(sale.date), "PP")}</TableCell>
-              <TableCell className="capitalize">{sale.fuel_type?.toLowerCase() || 'petrol'}</TableCell>
+              <TableCell>{sale.filling_system_name}</TableCell>
               <TableCell>{sale.quantity.toFixed(2)}</TableCell>
               <TableCell>{sale.price_per_unit.toLocaleString()} AMD</TableCell>
               <TableCell>{sale.total_sales.toLocaleString()} AMD</TableCell>
-              <TableCell className="capitalize">{sale.payment_status?.toLowerCase() || 'pending'}</TableCell>
             </TableRow>
           ))}
           {sales.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center">
+              <TableCell colSpan={5} className="text-center">
                 No sales found
               </TableCell>
             </TableRow>

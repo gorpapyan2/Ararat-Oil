@@ -25,7 +25,7 @@ export const fetchSales = async (): Promise<Sale[]> => {
     quantity: item.total_sold_liters || 0,
     price_per_unit: item.price_per_unit,
     total_sales: item.total_sales,
-    payment_status: 'Pending',
+    filling_system_name: item.filling_system?.name || 'Unknown',
     created_at: item.created_at,
     meter_start: item.meter_start,
     meter_end: item.meter_end,
