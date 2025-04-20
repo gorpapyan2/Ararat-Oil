@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 // Types
@@ -168,7 +169,10 @@ export const fetchEmployees = async (): Promise<Employee[]> => {
     .order('name', { ascending: true });
     
   if (error) throw error;
-  return data || [];
+  return (data || []).map(employee => ({
+    ...employee,
+    status: employee.status as EmployeeStatus
+  }));
 };
 
 export const fetchFuelTanks = async (): Promise<FuelTank[]> => {
@@ -289,7 +293,10 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
       fuel_type: record.tank.fuel_type as FuelType,
       current_level: typeof record.tank.current_level === 'number' ? record.tank.current_level : 0
     } : undefined,
-    employee: record.employee
+    employee: record.employee ? {
+      ...record.employee,
+      status: record.employee.status as EmployeeStatus
+    } : undefined
   }));
 };
 
@@ -312,7 +319,10 @@ export const createEmployee = async (employee: Omit<Employee, 'id' | 'created_at
     .single();
     
   if (error) throw error;
-  return data;
+  return {
+    ...data,
+    status: data.status as EmployeeStatus
+  };
 };
 
 export const updateEmployee = async (id: string, employee: Partial<Employee>): Promise<Employee> => {
@@ -324,7 +334,10 @@ export const updateEmployee = async (id: string, employee: Partial<Employee>): P
     .single();
     
   if (error) throw error;
-  return data;
+  return {
+    ...data,
+    status: data.status as EmployeeStatus
+  };
 };
 
 export const deleteEmployee = async (id: string): Promise<void> => {
