@@ -83,3 +83,28 @@ export const fetchLatestInventoryRecordByTankId = async (tankId: string): Promis
   if (error) throw error;
   return data;
 };
+
+export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemId: string): Promise<DailyInventoryRecord | null> => {
+  // First get the tank ID associated with this filling system
+  const { data: fillingSystem, error: fillingSystemError } = await supabase
+    .from('filling_systems')
+    .select('tank_id')
+    .eq('id', fillingSystemId)
+    .single();
+    
+  if (fillingSystemError) throw fillingSystemError;
+  
+  if (!fillingSystem?.tank_id) return null;
+  
+  // Then fetch the latest inventory record for this tank
+  const { data, error } = await supabase
+    .from('daily_inventory_records')
+    .select('*')
+    .eq('tank_id', fillingSystem.tank_id)
+    .order('date', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+    
+  if (error) throw error;
+  return data;
+};

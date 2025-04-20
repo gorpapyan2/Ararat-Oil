@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { createDailyInventoryRecord, fetchLatestInventoryRecordByTankId } from "@/services/inventory";
+import { createDailyInventoryRecord, fetchLatestInventoryRecordByFillingSystemId } from "@/services/inventory";
 import type { Employee, FuelTank } from "@/services/supabase";
 import { TankSelect } from "./form/TankSelect";
 import { StockInputs } from "./form/StockInputs";
@@ -20,11 +19,9 @@ interface InventoryFormProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   selectedDate: Date;
-  tanks?: FuelTank[];
   employees?: Employee[];
 }
 
-// Form validation schema using zod
 const formSchema = z.object({
   filling_system_id: z.string({ required_error: "Filling system is required" }),
   opening_stock: z.coerce.number({ required_error: "Opening stock is required" })
@@ -55,25 +52,22 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
   });
 
   const handleFillingSystemSelect = async (systemId: string) => {
-    const system = fillingSystems?.find(s => s.id === systemId);
-    if (system?.tank_id) {
-      try {
-        const lastRecord = await fetchLatestInventoryRecordByTankId(system.tank_id);
-        if (lastRecord) {
-          form.setValue('opening_stock', lastRecord.closing_stock);
-          // Also update unit price from last record if available
-          if (lastRecord.unit_price) {
-            form.setValue('unit_price', lastRecord.unit_price);
-          }
-        } else {
-          // Reset to default if no previous record
-          form.setValue('opening_stock', 0);
+    try {
+      const lastRecord = await fetchLatestInventoryRecordByFillingSystemId(systemId);
+      if (lastRecord) {
+        form.setValue('opening_stock', lastRecord.closing_stock);
+        // Also update unit price from last record if available
+        if (lastRecord.unit_price) {
+          form.setValue('unit_price', lastRecord.unit_price);
         }
-      } catch (error) {
-        console.error('Error fetching last record:', error);
-        // Reset to default on error
+      } else {
+        // Reset to default if no previous record
         form.setValue('opening_stock', 0);
       }
+    } catch (error) {
+      console.error('Error fetching last record:', error);
+      // Reset to default on error
+      form.setValue('opening_stock', 0);
     }
   };
 
@@ -115,7 +109,6 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
     mutation.mutate(data);
   };
 
-  // For full page form
   if (isOpen === true) {
     return (
       <Form {...form}>
@@ -149,7 +142,6 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
     );
   }
 
-  // For dialog form
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px]">
