@@ -16,55 +16,86 @@ export function QuantityAndPrice({
   maxQuantity,
   selectedTank,
 }: QuantityAndPriceProps) {
-  // Compute explanatory string
-  const quantityHint = useMemo(() => {
-    if (!selectedTank || typeof maxQuantity !== "number") return "";
-    return `Tank "${selectedTank.name}": Current = ${selectedTank.current_level}L / Capacity = ${selectedTank.capacity}L. Max allowed: ${maxQuantity}L.`;
+  // Compute explanatory string and visual percentage for tank
+  const tankStatus = useMemo(() => {
+    if (!selectedTank || typeof maxQuantity !== "number")
+      return { str: "", percentage: 0, isFull: false, color: "bg-muted" };
+    const { name, current_level, capacity } = selectedTank;
+    const remaining = maxQuantity;
+    const percentFull = (Number(current_level) / Number(capacity)) * 100;
+    let barColor = "bg-primary";
+    if (percentFull > 90) barColor = "bg-red-500";
+    else if (percentFull > 70) barColor = "bg-yellow-400";
+    else if (percentFull > 40) barColor = "bg-green-400";
+    return {
+      str: `Tank "${name}": ${current_level}L / ${capacity}L • Free: ${remaining}L`,
+      percentage: percentFull,
+      isFull: percentFull >= 100,
+      color: barColor,
+    };
   }, [selectedTank, maxQuantity]);
 
   return (
-    <div className="grid grid-cols-3 gap-4 items-end">
-      <FormField control={control} name="quantity_liters" rules={{
-        required: "Quantity is required",
-        min: {
-          value: 0,
-          message: "Quantity must be positive"
-        },
-        ...(typeof maxQuantity === "number"
-          ? {
-              max: {
-                value: maxQuantity,
-                message: `Cannot add more than available tank space (${maxQuantity}L)`
+    <div className="grid grid-cols-3 gap-6 items-end transition-all duration-200">
+      <div className="flex flex-col gap-1">
+        <FormField control={control} name="quantity_liters" rules={{
+          required: "Quantity is required",
+          min: {
+            value: 0,
+            message: "Quantity must be positive",
+          },
+          ...(typeof maxQuantity === "number"
+            ? {
+                max: {
+                  value: maxQuantity,
+                  message: `Cannot add more than tank's available space (${maxQuantity}L)`,
+                },
               }
-            } : {}
-        )
-      }} render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-base font-medium">
-            Quantity (Liters)
-          </FormLabel>
-          <FormControl>
-            <Input
-              type="number"
-              min="0"
-              {...(typeof maxQuantity === "number" ? { max: maxQuantity } : {})}
-              {...field}
-              onChange={e => {
-                // Clamp the value if it exceeds max
-                let val = e.target.valueAsNumber || undefined;
-                if (typeof maxQuantity === "number" && typeof val === "number" && val > maxQuantity) {
-                  val = maxQuantity;
-                }
-                field.onChange(val);
-              }}
-            />
-          </FormControl>
-          {quantityHint && (
-            <div className="text-xs text-muted-foreground mt-1">{quantityHint}</div>
-          )}
-          <FormMessage />
-        </FormItem>
-      )} />
+            : {}),
+        }} render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base font-medium flex items-center gap-2">
+              Quantity (Liters)
+              {tankStatus.isFull && (
+                <span className="ml-2 px-2 py-0.5 text-xs bg-red-500 text-white rounded font-semibold animate-pulse">Full</span>
+              )}
+            </FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                min="0"
+                step="any"
+                {...(typeof maxQuantity === "number" ? { max: maxQuantity } : {})}
+                {...field}
+                onChange={e => {
+                  // Clamp the value if it exceeds max
+                  let val = e.target.valueAsNumber || undefined;
+                  if (typeof maxQuantity === "number" && typeof val === "number" && val > maxQuantity) {
+                    val = maxQuantity;
+                  }
+                  field.onChange(val);
+                }}
+                className={tankStatus.isFull ? "border-red-500" : ""}
+              />
+            </FormControl>
+            {/* Visual tank level (progress bar) */}
+            {selectedTank && typeof maxQuantity === "number" && (
+              <div className="mt-2">
+                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${tankStatus.color}`}
+                    style={{ width: `${Math.min(tankStatus.percentage, 100)}%` }}
+                  ></div>
+                </div>
+                <div className={`text-xs mt-1 transition-all duration-500 flex items-center ${tankStatus.isFull ? "text-red-500" : "text-muted-foreground"}`}>
+                  {tankStatus.str}
+                </div>
+              </div>
+            )}
+            <FormMessage />
+          </FormItem>
+        )} />
+      </div>
 
       <FormField control={control} name="price_per_liter" rules={{
         required: "Price is required",
@@ -74,11 +105,12 @@ export function QuantityAndPrice({
         }
       }} render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-base font-medium">
+          <FormLabel className="text-base font-medium flex items-center gap-1">
             Price per Liter
+            <span className="text-xs text-muted-foreground">(in $)</span>
           </FormLabel>
           <FormControl>
-            <Input type="number" min="0" {...field} onChange={e => {
+            <Input type="number" min="0" step="any" {...field} onChange={e => {
               field.onChange(e.target.valueAsNumber || undefined);
             }} />
           </FormControl>
@@ -94,7 +126,7 @@ export function QuantityAndPrice({
               type="number"
               readOnly
               value={totalCost}
-              className="cursor-not-allowed bg-gray-500"
+              className="cursor-not-allowed bg-gray-500/40 font-semibold"
             />
           </FormControl>
         </FormItem>
