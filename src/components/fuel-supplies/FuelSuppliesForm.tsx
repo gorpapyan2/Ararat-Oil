@@ -45,8 +45,8 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
       delivery_date: format(new Date(), 'yyyy-MM-dd'),
       provider_id: '',
       tank_id: '',
-      quantity_liters: 0,
-      price_per_liter: 0,
+      quantity_liters: undefined,
+      price_per_liter: undefined,
       total_cost: 0,
       employee_id: '',
       comments: ''
@@ -54,8 +54,8 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
   });
 
   const calculateTotalCost = () => {
-    const quantity = form.getValues('quantity_liters');
-    const price = form.getValues('price_per_liter');
+    const quantity = form.getValues('quantity_liters') || 0;
+    const price = form.getValues('price_per_liter') || 0;
     form.setValue('total_cost', Number((quantity * price).toFixed(2)));
   };
 
@@ -205,12 +205,10 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                     <FormControl>
                       <Input 
                         type="number" 
-                        min="0" 
-                        step="0.01"
-                        {...field} 
+                        min="0"
+                        {...field}
                         onChange={(e) => {
-                          const value = Math.max(0, Number(e.target.value));
-                          field.onChange(value);
+                          field.onChange(e.target.valueAsNumber);
                           calculateTotalCost();
                         }}
                       />
@@ -235,12 +233,10 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                     <FormControl>
                       <Input 
                         type="number" 
-                        min="0" 
-                        step="0.01"
-                        {...field} 
+                        min="0"
+                        {...field}
                         onChange={(e) => {
-                          const value = Math.max(0, Number(e.target.value));
-                          field.onChange(value);
+                          field.onChange(e.target.valueAsNumber);
                           calculateTotalCost();
                         }}
                       />
