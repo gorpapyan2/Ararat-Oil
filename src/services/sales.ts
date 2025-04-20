@@ -5,7 +5,15 @@ import { Sale, PaymentStatus, FuelType } from "@/types";
 export const fetchSales = async (): Promise<Sale[]> => {
   const { data, error } = await supabase
     .from('sales')
-    .select('*')
+    .select(`
+      *,
+      filling_system:filling_systems(
+        name,
+        tank:fuel_tanks(
+          fuel_type
+        )
+      )
+    `)
     .order('date', { ascending: false });
     
   if (error) throw error;
@@ -13,11 +21,11 @@ export const fetchSales = async (): Promise<Sale[]> => {
   return (data || []).map(item => ({
     id: item.id,
     date: item.date,
-    fuel_type: (item as any).fuel_type as FuelType || 'Petrol', // Cast to any to avoid TS errors
+    fuel_type: item.filling_system?.tank?.fuel_type as FuelType || 'Petrol',
     quantity: item.meter_end - item.meter_start,
     price_per_unit: item.price_per_unit,
     total_sales: item.total_sales,
-    payment_status: (item as any).payment_status as PaymentStatus || 'Pending', // Cast to any to avoid TS errors
+    payment_status: 'Pending',
     created_at: item.created_at,
     meter_start: item.meter_start,
     meter_end: item.meter_end,
@@ -29,7 +37,15 @@ export const fetchSales = async (): Promise<Sale[]> => {
 export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | null> => {
   const { data, error } = await supabase
     .from('sales')
-    .select('*')
+    .select(`
+      *,
+      filling_system:filling_systems(
+        name,
+        tank:fuel_tanks(
+          fuel_type
+        )
+      )
+    `)
     .eq('filling_system_id', fillingSystemId)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -42,11 +58,11 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
   return {
     id: data.id,
     date: data.date,
-    fuel_type: (data as any).fuel_type as FuelType || 'Petrol', // Cast to any to avoid TS errors
+    fuel_type: data.filling_system?.tank?.fuel_type as FuelType || 'Petrol',
     quantity: data.meter_end - data.meter_start,
     price_per_unit: data.price_per_unit,
     total_sales: data.total_sales,
-    payment_status: (data as any).payment_status as PaymentStatus || 'Pending', // Cast to any to avoid TS errors
+    payment_status: 'Pending',
     created_at: data.created_at,
     meter_start: data.meter_start,
     meter_end: data.meter_end,
@@ -57,7 +73,6 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
 
 export const createSale = async (
   data: {
-    fuel_type: FuelType;
     quantity?: number;
     unit_price: number;
     meter_start: number;
@@ -73,16 +88,22 @@ export const createSale = async (
     .from('sales')
     .insert([{
       date: new Date().toISOString().split('T')[0],
-      fuel_type: data.fuel_type,
       price_per_unit: data.unit_price,
       total_sales,
-      payment_status: 'Pending',
       meter_start: data.meter_start,
       meter_end: data.meter_end,
       filling_system_id: data.filling_system_id,
       employee_id: data.employee_id
     }])
-    .select()
+    .select(`
+      *,
+      filling_system:filling_systems(
+        name,
+        tank:fuel_tanks(
+          fuel_type
+        )
+      )
+    `)
     .single();
 
   if (error) throw error;
@@ -90,11 +111,11 @@ export const createSale = async (
   return {
     id: sale.id,
     date: sale.date,
-    fuel_type: (sale as any).fuel_type as FuelType || data.fuel_type, // Cast to any to avoid TS errors
+    fuel_type: sale.filling_system?.tank?.fuel_type as FuelType || 'Petrol',
     quantity: sale.meter_end - sale.meter_start,
     price_per_unit: sale.price_per_unit,
     total_sales: sale.total_sales,
-    payment_status: (sale as any).payment_status as PaymentStatus || 'Pending', // Cast to any to avoid TS errors
+    payment_status: 'Pending',
     created_at: sale.created_at,
     meter_start: sale.meter_start,
     meter_end: sale.meter_end,
