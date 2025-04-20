@@ -13,6 +13,7 @@ import { QuantityAndPrice } from "./form/QuantityAndPrice";
 import { TankEmployee } from "./form/TankEmployee";
 import { CommentsField } from "./form/CommentsField";
 import { useEffect, useMemo, useState } from "react";
+import { format } from "date-fns";
 
 interface FuelSuppliesFormProps {
   open: boolean;
@@ -46,9 +47,12 @@ export function FuelSuppliesForm({
     queryFn: fetchEmployees
   });
 
+  // Use formatted today's date as the default
+  const today = useMemo(() => format(new Date(), 'yyyy-MM-dd'), []);
+
   const form = useForm<Omit<FuelSupply, 'id' | 'created_at'>>({
     defaultValues: {
-      delivery_date: new Date(), // JavaScript Date object
+      delivery_date: today, // Using formatted string instead of Date object
       provider_id: '',
       tank_id: '',
       quantity_liters: undefined,
@@ -59,11 +63,11 @@ export function FuelSuppliesForm({
     }
   });
 
-  // Fix delivery_date type for useForm
+  // Fix delivery_date type for useForm - this now handles a string properly
   useEffect(() => {
     const val = form.getValues('delivery_date');
-    if (!(val instanceof Date)) {
-      form.setValue('delivery_date', new Date());
+    if (!val) {
+      form.setValue('delivery_date', today);
     }
     // eslint-disable-next-line
   }, []);
