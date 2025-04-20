@@ -402,6 +402,16 @@ export type Database = {
           total_sold_liters: number
         }
       }
+      delete_sale_and_restore_tank: {
+        Args: {
+          p_sale_id: string
+          p_tank_id: string
+          p_previous_level: number
+          p_new_level: number
+          p_change_amount: number
+        }
+        Returns: undefined
+      }
       record_tank_level_change: {
         Args: {
           p_tank_id: string

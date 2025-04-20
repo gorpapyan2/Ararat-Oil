@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Sale, PaymentStatus, FuelType } from "@/types";
 
@@ -288,23 +287,31 @@ export const deleteSale = async (id: string): Promise<void> => {
   const newLevel = currentLevel + soldLiters;
   
   // Start a transaction to delete the sale and update the tank level
-  const { error: deleteError } = await supabase.rpc('delete_sale_and_restore_tank', {
-    p_sale_id: id,
-    p_tank_id: tankId,
-    p_previous_level: currentLevel,
-    p_new_level: newLevel,
-    p_change_amount: soldLiters
-  });
-  
-  if (deleteError) {
-    console.error("Error in delete transaction:", deleteError);
+  const { error: deleteError } = await supabase
+    .from('sales')
+    .delete()
+    .eq('id', id);
     
-    // If the RPC fails, attempt to delete just the sale as a fallback
-    const { error } = await supabase
-      .from('sales')
-      .delete()
-      .eq('id', id);
-      
-    if (error) throw error;
-  }
+  if (deleteError) throw deleteError;
+  
+  // Update the tank level
+  const { error: tankUpdateError } = await supabase
+    .from('fuel_tanks')
+    .update({ current_level: newLevel })
+    .eq('id', tankId);
+    
+  if (tankUpdateError) throw tankUpdateError;
+  
+  // Record the tank level change
+  const { error: levelChangeError } = await supabase
+    .from('tank_level_changes')
+    .insert({
+      tank_id: tankId,
+      change_amount: soldLiters,
+      previous_level: currentLevel,
+      new_level: newLevel,
+      change_type: 'add'
+    });
+    
+  if (levelChangeError) throw levelChangeError;
 };
