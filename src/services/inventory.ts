@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { InventoryItem, FuelType, DailyInventoryRecord, EmployeeStatus } from "@/types";
 
@@ -36,7 +37,21 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
   const { data, error } = await query;
   if (error) throw error;
   
-  return data || [];
+  // Transform the data to ensure proper typing
+  return (data || []).map(record => ({
+    ...record,
+    filling_system: record.filling_system ? {
+      ...record.filling_system,
+      tank: record.filling_system.tank ? {
+        ...record.filling_system.tank,
+        fuel_type: record.filling_system.tank.fuel_type as FuelType
+      } : undefined
+    } : undefined,
+    employee: record.employee ? {
+      ...record.employee,
+      status: record.employee.status as EmployeeStatus
+    } : undefined
+  }));
 };
 
 export const createDailyInventoryRecord = async (record: Omit<DailyInventoryRecord, 'id' | 'created_at'>): Promise<DailyInventoryRecord> => {
