@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { BarChart, DollarSign, Users, FileText, Gauge, Power, Archive } from "lucide-react";
+import { BarChart, DollarSign, Users, FileText, Gauge, Power, Archive, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -8,6 +8,7 @@ const menuItems = [
   { icon: BarChart, label: "Dashboard", path: "/" },
   { icon: Archive, label: "Inventory", path: "/inventory" },
   { icon: Power, label: "Filling Systems", path: "/filling-systems" },
+  { icon: Truck, label: "Providers", path: "/providers" },
   { icon: DollarSign, label: "Sales", path: "/sales" },
   { icon: FileText, label: "Expenses", path: "/expenses" },
   { icon: Users, label: "Employees", path: "/employees" },

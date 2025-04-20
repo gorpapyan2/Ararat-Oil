@@ -229,6 +229,30 @@ export type Database = {
           },
         ]
       }
+      petrol_providers: {
+        Row: {
+          contact: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profit_loss_summary: {
         Row: {
           created_at: string | null
