@@ -1,4 +1,3 @@
-
 export type FuelType = 'Petrol' | 'Diesel' | 'Gas';
 export type PaymentStatus = 'Paid' | 'Pending';
 export type ExpenseCategory = 
@@ -125,4 +124,30 @@ export interface DailyInventoryRecord {
   tank?: FuelTank;
   provider?: PetrolProvider;
   employee?: Employee;
+}
+
+export interface FuelSupply {
+  id: string;
+  delivery_date: string;
+  provider_id: string;
+  tank_id: string;
+  quantity_liters: number;
+  price_per_liter: number;
+  employee_id: string;
+  comments?: string;
+  total_cost: number;
+  created_at?: string;
+  provider?: {
+    id: string;
+    name: string;
+  };
+  tank?: {
+    id: string;
+    name: string;
+    fuel_type: FuelType;
+  };
+  employee?: {
+    id: string;
+    name: string;
+  };
 }

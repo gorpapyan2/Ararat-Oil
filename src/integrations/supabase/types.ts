@@ -172,6 +172,67 @@ export type Database = {
           },
         ]
       }
+      fuel_supplies: {
+        Row: {
+          comments: string | null
+          created_at: string | null
+          delivery_date: string
+          employee_id: string
+          id: string
+          price_per_liter: number
+          provider_id: string
+          quantity_liters: number
+          tank_id: string
+          total_cost: number
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string | null
+          delivery_date: string
+          employee_id: string
+          id?: string
+          price_per_liter: number
+          provider_id: string
+          quantity_liters: number
+          tank_id: string
+          total_cost: number
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string | null
+          delivery_date?: string
+          employee_id?: string
+          id?: string
+          price_per_liter?: number
+          provider_id?: string
+          quantity_liters?: number
+          tank_id?: string
+          total_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fuel_supplies_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_supplies_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "petrol_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_supplies_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_tanks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fuel_tanks: {
         Row: {
           capacity: number

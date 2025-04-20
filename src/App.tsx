@@ -12,6 +12,7 @@ import Employees from "@/pages/Employees";
 import FillingSystems from "@/pages/FillingSystems";
 import Sales from "@/pages/Sales";
 import PetrolProviders from "@/pages/PetrolProviders";
+import FuelSupplies from "@/pages/FuelSupplies";  // Add this line
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/employees" element={<Employees />} />
             <Route path="/sales" element={<Sales />} />
             <Route path="/providers" element={<PetrolProviders />} />
+            <Route path="/fuel-supplies" element={<FuelSupplies />} />  {/* Add this line */}
           </Routes>
         </MainLayout>
       </BrowserRouter>
