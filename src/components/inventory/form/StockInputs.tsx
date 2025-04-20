@@ -16,10 +16,11 @@ export function StockInputs({ control, onStockChange }: StockInputsProps) {
         name="opening_stock"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Opening Stock</FormLabel>
+            <FormLabel className="text-base font-medium">Opening Stock</FormLabel>
             <FormControl>
               <Input 
                 type="number" 
+                className="h-12 text-base"
                 {...field} 
                 onChange={(e) => {
                   field.onChange(e);
@@ -37,10 +38,11 @@ export function StockInputs({ control, onStockChange }: StockInputsProps) {
         name="received"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Received</FormLabel>
+            <FormLabel className="text-base font-medium">Received</FormLabel>
             <FormControl>
               <Input 
-                type="number" 
+                type="number"
+                className="h-12 text-base"
                 {...field} 
                 onChange={(e) => {
                   field.onChange(e);
@@ -58,10 +60,11 @@ export function StockInputs({ control, onStockChange }: StockInputsProps) {
         name="sold"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Sold</FormLabel>
+            <FormLabel className="text-base font-medium">Sold</FormLabel>
             <FormControl>
               <Input 
-                type="number" 
+                type="number"
+                className="h-12 text-base"
                 {...field} 
                 onChange={(e) => {
                   field.onChange(e);
@@ -79,9 +82,14 @@ export function StockInputs({ control, onStockChange }: StockInputsProps) {
         name="closing_stock"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Closing Stock</FormLabel>
+            <FormLabel className="text-base font-medium">Closing Stock</FormLabel>
             <FormControl>
-              <Input type="number" {...field} readOnly />
+              <Input 
+                type="number"
+                className="h-12 text-base bg-muted"
+                {...field} 
+                readOnly
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -1,5 +1,6 @@
 
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import type { Employee, FuelTank } from "@/services/supabase";
 import { TankSelect } from "./form/TankSelect";
 import { StockInputs } from "./form/StockInputs";
 import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
+import * as z from "zod";
 
 interface InventoryFormProps {
   isOpen: boolean;
@@ -20,15 +22,22 @@ interface InventoryFormProps {
   employees?: Employee[];
 }
 
-type FormData = {
-  tank_id: string;
-  opening_stock: number;
-  received: number;
-  sold: number;
-  closing_stock: number;
-  unit_price: number;
-  employee_id: string;
-};
+// Form validation schema using zod
+const formSchema = z.object({
+  tank_id: z.string({ required_error: "Fuel tank is required" }),
+  opening_stock: z.coerce.number({ required_error: "Opening stock is required" })
+    .nonnegative("Must be a positive number"),
+  received: z.coerce.number({ required_error: "Received amount is required" })
+    .nonnegative("Must be a positive number"),
+  sold: z.coerce.number({ required_error: "Sold amount is required" })
+    .nonnegative("Must be a positive number"),
+  closing_stock: z.coerce.number().optional(),
+  unit_price: z.coerce.number({ required_error: "Unit price is required" })
+    .positive("Price must be greater than zero"),
+  employee_id: z.string({ required_error: "Employee is required" }),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, employees }: InventoryFormProps) {
   const { toast } = useToast();
@@ -36,6 +45,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
   const formattedDate = format(selectedDate, 'yyyy-MM-dd');
 
   const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       opening_stock: 0,
       received: 0,
@@ -87,33 +97,65 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, tanks, emplo
     mutation.mutate(record);
   };
 
+  // If this is in a dialog (original design)
+  if (isOpen !== true) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle>Add Daily Inventory Record</DialogTitle>
+            <DialogDescription>
+              Enter the inventory details for {format(selectedDate, 'PP')}
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <TankSelect control={form.control} tanks={tanks} />
+              <StockInputs control={form.control} onStockChange={updateClosingStock} />
+              <PriceAndEmployeeInputs control={form.control} employees={employees} />
+              
+              <DialogFooter>
+                <Button 
+                  type="submit" 
+                  disabled={mutation.isPending}
+                  className="w-full sm:w-auto"
+                >
+                  {mutation.isPending ? 'Saving...' : 'Save Record'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // For full page form
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
-        <DialogHeader>
-          <DialogTitle>Add Daily Inventory Record</DialogTitle>
-          <DialogDescription>
-            Enter the inventory details for {format(selectedDate, 'PP')}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <TankSelect control={form.control} tanks={tanks} />
-            <StockInputs control={form.control} onStockChange={updateClosingStock} />
-            <PriceAndEmployeeInputs control={form.control} employees={employees} />
-            
-            <DialogFooter>
-              <Button 
-                type="submit" 
-                disabled={mutation.isPending}
-                className="w-full sm:w-auto"
-              >
-                {mutation.isPending ? 'Saving...' : 'Save Record'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid gap-6 mb-6">
+          <TankSelect control={form.control} tanks={tanks} />
+          <StockInputs control={form.control} onStockChange={updateClosingStock} />
+          <PriceAndEmployeeInputs control={form.control} employees={employees} />
+        </div>
+        
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? 'Saving...' : 'Save Record'}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

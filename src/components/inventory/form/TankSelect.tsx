@@ -15,14 +15,14 @@ export function TankSelect({ control, tanks }: TankSelectProps) {
       control={control}
       name="tank_id"
       render={({ field }) => (
-        <FormItem>
-          <FormLabel>Fuel Tank</FormLabel>
+        <FormItem className="mb-4">
+          <FormLabel className="text-base font-medium">Fuel Tank</FormLabel>
           <Select 
             onValueChange={field.onChange} 
             defaultValue={field.value}
           >
             <FormControl>
-              <SelectTrigger>
+              <SelectTrigger className="h-12">
                 <SelectValue placeholder="Select fuel tank" />
               </SelectTrigger>
             </FormControl>

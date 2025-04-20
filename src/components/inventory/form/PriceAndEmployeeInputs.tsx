@@ -18,9 +18,14 @@ export function PriceAndEmployeeInputs({ control, employees }: PriceAndEmployeeI
         name="unit_price"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Unit Price</FormLabel>
+            <FormLabel className="text-base font-medium">Unit Price</FormLabel>
             <FormControl>
-              <Input type="number" step="0.01" {...field} />
+              <Input 
+                type="number" 
+                step="0.01"
+                className="h-12 text-base"
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -32,13 +37,13 @@ export function PriceAndEmployeeInputs({ control, employees }: PriceAndEmployeeI
         name="employee_id"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Employee</FormLabel>
+            <FormLabel className="text-base font-medium">Employee</FormLabel>
             <Select 
               onValueChange={field.onChange} 
               defaultValue={field.value}
             >
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger className="h-12">
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
               </FormControl>
