@@ -353,6 +353,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_sale_and_update_tank: {
+        Args: {
+          p_date: string
+          p_price_per_unit: number
+          p_total_sales: number
+          p_total_sold_liters: number
+          p_meter_start: number
+          p_meter_end: number
+          p_filling_system_id: string
+          p_employee_id: string
+          p_tank_id: string
+          p_previous_level: number
+          p_new_level: number
+          p_change_amount: number
+        }
+        Returns: {
+          created_at: string | null
+          date: string
+          employee_id: string | null
+          filling_system_id: string | null
+          id: string
+          meter_end: number | null
+          meter_start: number | null
+          price_per_unit: number
+          total_sales: number
+          total_sold_liters: number
+        }
+      }
       record_tank_level_change: {
         Args: {
           p_tank_id: string
