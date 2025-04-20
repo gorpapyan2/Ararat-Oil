@@ -1,10 +1,8 @@
 
-import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { SalesForm } from "./SalesForm";
+import { useState } from "react";
 
 interface SalesHeaderProps {
   selectedDate: Date;
@@ -12,36 +10,31 @@ interface SalesHeaderProps {
 }
 
 export function SalesHeader({ selectedDate, onDateChange }: SalesHeaderProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleSubmit = async (data: any) => {
+    // TODO: Implement sale creation
+    console.log('New sale:', data);
+    setIsOpen(false);
+  };
+
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "justify-start text-left font-normal w-[240px]",
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {format(selectedDate, "PPP")}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={onDateChange}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Sales</h2>
+        <p className="text-muted-foreground">
+          View and manage fuel sales
+        </p>
       </div>
-
-      <Button>
-        <Plus className="mr-2 h-4 w-4" />
-        New Sale
-      </Button>
+      
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button>New Sale</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px]">
+          <SalesForm onSubmit={handleSubmit} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
