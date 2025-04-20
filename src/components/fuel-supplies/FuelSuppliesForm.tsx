@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,35 +10,39 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
 import { useQuery } from "@tanstack/react-query";
 import { fetchPetrolProviders } from "@/services/petrol-providers";
 import { fetchFuelTanks } from "@/services/tanks";
 import { fetchEmployees } from "@/services/employees";
 import { FuelSupply } from "@/types";
-
 interface FuelSuppliesFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: Omit<FuelSupply, 'id' | 'created_at'>) => void;
 }
-
-export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesFormProps) {
-  const { data: providers } = useQuery({
+export function FuelSuppliesForm({
+  open,
+  onOpenChange,
+  onSubmit
+}: FuelSuppliesFormProps) {
+  const {
+    data: providers
+  } = useQuery({
     queryKey: ['petrol-providers'],
-    queryFn: fetchPetrolProviders,
+    queryFn: fetchPetrolProviders
   });
-
-  const { data: tanks } = useQuery({
+  const {
+    data: tanks
+  } = useQuery({
     queryKey: ['fuel-tanks'],
-    queryFn: fetchFuelTanks,
+    queryFn: fetchFuelTanks
   });
-
-  const { data: employees } = useQuery({
+  const {
+    data: employees
+  } = useQuery({
     queryKey: ['employees'],
-    queryFn: fetchEmployees,
+    queryFn: fetchEmployees
   });
-
   const form = useForm<Omit<FuelSupply, 'id' | 'created_at'>>({
     defaultValues: {
       delivery_date: format(new Date(), 'yyyy-MM-dd'),
@@ -52,19 +55,15 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
       comments: ''
     }
   });
-
   const calculateTotalCost = () => {
     const quantity = form.getValues('quantity_liters') || 0;
     const price = form.getValues('price_per_liter') || 0;
     form.setValue('total_cost', Number((quantity * price).toFixed(2)));
   };
-
   const handleSubmit = (data: Omit<FuelSupply, 'id' | 'created_at'>) => {
     onSubmit(data);
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+  return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Add Fuel Supply</DialogTitle>
@@ -72,48 +71,31 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="delivery_date"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="delivery_date" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Delivery Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
+                          <Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
                             {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={new Date(field.value)}
-                          onSelect={(date) => field.onChange(format(date || new Date(), 'yyyy-MM-dd'))}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
+                        <Calendar mode="single" selected={new Date(field.value)} onSelect={date => field.onChange(format(date || new Date(), 'yyyy-MM-dd'))} initialFocus className={cn("p-3 pointer-events-auto")} />
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="provider_id"
-                rules={{ required: "Provider is required" }}
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="provider_id" rules={{
+              required: "Provider is required"
+            }} render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Petrol Provider</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
@@ -122,26 +104,21 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {providers?.map((provider) => (
-                          <SelectItem key={provider.id} value={provider.id}>
+                        {providers?.map(provider => <SelectItem key={provider.id} value={provider.id}>
                             {provider.name}
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="tank_id"
-                rules={{ required: "Tank is required" }}
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="tank_id" rules={{
+              required: "Tank is required"
+            }} render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Fuel Tank</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
@@ -150,24 +127,19 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {tanks?.map((tank) => (
-                          <SelectItem key={tank.id} value={tank.id}>
+                        {tanks?.map(tank => <SelectItem key={tank.id} value={tank.id}>
                             {tank.name} ({tank.fuel_type})
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="employee_id"
-                rules={{ required: "Employee is required" }}
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="employee_id" rules={{
+              required: "Employee is required"
+            }} render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Employee</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
@@ -176,107 +148,76 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {employees?.map((employee) => (
-                          <SelectItem key={employee.id} value={employee.id}>
+                        {employees?.map(employee => <SelectItem key={employee.id} value={employee.id}>
                             {employee.name}
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
             </div>
 
             <div className="grid grid-cols-3 gap-4 items-end">
-              <FormField
-                control={form.control}
-                name="quantity_liters"
-                rules={{ 
-                  required: "Quantity is required",
-                  min: { value: 0, message: "Quantity must be positive" }
-                }}
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="quantity_liters" rules={{
+              required: "Quantity is required",
+              min: {
+                value: 0,
+                message: "Quantity must be positive"
+              }
+            }} render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">
                       Quantity (Liters)
                     </FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e.target.valueAsNumber);
-                          calculateTotalCost();
-                        }}
-                      />
+                      <Input type="number" min="0" {...field} onChange={e => {
+                  field.onChange(e.target.valueAsNumber);
+                  calculateTotalCost();
+                }} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="price_per_liter"
-                rules={{ 
-                  required: "Price is required",
-                  min: { value: 0, message: "Price must be positive" }
-                }}
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="price_per_liter" rules={{
+              required: "Price is required",
+              min: {
+                value: 0,
+                message: "Price must be positive"
+              }
+            }} render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">
                       Price per Liter
                     </FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        min="0"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e.target.valueAsNumber);
-                          calculateTotalCost();
-                        }}
-                      />
+                      <Input type="number" min="0" {...field} onChange={e => {
+                  field.onChange(e.target.valueAsNumber);
+                  calculateTotalCost();
+                }} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="total_cost"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="total_cost" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-base font-medium">Total Cost</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        readOnly 
-                        className="bg-gray-100 cursor-not-allowed"
-                      />
+                      <Input type="number" readOnly className="cursor-not-allowed bg-gray-600" />
                     </FormControl>
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
             </div>
 
-            <FormField
-              control={form.control}
-              name="comments"
-              render={({ field }) => (
-                <FormItem>
+            <FormField control={form.control} name="comments" render={({
+            field
+          }) => <FormItem>
                   <FormLabel className="text-base font-medium">Comments</FormLabel>
                   <FormControl>
                     <Textarea {...field} placeholder="Optional comments about the fuel supply" />
                   </FormControl>
-                </FormItem>
-              )}
-            />
+                </FormItem>} />
 
             <Button type="submit" className="w-full">
               Add Fuel Supply
@@ -284,6 +225,5 @@ export function FuelSuppliesForm({ open, onOpenChange, onSubmit }: FuelSuppliesF
           </form>
         </Form>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 }
