@@ -20,10 +20,11 @@ export const fetchTankByFillingSystemId = async (fillingSystemId: string): Promi
     throw error;
   }
   
-  if (!data || !data.tank || !data.tank[0]) {
+  if (!data || !data.tank) {
     console.log("No tank found for filling system ID:", fillingSystemId);
     return null;
   }
   
+  // Return the first tank associated with this filling system
   return data.tank[0] as FuelTank;
 };
