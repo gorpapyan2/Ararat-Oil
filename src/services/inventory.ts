@@ -67,10 +67,11 @@ export const createDailyInventoryRecord = async (record: Omit<DailyInventoryReco
     
   if (error) throw error;
   
-  // Ensure the returned data has the received field
+  // Since 'received' might not be in the database schema and not returned by the query,
+  // we need to explicitly add it back to our returned object
   return {
     ...data,
-    received: data.received || 0
+    received: 0 // Add default received value
   };
 };
 
