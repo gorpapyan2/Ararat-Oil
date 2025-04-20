@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -15,11 +16,14 @@ import { fetchPetrolProviders } from "@/services/petrol-providers";
 import { fetchFuelTanks } from "@/services/tanks";
 import { fetchEmployees } from "@/services/employees";
 import { FuelSupply } from "@/types";
+import { useEffect } from "react";
+
 interface FuelSuppliesFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: Omit<FuelSupply, 'id' | 'created_at'>) => void;
 }
+
 export function FuelSuppliesForm({
   open,
   onOpenChange,
@@ -31,18 +35,21 @@ export function FuelSuppliesForm({
     queryKey: ['petrol-providers'],
     queryFn: fetchPetrolProviders
   });
+  
   const {
     data: tanks
   } = useQuery({
     queryKey: ['fuel-tanks'],
     queryFn: fetchFuelTanks
   });
+  
   const {
     data: employees
   } = useQuery({
     queryKey: ['employees'],
     queryFn: fetchEmployees
   });
+  
   const form = useForm<Omit<FuelSupply, 'id' | 'created_at'>>({
     defaultValues: {
       delivery_date: format(new Date(), 'yyyy-MM-dd'),
@@ -55,14 +62,24 @@ export function FuelSuppliesForm({
       comments: ''
     }
   });
-  const calculateTotalCost = () => {
-    const quantity = form.getValues('quantity_liters') || 0;
-    const price = form.getValues('price_per_liter') || 0;
-    form.setValue('total_cost', Number((quantity * price).toFixed(2)));
-  };
+
+  // Watch for changes in quantity and price to calculate the total
+  const quantity = form.watch('quantity_liters');
+  const price = form.watch('price_per_liter');
+  
+  useEffect(() => {
+    if (quantity && price) {
+      const total = Number(quantity) * Number(price);
+      form.setValue('total_cost', Number(total.toFixed(2)));
+    } else {
+      form.setValue('total_cost', 0);
+    }
+  }, [quantity, price, form]);
+
   const handleSubmit = (data: Omit<FuelSupply, 'id' | 'created_at'>) => {
     onSubmit(data);
   };
+
   return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[600px]">
         <DialogHeader>
@@ -171,10 +188,14 @@ export function FuelSuppliesForm({
                       Quantity (Liters)
                     </FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" {...field} onChange={e => {
-                  field.onChange(e.target.valueAsNumber);
-                  calculateTotalCost();
-                }} />
+                      <Input 
+                        type="number" 
+                        min="0"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e.target.valueAsNumber || undefined);
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>} />
@@ -192,10 +213,14 @@ export function FuelSuppliesForm({
                       Price per Liter
                     </FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" {...field} onChange={e => {
-                  field.onChange(e.target.valueAsNumber);
-                  calculateTotalCost();
-                }} />
+                      <Input 
+                        type="number" 
+                        min="0"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e.target.valueAsNumber || undefined);
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>} />
@@ -205,7 +230,12 @@ export function FuelSuppliesForm({
             }) => <FormItem>
                     <FormLabel className="text-base font-medium">Total Cost</FormLabel>
                     <FormControl>
-                      <Input type="number" readOnly className="cursor-not-allowed bg-gray-600" />
+                      <Input
+                        type="number"
+                        readOnly
+                        value={field.value}
+                        className="cursor-not-allowed bg-gray-100"
+                      />
                     </FormControl>
                   </FormItem>} />
             </div>
