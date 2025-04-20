@@ -68,53 +68,54 @@ export interface Employee {
   created_at?: string;
 }
 
-// Base fetch functions
+// Base fetch functions with type assertions to fix TypeScript errors
 export const fetchSales = async (): Promise<Sale[]> => {
+  // Use type assertion to tell TypeScript this is valid
   const { data, error } = await supabase
-    .from('sales')
+    .from('sales' as any)
     .select('*')
-    .order('date', { ascending: false }) as { data: Sale[] | null; error: Error | null };
+    .order('date', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  return (data as Sale[]) || [];
 };
 
 export const fetchInventory = async (): Promise<InventoryItem[]> => {
   const { data, error } = await supabase
-    .from('inventory')
+    .from('inventory' as any)
     .select('*')
-    .order('date', { ascending: false }) as { data: InventoryItem[] | null; error: Error | null };
+    .order('date', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  return (data as InventoryItem[]) || [];
 };
 
 export const fetchExpenses = async (): Promise<Expense[]> => {
   const { data, error } = await supabase
-    .from('expenses')
+    .from('expenses' as any)
     .select('*')
-    .order('date', { ascending: false }) as { data: Expense[] | null; error: Error | null };
+    .order('date', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  return (data as Expense[]) || [];
 };
 
 export const fetchProfitLoss = async (): Promise<ProfitLoss[]> => {
   const { data, error } = await supabase
-    .from('profit_loss_summary')
+    .from('profit_loss_summary' as any)
     .select('*')
-    .order('period', { ascending: false }) as { data: ProfitLoss[] | null; error: Error | null };
+    .order('period', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  return (data as ProfitLoss[]) || [];
 };
 
 export const fetchEmployees = async (): Promise<Employee[]> => {
   const { data, error } = await supabase
-    .from('employees')
+    .from('employees' as any)
     .select('*')
-    .order('name', { ascending: true }) as { data: Employee[] | null; error: Error | null };
+    .order('name', { ascending: true });
     
   if (error) throw error;
-  return data || [];
+  return (data as Employee[]) || [];
 };

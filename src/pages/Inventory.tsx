@@ -2,6 +2,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchInventory, type InventoryItem } from "@/services/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 
 export default function Inventory() {
   const { data: inventoryData, isLoading } = useQuery<InventoryItem[]>({
@@ -25,34 +33,34 @@ export default function Inventory() {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">Date</th>
-                      <th className="text-left p-2">Fuel Type</th>
-                      <th className="text-right p-2">Opening Stock</th>
-                      <th className="text-right p-2">Received</th>
-                      <th className="text-right p-2">Sold</th>
-                      <th className="text-right p-2">Closing Stock</th>
-                      <th className="text-right p-2">Unit Price</th>
-                      <th className="text-right p-2">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Fuel Type</TableHead>
+                      <TableHead className="text-right">Opening Stock</TableHead>
+                      <TableHead className="text-right">Received</TableHead>
+                      <TableHead className="text-right">Sold</TableHead>
+                      <TableHead className="text-right">Closing Stock</TableHead>
+                      <TableHead className="text-right">Unit Price</TableHead>
+                      <TableHead className="text-right">Value</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {inventoryData.map((item) => (
-                      <tr key={item.id} className="border-b">
-                        <td className="p-2">{new Date(item.date).toLocaleDateString()}</td>
-                        <td className="p-2">{item.fuel_type}</td>
-                        <td className="text-right p-2">{item.opening_stock}</td>
-                        <td className="text-right p-2">{item.received}</td>
-                        <td className="text-right p-2">{item.sold}</td>
-                        <td className="text-right p-2">{item.closing_stock}</td>
-                        <td className="text-right p-2">${item.unit_price.toFixed(2)}</td>
-                        <td className="text-right p-2">${(item.closing_stock * item.unit_price).toFixed(2)}</td>
-                      </tr>
+                      <TableRow key={item.id}>
+                        <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                        <TableCell>{item.fuel_type}</TableCell>
+                        <TableCell className="text-right">{item.opening_stock}</TableCell>
+                        <TableCell className="text-right">{item.received}</TableCell>
+                        <TableCell className="text-right">{item.sold}</TableCell>
+                        <TableCell className="text-right">{item.closing_stock}</TableCell>
+                        <TableCell className="text-right">${item.unit_price.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">${(item.closing_stock * item.unit_price).toFixed(2)}</TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </CardContent>
           </Card>
