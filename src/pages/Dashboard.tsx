@@ -54,7 +54,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${isSalesLoading ? "Loading..." : totalSales.toFixed(2)}
+              {isSalesLoading ? "Loading..." : `${totalSales.toLocaleString()} ֏`}
             </div>
           </CardContent>
         </Card>
@@ -65,7 +65,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${isExpensesLoading ? "Loading..." : totalExpenses.toFixed(2)}
+              {isExpensesLoading ? "Loading..." : `${totalExpenses.toLocaleString()} ֏`}
             </div>
           </CardContent>
         </Card>
@@ -76,7 +76,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${isSalesLoading || isExpensesLoading ? "Loading..." : netProfit.toFixed(2)}
+              {isSalesLoading || isExpensesLoading ? "Loading..." : `${netProfit.toLocaleString()} ֏`}
             </div>
           </CardContent>
         </Card>
@@ -87,7 +87,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${isInventoryLoading ? "Loading..." : inventoryValue.toFixed(2)}
+              {isInventoryLoading ? "Loading..." : `${inventoryValue.toLocaleString()} ֏`}
             </div>
           </CardContent>
         </Card>

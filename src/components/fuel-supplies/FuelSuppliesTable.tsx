@@ -42,8 +42,8 @@ export function FuelSuppliesTable({ fuelSupplies, isLoading }: FuelSuppliesTable
             <TableHead className="font-medium">Provider</TableHead>
             <TableHead className="font-medium">Tank</TableHead>
             <TableHead className="font-medium text-right">Quantity (Liters)</TableHead>
-            <TableHead className="font-medium text-right">Price per Liter</TableHead>
-            <TableHead className="font-medium text-right">Total Cost</TableHead>
+            <TableHead className="font-medium text-right">Price per Liter (֏)</TableHead>
+            <TableHead className="font-medium text-right">Total Cost (֏)</TableHead>
             <TableHead className="font-medium">Employee</TableHead>
             <TableHead className="font-medium">Comments</TableHead>
           </TableRow>
@@ -55,8 +55,12 @@ export function FuelSuppliesTable({ fuelSupplies, isLoading }: FuelSuppliesTable
               <TableCell>{supply.provider?.name || 'N/A'}</TableCell>
               <TableCell>{supply.tank?.name || 'N/A'} ({supply.tank?.fuel_type || 'N/A'})</TableCell>
               <TableCell className="text-right">{supply.quantity_liters.toFixed(2)}</TableCell>
-              <TableCell className="text-right">${supply.price_per_liter.toFixed(2)}</TableCell>
-              <TableCell className="text-right">${supply.total_cost.toFixed(2)}</TableCell>
+              <TableCell className="text-right">
+                {supply.price_per_liter.toLocaleString()} ֏
+              </TableCell>
+              <TableCell className="text-right">
+                {supply.total_cost.toLocaleString()} ֏
+              </TableCell>
               <TableCell>{supply.employee?.name || 'N/A'}</TableCell>
               <TableCell>{supply.comments || 'N/A'}</TableCell>
             </TableRow>

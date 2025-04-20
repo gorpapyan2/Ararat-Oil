@@ -58,8 +58,8 @@ export function SalesTable({ sales, isLoading, onEdit, onDelete, onView }: Sales
             <TableHead>Date</TableHead>
             <TableHead>Filling System</TableHead>
             <TableHead className="text-right">Total Liters</TableHead>
-            <TableHead className="text-right">Price/Unit (AMD)</TableHead>
-            <TableHead className="text-right">Total Sales (AMD)</TableHead>
+            <TableHead className="text-right">Price/Unit (֏)</TableHead>
+            <TableHead className="text-right">Total Sales (֏)</TableHead>
             <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -69,8 +69,12 @@ export function SalesTable({ sales, isLoading, onEdit, onDelete, onView }: Sales
               <TableCell>{format(new Date(sale.date), "PP")}</TableCell>
               <TableCell>{sale.filling_system_name}</TableCell>
               <TableCell className="text-right">{sale.quantity.toFixed(2)}</TableCell>
-              <TableCell className="text-right">{sale.price_per_unit.toLocaleString()} AMD</TableCell>
-              <TableCell className="text-right">{sale.total_sales.toLocaleString()} AMD</TableCell>
+              <TableCell className="text-right">
+                {sale.price_per_unit.toLocaleString()} ֏
+              </TableCell>
+              <TableCell className="text-right">
+                {sale.total_sales.toLocaleString()} ֏
+              </TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

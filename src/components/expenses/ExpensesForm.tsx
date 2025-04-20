@@ -149,11 +149,11 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Amount</FormLabel>
+              <FormLabel>Amount (֏ AMD)</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    <DollarSign className="h-4 w-4" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">
+                    ֏
                   </span>
                   <Input 
                     {...field} 
@@ -161,7 +161,7 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
                     min={0} 
                     placeholder="0.00" 
                     step="0.01"
-                    className="pl-10" 
+                    className="pl-10"
                   />
                 </div>
               </FormControl>

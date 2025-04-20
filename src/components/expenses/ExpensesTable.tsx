@@ -20,7 +20,7 @@ export function ExpensesTable({ expenses, loading, onEdit }: ExpensesTableProps)
             <TableHead><CalendarIcon className="inline mr-1" size={16}/> Date</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead><DollarSign className="inline mr-1" size={16}/> Amount</TableHead>
+            <TableHead><DollarSign className="inline mr-1" size={16}/> Amount (֏)</TableHead>
             <TableHead><CreditCard className="inline mr-1" size={16}/> Payment</TableHead>
             <TableHead>Invoice#</TableHead>
             <TableHead>Notes</TableHead>
@@ -46,7 +46,9 @@ export function ExpensesTable({ expenses, loading, onEdit }: ExpensesTableProps)
                 <TableCell>{exp.date ? new Date(exp.date).toLocaleDateString() : ""}</TableCell>
                 <TableCell>{exp.category}</TableCell>
                 <TableCell>{exp.description}</TableCell>
-                <TableCell>{Number(exp.amount).toFixed(2)}</TableCell>
+                <TableCell>
+                  {Number(exp.amount).toLocaleString()} ֏
+                </TableCell>
                 <TableCell>{exp.payment_method || ""}</TableCell>
                 <TableCell>{exp.invoice_number || ""}</TableCell>
                 <TableCell>{exp.notes || ""}</TableCell>
