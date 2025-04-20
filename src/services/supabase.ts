@@ -73,6 +73,17 @@ export interface FuelTank {
   name: string;
   fuel_type: FuelType;
   capacity: number;
+  current_level: number;
+  created_at?: string;
+}
+
+export interface TankLevelChange {
+  id: string;
+  tank_id: string;
+  change_amount: number;
+  previous_level: number;
+  new_level: number;
+  change_type: 'add' | 'subtract';
   created_at?: string;
 }
 
@@ -171,6 +182,65 @@ export const fetchFuelTanks = async (): Promise<FuelTank[]> => {
     ...item,
     fuel_type: item.fuel_type as FuelType
   }));
+};
+
+export const createFuelTank = async (tank: Omit<FuelTank, 'id' | 'created_at'>): Promise<FuelTank> => {
+  const { data, error } = await supabase
+    .from('fuel_tanks')
+    .insert([tank])
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+export interface TankLevelUpdateParams {
+  tankId: string;
+  changeAmount: number;
+  previousLevel: number;
+  newLevel: number;
+  changeType: 'add' | 'subtract';
+}
+
+export const updateTankLevel = async (params: TankLevelUpdateParams): Promise<FuelTank> => {
+  const { tankId, changeAmount, previousLevel, newLevel, changeType } = params;
+  
+  // First update the tank's current level
+  const { data: tankData, error: tankError } = await supabase
+    .from('fuel_tanks')
+    .update({ current_level: newLevel })
+    .eq('id', tankId)
+    .select()
+    .single();
+    
+  if (tankError) throw tankError;
+  
+  // Then record the change in the tank_level_changes table
+  const { error: changeError } = await supabase
+    .from('tank_level_changes')
+    .insert([{
+      tank_id: tankId,
+      change_amount: Math.abs(changeAmount),
+      previous_level: previousLevel,
+      new_level: newLevel,
+      change_type: changeType
+    }]);
+    
+  if (changeError) throw changeError;
+  
+  return tankData;
+};
+
+export const fetchTankLevelChanges = async (tankId: string): Promise<TankLevelChange[]> => {
+  const { data, error } = await supabase
+    .from('tank_level_changes')
+    .select('*')
+    .eq('tank_id', tankId)
+    .order('created_at', { ascending: false });
+    
+  if (error) throw error;
+  return data || [];
 };
 
 export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyInventoryRecord[]> => {
