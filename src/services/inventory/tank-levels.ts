@@ -1,32 +1,23 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { DailyInventoryRecord } from "@/types";
+import { FuelTank, FillingSystem } from "@/types";
 
-export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemId: string): Promise<DailyInventoryRecord | null> => {
+// Replaces the previous function to get inventory data by filling system ID
+// Now returns the associated tank data directly since daily_inventory_records no longer exists
+export const fetchTankByFillingSystemId = async (fillingSystemId: string): Promise<FuelTank | null> => {
   const { data, error } = await supabase
-    .from('daily_inventory_records')
+    .from('filling_systems')
     .select(`
-      *,
-      filling_system:filling_systems(
-        id,
-        name,
-        tank:fuel_tanks(*)
-      ),
-      provider:petrol_providers(*),
-      employee:employees(*)
+      id,
+      name,
+      tank:fuel_tanks(*)
     `)
-    .eq('filling_system_id', fillingSystemId)
-    .order('date', { ascending: false })
-    .limit(1)
+    .eq('id', fillingSystemId)
     .maybeSingle();
     
   if (error) throw error;
   
-  if (!data) return null;
+  if (!data || !data.tank || !data.tank[0]) return null;
   
-  return {
-    ...data,
-    filling_system_id: data.filling_system_id || '',
-    employee_id: data.employee_id || '',
-  } as DailyInventoryRecord;
+  return data.tank[0] as FuelTank;
 };

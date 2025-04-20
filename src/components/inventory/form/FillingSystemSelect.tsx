@@ -16,7 +16,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Control } from "react-hook-form";
-import { useEffect } from "react";
 
 interface FillingSystemSelectProps {
   control: Control<any>;

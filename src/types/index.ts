@@ -1,3 +1,4 @@
+
 export type FuelType = 'Petrol' | 'Diesel' | 'Gas';
 export type PaymentStatus = 'Paid' | 'Pending';
 export type PaymentMethod = "Cash" | "Credit Card" | "Bank Transfer" | "Mobile" | "Other";
@@ -111,6 +112,8 @@ export interface PetrolProvider {
   updated_at?: string;
 }
 
+// This type is kept for backward compatibility but is no longer used
+// since the 'daily_inventory_records' table doesn't exist
 export interface DailyInventoryRecord {
   id: string;
   filling_system_id: string;
@@ -123,7 +126,7 @@ export interface DailyInventoryRecord {
   closing_stock: number;
   unit_price: number;
   total_price: number;
-  employee_id?: string;
+  employee_id: string;
   created_at?: string;
   last_refill_date?: string;
   filling_system?: FillingSystem;
