@@ -260,8 +260,12 @@ export type Database = {
         Row: {
           created_at: string | null
           date: string
+          employee_id: string | null
+          filling_system_id: string | null
           fuel_type: string
           id: string
+          meter_end: number | null
+          meter_start: number | null
           payment_status: string
           price_per_unit: number
           quantity: number
@@ -270,8 +274,12 @@ export type Database = {
         Insert: {
           created_at?: string | null
           date: string
+          employee_id?: string | null
+          filling_system_id?: string | null
           fuel_type: string
           id?: string
+          meter_end?: number | null
+          meter_start?: number | null
           payment_status: string
           price_per_unit: number
           quantity: number
@@ -280,8 +288,12 @@ export type Database = {
         Update: {
           created_at?: string | null
           date?: string
+          employee_id?: string | null
+          filling_system_id?: string | null
           fuel_type?: string
           id?: string
+          meter_end?: number | null
+          meter_start?: number | null
           payment_status?: string
           price_per_unit?: number
           quantity?: number
