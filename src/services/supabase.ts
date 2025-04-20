@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 // Types
@@ -75,7 +76,13 @@ export const fetchSales = async (): Promise<Sale[]> => {
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  
+  // Cast the data to ensure it matches our defined types
+  return (data || []).map(item => ({
+    ...item,
+    fuel_type: item.fuel_type as FuelType,
+    payment_status: item.payment_status as PaymentStatus
+  }));
 };
 
 export const fetchInventory = async (): Promise<InventoryItem[]> => {
@@ -85,7 +92,12 @@ export const fetchInventory = async (): Promise<InventoryItem[]> => {
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  
+  // Cast the data to ensure it matches our defined types
+  return (data || []).map(item => ({
+    ...item,
+    fuel_type: item.fuel_type as FuelType
+  }));
 };
 
 export const fetchExpenses = async (): Promise<Expense[]> => {
@@ -95,7 +107,13 @@ export const fetchExpenses = async (): Promise<Expense[]> => {
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  
+  // Cast the data to ensure it matches our defined types
+  return (data || []).map(item => ({
+    ...item,
+    category: item.category as ExpenseCategory,
+    payment_status: item.payment_status as PaymentStatus
+  }));
 };
 
 export const fetchProfitLoss = async (): Promise<ProfitLoss[]> => {
