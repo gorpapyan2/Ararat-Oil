@@ -37,7 +37,8 @@ export function InventoryTable({ records, isLoading }: InventoryTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead className="font-medium">Tank</TableHead>
+            <TableHead className="font-medium">Filling System</TableHead>
+            <TableHead className="font-medium">Fuel Tank</TableHead>
             <TableHead className="font-medium text-right">Opening Stock</TableHead>
             <TableHead className="font-medium text-right">Received</TableHead>
             <TableHead className="font-medium text-right">Sold</TableHead>
@@ -49,7 +50,8 @@ export function InventoryTable({ records, isLoading }: InventoryTableProps) {
         <TableBody>
           {records.map((record) => (
             <TableRow key={record.id} className="hover:bg-muted/50">
-              <TableCell className="font-medium">{record.tank?.name}</TableCell>
+              <TableCell className="font-medium">{record.filling_system?.name}</TableCell>
+              <TableCell>{record.filling_system?.tank?.name}</TableCell>
               <TableCell className="text-right">{record.opening_stock}</TableCell>
               <TableCell className="text-right">{record.received}</TableCell>
               <TableCell className="text-right">{record.sold}</TableCell>

@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -8,8 +7,7 @@ import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { createDailyInventoryRecord, fetchLatestInventoryRecordByFillingSystemId } from "@/services/inventory";
-import type { Employee, FuelTank } from "@/services/supabase";
-import { TankSelect } from "./form/TankSelect";
+import type { Employee } from "@/services/supabase";
 import { StockInputs } from "./form/StockInputs";
 import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
 import * as z from "zod";
@@ -82,12 +80,9 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
 
   const mutation = useMutation({
     mutationFn: (data: FormData) => {
-      const fillingSystem = fillingSystems?.find(s => s.id === data.filling_system_id);
-      if (!fillingSystem?.tank_id) throw new Error('No tank associated with this filling system');
-
       return createDailyInventoryRecord({
         date: formattedDate,
-        tank_id: fillingSystem.tank_id as string,
+        filling_system_id: data.filling_system_id,
         employee_id: data.employee_id,
         opening_stock: Number(data.opening_stock),
         received: Number(data.received),

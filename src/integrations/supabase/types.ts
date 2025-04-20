@@ -15,10 +15,10 @@ export type Database = {
           created_at: string | null
           date: string
           employee_id: string | null
+          filling_system_id: string
           id: string
           opening_stock: number
           sold: number
-          tank_id: string
           unit_price: number
         }
         Insert: {
@@ -26,10 +26,10 @@ export type Database = {
           created_at?: string | null
           date: string
           employee_id?: string | null
+          filling_system_id: string
           id?: string
           opening_stock: number
           sold?: number
-          tank_id: string
           unit_price: number
         }
         Update: {
@@ -37,10 +37,10 @@ export type Database = {
           created_at?: string | null
           date?: string
           employee_id?: string | null
+          filling_system_id?: string
           id?: string
           opening_stock?: number
           sold?: number
-          tank_id?: string
           unit_price?: number
         }
         Relationships: [
@@ -52,10 +52,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "daily_inventory_records_tank_id_fkey"
-            columns: ["tank_id"]
+            foreignKeyName: "daily_inventory_records_filling_system_id_fkey"
+            columns: ["filling_system_id"]
             isOneToOne: false
-            referencedRelation: "fuel_tanks"
+            referencedRelation: "filling_systems"
             referencedColumns: ["id"]
           },
         ]

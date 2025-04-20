@@ -21,7 +21,11 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
     .from('daily_inventory_records')
     .select(`
       *,
-      tank:fuel_tanks(*),
+      filling_system:filling_systems(
+        id,
+        name,
+        tank:fuel_tanks(*)
+      ),
       employee:employees(*)
     `)
     .order('date', { ascending: false });
@@ -37,11 +41,14 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
     // Create a properly typed record with all required fields
     const typedRecord: DailyInventoryRecord = {
       ...record,
-      received: 0, // Add default received value
-      tank: record.tank ? {
-        ...record.tank,
-        fuel_type: record.tank.fuel_type as FuelType,
-        current_level: typeof record.tank.current_level === 'number' ? record.tank.current_level : 0
+      received: record.received || 0,
+      filling_system: record.filling_system ? {
+        ...record.filling_system,
+        tank: record.filling_system.tank ? {
+          ...record.filling_system.tank,
+          fuel_type: record.filling_system.tank.fuel_type as FuelType,
+          current_level: typeof record.filling_system.tank.current_level === 'number' ? record.filling_system.tank.current_level : 0
+        } : undefined
       } : undefined,
       employee: record.employee ? {
         ...record.employee,
@@ -71,67 +78,15 @@ export const createDailyInventoryRecord = async (record: Omit<DailyInventoryReco
   // we need to explicitly add it back to our returned object
   return {
     ...data,
-    received: 0 // Add default received value
-  };
-};
-
-export const fetchLatestInventoryRecord = async (tankId: string): Promise<DailyInventoryRecord | null> => {
-  const { data, error } = await supabase
-    .from('daily_inventory_records')
-    .select('*')
-    .eq('tank_id', tankId)
-    .order('date', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-    
-  if (error) throw error;
-  
-  if (!data) return null;
-  
-  // Ensure the record has the received field
-  return {
-    ...data,
-    received: 0 // Add default received value
-  };
-};
-
-export const fetchLatestInventoryRecordByTankId = async (tankId: string): Promise<DailyInventoryRecord | null> => {
-  const { data, error } = await supabase
-    .from('daily_inventory_records')
-    .select('*')
-    .eq('tank_id', tankId)
-    .order('date', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-    
-  if (error) throw error;
-  
-  if (!data) return null;
-  
-  // Ensure the record has the received field
-  return {
-    ...data,
-    received: 0 // Add default received value
+    received: recordWithReceived.received || 0
   };
 };
 
 export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemId: string): Promise<DailyInventoryRecord | null> => {
-  // First get the tank ID associated with this filling system
-  const { data: fillingSystem, error: fillingSystemError } = await supabase
-    .from('filling_systems')
-    .select('tank_id')
-    .eq('id', fillingSystemId)
-    .single();
-    
-  if (fillingSystemError) throw fillingSystemError;
-  
-  if (!fillingSystem?.tank_id) return null;
-  
-  // Then fetch the latest inventory record for this tank
   const { data, error } = await supabase
     .from('daily_inventory_records')
     .select('*')
-    .eq('tank_id', fillingSystem.tank_id)
+    .eq('filling_system_id', fillingSystemId)
     .order('date', { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -143,6 +98,6 @@ export const fetchLatestInventoryRecordByFillingSystemId = async (fillingSystemI
   // Ensure the record has the received field
   return {
     ...data,
-    received: 0 // Add default received value
+    received: data.received || 0
   };
 };
