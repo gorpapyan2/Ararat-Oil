@@ -299,7 +299,15 @@ export type Database = {
           quantity?: number
           total_sales?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sales_filling_system_id_fkey"
+            columns: ["filling_system_id"]
+            isOneToOne: false
+            referencedRelation: "filling_systems"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tank_level_changes: {
         Row: {

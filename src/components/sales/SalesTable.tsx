@@ -27,6 +27,8 @@ export function SalesTable({ sales, isLoading }: SalesTableProps) {
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Fuel Type</TableHead>
+            <TableHead>Meter Start</TableHead>
+            <TableHead>Meter End</TableHead>
             <TableHead>Quantity</TableHead>
             <TableHead>Price/Unit</TableHead>
             <TableHead>Total</TableHead>
@@ -38,6 +40,8 @@ export function SalesTable({ sales, isLoading }: SalesTableProps) {
             <TableRow key={sale.id}>
               <TableCell>{format(new Date(sale.date), "PP")}</TableCell>
               <TableCell className="capitalize">{sale.fuel_type.toLowerCase()}</TableCell>
+              <TableCell>{sale.meter_start}</TableCell>
+              <TableCell>{sale.meter_end}</TableCell>
               <TableCell>{sale.quantity}</TableCell>
               <TableCell>₱{sale.price_per_unit.toFixed(2)}</TableCell>
               <TableCell>₱{sale.total_sales.toFixed(2)}</TableCell>
@@ -46,7 +50,7 @@ export function SalesTable({ sales, isLoading }: SalesTableProps) {
           ))}
           {sales.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center">
+              <TableCell colSpan={8} className="text-center">
                 No sales found
               </TableCell>
             </TableRow>

@@ -14,7 +14,6 @@ export const fetchSales = async (): Promise<Sale[]> => {
     ...item,
     fuel_type: item.fuel_type as FuelType,
     payment_status: item.payment_status as PaymentStatus,
-    // Ensure all required properties are present
     meter_start: item.meter_start ?? 0,
     meter_end: item.meter_end ?? 0,
     filling_system_id: item.filling_system_id ?? '',
@@ -31,7 +30,6 @@ export const createSale = async (
     employee_id: string;
   }
 ): Promise<Sale> => {
-  // Calculate quantity from meter readings
   const quantity = data.meter_end - data.meter_start;
   const total_sales = quantity * data.unit_price;
 
