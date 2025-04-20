@@ -50,3 +50,23 @@ export const createSale = async (
     payment_status: sale.payment_status as PaymentStatus
   };
 };
+
+export const fetchLatestSale = async (filling_system_id: string): Promise<Sale | null> => {
+  const { data, error } = await supabase
+    .from('sales')
+    .select('*')
+    .eq('filling_system_id', filling_system_id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+    
+  if (error) throw error;
+  
+  if (!data) return null;
+
+  return {
+    ...data,
+    fuel_type: data.fuel_type as FuelType,
+    payment_status: data.payment_status as PaymentStatus
+  };
+};

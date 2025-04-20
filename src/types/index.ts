@@ -21,6 +21,10 @@ export interface Sale {
   total_sales: number;
   payment_status: PaymentStatus;
   created_at?: string;
+  meter_start: number;
+  meter_end: number;
+  filling_system_id: string;
+  employee_id: string;
 }
 
 export interface InventoryItem {

@@ -14,8 +14,9 @@ import { FillingSystemSelect } from "@/components/inventory/form/FillingSystemSe
 import { PriceAndEmployeeInputs } from "@/components/inventory/form/PriceAndEmployeeInputs";
 import { useQuery } from "@tanstack/react-query";
 import { fetchEmployees } from "@/services/employees";
+import { fetchLatestSale } from "@/services/sales";
 import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SalesFormValues {
   filling_system_id: string;
@@ -28,11 +29,31 @@ interface SalesFormValues {
 export function SalesForm({ onSubmit }: { onSubmit: (data: SalesFormValues) => void }) {
   const form = useForm<SalesFormValues>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFillingSystem, setSelectedFillingSystem] = useState<string>("");
 
   const { data: employees } = useQuery({
     queryKey: ['employees'],
     queryFn: fetchEmployees
   });
+
+  const { data: latestSale } = useQuery({
+    queryKey: ['latest-sale', selectedFillingSystem],
+    queryFn: () => selectedFillingSystem ? fetchLatestSale(selectedFillingSystem) : null,
+    enabled: !!selectedFillingSystem
+  });
+
+  // Update default values when filling system changes or latest sale is loaded
+  useEffect(() => {
+    if (latestSale) {
+      form.setValue('meter_start', latestSale.meter_end);
+      form.setValue('unit_price', latestSale.price_per_unit);
+    }
+  }, [latestSale, form]);
+
+  const handleFillingSystemChange = (value: string) => {
+    setSelectedFillingSystem(value);
+    form.setValue('filling_system_id', value);
+  };
 
   const handleSubmit = async (data: SalesFormValues) => {
     try {
@@ -55,7 +76,10 @@ export function SalesForm({ onSubmit }: { onSubmit: (data: SalesFormValues) => v
         </DialogHeader>
 
         <div className="space-y-4">
-          <FillingSystemSelect control={form.control} />
+          <FillingSystemSelect 
+            control={form.control} 
+            onChange={handleFillingSystemChange}
+          />
 
           <FormField
             control={form.control}
