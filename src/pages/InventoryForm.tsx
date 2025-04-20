@@ -1,18 +1,13 @@
 
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchFuelTanks, fetchEmployees } from "@/services/supabase";
+import { fetchEmployees } from "@/services/supabase";
 import { InventoryForm } from "@/components/inventory/InventoryForm";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 export default function InventoryFormPage() {
   const navigate = useNavigate();
-
-  const { data: tanks } = useQuery({
-    queryKey: ['fuel-tanks'],
-    queryFn: fetchFuelTanks,
-  });
 
   const { data: employees } = useQuery({
     queryKey: ['employees'],
@@ -40,7 +35,6 @@ export default function InventoryFormPage() {
           isOpen={true}
           onOpenChange={() => navigate('/inventory')}
           selectedDate={new Date()}
-          tanks={tanks}
           employees={employees}
         />
       </div>
