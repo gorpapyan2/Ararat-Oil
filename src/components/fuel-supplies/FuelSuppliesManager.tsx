@@ -21,17 +21,19 @@ export function FuelSuppliesManager() {
   const createMutation = useMutation({
     mutationFn: createFuelSupply,
     onSuccess: () => {
+      // Invalidate both fuel-supplies and fuel-tanks queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['fuel-supplies'] });
+      queryClient.invalidateQueries({ queryKey: ['fuel-tanks'] });
       setIsDialogOpen(false);
       toast({
         title: "Success",
-        description: "Fuel supply record created successfully",
+        description: "Fuel supply record created successfully and tank level updated",
       });
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: "Failed to create fuel supply record",
+        description: "Failed to create fuel supply record: " + error.message,
         variant: "destructive",
       });
     },

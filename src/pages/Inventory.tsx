@@ -2,11 +2,20 @@
 import { DailyInventory } from "@/components/DailyInventory";
 import { TankManager } from "@/components/tanks/TankManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
 
 export default function Inventory() {
+  // Store active tab to ensure correct data is refreshed when user switches tabs
+  const [activeTab, setActiveTab] = useState("inventory");
+  
   return (
     <div className="max-w-[1600px] mx-auto">
-      <Tabs defaultValue="inventory" className="space-y-6">
+      <Tabs 
+        defaultValue="inventory" 
+        className="space-y-6"
+        onValueChange={setActiveTab}
+        value={activeTab}
+      >
         <TabsList className="grid w-full md:w-[400px] grid-cols-2">
           <TabsTrigger value="inventory">Daily Inventory</TabsTrigger>
           <TabsTrigger value="tanks">Fuel Tanks</TabsTrigger>
@@ -17,7 +26,7 @@ export default function Inventory() {
         </TabsContent>
         
         <TabsContent value="tanks" className="mt-6">
-          <TankManager />
+          <TankManager key={activeTab === "tanks" ? "active-tanks" : "inactive"} />
         </TabsContent>
       </Tabs>
     </div>

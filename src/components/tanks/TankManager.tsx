@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFuelTanks } from "@/services/supabase";
 import { TankHeader } from "./TankHeader";
@@ -13,7 +13,15 @@ export function TankManager() {
   const { data: tanks, isLoading: isLoadingTanks, refetch } = useQuery({
     queryKey: ['fuel-tanks'],
     queryFn: fetchFuelTanks,
+    // Ensure tanks data is always fresh
+    staleTime: 0,
+    refetchOnWindowFocus: true
   });
+
+  // Refetch on mount to ensure fresh data
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   return (
     <div className="space-y-6">
