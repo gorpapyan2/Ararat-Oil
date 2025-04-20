@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchExpenses } from "@/services/expenses";
@@ -11,11 +10,7 @@ import { ExpensesForm } from "./ExpensesForm";
 import { CategoryManager } from "./CategoryManager";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-
-const DEFAULT_CATEGORIES = [
-  "Rent", "Utilities", "Salaries", "Maintenance", "Supplies", "Marketing", "Insurance", "Taxes", "Travel", "Fuel", "Other"
-];
-
+const DEFAULT_CATEGORIES = ["Rent", "Utilities", "Salaries", "Maintenance", "Supplies", "Marketing", "Insurance", "Taxes", "Travel", "Fuel", "Other"];
 export function ExpensesManager() {
   // State for add/edit form and category manager
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
@@ -24,13 +19,16 @@ export function ExpensesManager() {
 
   // Categories (stub: in memory, replace with backend persistence as needed)
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
-
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  const { data: expenses, isLoading } = useQuery({
+  const {
+    toast
+  } = useToast();
+  const {
+    data: expenses,
+    isLoading
+  } = useQuery({
     queryKey: ["expenses"],
-    queryFn: fetchExpenses,
+    queryFn: fetchExpenses
   });
 
   // TODO: Add create/update/deleteExpense mutations here
@@ -51,9 +49,7 @@ export function ExpensesManager() {
   const onDeleteCategory = (name: string) => {
     setCategories(categories.filter(c => c !== name));
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -65,7 +61,7 @@ export function ExpensesManager() {
               <Button variant="outline" onClick={() => setCategoryMgrOpen(true)}>
                 Manage Categories
               </Button>
-              <Button onClick={handleAdd} className="bg-primary text-white hover:bg-primary/90 animate-fade-in">
+              <Button onClick={handleAdd} className="bg-primary hover:bg-primary/90 animate-fade-in text-neutral-950">
                 <Plus className="mr-2" /> New Expense
               </Button>
             </div>
@@ -73,35 +69,20 @@ export function ExpensesManager() {
         </CardHeader>
       </Card>
 
-      <ExpensesTable
-        expenses={expenses || []}
-        categories={categories}
-        onEdit={handleEdit}
-        loading={isLoading}
-      />
+      <ExpensesTable expenses={expenses || []} categories={categories} onEdit={handleEdit} loading={isLoading} />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
-          <ExpensesForm
-            categories={categories}
-            expense={selectedExpense}
-            onSubmit={() => {
-              setIsDialogOpen(false);
-              // after mutation, invalidate and refetch
-              queryClient.invalidateQueries({ queryKey: ["expenses"] });
-            }}
-            onCancel={() => setIsDialogOpen(false)}
-          />
+          <ExpensesForm categories={categories} expense={selectedExpense} onSubmit={() => {
+          setIsDialogOpen(false);
+          // after mutation, invalidate and refetch
+          queryClient.invalidateQueries({
+            queryKey: ["expenses"]
+          });
+        }} onCancel={() => setIsDialogOpen(false)} />
         </DialogContent>
       </Dialog>
 
-      <CategoryManager
-        categories={categories}
-        onAdd={onAddCategory}
-        onDelete={onDeleteCategory}
-        open={categoryMgrOpen}
-        setOpen={setCategoryMgrOpen}
-      />
-    </div>
-  );
+      <CategoryManager categories={categories} onAdd={onAddCategory} onDelete={onDeleteCategory} open={categoryMgrOpen} setOpen={setCategoryMgrOpen} />
+    </div>;
 }
