@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -26,6 +27,8 @@ const formSchema = z.object({
   filling_system_id: z.string({ required_error: "Filling system is required" }),
   opening_stock: z.coerce.number({ required_error: "Opening stock is required" })
     .nonnegative("Must be a positive number"),
+  closing_stock: z.coerce.number({ required_error: "Closing stock is required" })
+    .nonnegative("Must be a positive number"),
   unit_price: z.coerce.number({ required_error: "Unit price is required" })
     .positive("Price must be greater than zero"),
   employee_id: z.string({ required_error: "Employee is required" }),
@@ -42,6 +45,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
     resolver: zodResolver(formSchema),
     defaultValues: {
       opening_stock: 0,
+      closing_stock: 0,
       unit_price: 0,
     },
   });
@@ -56,6 +60,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
       const lastRecord = await fetchLatestInventoryRecordByFillingSystemId(systemId);
       if (lastRecord) {
         form.setValue('opening_stock', lastRecord.closing_stock);
+        form.setValue('closing_stock', lastRecord.closing_stock); // Set closing stock to same value by default
         // Also update unit price from last record if available
         if (lastRecord.unit_price) {
           form.setValue('unit_price', lastRecord.unit_price);
@@ -63,11 +68,13 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
       } else {
         // Reset to default if no previous record
         form.setValue('opening_stock', 0);
+        form.setValue('closing_stock', 0);
       }
     } catch (error) {
       console.error('Error fetching last record:', error);
       // Reset to default on error
       form.setValue('opening_stock', 0);
+      form.setValue('closing_stock', 0);
     }
   };
 
@@ -83,7 +90,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
         opening_stock: Number(data.opening_stock),
         received: 0,
         sold: 0,
-        closing_stock: Number(data.opening_stock),
+        closing_stock: Number(data.closing_stock),
         unit_price: Number(data.unit_price),
       });
     },

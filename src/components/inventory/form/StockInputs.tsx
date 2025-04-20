@@ -27,6 +27,24 @@ export function StockInputs({ control }: StockInputsProps) {
           </FormItem>
         )}
       />
+      
+      <FormField
+        control={control}
+        name="closing_stock"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base font-medium">Closing Stock</FormLabel>
+            <FormControl>
+              <Input 
+                type="number" 
+                className="h-12 text-base"
+                {...field} 
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 }
