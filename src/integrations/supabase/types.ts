@@ -9,7 +9,162 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      employees: {
+        Row: {
+          contact: string
+          created_at: string | null
+          hire_date: string
+          id: string
+          name: string
+          position: string
+          salary: number
+        }
+        Insert: {
+          contact: string
+          created_at?: string | null
+          hire_date: string
+          id?: string
+          name: string
+          position: string
+          salary: number
+        }
+        Update: {
+          contact?: string
+          created_at?: string | null
+          hire_date?: string
+          id?: string
+          name?: string
+          position?: string
+          salary?: number
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string | null
+          date: string
+          description: string
+          id: string
+          payment_status: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string | null
+          date: string
+          description: string
+          id?: string
+          payment_status: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string | null
+          date?: string
+          description?: string
+          id?: string
+          payment_status?: string
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          closing_stock: number
+          created_at: string | null
+          date: string
+          fuel_type: string
+          id: string
+          opening_stock: number
+          received: number
+          sold: number
+          unit_price: number
+        }
+        Insert: {
+          closing_stock: number
+          created_at?: string | null
+          date: string
+          fuel_type: string
+          id?: string
+          opening_stock: number
+          received: number
+          sold: number
+          unit_price: number
+        }
+        Update: {
+          closing_stock?: number
+          created_at?: string | null
+          date?: string
+          fuel_type?: string
+          id?: string
+          opening_stock?: number
+          received?: number
+          sold?: number
+          unit_price?: number
+        }
+        Relationships: []
+      }
+      profit_loss_summary: {
+        Row: {
+          created_at: string | null
+          id: string
+          period: string
+          profit: number
+          total_expenses: number
+          total_sales: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          period: string
+          profit: number
+          total_expenses: number
+          total_sales: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          period?: string
+          profit?: number
+          total_expenses?: number
+          total_sales?: number
+        }
+        Relationships: []
+      }
+      sales: {
+        Row: {
+          created_at: string | null
+          date: string
+          fuel_type: string
+          id: string
+          payment_status: string
+          price_per_unit: number
+          quantity: number
+          total_sales: number
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          fuel_type: string
+          id?: string
+          payment_status: string
+          price_per_unit: number
+          quantity: number
+          total_sales: number
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          fuel_type?: string
+          id?: string
+          payment_status?: string
+          price_per_unit?: number
+          quantity?: number
+          total_sales?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

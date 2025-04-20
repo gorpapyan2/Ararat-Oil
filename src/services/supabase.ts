@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 // Types
@@ -68,54 +67,53 @@ export interface Employee {
   created_at?: string;
 }
 
-// Base fetch functions with type assertions to fix TypeScript errors
+// Refactored fetch functions with proper typing
 export const fetchSales = async (): Promise<Sale[]> => {
-  // Use type assertion to tell TypeScript this is valid
   const { data, error } = await supabase
-    .from('sales' as any)
+    .from('sales')
     .select('*')
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return (data as Sale[]) || [];
+  return data || [];
 };
 
 export const fetchInventory = async (): Promise<InventoryItem[]> => {
   const { data, error } = await supabase
-    .from('inventory' as any)
+    .from('inventory')
     .select('*')
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return (data as InventoryItem[]) || [];
+  return data || [];
 };
 
 export const fetchExpenses = async (): Promise<Expense[]> => {
   const { data, error } = await supabase
-    .from('expenses' as any)
+    .from('expenses')
     .select('*')
     .order('date', { ascending: false });
     
   if (error) throw error;
-  return (data as Expense[]) || [];
+  return data || [];
 };
 
 export const fetchProfitLoss = async (): Promise<ProfitLoss[]> => {
   const { data, error } = await supabase
-    .from('profit_loss_summary' as any)
+    .from('profit_loss_summary')
     .select('*')
     .order('period', { ascending: false });
     
   if (error) throw error;
-  return (data as ProfitLoss[]) || [];
+  return data || [];
 };
 
 export const fetchEmployees = async (): Promise<Employee[]> => {
   const { data, error } = await supabase
-    .from('employees' as any)
+    .from('employees')
     .select('*')
     .order('name', { ascending: true });
     
   if (error) throw error;
-  return (data as Employee[]) || [];
+  return data || [];
 };
