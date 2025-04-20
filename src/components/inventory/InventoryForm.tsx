@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -27,6 +26,7 @@ const formSchema = z.object({
   filling_system_id: z.string({ required_error: "Filling system is required" }),
   opening_stock: z.coerce.number({ required_error: "Opening stock is required" })
     .nonnegative("Must be a positive number"),
+  received: z.coerce.number().default(0).nonnegative("Must be a positive number"),
   closing_stock: z.coerce.number({ required_error: "Closing stock is required" })
     .nonnegative("Must be a positive number"),
   unit_price: z.coerce.number({ required_error: "Unit price is required" })
@@ -45,6 +45,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
     resolver: zodResolver(formSchema),
     defaultValues: {
       opening_stock: 0,
+      received: 0,
       closing_stock: 0,
       unit_price: 0,
     },
@@ -88,7 +89,7 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
         tank_id: fillingSystem.tank_id,
         employee_id: data.employee_id,
         opening_stock: Number(data.opening_stock),
-        received: 0, // Adding the received field with default value
+        received: Number(data.received),
         sold: 0,
         closing_stock: Number(data.closing_stock),
         unit_price: Number(data.unit_price),
