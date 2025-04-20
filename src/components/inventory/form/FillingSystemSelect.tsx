@@ -22,9 +22,10 @@ interface FillingSystemSelectProps {
   control: Control<any>;
   onChange?: (value: string) => void;
   onSelect?: (systemId: string) => void;
+  value?: string;
 }
 
-export function FillingSystemSelect({ control, onChange, onSelect }: FillingSystemSelectProps) {
+export function FillingSystemSelect({ control, onChange, onSelect, value }: FillingSystemSelectProps) {
   const { data: fillingSystems, isLoading } = useQuery({
     queryKey: ['filling-systems'],
     queryFn: fetchFillingSystems,
@@ -48,7 +49,7 @@ export function FillingSystemSelect({ control, onChange, onSelect }: FillingSyst
                 onSelect(value);
               }
             }} 
-            value={field.value || ""}
+            value={value || field.value || ""}
           >
             <FormControl>
               <SelectTrigger>
