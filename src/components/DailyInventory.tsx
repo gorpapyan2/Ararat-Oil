@@ -1,28 +1,18 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchDailyInventoryRecords, fetchFuelTanks, fetchEmployees } from "@/services/supabase";
+import { fetchDailyInventoryRecords } from "@/services/supabase";
 import { InventoryHeader } from "./inventory/InventoryHeader";
 import { InventoryTable } from "./inventory/InventoryTable";
-import { InventoryForm } from "./inventory/InventoryForm";
+import { useNavigate } from "react-router-dom";
 
 export function DailyInventory() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [isAddingRecord, setIsAddingRecord] = useState(false);
+  const navigate = useNavigate();
   
   const { data: records, isLoading: isLoadingRecords } = useQuery({
     queryKey: ['daily-inventory', selectedDate.toISOString().split('T')[0]],
     queryFn: () => fetchDailyInventoryRecords(selectedDate.toISOString().split('T')[0]),
-  });
-
-  const { data: tanks } = useQuery({
-    queryKey: ['fuel-tanks'],
-    queryFn: fetchFuelTanks,
-  });
-
-  const { data: employees } = useQuery({
-    queryKey: ['employees'],
-    queryFn: fetchEmployees,
   });
 
   return (
@@ -30,20 +20,12 @@ export function DailyInventory() {
       <InventoryHeader
         selectedDate={selectedDate}
         onDateChange={(date) => date && setSelectedDate(date)}
-        onAddRecord={() => setIsAddingRecord(true)}
+        onAddRecord={() => navigate('/inventory/new')}
       />
 
       <InventoryTable 
         records={records || []} 
         isLoading={isLoadingRecords} 
-      />
-
-      <InventoryForm
-        isOpen={isAddingRecord}
-        onOpenChange={setIsAddingRecord}
-        selectedDate={selectedDate}
-        tanks={tanks}
-        employees={employees}
       />
     </div>
   );
