@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      daily_inventory_records: {
+        Row: {
+          closing_stock: number
+          created_at: string | null
+          date: string
+          employee_id: string | null
+          id: string
+          opening_stock: number
+          received: number
+          sold: number
+          tank_id: string
+          unit_price: number
+        }
+        Insert: {
+          closing_stock: number
+          created_at?: string | null
+          date: string
+          employee_id?: string | null
+          id?: string
+          opening_stock: number
+          received?: number
+          sold?: number
+          tank_id: string
+          unit_price: number
+        }
+        Update: {
+          closing_stock?: number
+          created_at?: string | null
+          date?: string
+          employee_id?: string | null
+          id?: string
+          opening_stock?: number
+          received?: number
+          sold?: number
+          tank_id?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_inventory_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_inventory_records_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_tanks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           contact: string
@@ -69,6 +123,30 @@ export type Database = {
         }
         Relationships: []
       }
+      fuel_tanks: {
+        Row: {
+          capacity: number
+          created_at: string | null
+          fuel_type: string
+          id: string
+          name: string
+        }
+        Insert: {
+          capacity: number
+          created_at?: string | null
+          fuel_type: string
+          id?: string
+          name: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string | null
+          fuel_type?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       inventory: {
         Row: {
           closing_stock: number
@@ -79,6 +157,7 @@ export type Database = {
           opening_stock: number
           received: number
           sold: number
+          tank_id: string | null
           unit_price: number
         }
         Insert: {
@@ -90,6 +169,7 @@ export type Database = {
           opening_stock: number
           received: number
           sold: number
+          tank_id?: string | null
           unit_price: number
         }
         Update: {
@@ -101,9 +181,18 @@ export type Database = {
           opening_stock?: number
           received?: number
           sold?: number
+          tank_id?: string | null
           unit_price?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "inventory_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_tanks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profit_loss_summary: {
         Row: {

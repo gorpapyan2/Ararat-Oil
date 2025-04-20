@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 // Types
@@ -68,6 +67,29 @@ export interface Employee {
   created_at?: string;
 }
 
+export interface FuelTank {
+  id: string;
+  name: string;
+  fuel_type: FuelType;
+  capacity: number;
+  created_at?: string;
+}
+
+export interface DailyInventoryRecord {
+  id: string;
+  tank_id: string;
+  date: string;
+  opening_stock: number;
+  received: number;
+  sold: number;
+  closing_stock: number;
+  unit_price: number;
+  employee_id?: string;
+  created_at?: string;
+  tank?: FuelTank;
+  employee?: Employee;
+}
+
 // Refactored fetch functions with proper typing
 export const fetchSales = async (): Promise<Sale[]> => {
   const { data, error } = await supabase
@@ -134,4 +156,49 @@ export const fetchEmployees = async (): Promise<Employee[]> => {
     
   if (error) throw error;
   return data || [];
+};
+
+export const fetchFuelTanks = async (): Promise<FuelTank[]> => {
+  const { data, error } = await supabase
+    .from('fuel_tanks')
+    .select('*')
+    .order('name', { ascending: true });
+    
+  if (error) throw error;
+  
+  return (data || []).map(item => ({
+    ...item,
+    fuel_type: item.fuel_type as FuelType
+  }));
+};
+
+export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyInventoryRecord[]> => {
+  let query = supabase
+    .from('daily_inventory_records')
+    .select(`
+      *,
+      tank:fuel_tanks(*),
+      employee:employees(*)
+    `)
+    .order('date', { ascending: false });
+    
+  if (date) {
+    query = query.eq('date', date);
+  }
+  
+  const { data, error } = await query;
+  if (error) throw error;
+  
+  return data || [];
+};
+
+export const createDailyInventoryRecord = async (record: Omit<DailyInventoryRecord, 'id' | 'created_at'>): Promise<DailyInventoryRecord> => {
+  const { data, error } = await supabase
+    .from('daily_inventory_records')
+    .insert([record])
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
 };
