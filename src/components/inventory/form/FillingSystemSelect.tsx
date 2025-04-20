@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Control } from "react-hook-form";
+import { useEffect } from "react";
 
 interface FillingSystemSelectProps {
   control: Control<any>;
@@ -23,7 +24,7 @@ interface FillingSystemSelectProps {
 }
 
 export function FillingSystemSelect({ control, onSelect }: FillingSystemSelectProps) {
-  const { data: fillingSystems } = useQuery({
+  const { data: fillingSystems, isLoading } = useQuery({
     queryKey: ['filling-systems'],
     queryFn: fetchFillingSystems,
   });
@@ -39,9 +40,11 @@ export function FillingSystemSelect({ control, onSelect }: FillingSystemSelectPr
           <Select 
             onValueChange={(value) => {
               field.onChange(value);
-              onSelect?.(value);
+              if (onSelect) {
+                onSelect(value);
+              }
             }} 
-            defaultValue={field.value}
+            value={field.value || ""}
           >
             <FormControl>
               <SelectTrigger>

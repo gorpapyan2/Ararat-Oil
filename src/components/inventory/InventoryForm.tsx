@@ -7,14 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { createDailyInventoryRecord } from "@/services/supabase";
+import { createDailyInventoryRecord, fetchLatestInventoryRecordByTankId } from "@/services/inventory";
 import type { Employee, FuelTank } from "@/services/supabase";
 import { TankSelect } from "./form/TankSelect";
 import { StockInputs } from "./form/StockInputs";
 import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
 import * as z from "zod";
 import { FillingSystemSelect } from "./form/FillingSystemSelect";
-import { fetchLatestInventoryRecord } from "@/services/inventory";
 import { fetchFillingSystems } from "@/services/filling-systems";
 
 interface InventoryFormProps {
@@ -59,12 +58,21 @@ export function InventoryForm({ isOpen, onOpenChange, selectedDate, employees }:
     const system = fillingSystems?.find(s => s.id === systemId);
     if (system?.tank_id) {
       try {
-        const lastRecord = await fetchLatestInventoryRecord(system.tank_id);
+        const lastRecord = await fetchLatestInventoryRecordByTankId(system.tank_id);
         if (lastRecord) {
           form.setValue('opening_stock', lastRecord.closing_stock);
+          // Also update unit price from last record if available
+          if (lastRecord.unit_price) {
+            form.setValue('unit_price', lastRecord.unit_price);
+          }
+        } else {
+          // Reset to default if no previous record
+          form.setValue('opening_stock', 0);
         }
       } catch (error) {
         console.error('Error fetching last record:', error);
+        // Reset to default on error
+        form.setValue('opening_stock', 0);
       }
     }
   };
