@@ -20,10 +20,11 @@ import { useEffect } from "react";
 
 interface FillingSystemSelectProps {
   control: Control<any>;
+  onChange?: (value: string) => void;
   onSelect?: (systemId: string) => void;
 }
 
-export function FillingSystemSelect({ control, onSelect }: FillingSystemSelectProps) {
+export function FillingSystemSelect({ control, onChange, onSelect }: FillingSystemSelectProps) {
   const { data: fillingSystems, isLoading } = useQuery({
     queryKey: ['filling-systems'],
     queryFn: fetchFillingSystems,
@@ -40,6 +41,9 @@ export function FillingSystemSelect({ control, onSelect }: FillingSystemSelectPr
           <Select 
             onValueChange={(value) => {
               field.onChange(value);
+              if (onChange) {
+                onChange(value);
+              }
               if (onSelect) {
                 onSelect(value);
               }

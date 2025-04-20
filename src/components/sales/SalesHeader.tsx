@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { SalesForm } from "./SalesForm";
 import { useState } from "react";
+import { createSale } from "@/services/sales";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SalesHeaderProps {
   selectedDate: Date;
@@ -11,11 +14,26 @@ interface SalesHeaderProps {
 
 export function SalesHeader({ selectedDate, onDateChange }: SalesHeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (data: any) => {
-    // TODO: Implement sale creation
-    console.log('New sale:', data);
-    setIsOpen(false);
+    try {
+      await createSale(data);
+      toast({
+        title: "Success",
+        description: "Sale created successfully",
+      });
+      setIsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create sale",
+        variant: "destructive",
+      });
+      console.error("Error creating sale:", error);
+    }
   };
 
   return (

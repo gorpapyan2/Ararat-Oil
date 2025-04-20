@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Sale, PaymentStatus, FuelType } from "@/types";
 
@@ -12,7 +13,12 @@ export const fetchSales = async (): Promise<Sale[]> => {
   return (data || []).map(item => ({
     ...item,
     fuel_type: item.fuel_type as FuelType,
-    payment_status: item.payment_status as PaymentStatus
+    payment_status: item.payment_status as PaymentStatus,
+    // Add missing properties with default values if they don't exist in the database yet
+    meter_start: item.meter_start || 0,
+    meter_end: item.meter_end || 0,
+    filling_system_id: item.filling_system_id || '',
+    employee_id: item.employee_id || ''
   }));
 };
 
@@ -37,7 +43,11 @@ export const createSale = async (
       quantity,
       price_per_unit: data.unit_price,
       total_sales,
-      payment_status: 'Pending'
+      payment_status: 'Pending',
+      meter_start: data.meter_start,
+      meter_end: data.meter_end,
+      filling_system_id: data.filling_system_id,
+      employee_id: data.employee_id
     }])
     .select()
     .single();
@@ -47,7 +57,11 @@ export const createSale = async (
   return {
     ...sale,
     fuel_type: sale.fuel_type as FuelType,
-    payment_status: sale.payment_status as PaymentStatus
+    payment_status: sale.payment_status as PaymentStatus,
+    meter_start: sale.meter_start,
+    meter_end: sale.meter_end,
+    filling_system_id: sale.filling_system_id,
+    employee_id: sale.employee_id
   };
 };
 
@@ -67,6 +81,10 @@ export const fetchLatestSale = async (filling_system_id: string): Promise<Sale |
   return {
     ...data,
     fuel_type: data.fuel_type as FuelType,
-    payment_status: data.payment_status as PaymentStatus
+    payment_status: data.payment_status as PaymentStatus,
+    meter_start: data.meter_start || 0,
+    meter_end: data.meter_end || 0,
+    filling_system_id: data.filling_system_id || filling_system_id,
+    employee_id: data.employee_id || ''
   };
 };
