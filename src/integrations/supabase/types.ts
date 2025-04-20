@@ -18,7 +18,10 @@ export type Database = {
           filling_system_id: string | null
           id: string
           opening_stock: number
+          provider_id: string | null
           received: number
+          tank_id: string | null
+          total_price: number
           unit_price: number
         }
         Insert: {
@@ -29,7 +32,10 @@ export type Database = {
           filling_system_id?: string | null
           id?: string
           opening_stock: number
+          provider_id?: string | null
           received?: number
+          tank_id?: string | null
+          total_price?: number
           unit_price: number
         }
         Update: {
@@ -40,7 +46,10 @@ export type Database = {
           filling_system_id?: string | null
           id?: string
           opening_stock?: number
+          provider_id?: string | null
           received?: number
+          tank_id?: string | null
+          total_price?: number
           unit_price?: number
         }
         Relationships: [
@@ -56,6 +65,20 @@ export type Database = {
             columns: ["filling_system_id"]
             isOneToOne: false
             referencedRelation: "filling_systems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_inventory_records_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "petrol_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_inventory_records_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_tanks"
             referencedColumns: ["id"]
           },
         ]
@@ -371,7 +394,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      last_refill_dates: {
+        Row: {
+          last_refill_date: string | null
+          refill_amount: number | null
+          tank_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_inventory_records_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_tanks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_sale_and_update_tank: {

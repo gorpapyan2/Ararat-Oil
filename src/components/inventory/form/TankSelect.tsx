@@ -1,29 +1,39 @@
 
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { FuelTank } from "@/services/supabase";
+import { useQuery } from "@tanstack/react-query";
+import { fetchFuelTanks } from "@/services/tanks";
 import type { Control } from "react-hook-form";
 
 interface TankSelectProps {
   control: Control<any>;
-  tanks?: FuelTank[];
+  onSelect?: (tankId: string) => void;
 }
 
-export function TankSelect({ control, tanks }: TankSelectProps) {
+export function TankSelect({ control, onSelect }: TankSelectProps) {
+  const { data: tanks } = useQuery({
+    queryKey: ['fuel-tanks'],
+    queryFn: fetchFuelTanks,
+  });
+
   return (
     <FormField
       control={control}
       name="tank_id"
+      rules={{ required: "Tank is required" }}
       render={({ field }) => (
-        <FormItem className="mb-4">
+        <FormItem>
           <FormLabel className="text-base font-medium">Fuel Tank</FormLabel>
           <Select 
-            onValueChange={field.onChange} 
+            onValueChange={(value) => {
+              field.onChange(value);
+              onSelect?.(value);
+            }} 
             defaultValue={field.value}
           >
             <FormControl>
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="Select fuel tank" />
+              <SelectTrigger>
+                <SelectValue placeholder="Select a tank" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>

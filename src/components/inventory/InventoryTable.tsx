@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { DailyInventoryRecord } from "@/services/supabase";
+import type { DailyInventoryRecord } from "@/types";
 
 interface InventoryTableProps {
   records: DailyInventoryRecord[];
@@ -37,26 +37,30 @@ export function InventoryTable({ records, isLoading }: InventoryTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead className="font-medium">Filling System</TableHead>
-            <TableHead className="font-medium">Fuel Tank</TableHead>
+            <TableHead className="font-medium">Tank</TableHead>
+            <TableHead className="font-medium">Provider</TableHead>
             <TableHead className="font-medium text-right">Opening Stock</TableHead>
             <TableHead className="font-medium text-right">Received</TableHead>
             <TableHead className="font-medium text-right">Sold</TableHead>
             <TableHead className="font-medium text-right">Closing Stock</TableHead>
             <TableHead className="font-medium text-right">Unit Price</TableHead>
+            <TableHead className="font-medium text-right">Total Price</TableHead>
+            <TableHead className="font-medium">Last Refill</TableHead>
             <TableHead className="font-medium">Employee</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {records.map((record) => (
             <TableRow key={record.id} className="hover:bg-muted/50">
-              <TableCell className="font-medium">{record.filling_system?.name}</TableCell>
-              <TableCell>{record.filling_system?.tank?.name}</TableCell>
+              <TableCell>{record.tank?.name}</TableCell>
+              <TableCell>{record.provider?.name}</TableCell>
               <TableCell className="text-right">{record.opening_stock}</TableCell>
               <TableCell className="text-right">{record.received}</TableCell>
               <TableCell className="text-right">{record.sold}</TableCell>
               <TableCell className="text-right">{record.closing_stock}</TableCell>
               <TableCell className="text-right">${record.unit_price.toFixed(2)}</TableCell>
+              <TableCell className="text-right">${record.total_price.toFixed(2)}</TableCell>
+              <TableCell>{record.last_refill_date ? format(new Date(record.last_refill_date), 'PP') : 'N/A'}</TableCell>
               <TableCell>{record.employee?.name}</TableCell>
             </TableRow>
           ))}
