@@ -18,6 +18,7 @@ export type Database = {
           filling_system_id: string
           id: string
           opening_stock: number
+          received: number
           sold: number
           unit_price: number
         }
@@ -29,6 +30,7 @@ export type Database = {
           filling_system_id: string
           id?: string
           opening_stock: number
+          received?: number
           sold?: number
           unit_price: number
         }
@@ -40,6 +42,7 @@ export type Database = {
           filling_system_id?: string
           id?: string
           opening_stock?: number
+          received?: number
           sold?: number
           unit_price?: number
         }
