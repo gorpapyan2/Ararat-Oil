@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Sale, PaymentStatus, FuelType } from "@/types";
 
@@ -145,4 +144,13 @@ export const createSale = async (
     filling_system_id: sale.filling_system_id || '',
     employee_id: sale.employee_id || ''
   };
+};
+
+export const deleteSale = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('sales')
+    .delete()
+    .eq('id', id);
+    
+  if (error) throw error;
 };

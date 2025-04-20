@@ -7,29 +7,60 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { Sale } from "@/types";
 import { format } from "date-fns";
+import { Edit, MoreHorizontal, Trash2, Eye } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface SalesTableProps {
   sales: Sale[];
   isLoading: boolean;
+  onEdit?: (sale: Sale) => void;
+  onDelete?: (id: string) => void;
+  onView?: (sale: Sale) => void;
 }
 
-export function SalesTable({ sales, isLoading }: SalesTableProps) {
+export function SalesTable({ sales, isLoading, onEdit, onDelete, onView }: SalesTableProps) {
+  const { toast } = useToast();
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center p-4">Loading sales data...</div>;
   }
 
+  const handleDelete = async (id: string) => {
+    try {
+      onDelete?.(id);
+      toast({
+        title: "Sale deleted",
+        description: "The sale has been successfully deleted.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete the sale.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="border rounded-lg">
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Filling System</TableHead>
-            <TableHead>Total Liters</TableHead>
-            <TableHead>Price/Unit (AMD)</TableHead>
-            <TableHead>Total Sales (AMD)</TableHead>
+            <TableHead className="text-right">Total Liters</TableHead>
+            <TableHead className="text-right">Price/Unit (AMD)</TableHead>
+            <TableHead className="text-right">Total Sales (AMD)</TableHead>
+            <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -37,14 +68,41 @@ export function SalesTable({ sales, isLoading }: SalesTableProps) {
             <TableRow key={sale.id}>
               <TableCell>{format(new Date(sale.date), "PP")}</TableCell>
               <TableCell>{sale.filling_system_name}</TableCell>
-              <TableCell>{sale.quantity.toFixed(2)}</TableCell>
-              <TableCell>{sale.price_per_unit.toLocaleString()} AMD</TableCell>
-              <TableCell>{sale.total_sales.toLocaleString()} AMD</TableCell>
+              <TableCell className="text-right">{sale.quantity.toFixed(2)}</TableCell>
+              <TableCell className="text-right">{sale.price_per_unit.toLocaleString()} AMD</TableCell>
+              <TableCell className="text-right">{sale.total_sales.toLocaleString()} AMD</TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onView?.(sale)}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      View details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit?.(sale)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit sale
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-red-600"
+                      onClick={() => handleDelete(sale.id)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete sale
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
             </TableRow>
           ))}
           {sales.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center">
+              <TableCell colSpan={6} className="text-center text-muted-foreground">
                 No sales found
               </TableCell>
             </TableRow>

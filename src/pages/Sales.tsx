@@ -1,10 +1,16 @@
 
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SalesManager } from "@/components/sales/SalesManager";
 
 const Sales = () => {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Sales</h1>
+      <Card>
+        <CardHeader>
+          <CardTitle>Sales Management</CardTitle>
+          <CardDescription>View and manage fuel sales records</CardDescription>
+        </CardHeader>
+      </Card>
       <SalesManager />
     </div>
   );
