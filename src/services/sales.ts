@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Sale, PaymentStatus, FuelType } from "@/types";
 
@@ -62,7 +61,7 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
     quantity: data.total_sold_liters || 0,
     price_per_unit: data.price_per_unit,
     total_sales: data.total_sales,
-    payment_status: 'Pending',
+    filling_system_name: data.filling_system?.name || 'Unknown',
     created_at: data.created_at,
     meter_start: data.meter_start,
     meter_end: data.meter_end,

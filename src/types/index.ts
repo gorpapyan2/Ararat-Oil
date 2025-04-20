@@ -1,3 +1,4 @@
+
 export type FuelType = 'Petrol' | 'Diesel' | 'Gas';
 export type PaymentStatus = 'Paid' | 'Pending';
 export type ExpenseCategory = 
@@ -19,7 +20,8 @@ export interface Sale {
   quantity: number;
   price_per_unit: number;
   total_sales: number;
-  payment_status: PaymentStatus;
+  payment_status?: PaymentStatus;
+  filling_system_name?: string;
   created_at?: string;
   meter_start: number;
   meter_end: number;
