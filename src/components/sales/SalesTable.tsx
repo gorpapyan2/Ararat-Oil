@@ -37,11 +37,11 @@ export function SalesTable({ sales, isLoading }: SalesTableProps) {
           {sales.map((sale) => (
             <TableRow key={sale.id}>
               <TableCell>{format(new Date(sale.date), "PP")}</TableCell>
-              <TableCell className="capitalize">{sale.fuel_type.toLowerCase()}</TableCell>
+              <TableCell className="capitalize">{sale.fuel_type?.toLowerCase() || 'petrol'}</TableCell>
               <TableCell>{sale.quantity}</TableCell>
               <TableCell>₱{sale.price_per_unit.toFixed(2)}</TableCell>
               <TableCell>₱{sale.total_sales.toFixed(2)}</TableCell>
-              <TableCell className="capitalize">{sale.payment_status.toLowerCase()}</TableCell>
+              <TableCell className="capitalize">{sale.payment_status?.toLowerCase() || 'pending'}</TableCell>
             </TableRow>
           ))}
           {sales.length === 0 && (

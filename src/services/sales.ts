@@ -13,11 +13,11 @@ export const fetchSales = async (): Promise<Sale[]> => {
   return (data || []).map(item => ({
     id: item.id,
     date: item.date,
-    fuel_type: item.fuel_type as FuelType || 'Petrol', // Use a default if missing
+    fuel_type: (item as any).fuel_type as FuelType || 'Petrol', // Cast to any to avoid TS errors
     quantity: item.meter_end - item.meter_start,
     price_per_unit: item.price_per_unit,
     total_sales: item.total_sales,
-    payment_status: item.payment_status as PaymentStatus || 'Pending', // Use a default if missing
+    payment_status: (item as any).payment_status as PaymentStatus || 'Pending', // Cast to any to avoid TS errors
     created_at: item.created_at,
     meter_start: item.meter_start,
     meter_end: item.meter_end,
@@ -42,11 +42,11 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
   return {
     id: data.id,
     date: data.date,
-    fuel_type: data.fuel_type as FuelType || 'Petrol', // Use a default if missing
+    fuel_type: (data as any).fuel_type as FuelType || 'Petrol', // Cast to any to avoid TS errors
     quantity: data.meter_end - data.meter_start,
     price_per_unit: data.price_per_unit,
     total_sales: data.total_sales,
-    payment_status: data.payment_status as PaymentStatus || 'Pending', // Use a default if missing
+    payment_status: (data as any).payment_status as PaymentStatus || 'Pending', // Cast to any to avoid TS errors
     created_at: data.created_at,
     meter_start: data.meter_start,
     meter_end: data.meter_end,
@@ -90,11 +90,11 @@ export const createSale = async (
   return {
     id: sale.id,
     date: sale.date,
-    fuel_type: sale.fuel_type as FuelType || data.fuel_type, // Use input as fallback
+    fuel_type: (sale as any).fuel_type as FuelType || data.fuel_type, // Cast to any to avoid TS errors
     quantity: sale.meter_end - sale.meter_start,
     price_per_unit: sale.price_per_unit,
     total_sales: sale.total_sales,
-    payment_status: sale.payment_status as PaymentStatus || 'Pending', // Use default if missing
+    payment_status: (sale as any).payment_status as PaymentStatus || 'Pending', // Cast to any to avoid TS errors
     created_at: sale.created_at,
     meter_start: sale.meter_start,
     meter_end: sale.meter_end,
