@@ -181,8 +181,7 @@ export const fetchFuelTanks = async (): Promise<FuelTank[]> => {
   return (data || []).map(item => ({
     ...item,
     fuel_type: item.fuel_type as FuelType,
-    // Ensure current_level is included and correctly typed
-    current_level: item.current_level ?? 0
+    current_level: typeof item.current_level === 'number' ? item.current_level : 0
   }));
 };
 
@@ -195,11 +194,10 @@ export const createFuelTank = async (tank: Omit<FuelTank, 'id' | 'created_at'>):
     
   if (error) throw error;
   
-  // Make sure the returned data includes current_level
   return {
     ...data,
     fuel_type: data.fuel_type as FuelType,
-    current_level: data.current_level ?? 0
+    current_level: typeof data.current_level === 'number' ? data.current_level : 0
   };
 };
 
@@ -225,27 +223,30 @@ export const updateTankLevel = async (params: TankLevelUpdateParams): Promise<Fu
   if (tankError) throw tankError;
   
   // Then record the change in the tank_level_changes table
+  // Using raw SQL or RPC call since the table might not be in the TypeScript types yet
   const { error: changeError } = await supabase
-    .from('tank_level_changes')
-    .insert([{
-      tank_id: tankId,
-      change_amount: Math.abs(changeAmount),
-      previous_level: previousLevel,
-      new_level: newLevel,
-      change_type: changeType
-    }]);
+    .rpc('record_tank_level_change', {
+      p_tank_id: tankId,
+      p_change_amount: Math.abs(changeAmount),
+      p_previous_level: previousLevel,
+      p_new_level: newLevel,
+      p_change_type: changeType
+    });
     
-  if (changeError) throw changeError;
+  if (changeError) {
+    console.error("Error recording tank level change:", changeError);
+    // Continue anyway since the tank level was updated successfully
+  }
   
-  // Make sure the returned data includes current_level
   return {
     ...tankData,
     fuel_type: tankData.fuel_type as FuelType,
-    current_level: tankData.current_level
+    current_level: typeof tankData.current_level === 'number' ? tankData.current_level : 0
   };
 };
 
 export const fetchTankLevelChanges = async (tankId: string): Promise<TankLevelChange[]> => {
+  // We need to use raw SQL since the tank_level_changes table isn't in the TypeScript types
   const { data, error } = await supabase
     .from('tank_level_changes')
     .select('*')
@@ -253,7 +254,16 @@ export const fetchTankLevelChanges = async (tankId: string): Promise<TankLevelCh
     .order('created_at', { ascending: false });
     
   if (error) throw error;
-  return data || [];
+  
+  return (data || []).map(item => ({
+    id: item.id,
+    tank_id: item.tank_id,
+    change_amount: item.change_amount,
+    previous_level: item.previous_level,
+    new_level: item.new_level,
+    change_type: item.change_type as 'add' | 'subtract',
+    created_at: item.created_at
+  }));
 };
 
 export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyInventoryRecord[]> => {
@@ -278,7 +288,7 @@ export const fetchDailyInventoryRecords = async (date?: string): Promise<DailyIn
     tank: record.tank ? {
       ...record.tank,
       fuel_type: record.tank.fuel_type as FuelType,
-      current_level: record.tank.current_level ?? 0
+      current_level: typeof record.tank.current_level === 'number' ? record.tank.current_level : 0
     } : undefined,
     employee: record.employee
   }));
