@@ -77,7 +77,7 @@ export function SalesManager() {
     <div className="space-y-6">
       {/* Floating New Sale Button (Mobile) */}
       <div className="fixed bottom-4 right-4 md:hidden z-10">
-        <NewSaleButton className="shadow-lg rounded-full p-4" />
+        <NewSaleButton />
       </div>
       
       {/* Sales Summary Cards */}

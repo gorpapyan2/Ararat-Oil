@@ -9,7 +9,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import React from "react";
 
-export function NewSaleButton() {
+interface NewSaleButtonProps {
+  className?: string;
+}
+
+export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -40,7 +44,7 @@ export function NewSaleButton() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="h-9 px-4 rounded-md shadow-sm flex items-center gap-1.5 transition-all hover:shadow">
+        <Button className={`h-9 px-4 rounded-md shadow-sm flex items-center gap-1.5 transition-all hover:shadow ${className || ""}`}>
           <Plus className="h-4 w-4" />
           <span>Add Sale</span>
         </Button>
