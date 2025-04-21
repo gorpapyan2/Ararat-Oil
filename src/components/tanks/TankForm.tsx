@@ -8,7 +8,8 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createFuelTank, FuelType } from "@/services/supabase";
+import { createFuelTank } from "@/services/supabase";
+import { FuelType } from "@/types";
 import * as z from "zod";
 
 interface TankFormProps {
@@ -21,7 +22,7 @@ interface TankFormProps {
 const formSchema = z.object({
   name: z.string({ required_error: "Tank name is required" })
     .min(2, "Tank name must be at least 2 characters"),
-  fuel_type: z.enum(["Petrol", "Diesel", "Gas"] as const, {
+  fuel_type: z.enum(["petrol", "diesel", "cng"] as const, {
     required_error: "Fuel type is required",
   }),
   capacity: z.coerce.number({ required_error: "Capacity is required" })
@@ -129,9 +130,9 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Petrol">Petrol</SelectItem>
-                      <SelectItem value="Diesel">Diesel</SelectItem>
-                      <SelectItem value="Gas">Gas</SelectItem>
+                      <SelectItem value="petrol">Petrol</SelectItem>
+                      <SelectItem value="diesel">Diesel</SelectItem>
+                      <SelectItem value="cng">CNG</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

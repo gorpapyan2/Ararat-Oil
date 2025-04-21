@@ -10,6 +10,7 @@ export * from "./financials";
 export * from "./employees";
 export * from "./tanks";
 export * from "./transactions";
-export * from "./filling-systems";
-export * from "./fuel-supplies";
-export * from "./petrol-providers";
+// We'll be more specific with these exports to avoid ambiguity
+export { fetchFuelSupplies, createFuelSupply, updateFuelSupply, deleteFuelSupply } from "./fuel-supplies";
+export { createFillingSystem, fetchFillingSystems, deleteFillingSystem } from "./filling-systems";
+export { fetchPetrolProviders, createPetrolProvider, updatePetrolProvider, deletePetrolProvider } from "./petrol-providers";

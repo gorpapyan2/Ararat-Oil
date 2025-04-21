@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { FuelSupply, FuelType } from "@/types";
+import { FuelSupply, FuelType, EmployeeStatus } from "@/types";
 
 export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
   const { data, error } = await supabase
@@ -17,12 +17,17 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
   
   return (data || []).map(record => ({
     ...record,
-    provider: record.provider,
-    tank: {
+    provider: record.provider ? {
+      ...record.provider,
+    } : undefined,
+    tank: record.tank ? {
       ...record.tank,
       fuel_type: record.tank.fuel_type as FuelType
-    },
-    employee: record.employee
+    } : undefined,
+    employee: record.employee ? {
+      ...record.employee,
+      status: record.employee.status as EmployeeStatus
+    } : undefined
   }));
 }
 
@@ -85,7 +90,10 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
       ...data.tank,
       fuel_type: data.tank.fuel_type as FuelType
     },
-    employee: data.employee
+    employee: {
+      ...data.employee,
+      status: data.employee.status as EmployeeStatus
+    }
   };
 }
 
@@ -109,7 +117,10 @@ export async function updateFuelSupply(id: string, updates: Partial<Omit<FuelSup
       ...data.tank,
       fuel_type: data.tank.fuel_type as FuelType
     },
-    employee: data.employee
+    employee: {
+      ...data.employee,
+      status: data.employee.status as EmployeeStatus
+    }
   };
 }
 
