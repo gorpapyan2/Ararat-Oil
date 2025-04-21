@@ -31,9 +31,9 @@ export function SalesRangesFilters({
   onTotalSalesRangeChange,
 }: SalesRangesFiltersProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
       {/* Liters Range */}
-      <div className="p-3 rounded-md border bg-background/50">
+      <div className="p-4 rounded-md border bg-background/50">
         <div className="flex flex-col gap-2">
           <label className="text-xs font-medium text-muted-foreground">Liters Range</label>
           <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export function SalesRangesFilters({
       </div>
 
       {/* Price Range */}
-      <div className="p-3 rounded-md border bg-background/50">
+      <div className="p-4 rounded-md border bg-background/50">
         <div className="flex flex-col gap-2">
           <label className="text-xs font-medium text-muted-foreground">Price/Unit Range (֏)</label>
           <div className="flex items-center gap-2">
@@ -81,7 +81,7 @@ export function SalesRangesFilters({
       </div>
 
       {/* Total Sales Range */}
-      <div className="p-3 rounded-md border bg-background/50">
+      <div className="p-4 rounded-md border bg-background/50">
         <div className="flex flex-col gap-2">
           <label className="text-xs font-medium text-muted-foreground">Total Sales Range (֏)</label>
           <div className="flex items-center gap-2">

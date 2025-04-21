@@ -15,6 +15,7 @@ export function SalesSystemSelect({ value, onChange, systems }: SalesSystemSelec
       onChange={onChange}
       systems={systems}
       placeholder="All systems"
+      className="w-full"
     />
   );
 }

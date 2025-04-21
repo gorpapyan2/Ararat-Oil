@@ -39,12 +39,15 @@ export function SalesHeader({
 }: SalesHeaderProps) {
   return (
     <div className="flex flex-col space-y-6 bg-background">
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <div>
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-2">
+        <div className="hidden">
+          {/* We're hiding this to prevent duplication with the card header */}
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">Sales</h2>
           <p className="text-sm text-muted-foreground mt-1">Manage and track fuel sales records</p>
         </div>
-        <NewSaleButton />
+        <div className="ml-auto">
+          <NewSaleButton />
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="md:col-span-3 lg:col-span-2">

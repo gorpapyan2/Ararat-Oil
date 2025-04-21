@@ -1,6 +1,5 @@
 
 import * as React from "react";
-import { Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FillingSystemSelectProps {
@@ -28,7 +27,7 @@ export function FillingSystemSelect({
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="all">All systems</SelectItem>
           {systems.map((sys) => (
             <SelectItem key={sys.id} value={sys.id}>{sys.name}</SelectItem>
           ))}

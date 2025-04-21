@@ -32,11 +32,11 @@ const Sales = () => {
       </Breadcrumb>
       
       <Card className="border-none shadow-sm">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-0">
           <CardTitle className="text-xl font-medium">Sales Management</CardTitle>
           <CardDescription>View and manage fuel sales records</CardDescription>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent>
           <SalesManager />
         </CardContent>
       </Card>

@@ -18,7 +18,7 @@ export function SalesDatePicker({ date, onDateChange }: SalesDatePickerProps) {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`h-9 px-3 py-2 justify-start text-left font-normal ${!date ? "text-muted-foreground" : ""}`}
+            className={`w-full h-9 px-3 py-2 justify-start text-left font-normal ${!date ? "text-muted-foreground" : ""}`}
           >
             <CalendarIcon className="mr-2 h-3.5 w-3.5" />
             {date ? format(date, "PPP") : <span>Select date</span>}
