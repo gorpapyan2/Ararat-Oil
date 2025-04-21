@@ -27,6 +27,9 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
     entity_id: item.entity_id || null,
     created_at: item.created_at,
     updated_at: item.updated_at,
+    // Add these optional properties if they exist in the result
+    ...(item.employee && { employee: item.employee }),
+    ...(item.sale && { sale: item.sale }),
   }));
 };
 

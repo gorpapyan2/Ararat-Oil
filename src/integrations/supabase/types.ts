@@ -410,7 +410,10 @@ export type Database = {
         Row: {
           amount: number
           created_at: string | null
+          description: string | null
           employee_id: string
+          entity_id: string | null
+          entity_type: string | null
           id: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           payment_reference: string | null
@@ -421,7 +424,10 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string | null
+          description?: string | null
           employee_id: string
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           payment_reference?: string | null
@@ -432,7 +438,10 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string | null
+          description?: string | null
           employee_id?: string
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
           payment_reference?: string | null
