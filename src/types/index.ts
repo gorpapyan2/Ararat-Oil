@@ -84,6 +84,8 @@ export interface FuelSupply {
   employee_id: string;
   employee?: Employee;
   comments?: string;
+  payment_status: PaymentStatus;
+  payment_method?: PaymentMethod;
   created_at?: string;
 }
 

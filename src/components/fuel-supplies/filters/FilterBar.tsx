@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,35 +16,26 @@ import { RangeSliderFilter } from "./RangeSliderFilter";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface FilterBarProps {
-  search: string;
-  onSearchChange: (search: string) => void;
-  date: Date | undefined;
-  onDateChange: (date: Date | undefined) => void;
-  providerId: string;
-  onProviderChange: (id: string) => void;
+  filters: {
+    search: string;
+    date: Date | undefined;
+    provider: string;
+    type?: string;
+    minQuantity: number;
+    maxQuantity: number;
+    minPrice: number;
+    maxPrice: number;
+    minTotal: number;
+    maxTotal: number;
+  };
+  onFiltersChange: (updates: Partial<FilterBarProps["filters"]>) => void;
   providers: { id: string; name: string }[];
-  quantityRange: [number, number];
-  onQuantityRangeChange: (range: [number, number]) => void;
-  priceRange: [number, number];
-  onPriceRangeChange: (range: [number, number]) => void;
-  totalCostRange: [number, number];
-  onTotalCostRangeChange: (range: [number, number]) => void;
 }
 
 export function FilterBar({
-  search,
-  onSearchChange,
-  date,
-  onDateChange,
-  providerId,
-  onProviderChange,
+  filters,
+  onFiltersChange,
   providers,
-  quantityRange,
-  onQuantityRangeChange,
-  priceRange,
-  onPriceRangeChange,
-  totalCostRange,
-  onTotalCostRangeChange,
 }: FilterBarProps) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -77,13 +67,19 @@ export function FilterBar({
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
-                  <AdvancedSearchInput value={search} onChange={onSearchChange} />
+                  <AdvancedSearchInput
+                    value={filters.search}
+                    onChange={val => onFiltersChange({ search: val })}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <DateRangeFilter date={date} onDateChange={onDateChange} />
-                  <ProviderFilter 
-                    value={providerId} 
-                    onChange={onProviderChange}
+                  <DateRangeFilter
+                    date={filters.date}
+                    onDateChange={val => onFiltersChange({ date: val })}
+                  />
+                  <ProviderFilter
+                    value={filters.provider}
+                    onChange={val => onFiltersChange({ provider: val })}
                     providers={providers}
                   />
                 </div>
@@ -92,33 +88,31 @@ export function FilterBar({
               <Separator />
               
               <div className="grid gap-6 md:grid-cols-3">
-                <RangeSliderFilter 
+                <RangeSliderFilter
                   label="Quantity (Liters)"
                   min={0}
                   max={10000}
                   step={100}
-                  value={quantityRange}
-                  onChange={onQuantityRangeChange}
+                  value={[filters.minQuantity, filters.maxQuantity]}
+                  onChange={([min, max]) => onFiltersChange({ minQuantity: min, maxQuantity: max })}
                   formatValue={(val) => `${val}`}
                 />
-                
-                <RangeSliderFilter 
+                <RangeSliderFilter
                   label="Price per Liter (֏)"
                   min={0}
                   max={1000}
                   step={10}
-                  value={priceRange}
-                  onChange={onPriceRangeChange}
+                  value={[filters.minPrice, filters.maxPrice]}
+                  onChange={([min, max]) => onFiltersChange({ minPrice: min, maxPrice: max })}
                   formatValue={(val) => `${val} ֏`}
                 />
-                
-                <RangeSliderFilter 
+                <RangeSliderFilter
                   label="Total Cost (֏)"
                   min={0}
                   max={10000000}
                   step={100000}
-                  value={totalCostRange}
-                  onChange={onTotalCostRangeChange}
+                  value={[filters.minTotal, filters.maxTotal]}
+                  onChange={([min, max]) => onFiltersChange({ minTotal: min, maxTotal: max })}
                   formatValue={(val) => `${val.toLocaleString()} ֏`}
                 />
               </div>

@@ -9,14 +9,17 @@ import { Button } from "@/components/ui/button";
 import { TankHistory } from "./TankHistory";
 import { Dialog, DialogContent, DialogTitle, DialogHeader } from "@/components/ui/dialog";
 
+import { InventoryItem } from "@/types";
+
 interface TankListProps {
   tanks: FuelTank[];
+  inventory: InventoryItem[];
   isLoading: boolean;
   isEditMode: boolean;
   onEditComplete: () => void;
 }
 
-export function TankList({ tanks, isLoading, isEditMode, onEditComplete }: TankListProps) {
+export function TankList({ tanks, inventory, isLoading, isEditMode, onEditComplete }: TankListProps) {
   const [editingTankId, setEditingTankId] = useState<string | null>(null);
   const [selectedTank, setSelectedTank] = useState<FuelTank | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -57,6 +60,11 @@ export function TankList({ tanks, isLoading, isEditMode, onEditComplete }: TankL
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {tanks.map((tank) => {
+          // Find the latest inventory record for this tank (if any)
+          const tankInventory = inventory
+            .filter((inv) => inv.tank_id === tank.id)
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+
           const fillPercentage = tank.capacity > 0 
             ? Math.min(100, Math.round((tank.current_level / tank.capacity) * 100)) 
             : 0;
@@ -94,6 +102,18 @@ export function TankList({ tanks, isLoading, isEditMode, onEditComplete }: TankL
                 />
                 <div className="mt-2 text-sm">
                   Current Level: <span className="font-medium">{tank.current_level} liters</span>
+                </div>
+                {/* Inventory Data Section */}
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {tankInventory ? (
+                    <>
+                      <div>Inventory Date: <span className="font-medium">{new Date(tankInventory.date).toLocaleDateString()}</span></div>
+                      <div>Opening: {tankInventory.opening_stock}L, Received: {tankInventory.received}L, Sold: {tankInventory.sold}L</div>
+                      <div>Closing: <span className="font-semibold">{tankInventory.closing_stock}L</span> @ {tankInventory.unit_price.toLocaleString()} ֏/L</div>
+                    </>
+                  ) : (
+                    <div className="italic text-red-400">No inventory record for this tank</div>
+                  )}
                 </div>
                 {isEditMode && (
                   <div className="mt-4">

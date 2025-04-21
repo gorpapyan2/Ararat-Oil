@@ -60,14 +60,35 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/be0de8e1-174f-4085-832e-d3ad4ee0431c) and click on Share -> Publish.
+## Business Logic & Architecture
 
-## Can I connect a custom domain to my Lovable project?
+### Overview
+This application is a comprehensive management system for fuel stations (or similar businesses), handling employees, inventory, fuel supplies, tanks, sales, expenses, transactions, financials, and provider management. It uses Supabase as a backend (database and API), React (with Vite) for the frontend, and TypeScript throughout.
 
-Yes, you can!
+### Key Business Domains
+- **Employees:** Manage employee records, statuses, and references in other workflows.
+- **Expenses:** Track and categorize business expenses, including payment status.
+- **Filling Systems:** Manage fuel dispensing systems and their associated tanks.
+- **Fuel Supplies:** Record deliveries from providers to tanks, update tank levels, and trigger financial transactions.
+- **Tanks:** Manage fuel tank data, update levels, and track historical changes.
+- **Sales:** Record and track fuel sales, including meter readings and payment status.
+- **Inventory:** Track inventory items and reconcile with tank data.
+- **Transactions:** Central ledger for all financial operations, linking to sales, expenses, and supplies.
+- **Financials:** Generate profit and loss summaries.
+- **Petrol Providers:** Manage provider details and integrate with fuel supply records.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Example Business Workflows
+- **Fuel Supply Delivery:** Record delivery, update tank, create supply and transaction records.
+- **Sale at the Pump:** Record sale, update tank and sales records, create transaction.
+- **Expense Recording:** Record business expense, update expenses, create transaction if needed.
+- **Reporting:** View profit/loss, inventory, sales, and transaction logs.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Technical Architecture
+- **Frontend:** React + TypeScript, modularized into pages, components, and hooks.
+- **Backend:** Supabase (PostgreSQL + API).
+- **Styling/UI:** Tailwind CSS, shadcn-ui.
+- **API Layer:** Centralized in `src/services`, with each business domain having its own service file.
+
+This modular architecture ensures maintainability, extensibility, and a clear separation of concerns for developers and stakeholders.

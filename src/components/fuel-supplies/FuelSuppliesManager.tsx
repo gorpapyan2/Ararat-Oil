@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { FuelSuppliesHeader } from "./FuelSuppliesHeader";
@@ -21,19 +20,38 @@ export function FuelSuppliesManager() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Get everything from the filters hook, including filtered supplies and loading state
-  const { 
-    search, setSearch,
-    date, setDate,
-    providerId, setProviderId,
-    quantityRange, setQuantityRange,
-    priceRange, setPriceRange,
-    totalCostRange, setTotalCostRange,
+  // Destructure individual setters instead of setFilters
+  const {
+    filters,
+    setSearch,
+    setDate,
+    setProvider,
+    setType,
+    setMinQuantity,
+    setMaxQuantity,
+    setMinPrice,
+    setMaxPrice,
+    setMinTotal,
+    setMaxTotal,
     providers,
     filteredSupplies,
     isLoading,
     refetchSupplies
   } = useFuelSuppliesFilters();
+
+  // Handler for updating filters in a modern, scalable way
+  const handleFiltersChange = (updates: Partial<typeof filters>) => {
+    if ("search" in updates && setSearch) setSearch(updates.search!);
+    if ("date" in updates && setDate) setDate(updates.date!);
+    if ("provider" in updates && setProvider) setProvider(updates.provider!);
+    if ("type" in updates && setType) setType(updates.type!);
+    if ("minQuantity" in updates && setMinQuantity) setMinQuantity(updates.minQuantity!);
+    if ("maxQuantity" in updates && setMaxQuantity) setMaxQuantity(updates.maxQuantity!);
+    if ("minPrice" in updates && setMinPrice) setMinPrice(updates.minPrice!);
+    if ("maxPrice" in updates && setMaxPrice) setMaxPrice(updates.maxPrice!);
+    if ("minTotal" in updates && setMinTotal) setMinTotal(updates.minTotal!);
+    if ("maxTotal" in updates && setMaxTotal) setMaxTotal(updates.maxTotal!);
+  };
 
   const createMutation = useMutation({
     mutationFn: createFuelSupply,
@@ -141,19 +159,9 @@ export function FuelSuppliesManager() {
       <FuelSuppliesSummary supplies={filteredSupplies} />
       
       <FilterBar
-        search={search}
-        onSearchChange={setSearch}
-        date={date}
-        onDateChange={setDate}
-        providerId={providerId}
-        onProviderChange={setProviderId}
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
         providers={providers}
-        quantityRange={quantityRange}
-        onQuantityRangeChange={setQuantityRange}
-        priceRange={priceRange}
-        onPriceRangeChange={setPriceRange}
-        totalCostRange={totalCostRange}
-        onTotalCostRangeChange={setTotalCostRange}
       />
       
       <FuelSuppliesDataTable
