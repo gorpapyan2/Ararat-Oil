@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+
+import { useEffect, useState } from "react";
 import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { FuelSuppliesHeader } from "./FuelSuppliesHeader";
 import { FuelSuppliesTable } from "./FuelSuppliesTable";
 import { FuelSuppliesForm } from "./FuelSuppliesForm";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFuelSupply, updateFuelSupply, deleteFuelSupply } from "@/services/fuel-supplies";
 import { useToast } from "@/hooks/use-toast";
 import { FuelSupply } from "@/types";
@@ -19,10 +20,19 @@ export function FuelSuppliesManager() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: fuelSupplies, isLoading } = useQuery({
-    queryKey: ["fuel-supplies"],
-    queryFn: fetchFuelSupplies,
-  });
+  // Get everything from the filters hook, including filtered supplies and loading state
+  const { 
+    search, setSearch,
+    date, setDate,
+    providerId, setProviderId,
+    quantityRange, setQuantityRange,
+    priceRange, setPriceRange,
+    totalCostRange, setTotalCostRange,
+    providers,
+    filteredSupplies,
+    isLoading,
+    refetchSupplies
+  } = useFuelSuppliesFilters();
 
   const createMutation = useMutation({
     mutationFn: createFuelSupply,
@@ -64,18 +74,6 @@ export function FuelSuppliesManager() {
       });
     },
   });
-
-  const { search, setSearch,
-    date, setDate,
-    providerId, setProviderId,
-    quantityRange, setQuantityRange,
-    priceRange, setPriceRange,
-    totalCostRange, setTotalCostRange,
-    providers,
-    filteredSupplies,
-    isLoading,
-    refetchSupplies
-  } = useFuelSuppliesFilters();
 
   const handleAdd = () => {
     setEditingSupply(null);
