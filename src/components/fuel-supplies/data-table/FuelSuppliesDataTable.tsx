@@ -321,10 +321,15 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-              />
+                className="h-8 w-8"
+              >
+                <PaginationPrevious className="h-4 w-4" />
+              </Button>
             </PaginationItem>
             <PaginationItem>
               <PaginationLink>
@@ -333,10 +338,15 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
               </PaginationLink>
             </PaginationItem>
             <PaginationItem>
-              <PaginationNext
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-              />
+                className="h-8 w-8"
+              >
+                <PaginationNext className="h-4 w-4" />
+              </Button>
             </PaginationItem>
           </PaginationContent>
         </Pagination>

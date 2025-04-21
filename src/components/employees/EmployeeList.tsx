@@ -23,13 +23,13 @@ export function EmployeeList({ employees, isLoading, onEdit, onDelete }: Employe
   const getStatusBadgeVariant = (status: Employee['status']) => {
     switch (status) {
       case 'active':
-        return 'success';
+        return 'default';
       case 'on_leave':
-        return 'warning';
+        return 'secondary';
       case 'terminated':
         return 'destructive';
       default:
-        return 'secondary';
+        return 'outline';
     }
   };
 
