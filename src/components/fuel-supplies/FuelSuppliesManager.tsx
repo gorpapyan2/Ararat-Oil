@@ -1,15 +1,16 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { FuelSuppliesHeader } from "./FuelSuppliesHeader";
-import { FuelSuppliesTable } from "./FuelSuppliesTable";
 import { FuelSuppliesForm } from "./FuelSuppliesForm";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFuelSupply, updateFuelSupply, deleteFuelSupply } from "@/services/fuel-supplies";
 import { useToast } from "@/hooks/use-toast";
 import { FuelSupply } from "@/types";
-import { FuelSuppliesFilters } from "./FuelSuppliesFilters";
+import { FilterBar } from "./filters/FilterBar";
+import { FuelSuppliesDataTable } from "./data-table/FuelSuppliesDataTable";
+import { FuelSuppliesSummary } from "./summary/FuelSuppliesSummary";
 
 export function FuelSuppliesManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -136,7 +137,10 @@ export function FuelSuppliesManager() {
   return (
     <div className="space-y-6">
       <FuelSuppliesHeader onAdd={handleAdd} />
-      <FuelSuppliesFilters
+      
+      <FuelSuppliesSummary supplies={filteredSupplies} />
+      
+      <FilterBar
         search={search}
         onSearchChange={setSearch}
         date={date}
@@ -151,18 +155,21 @@ export function FuelSuppliesManager() {
         totalCostRange={totalCostRange}
         onTotalCostRangeChange={setTotalCostRange}
       />
-      <FuelSuppliesTable
-        fuelSupplies={filteredSupplies}
+      
+      <FuelSuppliesDataTable
+        data={filteredSupplies}
         isLoading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
+      
       <FuelSuppliesForm
         open={isDialogOpen}
         onOpenChange={handleDialogOpenChange}
         onSubmit={handleSubmit}
         defaultValues={editingSupply}
       />
+      
       <ConfirmDeleteDialog
         open={!!deletingSupply}
         onOpenChange={handleDeleteDialogOpenChange}
