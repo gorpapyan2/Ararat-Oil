@@ -1,18 +1,14 @@
-
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchFuelSupplies,
-  createFuelSupply,
-  updateFuelSupply,
-  deleteFuelSupply,
-} from "@/services/fuel-supplies";
+import { useEffect } from "react";
+import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { FuelSuppliesHeader } from "./FuelSuppliesHeader";
 import { FuelSuppliesTable } from "./FuelSuppliesTable";
 import { FuelSuppliesForm } from "./FuelSuppliesForm";
-import { FuelSupply } from "@/types";
-import { useToast } from "@/hooks/use-toast";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { createFuelSupply, updateFuelSupply, deleteFuelSupply } from "@/services/fuel-supplies";
+import { useToast } from "@/hooks/use-toast";
+import { FuelSupply } from "@/types";
+import { FuelSuppliesFilters } from "./FuelSuppliesFilters";
 
 export function FuelSuppliesManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -69,6 +65,18 @@ export function FuelSuppliesManager() {
     },
   });
 
+  const { search, setSearch,
+    date, setDate,
+    providerId, setProviderId,
+    quantityRange, setQuantityRange,
+    priceRange, setPriceRange,
+    totalCostRange, setTotalCostRange,
+    providers,
+    filteredSupplies,
+    isLoading,
+    refetchSupplies
+  } = useFuelSuppliesFilters();
+
   const handleAdd = () => {
     setEditingSupply(null);
     setIsDialogOpen(true);
@@ -81,6 +89,27 @@ export function FuelSuppliesManager() {
 
   const handleDelete = (supply: FuelSupply) => {
     setDeletingSupply(supply);
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) setEditingSupply(null);
+  };
+
+  const handleSubmit = (data: any) => {
+    if (editingSupply) {
+      const { id, created_at, ...rest } = editingSupply;
+      updateMutation.mutate({
+        id: editingSupply.id,
+        updates: { ...data },
+      });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  const handleDeleteDialogOpenChange = (open: boolean) => {
+    if (!open) setDeletingSupply(null);
   };
 
   const confirmDelete = async () => {
@@ -109,54 +138,41 @@ export function FuelSuppliesManager() {
   return (
     <div className="space-y-6">
       <FuelSuppliesHeader onAdd={handleAdd} />
+      <FuelSuppliesFilters
+        search={search}
+        onSearchChange={setSearch}
+        date={date}
+        onDateChange={setDate}
+        providerId={providerId}
+        onProviderChange={setProviderId}
+        providers={providers}
+        quantityRange={quantityRange}
+        onQuantityRangeChange={setQuantityRange}
+        priceRange={priceRange}
+        onPriceRangeChange={setPriceRange}
+        totalCostRange={totalCostRange}
+        onTotalCostRangeChange={setTotalCostRange}
+      />
       <FuelSuppliesTable
-        fuelSupplies={fuelSupplies || []}
+        fuelSupplies={filteredSupplies}
         isLoading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
       <FuelSuppliesForm
         open={isDialogOpen}
-        onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) setEditingSupply(null);
-        }}
-        onSubmit={(data) => {
-          if (editingSupply) {
-            // Update mode
-            const { id, created_at, ...rest } = editingSupply;
-            updateMutation.mutate({
-              id: editingSupply.id,
-              updates: { ...data },
-            });
-          } else {
-            // Create mode
-            createMutation.mutate(data);
-          }
-        }}
-        defaultValues={
-          editingSupply
-            ? {
-                ...editingSupply,
-                // Ensure any nested relations for provider/tank/employee are just IDs
-                provider_id: editingSupply.provider_id || editingSupply.provider?.id || "",
-                tank_id: editingSupply.tank_id || editingSupply.tank?.id || "",
-                employee_id: editingSupply.employee_id || editingSupply.employee?.id || "",
-                comments: editingSupply.comments || "",
-              }
-            : undefined
-        }
+        onOpenChange={handleDialogOpenChange}
+        onSubmit={handleSubmit}
+        defaultValues={editingSupply}
       />
       <ConfirmDeleteDialog
         open={!!deletingSupply}
-        onOpenChange={(open) => {
-          if (!open) setDeletingSupply(null);
-        }}
+        onOpenChange={handleDeleteDialogOpenChange}
         onConfirm={confirmDelete}
         loading={deleteLoading}
         recordInfo={
           deletingSupply
-            ? `${deletingSupply.provider?.name ?? ""} (${deletingSupply.quantity_liters.toLocaleString()} ֏)`
+            ? `${deletingSupply.provider?.name ?? ""} (${deletingSupply.quantity_liters.toLocaleString()} L)`
             : undefined
         }
       />
