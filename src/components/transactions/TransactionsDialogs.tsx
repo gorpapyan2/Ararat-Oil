@@ -10,8 +10,8 @@ export function TransactionsDialogs() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Transaction Details</DialogTitle>
-          {/* Add transaction details content */}
-        </DialogContent>
+        </DialogHeader>
+        {/* Add transaction details content */}
       </DialogContent>
     </Dialog>
   );
