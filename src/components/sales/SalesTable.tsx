@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { Sale } from "@/types";
 import { format } from "date-fns";
 import { Edit, MoreHorizontal, Trash2, Eye } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 interface SalesTableProps {
   sales: Sale[];
@@ -28,27 +27,9 @@ interface SalesTableProps {
 }
 
 export function SalesTable({ sales, isLoading, onEdit, onDelete, onView }: SalesTableProps) {
-  const { toast } = useToast();
-
   if (isLoading) {
     return <div className="flex justify-center p-4">Loading sales data...</div>;
   }
-
-  const handleDelete = async (id: string) => {
-    try {
-      onDelete?.(id);
-      toast({
-        title: "Sale deleted",
-        description: "The sale has been successfully deleted.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete the sale.",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <div className="rounded-md border">
@@ -94,7 +75,7 @@ export function SalesTable({ sales, isLoading, onEdit, onDelete, onView }: Sales
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-red-600"
-                      onClick={() => handleDelete(sale.id)}
+                      onClick={() => onDelete?.(sale.id)}
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete sale

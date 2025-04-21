@@ -5,13 +5,14 @@ import { useSalesFilters } from "./hooks/useSalesFilters";
 import { useSalesMutations } from "./hooks/useSalesMutations";
 import { SalesDialogs } from "./SalesDialogs";
 import { Sale } from "@/types";
+import { useEffect } from "react";
 
 export function SalesManager() {
   // filter and data state
   const {
     search, setSearch, date, setDate, systemId, setSystemId,
     systems, litersRange, setLitersRange, priceRange, setPriceRange, totalSalesRange, setTotalSalesRange,
-    filteredSales, isLoading
+    filteredSales, isLoading, refetchSales
   } = useSalesFilters();
 
   // mutations & modals
@@ -25,8 +26,16 @@ export function SalesManager() {
     handleEdit,
     handleDelete,
     confirmDelete,
-    updateMutation
+    updateMutation,
+    deleteMutation
   } = useSalesMutations();
+
+  // Refresh sales data when a mutation completes
+  useEffect(() => {
+    if (updateMutation.isSuccess || deleteMutation.isSuccess) {
+      refetchSales();
+    }
+  }, [updateMutation.isSuccess, deleteMutation.isSuccess, refetchSales]);
 
   const handleView = (sale: Sale) => {
     console.log("Viewing sale:", sale);

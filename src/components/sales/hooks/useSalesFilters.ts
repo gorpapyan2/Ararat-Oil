@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSales } from "@/services/sales";
@@ -14,10 +13,12 @@ export function useSalesFilters() {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
   const [totalSalesRange, setTotalSalesRange] = useState<[number, number]>([0, 0]);
 
-  const { data: sales, isLoading } = useQuery({
-    queryKey: ["sales"],
-    queryFn: fetchSales,
+  // Query sales data
+  const { data: sales = [], isLoading, refetch: refetchSales } = useQuery({
+    queryKey: ['sales'],
+    queryFn: fetchSales
   });
+
   const { data: systems = [] } = useQuery({
     queryKey: ["filling-systems"],
     queryFn: async () => {
@@ -71,21 +72,15 @@ export function useSalesFilters() {
   }, [sales, search, date, systemId, litersRange, priceRange, totalSalesRange]);
 
   return {
-    search,
-    setSearch,
-    date,
-    setDate,
-    systemId,
-    setSystemId,
+    search, setSearch, 
+    date, setDate, 
+    systemId, setSystemId, 
+    litersRange, setLitersRange, 
+    priceRange, setPriceRange, 
+    totalSalesRange, setTotalSalesRange,
     systems,
-    litersRange,
-    setLitersRange,
-    priceRange,
-    setPriceRange,
-    totalSalesRange,
-    setTotalSalesRange,
     filteredSales,
-    sales,
     isLoading,
+    refetchSales
   };
 }

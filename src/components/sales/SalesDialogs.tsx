@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SalesForm } from "./SalesForm";
 import {
   AlertDialog,
@@ -36,6 +36,12 @@ export function SalesDialogs({
     <>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
+          <DialogTitle>
+            {selectedSale ? 'Edit Sale' : 'New Sale'}
+          </DialogTitle>
+          <DialogDescription>
+            {selectedSale ? 'Update the details of this sale.' : 'Create a new sale record.'}
+          </DialogDescription>
           <SalesForm
             sale={selectedSale}
             onSubmit={(data) => {
