@@ -24,13 +24,18 @@ export function SalesFilters({
   systems,
 }: SalesFiltersProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div className="md:col-span-3 lg:col-span-2">
-        <SalesSearchBar value={search} onChange={onSearchChange} />
+    <section className="bg-background/80 rounded-xl border border-border shadow-sm p-4 mb-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="md:col-span-2 lg:col-span-2 flex flex-col justify-end">
+          <SalesSearchBar value={search} onChange={onSearchChange} />
+        </div>
+        <div className="flex flex-col justify-end">
+          <SalesDatePicker date={date} onDateChange={onDateChange} />
+        </div>
+        <div className="flex flex-col justify-end">
+          <SalesSystemSelect value={systemId} onChange={onSystemChange} systems={systems} />
+        </div>
       </div>
-      <SalesDatePicker date={date} onDateChange={onDateChange} />
-      <SalesSystemSelect value={systemId} onChange={onSystemChange} systems={systems} />
-    </div>
+    </section>
   );
 }
-
