@@ -1,4 +1,3 @@
-
 // Payment related types
 export type PaymentMethod = 'cash' | 'card' | 'bank_transfer' | 'mobile_payment';
 export type PaymentStatus = 'pending' | 'completed' | 'failed';
@@ -138,6 +137,9 @@ export interface Transaction {
   payment_reference?: string;
   payment_status: PaymentStatus;
   employee_id: string;
+  description?: string; // Added for better invoice details
+  entity_type?: 'sale' | 'expense' | 'fuel_supply'; // To track transaction source
+  entity_id?: string; // Generic ID for the source entity
   created_at?: string;
   updated_at?: string;
 }
