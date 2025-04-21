@@ -23,7 +23,7 @@ export function FillingSystemSelect({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="">All</SelectItem>
+        <SelectItem value="all">All</SelectItem>
         {systems.map((sys) => (
           <SelectItem key={sys.id} value={sys.id}>{sys.name}</SelectItem>
         ))}

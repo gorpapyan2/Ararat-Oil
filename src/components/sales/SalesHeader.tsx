@@ -10,7 +10,7 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { calendar } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { FillingSystemSelect } from "./FillingSystemSelect";
 import React from "react";
 

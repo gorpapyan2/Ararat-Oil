@@ -60,7 +60,7 @@ export function SalesManager() {
       const filterDate = date.toISOString().slice(0,10);
       filtered = filtered.filter(sale => sale.date?.slice(0,10) === filterDate);
     }
-    if (systemId) {
+    if (systemId && systemId !== "all") {
       filtered = filtered.filter(sale => sale.filling_system_id === systemId);
     }
     const [litMin, litMax] = litersRange;
