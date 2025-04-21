@@ -32,9 +32,17 @@ export function SalesDialogs({
   setIsDeleteDialogOpen,
   confirmDelete,
 }: SalesDialogsProps) {
+  const handleEditDialogOpenChange = (open: boolean) => {
+    setIsEditDialogOpen(open);
+  };
+
+  const handleDeleteDialogOpenChange = (open: boolean) => {
+    setIsDeleteDialogOpen(open);
+  };
+
   return (
     <>
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={handleEditDialogOpenChange}>
         <DialogContent>
           <DialogTitle>
             {selectedSale ? 'Edit Sale' : 'New Sale'}
@@ -55,7 +63,7 @@ export function SalesDialogs({
           />
         </DialogContent>
       </Dialog>
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>

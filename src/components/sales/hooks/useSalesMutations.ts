@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteSale, updateSale } from "@/services/sales";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +48,7 @@ export function useSalesMutations() {
         description: "Sale updated successfully and tank level adjusted",
       });
       setIsEditDialogOpen(false);
+      setSelectedSale(null);
     },
     onError: (error) => {
       console.error("Update error:", error);
@@ -59,28 +60,45 @@ export function useSalesMutations() {
     },
   });
 
+  // Clean up state when dialog is closed
+  const setIsEditDialogOpenWrapper = useCallback((isOpen: boolean) => {
+    setIsEditDialogOpen(isOpen);
+    if (!isOpen) {
+      setSelectedSale(null);
+    }
+  }, []);
+
+  const setIsDeleteDialogOpenWrapper = useCallback((isOpen: boolean) => {
+    setIsDeleteDialogOpen(isOpen);
+    if (!isOpen) {
+      setSaleToDelete(null);
+    }
+  }, []);
+
   // handlers
-  const handleEdit = (sale: Sale) => {
+  const handleEdit = useCallback((sale: Sale) => {
     setSelectedSale(sale);
     setIsEditDialogOpen(true);
-  };
-  const handleDelete = (id: string) => {
+  }, []);
+  
+  const handleDelete = useCallback((id: string) => {
     setSaleToDelete(id);
     setIsDeleteDialogOpen(true);
-  };
-  const confirmDelete = () => {
+  }, []);
+  
+  const confirmDelete = useCallback(() => {
     if (saleToDelete) {
       deleteMutation.mutate(saleToDelete);
     }
-  };
+  }, [saleToDelete, deleteMutation]);
 
   return {
     selectedSale,
     setSelectedSale,
     isEditDialogOpen,
-    setIsEditDialogOpen,
+    setIsEditDialogOpen: setIsEditDialogOpenWrapper,
     isDeleteDialogOpen,
-    setIsDeleteDialogOpen,
+    setIsDeleteDialogOpen: setIsDeleteDialogOpenWrapper,
     saleToDelete,
     setSaleToDelete,
     deleteMutation,
