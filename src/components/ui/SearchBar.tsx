@@ -16,14 +16,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = "Search...",
   className
 }) => (
-  <div className={`flex items-center gap-2 bg-background border rounded px-3 py-2 shadow-sm ${className || ""}`}>
-    <Search className="text-muted-foreground" size={18} />
+  <div className={`relative ${className || ""}`}>
+    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
     <Input
       type="text"
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
-      className="border-0 focus-visible:ring-0 focus:outline-none shadow-none bg-transparent p-0 text-base"
+      className="pl-9 h-9 border border-input bg-background rounded-md text-sm"
     />
   </div>
 );

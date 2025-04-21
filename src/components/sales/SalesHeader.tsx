@@ -10,14 +10,13 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Plus, Search } from "lucide-react";
 import { FillingSystemSelect } from "./FillingSystemSelect";
 import React from "react";
 
 interface SalesHeaderProps {
   search: string;
   onSearchChange: (search: string) => void;
-  // New: filter values & handlers
   date: Date | undefined;
   onDateChange: (date: Date | undefined) => void;
   systemId: string;
@@ -73,7 +72,6 @@ export function SalesHeader({
     }
   };
 
-  // Range input helpers
   const handleRangeChange = (
     idx: number,
     value: string,
@@ -87,119 +85,143 @@ export function SalesHeader({
   };
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Sales</h2>
-        <p className="text-muted-foreground">View and manage fuel sales</p>
+    <div className="flex flex-col space-y-6 bg-background">
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Sales</h2>
+          <p className="text-sm text-muted-foreground mt-1">Manage and track fuel sales records</p>
+        </div>
+        
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button className="h-9 px-4 rounded-md shadow-sm flex items-center gap-1.5 transition-all hover:shadow">
+              <Plus className="h-4 w-4" />
+              <span>Add Sale</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <SalesForm onSubmit={handleSubmit} />
+          </DialogContent>
+        </Dialog>
       </div>
-      <div className="flex flex-wrap gap-2 items-center">
-        <SearchBar
-          value={search}
-          onChange={onSearchChange}
-          placeholder="Search by system, fuel, or date…"
-          className="w-56"
-        />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {/* Search bar */}
+        <div className="md:col-span-3 lg:col-span-2">
+          <SearchBar
+            value={search}
+            onChange={onSearchChange}
+            placeholder="Search by system, fuel, or date…"
+            className="h-9 w-full"
+          />
+        </div>
 
         {/* Date Picker */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={`w-[145px] justify-start text-left font-normal ${!date ? "text-muted-foreground" : ""}`}
-            >
-              <span className="mr-1">{/* Calendar icon */}</span>
-              {date ? format(date, "PPP") : <span>Date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={onDateChange}
-              initialFocus
-              className="p-3 pointer-events-auto"
-            />
-          </PopoverContent>
-        </Popover>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-muted-foreground">Date</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={`h-9 px-3 py-2 justify-start text-left font-normal ${!date ? "text-muted-foreground" : ""}`}
+              >
+                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                {date ? format(date, "PPP") : <span>Select date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={onDateChange}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
 
         {/* Filling System select */}
         <FillingSystemSelect
           value={systemId}
           onChange={onSystemChange}
           systems={systems}
-          className="w-36"
         />
+      </div>
 
-        {/* Range filters */}
-        <div className="flex flex-col min-w-[160px]">
-          <label className="text-xs text-muted-foreground">Liters</label>
-          <div className="flex gap-1">
-            <input
-              type="number"
-              placeholder="Min"
-              className="w-14 border px-1 py-0.5 rounded"
-              value={litersRange[0] === 0 ? "" : litersRange[0]}
-              onChange={e => handleRangeChange(0, e.target.value, litersRange, onLitersRangeChange)}
-            />
-            <span>-</span>
-            <input
-              type="number"
-              placeholder="Max"
-              className="w-14 border px-1 py-0.5 rounded"
-              value={litersRange[1] === 0 ? "" : litersRange[1]}
-              onChange={e => handleRangeChange(1, e.target.value, litersRange, onLitersRangeChange)}
-            />
+      {/* Ranges */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Liters Range */}
+        <div className="p-3 rounded-md border bg-background/50">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-muted-foreground">Liters Range</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                placeholder="Min"
+                className="h-9 flex-1 px-3 py-1 rounded-md border border-input bg-background text-sm"
+                value={litersRange[0] === 0 ? "" : litersRange[0]}
+                onChange={e => handleRangeChange(0, e.target.value, litersRange, onLitersRangeChange)}
+              />
+              <span className="text-muted-foreground">-</span>
+              <input
+                type="number"
+                placeholder="Max"
+                className="h-9 flex-1 px-3 py-1 rounded-md border border-input bg-background text-sm"
+                value={litersRange[1] === 0 ? "" : litersRange[1]}
+                onChange={e => handleRangeChange(1, e.target.value, litersRange, onLitersRangeChange)}
+              />
+            </div>
           </div>
         </div>
-        <div className="flex flex-col min-w-[160px]">
-          <label className="text-xs text-muted-foreground">Price/unit</label>
-          <div className="flex gap-1">
-            <input
-              type="number"
-              placeholder="Min"
-              className="w-14 border px-1 py-0.5 rounded"
-              value={priceRange[0] === 0 ? "" : priceRange[0]}
-              onChange={e => handleRangeChange(0, e.target.value, priceRange, onPriceRangeChange)}
-            />
-            <span>-</span>
-            <input
-              type="number"
-              placeholder="Max"
-              className="w-14 border px-1 py-0.5 rounded"
-              value={priceRange[1] === 0 ? "" : priceRange[1]}
-              onChange={e => handleRangeChange(1, e.target.value, priceRange, onPriceRangeChange)}
-            />
+
+        {/* Price Range */}
+        <div className="p-3 rounded-md border bg-background/50">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-muted-foreground">Price/Unit Range (֏)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                placeholder="Min"
+                className="h-9 flex-1 px-3 py-1 rounded-md border border-input bg-background text-sm"
+                value={priceRange[0] === 0 ? "" : priceRange[0]}
+                onChange={e => handleRangeChange(0, e.target.value, priceRange, onPriceRangeChange)}
+              />
+              <span className="text-muted-foreground">-</span>
+              <input
+                type="number"
+                placeholder="Max"
+                className="h-9 flex-1 px-3 py-1 rounded-md border border-input bg-background text-sm"
+                value={priceRange[1] === 0 ? "" : priceRange[1]}
+                onChange={e => handleRangeChange(1, e.target.value, priceRange, onPriceRangeChange)}
+              />
+            </div>
           </div>
         </div>
-        <div className="flex flex-col min-w-[160px]">
-          <label className="text-xs text-muted-foreground">Total Sales</label>
-          <div className="flex gap-1">
-            <input
-              type="number"
-              placeholder="Min"
-              className="w-14 border px-1 py-0.5 rounded"
-              value={totalSalesRange[0] === 0 ? "" : totalSalesRange[0]}
-              onChange={e => handleRangeChange(0, e.target.value, totalSalesRange, onTotalSalesRangeChange)}
-            />
-            <span>-</span>
-            <input
-              type="number"
-              placeholder="Max"
-              className="w-14 border px-1 py-0.5 rounded"
-              value={totalSalesRange[1] === 0 ? "" : totalSalesRange[1]}
-              onChange={e => handleRangeChange(1, e.target.value, totalSalesRange, onTotalSalesRangeChange)}
-            />
+
+        {/* Total Sales Range */}
+        <div className="p-3 rounded-md border bg-background/50">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-muted-foreground">Total Sales Range (֏)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                placeholder="Min"
+                className="h-9 flex-1 px-3 py-1 rounded-md border border-input bg-background text-sm"
+                value={totalSalesRange[0] === 0 ? "" : totalSalesRange[0]}
+                onChange={e => handleRangeChange(0, e.target.value, totalSalesRange, onTotalSalesRangeChange)}
+              />
+              <span className="text-muted-foreground">-</span>
+              <input
+                type="number"
+                placeholder="Max"
+                className="h-9 flex-1 px-3 py-1 rounded-md border border-input bg-background text-sm"
+                value={totalSalesRange[1] === 0 ? "" : totalSalesRange[1]}
+                onChange={e => handleRangeChange(1, e.target.value, totalSalesRange, onTotalSalesRangeChange)}
+              />
+            </div>
           </div>
         </div>
-        
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button>New Sale</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <SalesForm onSubmit={handleSubmit} />
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

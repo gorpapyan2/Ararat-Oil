@@ -1,5 +1,6 @@
 
 import * as React from "react";
+import { Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FillingSystemSelectProps {
@@ -18,16 +19,21 @@ export function FillingSystemSelect({
   className = ""
 }: FillingSystemSelectProps) {
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={className}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All</SelectItem>
-        {systems.map((sys) => (
-          <SelectItem key={sys.id} value={sys.id}>{sys.name}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-medium text-muted-foreground">Filling System</label>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger 
+          className={`h-9 px-3 py-2 w-full rounded-md border border-input bg-background text-sm ${className}`}
+        >
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All</SelectItem>
+          {systems.map((sys) => (
+            <SelectItem key={sys.id} value={sys.id}>{sys.name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
