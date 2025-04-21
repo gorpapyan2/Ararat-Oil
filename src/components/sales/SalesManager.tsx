@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SalesHeader } from "./SalesHeader";
@@ -25,6 +24,7 @@ export function SalesManager() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -33,10 +33,19 @@ export function SalesManager() {
     queryFn: fetchSales,
   });
 
+  const filteredSales = (sales || []).filter((sale) => {
+    if (!search) return true;
+    const lower = search.toLowerCase();
+    return (
+      sale.filling_system_name?.toLowerCase().includes(lower) ||
+      sale.fuel_type?.toLowerCase().includes(lower) ||
+      sale.date?.toString().includes(lower)
+    );
+  });
+
   const deleteMutation = useMutation({
     mutationFn: deleteSale,
     onSuccess: () => {
-      // Invalidate multiple queries to ensure all relevant data is refreshed
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       
@@ -60,7 +69,6 @@ export function SalesManager() {
   const updateMutation = useMutation({
     mutationFn: updateSale,
     onSuccess: () => {
-      // Invalidate multiple queries to ensure all relevant data is refreshed
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       queryClient.invalidateQueries({ queryKey: ["latest-sale"] });
@@ -98,7 +106,6 @@ export function SalesManager() {
   };
 
   const handleView = (sale: Sale) => {
-    // Implement view functionality if needed
     console.log("Viewing sale:", sale);
   };
 
@@ -107,10 +114,12 @@ export function SalesManager() {
       <SalesHeader 
         selectedDate={selectedDate}
         onDateChange={(date) => date && setSelectedDate(date)}
+        search={search}
+        onSearchChange={setSearch}
       />
       
       <SalesTable 
-        sales={sales || []} 
+        sales={filteredSales}
         isLoading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}
