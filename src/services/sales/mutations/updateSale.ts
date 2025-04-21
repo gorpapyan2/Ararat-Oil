@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Sale, FuelType } from "@/types";
+import { Sale, FuelType, PaymentStatus } from "@/types";
 
 export const updateSale = async (
   data: {
@@ -94,11 +94,11 @@ export const updateSale = async (
   return {
     id: updatedSale.id,
     date: updatedSale.date,
-    fuel_type: (fillingSystemData.tank.fuel_type as FuelType) || 'Petrol',
+    fuel_type: (fillingSystemData.tank.fuel_type as FuelType) || 'petrol',
     quantity: updatedSale.total_sold_liters || 0,
     price_per_unit: updatedSale.price_per_unit,
     total_sales: updatedSale.total_sales,
-    payment_status: 'Pending',
+    payment_status: 'pending' as PaymentStatus,
     filling_system_name: fillingSystemData.name || 'Unknown',
     created_at: updatedSale.created_at,
     meter_start: updatedSale.meter_start || 0,

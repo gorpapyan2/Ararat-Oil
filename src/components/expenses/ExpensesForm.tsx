@@ -37,14 +37,14 @@ interface ExpensesFormProps {
 
 export function ExpensesForm({ categories, expense, onSubmit, onCancel }: ExpensesFormProps) {
   // Payment methods
-  const paymentMethods: PaymentMethod[] = ["Cash", "Credit Card", "Bank Transfer", "Mobile", "Other"];
+  const paymentMethods: PaymentMethod[] = ["cash", "card", "bank_transfer", "mobile_payment"];
 
   const defaultValues: FormData = {
     date: expense?.date ? new Date(expense.date) : new Date(),
     category: expense?.category ?? "",
     description: expense?.description ?? "",
     amount: Number(expense?.amount || ""),
-    payment_method: (expense?.payment_method as PaymentMethod) || paymentMethods[0],
+    payment_method: expense?.payment_method || paymentMethods[0],
     invoice_number: expense?.invoice_number || "",
     notes: expense?.notes || "",
   };
@@ -183,7 +183,9 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
                 </SelectTrigger>
                 <SelectContent>
                   {paymentMethods.map((method) => (
-                    <SelectItem key={method} value={method}>{method}</SelectItem>
+                    <SelectItem key={method} value={method}>
+                      {method.replace('_', ' ').toUpperCase()}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

@@ -4,7 +4,7 @@ export type PaymentMethod = 'cash' | 'card' | 'bank_transfer' | 'mobile_payment'
 export type PaymentStatus = 'pending' | 'completed' | 'failed';
 
 // Employee related types
-export type EmployeeStatus = 'active' | 'inactive' | 'on_leave';
+export type EmployeeStatus = 'active' | 'inactive' | 'on_leave' | 'terminated';
 
 export interface Employee {
   id: string;
@@ -27,11 +27,14 @@ export interface Expense {
   category: ExpenseCategory;
   amount: number;
   payment_status: PaymentStatus;
+  payment_method?: PaymentMethod;
+  invoice_number?: string;
+  notes?: string;
   created_at?: string;
 }
 
 // Fuel related types
-export type FuelType = 'diesel' | 'gasoline' | 'premium' | 'cng';
+export type FuelType = 'diesel' | 'gasoline' | 'premium' | 'cng' | 'petrol';
 
 export interface FuelTank {
   id: string;

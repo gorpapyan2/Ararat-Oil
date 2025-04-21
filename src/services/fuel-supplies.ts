@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { FuelSupply, FuelType } from "@/types";
 
@@ -6,9 +7,9 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
     .from('fuel_supplies')
     .select(`
       *,
-      provider:petrol_providers(id, name),
-      tank:fuel_tanks(id, name, fuel_type),
-      employee:employees(id, name)
+      provider:petrol_providers(id, name, contact),
+      tank:fuel_tanks(id, name, fuel_type, capacity, current_level),
+      employee:employees(id, name, position, contact, salary, hire_date, status)
     `)
     .order('delivery_date', { ascending: false });
   
@@ -51,9 +52,9 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
     })
     .select(`
       *,
-      provider:petrol_providers(id, name),
-      tank:fuel_tanks(id, name, fuel_type),
-      employee:employees(id, name)
+      provider:petrol_providers(id, name, contact),
+      tank:fuel_tanks(id, name, fuel_type, capacity, current_level),
+      employee:employees(id, name, position, contact, salary, hire_date, status)
     `)
     .single();
     
@@ -95,9 +96,9 @@ export async function updateFuelSupply(id: string, updates: Partial<Omit<FuelSup
     .eq('id', id)
     .select(
       `*,
-      provider:petrol_providers(id, name),
-      tank:fuel_tanks(id, name, fuel_type),
-      employee:employees(id, name)`
+      provider:petrol_providers(id, name, contact),
+      tank:fuel_tanks(id, name, fuel_type, capacity, current_level),
+      employee:employees(id, name, position, contact, salary, hire_date, status)`
     )
     .single();
   if (error) throw error;

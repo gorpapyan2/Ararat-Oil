@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Sale, FuelType } from "@/types";
+import { Sale, FuelType, PaymentStatus } from "@/types";
 
 export const fetchSales = async (): Promise<Sale[]> => {
   const { data, error } = await supabase
@@ -21,11 +21,11 @@ export const fetchSales = async (): Promise<Sale[]> => {
   return (data || []).map(item => ({
     id: item.id,
     date: item.date,
-    fuel_type: (item.filling_system?.tank?.fuel_type as FuelType) || 'Petrol',
+    fuel_type: (item.filling_system?.tank?.fuel_type as FuelType) || 'petrol',
     quantity: item.total_sold_liters || 0,
     price_per_unit: item.price_per_unit,
     total_sales: item.total_sales,
-    payment_status: 'Pending',
+    payment_status: 'pending' as PaymentStatus,
     filling_system_name: item.filling_system?.name || 'Unknown',
     created_at: item.created_at,
     meter_start: item.meter_start || 0,
@@ -58,11 +58,11 @@ export const fetchLatestSale = async (fillingSystemId: string): Promise<Sale | n
   return {
     id: data.id,
     date: data.date,
-    fuel_type: (data.filling_system?.tank?.fuel_type as FuelType) || 'Petrol',
+    fuel_type: (data.filling_system?.tank?.fuel_type as FuelType) || 'petrol',
     quantity: data.total_sold_liters || 0,
     price_per_unit: data.price_per_unit,
     total_sales: data.total_sales,
-    payment_status: 'Pending',
+    payment_status: 'pending' as PaymentStatus,
     filling_system_name: data.filling_system?.name || 'Unknown',
     created_at: data.created_at,
     meter_start: data.meter_start || 0,

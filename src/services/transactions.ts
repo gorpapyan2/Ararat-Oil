@@ -18,30 +18,47 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
     id: item.id,
     sale_id: item.sale_id,
     amount: item.amount,
-    payment_method: item.payment_method,
+    payment_method: item.payment_method as PaymentMethod,
     payment_reference: item.payment_reference,
-    payment_status: item.payment_status,
+    payment_status: item.payment_status as PaymentStatus,
     employee_id: item.employee_id,
     created_at: item.created_at,
     updated_at: item.updated_at,
   }));
 };
 
-export const createTransaction = async (transaction: Partial<Transaction>): Promise<Transaction> => {
+export const createTransaction = async (transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>): Promise<Transaction> => {
   const { data, error } = await supabase
     .from('transactions')
-    .insert(transaction)
+    .insert({
+      sale_id: transaction.sale_id,
+      amount: transaction.amount,
+      payment_method: transaction.payment_method,
+      payment_reference: transaction.payment_reference,
+      payment_status: transaction.payment_status,
+      employee_id: transaction.employee_id
+    })
     .select()
     .single();
 
   if (error) throw error;
 
-  return data;
+  return {
+    id: data.id,
+    sale_id: data.sale_id,
+    amount: data.amount,
+    payment_method: data.payment_method as PaymentMethod,
+    payment_reference: data.payment_reference,
+    payment_status: data.payment_status as PaymentStatus,
+    employee_id: data.employee_id,
+    created_at: data.created_at,
+    updated_at: data.updated_at
+  };
 };
 
 export const updateTransaction = async (
   id: string, 
-  updates: Partial<Transaction>
+  updates: Partial<Omit<Transaction, 'id' | 'created_at' | 'updated_at'>>
 ): Promise<Transaction> => {
   const { data, error } = await supabase
     .from('transactions')
@@ -52,5 +69,15 @@ export const updateTransaction = async (
 
   if (error) throw error;
 
-  return data;
+  return {
+    id: data.id,
+    sale_id: data.sale_id,
+    amount: data.amount,
+    payment_method: data.payment_method as PaymentMethod,
+    payment_reference: data.payment_reference,
+    payment_status: data.payment_status as PaymentStatus,
+    employee_id: data.employee_id,
+    created_at: data.created_at,
+    updated_at: data.updated_at
+  };
 };
