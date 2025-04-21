@@ -22,7 +22,7 @@ interface ProviderFilterProps {
   providers: { id: string; name: string }[];
 }
 
-export function ProviderFilter({ value, onChange, providers }: ProviderFilterProps) {
+export function ProviderFilter({ value, onChange, providers = [] }: ProviderFilterProps) {
   const [open, setOpen] = React.useState(false);
 
   const selectedProvider = providers?.find((provider) => provider.id === value);
@@ -65,7 +65,7 @@ export function ProviderFilter({ value, onChange, providers }: ProviderFilterPro
                 />
                 All providers
               </CommandItem>
-              {providers && providers.map((provider) => (
+              {Array.isArray(providers) && providers.map((provider) => (
                 <CommandItem
                   key={provider.id}
                   onSelect={() => {

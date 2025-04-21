@@ -70,21 +70,23 @@ export function AdvancedSearchInput({ value, onChange }: AdvancedSearchInputProp
       </div>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search supplies..." />
+        <CommandInput placeholder="Search supplies..." value={inputValue} onValueChange={setInputValue} />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Recent Searches">
-            {recentSearches.map((search) => (
-              <CommandItem
-                key={search}
-                onSelect={() => handleSelect(search)}
-                className="flex items-center"
-              >
-                <Command className="mr-2 h-4 w-4" />
-                {search}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {recentSearches && recentSearches.length > 0 && (
+            <CommandGroup heading="Recent Searches">
+              {recentSearches.map((search) => (
+                <CommandItem
+                  key={search}
+                  onSelect={() => handleSelect(search)}
+                  className="flex items-center"
+                >
+                  <Command className="mr-2 h-4 w-4" />
+                  {search}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
           <CommandGroup heading="Suggestions">
             <CommandItem onSelect={() => handleSelect("Provider: Gazprom")}>
               Provider: Gazprom
