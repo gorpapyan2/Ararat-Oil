@@ -1,6 +1,5 @@
-
 import { Link, useLocation } from "react-router-dom";
-import { BarChart, DollarSign, Users, FileText, Gauge, Power, Archive, Truck, Package } from "lucide-react";
+import { BarChart, DollarSign, Users, FileText, Gauge, Power, Archive, Truck, Package, ReceiptIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -8,11 +7,12 @@ const menuItems = [
   { icon: BarChart, label: "Dashboard", path: "/" },
   { icon: Archive, label: "Inventory", path: "/inventory" },
   { icon: Power, label: "Filling Systems", path: "/filling-systems" },
-  { icon: Package, label: "Fuel Supplies", path: "/fuel-supplies" },  // Add this line
+  { icon: Package, label: "Fuel Supplies", path: "/fuel-supplies" },
   { icon: Truck, label: "Providers", path: "/providers" },
   { icon: DollarSign, label: "Sales", path: "/sales" },
   { icon: FileText, label: "Expenses", path: "/expenses" },
   { icon: Users, label: "Employees", path: "/employees" },
+  { icon: ReceiptIcon, label: "Transactions", path: "/transactions" },
 ];
 
 export function Sidebar() {

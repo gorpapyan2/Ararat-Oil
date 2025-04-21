@@ -320,6 +320,7 @@ export type Database = {
           id: string
           meter_end: number | null
           meter_start: number | null
+          payment_status: string | null
           price_per_unit: number
           total_sales: number
           total_sold_liters: number
@@ -332,6 +333,7 @@ export type Database = {
           id?: string
           meter_end?: number | null
           meter_start?: number | null
+          payment_status?: string | null
           price_per_unit: number
           total_sales: number
           total_sold_liters?: number
@@ -344,6 +346,7 @@ export type Database = {
           id?: string
           meter_end?: number | null
           meter_start?: number | null
+          payment_status?: string | null
           price_per_unit?: number
           total_sales?: number
           total_sold_liters?: number
@@ -403,6 +406,57 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          employee_id: string
+          id: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_reference: string | null
+          payment_status: string
+          sale_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          employee_id: string
+          id?: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_reference?: string | null
+          payment_status?: string
+          sale_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          employee_id?: string
+          id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_reference?: string | null
+          payment_status?: string
+          sale_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -431,6 +485,7 @@ export type Database = {
           id: string
           meter_end: number | null
           meter_start: number | null
+          payment_status: string | null
           price_per_unit: number
           total_sales: number
           total_sold_liters: number
@@ -458,7 +513,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      payment_method: "cash" | "card" | "bank_transfer" | "mobile_payment"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -573,6 +628,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      payment_method: ["cash", "card", "bank_transfer", "mobile_payment"],
+    },
   },
 } as const

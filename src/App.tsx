@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { MainLayout } from "@/layouts/MainLayout";
@@ -14,10 +13,10 @@ import PetrolProviders from "@/pages/PetrolProviders";
 import FuelSupplies from "@/pages/FuelSupplies";
 import Expenses from "@/pages/Expenses";
 import Auth from "@/pages/Auth";
+import Transactions from "@/pages/Transactions";
 
 const queryClient = new QueryClient();
 
-// Protect routes
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
@@ -81,6 +80,14 @@ const App = () => (
                   <Expenses />
                 </RequireAuth>
               } />
+              <Route 
+                path="/transactions" 
+                element={
+                  <RequireAuth>
+                    <Transactions />
+                  </RequireAuth>
+                } 
+              />
             </Routes>
           </MainLayout>
         </BrowserRouter>
