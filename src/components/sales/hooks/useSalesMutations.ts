@@ -1,18 +1,21 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteSale, updateSale } from "@/services/sales";
 import { useToast } from "@/hooks/use-toast";
 import { Sale } from "@/types";
 
 export function useSalesMutations() {
+  // State declarations
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<string | null>(null);
+  
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Define mutations
   const deleteMutation = useMutation({
     mutationFn: deleteSale,
     onSuccess: () => {
@@ -60,22 +63,22 @@ export function useSalesMutations() {
     },
   });
 
-  // Clean up state when dialog is closed
-  const setIsEditDialogOpenWrapper = useCallback((isOpen: boolean) => {
-    setIsEditDialogOpen(isOpen);
-    if (!isOpen) {
+  // Effect to reset state when dialogs close
+  useEffect(() => {
+    if (!isEditDialogOpen) {
+      // Only reset selected sale when edit dialog closes
       setSelectedSale(null);
     }
-  }, []);
+  }, [isEditDialogOpen]);
 
-  const setIsDeleteDialogOpenWrapper = useCallback((isOpen: boolean) => {
-    setIsDeleteDialogOpen(isOpen);
-    if (!isOpen) {
+  useEffect(() => {
+    if (!isDeleteDialogOpen) {
+      // Only reset sale to delete when delete dialog closes
       setSaleToDelete(null);
     }
-  }, []);
+  }, [isDeleteDialogOpen]);
 
-  // handlers
+  // Handler functions
   const handleEdit = useCallback((sale: Sale) => {
     setSelectedSale(sale);
     setIsEditDialogOpen(true);
@@ -96,9 +99,9 @@ export function useSalesMutations() {
     selectedSale,
     setSelectedSale,
     isEditDialogOpen,
-    setIsEditDialogOpen: setIsEditDialogOpenWrapper,
+    setIsEditDialogOpen,
     isDeleteDialogOpen,
-    setIsDeleteDialogOpen: setIsDeleteDialogOpenWrapper,
+    setIsDeleteDialogOpen,
     saleToDelete,
     setSaleToDelete,
     deleteMutation,
