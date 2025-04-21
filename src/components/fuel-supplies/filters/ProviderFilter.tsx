@@ -25,7 +25,7 @@ interface ProviderFilterProps {
 export function ProviderFilter({ value, onChange, providers }: ProviderFilterProps) {
   const [open, setOpen] = React.useState(false);
 
-  const selectedProvider = providers.find((provider) => provider.id === value);
+  const selectedProvider = providers?.find((provider) => provider.id === value);
   
   return (
     <div className="flex flex-col gap-1.5">
@@ -50,6 +50,7 @@ export function ProviderFilter({ value, onChange, providers }: ProviderFilterPro
             <CommandEmpty>No provider found.</CommandEmpty>
             <CommandGroup>
               <CommandItem
+                key="all-providers"
                 onSelect={() => {
                   onChange("all");
                   setOpen(false);
@@ -64,7 +65,7 @@ export function ProviderFilter({ value, onChange, providers }: ProviderFilterPro
                 />
                 All providers
               </CommandItem>
-              {providers.map((provider) => (
+              {providers && providers.map((provider) => (
                 <CommandItem
                   key={provider.id}
                   onSelect={() => {
