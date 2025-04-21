@@ -18,6 +18,7 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { fetchFillingSystems } from "@/services/filling-systems";
+import { format, startOfDay } from "date-fns";
 
 export function SalesManager() {
   const [search, setSearch] = useState("");
@@ -57,8 +58,11 @@ export function SalesManager() {
       );
     }
     if (date) {
-      const filterDate = date.toISOString().slice(0,10);
-      filtered = filtered.filter(sale => sale.date?.slice(0,10) === filterDate);
+      const filterDate = format(date, 'yyyy-MM-dd');
+      filtered = filtered.filter(sale => {
+        const saleDate = sale.date?.slice(0, 10);
+        return saleDate === filterDate;
+      });
     }
     if (systemId && systemId !== "all") {
       filtered = filtered.filter(sale => sale.filling_system_id === systemId);
