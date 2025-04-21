@@ -1,4 +1,5 @@
 
+// Refactor padding to 4 and maintain all else; fix potential overflow on max inputs by ensuring inputs flex properly inside container
 import React from "react";
 
 interface SalesRangesFiltersProps {
@@ -106,3 +107,4 @@ export function SalesRangesFilters({
     </div>
   );
 }
+
