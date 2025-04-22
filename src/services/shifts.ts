@@ -7,6 +7,44 @@ export async function startShift(openingCash: number): Promise<Shift> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("User must be logged in to start a shift");
 
+  // Check if user exists in employees table
+  const { data: existingEmployee, error: employeeCheckError } = await supabase
+    .from('employees')
+    .select('id')
+    .eq('id', user.id)
+    .single();
+
+  // If user doesn't exist in employees table, create a new employee record
+  if (employeeCheckError && !existingEmployee) {
+    const { data: userProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error("Error fetching user profile:", profileError);
+    } else {
+      // Create an employee record for this user
+      const { error: createError } = await supabase
+        .from('employees')
+        .insert({
+          id: user.id,
+          name: userProfile?.full_name || user.email || 'Unknown User',
+          position: 'Staff',
+          contact: userProfile?.email || user.email || '',
+          salary: 0,
+          hire_date: new Date().toISOString().split('T')[0],
+          status: 'active'
+        });
+
+      if (createError) {
+        console.error("Error creating employee record:", createError);
+        throw new Error("Could not create employee record required for shift");
+      }
+    }
+  }
+
   const { data, error } = await supabase
     .from('shifts')
     .insert({
