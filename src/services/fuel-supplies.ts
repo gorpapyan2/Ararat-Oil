@@ -37,6 +37,15 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
       status: record.employee.status as EmployeeStatus 
     } : undefined;
 
+    // Handle payment_method type conversion - handle "new_value" explicitly
+    let paymentMethod: PaymentMethod | undefined = undefined;
+    if (record.payment_method) {
+      // Filter out "new_value" which isn't part of our PaymentMethod type
+      if (["cash", "card", "bank_transfer", "mobile_payment"].includes(record.payment_method)) {
+        paymentMethod = record.payment_method as PaymentMethod;
+      }
+    }
+
     // Return the transformed record
     return {
       ...record,
@@ -44,7 +53,7 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
       tank,
       employee,
       payment_status: (record.payment_status as PaymentStatus) || 'pending', // Ensure payment_status is defined
-      payment_method: record.payment_method as PaymentMethod | undefined
+      payment_method: paymentMethod
     };
   });
 }
@@ -116,18 +125,31 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
   });
 
   // Safely transform the response to match our expected types
+  const provider = data.provider ?? undefined;
+  const tank = data.tank ? { 
+    ...data.tank, 
+    fuel_type: data.tank.fuel_type as FuelType 
+  } : undefined;
+  const employee = data.employee ? { 
+    ...data.employee, 
+    status: data.employee.status as EmployeeStatus 
+  } : undefined;
+
+  // Handle payment_method type conversion
+  let paymentMethod: PaymentMethod | undefined = undefined;
+  if (data.payment_method) {
+    if (["cash", "card", "bank_transfer", "mobile_payment"].includes(data.payment_method)) {
+      paymentMethod = data.payment_method as PaymentMethod;
+    }
+  }
+
   return {
     ...data,
-    provider: data.provider ?? undefined,
-    tank: data.tank ? { 
-      ...data.tank, 
-      fuel_type: data.tank.fuel_type as FuelType 
-    } : undefined,
-    employee: data.employee ? { 
-      ...data.employee, 
-      status: data.employee.status as EmployeeStatus 
-    } : undefined,
-    payment_status: (data.payment_status as PaymentStatus) || 'pending'
+    provider,
+    tank,
+    employee,
+    payment_status: (data.payment_status as PaymentStatus) || 'pending',
+    payment_method: paymentMethod
   };
 }
 
@@ -147,18 +169,31 @@ export async function updateFuelSupply(id: string, updates: Partial<Omit<FuelSup
   if (error) throw new Error(`Failed to update fuel supply: ${error.message ?? error}`);
   
   // Safely transform the response to match our expected types
+  const provider = data.provider ?? undefined;
+  const tank = data.tank ? { 
+    ...data.tank, 
+    fuel_type: data.tank.fuel_type as FuelType 
+  } : undefined;
+  const employee = data.employee ? { 
+    ...data.employee, 
+    status: data.employee.status as EmployeeStatus 
+  } : undefined;
+
+  // Handle payment_method type conversion
+  let paymentMethod: PaymentMethod | undefined = undefined;
+  if (data.payment_method) {
+    if (["cash", "card", "bank_transfer", "mobile_payment"].includes(data.payment_method)) {
+      paymentMethod = data.payment_method as PaymentMethod;
+    }
+  }
+
   return {
     ...data,
-    provider: data.provider ?? undefined,
-    tank: data.tank ? { 
-      ...data.tank, 
-      fuel_type: data.tank.fuel_type as FuelType 
-    } : undefined,
-    employee: data.employee ? { 
-      ...data.employee, 
-      status: data.employee.status as EmployeeStatus 
-    } : undefined,
-    payment_status: (data.payment_status as PaymentStatus) || 'pending'
+    provider,
+    tank,
+    employee,
+    payment_status: (data.payment_status as PaymentStatus) || 'pending',
+    payment_method: paymentMethod
   };
 }
 
