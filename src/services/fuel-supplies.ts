@@ -1,5 +1,6 @@
+
 import { supabase } from "@/integrations/supabase/client";
-import { FuelSupply, FuelType, EmployeeStatus } from "@/types";
+import { FuelSupply, FuelType, EmployeeStatus, PaymentStatus, PaymentMethod } from "@/types";
 import { createTransaction } from "@/services/transactions";
 
 /**
@@ -9,7 +10,7 @@ import { createTransaction } from "@/services/transactions";
  */
 export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
   const { data, error } = await supabase
-    .from<FuelSupply>("fuel_supplies")
+    .from("fuel_supplies")
     .select(`
       *,
       provider:petrol_providers(id, name, contact),
@@ -24,16 +25,28 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
     throw new Error(`Failed to fetch fuel supplies: ${error.message ?? error}`);
   }
 
-  return (data ?? []).map((record) => ({
-    ...record,
-    provider: record.provider ?? undefined,
-    tank: record.tank
-      ? { ...record.tank, fuel_type: record.tank.fuel_type as FuelType }
-      : undefined,
-    employee: record.employee
-      ? { ...record.employee, status: record.employee.status as EmployeeStatus }
-      : undefined,
-  }));
+  return (data ?? []).map((record) => {
+    // Safely access nested properties with null checks
+    const provider = record.provider ?? undefined;
+    const tank = record.tank ? { 
+      ...record.tank, 
+      fuel_type: record.tank.fuel_type as FuelType 
+    } : undefined;
+    const employee = record.employee ? { 
+      ...record.employee, 
+      status: record.employee.status as EmployeeStatus 
+    } : undefined;
+
+    // Return the transformed record
+    return {
+      ...record,
+      provider,
+      tank,
+      employee,
+      payment_status: (record.payment_status as PaymentStatus) || 'pending', // Ensure payment_status is defined
+      payment_method: record.payment_method as PaymentMethod | undefined
+    };
+  });
 }
 
 
@@ -102,15 +115,19 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
     entity_id: data.id
   });
 
+  // Safely transform the response to match our expected types
   return {
     ...data,
     provider: data.provider ?? undefined,
-    tank: data.tank
-      ? { ...data.tank, fuel_type: data.tank.fuel_type as FuelType }
-      : undefined,
-    employee: data.employee
-      ? { ...data.employee, status: data.employee.status as EmployeeStatus }
-      : undefined,
+    tank: data.tank ? { 
+      ...data.tank, 
+      fuel_type: data.tank.fuel_type as FuelType 
+    } : undefined,
+    employee: data.employee ? { 
+      ...data.employee, 
+      status: data.employee.status as EmployeeStatus 
+    } : undefined,
+    payment_status: (data.payment_status as PaymentStatus) || 'pending'
   };
 }
 
@@ -128,15 +145,20 @@ export async function updateFuelSupply(id: string, updates: Partial<Omit<FuelSup
     `)
     .single();
   if (error) throw new Error(`Failed to update fuel supply: ${error.message ?? error}`);
+  
+  // Safely transform the response to match our expected types
   return {
     ...data,
     provider: data.provider ?? undefined,
-    tank: data.tank
-      ? { ...data.tank, fuel_type: data.tank.fuel_type as FuelType }
-      : undefined,
-    employee: data.employee
-      ? { ...data.employee, status: data.employee.status as EmployeeStatus }
-      : undefined,
+    tank: data.tank ? { 
+      ...data.tank, 
+      fuel_type: data.tank.fuel_type as FuelType 
+    } : undefined,
+    employee: data.employee ? { 
+      ...data.employee, 
+      status: data.employee.status as EmployeeStatus 
+    } : undefined,
+    payment_status: (data.payment_status as PaymentStatus) || 'pending'
   };
 }
 
