@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { MainLayout } from "@/layouts/MainLayout";
@@ -14,6 +15,7 @@ import FuelSupplies from "@/pages/FuelSupplies";
 import Expenses from "@/pages/Expenses";
 import Auth from "@/pages/Auth";
 import Transactions from "@/pages/Transactions";
+import CashRegister from "@/pages/CashRegister";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +87,14 @@ const App = () => (
                 element={
                   <RequireAuth>
                     <Transactions />
+                  </RequireAuth>
+                } 
+              />
+              <Route 
+                path="/cash-register" 
+                element={
+                  <RequireAuth>
+                    <CashRegister />
                   </RequireAuth>
                 } 
               />

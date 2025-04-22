@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Sale, FuelType, PaymentStatus } from "@/types";
 import { useShift } from '@/hooks/useShift';
@@ -12,7 +13,21 @@ export const createSale = async (
     employee_id: string;
   }
 ) => {
-  const { activeShift } = useShift(); // Get the current active shift
+  // Get the authenticated user and their active shift
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("User must be logged in to create a sale");
+  
+  // Get the active shift
+  const { data: shiftData, error: shiftError } = await supabase
+    .from('shifts')
+    .select('*')
+    .eq('employee_id', user.id)
+    .eq('status', 'OPEN')
+    .single();
+    
+  if (shiftError) throw new Error("No active shift found. Please start a shift before creating a sale.");
+  
+  const activeShift = shiftData as Shift;
 
   const total_sold_liters = data.meter_end - data.meter_start;
   const total_sales = total_sold_liters * data.unit_price;
@@ -62,6 +77,16 @@ export const createSale = async (
     throw error;
   }
 
+  // Attach the sale to the active shift
+  const { error: updateError } = await supabase
+    .from('sales')
+    .update({ shift_id: activeShift.id })
+    .eq('id', sale.id);
+    
+  if (updateError) {
+    console.error("Error attaching sale to shift:", updateError);
+  }
+
   const existingSaleData = {
     id: sale.id,
     date: sale.date,
@@ -75,13 +100,9 @@ export const createSale = async (
     meter_start: sale.meter_start || 0,
     meter_end: sale.meter_end || 0,
     filling_system_id: sale.filling_system_id || '',
-    employee_id: sale.employee_id || ''
+    employee_id: sale.employee_id || '',
+    shift_id: activeShift.id
   };
 
-  const saleData = {
-    ...existingSaleData,
-    shift_id: activeShift?.id || null // Attach shift ID if available
-  };
-
-  return saleData;
+  return existingSaleData;
 };

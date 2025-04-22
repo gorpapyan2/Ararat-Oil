@@ -1,10 +1,10 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Shift } from "@/types";
-import { useAuth } from "@/hooks/useAuth";
 
 export async function startShift(openingCash: number): Promise<Shift> {
-  const { user } = useAuth();
+  // Get the authenticated user
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("User must be logged in to start a shift");
 
   const { data, error } = await supabase
@@ -22,12 +22,25 @@ export async function startShift(openingCash: number): Promise<Shift> {
 }
 
 export async function closeShift(shiftId: string, closingCash: number): Promise<Shift> {
+  // First, get the current sales total for this shift
+  const { data: salesData, error: salesError } = await supabase
+    .from('sales')
+    .select('total_sales')
+    .eq('shift_id', shiftId);
+    
+  if (salesError) throw salesError;
+  
+  // Calculate the total sales amount
+  const salesTotal = salesData.reduce((sum, sale) => sum + (sale.total_sales || 0), 0);
+  
+  // Now update the shift with the closing details and sales total
   const { data, error } = await supabase
     .from('shifts')
     .update({
       closing_cash: closingCash,
       end_time: new Date().toISOString(),
-      status: 'CLOSED'
+      status: 'CLOSED',
+      sales_total: salesTotal
     })
     .eq('id', shiftId)
     .select()

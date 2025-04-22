@@ -1,51 +1,102 @@
-import { Link, useLocation } from "react-router-dom";
-import { BarChart, DollarSign, Users, FileText, Gauge, Power, Archive, Truck, Package, ReceiptIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-
-const menuItems = [
-  { icon: BarChart, label: "Dashboard", path: "/" },
-  { icon: Archive, label: "Inventory", path: "/inventory" },
-  { icon: Power, label: "Filling Systems", path: "/filling-systems" },
-  { icon: Package, label: "Fuel Supplies", path: "/fuel-supplies" },
-  { icon: Truck, label: "Providers", path: "/providers" },
-  { icon: DollarSign, label: "Sales", path: "/sales" },
-  { icon: FileText, label: "Expenses", path: "/expenses" },
-  { icon: Users, label: "Employees", path: "/employees" },
-  { icon: ReceiptIcon, label: "Transactions", path: "/transactions" },
-];
+import { 
+  LayoutDashboard, 
+  Receipt, 
+  BarChart3, 
+  Fuel, 
+  Truck, 
+  Building2, 
+  Users, 
+  FileText, 
+  CircleDollarSign,
+  DollarSign
+} from "lucide-react";
+import { NavItem } from "@/components/ui/nav-item"
+import { useLocation } from "react-router-dom";
+import { useMobile } from "@/hooks/useMobile";
 
 export function Sidebar() {
-  const location = useLocation();
+  const { pathname } = useLocation();
+  const isMobile = useMobile();
   
   return (
-    <div className="w-64 min-h-screen bg-sidebar p-4 border-r">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Ararat Oil</h1>
+    <div className="flex flex-col h-full bg-background border-r">
+      <div className="px-4 py-6">
+        <h1 className="font-bold text-2xl">
+          <span className="text-primary">Fuel</span>Station
+        </h1>
       </div>
-      <nav className="space-y-2">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path || 
-            (item.path !== '/' && location.pathname.startsWith(item.path));
-            
-          return (
-            <Button
-              key={item.path}
-              variant={isActive ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start",
-                isActive && "font-medium"
-              )}
-              asChild
-            >
-              <Link to={item.path}>
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.label}
-              </Link>
-            </Button>
-          );
-        })}
-      </nav>
+      <div className="space-y-1">
+        <NavItem 
+          to="/" 
+          icon={<LayoutDashboard size={20} />} 
+          label="Dashboard" 
+          active={pathname === '/'} 
+        />
+        <NavItem 
+          to="/sales" 
+          icon={<Receipt size={20} />} 
+          label="Sales" 
+          active={pathname === '/sales'} 
+        />
+        <NavItem 
+          to="/cash-register" 
+          icon={<DollarSign size={20} />} 
+          label="Cash Register" 
+          active={pathname === '/cash-register'} 
+        />
+        <NavItem 
+          to="/inventory" 
+          icon={<BarChart3 size={20} />} 
+          label="Inventory" 
+          active={pathname === '/inventory'} 
+        />
+        <NavItem 
+          to="/filling-systems" 
+          icon={<Fuel size={20} />} 
+          label="Filling Systems" 
+          active={pathname === '/filling-systems'} 
+        />
+        <NavItem 
+          to="/fuel-supplies" 
+          icon={<Truck size={20} />} 
+          label="Fuel Supplies" 
+          active={pathname === '/fuel-supplies'} 
+        />
+        <NavItem 
+          to="/providers" 
+          icon={<Building2 size={20} />} 
+          label="Petrol Providers" 
+          active={pathname === '/providers'} 
+        />
+        <NavItem 
+          to="/employees" 
+          icon={<Users size={20} />} 
+          label="Employees" 
+          active={pathname === '/employees'} 
+        />
+        <NavItem 
+          to="/expenses" 
+          icon={<FileText size={20} />} 
+          label="Expenses" 
+          active={pathname === '/expenses'} 
+        />
+        <NavItem 
+          to="/transactions" 
+          icon={<CircleDollarSign size={20} />} 
+          label="Transactions" 
+          active={pathname === '/transactions'} 
+        />
+      </div>
+      <div className="mt-auto px-4 py-3 flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">
+          {new Date().getFullYear()} © FuelStation
+        </p>
+        {isMobile && (
+          <button className="text-muted-foreground hover:text-primary">
+            {/* Add mobile-specific actions here if needed */}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

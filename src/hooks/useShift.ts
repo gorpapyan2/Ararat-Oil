@@ -8,9 +8,11 @@ import {
 } from '@/services/shifts';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useShift() {
   const [activeShift, setActiveShift] = useState<Shift | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -23,16 +25,49 @@ export function useShift() {
 
   const checkActiveShift = async () => {
     if (!user) return;
+    setIsLoading(true);
     try {
       const shift = await getActiveShift(user.id);
       setActiveShift(shift);
+      
+      // If we have an active shift, fetch the current sales total
+      if (shift) {
+        updateShiftSalesTotal(shift.id);
+      }
     } catch (error) {
       console.error('Error checking active shift', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateShiftSalesTotal = async (shiftId: string) => {
+    try {
+      // Get sum of total_sales for this shift
+      const { data, error } = await supabase
+        .from('sales')
+        .select('total_sales')
+        .eq('shift_id', shiftId);
+        
+      if (error) throw error;
+      
+      const salesTotal = data.reduce((sum, sale) => sum + (sale.total_sales || 0), 0);
+      
+      // Update the shift object with current sales total
+      if (activeShift) {
+        setActiveShift({
+          ...activeShift,
+          sales_total: salesTotal
+        });
+      }
+    } catch (error) {
+      console.error('Error updating shift sales total', error);
     }
   };
 
   const beginShift = async (openingCash: number) => {
     try {
+      setIsLoading(true);
       const newShift = await startShift(openingCash);
       setActiveShift(newShift);
       toast({
@@ -47,6 +82,8 @@ export function useShift() {
         variant: 'destructive'
       });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,6 +93,10 @@ export function useShift() {
     }
 
     try {
+      setIsLoading(true);
+      // First update the sales total one last time
+      await updateShiftSalesTotal(activeShift.id);
+      
       const closedShift = await closeShift(activeShift.id, closingCash);
       setActiveShift(null);
       toast({
@@ -70,6 +111,8 @@ export function useShift() {
         variant: 'destructive'
       });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,6 +120,7 @@ export function useShift() {
     activeShift,
     beginShift,
     endShift,
-    checkActiveShift
+    checkActiveShift,
+    isLoading
   };
 }
