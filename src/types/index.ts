@@ -13,7 +13,7 @@ export interface Employee {
   created_at?: string;
 }
 
-export type FuelType = 'petrol' | 'diesel' | 'gas' | 'kerosene';
+export type FuelType = 'petrol' | 'diesel' | 'gas' | 'kerosene' | 'cng';
 
 export interface FuelTank {
   id: string;
@@ -95,6 +95,9 @@ export interface Expense {
   category: ExpenseCategory;
   description: string;
   payment_status: PaymentStatus;
+  payment_method?: PaymentMethod;
+  invoice_number?: string;
+  notes?: string;
   created_at?: string;
 }
 
@@ -143,7 +146,7 @@ export interface ProfitLoss {
   created_at?: string;
 }
 
-// Shift type (already defined but I'm including it for completeness)
+// Shift type
 export interface Shift {
   id: string;
   employee_id: string;
@@ -155,4 +158,15 @@ export interface Shift {
   status: 'OPEN' | 'CLOSED';
   created_at?: string;
   updated_at?: string;
+}
+
+// Tank level change record type
+export interface TankLevelChange {
+  id: string;
+  tank_id: string;
+  change_amount: number;
+  previous_level: number;
+  new_level: number;
+  change_type: 'add' | 'subtract';
+  created_at?: string;
 }
