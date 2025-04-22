@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Sale, FuelType, PaymentStatus } from "@/types";
+import { useShift } from '@/hooks/useShift';
 
 export const createSale = async (
   data: {
@@ -11,7 +11,9 @@ export const createSale = async (
     filling_system_id: string;
     employee_id: string;
   }
-): Promise<Sale> => {
+) => {
+  const { activeShift } = useShift(); // Get the current active shift
+
   const total_sold_liters = data.meter_end - data.meter_start;
   const total_sales = total_sold_liters * data.unit_price;
 
@@ -60,7 +62,7 @@ export const createSale = async (
     throw error;
   }
 
-  return {
+  const existingSaleData = {
     id: sale.id,
     date: sale.date,
     fuel_type: (fillingSystemData.tank.fuel_type as FuelType) || 'petrol',
@@ -75,4 +77,11 @@ export const createSale = async (
     filling_system_id: sale.filling_system_id || '',
     employee_id: sale.employee_id || ''
   };
+
+  const saleData = {
+    ...existingSaleData,
+    shift_id: activeShift?.id || null // Attach shift ID if available
+  };
+
+  return saleData;
 };

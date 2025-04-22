@@ -349,6 +349,7 @@ export type Database = {
           meter_start: number | null
           payment_status: string | null
           price_per_unit: number
+          shift_id: string | null
           total_sales: number
           total_sold_liters: number
         }
@@ -362,6 +363,7 @@ export type Database = {
           meter_start?: number | null
           payment_status?: string | null
           price_per_unit: number
+          shift_id?: string | null
           total_sales: number
           total_sold_liters?: number
         }
@@ -375,6 +377,7 @@ export type Database = {
           meter_start?: number | null
           payment_status?: string | null
           price_per_unit?: number
+          shift_id?: string | null
           total_sales?: number
           total_sold_liters?: number
         }
@@ -391,6 +394,60 @@ export type Database = {
             columns: ["filling_system_id"]
             isOneToOne: false
             referencedRelation: "filling_systems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shifts: {
+        Row: {
+          closing_cash: number | null
+          created_at: string | null
+          employee_id: string
+          end_time: string | null
+          id: string
+          opening_cash: number
+          sales_total: number | null
+          start_time: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          closing_cash?: number | null
+          created_at?: string | null
+          employee_id: string
+          end_time?: string | null
+          id?: string
+          opening_cash: number
+          sales_total?: number | null
+          start_time?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          closing_cash?: number | null
+          created_at?: string | null
+          employee_id?: string
+          end_time?: string | null
+          id?: string
+          opening_cash?: number
+          sales_total?: number | null
+          start_time?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -523,6 +580,7 @@ export type Database = {
           meter_start: number | null
           payment_status: string | null
           price_per_unit: number
+          shift_id: string | null
           total_sales: number
           total_sold_liters: number
         }
