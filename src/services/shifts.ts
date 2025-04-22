@@ -18,7 +18,7 @@ export async function startShift(openingCash: number): Promise<Shift> {
     .single();
 
   if (error) throw error;
-  return data;
+  return data as Shift;
 }
 
 export async function closeShift(shiftId: string, closingCash: number): Promise<Shift> {
@@ -34,7 +34,7 @@ export async function closeShift(shiftId: string, closingCash: number): Promise<
     .single();
 
   if (error) throw error;
-  return data;
+  return data as Shift;
 }
 
 export async function getActiveShift(employeeId: string): Promise<Shift | null> {
@@ -46,5 +46,5 @@ export async function getActiveShift(employeeId: string): Promise<Shift | null> 
     .single();
 
   if (error) return null;
-  return data;
+  return data as Shift;
 }
