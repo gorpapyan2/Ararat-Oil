@@ -42,8 +42,10 @@ export function TankManager() {
 
   // Handle loading and error states
   const isLoading = isLoadingTanks || isLoadingInventory;
-  const tanksData = tanks || [];
-  const inventoryData = inventory || [];
+  
+  // Ensure we have arrays even if the fetched data is undefined
+  const tanksData = Array.isArray(tanks) ? tanks : [];
+  const inventoryData = Array.isArray(inventory) ? inventory : [];
 
   return (
     <div className="space-y-6">

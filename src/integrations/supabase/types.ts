@@ -108,6 +108,7 @@ export type Database = {
           delivery_date: string
           employee_id: string
           id: string
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
           price_per_liter: number
           provider_id: string
           quantity_liters: number
@@ -120,6 +121,7 @@ export type Database = {
           delivery_date: string
           employee_id: string
           id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
           price_per_liter: number
           provider_id: string
           quantity_liters: number
@@ -132,6 +134,7 @@ export type Database = {
           delivery_date?: string
           employee_id?: string
           id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
           price_per_liter?: number
           provider_id?: string
           quantity_liters?: number
@@ -235,6 +238,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payment_methods: {
+        Row: {
+          created_at: string | null
+          id: number
+          method_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: never
+          method_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: never
+          method_name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       petrol_providers: {
         Row: {
@@ -522,7 +549,12 @@ export type Database = {
       }
     }
     Enums: {
-      payment_method: "cash" | "card" | "bank_transfer" | "mobile_payment"
+      payment_method:
+        | "cash"
+        | "card"
+        | "bank_transfer"
+        | "mobile_payment"
+        | "new_value"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -638,7 +670,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      payment_method: ["cash", "card", "bank_transfer", "mobile_payment"],
+      payment_method: [
+        "cash",
+        "card",
+        "bank_transfer",
+        "mobile_payment",
+        "new_value",
+      ],
     },
   },
 } as const
