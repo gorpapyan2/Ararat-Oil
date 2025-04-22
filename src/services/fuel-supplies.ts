@@ -46,13 +46,16 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
       }
     }
 
+    // Use type assertion to handle payment_status that might not be detected by TypeScript
+    const paymentStatus = (record as any).payment_status as PaymentStatus || 'pending';
+
     // Return the transformed record
     return {
       ...record,
       provider,
       tank,
       employee,
-      payment_status: (record.payment_status as PaymentStatus) || 'pending', // Ensure payment_status is defined
+      payment_status: paymentStatus,
       payment_method: paymentMethod
     };
   });
@@ -143,12 +146,15 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
     }
   }
 
+  // Use type assertion to handle payment_status that might not be detected by TypeScript
+  const paymentStatus = (data as any).payment_status as PaymentStatus || 'pending';
+
   return {
     ...data,
     provider,
     tank,
     employee,
-    payment_status: (data.payment_status as PaymentStatus) || 'pending',
+    payment_status: paymentStatus,
     payment_method: paymentMethod
   };
 }
@@ -187,12 +193,15 @@ export async function updateFuelSupply(id: string, updates: Partial<Omit<FuelSup
     }
   }
 
+  // Use type assertion to handle payment_status that might not be detected by TypeScript
+  const paymentStatus = (data as any).payment_status as PaymentStatus || 'pending';
+
   return {
     ...data,
     provider,
     tank,
     employee,
-    payment_status: (data.payment_status as PaymentStatus) || 'pending',
+    payment_status: paymentStatus,
     payment_method: paymentMethod
   };
 }
