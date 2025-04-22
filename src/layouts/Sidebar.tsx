@@ -1,3 +1,4 @@
+
 import { 
   LayoutDashboard, 
   Receipt, 
@@ -12,11 +13,11 @@ import {
 } from "lucide-react";
 import { NavItem } from "@/components/ui/nav-item"
 import { useLocation } from "react-router-dom";
-import { useMobile } from "@/hooks/useMobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Sidebar() {
   const { pathname } = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   return (
     <div className="flex flex-col h-full bg-background border-r">

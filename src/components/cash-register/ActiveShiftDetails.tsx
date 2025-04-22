@@ -20,14 +20,40 @@ export function ActiveShiftDetails({ shift }: ActiveShiftDetailsProps) {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('sales')
-        .select('*')
+        .select(`
+          *,
+          filling_system:filling_systems(
+            name,
+            tank:fuel_tanks(
+              fuel_type
+            )
+          )
+        `)
         .eq('shift_id', shift.id)
         .order('created_at', { ascending: false });
       
       if (error) {
         console.error('Error fetching shift sales:', error);
       } else {
-        setSales(data as Sale[]);
+        // Transform the data to match the Sale type
+        const formattedSales = data.map(item => ({
+          id: item.id,
+          date: item.date,
+          fuel_type: (item.filling_system?.tank?.fuel_type as Sale['fuel_type']) || 'petrol',
+          quantity: item.total_sold_liters || 0,
+          price_per_unit: item.price_per_unit,
+          total_sales: item.total_sales,
+          payment_status: item.payment_status as Sale['payment_status'],
+          filling_system_name: item.filling_system?.name || 'Unknown',
+          created_at: item.created_at,
+          meter_start: item.meter_start || 0,
+          meter_end: item.meter_end || 0,
+          filling_system_id: item.filling_system_id || '',
+          employee_id: item.employee_id || '',
+          shift_id: item.shift_id
+        }));
+        
+        setSales(formattedSales);
         
         // Calculate totals
         const salesTotal = data.reduce((sum, sale) => sum + (sale.total_sales || 0), 0);

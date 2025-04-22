@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Sale, FuelType, PaymentStatus } from "@/types";
+import { Sale, FuelType, PaymentStatus, Shift } from "@/types";
 import { useShift } from '@/hooks/useShift';
 
 export const createSale = async (
