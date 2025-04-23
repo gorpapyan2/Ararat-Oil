@@ -14,9 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Sale } from "@/types";
 import { format } from "date-fns";
 import { Edit, MoreHorizontal, Trash2, Eye } from "lucide-react";
+
+type PaymentStatusType = 'COMPLETED' | 'PENDING' | 'FAILED' | 'CANCELLED';
 
 interface SalesTableProps {
   sales: Sale[];
@@ -38,6 +41,7 @@ export function SalesTable({ sales, isLoading, onEdit, onDelete, onView }: Sales
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Filling System</TableHead>
+            <TableHead>Payment Status</TableHead>
             <TableHead className="text-right">Total Liters</TableHead>
             <TableHead className="text-right">Price/Unit (֏)</TableHead>
             <TableHead className="text-right">Total Sales (֏)</TableHead>
@@ -49,6 +53,27 @@ export function SalesTable({ sales, isLoading, onEdit, onDelete, onView }: Sales
             <TableRow key={sale.id}>
               <TableCell>{format(new Date(sale.date), "PP")}</TableCell>
               <TableCell>{sale.filling_system_name}</TableCell>
+              <TableCell>
+                <Badge
+                  variant={
+                    (() => {
+                      const status = sale.payment_status as PaymentStatusType;
+                      switch (status) {
+                        case 'COMPLETED':
+                          return 'default';
+                        case 'PENDING':
+                          return 'secondary';
+                        case 'FAILED':
+                          return 'destructive';
+                        default:
+                          return 'outline';
+                      }
+                    })()
+                  }
+                >
+                  {sale.payment_status.charAt(0).toUpperCase() + sale.payment_status.slice(1)}
+                </Badge>
+              </TableCell>
               <TableCell className="text-right">{sale.quantity.toFixed(2)}</TableCell>
               <TableCell className="text-right">
                 {sale.price_per_unit.toLocaleString()} ֏

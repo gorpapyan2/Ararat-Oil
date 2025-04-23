@@ -1,17 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
-import { FuelSupply, FuelType, EmployeeStatus } from "@/types";
+import { FuelSupply, FuelType, EmployeeStatus, PaymentStatus } from "@/types";
 import { createTransaction } from "@/services/transactions";
 
 /**
- * Fetch all fuel supply records with related provider, tank, and employee details.
+ * Fetch all fuel  supply records with related provider, tank, and employee details.
  * @returns {Promise<FuelSupply[]>}
  * @throws {Error} If fetching data fails
  */
 export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
   const { data, error } = await supabase
-    .from<FuelSupply>("fuel_supplies")
+    .from("fuel_supplies")
     .select(`
-      *,
+      *,  
       provider:petrol_providers(id, name, contact),
       tank:fuel_tanks(id, name, fuel_type, capacity, current_level),
       employee:employees(id, name, position, contact, salary, hire_date, status)
@@ -33,6 +33,7 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
     employee: record.employee
       ? { ...record.employee, status: record.employee.status as EmployeeStatus }
       : undefined,
+    payment_status: record.payment_status as PaymentStatus,
   }));
 }
 
@@ -60,7 +61,7 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
       employee_id: supply.employee_id,
       comments: supply.comments,
       total_cost: supply.total_cost,
-      payment_status: supply.payment_status,
+      payment_status: supply.payment_status.toString(),
       payment_method: supply.payment_method
     })
     .select(`
@@ -104,6 +105,7 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
 
   return {
     ...data,
+    payment_status: data.payment_status as PaymentStatus,
     provider: data.provider ?? undefined,
     tank: data.tank
       ? { ...data.tank, fuel_type: data.tank.fuel_type as FuelType }
@@ -130,6 +132,7 @@ export async function updateFuelSupply(id: string, updates: Partial<Omit<FuelSup
   if (error) throw new Error(`Failed to update fuel supply: ${error.message ?? error}`);
   return {
     ...data,
+    payment_status: data.payment_status as PaymentStatus,
     provider: data.provider ?? undefined,
     tank: data.tank
       ? { ...data.tank, fuel_type: data.tank.fuel_type as FuelType }

@@ -108,6 +108,7 @@ export type Database = {
           delivery_date: string
           employee_id: string
           id: string
+          payment_status: string
           price_per_liter: number
           provider_id: string
           quantity_liters: number
@@ -120,6 +121,7 @@ export type Database = {
           delivery_date: string
           employee_id: string
           id?: string
+          payment_status: string
           price_per_liter: number
           provider_id: string
           quantity_liters: number
@@ -132,6 +134,7 @@ export type Database = {
           delivery_date?: string
           employee_id?: string
           id?: string
+          payment_status?: string
           price_per_liter?: number
           provider_id?: string
           quantity_liters?: number
@@ -638,7 +641,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      payment_method: ["cash", "card", "bank_transfer", "mobile_payment"],
+      payment_method: [
+        "cash",
+        "card",
+        "bank_transfer",
+        "mobile_payment",
+        "new_value",
+      ],
     },
   },
 } as const
