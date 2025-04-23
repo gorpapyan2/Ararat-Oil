@@ -9,15 +9,19 @@ import {
   Users, 
   FileText, 
   CircleDollarSign,
-  DollarSign
+  DollarSign,
+  LogOut  // Import the LogOut icon from lucide-react
 } from "lucide-react";
 import { NavItem } from "@/components/ui/nav-item"
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";  // Import the useAuth hook
+import { Button } from "@/components/ui/button";  // Import Button component
 
 export function Sidebar() {
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
+  const { signOut } = useAuth();  // Destructure signOut from useAuth
   
   // Only render the sidebar content if we're not on the auth page
   if (pathname === '/auth') {
@@ -97,11 +101,14 @@ export function Sidebar() {
         <p className="text-muted-foreground text-sm">
           {new Date().getFullYear()} © FuelStation
         </p>
-        {isMobile && (
-          <button className="text-muted-foreground hover:text-primary">
-            {/* Add mobile-specific actions here if needed */}
-          </button>
-        )}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={signOut}
+          className="text-destructive hover:bg-destructive/10"
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
