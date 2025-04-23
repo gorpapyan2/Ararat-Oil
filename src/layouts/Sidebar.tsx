@@ -9,23 +9,22 @@ import {
   Users, 
   FileText, 
   CircleDollarSign,
-  DollarSign,
-  LogOut  // Import the LogOut icon from lucide-react
+  LogOut
 } from "lucide-react";
 import { NavItem } from "@/components/ui/nav-item"
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useAuth } from "@/hooks/useAuth";  // Import the useAuth hook
-import { Button } from "@/components/ui/button";  // Import Button component
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 export function Sidebar() {
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
-  const { signOut } = useAuth();  // Destructure signOut from useAuth
+  const { signOut } = useAuth();
   
   // Only render the sidebar content if we're not on the auth page
   if (pathname === '/auth') {
-    return null; // Don't render sidebar on auth page
+    return null;
   }
   
   return (
@@ -47,12 +46,6 @@ export function Sidebar() {
           icon={<Receipt size={20} />} 
           label="Sales" 
           active={pathname === '/sales'} 
-        />
-        <NavItem 
-          to="/cash-register" 
-          icon={<DollarSign size={20} />} 
-          label="Cash Register" 
-          active={pathname === '/cash-register'} 
         />
         <NavItem 
           to="/inventory" 
