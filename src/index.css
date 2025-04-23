@@ -4,98 +4,119 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Dark Modern UI Theme Based on Design Specs */
+    
+    /* Background */
+    --bg-primary: #0B0E0C;
+    --bg-surface: #131815;
+    
+    /* UI Elements */
+    --stroke: #1E2420;
+    --accent: #A7D129;
+    --accent-soft: rgba(167, 209, 41, 0.1); /* #A7D1291A */
+    
+    /* States */
+    --success: #3BA55C;
+    --destructive: #E03131;
+    
+    /* Typography */
+    --txt-primary: #F1F5F9;
+    --txt-muted: #9CA3AF;
+    
+    /* Border Radius */
+    --radius: 0.75rem;
+    
+    /* Legacy vars for backward compatibility */
+    --background: 150 10% 5%; /* #0B0E0C */
+    --foreground: 210 20% 96%; /* #F1F5F9 */
+    --card: 160 8% 9%; /* #131815 */
+    --card-foreground: 210 20% 96%; /* #F1F5F9 */
+    --popover: 160 8% 9%; /* #131815 */
+    --popover-foreground: 210 20% 96%; /* #F1F5F9 */
+    --primary: 77 65% 49%; /* #A7D129 */
+    --primary-foreground: 150 10% 5%; /* #0B0E0C */
+    --secondary: 150 8% 8%; /* #131815 */
+    --secondary-foreground: 210 20% 96%; /* #F1F5F9 */
+    --muted: 150 8% 12%; /* slightly lighter than surface */
+    --muted-foreground: 217 10% 64%; /* #9CA3AF */
+    --border: 160 10% 13%; /* #1E2420 */
+    --input: 160 10% 13%; /* #1E2420 */
+    --ring: 77 65% 49%; /* #A7D129 */
+    
+    /* Sidebar */
+    --sidebar-background: var(--bg-surface);
+    --sidebar-foreground: var(--txt-primary);
+    --sidebar-primary: var(--accent);
+    --sidebar-primary-foreground: var(--bg-primary);
+    --sidebar-accent: var(--accent-soft);
+    --sidebar-accent-foreground: var(--accent);
+    --sidebar-border: var(--stroke);
+    --sidebar-ring: var(--accent);
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  /* We're using a dark-by-default design, but we'll keep this 
+  for potential light mode in the future */
+  .light {
+    /* Light theme would go here */
+    --bg-primary: #F8F9FA;
+    --bg-surface: #FFFFFF;
+    --stroke: #E2E8F0;
+    --accent: #A7D129;
+    --accent-soft: rgba(167, 209, 41, 0.1);
+    --success: #3BA55C;
+    --txt-primary: #1E293B;
+    --txt-muted: #64748B;
+    
+    /* Border Radius */
+    --radius: 0.75rem;
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+@layer components {
+  /* Card with consistent shadow and radius */
+  .app-card {
+    @apply bg-bg-surface rounded-soft shadow-card border border-stroke;
+  }
+  
+  /* Buttons with proper focus states */
+  .app-button {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-all duration-200 ease-out;
+  }
+  
+  /* Active navigation items */
+  .nav-item-active {
+    @apply bg-accent-soft text-accent rounded-full px-3 py-2;
+  }
+  
+  /* Hover effects */
+  .hover-raise {
+    @apply hover:-translate-y-1 hover:shadow-hover transition-all duration-150 ease-out;
   }
 
-  body {
-    @apply bg-background text-foreground;
+  /* Typography utility classes */
+  .text-display {
+    @apply text-3xl leading-9 font-bold;
   }
+  
+  .text-title {
+    @apply text-2xl leading-8 font-semibold;
+  }
+  
+  .text-subtitle {
+    @apply text-base leading-6 font-semibold;
+  }
+  
+  .text-body {
+    @apply text-sm leading-6 font-normal;
+  }
+  
+  .text-caption {
+    @apply text-xs leading-5 font-normal;
+  }
+}
+
+/* Set base body styles */
+body {
+  @apply bg-bg-primary text-txt-primary antialiased;
+  font-feature-settings: 'ss01', 'cv02';
 }

@@ -1,8 +1,20 @@
-# Welcome to your Lovable project
+# Ararat OIL DB Management System
 
-## Project info
+<p align="center">
+  <img src="https://img.shields.io/badge/status-active-success.svg" alt="Status">
+  <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
+</p>
 
-**URL**: https://lovable.dev/projects/be0de8e1-174f-4085-832e-d3ad4ee0431c
+## About
+
+Ararat OIL DB is a comprehensive management system for fuel stations, handling inventory, sales, expenses, and fuel supplies. It provides real-time dashboards and detailed data views to help management make informed decisions.
+
+### Project Info
+
+**Supabase Project**: qnghvjeunmicykrzpeog  
+**URL**: https://qnghvjeunmicykrzpeog.supabase.co  
+**Region**: eu-west-3
 
 ## How can I edit this code?
 
@@ -92,3 +104,63 @@ This application is a comprehensive management system for fuel stations (or simi
 - **API Layer:** Centralized in `src/services`, with each business domain having its own service file.
 
 This modular architecture ensures maintainability, extensibility, and a clear separation of concerns for developers and stakeholders.
+
+## Key Features
+
+### Modern Dashboard
+- **Interactive Analytics**: Real-time KPIs including sales, expenses, profits, and inventory value
+- **Dynamic Visualizations**: Responsive charts for sales trends, expense breakdown, and inventory distribution
+- **Recent Activity Feed**: Chronological view of the latest transactions across the system
+- **Time Period Filtering**: Easily switch between day, week, month, and year views
+
+### Data Management
+- **Standardized Data Tables**: Consistent UI across all data entities with sorting, filtering, and pagination
+- **Detailed Record Views**: In-depth information for each record type
+- **Full CRUD Operations**: Create, read, update, and delete capabilities for all business data
+
+### User Experience
+- **Responsive Design**: Optimized for both desktop and mobile viewing
+- **Intuitive Navigation**: Logical organization of business functions
+- **Visual Feedback**: Loading states, animations, and transitions for improved user engagement
+- **Data Visualization**: Clear, actionable insights through charts and graphs
+
+## Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd ararat-oil-db
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## Environment Setup
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## Screenshots
+
+### Dashboard
+![Dashboard](/path/to/dashboard-screenshot.png)
+
+### Sales Management
+![Sales](/path/to/sales-screenshot.png)
+
+### Inventory
+![Inventory](/path/to/inventory-screenshot.png)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

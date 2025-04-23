@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { MainLayout } from "@/layouts/MainLayout";
+import { PublicLayout } from "@/layouts/PublicLayout";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 
@@ -14,6 +15,9 @@ import FuelSupplies from "@/pages/FuelSupplies";
 import Expenses from "@/pages/Expenses";
 import Auth from "@/pages/Auth";
 import Transactions from "@/pages/Transactions";
+import Tanks from "@/pages/Tanks";
+import LandingPage from "@/pages/LandingPage";
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -37,59 +41,72 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider>
         <BrowserRouter>
-          <MainLayout>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={
+          <Routes>
+            {/* Public routes with PublicLayout */}
+            <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
+            <Route path="/auth" element={<PublicLayout><Auth /></PublicLayout>} />
+            
+            {/* Protected routes with MainLayout */}
+            <Route path="/dashboard" element={
                 <RequireAuth>
-                  <Dashboard />
+                  <MainLayout><Dashboard /></MainLayout>
                 </RequireAuth>
               } />
               <Route path="/inventory" element={
                 <RequireAuth>
-                  <Inventory />
+                  <MainLayout><Inventory /></MainLayout>
                 </RequireAuth>
               } />
               <Route path="/filling-systems" element={
                 <RequireAuth>
-                  <FillingSystems />
+                  <MainLayout><FillingSystems /></MainLayout>
                 </RequireAuth>
               } />
               <Route path="/employees" element={
                 <RequireAuth>
-                  <Employees />
+                  <MainLayout><Employees /></MainLayout>
                 </RequireAuth>
               } />
               <Route path="/sales" element={
                 <RequireAuth>
-                  <Sales />
+                  <MainLayout><Sales /></MainLayout>
                 </RequireAuth>
               } />
-              <Route path="/providers" element={
+              <Route path="/petrol-providers" element={
                 <RequireAuth>
-                  <PetrolProviders />
+                  <MainLayout><PetrolProviders /></MainLayout>
                 </RequireAuth>
               } />
               <Route path="/fuel-supplies" element={
                 <RequireAuth>
-                  <FuelSupplies />
+                  <MainLayout><FuelSupplies /></MainLayout>
                 </RequireAuth>
               } />
               <Route path="/expenses" element={
                 <RequireAuth>
-                  <Expenses />
+                  <MainLayout><Expenses /></MainLayout>
                 </RequireAuth>
               } />
               <Route 
                 path="/transactions" 
                 element={
                   <RequireAuth>
-                    <Transactions />
+                    <MainLayout><Transactions /></MainLayout>
                   </RequireAuth>
                 } 
               />
+              <Route 
+                path="/tanks" 
+                element={
+                  <RequireAuth>
+                    <MainLayout><Tanks /></MainLayout>
+                  </RequireAuth>
+                } 
+              />
+
+              {/* Handle not found */}
+              <Route path="*" element={<PublicLayout><NotFound /></PublicLayout>} />
             </Routes>
-          </MainLayout>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>

@@ -1,0 +1,16 @@
+{
+  "comment": "This file contains placeholder paths for mock images used in the landing page. Replace these with actual images in production.",
+  "images": {
+    "hero-fuel-station.jpg": "/placeholder.svg",
+    "app-store.svg": "/placeholder.svg",
+    "google-play.svg": "/placeholder.svg",
+    "app-mockup.png": "/placeholder.svg",
+    "team-1.jpg": "/placeholder.svg",
+    "team-2.jpg": "/placeholder.svg",
+    "station-1.jpg": "/placeholder.svg",
+    "station-2.jpg": "/placeholder.svg",
+    "news-1.jpg": "/placeholder.svg",
+    "news-2.jpg": "/placeholder.svg",
+    "news-3.jpg": "/placeholder.svg"
+  }
+}
