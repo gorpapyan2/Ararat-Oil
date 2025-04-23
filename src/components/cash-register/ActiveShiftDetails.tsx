@@ -79,77 +79,77 @@ export function ActiveShiftDetails({ shift }: ActiveShiftDetailsProps) {
   };
 
   return (
-    <Card className="border-none shadow-sm">
+    <Card className="border-none shadow-sm bg-background">
       <CardHeader>
-        <CardTitle className="text-xl font-medium">Active Shift Details</CardTitle>
+        <CardTitle className="text-xl font-medium text-text-base">Active Shift Details</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="rounded-lg bg-muted p-3">
-            <div className="text-sm font-medium text-muted-foreground">Started</div>
-            <div className="text-lg font-semibold">
+          <div className="rounded-lg bg-secondary/20 p-3">
+            <div className="text-sm font-medium text-text-muted">Started</div>
+            <div className="text-lg font-semibold text-text-base">
               {new Date(shift.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-text-muted">
               {new Date(shift.start_time).toLocaleDateString()}
             </div>
           </div>
-          <div className="rounded-lg bg-muted p-3">
-            <div className="text-sm font-medium text-muted-foreground">Duration</div>
-            <div className="text-lg font-semibold">
+          <div className="rounded-lg bg-secondary/20 p-3">
+            <div className="text-sm font-medium text-text-muted">Duration</div>
+            <div className="text-lg font-semibold text-text-base">
               {shiftDuration()}
             </div>
-            <div className="text-xs text-muted-foreground">Active</div>
+            <div className="text-xs text-text-muted">Active</div>
           </div>
-          <div className="rounded-lg bg-muted p-3">
-            <div className="text-sm font-medium text-muted-foreground">Opening Cash</div>
-            <div className="text-lg font-semibold">
+          <div className="rounded-lg bg-secondary/20 p-3">
+            <div className="text-sm font-medium text-text-muted">Opening Cash</div>
+            <div className="text-lg font-semibold text-text-base">
               {shift.opening_cash} ֏
             </div>
-            <div className="text-xs text-muted-foreground">Starting balance</div>
+            <div className="text-xs text-text-muted">Starting balance</div>
           </div>
-          <div className="rounded-lg bg-muted p-3">
-            <div className="text-sm font-medium text-muted-foreground">Expected Cash</div>
-            <div className="text-lg font-semibold">
+          <div className="rounded-lg bg-secondary/20 p-3">
+            <div className="text-sm font-medium text-text-muted">Expected Cash</div>
+            <div className="text-lg font-semibold text-text-base">
               {expectedCash} ֏
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-text-muted">
               {sales.length} sales totaling {totalSales} ֏
             </div>
           </div>
         </div>
 
-        <h3 className="text-lg font-medium mt-6">Sales During This Shift</h3>
+        <h3 className="text-lg font-medium mt-6 text-text-base">Sales During This Shift</h3>
         {isLoading ? (
-          <div className="flex justify-center p-6">Loading shift sales...</div>
+          <div className="flex justify-center p-6 text-text-muted">Loading shift sales...</div>
         ) : sales.length === 0 ? (
-          <div className="text-center p-6 text-muted-foreground">
+          <div className="text-center p-6 text-text-muted">
             No sales have been recorded during this shift yet.
           </div>
         ) : (
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-secondary/20">
               <TableRow>
-                <TableHead>Time</TableHead>
-                <TableHead>Fuel Type</TableHead>
-                <TableHead>System</TableHead>
-                <TableHead className="text-right">Quantity (L)</TableHead>
-                <TableHead className="text-right">Amount (֏)</TableHead>
+                <TableHead className="text-text-muted">Time</TableHead>
+                <TableHead className="text-text-muted">Fuel Type</TableHead>
+                <TableHead className="text-text-muted">System</TableHead>
+                <TableHead className="text-right text-text-muted">Quantity (L)</TableHead>
+                <TableHead className="text-right text-text-muted">Amount (֏)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sales.map((sale) => (
-                <TableRow key={sale.id}>
-                  <TableCell>
+                <TableRow key={sale.id} className="hover:bg-secondary/10">
+                  <TableCell className="text-text-base">
                     {new Date(sale.created_at || '').toLocaleTimeString([], { 
                       hour: '2-digit', 
                       minute: '2-digit' 
                     })}
                   </TableCell>
-                  <TableCell className="capitalize">{sale.fuel_type}</TableCell>
-                  <TableCell>{sale.filling_system_name}</TableCell>
-                  <TableCell className="text-right">{sale.quantity.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{sale.total_sales}</TableCell>
+                  <TableCell className="capitalize text-text-base">{sale.fuel_type}</TableCell>
+                  <TableCell className="text-text-base">{sale.filling_system_name}</TableCell>
+                  <TableCell className="text-right text-text-base">{sale.quantity.toFixed(2)}</TableCell>
+                  <TableCell className="text-right text-text-base">{sale.total_sales}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

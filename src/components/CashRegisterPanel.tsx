@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -91,24 +90,24 @@ export function CashRegisterPanel() {
 
   if (activeShift) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
-          <Clock size={16} />
+      <div className="space-y-6 text-text-base">
+        <div className="flex items-center space-x-2 text-sm text-text-muted mb-2">
+          <Clock size={16} className="text-accent" />
           <span>Shift started {new Date(activeShift.start_time).toLocaleString()}</span>
         </div>
         
-        <div className="bg-muted p-4 rounded-lg">
-          <div className="text-sm font-medium">Opening Cash</div>
-          <div className="text-xl font-bold">{activeShift.opening_cash.toLocaleString()} ֏</div>
+        <div className="bg-secondary/20 p-4 rounded-lg">
+          <div className="text-sm font-medium text-text-muted">Opening Cash</div>
+          <div className="text-xl font-bold text-text-base">{activeShift.opening_cash.toLocaleString()} ֏</div>
         </div>
         
         <div className="bg-primary/10 p-4 rounded-lg">
-          <div className="text-sm font-medium">Duration</div>
-          <div className="text-xl font-bold">{duration}</div>
+          <div className="text-sm font-medium text-text-muted">Duration</div>
+          <div className="text-xl font-bold text-text-base">{duration}</div>
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="closingCash" className="text-sm font-medium">
+          <label htmlFor="closingCash" className="text-sm font-medium text-text-base">
             Closing Cash Amount
           </label>
           <Input 
@@ -117,21 +116,20 @@ export function CashRegisterPanel() {
             placeholder="Enter closing cash amount"
             value={closingCash}
             onChange={(e) => setClosingCash(e.target.value)}
-            className="mb-1"
+            className="mb-1 bg-secondary/20 text-text-base border-secondary/40"
           />
           
           {error && (
             <div className="flex items-center text-destructive text-sm mt-1 mb-2">
-              <AlertCircle className="w-4 h-4 mr-1" />
-              {error}
+              <AlertCircle className="w-4 h-4 mr-1 text-destructive" />
+              <span className="text-text-base">{error}</span>
             </div>
           )}
           
           <Button 
             onClick={handleCloseShift} 
-            className="w-full" 
+            className="w-full bg-accent text-black hover:bg-[#c5e84d]" 
             disabled={isSubmitting}
-            variant="default"
           >
             <DollarSign className="mr-1 h-4 w-4" />
             {isSubmitting ? "Processing..." : "Close Shift"}
@@ -142,15 +140,15 @@ export function CashRegisterPanel() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-text-base">
       <div className="bg-primary/10 p-4 rounded-lg">
-        <div className="text-sm font-medium">Status</div>
-        <div className="text-xl font-bold">No Active Shift</div>
-        <div className="text-sm text-muted-foreground mt-1">Start a shift to begin processing sales</div>
+        <div className="text-sm font-medium text-text-muted">Status</div>
+        <div className="text-xl font-bold text-text-base">No Active Shift</div>
+        <div className="text-sm text-text-muted mt-1">Start a shift to begin processing sales</div>
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="openingCash" className="text-sm font-medium">
+        <label htmlFor="openingCash" className="text-sm font-medium text-text-base">
           Opening Cash Amount
         </label>
         <Input 
@@ -159,21 +157,20 @@ export function CashRegisterPanel() {
           placeholder="Enter opening cash amount"
           value={openingCash}
           onChange={(e) => setOpeningCash(e.target.value)}
-          className="mb-1"
+          className="mb-1 bg-secondary/20 text-text-base border-secondary/40"
         />
         
         {error && (
           <div className="flex items-center text-destructive text-sm mt-1 mb-2">
-            <AlertCircle className="w-4 h-4 mr-1" />
-            {error}
+            <AlertCircle className="w-4 h-4 mr-1 text-destructive" />
+            <span className="text-text-base">{error}</span>
           </div>
         )}
         
         <Button 
           onClick={handleStartShift} 
-          className="w-full" 
+          className="w-full bg-accent text-black hover:bg-[#c5e84d]" 
           disabled={isSubmitting}
-          variant="default"
         >
           <DollarSign className="mr-1 h-4 w-4" />
           {isSubmitting ? "Processing..." : "Start Shift"}
