@@ -1,26 +1,41 @@
 
-import { Sidebar } from "./Sidebar";
+import React from "react";
+import { Sidebar } from "@/layouts/Sidebar";
+import { useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { ThemeProvider } from "next-themes";
 
-interface MainLayoutProps {
+type MainLayoutProps = {
   children: React.ReactNode;
-}
+};
 
-export const MainLayout = ({ children }: MainLayoutProps) => {
-  return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <div className="min-h-screen flex dark:bg-gray-900">
-        <Sidebar />
-        <main className="flex-1 p-8 overflow-auto">
-          <div className="flex justify-end mb-4">
-            <ThemeToggle />
-          </div>
+export function MainLayout({ children }: MainLayoutProps) {
+  const { pathname } = useLocation();
+  const isAuthPage = pathname === "/auth";
+
+  // Use a different layout for the auth page
+  if (isAuthPage) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="flex min-h-screen flex-col items-center justify-center">
           {children}
         </main>
         <Toaster />
       </div>
-    </ThemeProvider>
+    );
+  }
+
+  // Regular layout with sidebar for other pages
+  return (
+    <div className="flex min-h-screen bg-background">
+      <div className="hidden md:block md:w-64">
+        <Sidebar />
+      </div>
+      <div className="flex-1 overflow-x-hidden">
+        <main className="container mx-auto py-6 px-4 md:px-6">
+          {children}
+        </main>
+      </div>
+      <Toaster />
+    </div>
   );
-};
+}

@@ -19,6 +19,11 @@ export function Sidebar() {
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
   
+  // Only render the sidebar content if we're not on the auth page
+  if (pathname === '/auth') {
+    return null; // Don't render sidebar on auth page
+  }
+  
   return (
     <div className="flex flex-col h-full bg-background border-r">
       <div className="px-4 py-6">

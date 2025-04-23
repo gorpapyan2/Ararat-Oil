@@ -109,6 +109,7 @@ export type Database = {
           employee_id: string
           id: string
           payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_status: string
           price_per_liter: number
           provider_id: string
           quantity_liters: number
@@ -122,6 +123,7 @@ export type Database = {
           employee_id: string
           id?: string
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: string
           price_per_liter: number
           provider_id: string
           quantity_liters: number
@@ -135,6 +137,7 @@ export type Database = {
           employee_id?: string
           id?: string
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: string
           price_per_liter?: number
           provider_id?: string
           quantity_liters?: number
