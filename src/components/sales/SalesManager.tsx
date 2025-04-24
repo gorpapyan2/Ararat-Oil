@@ -52,6 +52,15 @@ export function SalesManager() {
     setSearch(newSearch);
   };
 
+  // Handle filter changes
+  const handleFiltersChange = (updates: any) => {
+    if (updates.date !== undefined) setDate(updates.date);
+    if (updates.systemId !== undefined) setSystemId(updates.systemId);
+    if (updates.litersRange !== undefined) setLitersRange(updates.litersRange);
+    if (updates.priceRange !== undefined) setPriceRange(updates.priceRange);
+    if (updates.totalSalesRange !== undefined) setTotalSalesRange(updates.totalSalesRange);
+  };
+
   const handleViewSale = (sale: Sale) => {
     // Set the selected sale for viewing
     setSelectedSale(sale);
@@ -93,20 +102,15 @@ export function SalesManager() {
         </div>
         
         <SalesFilterBar
-          search={search}
-          onSearchChange={handleSearchChange}
-          date={date}
-          onDateChange={setDate}
-          systemId={systemId}
-          onSystemChange={setSystemId}
+          filters={{
+            date,
+            systemId,
+            litersRange,
+            priceRange,
+            totalSalesRange
+          }}
+          onFiltersChange={handleFiltersChange}
           systems={systems}
-          litersRange={litersRange}
-          onLitersRangeChange={setLitersRange}
-          priceRange={priceRange}
-          onPriceRangeChange={setPriceRange}
-          totalSalesRange={totalSalesRange}
-          onTotalSalesRangeChange={setTotalSalesRange}
-          recentSearches={recentSearches}
         />
       </div>
       
