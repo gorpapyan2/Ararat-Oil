@@ -20,35 +20,35 @@ export default {
     },
     extend: {
       colors: {
-        background: "#000000",            // Deep Black
+        background: "#0A1929",           // Deep Navy
         primary: {
-          DEFAULT: "#3E432E",            // Dark Olive
-          foreground: "#F1F5F9"
+          DEFAULT: "#1E88E5",           // Professional Blue
+          foreground: "#FFFFFF"
         },
         secondary: {
-          DEFAULT: "#616F39",            // Medium Olive
-          foreground: "#F1F5F9"
+          DEFAULT: "#334155",           // Slate Blue
+          foreground: "#FFFFFF"
         },
         accent: {
-          DEFAULT: "#A7D129",            // Bright Lime
-          foreground: "#000000"
+          DEFAULT: "#3CCF4E",           // Success Green
+          foreground: "#FFFFFF"
         },
         text: {
-          base: "#F1F5F9",
-          muted: "#9CA3AF"
+          base: "#F8FAFC",             // Light Text
+          muted: "#94A3B8"             // Muted Text
         },
-        border: "#273018",               // for subtle borders (derived from palette)
+        border: "#1E293B",             // Border Color
         muted: {
-          DEFAULT: "#616F39",
-          foreground: "#A7D129"          // muted olive with lime accent
+          DEFAULT: "#334155",          // Muted Background
+          foreground: "#3CCF4E"        // Muted with Green accent
         },
         card: {
-          DEFAULT: "#3E432E",
-          foreground: "#F1F5F9"
+          DEFAULT: "#0F172A",          // Card Background
+          foreground: "#F8FAFC"
         },
       },
       boxShadow: {
-        neumorphic: "8px 8px 16px #2a2e23, -8px -8px 16px #4e5642",
+        neumorphic: "8px 8px 16px #060D14, -8px -8px 16px #0E253E",
       },
       borderRadius: {
         lg: "1.2rem",
