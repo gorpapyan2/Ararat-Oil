@@ -29,10 +29,10 @@ export function SalesFilterBar({
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <Card className="border shadow-sm bg-card/70 backdrop-blur-sm">
-      <div className="flex items-center justify-between px-4 py-3 border-b">
+    <Card className="border-none shadow-sm bg-card/60 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/10">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium">Filters</h3>
+          <h3 className="text-sm font-medium text-foreground/90">Sales Filters</h3>
         </div>
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger asChild>
@@ -64,7 +64,7 @@ export function SalesFilterBar({
                 />
               </div>
               
-              <Separator />
+              <Separator className="opacity-50" />
               
               <div className="grid gap-6 md:grid-cols-3">
                 <RangeSliderFilter
