@@ -25,7 +25,9 @@ interface FillingSystemFilterProps {
 export function FillingSystemFilter({ value, onChange, systems = [] }: FillingSystemFilterProps) {
   const [open, setOpen] = React.useState(false);
 
-  const selectedSystem = systems?.find((system) => system.id === value);
+  // Ensure systems is always defined and an array
+  const systemsList = Array.isArray(systems) ? systems : [];
+  const selectedSystem = systemsList.find((system) => system.id === value);
   
   return (
     <div className="flex flex-col gap-1.5">
@@ -68,7 +70,7 @@ export function FillingSystemFilter({ value, onChange, systems = [] }: FillingSy
                 />
                 All systems
               </CommandItem>
-              {Array.isArray(systems) && systems.map((system) => (
+              {systemsList.map((system) => (
                 <CommandItem
                   key={system.id}
                   onSelect={() => {

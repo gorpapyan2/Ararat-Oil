@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSales } from "@/services/sales";
@@ -19,13 +20,22 @@ export function useSalesFilters() {
     queryFn: fetchSales
   });
 
-  const { data: systems = [] } = useQuery({
+  // Query filling systems data with proper error handling
+  const { data: systemsData = [] } = useQuery({
     queryKey: ["filling-systems"],
     queryFn: async () => {
-      const systemsData = await fetchFillingSystems();
-      return systemsData.map(sys => ({ id: sys.id, name: sys.name }));
+      try {
+        const systemsData = await fetchFillingSystems();
+        return systemsData.map(sys => ({ id: sys.id, name: sys.name }));
+      } catch (error) {
+        console.error("Error fetching filling systems:", error);
+        return [];
+      }
     }
   });
+
+  // Ensure systems is always an array
+  const systems = Array.isArray(systemsData) ? systemsData : [];
 
   const filteredSales = useMemo(() => {
     let filtered = sales || [];

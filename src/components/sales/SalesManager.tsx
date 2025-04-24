@@ -82,6 +82,9 @@ export function SalesManager() {
   // Get table columns with action handlers
   const columns = getSalesColumns(handleViewSale, handleEdit, handleDelete);
 
+  // Ensure systems is always defined as an array
+  const systemsList = systems || [];
+
   return (
     <div className="space-y-6">
       {/* Floating New Sale Button (Mobile) */}
@@ -110,7 +113,7 @@ export function SalesManager() {
             totalSalesRange
           }}
           onFiltersChange={handleFiltersChange}
-          systems={systems}
+          systems={systemsList}
         />
       </div>
       
