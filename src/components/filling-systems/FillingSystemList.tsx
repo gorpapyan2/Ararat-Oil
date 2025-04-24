@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Table,
+  EnhancedTable,
+  EnhancedHeader,
+  EnhancedRow,
+  EnhancedCell,
+  EnhancedHeaderCell,
   TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/enhanced-table";
 
 interface FillingSystemListProps {
   fillingSystems: FillingSystem[];
@@ -39,35 +39,48 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full p-8 flex items-center justify-center">
+        <div className="text 
+-muted-foreground">Loading...</div>
+      </div>
+    );
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>System Name</TableHead>
-          <TableHead>Associated Tank</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
+    <EnhancedTable>
+      <EnhancedHeader>
+        <EnhancedRow>
+          <EnhancedHeaderCell>System Name</EnhancedHeaderCell>
+          <EnhancedHeaderCell>Associated Tank</EnhancedHeaderCell>
+          <EnhancedHeaderCell className="text-center">Actions</EnhancedHeaderCell>
+        </EnhancedRow>
+      </EnhancedHeader>
       <TableBody>
         {fillingSystems.map((system) => (
-          <TableRow key={system.id}>
-            <TableCell>{system.name}</TableCell>
-            <TableCell>{system.tank?.name || 'N/A'}</TableCell>
-            <TableCell>
+          <EnhancedRow key={system.id}>
+            <EnhancedCell>{system.name}</EnhancedCell>
+            <EnhancedCell>{system.tank?.name || 'N/A'}</EnhancedCell>
+            <EnhancedCell className="text-center">
               <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => handleDelete(system.id)}
+                className="hover:bg-destructive/90"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </TableCell>
-          </TableRow>
+            </EnhancedCell>
+          </EnhancedRow>
         ))}
+        {fillingSystems.length === 0 && (
+          <EnhancedRow>
+            <EnhancedCell colSpan={3} className="text-center text-muted-foreground h-32">
+              No filling systems found
+            </EnhancedCell>
+          </EnhancedRow>
+        )}
       </TableBody>
-    </Table>
+    </EnhancedTable>
   );
 }
