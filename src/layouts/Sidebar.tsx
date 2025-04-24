@@ -24,7 +24,7 @@ export function Sidebar() {
       </div>
       
       <div className="space-y-1.5 px-3">
-        <NavItem to="/" icon={<LayoutDashboard size={20} className="It Not visible when choosen" />} label="Dashboard" active={pathname === '/'} />
+        <NavItem to="/" icon={<LayoutDashboard size={20} className="It Not visible when choosen" />} label="Dashboard" active={pathname === '/'} className="bg-zinc-950" />
         <NavItem to="/sales" icon={<Receipt size={20} />} label="Sales" active={pathname === '/sales'} />
         <NavItem to="/inventory" icon={<BarChart3 size={20} />} label="Inventory" active={pathname === '/inventory'} />
         <NavItem to="/filling-systems" icon={<Fuel size={20} />} label="Filling Systems" active={pathname === '/filling-systems'} />
