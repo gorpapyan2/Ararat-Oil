@@ -1,152 +1,104 @@
 
-import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
-import { AdvancedSearchInput } from "./AdvancedSearchInput";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import { DateRangeFilter } from "./DateRangeFilter";
 import { FillingSystemFilter } from "./FillingSystemFilter";
 import { RangeSliderFilter } from "./RangeSliderFilter";
-import { addDays, startOfDay, startOfMonth, startOfWeek, subDays } from "date-fns";
 import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 
 interface SalesFilterBarProps {
-  search: string;
-  onSearchChange: (search: string) => void;
-  date: Date | undefined;
-  onDateChange: (date: Date | undefined) => void;
-  systemId: string;
-  onSystemChange: (id: string) => void;
+  filters: {
+    date: Date | undefined;
+    systemId: string;
+    litersRange: [number, number];
+    priceRange: [number, number];
+    totalSalesRange: [number, number];
+  };
+  onFiltersChange: (updates: Partial<SalesFilterBarProps["filters"]>) => void;
   systems: { id: string; name: string }[];
-  litersRange: [number, number];
-  onLitersRangeChange: (range: [number, number]) => void;
-  priceRange: [number, number];
-  onPriceRangeChange: (range: [number, number]) => void;
-  totalSalesRange: [number, number];
-  onTotalSalesRangeChange: (range: [number, number]) => void;
-  recentSearches?: string[];
 }
 
-const datePresets = [
-  {
-    label: "Today",
-    getDate: () => startOfDay(new Date()),
-  },
-  {
-    label: "Yesterday",
-    getDate: () => subDays(startOfDay(new Date()), 1),
-  },
-  {
-    label: "This Week",
-    getDate: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
-  },
-  {
-    label: "This Month",
-    getDate: () => startOfMonth(new Date()),
-  },
-];
-
 export function SalesFilterBar({
-  search,
-  onSearchChange,
-  date,
-  onDateChange,
-  systemId,
-  onSystemChange,
+  filters,
+  onFiltersChange,
   systems,
-  litersRange,
-  onLitersRangeChange,
-  priceRange,
-  onPriceRangeChange,
-  totalSalesRange,
-  onTotalSalesRangeChange,
-  recentSearches = [],
 }: SalesFilterBarProps) {
-  const [showFilters, setShowFilters] = React.useState(true);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <Card className="border shadow-sm bg-card/70 backdrop-blur-sm">
-      <div className="px-4 py-3 flex items-center justify-between border-b">
+      <div className="flex items-center justify-between px-4 py-3 border-b">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal className="h-4 w-4" />
-          <h3 className="text-sm font-medium">Sales Filters</h3>
+          <h3 className="text-sm font-medium">Filters</h3>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowFilters(!showFilters)}
-          className="h-8 w-8 p-0"
-        >
-          {showFilters ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-          <span className="sr-only">
-            {showFilters ? "Hide filters" : "Show filters"}
-          </span>
-        </Button>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+              <span className="sr-only">Toggle filters</span>
+            </Button>
+          </CollapsibleTrigger>
+        </Collapsible>
       </div>
       
-      {showFilters && (
-        <CardContent className="p-4 grid gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
-              <AdvancedSearchInput
-                value={search}
-                onChange={onSearchChange}
-                placeholder="Search sales..."
-                recentSearches={recentSearches}
-              />
+      <Collapsible open={isOpen}>
+        <CollapsibleContent>
+          <CardContent className="p-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DateRangeFilter
+                  date={filters.date}
+                  onDateChange={(date) => onFiltersChange({ date })}
+                />
+                <FillingSystemFilter
+                  value={filters.systemId}
+                  onChange={(systemId) => onFiltersChange({ systemId })}
+                  systems={systems}
+                />
+              </div>
+              
+              <Separator />
+              
+              <div className="grid gap-6 md:grid-cols-3">
+                <RangeSliderFilter
+                  label="Liters Range"
+                  value={filters.litersRange}
+                  onChange={(range) => onFiltersChange({ litersRange: range })}
+                  min={0}
+                  max={10000}
+                  step={100}
+                  formatValue={(val) => `${val}L`}
+                />
+                <RangeSliderFilter
+                  label="Price Range"
+                  value={filters.priceRange}
+                  onChange={(range) => onFiltersChange({ priceRange: range })}
+                  min={0}
+                  max={2000}
+                  step={10}
+                  formatValue={(val) => `${val}֏`}
+                />
+                <RangeSliderFilter
+                  label="Total Sales"
+                  value={filters.totalSalesRange}
+                  onChange={(range) => onFiltersChange({ totalSalesRange: range })}
+                  min={0}
+                  max={1000000}
+                  step={1000}
+                  formatValue={(val) => `${val.toLocaleString()}֏`}
+                />
+              </div>
             </div>
-            <DateRangeFilter
-              date={date}
-              onDateChange={onDateChange}
-              presets={datePresets}
-            />
-            <FillingSystemFilter
-              value={systemId}
-              onChange={onSystemChange}
-              systems={systems}
-            />
-          </div>
-          
-          <Separator className="my-2" />
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <RangeSliderFilter
-              label="Liters Range"
-              value={litersRange}
-              min={0}
-              max={10000}
-              step={10}
-              onChange={onLitersRangeChange}
-              formatValue={(v) => v.toFixed(0)}
-              unit="L"
-            />
-            <RangeSliderFilter
-              label="Price per Unit Range"
-              value={priceRange}
-              min={0}
-              max={2000}
-              step={10}
-              onChange={onPriceRangeChange}
-              formatValue={(v) => v.toLocaleString()}
-              unit="֏"
-            />
-            <RangeSliderFilter
-              label="Total Sales Range"
-              value={totalSalesRange}
-              min={0}
-              max={1000000}
-              step={1000}
-              onChange={onTotalSalesRangeChange}
-              formatValue={(v) => v.toLocaleString()}
-              unit="֏"
-            />
-          </div>
-        </CardContent>
-      )}
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 }
