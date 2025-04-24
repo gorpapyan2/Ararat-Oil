@@ -22,19 +22,20 @@ export function Sidebar() {
   const isMobile = useIsMobile();
   const { signOut } = useAuth();
   
-  // Only render the sidebar content if we're not on the auth page
   if (pathname === '/auth') {
     return null;
   }
   
   return (
-    <div className="flex flex-col h-full bg-background border-r">
-      <div className="px-4 py-6">
-        <h1 className="font-bold text-2xl">
-          <span className="text-primary">Fuel</span>Station
+    <div className="flex flex-col h-full bg-gradient-to-b from-background via-background/95 to-background/90 border-r border-border/10 backdrop-blur-sm">
+      <div className="px-6 py-8">
+        <h1 className="font-bold text-2xl tracking-tight">
+          <span className="text-accent bg-clip-text text-transparent bg-gradient-to-r from-accent to-accent/80">Fuel</span>
+          <span className="text-foreground">Station</span>
         </h1>
       </div>
-      <div className="space-y-1">
+      
+      <div className="space-y-1.5 px-3">
         <NavItem 
           to="/" 
           icon={<LayoutDashboard size={20} />} 
@@ -90,15 +91,16 @@ export function Sidebar() {
           active={pathname === '/transactions'} 
         />
       </div>
-      <div className="mt-auto px-4 py-3 flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">
+
+      <div className="mt-auto border-t border-border/10 px-6 py-4 flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
           {new Date().getFullYear()} © FuelStation
         </p>
         <Button 
           variant="ghost" 
-          size="icon" 
+          size="icon"
           onClick={signOut}
-          className="text-destructive hover:bg-destructive/10"
+          className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10 transition-colors"
         >
           <LogOut className="h-4 w-4" />
         </Button>
