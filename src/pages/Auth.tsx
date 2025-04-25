@@ -74,6 +74,7 @@ const AuthForm = () => {
               type="password"
               disabled={isSubmitting}
               className="bg-background"
+              autoComplete="current-password"
             />
             {error && (
               <Alert variant="destructive">

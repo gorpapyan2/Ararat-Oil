@@ -57,7 +57,7 @@ export function FillingSystemSelect({ control, onChange, onSelect, value }: Fill
             <SelectContent>
               {fillingSystems?.map((system) => (
                 <SelectItem key={system.id} value={system.id}>
-                  {system.name} ({system.tank?.fuel_type})
+                  {system.name}{system.tank?.fuel_type ? ` (${system.tank.fuel_type})` : ''}
                 </SelectItem>
               ))}
             </SelectContent>

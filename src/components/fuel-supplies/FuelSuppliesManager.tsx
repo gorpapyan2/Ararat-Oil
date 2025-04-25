@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { FuelSuppliesForm } from "./FuelSuppliesForm";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
@@ -158,8 +158,8 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
     }
   };
 
-  // Pass the Add button to the parent via callback
-  const addButton = (
+  // Memoize the add button to prevent recreation on every render
+  const addButton = useMemo(() => (
     <Button 
       onClick={handleAdd} 
       className="gap-2 shadow-sm"
@@ -169,7 +169,7 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
       <Plus className="h-4 w-4" />
       <span>Add Supply</span>
     </Button>
-  );
+  ), []);
 
   // Use useEffect to handle action rendering to avoid state updates during render
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFuelTanks } from "@/services/tanks";
 import { TankList } from "./TankList";
@@ -35,8 +35,8 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
   // Ensure we have an array even if the fetched data is undefined
   const tanksData = Array.isArray(tanks) ? tanks : [];
 
-  // Create action buttons
-  const actionButtons = (
+  // Create action buttons - memoize to prevent recreation on every render
+  const actionButtons = useMemo(() => (
     <div className="flex items-center gap-3">
       <Button variant="outline" onClick={() => setIsEditingLevels(true)}>
         <Gauge className="mr-2 h-4 w-4" />
@@ -47,14 +47,14 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
         Add New Tank
       </Button>
     </div>
-  );
+  ), []);
 
   // Use useEffect to handle action rendering to avoid state updates during render
   useEffect(() => {
     if (onRenderAction) {
       onRenderAction(actionButtons);
     }
-  }, [isAddingTank, isEditingLevels, onRenderAction]);
+  }, [onRenderAction, actionButtons]);
 
   return (
     <div className="space-y-6">
