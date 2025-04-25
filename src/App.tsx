@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { MainLayout } from "@/layouts/MainLayout";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { Loading } from "@/components/ui/loading";
 
 import Dashboard from "@/pages/Dashboard";
 import Inventory from "@/pages/Inventory";
@@ -22,7 +23,7 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   const location = useLocation();
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <Loading variant="fullscreen" text="Checking authentication..." />;
   }
 
   if (!user) {
@@ -35,8 +36,8 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
           <MainLayout>
             <Routes>
               <Route path="/auth" element={<Auth />} />
@@ -90,8 +91,8 @@ const App = () => (
               />
             </Routes>
           </MainLayout>
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

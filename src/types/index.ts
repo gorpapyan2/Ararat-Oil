@@ -1,4 +1,3 @@
-
 // Basic entity types
 export type EmployeeStatus = 'active' | 'on_leave' | 'terminated';
 
@@ -106,13 +105,12 @@ export interface InventoryItem {
   id: string;
   date: string;
   fuel_type: FuelType;
-  opening_stock: number;
-  received: number;
-  sold: number;
-  closing_stock: number;
+  quantity: number;
   unit_price: number;
-  tank_id?: string;
+  total_price: number;
+  notes?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 // Fuel supply related

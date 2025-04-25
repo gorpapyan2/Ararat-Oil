@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { FuelSupply, FuelType, EmployeeStatus, PaymentStatus, PaymentMethod } from "@/types";
 import { createTransaction } from "@/services/transactions";
@@ -72,6 +71,19 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
   if (tankError) throw new Error(`Failed to fetch tank: ${tankError.message ?? tankError}`);
   const previousLevel = tankData.current_level;
   const newLevel = previousLevel + supply.quantity_liters;
+
+  // Get tank capacity
+  const { data: tankCapacityData, error: capacityError } = await supabase
+    .from('fuel_tanks')
+    .select('capacity')
+    .eq('id', supply.tank_id)
+    .single();
+  if (capacityError) throw new Error(`Failed to fetch tank capacity: ${capacityError.message ?? capacityError}`);
+  
+  // Validate new level doesn't exceed capacity
+  if (newLevel > tankCapacityData.capacity) {
+    throw new Error(`Cannot add ${supply.quantity_liters} liters. This would exceed the tank capacity of ${tankCapacityData.capacity} liters. Current level: ${previousLevel} liters.`);
+  }
 
   // Insert fuel supply
   const { data, error } = await supabase

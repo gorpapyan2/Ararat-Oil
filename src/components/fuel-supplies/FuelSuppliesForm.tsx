@@ -1,10 +1,10 @@
-
 import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -114,6 +114,11 @@ export function FuelSuppliesForm({
           <DialogTitle>
             {editing ? "Edit Fuel Supply" : "Add Fuel Supply"}
           </DialogTitle>
+          <DialogDescription>
+            {editing 
+              ? "Update the details of this fuel supply record."
+              : "Fill in the details to add a new fuel supply record."}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

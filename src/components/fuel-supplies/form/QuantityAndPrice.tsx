@@ -1,4 +1,3 @@
-
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Control } from "react-hook-form";
@@ -65,12 +64,12 @@ export function QuantityAndPrice({
                 type="number"
                 min="0"
                 step="any"
+                value={field.value || ""}
                 {...(typeof maxQuantity === "number" ? { max: maxQuantity } : {})}
-                {...field}
                 onChange={e => {
                   // Clamp the value if it exceeds max
-                  let val = e.target.valueAsNumber || undefined;
-                  if (typeof maxQuantity === "number" && typeof val === "number" && val > maxQuantity) {
+                  let val = e.target.valueAsNumber || 0;
+                  if (typeof maxQuantity === "number" && val > maxQuantity) {
                     val = maxQuantity;
                   }
                   field.onChange(val);
@@ -110,9 +109,15 @@ export function QuantityAndPrice({
             <span className="text-xs text-muted-foreground">(in $)</span>
           </FormLabel>
           <FormControl>
-            <Input type="number" min="0" step="any" {...field} onChange={e => {
-              field.onChange(e.target.valueAsNumber || undefined);
-            }} />
+            <Input 
+              type="number" 
+              min="0" 
+              step="any" 
+              value={field.value || ""}
+              onChange={e => {
+                field.onChange(e.target.valueAsNumber || 0);
+              }} 
+            />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -125,7 +130,7 @@ export function QuantityAndPrice({
             <Input
               type="number"
               readOnly
-              value={totalCost}
+              value={totalCost || 0}
               className="cursor-not-allowed bg-gray-500/40 font-semibold"
             />
           </FormControl>

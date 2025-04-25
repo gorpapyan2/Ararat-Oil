@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction, PaymentMethod, PaymentStatus } from "@/types";
 
@@ -8,7 +7,7 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
     .select(`
       *,
       employee:employees(name),
-      sale:sales(filling_system_name)
+      sale:sales(id, filling_system:filling_systems(name))
     `)
     .order('created_at', { ascending: false });
 
@@ -29,17 +28,28 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
     updated_at: item.updated_at,
     // Add these optional properties if they exist in the result
     ...(item.employee && { employee: item.employee }),
-    ...(item.sale && { sale: item.sale }),
+    ...(item.sale && { 
+      sale: {
+        ...item.sale,
+        filling_system_name: item.sale.filling_system?.name
+      }
+    }),
   }));
 };
 
 export const createTransaction = async (transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>): Promise<Transaction> => {
+  // Ensure payment_method is a valid enum value
+  const validPaymentMethods = ["cash", "card", "bank_transfer", "mobile_payment", "new_value"];
+  const paymentMethod = validPaymentMethods.includes(transaction.payment_method) 
+    ? transaction.payment_method 
+    : "cash"; // Default to cash if invalid
+
   const { data, error } = await supabase
     .from('transactions')
     .insert({
       sale_id: transaction.sale_id,
       amount: transaction.amount,
-      payment_method: transaction.payment_method,
+      payment_method: paymentMethod,
       payment_reference: transaction.payment_reference,
       payment_status: transaction.payment_status,
       employee_id: transaction.employee_id,
