@@ -88,6 +88,10 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    // Return a message indicating signup is disabled
+    return { error: "Signup is disabled. Please contact your administrator for account access." };
+    
+    // The code below is kept but will never be executed
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signUp({

@@ -1,79 +1,300 @@
-import {
-  LayoutDashboard,
-  Receipt,
-  BarChart3,
-  Fuel,
-  Truck,
-  Building2,
-  Users,
-  FileText,
-  CircleDollarSign,
-  LogOut,
-} from "lucide-react";
-import { NavItem } from "@/components/ui/nav-item";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
+import { NavItem } from "@/components/ui/nav-item";
+import {
+  IconDashboard,
+  IconGasStation,
+  IconTank,
+  IconReportAnalytics,
+  IconTruckDelivery,
+  IconSettings,
+  IconLogout,
+  IconChevronLeft,
+  IconChevronRight,
+  IconCurrencyDollar,
+  IconUsers,
+  IconTruck,
+  IconChartBar,
+  IconTools,
+  IconReceipt2,
+} from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-const navItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/sales", label: "Sales", icon: Receipt },
-  { to: "/inventory", label: "Inventory", icon: BarChart3 },
-  { to: "/filling-systems", label: "Filling Systems", icon: Fuel },
-  { to: "/fuel-supplies", label: "Fuel Supplies", icon: Truck },
-  { to: "/providers", label: "Petrol Providers", icon: Building2 },
-  { to: "/employees", label: "Employees", icon: Users },
-  { to: "/expenses", label: "Expenses", icon: FileText },
-  { to: "/transactions", label: "Transactions", icon: CircleDollarSign },
-];
+interface SidebarProps {
+  collapsed?: boolean;
+  onNavItemClick?: () => void;
+  onToggleCollapse?: (collapsed: boolean) => void;
+  isMobile?: boolean;
+}
 
-export function Sidebar() {
-  const { pathname } = useLocation();
-  const isMobile = useIsMobile();
+// Interface for creating navigation sections
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+// Interface for navigation items
+interface NavItem {
+  to: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
+export function Sidebar({ 
+  collapsed: externalCollapsed, 
+  onNavItemClick,
+  onToggleCollapse,
+  isMobile = false
+}: SidebarProps = {}) {
+  // Initialize state from localStorage or default to false
+  const [internalCollapsed, setInternalCollapsed] = useState(() => {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    return savedState ? JSON.parse(savedState) : false;
+  });
+  
+  const location = useLocation();
   const { signOut } = useAuth();
+  
+  // Use external collapsed state if provided, otherwise use internal state
+  const collapsed = externalCollapsed !== undefined ? externalCollapsed : internalCollapsed;
 
-  if (pathname.startsWith("/auth")) return null;
+  // Save internal state to localStorage when it changes
+  useEffect(() => {
+    if (externalCollapsed === undefined) {
+      localStorage.setItem('sidebarCollapsed', JSON.stringify(internalCollapsed));
+    }
+  }, [internalCollapsed, externalCollapsed]);
+
+  const isActive = (path: string) => location.pathname === path;
+
+  const toggleSidebar = () => {
+    if (externalCollapsed !== undefined && onToggleCollapse) {
+      // If external state is managed, call the parent's toggle function
+      onToggleCollapse(!externalCollapsed);
+    } else {
+      // Otherwise use internal state
+      setInternalCollapsed(!internalCollapsed);
+    }
+  };
+
+  const handleNavItemClick = (to: string) => {
+    if (onNavItemClick) {
+      onNavItemClick();
+    }
+  };
+
+  // Organized navigation sections
+  const navSections: NavSection[] = [
+    {
+      title: "Overview",
+      items: [
+        {
+          to: "/",
+          label: "Dashboard",
+          icon: <IconDashboard size={20} />,
+        },
+      ]
+    },
+    {
+      title: "Operations",
+      items: [
+        {
+          to: "/filling-systems",
+          label: "Filling Systems",
+          icon: <IconGasStation size={20} />,
+        },
+        {
+          to: "/tanks",
+          label: "Tanks",
+          icon: <IconTank size={20} />,
+        },
+        {
+          to: "/fuel-supplies",
+          label: "Fuel Supplies",
+          icon: <IconTruck size={20} />,
+        },
+        {
+          to: "/inventory",
+          label: "Inventory",
+          icon: <IconTruckDelivery size={20} />,
+        },
+      ]
+    },
+    {
+      title: "Sales & Finance",
+      items: [
+        {
+          to: "/sales",
+          label: "Sales",
+          icon: <IconCurrencyDollar size={20} />,
+        },
+        {
+          to: "/expenses",
+          label: "Expenses",
+          icon: <IconReceipt2 size={20} />,
+        },
+      ]
+    },
+    {
+      title: "Management",
+      items: [
+        {
+          to: "/employees",
+          label: "Employees",
+          icon: <IconUsers size={20} />,
+        },
+        {
+          to: "/reports",
+          label: "Reports",
+          icon: <IconReportAnalytics size={20} />,
+        },
+      ]
+    },
+    {
+      title: "System",
+      items: [
+        {
+          to: "/settings",
+          label: "Settings",
+          icon: <IconSettings size={20} />,
+        },
+      ]
+    }
+  ];
+
+  // Function to render a navigation item with tooltip if collapsed
+  const renderNavItem = (item: NavItem) => {
+    if (collapsed && !isMobile) {
+      return (
+        <TooltipProvider key={item.to}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div onClick={() => handleNavItemClick(item.to)}>
+                <NavItem
+                  to={item.to}
+                  icon={item.icon}
+                  label={item.label}
+                  active={isActive(item.to)}
+                  collapsed={collapsed}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {item.label}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+    
+    return (
+      <div key={item.to} onClick={() => handleNavItemClick(item.to)}>
+        <NavItem
+          to={item.to}
+          icon={item.icon}
+          label={item.label}
+          active={isActive(item.to)}
+          collapsed={collapsed}
+        />
+      </div>
+    );
+  };
 
   return (
-    <aside className="flex flex-col h-full bg-gradient-to-b from-background via-background/95 to-background/90 border-r border-border/10 backdrop-blur-sm">
-      {/* Brand */}
-      <div className="px-6 py-8">
-        <h1 className="font-bold text-2xl tracking-tight">
-          <span className="text-accent bg-clip-text text-transparent bg-gradient-to-r from-accent to-accent/80">
-            Fuel
-          </span>
-          <span className="text-foreground">Station</span>
-        </h1>
+    <aside
+      className={cn(
+        "flex flex-col border-r bg-background h-screen transition-all duration-300",
+        collapsed ? "w-[70px]" : "w-[240px]"
+      )}
+    >
+      <div className="flex items-center justify-between p-4 border-b">
+        {!collapsed ? (
+          <div className="text-xl font-bold text-foreground">Ararat Oil</div>
+        ) : (
+          <div className="w-full flex justify-center">
+            <span className="text-accent font-bold text-lg">AO</span>
+          </div>
+        )}
       </div>
-
-      {/* Navigation */}
-      <nav className="space-y-1.5 px-3">
-        {navItems.map(({ to, label, icon: Icon }) => (
-          <NavItem
-            key={to}
-            to={to}
-            label={label}
-            icon={<Icon size={20} />}
-            active={pathname === to}
-          />
+      
+      <nav className="flex-1 py-4 overflow-y-auto">
+        {navSections.map((section, index) => (
+          <div key={index} className="mb-4">
+            {/* Section heading - only show when not collapsed */}
+            {!collapsed && (
+              <div className="px-4 mb-1">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  {section.title}
+                </h3>
+              </div>
+            )}
+            
+            {/* Section items */}
+            <div className="space-y-1 px-2">
+              {section.items.map(renderNavItem)}
+            </div>
+            
+            {/* Divider - show for all sections except the last one */}
+            {index < navSections.length - 1 && (
+              <div className={cn("mx-3 my-3 h-px bg-border/50", collapsed && "w-10 mx-auto")}></div>
+            )}
+          </div>
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="mt-auto border-t border-border/10 px-6 py-4 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {new Date().getFullYear()} © FuelStation
-        </p>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={signOut}
-          className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10 transition-colors"
-          aria-label="Sign out"
-        >
-          <LogOut className="h-4 w-4" />
-        </Button>
+      <div className="p-4 border-t flex items-center justify-between">
+        {collapsed && !isMobile ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={signOut}
+                  className="w-10 h-10 justify-center"
+                >
+                  <IconLogout size={20} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                Logout
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={signOut}
+            className="w-full justify-start text-muted-foreground hover:text-foreground"
+          >
+            <IconLogout size={20} className="mr-2" />
+            Logout
+          </Button>
+        )}
+        
+        {!isMobile && externalCollapsed !== undefined && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleSidebar}
+            className="ml-2 rounded-full w-8 h-8 flex items-center justify-center"
+          >
+            {collapsed ? (
+              <IconChevronRight size={16} />
+            ) : (
+              <IconChevronLeft size={16} />
+            )}
+          </Button>
+        )}
       </div>
     </aside>
   );

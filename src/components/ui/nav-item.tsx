@@ -1,26 +1,44 @@
-
-import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import React from "react";
 
-interface NavItemProps {
+export interface NavItemProps {
   to: string;
-  icon: React.ReactNode;
   label: string;
+  icon: React.ReactNode;
   active?: boolean;
+  onClick?: () => void;
+  collapsed?: boolean;
 }
 
-export function NavItem({ to, icon, label, active = false }: NavItemProps) {
+export function NavItem({ 
+  to, 
+  label, 
+  icon, 
+  active = false, 
+  onClick,
+  collapsed = false
+}: NavItemProps) {
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <Link
       to={to}
+      onClick={handleClick}
       className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-        active ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+        "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+        active
+          ? "bg-accent/15 text-accent hover:bg-accent/20"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        collapsed && "justify-center px-2 py-2 w-10 h-10"
       )}
     >
-      <span className="text-muted-foreground">{icon}</span>
-      <span>{label}</span>
+      <span className="text-muted-foreground/70">{icon}</span>
+      {!collapsed && <span>{label}</span>}
     </Link>
   );
 }

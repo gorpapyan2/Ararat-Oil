@@ -8,11 +8,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loading } from "@/components/ui/loading";
 
 const AuthForm = () => {
-  const { signIn, signUp, user, isLoading: authLoading } = useAuth();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const { signIn, user, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -29,18 +27,8 @@ const AuthForm = () => {
     setIsSubmitting(true);
 
     try {
-      if (mode === "login") {
-        const { error } = await signIn(email, password);
-        if (error) setError(error);
-      } else {
-        if (password.length < 6) {
-          setError("Password must be at least 6 characters long");
-          setIsSubmitting(false);
-          return;
-        }
-        const { error } = await signUp(email, password, fullName);
-        if (error) setError(error);
-      }
+      const { error } = await signIn(email, password);
+      if (error) setError(error);
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
     } finally {
@@ -52,12 +40,6 @@ const AuthForm = () => {
     setError("");
     setEmail("");
     setPassword("");
-    setFullName("");
-  };
-
-  const toggleMode = () => {
-    setMode(mode === "login" ? "signup" : "login");
-    resetForm();
   };
 
   if (authLoading) {
@@ -68,25 +50,13 @@ const AuthForm = () => {
     <div className="flex justify-center items-center min-h-screen p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{mode === "login" ? "Sign In" : "Sign Up"}</CardTitle>
+          <CardTitle>Sign In</CardTitle>
           <CardDescription>
-            {mode === "login"
-              ? "Sign into your account"
-              : "Register a new account"}
+            Sign into your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === "signup" && (
-              <Input
-                placeholder="Full Name"
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-                required
-                disabled={isSubmitting}
-                className="bg-background"
-              />
-            )}
             <Input
               placeholder="Email"
               value={email}
@@ -116,38 +86,14 @@ const AuthForm = () => {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <Loading variant="inline" size="sm" text={mode === "login" ? "Signing In..." : "Signing Up..."} />
+                <Loading variant="inline" size="sm" text="Signing In..." />
               ) : (
-                mode === "login" ? "Sign In" : "Sign Up"
+                "Sign In"
               )}
             </Button>
           </form>
-          <div className="text-sm mt-4 text-center">
-            {mode === "login" ? (
-              <>
-                Don't have an account?{" "}
-                <button 
-                  className="underline hover:text-primary" 
-                  onClick={toggleMode}
-                  type="button"
-                  disabled={isSubmitting}
-                >
-                  Sign up
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <button 
-                  className="underline hover:text-primary" 
-                  onClick={toggleMode}
-                  type="button"
-                  disabled={isSubmitting}
-                >
-                  Sign in
-                </button>
-              </>
-            )}
+          <div className="text-sm mt-4 text-center text-muted-foreground">
+            Contact your administrator for account access
           </div>
         </CardContent>
       </Card>
