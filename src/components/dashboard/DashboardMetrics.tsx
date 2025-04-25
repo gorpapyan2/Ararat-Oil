@@ -2,7 +2,7 @@ import { TrendingUp, DollarSign, Fuel, ArrowUp, ArrowDown, PieChart } from "luci
 import { useQuery } from "@tanstack/react-query";
 import { fetchSales } from "@/services/sales";
 import { fetchExpenses } from "@/services/expenses";
-import { fetchInventory } from "@/services/inventory";
+import { fetchFuelTanks } from "@/services/tanks";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
@@ -27,9 +27,9 @@ export function DashboardMetrics() {
     retry: 1,
   });
 
-  const { data: inventoryData, isLoading: isInventoryLoading, error: inventoryError } = useQuery({
-    queryKey: ['inventory', session?.user?.id],
-    queryFn: fetchInventory,
+  const { data: tanksData, isLoading: isTanksLoading, error: tanksError } = useQuery({
+    queryKey: ['fuel-tanks', session?.user?.id],
+    queryFn: fetchFuelTanks,
     enabled: !!session?.user,
     retry: 1,
   });
@@ -49,14 +49,14 @@ export function DashboardMetrics() {
         variant: "destructive",
       });
     }
-    if (inventoryError) {
+    if (tanksError) {
       toast({
-        title: "Error loading inventory data",
-        description: inventoryError.message,
+        title: "Error loading tanks data",
+        description: tanksError.message,
         variant: "destructive",
       });
     }
-  }, [salesError, expensesError, inventoryError, toast]);
+  }, [salesError, expensesError, tanksError, toast]);
 
   // Calculate totals with proper type checking
   const totalSales = salesData?.reduce((sum, sale) => 
@@ -67,11 +67,23 @@ export function DashboardMetrics() {
   
   const netProfit = totalSales - totalExpenses;
   
-  const inventoryValue = inventoryData?.reduce((sum, item) => 
-    sum + (Number(item.quantity || 0) * Number(item.unit_price || 0)), 0) || 0;
+  // Calculate inventory value based on current tank levels
+  // Using average fuel prices (could be refined with actual current prices)
+  const fuelPrices = {
+    petrol: 500, // Example price per liter in AMD
+    diesel: 550,
+    gas: 300,
+    kerosene: 600,
+    cng: 350
+  };
+  
+  const inventoryValue = tanksData?.reduce((sum, tank) => {
+    const pricePerLiter = fuelPrices[tank.fuel_type] || 500; // Default to petrol price if type unknown
+    return sum + (tank.current_level * pricePerLiter);
+  }, 0) || 0;
 
-  const isLoading = isSalesLoading || isExpensesLoading || isInventoryLoading;
-  const hasError = !!salesError || !!expensesError || !!inventoryError;
+  const isLoading = isSalesLoading || isExpensesLoading || isTanksLoading;
+  const hasError = !!salesError || !!expensesError || !!tanksError;
 
   const metrics = useMemo<MetricCardProps[]>(() => {
     if (isLoading) {
@@ -111,7 +123,7 @@ export function DashboardMetrics() {
       {
         title: "Inventory Value",
         value: `${inventoryValue.toLocaleString()} ֏`,
-        description: "+5% since last week",
+        description: "Based on current tank levels",
         icon: Fuel,
       }
     ];
@@ -122,7 +134,7 @@ export function DashboardMetrics() {
       <div className="p-4 border border-red-200 bg-red-50 rounded-md text-red-800">
         <h3 className="font-medium mb-1">Error loading dashboard data</h3>
         <p className="text-sm">
-          {salesError?.message || expensesError?.message || inventoryError?.message || 
+          {salesError?.message || expensesError?.message || tanksError?.message || 
             "There was an error loading the dashboard metrics. Please try again later."}
         </p>
       </div>

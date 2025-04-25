@@ -100,19 +100,6 @@ export interface Expense {
   created_at?: string;
 }
 
-// Inventory related
-export interface InventoryItem {
-  id: string;
-  date: string;
-  fuel_type: FuelType;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  notes?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
 // Fuel supply related
 export interface FuelSupply {
   id: string;

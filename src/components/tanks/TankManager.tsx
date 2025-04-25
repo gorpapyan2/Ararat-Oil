@@ -1,8 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchFuelTanks } from "@/services/supabase";
-import { fetchInventory } from "@/services/inventory";
+import { fetchFuelTanks } from "@/services/tanks";
 import { TankHeader } from "./TankHeader";
 import { TankList } from "./TankList";
 import { TankForm } from "./TankForm";
@@ -12,7 +10,7 @@ export function TankManager() {
   const [isEditingLevels, setIsEditingLevels] = useState(false);
 
   // Fetch tanks
-  const { data: tanks, isLoading: isLoadingTanks, refetch } = useQuery({
+  const { data: tanks, isLoading, refetch } = useQuery({
     queryKey: ['fuel-tanks'],
     queryFn: fetchFuelTanks,
     staleTime: 0,
@@ -20,32 +18,17 @@ export function TankManager() {
     refetchOnMount: "always"
   });
 
-  // Fetch inventory
-  const { data: inventory, isLoading: isLoadingInventory, error: inventoryError, refetch: refetchInventory } = useQuery({
-    queryKey: ['inventory'],
-    queryFn: fetchInventory,
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: "always"
-  });
-
-  // Refetch both on mount and on interval
+  // Refetch on mount and on interval
   useEffect(() => {
     refetch();
-    refetchInventory();
     const intervalId = setInterval(() => {
       refetch();
-      refetchInventory();
     }, 5000);
     return () => clearInterval(intervalId);
-  }, [refetch, refetchInventory]);
-
-  // Handle loading and error states
-  const isLoading = isLoadingTanks || isLoadingInventory;
+  }, [refetch]);
   
-  // Ensure we have arrays even if the fetched data is undefined
+  // Ensure we have an array even if the fetched data is undefined
   const tanksData = Array.isArray(tanks) ? tanks : [];
-  const inventoryData = Array.isArray(inventory) ? inventory : [];
 
   return (
     <div className="space-y-6">
@@ -56,13 +39,11 @@ export function TankManager() {
 
       <TankList 
         tanks={tanksData}
-        inventory={inventoryData}
         isLoading={isLoading}
         isEditMode={isEditingLevels}
         onEditComplete={() => {
           setIsEditingLevels(false);
           refetch();
-          refetchInventory();
         }}
       />
 
@@ -71,12 +52,8 @@ export function TankManager() {
         onOpenChange={(open) => setIsAddingTank(open)}
         onTankAdded={() => {
           refetch();
-          refetchInventory();
         }}
       />
-      {inventoryError && (
-        <div className="text-red-500 text-sm mt-2">Error loading inventory: {inventoryError.message}</div>
-      )}
     </div>
   );
 }
