@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFuelTanks } from "@/services/tanks";
-import { TankHeader } from "./TankHeader";
 import { TankList } from "./TankList";
 import { TankForm } from "./TankForm";
+import { Button } from "@/components/ui/button";
+import { Plus, Gauge } from "lucide-react";
 
-export function TankManager() {
+interface TankManagerProps {
+  onRenderAction?: (actionNode: React.ReactNode) => void;
+}
+
+export function TankManager({ onRenderAction }: TankManagerProps) {
   const [isAddingTank, setIsAddingTank] = useState(false);
   const [isEditingLevels, setIsEditingLevels] = useState(false);
 
@@ -30,13 +35,29 @@ export function TankManager() {
   // Ensure we have an array even if the fetched data is undefined
   const tanksData = Array.isArray(tanks) ? tanks : [];
 
+  // Create action buttons
+  const actionButtons = (
+    <div className="flex items-center gap-3">
+      <Button variant="outline" onClick={() => setIsEditingLevels(true)}>
+        <Gauge className="mr-2 h-4 w-4" />
+        Edit Levels
+      </Button>
+      <Button onClick={() => setIsAddingTank(true)}>
+        <Plus className="mr-2 h-4 w-4" />
+        Add New Tank
+      </Button>
+    </div>
+  );
+
+  // Use useEffect to handle action rendering to avoid state updates during render
+  useEffect(() => {
+    if (onRenderAction) {
+      onRenderAction(actionButtons);
+    }
+  }, [isAddingTank, isEditingLevels, onRenderAction]);
+
   return (
     <div className="space-y-6">
-      <TankHeader 
-        onAddNew={() => setIsAddingTank(true)}
-        onEditLevels={() => setIsEditingLevels(true)}
-      />
-
       <TankList 
         tanks={tanksData}
         isLoading={isLoading}

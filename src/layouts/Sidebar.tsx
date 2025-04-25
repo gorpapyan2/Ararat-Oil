@@ -121,11 +121,6 @@ export function Sidebar({
           label: "Fuel Supplies",
           icon: <IconTruck size={20} />,
         },
-        {
-          to: "/inventory",
-          label: "Inventory",
-          icon: <IconTruckDelivery size={20} />,
-        },
       ]
     },
     {

@@ -91,7 +91,7 @@ export function DashboardMetrics() {
       return Array(4).fill({
         title: "Loading...",
         value: <Skeleton className="h-8 w-32" />,
-        description: <Skeleton className="h-4 w-24 mt-1" />,
+        description: "Loading data...",
         icon: PieChart
       });
     }

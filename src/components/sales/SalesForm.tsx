@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -10,8 +9,8 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FillingSystemSelect } from "@/components/inventory/form/FillingSystemSelect";
-import { PriceAndEmployeeInputs } from "@/components/inventory/form/PriceAndEmployeeInputs";
+import { FillingSystemSelect } from "@/components/sales/form/FillingSystemSelect";
+import { PriceAndEmployeeInputs } from "@/components/sales/form/PriceAndEmployeeInputs";
 import { useQuery } from "@tanstack/react-query";
 import { fetchEmployees } from "@/services/employees";
 import { fetchLatestSale } from "@/services/sales";

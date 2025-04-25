@@ -1,8 +1,7 @@
-
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Employee } from "@/services/supabase";
+import type { Employee } from "@/types";
 import type { Control } from "react-hook-form";
 
 interface PriceAndEmployeeInputsProps {
@@ -61,4 +60,4 @@ export function PriceAndEmployeeInputs({ control, employees }: PriceAndEmployeeI
       />
     </div>
   );
-}
+} 

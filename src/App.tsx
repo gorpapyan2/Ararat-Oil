@@ -7,7 +7,7 @@ import { Loading } from "@/components/ui/loading";
 import { ThemeProvider } from "next-themes";
 
 import Dashboard from "@/pages/Dashboard";
-import Inventory from "@/pages/Inventory";
+import Tanks from "@/pages/Tanks";
 import Employees from "@/pages/Employees";
 import FillingSystems from "@/pages/FillingSystems";
 import Sales from "@/pages/Sales";
@@ -48,9 +48,9 @@ const App = () => (
                     <Dashboard />
                   </RequireAuth>
                 } />
-                <Route path="/inventory" element={
+                <Route path="/tanks" element={
                   <RequireAuth>
-                    <Inventory />
+                    <Tanks />
                   </RequireAuth>
                 } />
                 <Route path="/filling-systems" element={

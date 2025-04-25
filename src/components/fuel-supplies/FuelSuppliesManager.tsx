@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
-import { FuelSuppliesHeader } from "./FuelSuppliesHeader";
 import { FuelSuppliesForm } from "./FuelSuppliesForm";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,8 +9,14 @@ import { FuelSupply } from "@/types";
 import { FilterBar } from "./filters/FilterBar";
 import { FuelSuppliesDataTable } from "./data-table/FuelSuppliesDataTable";
 import { FuelSuppliesSummary } from "./summary/FuelSuppliesSummary";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
-export function FuelSuppliesManager() {
+interface FuelSuppliesManagerProps {
+  onRenderAction?: (actionNode: React.ReactNode) => void;
+}
+
+export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSupply, setEditingSupply] = useState<FuelSupply | null>(null);
   const [deletingSupply, setDeletingSupply] = useState<FuelSupply | null>(null);
@@ -58,7 +63,6 @@ export function FuelSuppliesManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
-      queryClient.invalidateQueries({ queryKey: ["inventory"] });
       setIsDialogOpen(false);
       toast({
         title: "Success",
@@ -137,7 +141,6 @@ export function FuelSuppliesManager() {
       await deleteFuelSupply(deletingSupply.id);
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
-      queryClient.invalidateQueries({ queryKey: ["inventory"] });
       toast({
         title: "Deleted",
         description: "Fuel supply record deleted successfully",
@@ -155,10 +158,28 @@ export function FuelSuppliesManager() {
     }
   };
 
+  // Pass the Add button to the parent via callback
+  const addButton = (
+    <Button 
+      onClick={handleAdd} 
+      className="gap-2 shadow-sm"
+      size="sm"
+      aria-label="Add new fuel supply"
+    >
+      <Plus className="h-4 w-4" />
+      <span>Add Supply</span>
+    </Button>
+  );
+
+  // Use useEffect to handle action rendering to avoid state updates during render
+  useEffect(() => {
+    if (onRenderAction) {
+      onRenderAction(addButton);
+    }
+  }, [onRenderAction, addButton]);
+
   return (
-    <div className="w-full px-2 sm:px-4 md:px-6 pb-16 pt-2 space-y-6 max-w-[1920px] mx-auto">
-      <FuelSuppliesHeader onAdd={handleAdd} />
-      
+    <div className="space-y-6">      
       <section aria-label="Key metrics" className="mb-6">
         <FuelSuppliesSummary supplies={filteredSupplies} />
       </section>
