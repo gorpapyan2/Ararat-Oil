@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { FuelSuppliesForm } from "./FuelSuppliesForm";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ConfirmAddDialog } from "./ConfirmAddDialog";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { createFuelSupply, updateFuelSupply, deleteFuelSupply } from "@/services/fuel-supplies";
 import { useToast } from "@/hooks/use-toast";
 import { FuelSupply } from "@/types";
@@ -11,6 +12,7 @@ import { FuelSuppliesDataTable } from "./data-table/FuelSuppliesDataTable";
 import { FuelSuppliesSummary } from "./summary/FuelSuppliesSummary";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { fetchFuelTanks } from "@/services/tanks";
 
 interface FuelSuppliesManagerProps {
   onRenderAction?: (actionNode: React.ReactNode) => void;
@@ -44,6 +46,16 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
     refetchSupplies
   } = useFuelSuppliesFilters();
 
+  // Add new state variables for confirmation
+  const [confirmData, setConfirmData] = useState<any>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingData, setPendingData] = useState<any>(null);
+
+  const { data: tanks } = useQuery({
+    queryKey: ['fuel-tanks'],
+    queryFn: fetchFuelTanks
+  });
+
   // Handler for updating filters in a modern, scalable way
   const handleFiltersChange = (updates: Partial<typeof filters>) => {
     if ("search" in updates && setSearch) setSearch(updates.search!);
@@ -64,12 +76,16 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       setIsDialogOpen(false);
+      setIsConfirmOpen(false);
+      setPendingData(null);
+      setConfirmData(null);
       toast({
         title: "Success",
         description: "Fuel supply record created successfully and tank level updated",
       });
     },
     onError: (error) => {
+      setIsConfirmOpen(false);
       toast({
         title: "Error",
         description: "Failed to create fuel supply record: " + error.message,
@@ -115,19 +131,54 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
 
   const handleDialogOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
-    if (!open) setEditingSupply(null);
+    if (!open) {
+      setEditingSupply(null);
+      setPendingData(null);
+    }
   };
 
   const handleSubmit = (data: any) => {
     if (editingSupply) {
+      // For editing, proceed without confirmation
       const { id, created_at, ...rest } = editingSupply;
       updateMutation.mutate({
         id: editingSupply.id,
         updates: { ...data },
       });
     } else {
-      createMutation.mutate(data);
+      // For adding new supply, show confirmation dialog
+      setPendingData(data);
+      
+      // Find the provider name
+      const providerName = providers?.find(p => p.id === data.provider_id)?.name;
+      
+      // Find the tank details
+      const selectedTank = tanks?.find(t => t.id === data.tank_id);
+      
+      // Prepare confirmation data
+      setConfirmData({
+        quantity: data.quantity_liters,
+        price: data.price_per_liter,
+        totalCost: data.total_cost,
+        providerName,
+        tankName: selectedTank?.name,
+        tankCapacity: selectedTank?.capacity,
+        tankLevel: selectedTank?.current_level
+      });
+      
+      setIsConfirmOpen(true);
     }
+  };
+
+  const handleConfirmSubmit = () => {
+    if (pendingData) {
+      createMutation.mutate(pendingData);
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    setIsConfirmOpen(false);
+    // Keep the form open so the user can modify details
   };
 
   const handleDeleteDialogOpenChange = (open: boolean) => {
@@ -220,6 +271,17 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
             : undefined
         }
       />
+      
+      {confirmData && (
+        <ConfirmAddDialog
+          open={isConfirmOpen}
+          onOpenChange={setIsConfirmOpen}
+          onConfirm={handleConfirmSubmit}
+          onCancel={handleConfirmCancel}
+          loading={createMutation.isPending}
+          data={confirmData}
+        />
+      )}
     </div>
   );
 }
