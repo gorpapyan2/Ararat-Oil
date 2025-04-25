@@ -1,12 +1,13 @@
-import { TrendingUp, DollarSign, FuelIcon, ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { TrendingUp, DollarSign, Fuel, ArrowUp, ArrowDown, PieChart } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchSales } from "@/services/sales";
 import { fetchExpenses } from "@/services/expenses";
 import { fetchInventory } from "@/services/inventory";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { CardGrid, MetricCardProps } from "@/components/ui/card-grid";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function DashboardMetrics() {
   const { session } = useAuth();
@@ -69,120 +70,64 @@ export function DashboardMetrics() {
   const inventoryValue = inventoryData?.reduce((sum, item) => 
     sum + (Number(item.quantity || 0) * Number(item.unit_price || 0)), 0) || 0;
 
-  const renderMetric = (value: number, growthRate: number) => (
-    <div className="flex items-center space-x-2">
-      <span className="text-2xl font-bold">{value.toLocaleString()} ֏</span>
-      <span className={`flex items-center ${growthRate >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-        {growthRate >= 0 ? (
-          <ArrowUpIcon className="h-4 w-4" />
-        ) : (
-          <ArrowDownIcon className="h-4 w-4" />
-        )}
-        <span className="text-xs">{Math.abs(growthRate)}%</span>
-      </span>
-    </div>
-  );
+  const isLoading = isSalesLoading || isExpensesLoading || isInventoryLoading;
+  const hasError = !!salesError || !!expensesError || !!inventoryError;
 
-  const renderLoadingState = () => (
-    <div className="animate-pulse space-y-2">
-      <div className="h-6 w-28 bg-gray-200 rounded"></div>
-      <div className="h-4 w-20 bg-gray-100 rounded"></div>
-    </div>
-  );
+  const metrics = useMemo<MetricCardProps[]>(() => {
+    if (isLoading) {
+      // Return loading placeholders
+      return Array(4).fill({
+        title: "Loading...",
+        value: <Skeleton className="h-8 w-32" />,
+        description: <Skeleton className="h-4 w-24 mt-1" />,
+        icon: PieChart
+      });
+    }
 
-  const renderErrorState = (error: Error) => (
-    <div className="text-red-500 text-sm">
-      {error.message}
-    </div>
-  );
+    if (hasError) {
+      return [];
+    }
 
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          {isSalesLoading ? (
-            renderLoadingState()
-          ) : salesError ? (
-            renderErrorState(salesError)
-          ) : (
-            <>
-              {renderMetric(totalSales, 20.1)}
-              <p className="text-xs text-muted-foreground">
-                +20.1% from last month
-              </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
+    return [
+      {
+        title: "Total Sales",
+        value: `${totalSales.toLocaleString()} ֏`,
+        description: "+20.1% from last month",
+        icon: DollarSign,
+      },
+      {
+        title: "Total Expenses",
+        value: `${totalExpenses.toLocaleString()} ֏`,
+        description: "+19% from last month",
+        icon: TrendingUp,
+      },
+      {
+        title: "Net Profit",
+        value: `${netProfit.toLocaleString()} ֏`,
+        description: "+15% from last month",
+        icon: netProfit >= 0 ? ArrowUp : ArrowDown,
+        iconColor: netProfit >= 0 ? "text-green-500" : "text-red-500",
+      },
+      {
+        title: "Inventory Value",
+        value: `${inventoryValue.toLocaleString()} ֏`,
+        description: "+5% since last week",
+        icon: Fuel,
+      }
+    ];
+  }, [isLoading, hasError, totalSales, totalExpenses, netProfit, inventoryValue]);
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          {isExpensesLoading ? (
-            renderLoadingState()
-          ) : expensesError ? (
-            renderErrorState(expensesError)
-          ) : (
-            <>
-              {renderMetric(totalExpenses, 19)}
-              <p className="text-xs text-muted-foreground">
-                +19% from last month
-              </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
+  if (hasError) {
+    return (
+      <div className="p-4 border border-red-200 bg-red-50 rounded-md text-red-800">
+        <h3 className="font-medium mb-1">Error loading dashboard data</h3>
+        <p className="text-sm">
+          {salesError?.message || expensesError?.message || inventoryError?.message || 
+            "There was an error loading the dashboard metrics. Please try again later."}
+        </p>
+      </div>
+    );
+  }
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          {isSalesLoading || isExpensesLoading ? (
-            renderLoadingState()
-          ) : salesError || expensesError ? (
-            renderErrorState(salesError || expensesError)
-          ) : (
-            <>
-              <div className={`text-2xl font-bold ${netProfit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {netProfit.toLocaleString()} ֏
-              </div>
-              <p className="text-xs text-muted-foreground">
-                +15% from last month
-              </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
-          <FuelIcon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          {isInventoryLoading ? (
-            renderLoadingState()
-          ) : inventoryError ? (
-            renderErrorState(inventoryError)
-          ) : (
-            <>
-              {renderMetric(inventoryValue, 5)}
-              <p className="text-xs text-muted-foreground">
-                +5% since last week
-              </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <CardGrid metrics={metrics} />;
 }

@@ -58,6 +58,7 @@ export function FuelSuppliesManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
       setIsDialogOpen(false);
       toast({
         title: "Success",
@@ -135,6 +136,8 @@ export function FuelSuppliesManager() {
     try {
       await deleteFuelSupply(deletingSupply.id);
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
+      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
       toast({
         title: "Deleted",
         description: "Fuel supply record deleted successfully",
@@ -153,24 +156,30 @@ export function FuelSuppliesManager() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full px-2 sm:px-4 md:px-6 pb-16 pt-2 space-y-6 max-w-[1920px] mx-auto">
       <FuelSuppliesHeader onAdd={handleAdd} />
       
-      <FuelSuppliesSummary supplies={filteredSupplies} />
+      <section aria-label="Key metrics" className="mb-6">
+        <FuelSuppliesSummary supplies={filteredSupplies} />
+      </section>
       
-      <FilterBar
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        providers={providers}
-        isLoading={isLoading}
-      />
+      <section aria-label="Search and filters" className="mb-6">
+        <FilterBar
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          providers={providers}
+          isLoading={isLoading}
+        />
+      </section>
       
-      <FuelSuppliesDataTable
-        data={filteredSupplies}
-        isLoading={isLoading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <section aria-label="Fuel supplies data">
+        <FuelSuppliesDataTable
+          data={filteredSupplies}
+          isLoading={isLoading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </section>
       
       <FuelSuppliesForm
         open={isDialogOpen}

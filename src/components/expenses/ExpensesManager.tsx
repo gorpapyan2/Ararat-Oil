@@ -4,7 +4,7 @@ import { fetchExpenses } from "@/services/expenses";
 import { Expense } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ExpensesTable } from "./ExpensesTable";
 import { ExpensesForm } from "./ExpensesForm";
 import { CategoryManager } from "./CategoryManager";
@@ -73,13 +73,16 @@ export function ExpensesManager() {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedExpense ? 'Edit Expense' : 'Add Expense'}</DialogTitle>
+          </DialogHeader>
           <ExpensesForm categories={categories} expense={selectedExpense} onSubmit={() => {
-          setIsDialogOpen(false);
-          // after mutation, invalidate and refetch
-          queryClient.invalidateQueries({
-            queryKey: ["expenses"]
-          });
-        }} onCancel={() => setIsDialogOpen(false)} />
+            setIsDialogOpen(false);
+            // after mutation, invalidate and refetch
+            queryClient.invalidateQueries({
+              queryKey: ["expenses"]
+            });
+          }} onCancel={() => setIsDialogOpen(false)} />
         </DialogContent>
       </Dialog>
 

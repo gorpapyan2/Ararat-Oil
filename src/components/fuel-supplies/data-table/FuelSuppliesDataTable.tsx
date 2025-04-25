@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import {
   ColumnDef,
@@ -12,12 +11,27 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, Filter, Trash2, Pencil, Download } from "lucide-react";
+import { 
+  ChevronDown, 
+  Filter, 
+  Trash2, 
+  Pencil, 
+  Download, 
+  ChevronLeft, 
+  ChevronRight,
+  MoreHorizontal,
+  Calendar,
+  UserCircle2,
+  Fuel,
+  MessageSquare
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -40,6 +54,18 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 interface DataTableProps {
   data: FuelSupply[];
@@ -49,10 +75,15 @@ interface DataTableProps {
 }
 
 export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: DataTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "delivery_date", desc: true }
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+    "comments": false,
+  });
   const [rowSelection, setRowSelection] = React.useState({});
+  const [selectedSupplyForMobile, setSelectedSupplyForMobile] = React.useState<FuelSupply | null>(null);
 
   const columns: ColumnDef<FuelSupply>[] = [
     {
@@ -192,12 +223,46 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
   });
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-pulse text-muted-foreground">Loading records...</div>
+      <div className="w-full space-y-4">
+        <div className="hidden md:block">
+          {/* Desktop skeleton */}
+          <div className="rounded-md border">
+            <div className="border-b px-4 py-3 bg-card">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-4 w-full mt-2" />
+              ))}
+            </div>
+            <div className="p-4">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full mt-2" />
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <div className="md:hidden space-y-3">
+          {/* Mobile skeleton */}
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="w-full">
+              <CardContent className="p-0">
+                <div className="p-4 space-y-3">
+                  {[...Array(4)].map((_, j) => (
+                    <Skeleton key={j} className="h-4 w-full" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -211,23 +276,201 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
     );
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+  // Mobile view - Card based layout
+  const MobileView = () => (
+    <div className="space-y-4 md:hidden">
+      {table.getRowModel().rows.map((row) => {
+        const supply = row.original;
+        const tank = supply.tank;
+        return (
+          <Card key={row.id} className="w-full">
+            <CardContent className="p-4">
+              <div className="grid grid-cols-2 gap-y-3">
+                <div className="space-y-1">
+                  <div className="flex items-center text-muted-foreground text-xs">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    Date
+                  </div>
+                  <p className="font-medium text-sm">
+                    {format(new Date(supply.delivery_date), "PP")}
+                  </p>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="flex items-center text-muted-foreground text-xs">
+                    <Fuel className="h-3 w-3 mr-1" />
+                    Tank
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="font-medium text-sm">{tank?.name || "N/A"}</p>
+                    <Badge variant="outline" className="mt-1 text-xs w-fit">
+                      {tank?.fuel_type || "N/A"}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="flex items-center text-muted-foreground text-xs">
+                    Provider
+                  </div>
+                  <p className="font-medium text-sm">
+                    {supply.provider?.name || "N/A"}
+                  </p>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="flex items-center text-muted-foreground text-xs">
+                    <UserCircle2 className="h-3 w-3 mr-1" />
+                    Employee
+                  </div>
+                  <p className="font-medium text-sm">
+                    {supply.employee?.name || "N/A"}
+                  </p>
+                </div>
+                
+                <div className="col-span-2 flex justify-between items-center mt-2 pt-2 border-t">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Total Cost</p>
+                    <p className="font-bold text-base">
+                      {Number(supply.total_cost).toLocaleString()} ֏
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={() => onEdit(supply)}
+                    >
+                      <Pencil className="h-4 w-4 text-blue-500" />
+                    </Button>
+                    
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-9 w-9"
+                          onClick={() => setSelectedSupplyForMobile(supply)}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <div className="mx-auto w-full max-w-sm">
+                          <DrawerHeader>
+                            <DrawerTitle>Fuel Supply Details</DrawerTitle>
+                            <DrawerDescription>
+                              Delivery on {format(new Date(supply.delivery_date), "PPP")}
+                            </DrawerDescription>
+                          </DrawerHeader>
+                          
+                          <div className="p-4 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Provider</p>
+                                <p className="font-medium">{supply.provider?.name || "N/A"}</p>
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Tank</p>
+                                <div>
+                                  <p className="font-medium">{tank?.name || "N/A"}</p>
+                                  <Badge variant="outline" className="mt-1">
+                                    {tank?.fuel_type || "N/A"}
+                                  </Badge>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Quantity</p>
+                                <p className="font-medium">{Number(supply.quantity_liters).toFixed(2)} L</p>
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Price per Liter</p>
+                                <p className="font-medium">{Number(supply.price_per_liter).toLocaleString()} ֏</p>
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Total Cost</p>
+                                <p className="font-bold">{Number(supply.total_cost).toLocaleString()} ֏</p>
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <p className="text-sm text-muted-foreground">Employee</p>
+                                <p className="font-medium">{supply.employee?.name || "N/A"}</p>
+                              </div>
+                            </div>
+                            
+                            {supply.comments && (
+                              <div className="space-y-1 pt-2 border-t">
+                                <div className="flex items-center text-muted-foreground text-sm">
+                                  <MessageSquare className="h-4 w-4 mr-1" />
+                                  Comments
+                                </div>
+                                <p className="text-sm">{supply.comments}</p>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <DrawerFooter className="flex-row gap-2">
+                            <Button
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => onEdit(supply)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              className="flex-1"
+                              onClick={() => {
+                                onDelete(supply);
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </DrawerFooter>
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+      
+      <div className="py-2">
+        <MobilePagination table={table} />
+      </div>
+    </div>
+  );
+
+  // Desktop view - Table based layout
+  const DesktopView = () => (
+    <div className="hidden md:block rounded-md border">
+      <div className="flex items-center justify-between p-4">
         <div className="flex flex-1 items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto h-8 lg:flex"
-            onClick={() => {
-              // Logic for export to be implemented
-              console.log("Export data");
-            }}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
+          <div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 ml-auto"
+              onClick={() => {
+                // Logic for export to be implemented
+                console.log("Export data");
+              }}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+          </div>
         </div>
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="ml-auto h-8">
@@ -248,20 +491,14 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id === "provider.name"
-                      ? "Provider"
-                      : column.id === "tank.name"
-                      ? "Tank"
-                      : column.id === "employee.name"
-                      ? "Employee"
-                      : column.id}
+                    {column.id}
                   </DropdownMenuCheckboxItem>
                 );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
+      
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -313,44 +550,113 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
         </Table>
       </div>
 
-      <div className="flex items-center justify-between space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 py-4 px-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          Showing{" "}
+          <strong>
+            {table.getFilteredRowModel().rows.length 
+              ? `${table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-${Math.min(
+                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+                table.getFilteredRowModel().rows.length
+              )}` 
+              : 0}
+          </strong>{" "}
+          of{" "}
+          <strong>{table.getFilteredRowModel().rows.length}</strong> supplies
         </div>
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-                className="h-8 w-8"
-              >
-                <PaginationPrevious className="h-4 w-4" />
-              </Button>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink>
-                Page {table.getState().pagination.pageIndex + 1} of{" "}
-                {table.getPageCount()}
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-                className="h-8 w-8"
-              >
-                <PaginationNext className="h-4 w-4" />
-              </Button>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        
+        <DesktopPagination table={table} />
       </div>
+    </div>
+  );
+
+  const MobilePagination = ({ table }: { table: any }) => {
+    const currentPage = table.getState().pagination.pageIndex + 1;
+    const totalPages = table.getPageCount();
+    
+    return (
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Page {currentPage} of {totalPages}
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const DesktopPagination = ({ table }: { table: any }) => {
+    return (
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                table.previousPage();
+              }}
+              disabled={!table.getCanPreviousPage()}
+            />
+          </PaginationItem>
+          
+          {[...Array(Math.min(5, table.getPageCount()))].map((_, i) => {
+            const pageIndex = i;
+            const isCurrentPage = table.getState().pagination.pageIndex === pageIndex;
+            
+            return (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    table.setPageIndex(pageIndex);
+                  }}
+                  isActive={isCurrentPage}
+                >
+                  {pageIndex + 1}
+                </PaginationLink>
+              </PaginationItem>
+            );
+          })}
+          
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                table.nextPage();
+              }}
+              disabled={!table.getCanNextPage()}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <MobileView />
+      <DesktopView />
     </div>
   );
 }

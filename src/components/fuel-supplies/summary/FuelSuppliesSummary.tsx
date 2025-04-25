@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import {
   Card,
@@ -9,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { FuelSupply } from "@/types";
 import { format } from "date-fns";
+import { TrendingUp, DollarSign, Droplet, Calendar } from "lucide-react";
 
 interface FuelSuppliesSummaryProps {
   supplies: FuelSupply[];
@@ -44,56 +44,90 @@ export function FuelSuppliesSummary({ supplies }: FuelSuppliesSummaryProps) {
   }, [supplies]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Fuel Quantity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{summary.totalQuantity.toLocaleString()} L</div>
-          <p className="text-xs text-muted-foreground">
-            {summary.suppliesCount} total supplies
-          </p>
-        </CardContent>
-      </Card>
+    <div className="relative w-full">
+      <div 
+        className="flex overflow-x-auto pb-4 gap-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent" 
+        aria-label="Fuel supplies summary metrics"
+      >
+        <div className="min-w-[260px] w-[85vw] sm:w-[45vw] md:w-1/2 lg:w-1/4 flex-none snap-start">
+          <Card className="h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Fuel Quantity</CardTitle>
+              <Droplet className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{summary.totalQuantity.toLocaleString()} L</div>
+              <p className="text-xs text-muted-foreground">
+                {summary.suppliesCount} total supplies
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="min-w-[260px] w-[85vw] sm:w-[45vw] md:w-1/2 lg:w-1/4 flex-none snap-start">
+          <Card className="h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{summary.totalCost.toLocaleString()} ֏</div>
+              <p className="text-xs text-muted-foreground">
+                Average: {summary.suppliesCount > 0 ? (summary.totalCost / summary.suppliesCount).toLocaleString() : 0} ֏ per supply
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="min-w-[260px] w-[85vw] sm:w-[45vw] md:w-1/2 lg:w-1/4 flex-none snap-start">
+          <Card className="h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Current Month</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{summary.currentMonthQuantity.toLocaleString()} L</div>
+              <p className="text-xs text-muted-foreground">
+                {summary.currentMonthCost.toLocaleString()} ֏ total cost
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="min-w-[260px] w-[85vw] sm:w-[45vw] md:w-1/2 lg:w-1/4 flex-none snap-start">
+          <Card className="h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Latest Delivery</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {summary.latestDelivery ? format(summary.latestDelivery, "PP") : "N/A"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {summary.latestDelivery ? format(summary.latestDelivery, "p") : ""}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{summary.totalCost.toLocaleString()} ֏</div>
-          <p className="text-xs text-muted-foreground">
-            Average: {summary.suppliesCount > 0 ? (summary.totalCost / summary.suppliesCount).toLocaleString() : 0} ֏ per supply
-          </p>
-        </CardContent>
-      </Card>
+      <div className="hidden lg:grid lg:grid-cols-4 gap-4 absolute inset-0 -z-10">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="opacity-0 pointer-events-none" aria-hidden="true" />
+        ))}
+      </div>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Current Month</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{summary.currentMonthQuantity.toLocaleString()} L</div>
-          <p className="text-xs text-muted-foreground">
-            {summary.currentMonthCost.toLocaleString()} ֏ total cost
-          </p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Latest Delivery</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {summary.latestDelivery ? format(summary.latestDelivery, "PP") : "N/A"}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {summary.latestDelivery ? format(summary.latestDelivery, "p") : ""}
-          </p>
-        </CardContent>
-      </Card>
+      {/* Scroll indicators */}
+      <div className="flex justify-center gap-1 mt-2 md:hidden">
+        {[...Array(4)].map((_, i) => (
+          <div 
+            key={i} 
+            className="w-1.5 h-1.5 rounded-full bg-gray-300 scroll-indicator" 
+            aria-hidden="true"
+          />
+        ))}
+      </div>
     </div>
   );
 }

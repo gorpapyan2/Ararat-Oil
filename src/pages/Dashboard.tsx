@@ -1,19 +1,26 @@
-
 import { DashboardMetrics } from "@/components/dashboard/DashboardMetrics";
 import { ProfitLossChart } from "@/components/dashboard/ProfitLossChart";
+import { PageLayout } from "@/layouts/PageLayout";
+import { LayoutDashboard } from "lucide-react";
 
 export default function Dashboard() {
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-      </div>
-      <div className="grid gap-4">
+    <PageLayout
+      title="Dashboard"
+      description="Overview of your business performance"
+      icon={LayoutDashboard}
+    >
+      <section aria-label="Key metrics" className="mb-6">
         <DashboardMetrics />
+      </section>
+      
+      <section aria-label="Charts and insights" className="mb-6">
         <div className="grid gap-4 grid-cols-1 md:grid-cols-4">
-          <ProfitLossChart />
+          <div className="md:col-span-4 lg:col-span-2 xl:col-span-2">
+            <ProfitLossChart />
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </PageLayout>
   );
 }

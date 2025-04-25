@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SalesForm } from "./SalesForm";
 import { useState } from "react";
 import { createSale } from "@/services/sales";
@@ -50,6 +49,9 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Add New Sale</DialogTitle>
+        </DialogHeader>
         <SalesForm onSubmit={handleSubmit} />
       </DialogContent>
     </Dialog>

@@ -120,13 +120,16 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
   const { error: updateError } = await supabase
     .rpc('record_tank_level_change', {
       p_tank_id: supply.tank_id,
-      p_change_amount: supply.quantity_liters,
-      p_previous_level: previousLevel,
-      p_new_level: newLevel,
+      p_change_amount: Number(supply.quantity_liters),
+      p_previous_level: Number(previousLevel),
+      p_new_level: Number(newLevel),
       p_change_type: 'add'
     });
     
-  if (updateError) throw updateError;
+  if (updateError) {
+    console.error('Error recording tank level change:', updateError);
+    throw updateError;
+  }
 
   // Create a corresponding transaction for this fuel supply
   await createTransaction({
@@ -225,6 +228,61 @@ export async function updateFuelSupply(id: string, updates: Partial<Omit<FuelSup
  * @throws {Error} If deleting fuel supply fails
  */
 export async function deleteFuelSupply(id: string): Promise<void> {
+  // First, fetch the fuel supply to get quantity and tank_id
+  const { data: supplyData, error: fetchError } = await supabase
+    .from('fuel_supplies')
+    .select('quantity_liters, tank_id')
+    .eq('id', id)
+    .single();
+    
+  if (fetchError) {
+    throw new Error(`Failed to fetch fuel supply data: ${fetchError.message ?? fetchError}`);
+  }
+  
+  if (!supplyData) {
+    throw new Error('Fuel supply not found');
+  }
+  
+  // Get current tank level
+  const { data: tankData, error: tankError } = await supabase
+    .from('fuel_tanks')
+    .select('current_level')
+    .eq('id', supplyData.tank_id)
+    .single();
+    
+  if (tankError) {
+    throw new Error(`Failed to fetch tank data: ${tankError.message ?? tankError}`);
+  }
+  
+  // Calculate new level (decrement by supply quantity)
+  const newLevel = Math.max(0, tankData.current_level - supplyData.quantity_liters);
+  
+  // Update tank level
+  const { error: updateError } = await supabase
+    .from('fuel_tanks')
+    .update({ current_level: newLevel })
+    .eq('id', supplyData.tank_id);
+    
+  if (updateError) {
+    throw new Error(`Failed to update tank level: ${updateError.message ?? updateError}`);
+  }
+  
+  // Record tank level change
+  const { error: recordError } = await supabase
+    .rpc('record_tank_level_change', {
+      p_tank_id: supplyData.tank_id,
+      p_change_amount: Number(-supplyData.quantity_liters),
+      p_previous_level: Number(tankData.current_level),
+      p_new_level: Number(newLevel),
+      p_change_type: 'subtract'
+    });
+    
+  if (recordError) {
+    console.error('Error recording tank level change:', recordError);
+    throw new Error(`Failed to record tank level change: ${recordError.message ?? recordError}`);
+  }
+
+  // Finally delete the fuel supply
   const { error } = await supabase
     .from('fuel_supplies')
     .delete()

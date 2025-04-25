@@ -1,46 +1,16 @@
-
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription 
-} from "@/components/ui/card";
-import { 
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from "@/components/ui/breadcrumb";
 import { SalesManager } from "@/components/sales/SalesManager";
+import { PageLayout } from "@/layouts/PageLayout";
+import { Receipt } from "lucide-react";
 
 const Sales = () => {
   return (
-    <div className="container mx-auto py-6 space-y-6 max-w-7xl">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Sales</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      
-      <Card className="border-none shadow-sm">
-        <CardHeader className="pb-0">
-          <CardTitle className="text-xl font-medium">Sales Management</CardTitle>
-          <CardDescription>View and manage fuel sales records</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SalesManager />
-        </CardContent>
-      </Card>
-    </div>
+    <PageLayout
+      title="Sales"
+      description="View and manage fuel sales records"
+      icon={Receipt}
+    >
+      <SalesManager />
+    </PageLayout>
   );
 };
 
