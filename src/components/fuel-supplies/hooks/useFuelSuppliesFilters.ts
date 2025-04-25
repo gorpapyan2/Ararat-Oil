@@ -7,24 +7,49 @@ import { format } from "date-fns";
 export function useFuelSuppliesFilters() {
   const [search, setSearch] = useState("");
   const [date, setDate] = useState<Date | undefined>();
-  const [providerId, setProviderId] = useState<string>("");
+  const [providerId, setProviderId] = useState<string>("all"); // Set default value to "all"
   const [type, setType] = useState<string>(""); // Add type filter if needed
   const [quantityRange, setQuantityRange] = useState<[number, number]>([0, 0]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
   const [totalCostRange, setTotalCostRange] = useState<[number, number]>([0, 0]);
 
-  const { data: supplies = [], isLoading, refetch: refetchSupplies } = useQuery({
+  // Query fuel supplies data
+  const { data: supplies = [], isLoading: suppliesLoading, refetch: refetchSupplies } = useQuery({
     queryKey: ['fuel-supplies'],
     queryFn: fetchFuelSupplies
   });
 
-  const { data: providers = [] } = useQuery({
+  // Query provider data with proper error handling
+  const { data: providersData, isLoading: providersLoading } = useQuery({
     queryKey: ["petrol-providers"],
     queryFn: async () => {
-      const providersData = await fetchPetrolProviders();
-      return providersData.map(provider => ({ id: provider.id, name: provider.name }));
-    }
+      try {
+        const data = await fetchPetrolProviders();
+        // Map the data to the expected format and ensure it's an array
+        if (!data || !Array.isArray(data)) return [];
+        
+        return data.map(provider => ({
+          id: provider.id || '',
+          name: provider.name || `Provider ${provider.id?.slice(0, 4) || 'Unknown'}`
+        }));
+      } catch (error) {
+        console.error("Error fetching petrol providers:", error);
+        return [];
+      }
+    },
+    // Initialize with empty array to prevent undefined
+    initialData: []
   });
+
+  // Ensure providers is always a valid array
+  const providers = useMemo(() => {
+    // Return an empty array if loading or data is invalid
+    if (providersLoading) return [];
+    if (!providersData) return [];
+    
+    // Ensure we're working with an array
+    return Array.isArray(providersData) ? providersData : [];
+  }, [providersData, providersLoading]);
 
   const filteredSupplies = useMemo(() => {
     let filtered = supplies;
@@ -114,7 +139,7 @@ export function useFuelSuppliesFilters() {
     setMaxTotal,
     providers,
     filteredSupplies,
-    isLoading,
+    isLoading: suppliesLoading || providersLoading, // Combine loading states
     refetchSupplies
   };
 }

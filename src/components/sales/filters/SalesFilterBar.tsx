@@ -31,6 +31,7 @@ interface FiltersShape {
 interface ContextValue {
   filters: FiltersShape;
   setPartial: (u: Partial<FiltersShape>) => void;
+  systems: { id: string; name: string }[];
 }
 
 const FiltersCtx = createContext<ContextValue | null>(null);
@@ -48,9 +49,15 @@ interface SalesFilterBarProps {
   onFiltersChange: (u: Partial<FiltersShape>) => void;
   systems: { id: string; name: string }[];
   filters: FiltersShape;
+  isLoading?: boolean;
 }
 
-export function SalesFilterBar({ onFiltersChange, systems, filters: initialFilters }: SalesFilterBarProps) {
+export function SalesFilterBar({ 
+  onFiltersChange, 
+  systems, 
+  filters: initialFilters,
+  isLoading = false 
+}: SalesFilterBarProps) {
   const [filters, setFilters] = useState<FiltersShape>(initialFilters);
   const [isOpen, setIsOpen] = useState(true);
   const [, startTransition] = useTransition();
@@ -76,7 +83,7 @@ export function SalesFilterBar({ onFiltersChange, systems, filters: initialFilte
   });
 
   return (
-    <FiltersCtx.Provider value={{ filters, setPartial }}>
+    <FiltersCtx.Provider value={{ filters, setPartial, systems }}>
       <Card className="border-none shadow-sm bg-card/60 backdrop-blur-sm">
         {/* header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/10">
@@ -118,6 +125,7 @@ export function SalesFilterBar({ onFiltersChange, systems, filters: initialFilte
                   value={filters.systemId}
                   onChange={systemId => setPartial({ systemId })}
                   systems={systems}
+                  isLoading={isLoading}
                 />
               </div>
               <Separator className="opacity-50 mb-6" />
@@ -162,7 +170,8 @@ export function SalesFilterBar({ onFiltersChange, systems, filters: initialFilte
 // Active filter chips
 // -----------------------------------------------------------------------------
 function ActiveChips() {
-  const { filters, setPartial } = useFiltersCtx();
+  const { filters, setPartial, systems } = useFiltersCtx();
+  
   const chips: { id: string; label: string; clear: () => void }[] = [];
 
   if (filters.date) chips.push({
@@ -171,11 +180,17 @@ function ActiveChips() {
     clear: () => setPartial({ date: undefined }),
   });
   
-  if (filters.systemId !== "all") chips.push({
-    id: "system",
-    label: `System: ${filters.systemId}`,
-    clear: () => setPartial({ systemId: "all" }),
-  });
+  if (filters.systemId !== "all") {
+    // Find system name
+    const selectedSystem = systems.find(s => s.id === filters.systemId);
+    const systemName = selectedSystem?.name || filters.systemId;
+    
+    chips.push({
+      id: "system",
+      label: `System: ${systemName}`,
+      clear: () => setPartial({ systemId: "all" }),
+    });
+  }
 
   const rangeChip = (range: [number, number], label: string, key: keyof FiltersShape) => {
     if (range[0] || range[1]) chips.push({

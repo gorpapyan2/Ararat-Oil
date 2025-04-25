@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -13,10 +12,13 @@ interface FillingSystemSelectProps {
 export function FillingSystemSelect({
   value,
   onChange,
-  systems,
+  systems = [],
   placeholder = "All systems",
   className = ""
 }: FillingSystemSelectProps) {
+  // Ensure systems is always an array
+  const systemsList = Array.isArray(systems) ? systems : [];
+
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-xs font-medium text-muted-foreground">Filling System</label>
@@ -28,7 +30,7 @@ export function FillingSystemSelect({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All systems</SelectItem>
-          {systems.map((sys) => (
+          {systemsList.map((sys) => (
             <SelectItem key={sys.id} value={sys.id}>{sys.name}</SelectItem>
           ))}
         </SelectContent>

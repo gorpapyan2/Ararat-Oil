@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FillingSystemHeader } from "./FillingSystemHeader";
 import { FillingSystemList } from "./FillingSystemList";
 import { FillingSystemForm } from "./FillingSystemForm";
+import { TankDiagnostics } from "./TankDiagnostics";
 import { fetchFillingSystems } from "@/services/filling-systems";
 
 export function FillingSystemManager() {
@@ -34,6 +34,9 @@ export function FillingSystemManager() {
           refetch();
         }}
       />
+      
+      {/* Diagnostic tools */}
+      <TankDiagnostics />
     </div>
   );
 }

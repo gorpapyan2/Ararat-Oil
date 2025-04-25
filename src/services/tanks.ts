@@ -1,14 +1,25 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { FuelTank, FuelType, TankLevelChange } from "@/types";
 
 export const fetchFuelTanks = async (): Promise<FuelTank[]> => {
+  console.log('Fetching all fuel tanks...');
+  
   const { data, error } = await supabase
     .from('fuel_tanks')
     .select('*')
     .order('name', { ascending: true });
     
-  if (error) throw error;
+  if (error) {
+    console.error('Error fetching fuel tanks:', error);
+    throw error;
+  }
+  
+  console.log(`Successfully fetched ${data?.length || 0} fuel tanks`);
+  if (data && data.length > 0) {
+    console.log('First tank sample:', JSON.stringify(data[0], null, 2));
+  } else {
+    console.warn('No fuel tanks found in the database!');
+  }
   
   return (data || []).map(item => ({
     ...item,

@@ -162,6 +162,7 @@ export function FuelSuppliesManager() {
         filters={filters}
         onFiltersChange={handleFiltersChange}
         providers={providers}
+        isLoading={isLoading}
       />
       
       <FuelSuppliesDataTable

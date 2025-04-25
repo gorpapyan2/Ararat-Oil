@@ -30,12 +30,14 @@ interface FilterBarProps {
   };
   onFiltersChange: (updates: Partial<FilterBarProps["filters"]>) => void;
   providers: { id: string; name: string }[];
+  isLoading?: boolean;
 }
 
 export function FilterBar({
   filters,
   onFiltersChange,
   providers,
+  isLoading = false
 }: FilterBarProps) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -81,6 +83,7 @@ export function FilterBar({
                     value={filters.provider}
                     onChange={val => onFiltersChange({ provider: val })}
                     providers={providers}
+                    isLoading={isLoading}
                   />
                 </div>
               </div>

@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSales } from "@/services/sales";
@@ -9,33 +8,48 @@ import { Sale } from "@/types";
 export function useSalesFilters() {
   const [search, setSearch] = useState("");
   const [date, setDate] = useState<Date | undefined>();
-  const [systemId, setSystemId] = useState<string>("");
+  const [systemId, setSystemId] = useState<string>("all");
   const [litersRange, setLitersRange] = useState<[number, number]>([0, 0]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
   const [totalSalesRange, setTotalSalesRange] = useState<[number, number]>([0, 0]);
 
   // Query sales data
-  const { data: sales = [], isLoading, refetch: refetchSales } = useQuery({
+  const { data: sales = [], isLoading: salesLoading, refetch: refetchSales } = useQuery({
     queryKey: ['sales'],
     queryFn: fetchSales
   });
 
   // Query filling systems data with proper error handling
-  const { data: systemsData = [] } = useQuery({
+  const { data: systemsData, isLoading: systemsLoading } = useQuery({
     queryKey: ["filling-systems"],
     queryFn: async () => {
       try {
-        const systemsData = await fetchFillingSystems();
-        return systemsData.map(sys => ({ id: sys.id, name: sys.name }));
+        const data = await fetchFillingSystems();
+        // Map the data to the expected format and ensure it's an array
+        if (!data || !Array.isArray(data)) return [];
+        
+        return data.map(sys => ({
+          id: sys.id || '',
+          name: sys.name || `System ${sys.id?.slice(0, 4) || 'Unknown'}`
+        }));
       } catch (error) {
         console.error("Error fetching filling systems:", error);
         return [];
       }
-    }
+    },
+    // Initialize with empty array to prevent undefined
+    initialData: []
   });
 
-  // Ensure systems is always an array
-  const systems = Array.isArray(systemsData) ? systemsData : [];
+  // Ensure systems is always an array and handle loading state
+  const systems = useMemo(() => {
+    // Return an empty array explicitly if loading or data is invalid
+    if (systemsLoading) return [];
+    if (!systemsData) return [];
+    
+    // Ensure we're working with an array
+    return Array.isArray(systemsData) ? systemsData : [];
+  }, [systemsData, systemsLoading]);
 
   const filteredSales = useMemo(() => {
     let filtered = sales || [];
@@ -90,7 +104,7 @@ export function useSalesFilters() {
     totalSalesRange, setTotalSalesRange,
     systems,
     filteredSales,
-    isLoading,
+    isLoading: salesLoading || systemsLoading, // Combine loading states
     refetchSales
   };
 }

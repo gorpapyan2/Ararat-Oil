@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Sale } from "@/types";
 import { useSalesFilters } from "./hooks/useSalesFilters";
@@ -10,6 +9,7 @@ import { SalesDataTable } from "./data-table/SalesDataTable";
 import { SalesSummary } from "./summary/SalesSummary";
 import { NewSaleButton } from "./NewSaleButton";
 import { useToast } from "@/hooks/use-toast";
+import React from "react";
 
 export function SalesManager() {
   // Filters and data state
@@ -82,8 +82,10 @@ export function SalesManager() {
   // Get table columns with action handlers
   const columns = getSalesColumns(handleViewSale, handleEdit, handleDelete);
 
-  // Ensure systems is always defined as an array
-  const systemsList = systems || [];
+  // Ensure systems is always a valid array
+  const safeSystemsList = React.useMemo(() => {
+    return Array.isArray(systems) ? systems : [];
+  }, [systems]);
 
   return (
     <div className="space-y-6">
@@ -113,7 +115,8 @@ export function SalesManager() {
             totalSalesRange
           }}
           onFiltersChange={handleFiltersChange}
-          systems={systemsList}
+          systems={safeSystemsList}
+          isLoading={isLoading}
         />
       </div>
       

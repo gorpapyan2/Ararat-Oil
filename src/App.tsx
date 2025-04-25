@@ -4,6 +4,7 @@ import { MainLayout } from "@/layouts/MainLayout";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { Loading } from "@/components/ui/loading";
+import { ThemeProvider } from "next-themes";
 
 import Dashboard from "@/pages/Dashboard";
 import Inventory from "@/pages/Inventory";
@@ -34,67 +35,69 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <MainLayout>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={
-                <RequireAuth>
-                  <Dashboard />
-                </RequireAuth>
-              } />
-              <Route path="/inventory" element={
-                <RequireAuth>
-                  <Inventory />
-                </RequireAuth>
-              } />
-              <Route path="/filling-systems" element={
-                <RequireAuth>
-                  <FillingSystems />
-                </RequireAuth>
-              } />
-              <Route path="/employees" element={
-                <RequireAuth>
-                  <Employees />
-                </RequireAuth>
-              } />
-              <Route path="/sales" element={
-                <RequireAuth>
-                  <Sales />
-                </RequireAuth>
-              } />
-              <Route path="/providers" element={
-                <RequireAuth>
-                  <PetrolProviders />
-                </RequireAuth>
-              } />
-              <Route path="/fuel-supplies" element={
-                <RequireAuth>
-                  <FuelSupplies />
-                </RequireAuth>
-              } />
-              <Route path="/expenses" element={
-                <RequireAuth>
-                  <Expenses />
-                </RequireAuth>
-              } />
-              <Route 
-                path="/transactions" 
-                element={
+  <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <MainLayout>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/" element={
                   <RequireAuth>
-                    <Transactions />
+                    <Dashboard />
                   </RequireAuth>
-                } 
-              />
-            </Routes>
-          </MainLayout>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+                } />
+                <Route path="/inventory" element={
+                  <RequireAuth>
+                    <Inventory />
+                  </RequireAuth>
+                } />
+                <Route path="/filling-systems" element={
+                  <RequireAuth>
+                    <FillingSystems />
+                  </RequireAuth>
+                } />
+                <Route path="/employees" element={
+                  <RequireAuth>
+                    <Employees />
+                  </RequireAuth>
+                } />
+                <Route path="/sales" element={
+                  <RequireAuth>
+                    <Sales />
+                  </RequireAuth>
+                } />
+                <Route path="/providers" element={
+                  <RequireAuth>
+                    <PetrolProviders />
+                  </RequireAuth>
+                } />
+                <Route path="/fuel-supplies" element={
+                  <RequireAuth>
+                    <FuelSupplies />
+                  </RequireAuth>
+                } />
+                <Route path="/expenses" element={
+                  <RequireAuth>
+                    <Expenses />
+                  </RequireAuth>
+                } />
+                <Route 
+                  path="/transactions" 
+                  element={
+                    <RequireAuth>
+                      <Transactions />
+                    </RequireAuth>
+                  } 
+                />
+              </Routes>
+            </MainLayout>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
