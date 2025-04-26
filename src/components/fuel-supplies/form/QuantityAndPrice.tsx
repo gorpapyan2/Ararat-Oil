@@ -91,9 +91,12 @@ export function QuantityAndPrice({
                 type="number" 
                 min="0" 
                 step="any" 
-                value={field.value || ""}
+                value={field.value === 0 ? "0" : field.value || ""}
                 onChange={e => {
-                  field.onChange(e.target.valueAsNumber || 0);
+                  // Convert empty value to 0
+                  const inputValue = e.target.value === "" ? 0 : e.target.valueAsNumber;
+                  // Ensure we never pass NaN to the form
+                  field.onChange(isNaN(inputValue) ? 0 : inputValue);
                 }} 
               />
             </FormControl>

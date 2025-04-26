@@ -48,6 +48,19 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
     // Use type assertion to handle payment_status that might not be detected by TypeScript
     const paymentStatus = (record as any).payment_status as PaymentStatus || 'pending';
 
+    // Ensure numeric values are actual numbers, not strings
+    const quantity_liters = typeof record.quantity_liters === 'string' 
+      ? parseFloat(record.quantity_liters) 
+      : Number(record.quantity_liters) || 0;
+      
+    const price_per_liter = typeof record.price_per_liter === 'string'
+      ? parseFloat(record.price_per_liter)
+      : Number(record.price_per_liter) || 0;
+      
+    const total_cost = typeof record.total_cost === 'string'
+      ? parseFloat(record.total_cost)
+      : Number(record.total_cost) || 0;
+
     // Return the transformed record
     return {
       ...record,
@@ -55,7 +68,10 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
       tank,
       employee,
       payment_status: paymentStatus,
-      payment_method: paymentMethod
+      payment_method: paymentMethod,
+      quantity_liters,
+      price_per_liter,
+      total_cost
     };
   });
 }

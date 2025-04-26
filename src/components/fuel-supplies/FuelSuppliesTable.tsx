@@ -20,14 +20,30 @@ interface FuelSuppliesTableProps {
 export function FuelSuppliesTable({ fuelSupplies, isLoading, onEdit, onDelete }: FuelSuppliesTableProps) {
   // Helper function to safely format numbers
   const formatNumber = (value: any, decimals = 2) => {
+    // If the value is undefined, null, or an empty string, return "0.00"
+    if (value === undefined || value === null || value === "") return "0.00";
+    
     const num = Number(value);
-    return !isNaN(num) ? num.toFixed(decimals) : "0.00";
+    
+    // Check if the value is a valid number
+    if (isNaN(num)) return "0.00";
+    
+    // Format the number with the specified decimals
+    return num.toFixed(decimals);
   };
 
   // Helper function to safely format currency
   const formatCurrency = (value: any) => {
+    // If the value is undefined, null, or an empty string, return "0"
+    if (value === undefined || value === null || value === "") return "0";
+    
     const num = Number(value);
-    return !isNaN(num) ? num.toLocaleString() : "0";
+    
+    // Check if the value is a valid number
+    if (isNaN(num)) return "0";
+    
+    // Format the number as currency
+    return Math.round(num).toLocaleString();
   };
 
   if (isLoading) {

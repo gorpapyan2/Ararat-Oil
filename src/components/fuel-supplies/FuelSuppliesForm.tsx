@@ -56,8 +56,8 @@ export function FuelSuppliesForm({
       delivery_date: today,
       provider_id: "",
       tank_id: "",
-      quantity_liters: undefined,
-      price_per_liter: undefined,
+      quantity_liters: 0,
+      price_per_liter: 0,
       total_cost: 0,
       employee_id: "",
       comments: "",
@@ -92,15 +92,11 @@ export function FuelSuppliesForm({
 
   // Calculate total cost whenever quantity or price changes
   useEffect(() => {
-    const qtyNum = Number(quantity);
-    const priceNum = Number(price);
+    const qtyNum = Number(quantity) || 0;
+    const priceNum = Number(price) || 0;
     
-    if (qtyNum && priceNum && !isNaN(qtyNum) && !isNaN(priceNum)) {
-      const total = qtyNum * priceNum;
-      form.setValue("total_cost", Number(total.toFixed(2)));
-    } else {
-      form.setValue("total_cost", 0);
-    }
+    const total = qtyNum * priceNum;
+    form.setValue("total_cost", Number(total.toFixed(2)));
   }, [quantity, price, form]);
 
   // Get the current total from the form for display

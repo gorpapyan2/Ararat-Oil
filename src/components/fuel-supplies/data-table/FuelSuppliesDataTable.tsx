@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,16 +37,45 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [selectedSupply, setSelectedSupply] = useState<FuelSupply | null>(null);
 
+  // Pre-process the data to ensure numbers are proper numbers
+  const processedData = useMemo(() => {
+    return data.map(supply => ({
+      ...supply,
+      quantity_liters: typeof supply.quantity_liters === 'number' ? supply.quantity_liters : 0,
+      price_per_liter: typeof supply.price_per_liter === 'number' ? supply.price_per_liter : 0,
+      total_cost: typeof supply.total_cost === 'number' ? supply.total_cost : 0
+    }));
+  }, [data]);
+
   // Helper function to safely format numbers
   const formatNumber = (value: any, decimals = 2) => {
+    // If the value is undefined, null, or an empty string, return "0.00"
+    if (value === undefined || value === null || value === "") return "0.00";
+    
     const num = Number(value);
-    return !isNaN(num) ? num.toFixed(decimals) : "0.00";
+    
+    // Check if the value is a valid number
+    if (isNaN(num)) return "0.00";
+    
+    // Format the number with the specified decimals
+    return num.toFixed(decimals);
   };
 
   // Helper function to safely format currency
   const formatCurrency = (value: any) => {
+    // If the value is undefined, null, or an empty string, return "0"
+    if (value === undefined || value === null || value === "") return "0";
+    
     const num = Number(value);
-    return !isNaN(num) ? num.toLocaleString() : "0";
+    
+    // Check if the value is a valid number
+    if (isNaN(num)) return "0";
+    
+    // For zero values, return "0" instead of an empty string
+    if (num === 0) return "0";
+    
+    // Format the number as currency with thousand separators
+    return Math.round(num).toLocaleString();
   };
 
   // Define columns with type safety
@@ -103,32 +132,42 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
       },
     },
     {
-      id: "quantity",
+      id: "quantity_liters",
       header: () => (
         <div className="text-right font-semibold">
           {t("fuelSupplies.quantity")}
         </div>
       ),
       accessorKey: "quantity_liters",
-      cell: ({ row }) => (
-        <div className="text-right font-medium tabular-nums py-2">
-          {formatNumber(row.getValue("quantity_liters"))} L
-        </div>
-      ),
+      cell: ({ row }) => {
+        const value = row.getValue("quantity_liters");
+        const displayValue = formatNumber(value);
+        
+        return (
+          <div className="text-right font-medium tabular-nums py-2">
+            {displayValue} L
+          </div>
+        );
+      },
     },
     {
-      id: "price",
+      id: "price_per_liter",
       header: () => (
         <div className="text-right font-semibold">
           {t("fuelSupplies.pricePerLiter")}
         </div>
       ),
       accessorKey: "price_per_liter",
-      cell: ({ row }) => (
-        <div className="text-right font-medium tabular-nums py-2">
-          {formatCurrency(row.getValue("price_per_liter"))} ֏
-        </div>
-      ),
+      cell: ({ row }) => {
+        const value = row.getValue("price_per_liter");
+        const displayValue = formatCurrency(value);
+        
+        return (
+          <div className="text-right font-medium tabular-nums py-2">
+            {displayValue} ֏
+          </div>
+        );
+      },
     },
     {
       id: "total_cost",
@@ -138,11 +177,16 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
         </div>
       ),
       accessorKey: "total_cost",
-      cell: ({ row }) => (
-        <div className="text-right font-medium tabular-nums text-primary py-2">
-          {formatCurrency(row.getValue("total_cost"))} ֏
-        </div>
-      ),
+      cell: ({ row }) => {
+        const value = row.getValue("total_cost");
+        const displayValue = formatCurrency(value);
+        
+        return (
+          <div className="text-right font-medium tabular-nums text-primary py-2">
+            {displayValue} ֏
+          </div>
+        );
+      },
     },
     {
       id: "employee",
@@ -229,115 +273,122 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
   ];
 
   // Custom mobile card renderer
-  const mobileCardRenderer = (supply: FuelSupply) => (
-    <Card className="overflow-hidden shadow-sm border-muted">
-      <CardContent className="p-0">
-        <div className="p-4 border-b bg-muted/20">
-          <div className="flex justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">
-                {isNaN(new Date(supply.delivery_date).getTime()) 
-                  ? "N/A" 
-                  : format(new Date(supply.delivery_date), "PP")}
-              </span>
+  const MobileCardRenderer = (supply: FuelSupply, index: number) => {
+    const { t } = useTranslation();
+
+    const deliveryDate = format(new Date(supply.delivery_date), "dd/MM/yyyy");
+    const quantity = formatNumber(supply.quantity_liters);
+    const pricePerLiter = formatCurrency(supply.price_per_liter);
+    const totalCost = formatCurrency(supply.total_cost);
+
+    return (
+      <Card className="overflow-hidden shadow-sm border-muted">
+        <CardContent className="p-0">
+          <div className="p-4 border-b bg-muted/20">
+            <div className="flex justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">
+                  {deliveryDate}
+                </span>
+              </div>
+              <Badge variant="outline" className="font-medium">
+                {supply.tank?.fuel_type || "N/A"}
+              </Badge>
             </div>
-            <Badge variant="outline" className="font-medium">
-              {supply.tank?.fuel_type || "N/A"}
-            </Badge>
-          </div>
-        </div>
-        
-        <div className="divide-y">
-          <div className="flex p-3 items-center">
-            <span className="w-1/3 text-muted-foreground text-sm font-medium">
-              {t("fuelSupplies.provider")}
-            </span>
-            <span className="w-2/3 font-medium">{supply.provider?.name || "N/A"}</span>
           </div>
           
-          <div className="flex p-3 items-center">
-            <span className="w-1/3 text-muted-foreground text-sm font-medium">
-              {t("fuelSupplies.tank")}
-            </span>
-            <span className="w-2/3 font-medium">{supply.tank?.name || "N/A"}</span>
-          </div>
-          
-          <div className="flex p-3 items-center">
-            <span className="w-1/3 text-muted-foreground text-sm font-medium">
-              {t("fuelSupplies.quantity")}
-            </span>
-            <span className="w-2/3 font-medium tabular-nums">
-              {formatNumber(supply.quantity_liters)} L
-            </span>
-          </div>
-          
-          <div className="flex p-3 items-center">
-            <span className="w-1/3 text-muted-foreground text-sm font-medium">
-              {t("fuelSupplies.pricePerLiter")}
-            </span>
-            <span className="w-2/3 font-medium tabular-nums">
-              {formatCurrency(supply.price_per_liter)} ֏
-            </span>
-          </div>
-          
-          <div className="flex p-3 items-center">
-            <span className="w-1/3 text-muted-foreground text-sm font-medium">
-              {t("fuelSupplies.totalCost")}
-            </span>
-            <span className="w-2/3 font-medium text-primary tabular-nums">
-              {formatCurrency(supply.total_cost)} ֏
-            </span>
-          </div>
-          
-          {supply.comments && (
+          <div className="divide-y">
             <div className="flex p-3 items-center">
               <span className="w-1/3 text-muted-foreground text-sm font-medium">
-                {t("fuelSupplies.comments")}
+                {t("fuelSupplies.provider")}
               </span>
-              <span className="w-2/3 truncate" title={supply.comments}>
-                {supply.comments}
+              <span className="w-2/3 font-medium">{supply.provider?.name || "N/A"}</span>
+            </div>
+            
+            <div className="flex p-3 items-center">
+              <span className="w-1/3 text-muted-foreground text-sm font-medium">
+                {t("fuelSupplies.tank")}
+              </span>
+              <span className="w-2/3 font-medium">{supply.tank?.name || "N/A"}</span>
+            </div>
+            
+            <div className="flex p-3 items-center">
+              <span className="w-1/3 text-muted-foreground text-sm font-medium">
+                {t("fuelSupplies.quantity")}
+              </span>
+              <span className="w-2/3 font-medium tabular-nums">
+                {quantity} L
               </span>
             </div>
-          )}
-        </div>
-        
-        <div className="p-3 bg-muted/10 flex justify-between items-center">
-          <div className="flex items-center gap-1.5">
-            <UserCircle2 className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">{supply.employee?.name || "N/A"}</span>
+            
+            <div className="flex p-3 items-center">
+              <span className="w-1/3 text-muted-foreground text-sm font-medium">
+                {t("fuelSupplies.pricePerLiter")}
+              </span>
+              <span className="w-2/3 font-medium tabular-nums">
+                {pricePerLiter} ֏
+              </span>
+            </div>
+            
+            <div className="flex p-3 items-center">
+              <span className="w-1/3 text-muted-foreground text-sm font-medium">
+                {t("fuelSupplies.totalCost")}
+              </span>
+              <span className="w-2/3 font-medium text-primary tabular-nums">
+                {totalCost} ֏
+              </span>
+            </div>
+            
+            {supply.comments && (
+              <div className="flex p-3 items-center">
+                <span className="w-1/3 text-muted-foreground text-sm font-medium">
+                  {t("fuelSupplies.comments")}
+                </span>
+                <span className="w-2/3 truncate" title={supply.comments}>
+                  {supply.comments}
+                </span>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 p-0"
-              onClick={() => onEdit(supply)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 p-0 text-destructive"
-              onClick={() => onDelete(supply)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+          
+          <div className="p-3 bg-muted/10 flex justify-between items-center">
+            <div className="flex items-center gap-1.5">
+              <UserCircle2 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">{supply.employee?.name || "N/A"}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 p-0"
+                onClick={() => onEdit(supply)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 p-0 text-destructive"
+                onClick={() => onDelete(supply)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   // Use the new DataTable component
   return (
     <div className="border rounded-lg shadow-sm overflow-hidden">
       <DataTable
-        data={data}
         columns={columns}
+        data={processedData}
         isLoading={isLoading}
-        mobileCardRenderer={mobileCardRenderer}
+        mobileCardRenderer={MobileCardRenderer}
         onRowClick={(supply) => setSelectedSupply(supply)}
         emptyMessage={t("fuelSupplies.noSuppliesFound")}
         title={t("fuelSupplies.supplies")}
