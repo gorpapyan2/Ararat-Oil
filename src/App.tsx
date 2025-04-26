@@ -17,6 +17,7 @@ import Expenses from "@/pages/Expenses";
 import Auth from "@/pages/Auth";
 import Transactions from "@/pages/Transactions";
 import Shifts from "@/pages/Shifts";
+import Todo from "@/pages/Todo";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +98,11 @@ const App = () => (
                     </RequireAuth>
                   } 
                 />
+                <Route path="/todo" element={
+                  <RequireAuth>
+                    <Todo />
+                  </RequireAuth>
+                } />
               </Routes>
             </MainLayout>
           </AuthProvider>

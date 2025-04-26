@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/pagination";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export interface MobileCardRenderer<T> {
   (item: T, index: number): React.ReactNode;
@@ -61,6 +62,8 @@ interface MobileAwareDataTableProps<T> {
   loadingRows?: number;
   onExport?: () => void;
   initialSorting?: SortingState;
+  title?: string;
+  onRowClick?: (item: T) => void;
 }
 
 export function MobileAwareDataTable<T>({
@@ -75,6 +78,8 @@ export function MobileAwareDataTable<T>({
   loadingRows = 5,
   onExport,
   initialSorting = [],
+  title,
+  onRowClick,
 }: MobileAwareDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -104,6 +109,17 @@ export function MobileAwareDataTable<T>({
       },
     },
   });
+
+  // Build a map of column IDs to header names for mobile view
+  const headerNames = React.useMemo(() => {
+    const headerMap: Record<string, string> = {};
+    columns.forEach(column => {
+      if (typeof column.header === 'string') {
+        headerMap[column.id] = column.header;
+      }
+    });
+    return headerMap;
+  }, [columns]);
 
   if (isLoading) {
     return (
@@ -153,9 +169,59 @@ export function MobileAwareDataTable<T>({
   // Mobile view - Card based layout
   const MobileView = () => (
     <div className="space-y-4 md:hidden">
-      {table.getRowModel().rows.map((row, index) => (
-        mobileCardRenderer(row.original, index)
-      ))}
+      {/* Add a descriptive heading for screen readers */}
+      <div className="sr-only" aria-live="polite">
+        {title ? `${title} - Showing ${table.getRowModel().rows.length} items in card format for mobile view` : "Table data in card format for mobile view"}
+      </div>
+      
+      {/* Cards */}
+      <div 
+        className="space-y-4"
+        // Add role for accessibility
+        role="table"
+        aria-label={title || "Data table"}
+      >
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => (
+            <div
+              key={row.id}
+              className={cn(
+                "rounded-lg border p-4",
+                onRowClick ? "cursor-pointer" : ""
+              )}
+              onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+              data-state={row.getIsSelected() && "selected"}
+              // Add role for accessibility
+              role="row"
+              tabIndex={onRowClick ? 0 : undefined}
+              onKeyDown={onRowClick ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onRowClick(row.original);
+                }
+              } : undefined}
+            >
+              {row.getVisibleCells().map((cell) => {
+                // Get the header text for this cell
+                const headerText = headerNames[cell.column.id] || cell.column.id;
+                
+                return (
+                  <div key={cell.id} className="mb-2" role="cell">
+                    <div className="font-medium text-muted-foreground">{headerText}</div>
+                    <div>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-4 border rounded">
+            {emptyMessage || "No results."}
+          </div>
+        )}
+      </div>
       
       <div className="py-2">
         <MobilePagination table={table} />
@@ -239,6 +305,8 @@ export function MobileAwareDataTable<T>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                  className={onRowClick ? "cursor-pointer" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

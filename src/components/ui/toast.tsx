@@ -17,6 +17,8 @@ const ToastViewport = React.forwardRef<
       "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
       className
     )}
+    role="region"
+    aria-label="Notifications"
     {...props}
   />
 ))
@@ -30,6 +32,9 @@ const toastVariants = cva(
         default: "border bg-background text-foreground",
         destructive:
           "destructive group border-destructive bg-destructive text-destructive-foreground",
+        success: "border-green-500 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
+        warning: "border-yellow-500 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
+        info: "border-blue-500 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
       },
     },
     defaultVariants: {
@@ -41,12 +46,21 @@ const toastVariants = cva(
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => {
+    VariantProps<typeof toastVariants> & {
+      /**
+       * Control whether the toast should be announced to screen readers.
+       * - 'off': No announcement
+       * - 'polite': Announce when user is idle (default)
+       * - 'assertive': Announce immediately, for urgent notifications
+       */
+      ariaLive?: 'off' | 'polite' | 'assertive';
+    }
+>(({ className, variant, ariaLive = 'polite', ...props }, ref) => {
   return (
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
+      aria-live={ariaLive}
       {...props}
     />
   )
@@ -79,6 +93,7 @@ const ToastClose = React.forwardRef<
       className
     )}
     toast-close=""
+    aria-label="Close notification"
     {...props}
   >
     <X className="h-4 w-4" />

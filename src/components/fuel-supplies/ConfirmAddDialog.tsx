@@ -19,6 +19,16 @@ interface ConfirmAddDialogProps {
   };
 }
 
+// Helper function to safely format numbers
+const formatNumber = (value: any, decimals = 1): string => {
+  if (value === undefined || value === null) return "0";
+  const num = Number(value);
+  if (isNaN(num)) return "0";
+  
+  const formattedValue = num.toFixed(decimals);
+  return Number(formattedValue).toLocaleString();
+};
+
 export function ConfirmAddDialog({ 
   open, 
   onOpenChange, 
@@ -28,8 +38,15 @@ export function ConfirmAddDialog({
   data 
 }: ConfirmAddDialogProps) {
   // Calculate new tank level after the supply
-  const newLevel = (data.tankLevel ?? 0) + data.quantity;
-  const isOverCapacity = data.tankCapacity ? newLevel > data.tankCapacity : false;
+  const tankLevel = Number(data.tankLevel ?? 0);
+  const quantity = Number(data.quantity ?? 0);
+  const price = Number(data.price ?? 0);
+  const totalCost = Number(data.totalCost ?? 0);
+  const capacity = Number(data.tankCapacity ?? 0);
+  
+  const newLevel = tankLevel + quantity;
+  const percentFill = capacity > 0 ? (newLevel / capacity) * 100 : 0;
+  const isOverCapacity = capacity > 0 && newLevel > capacity;
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -48,32 +65,32 @@ export function ConfirmAddDialog({
             <div>{data.tankName || 'N/A'}</div>
             
             <div className="font-medium">Quantity:</div>
-            <div>{data.quantity.toLocaleString()} liters</div>
+            <div>{formatNumber(quantity)} liters</div>
             
             <div className="font-medium">Price per liter:</div>
-            <div>{data.price.toLocaleString()} ֏</div>
+            <div>{formatNumber(price, 0)} ֏</div>
             
             <div className="font-medium">Total cost:</div>
-            <div className="font-semibold">{data.totalCost.toLocaleString()} ֏</div>
+            <div className="font-semibold">{formatNumber(totalCost, 0)} ֏</div>
           </div>
           
-          {data.tankCapacity && (
+          {capacity > 0 && (
             <div className={`p-3 rounded-md ${isOverCapacity ? 'bg-destructive/10 text-destructive' : 'bg-primary/10'}`}>
               <p className="font-medium">{isOverCapacity ? 'Warning: Tank Capacity Exceeded' : 'Tank Level Impact'}</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-sm">
                 <div>Current level:</div>
-                <div>{(data.tankLevel || 0).toLocaleString()} L</div>
+                <div>{formatNumber(tankLevel)} L</div>
                 
                 <div>After supply:</div>
-                <div>{newLevel.toLocaleString()} L</div>
+                <div>{formatNumber(newLevel)} L ({formatNumber(percentFill, 1)}% of capacity)</div>
                 
                 <div>Tank capacity:</div>
-                <div>{data.tankCapacity.toLocaleString()} L</div>
+                <div>{formatNumber(capacity)} L</div>
                 
                 {isOverCapacity && (
                   <>
                     <div className="font-medium text-destructive">Excess amount:</div>
-                    <div className="font-medium text-destructive">{(newLevel - data.tankCapacity).toLocaleString()} L</div>
+                    <div className="font-medium text-destructive">{formatNumber(newLevel - capacity)} L</div>
                   </>
                 )}
               </div>

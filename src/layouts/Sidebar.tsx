@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { NavItem } from "@/components/ui/nav-item";
@@ -18,6 +18,7 @@ import {
   IconChartBar,
   IconTools,
   IconReceipt2,
+  IconChecklist,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,6 +36,8 @@ interface SidebarProps {
   onNavItemClick?: () => void;
   onToggleCollapse?: (collapsed: boolean) => void;
   isMobile?: boolean;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
 // Interface for creating navigation sections
@@ -54,9 +57,12 @@ export function Sidebar({
   collapsed: externalCollapsed, 
   onNavItemClick,
   onToggleCollapse,
-  isMobile = false
+  isMobile = false,
+  isOpen,
+  onToggle
 }: SidebarProps = {}) {
   const { t } = useTranslation();
+  const sidebarRef = useRef<HTMLElement>(null);
   
   // Initialize state from localStorage or default to false
   const [internalCollapsed, setInternalCollapsed] = useState(() => {
@@ -77,6 +83,14 @@ export function Sidebar({
     }
   }, [internalCollapsed, externalCollapsed]);
 
+  // Handle keyboard events for the sidebar toggle
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  };
+
   const isActive = (path: string) => location.pathname === path;
 
   const toggleSidebar = () => {
@@ -86,6 +100,11 @@ export function Sidebar({
     } else {
       // Otherwise use internal state
       setInternalCollapsed(!internalCollapsed);
+    }
+    
+    // For mobile compatibility
+    if (onToggle) {
+      onToggle();
     }
   };
 
@@ -104,6 +123,11 @@ export function Sidebar({
           to: "/",
           label: t("common.dashboard"),
           icon: <IconDashboard size={20} />,
+        },
+        {
+          to: "/todo",
+          label: "Todo List",
+          icon: <IconChecklist size={20} />,
         },
       ]
     },
@@ -214,12 +238,19 @@ export function Sidebar({
 
   return (
     <aside
+      ref={sidebarRef}
       className={cn(
-        "flex flex-col border-r bg-background h-screen transition-all duration-300",
-        collapsed ? "w-[70px]" : "w-[240px]"
+        "flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
+        "h-screen fixed top-0 left-0", // Fixed position to viewport
+        collapsed ? "w-[70px]" : "w-[240px]",
+        isMobile && "z-50 shadow-lg",
+        isMobile && !isOpen && "transform -translate-x-full"
       )}
+      role="navigation"
+      aria-label="Main navigation"
     >
-      <div className="flex items-center justify-between p-4 border-b">
+      {/* Fixed header */}
+      <div className="flex items-center justify-between p-4 border-b shrink-0 bg-muted/30">
         {!collapsed ? (
           <div className="text-xl font-bold text-foreground">Ararat Oil</div>
         ) : (
@@ -227,9 +258,21 @@ export function Sidebar({
             <span className="text-accent font-bold text-lg">AO</span>
           </div>
         )}
+        
+        {/* Mobile close button in header */}
+        {isMobile && isOpen && (
+          <button
+            onClick={onToggle}
+            className="p-1 -mr-1 rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-accent"
+            aria-label="Close sidebar"
+          >
+            <IconChevronLeft className="h-5 w-5" />
+          </button>
+        )}
       </div>
       
-      <nav className="flex-1 py-4 overflow-y-auto">
+      {/* Scrollable navigation area */}
+      <nav className="flex-1 overflow-y-auto py-4 no-scrollbar">
         {navSections.map((section, index) => (
           <div key={index} className="mb-4">
             {/* Section heading - only show when not collapsed */}
@@ -248,90 +291,63 @@ export function Sidebar({
             
             {/* Divider - show for all sections except the last one */}
             {index < navSections.length - 1 && (
-              <div className={cn("mx-3 my-3 h-px bg-border/50", collapsed && "w-10 mx-auto")}></div>
+              <div className="h-px bg-border mx-2 my-2" />
             )}
           </div>
         ))}
       </nav>
-
-      <div className={cn(
-        "border-t",
-        collapsed ? "py-4 px-2" : "p-4"
-      )}>
-        {/* When sidebar is collapsed */}
-        {collapsed && !isMobile ? (
-          <div className="flex flex-col items-center space-y-4">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={signOut}
-                    className="w-10 h-10"
-                  >
-                    <IconLogout size={20} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  {t("common.logout")}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <LanguageSwitcher />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  {t("common.changeLanguage")}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            {!isMobile && externalCollapsed !== undefined && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={toggleSidebar}
-                className="rounded-full w-8 h-8"
-              >
-                <IconChevronRight size={16} />
-              </Button>
-            )}
-          </div>
-        ) : (
-          /* When sidebar is expanded */
-          <div className="space-y-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={signOut}
-              className="w-full justify-start text-muted-foreground hover:text-foreground"
-            >
-              <IconLogout size={20} className="mr-2" />
-              {t("common.logout")}
-            </Button>
-            
-            <div className="flex items-center justify-between">
-              <LanguageSwitcher />
-              
-              {!isMobile && externalCollapsed !== undefined && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={toggleSidebar}
-                  className="rounded-full w-8 h-8"
-                >
-                  <IconChevronLeft size={16} />
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
+      
+      {/* Fixed footer with controls - always at bottom */}
+      <div className="p-4 border-t shrink-0 bg-background">
+        {/* Collapse/Expand button with keyboard support and improved touch target */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "w-full justify-center p-2 h-auto min-h-[44px]",
+            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          )}
+          onClick={toggleSidebar}
+          onKeyDown={handleKeyDown}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+          aria-controls={sidebarRef.current?.id || "sidebar-content"}
+        >
+          {collapsed ? (
+            <IconChevronRight className="h-5 w-5" />
+          ) : (
+            <>
+              <IconChevronLeft className="h-5 w-5 mr-2" />
+              <span>{t("common.collapse")}</span>
+            </>
+          )}
+        </Button>
+        
+        {/* Language switcher */}
+        <div className={cn("mt-4", collapsed ? "flex justify-center" : "")}>
+          <LanguageSwitcher collapsed={collapsed} />
+        </div>
+        
+        {/* Logout button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "text-red-500 hover:text-red-700 hover:bg-red-50 mt-4 w-full justify-center p-2 h-auto min-h-[44px]",
+            "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          )}
+          onClick={signOut}
+          aria-label={t("auth.signOut")}
+        >
+          {collapsed ? (
+            <IconLogout className="h-5 w-5" />
+          ) : (
+            <>
+              <IconLogout className="h-5 w-5 mr-2" />
+              <span>{t("auth.signOut")}</span>
+            </>
+          )}
+        </Button>
       </div>
     </aside>
   );

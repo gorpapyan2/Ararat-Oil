@@ -90,19 +90,21 @@ export function FuelSuppliesForm({
     return Number(selectedTank.capacity) - Number(selectedTank.current_level);
   }, [selectedTank]);
 
+  // Calculate total cost whenever quantity or price changes
   useEffect(() => {
-    if (
-      quantity &&
-      price &&
-      !isNaN(Number(quantity)) &&
-      !isNaN(Number(price))
-    ) {
-      const total = Number(quantity) * Number(price);
+    const qtyNum = Number(quantity);
+    const priceNum = Number(price);
+    
+    if (qtyNum && priceNum && !isNaN(qtyNum) && !isNaN(priceNum)) {
+      const total = qtyNum * priceNum;
       form.setValue("total_cost", Number(total.toFixed(2)));
     } else {
       form.setValue("total_cost", 0);
     }
   }, [quantity, price, form]);
+
+  // Get the current total from the form for display
+  const totalCost = form.watch("total_cost") || 0;
 
   // Save and Close button text logic
   const editing = Boolean(defaultValues);
@@ -139,7 +141,7 @@ export function FuelSuppliesForm({
 
             <QuantityAndPrice
               control={form.control}
-              totalCost={form.getValues("total_cost")}
+              totalCost={totalCost}
               maxQuantity={maxQuantity}
               selectedTank={selectedTank}
             />

@@ -155,15 +155,15 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
       // Find the tank details
       const selectedTank = tanks?.find(t => t.id === data.tank_id);
       
-      // Prepare confirmation data
+      // Prepare confirmation data with proper numeric conversions
       setConfirmData({
-        quantity: data.quantity_liters,
-        price: data.price_per_liter,
-        totalCost: data.total_cost,
+        quantity: Number(data.quantity_liters) || 0,
+        price: Number(data.price_per_liter) || 0,
+        totalCost: Number(data.total_cost) || 0,
         providerName,
         tankName: selectedTank?.name,
-        tankCapacity: selectedTank?.capacity,
-        tankLevel: selectedTank?.current_level
+        tankCapacity: Number(selectedTank?.capacity) || 0,
+        tankLevel: Number(selectedTank?.current_level) || 0
       });
       
       setIsConfirmOpen(true);
@@ -267,7 +267,7 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
         loading={deleteLoading}
         recordInfo={
           deletingSupply
-            ? `${deletingSupply.provider?.name ?? ""} (${deletingSupply.quantity_liters.toLocaleString()} L)`
+            ? `${deletingSupply.provider?.name ?? ""} (${(deletingSupply.quantity_liters || 0).toLocaleString()} L)`
             : undefined
         }
       />

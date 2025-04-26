@@ -3,9 +3,11 @@ import { Sidebar } from "@/layouts/Sidebar";
 import { useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { SkipToContent } from "@/components/ui/skip-to-content";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Header } from "@/components/ui/header";
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -14,41 +16,45 @@ type MainLayoutProps = {
 export function MainLayout({ children }: MainLayoutProps) {
   const { pathname } = useLocation();
   const isAuthPage = pathname === "/auth";
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
   
-  // Initialize state from localStorage or default values
+  // Sidebar state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const savedState = localStorage.getItem('sidebarCollapsed');
     return savedState ? JSON.parse(savedState) : false;
   });
   
-  const [sidebarHidden, setSidebarHidden] = useState(() => {
-    const savedState = localStorage.getItem('sidebarHidden');
-    return savedState ? JSON.parse(savedState) : false;
-  });
-
-  // Save state to localStorage when it changes
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  
+  // Save sidebar state to localStorage
   useEffect(() => {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
   }, [sidebarCollapsed]);
-  
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
+  const toggleMobileSidebar = () => {
+    setMobileSidebarOpen(!mobileSidebarOpen);
+  };
+
+  // Close mobile sidebar when route changes
   useEffect(() => {
-    localStorage.setItem('sidebarHidden', JSON.stringify(sidebarHidden));
-  }, [sidebarHidden]);
-
-  const toggleSidebarCollapse = (collapsed: boolean) => {
-    setSidebarCollapsed(collapsed);
-  };
-
-  const toggleSidebarVisibility = () => {
-    setSidebarHidden(!sidebarHidden);
-  };
+    if (isMobile && mobileSidebarOpen) {
+      setMobileSidebarOpen(false);
+    }
+  }, [pathname, isMobile]);
 
   // Use a different layout for the auth page
   if (isAuthPage) {
     return (
       <div className="min-h-screen bg-background">
-        <main className="flex min-h-screen flex-col items-center justify-center">
+        <main 
+          id="main-content" 
+          className="flex min-h-screen flex-col items-center justify-center"
+          tabIndex={-1}
+        >
           {children}
         </main>
         <Toaster />
@@ -56,51 +62,83 @@ export function MainLayout({ children }: MainLayoutProps) {
     );
   }
 
+  // Calculate sidebar width for main content margin
+  const sidebarWidth = sidebarCollapsed ? 70 : 240;
+
   // Regular layout with sidebar for other pages
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <div 
-        className={cn(
-          "transition-all duration-300 ease-in-out", 
-          sidebarCollapsed ? "w-20" : "w-64",
-          sidebarHidden ? "hidden" : "hidden md:block"
-        )}
-      >
-        <Sidebar 
-          collapsed={sidebarCollapsed} 
-          onToggleCollapse={toggleSidebarCollapse}
+    <>
+      {/* Add skip link for keyboard users to bypass navigation */}
+      <SkipToContent />
+      
+      {/* Fixed sidebar */}
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={toggleSidebarCollapse}
+        isMobile={isMobile}
+        isOpen={mobileSidebarOpen}
+        onToggle={toggleMobileSidebar}
+      />
+      
+      {/* Mobile menu toggle button - positioned in top-left corner */}
+      {isMobile && (
+        <Button
+          onClick={toggleMobileSidebar}
+          className={cn(
+            "fixed top-4 left-4 z-50 md:hidden",
+            "flex items-center justify-center",
+            "h-10 w-10 rounded-full",
+            "bg-primary text-primary-foreground",
+            "shadow-lg shadow-primary/20",
+            "border-2 border-primary-foreground/10",
+            "transition-all duration-200 ease-in-out",
+            "hover:bg-primary/90 hover:scale-105",
+            "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background",
+            mobileSidebarOpen && "bg-background text-foreground rotate-90"
+          )}
+          aria-label={mobileSidebarOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileSidebarOpen}
+          aria-controls="sidebar"
+          size="icon"
+          variant="outline"
+        >
+          {mobileSidebarOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
+        </Button>
+      )}
+      
+      {/* Overlay to close mobile sidebar when clicking outside */}
+      {isMobile && mobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          aria-hidden="true"
+          onClick={() => setMobileSidebarOpen(false)}
         />
-      </div>
+      )}
       
-      {/* Mobile Sidebar - Sheet slides in from left */}
-      <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
-        <SheetContent side="left" className="p-0 w-[85%] max-w-[300px] md:hidden border-0">
-          <Sidebar 
-            onNavItemClick={() => setMobileSidebarOpen(false)} 
-            collapsed={false}
-            isMobile={true} 
-          />
-        </SheetContent>
-      </Sheet>
-      
-      {/* Mobile Menu Toggle Button */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => setMobileSidebarOpen(true)}
-        className="fixed bottom-4 left-4 z-50 rounded-full shadow-lg md:hidden bg-accent hover:bg-accent/90 text-white"
-        aria-label="Open menu"
+      {/* Main content area with left margin to account for fixed sidebar */}
+      <main
+        id="main-content" 
+        className="min-h-screen overflow-auto transition-all duration-300"
+        style={{ 
+          marginLeft: !isMobile ? `${sidebarWidth}px` : '0px',
+          paddingTop: isMobile ? '4rem' : '0' // Add padding when in mobile view to avoid content being hidden by the toggle button
+        }}
+        role="main"
+        tabIndex={-1}
       >
-        <Menu className="h-5 w-5" />
-      </Button>
-      
-      <div className="flex-1 overflow-x-hidden transition-all duration-300 ease-in-out">
-        <main className="pt-4 container mx-auto px-4 md:py-6 md:px-6">
+        {/* Add header at the top of the main content */}
+        <Header />
+        
+        <div className="container mx-auto py-6 px-4 md:px-6">
           {children}
-        </main>
-      </div>
+        </div>
+      </main>
+      
       <Toaster />
-    </div>
+    </>
   );
 }

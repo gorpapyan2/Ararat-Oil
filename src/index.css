@@ -42,6 +42,15 @@
   .surface-secondary {
     @apply bg-secondary text-secondary-foreground border border-border/20;
   }
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
+  }
 }
 
 /* Override card, button, input, etc for accessibility/contrast as needed */

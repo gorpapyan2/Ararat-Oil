@@ -18,6 +18,18 @@ interface FuelSuppliesTableProps {
 }
 
 export function FuelSuppliesTable({ fuelSupplies, isLoading, onEdit, onDelete }: FuelSuppliesTableProps) {
+  // Helper function to safely format numbers
+  const formatNumber = (value: any, decimals = 2) => {
+    const num = Number(value);
+    return !isNaN(num) ? num.toFixed(decimals) : "0.00";
+  };
+
+  // Helper function to safely format currency
+  const formatCurrency = (value: any) => {
+    const num = Number(value);
+    return !isNaN(num) ? num.toLocaleString() : "0";
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -54,14 +66,18 @@ export function FuelSuppliesTable({ fuelSupplies, isLoading, onEdit, onDelete }:
         <TableBody>
           {fuelSupplies.map((supply) => (
             <TableRow key={supply.id} className="hover:bg-muted/50">
-              <TableCell>{format(new Date(supply.delivery_date), 'PP')}</TableCell>
+              <TableCell>
+                {isNaN(new Date(supply.delivery_date).getTime()) 
+                  ? "N/A" 
+                  : format(new Date(supply.delivery_date), 'PP')}
+              </TableCell>
               <TableCell>{supply.provider?.name || 'N/A'}</TableCell>
               <TableCell>
                 {supply.tank?.name || 'N/A'} ({supply.tank?.fuel_type || 'N/A'})
               </TableCell>
-              <TableCell className="text-right">{supply.quantity_liters.toFixed(2)}</TableCell>
-              <TableCell className="text-right">{supply.price_per_liter.toLocaleString()} ֏</TableCell>
-              <TableCell className="text-right">{supply.total_cost.toLocaleString()} ֏</TableCell>
+              <TableCell className="text-right">{formatNumber(supply.quantity_liters)}</TableCell>
+              <TableCell className="text-right">{formatCurrency(supply.price_per_liter)} ֏</TableCell>
+              <TableCell className="text-right">{formatCurrency(supply.total_cost)} ֏</TableCell>
               <TableCell>{supply.employee?.name || 'N/A'}</TableCell>
               <TableCell>{supply.comments || 'N/A'}</TableCell>
               <TableCell className="flex gap-2 justify-center items-center">

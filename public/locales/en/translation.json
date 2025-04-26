@@ -1,4 +1,4 @@
-{
+﻿{
   "common": {
     "dashboard": "Dashboard",
     "tanks": "Tanks",
@@ -47,25 +47,30 @@
     "management": "Management",
     "system": "System",
     "changeLanguage": "Change language",
+    "help": "Help",
+    "notifications": "Notifications",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "signOut": "Sign Out",
+    "filterBy": "Filter by",
+    "columns": "Columns",
     "showing": "Showing",
     "of": "of",
     "rowsPerPage": "Rows per page",
-    "columns": "Columns",
     "noResults": "No results found",
     "previousPage": "Previous page",
     "nextPage": "Next page",
     "dataTable": "Data Table",
     "dataTableAnnouncement": "Data table {{title}} with {{count}} items, page {{page}} of {{total}}",
-    "openMenu": "Open menu",
-    "filterBy": "Filter by"
+    "openMenu": "Open menu"
   },
   "auth": {
     "signIn": "Sign In",
     "email": "Email",
     "password": "Password",
-    "signInToYourAccount": "Sign in to your account",
-    "contactAdmin": "Contact your administrator to get an account",
-    "signingIn": "Signing in...",
+    "signInToYourAccount": "Sign into your account",
+    "contactAdmin": "Contact your administrator for account access",
+    "signingIn": "Signing In...",
     "authError": "An unexpected error occurred. Please try again.",
     "signOut": "Sign Out"
   },
@@ -249,22 +254,5 @@
     "closed": "Closed",
     "shiftHistory": "Shift History",
     "noActiveShift": "No active shift found. Please start a shift to create sales."
-  },
-  "todo": {
-    "title": "Todo Application",
-    "listTitle": "Todo List",
-    "addTodo": "Add",
-    "inputPlaceholder": "Add a new todo...",
-    "noTodos": "No todos yet. Add one above!",
-    "noActiveTodos": "No active todos. Great job!",
-    "noCompletedTodos": "No completed todos.",
-    "itemsLeft": "items left",
-    "clearCompleted": "Clear completed",
-    "all": "All",
-    "active": "Active",
-    "completed": "Completed",
-    "markComplete": "Mark complete",
-    "markIncomplete": "Mark incomplete",
-    "deleteTodo": "Delete todo"
   }
 } 

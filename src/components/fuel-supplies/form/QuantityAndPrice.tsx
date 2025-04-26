@@ -1,8 +1,9 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Control } from "react-hook-form";
+import { Control, useWatch } from "react-hook-form";
 import { useMemo } from "react";
 import { CurrencyField } from "@/components/form-fields/CurrencyField";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { useTranslation } from "react-i18next";
 
 interface QuantityAndPriceProps {
@@ -20,15 +21,30 @@ export function QuantityAndPrice({
 }: QuantityAndPriceProps) {
   const { t } = useTranslation();
   
+  // Watch for quantity changes
+  const quantityValue = useWatch({
+    control,
+    name: "quantity_liters",
+    defaultValue: 0
+  });
+  
+  // Watch for price changes
+  const priceValue = useWatch({
+    control,
+    name: "price_per_liter",
+    defaultValue: 0
+  });
+  
   // Compute explanatory string and visual percentage for tank
   const tankStatus = useMemo(() => {
-    if (!selectedTank || typeof maxQuantity !== 'number') {
+    if (!selectedTank) {
       return { percentage: 0, str: '', color: '', isFull: false };
     }
 
-    const currentLevel = selectedTank.current_level;
-    const capacity = selectedTank.capacity;
-    const afterSupply = currentLevel + maxQuantity;
+    const currentLevel = Number(selectedTank.current_level) || 0;
+    const capacity = Number(selectedTank.capacity) || 1; // Avoid division by zero
+    const supplyQuantity = Number(quantityValue) || 0;
+    const afterSupply = currentLevel + supplyQuantity;
     
     // Calculate percentages
     const currentPercentage = (currentLevel / capacity) * 100;
@@ -54,12 +70,12 @@ export function QuantityAndPrice({
       color: barColor,
       isFull: isOverCapacity
     };
-  }, [selectedTank, maxQuantity]);
+  }, [selectedTank, quantityValue]);
 
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <FormField control={control} name="quantity" rules={{
+        <FormField control={control} name="quantity_liters" rules={{
           required: "Quantity is required",
           min: {
             value: 0,
@@ -82,7 +98,7 @@ export function QuantityAndPrice({
               />
             </FormControl>
             
-            {selectedTank && typeof maxQuantity === "number" && (
+            {selectedTank && (
               <div className="mt-2">
                 <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                   <div
@@ -109,13 +125,22 @@ export function QuantityAndPrice({
         min={0}
       />
 
-      <CurrencyField
+      <FormField
         control={control}
         name="total_cost"
-        label={t("fuelSupplies.totalCost")}
-        value={totalCost}
-        disabled
-        className="cursor-not-allowed bg-gray-500/40 font-semibold"
+        render={({ field }) => (
+          <FormItem className="cursor-not-allowed bg-gray-500/40 font-semibold">
+            <FormLabel className="text-base font-medium">{t("fuelSupplies.totalCost")}</FormLabel>
+            <FormControl>
+              <CurrencyInput
+                value={totalCost}
+                onChange={field.onChange}
+                disabled={true}
+                symbol="֏"
+              />
+            </FormControl>
+          </FormItem>
+        )}
       />
     </div>
   );
