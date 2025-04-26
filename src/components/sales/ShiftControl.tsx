@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatCurrency } from '@/lib/utils';
+import { CurrencyInput } from '@/components/ui/currency-input';
 
 export function ShiftControl() {
   const { t } = useTranslation();
@@ -81,12 +82,11 @@ export function ShiftControl() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="openingCash">{t('shifts.openingCash')}</Label>
-              <Input
+              <CurrencyInput
                 id="openingCash"
-                type="number"
                 value={openingCash}
-                onChange={(e) => setOpeningCash(Number(e.target.value))}
-                placeholder="0.00"
+                onChange={setOpeningCash}
+                placeholder="0"
               />
             </div>
           </div>
@@ -125,12 +125,11 @@ export function ShiftControl() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="closingCash">{t('shifts.closingCash')}</Label>
-              <Input
+              <CurrencyInput
                 id="closingCash"
-                type="number"
                 value={closingCash}
-                onChange={(e) => setClosingCash(Number(e.target.value))}
-                placeholder="0.00"
+                onChange={setClosingCash}
+                placeholder="0"
               />
             </div>
           </div>

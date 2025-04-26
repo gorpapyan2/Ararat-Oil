@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +13,7 @@ import { ExpenseCategory, PaymentMethod, Expense } from "@/types";
 import { Form, FormField, FormLabel, FormItem, FormMessage, FormControl } from "@/components/ui/form";
 import { format } from "date-fns";
 import { useState } from "react";
+import { CurrencyField } from "@/components/form-fields/CurrencyField";
 
 // Types for new/edited expense
 const schema = z.object({
@@ -143,31 +143,14 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
           )}
         />
 
-        {/* Amount */}
-        <FormField
+        {/* Amount with Currency Field */}
+        <CurrencyField
           control={form.control}
           name="amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Amount (֏ AMD)</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">
-                    ֏
-                  </span>
-                  <Input 
-                    {...field} 
-                    type="number" 
-                    min={0} 
-                    placeholder="0.00" 
-                    step="0.01"
-                    className="pl-10"
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Amount (AMD)"
+          placeholder="0"
+          required
+          min={0}
         />
 
         {/* Payment Method */}
