@@ -23,7 +23,9 @@ import {
   SlidersHorizontal,
   MoreHorizontal,
   Check,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -294,6 +296,25 @@ export function DataTable<TData, TValue>({
     );
   }
   
+  // Around line 278, find the ToolbarButton component
+  const ToolbarButton = React.forwardRef<
+    HTMLButtonElement,
+    React.ButtonHTMLAttributes<HTMLButtonElement> & { active?: boolean }
+  >(({ className, active, ...props }, ref) => (
+    <Button
+      ref={ref}
+      variant={active ? "accent" : "outline"}
+      size="sm"
+      className={cn(
+        "h-8 gap-1 text-xs",
+        active && "bg-accent text-accent-foreground",
+        className
+      )}
+      {...props}
+    />
+  ));
+  ToolbarButton.displayName = "ToolbarButton";
+  
   // Toolbar components
   const Toolbar = () => (
     <div className="flex flex-col md:flex-row gap-3 md:items-center justify-between py-4">
@@ -531,131 +552,148 @@ export function DataTable<TData, TValue>({
     </div>
   );
   
-  // Pagination component
+  // Add this function before the PaginationControls component
+  // Utility function to get page range to display
+  const getPageRange = (currentPage: number, totalPages: number, maxPagesToShow: number) => {
+    // Calculate start and end page indices
+    const halfPoint = Math.floor(maxPagesToShow / 2);
+    let startPage = Math.max(currentPage - halfPoint, 0);
+    const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages - 1);
+    
+    // Adjust start page if we're near the end
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(endPage - maxPagesToShow + 1, 0);
+    }
+    
+    // Create the page range array
+    return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  };
+  
+  // PaginationControls component with fixed button props
   const PaginationControls = () => {
     const { pageSize, pageIndex } = table.getState().pagination;
-    const totalRows = data.length;
-    const totalPages = Math.ceil(totalRows / pageSize);
+    const totalRows = table.getFilteredRowModel().rows.length;
     
     return (
-      <div className="flex items-center justify-between py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {totalRows > 0 && (
-            <p>
-              {t("common.showing")} {pageIndex * pageSize + 1}-
-              {Math.min((pageIndex + 1) * pageSize, totalRows)} {t("common.of")} {totalRows}
-            </p>
-          )}
+      <div className="flex items-center justify-between py-2">
+        <div className="text-sm text-muted-foreground flex-1">
+          {t("common.pagination", {
+            showing: `${pageIndex * pageSize + 1} - ${Math.min(
+              (pageIndex + 1) * pageSize,
+              totalRows
+            )}`,
+            of: totalRows,
+          })}
         </div>
         
-        <div className="flex items-center gap-6 lg:gap-8">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">{t("common.rowsPerPage")}</p>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 w-[70px]">
-                  {table.getState().pagination.pageSize}
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {pageSizeOptions.map(size => (
-                  <DropdownMenuItem 
-                    key={size}
-                    onClick={() => table.setPageSize(size)}
-                    className={cn(
-                      "cursor-pointer",
-                      pageSize === size && "bg-primary/10 font-medium"
-                    )}
-                  >
-                    {size}
-                    {pageSize === size && <Check className="ml-2 h-4 w-4" />}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+        {isMobile ? (
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              aria-label={t("common.previousPage")}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm mx-2">
+              {t("common.pageNumber", {
+                current: pageIndex + 1,
+                total: table.getPageCount(),
+              })}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              aria-label={t("common.nextPage")}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
-          
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  className="h-8 w-8 p-0"
-                  aria-label={t("common.previousPage")}
-                >
-                  <ChevronDown className="h-4 w-4 rotate-90" />
-                </Button>
-              </PaginationItem>
-              
-              {Array.from({ length: totalPages > 7 ? 7 : totalPages }).map((_, i) => {
-                let pageNumber: number;
-                
-                // Logic to show pages around current page
-                if (totalPages <= 7) {
-                  pageNumber = i;
-                } else {
-                  const middlePages = 5;
-                  const sidePages = (middlePages - 1) / 2;
-                  
-                  if (i === 0) {
-                    pageNumber = 0;
-                  } else if (i === 6) {
-                    pageNumber = totalPages - 1;
-                  } else {
-                    if (pageIndex < sidePages) {
-                      pageNumber = i;
-                    } else if (pageIndex > totalPages - sidePages - 1) {
-                      pageNumber = totalPages - 7 + i;
-                    } else {
-                      pageNumber = pageIndex - sidePages + i;
-                    }
-                  }
-                }
-                
-                // Show ellipsis
-                if ((i === 1 && pageNumber > 1) || (i === 5 && pageNumber < totalPages - 2)) {
-                  return (
-                    <PaginationItem key={`ellipsis-${i}`}>
-                      <span className="px-3 py-2">...</span>
-                    </PaginationItem>
-                  );
-                }
+        ) : (
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="accent"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.firstPage()}
+              disabled={!table.getCanPreviousPage()}
+              aria-label={t("common.firstPage")}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 -ml-2" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              aria-label={t("common.previousPage")}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            
+            {/* Page buttons */}
+            <div className="flex items-center">
+              {/* Create array of pages to show */}
+              {Array.from({ length: Math.min(5, table.getPageCount()) }).map((_, i) => {
+                // Show pages around current page
+                const currentPageIndex = getPageRange(
+                  pageIndex,
+                  table.getPageCount(),
+                  5
+                )[i];
                 
                 return (
-                  <PaginationItem key={pageNumber}>
-                    <Button
-                      variant={pageIndex === pageNumber ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => table.setPageIndex(pageNumber)}
-                      disabled={pageIndex === pageNumber}
-                      className="h-8 w-8"
-                      aria-current={pageIndex === pageNumber ? "page" : undefined}
-                    >
-                      {pageNumber + 1}
-                    </Button>
-                  </PaginationItem>
+                  <Button
+                    key={currentPageIndex}
+                    variant={pageIndex === currentPageIndex ? "accent" : "outline"}
+                    size="sm"
+                    className={cn(
+                      "h-8 w-8 p-0",
+                      pageIndex === currentPageIndex
+                        ? "bg-accent text-accent-foreground"
+                        : ""
+                    )}
+                    onClick={() => table.setPageIndex(currentPageIndex)}
+                    aria-label={t("common.goToPage", { page: currentPageIndex + 1 })}
+                    aria-current={pageIndex === currentPageIndex ? "page" : undefined}
+                  >
+                    {currentPageIndex + 1}
+                  </Button>
                 );
               })}
-              
-              <PaginationItem>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  className="h-8 w-8 p-0"
-                  aria-label={t("common.nextPage")}
-                >
-                  <ChevronDown className="h-4 w-4 -rotate-90" />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              aria-label={t("common.nextPage")}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="accent"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => table.lastPage()}
+              disabled={!table.getCanNextPage()}
+              aria-label={t("common.lastPage")}
+            >
+              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 -ml-2" />
+            </Button>
+          </div>
+        )}
       </div>
     );
   };

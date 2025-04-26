@@ -186,8 +186,10 @@ export function MobileAwareDataTable<T>({
             <div
               key={row.id}
               className={cn(
-                "rounded-lg border p-4",
-                onRowClick ? "cursor-pointer" : ""
+                "rounded-lg border border-border bg-card text-card-foreground p-4 shadow-sm",
+                "transition-colors duration-200 ease-in-out",
+                row.getIsSelected() && "border-primary/50 bg-primary/5",
+                onRowClick ? "cursor-pointer hover:border-primary/30" : ""
               )}
               onClick={onRowClick ? () => onRowClick(row.original) : undefined}
               data-state={row.getIsSelected() && "selected"}
@@ -206,9 +208,9 @@ export function MobileAwareDataTable<T>({
                 const headerText = headerNames[cell.column.id] || cell.column.id;
                 
                 return (
-                  <div key={cell.id} className="mb-2" role="cell">
-                    <div className="font-medium text-muted-foreground">{headerText}</div>
-                    <div>
+                  <div key={cell.id} className="mb-3 last:mb-0" role="cell">
+                    <div className="text-sm font-medium text-muted-foreground mb-1">{headerText}</div>
+                    <div className="text-foreground">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </div>
                   </div>
@@ -217,7 +219,7 @@ export function MobileAwareDataTable<T>({
             </div>
           ))
         ) : (
-          <div className="text-center py-4 border rounded">
+          <div className="text-center py-4 border rounded bg-card text-card-foreground">
             {emptyMessage || "No results."}
           </div>
         )}
@@ -390,14 +392,21 @@ export function MobileAwareDataTable<T>({
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                table.previousPage();
-              }}
-              disabled={!table.getCanPreviousPage()}
-            />
+            {table.getCanPreviousPage() ? (
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  table.previousPage();
+                }}
+              />
+            ) : (
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => e.preventDefault()}
+                className="pointer-events-none opacity-50"
+              />
+            )}
           </PaginationItem>
           
           {[...Array(Math.min(5, table.getPageCount()))].map((_, i) => {
@@ -421,14 +430,21 @@ export function MobileAwareDataTable<T>({
           })}
           
           <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                table.nextPage();
-              }}
-              disabled={!table.getCanNextPage()}
-            />
+            {table.getCanNextPage() ? (
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  table.nextPage();
+                }}
+              />
+            ) : (
+              <PaginationNext
+                href="#"
+                onClick={(e) => e.preventDefault()}
+                className="pointer-events-none opacity-50"
+              />
+            )}
           </PaginationItem>
         </PaginationContent>
       </Pagination>

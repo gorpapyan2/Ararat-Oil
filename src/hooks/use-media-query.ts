@@ -1,55 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
- * Custom hook to check if a media query matches
- * @param query The media query to check (e.g., "(max-width: 768px)")
- * @returns boolean indicating if the media query matches
+ * A hook that returns true if the current viewport matches the specified media query.
+ * @param query The media query to match against (e.g., "(max-width: 768px)").
+ * @returns A boolean indicating whether the viewport matches the query.
  */
 export function useMediaQuery(query: string): boolean {
-  // Initialize with the match state, or false on the server
-  const [matches, setMatches] = useState<boolean>(() => {
-    // Check if window is defined (for SSR)
-    if (typeof window !== 'undefined') {
-      return window.matchMedia(query).matches;
-    }
-    return false;
-  });
+  const [matches, setMatches] = useState(false);
 
   useEffect(() => {
-    // Only run in the browser
-    if (typeof window === 'undefined') return;
+    // Create the media query object
+    const mediaQuery = window.matchMedia(query);
+    
+    // Set initial state
+    setMatches(mediaQuery.matches);
 
-    // Create the media query list
-    const mediaQueryList = window.matchMedia(query);
-
-    // Update the state initially
-    setMatches(mediaQueryList.matches);
-
-    // Define a callback function to handle changes
-    const listener = (event: MediaQueryListEvent) => {
+    // Event handler for changes
+    const handleChange = (event: MediaQueryListEvent) => {
       setMatches(event.matches);
     };
 
-    // Add the listener to the media query list
-    if (mediaQueryList.addEventListener) {
-      // Modern browsers
-      mediaQueryList.addEventListener('change', listener);
-    } else {
-      // Fallback for older browsers
-      mediaQueryList.addListener(listener);
-    }
+    // Add event listener for changes
+    mediaQuery.addEventListener('change', handleChange);
 
-    // Clean up function
+    // Clean up
     return () => {
-      if (mediaQueryList.removeEventListener) {
-        // Modern browsers
-        mediaQueryList.removeEventListener('change', listener);
-      } else {
-        // Fallback for older browsers
-        mediaQueryList.removeListener(listener);
-      }
+      mediaQuery.removeEventListener('change', handleChange);
     };
-  }, [query]); // Only re-run if the query changes
+  }, [query]);
 
   return matches;
 }

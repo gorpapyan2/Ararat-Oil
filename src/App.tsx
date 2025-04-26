@@ -37,7 +37,7 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 }
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
+  <ThemeProvider attribute="class" defaultTheme="dark">
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
