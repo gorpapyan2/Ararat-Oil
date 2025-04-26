@@ -16,6 +16,7 @@ import FuelSupplies from "@/pages/FuelSupplies";
 import Expenses from "@/pages/Expenses";
 import Auth from "@/pages/Auth";
 import Transactions from "@/pages/Transactions";
+import Shifts from "@/pages/Shifts";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,11 @@ const App = () => (
                 <Route path="/sales" element={
                   <RequireAuth>
                     <Sales />
+                  </RequireAuth>
+                } />
+                <Route path="/shifts" element={
+                  <RequireAuth>
+                    <Shifts />
                   </RequireAuth>
                 } />
                 <Route path="/providers" element={

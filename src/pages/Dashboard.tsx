@@ -6,8 +6,8 @@ import { LayoutDashboard } from "lucide-react";
 export default function Dashboard() {
   return (
     <PageLayout
-      title="Dashboard"
-      description="Overview of your business performance"
+      titleKey="dashboard.title"
+      descriptionKey="dashboard.description"
       icon={LayoutDashboard}
     >
       <section aria-label="Key metrics" className="mb-6">

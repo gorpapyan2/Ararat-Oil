@@ -1,10 +1,15 @@
-
 import { FillingSystemManager } from "@/components/filling-systems/FillingSystemManager";
+import { PageLayout } from "@/layouts/PageLayout";
+import { Fuel } from "lucide-react";
 
 export default function FillingSystems() {
   return (
-    <div className="max-w-[1600px] mx-auto">
+    <PageLayout
+      titleKey="fillingSystems.title"
+      descriptionKey="fillingSystems.description"
+      icon={Fuel}
+    >
       <FillingSystemManager />
-    </div>
+    </PageLayout>
   );
 }

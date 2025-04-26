@@ -27,6 +27,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslation } from "react-i18next";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -54,6 +56,8 @@ export function Sidebar({
   onToggleCollapse,
   isMobile = false
 }: SidebarProps = {}) {
+  const { t } = useTranslation();
+  
   // Initialize state from localStorage or default to false
   const [internalCollapsed, setInternalCollapsed] = useState(() => {
     const savedState = localStorage.getItem('sidebarCollapsed');
@@ -94,71 +98,76 @@ export function Sidebar({
   // Organized navigation sections
   const navSections: NavSection[] = [
     {
-      title: "Overview",
+      title: t("common.overview"),
       items: [
         {
           to: "/",
-          label: "Dashboard",
+          label: t("common.dashboard"),
           icon: <IconDashboard size={20} />,
         },
       ]
     },
     {
-      title: "Operations",
+      title: t("common.operations"),
       items: [
         {
           to: "/filling-systems",
-          label: "Filling Systems",
+          label: t("common.fillingSystems"),
           icon: <IconGasStation size={20} />,
         },
         {
           to: "/tanks",
-          label: "Tanks",
+          label: t("common.tanks"),
           icon: <IconTank size={20} />,
         },
         {
           to: "/fuel-supplies",
-          label: "Fuel Supplies",
+          label: t("common.fuelSupplies"),
           icon: <IconTruck size={20} />,
         },
       ]
     },
     {
-      title: "Sales & Finance",
+      title: t("common.salesFinance"),
       items: [
         {
           to: "/sales",
-          label: "Sales",
+          label: t("common.sales"),
           icon: <IconCurrencyDollar size={20} />,
         },
         {
+          to: "/shifts",
+          label: t("common.shifts"),
+          icon: <IconChartBar size={20} />,
+        },
+        {
           to: "/expenses",
-          label: "Expenses",
+          label: t("common.expenses"),
           icon: <IconReceipt2 size={20} />,
         },
       ]
     },
     {
-      title: "Management",
+      title: t("common.management"),
       items: [
         {
           to: "/employees",
-          label: "Employees",
+          label: t("common.employees"),
           icon: <IconUsers size={20} />,
         },
         {
           to: "/reports",
-          label: "Reports",
+          label: t("common.reports"),
           icon: <IconReportAnalytics size={20} />,
         },
       ]
     },
     {
-      title: "System",
+      title: t("common.system"),
       items: [
         {
           to: "/settings",
-          label: "Settings",
+          label: t("common.settings"),
           icon: <IconSettings size={20} />,
         },
       ]
@@ -245,50 +254,83 @@ export function Sidebar({
         ))}
       </nav>
 
-      <div className="p-4 border-t flex items-center justify-between">
+      <div className={cn(
+        "border-t",
+        collapsed ? "py-4 px-2" : "p-4"
+      )}>
+        {/* When sidebar is collapsed */}
         {collapsed && !isMobile ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={signOut}
-                  className="w-10 h-10 justify-center"
-                >
-                  <IconLogout size={20} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                Logout
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={signOut}
-            className="w-full justify-start text-muted-foreground hover:text-foreground"
-          >
-            <IconLogout size={20} className="mr-2" />
-            Logout
-          </Button>
-        )}
-        
-        {!isMobile && externalCollapsed !== undefined && (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={toggleSidebar}
-            className="ml-2 rounded-full w-8 h-8 flex items-center justify-center"
-          >
-            {collapsed ? (
-              <IconChevronRight size={16} />
-            ) : (
-              <IconChevronLeft size={16} />
+          <div className="flex flex-col items-center space-y-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={signOut}
+                    className="w-10 h-10"
+                  >
+                    <IconLogout size={20} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  {t("common.logout")}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <LanguageSwitcher />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  {t("common.changeLanguage")}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            {!isMobile && externalCollapsed !== undefined && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleSidebar}
+                className="rounded-full w-8 h-8"
+              >
+                <IconChevronRight size={16} />
+              </Button>
             )}
-          </Button>
+          </div>
+        ) : (
+          /* When sidebar is expanded */
+          <div className="space-y-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={signOut}
+              className="w-full justify-start text-muted-foreground hover:text-foreground"
+            >
+              <IconLogout size={20} className="mr-2" />
+              {t("common.logout")}
+            </Button>
+            
+            <div className="flex items-center justify-between">
+              <LanguageSwitcher />
+              
+              {!isMobile && externalCollapsed !== undefined && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={toggleSidebar}
+                  className="rounded-full w-8 h-8"
+                >
+                  <IconChevronLeft size={16} />
+                </Button>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </aside>

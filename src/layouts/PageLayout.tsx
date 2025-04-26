@@ -1,9 +1,12 @@
 import React from "react";
 import { LucideIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PageLayoutProps {
-  title: string;
+  title?: string;
+  titleKey?: string;
   description?: string;
+  descriptionKey?: string;
   icon?: LucideIcon;
   action?: React.ReactNode;
   children: React.ReactNode;
@@ -11,11 +14,18 @@ interface PageLayoutProps {
 
 export function PageLayout({
   title,
+  titleKey,
   description,
+  descriptionKey,
   icon: Icon,
   action,
   children,
 }: PageLayoutProps) {
+  const { t } = useTranslation();
+
+  const translatedTitle = titleKey ? t(titleKey) : title;
+  const translatedDescription = descriptionKey ? t(descriptionKey) : description;
+
   return (
     <div className="w-full px-2 sm:px-4 md:px-6 pb-16 pt-2 space-y-6 max-w-[1920px] mx-auto">
       {/* Page Header */}
@@ -27,10 +37,12 @@ export function PageLayout({
             </div>
           )}
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">{title}</h2>
-            {description && (
+            {translatedTitle && (
+              <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">{translatedTitle}</h2>
+            )}
+            {translatedDescription && (
               <p className="text-xs sm:text-sm text-muted-foreground">
-                {description}
+                {translatedDescription}
               </p>
             )}
           </div>

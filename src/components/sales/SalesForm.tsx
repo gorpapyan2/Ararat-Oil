@@ -17,6 +17,10 @@ import { fetchLatestSale } from "@/services/sales";
 import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import { Sale } from "@/types";
+import { useShift } from "@/hooks/useShift";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface SalesFormValues {
   filling_system_id: string;
@@ -32,6 +36,7 @@ interface SalesFormProps {
 }
 
 export function SalesForm({ onSubmit, sale }: SalesFormProps) {
+  const { t } = useTranslation();
   const form = useForm<SalesFormValues>({
     defaultValues: sale ? {
       filling_system_id: sale.filling_system_id,
@@ -44,6 +49,7 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFillingSystem, setSelectedFillingSystem] = useState<string>(sale?.filling_system_id || "");
+  const { activeShift } = useShift();
 
   const { data: employees } = useQuery({
     queryKey: ['employees'],
@@ -103,6 +109,16 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
             {sale ? 'Edit sale details below' : 'Record a new sale by filling in the details below'}
           </p>
         </DialogHeader>
+
+        {!activeShift && !sale && (
+          <Alert variant="destructive" className="my-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>{t("common.error")}</AlertTitle>
+            <AlertDescription>
+              {t("shifts.noActiveShift")}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="space-y-4">
           <FillingSystemSelect 

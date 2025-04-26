@@ -8,8 +8,8 @@ const FuelSupplies = () => {
 
   return (
     <PageLayout
-      title="Fuel Supplies"
-      description="Manage fuel supply deliveries and inventory"
+      titleKey="fuelSupplies.title"
+      descriptionKey="fuelSupplies.description"
       icon={Fuel}
       action={action}
     >

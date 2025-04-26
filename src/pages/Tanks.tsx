@@ -8,8 +8,8 @@ export function Tanks() {
   
   return (
     <PageLayout
-      title="Fuel Tanks"
-      description="Manage your fuel tanks and inventory levels."
+      titleKey="tanks.title"
+      descriptionKey="tanks.description"
       icon={Fuel}
       action={action}
     >

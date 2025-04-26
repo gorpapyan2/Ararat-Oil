@@ -1,13 +1,12 @@
-
 import { useState, useEffect } from 'react';
 import { Shift } from '@/types';
 import { 
   startShift, 
-  closeShift, 
-  getActiveShift 
+  closeShift 
 } from '@/services/shifts';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { fetchActiveShift } from '@/utils/api-helpers';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useShift() {
@@ -27,7 +26,7 @@ export function useShift() {
     if (!user) return;
     setIsLoading(true);
     try {
-      const shift = await getActiveShift(user.id);
+      const shift = await fetchActiveShift(user.id);
       setActiveShift(shift);
       
       // If we have an active shift, fetch the current sales total
@@ -49,9 +48,12 @@ export function useShift() {
         .select('total_sales')
         .eq('shift_id', shiftId);
         
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching sales total:', error);
+        return;
+      }
       
-      const salesTotal = data.reduce((sum, sale) => sum + (sale.total_sales || 0), 0);
+      const salesTotal = data?.reduce((sum, sale) => sum + (sale.total_sales || 0), 0) || 0;
       
       // Update the shift object with current sales total
       if (activeShift) {

@@ -9,6 +9,9 @@ import { SalesDataTable } from "./data-table/SalesDataTable";
 import { SalesSummary } from "./summary/SalesSummary";
 import { NewSaleButton } from "./NewSaleButton";
 import { useToast } from "@/hooks/use-toast";
+import { ShiftControl } from "./ShiftControl";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 import React from "react";
 
 export function SalesManager() {
@@ -87,8 +90,20 @@ export function SalesManager() {
     return Array.isArray(systems) ? systems : [];
   }, [systems]);
 
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
+      {/* Shift Control Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("shifts.shiftControl")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ShiftControl />
+        </CardContent>
+      </Card>
+      
       {/* Floating New Sale Button (Mobile) */}
       <div className="fixed bottom-4 right-4 md:hidden z-10">
         <NewSaleButton />
