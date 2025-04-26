@@ -18,6 +18,7 @@ import Auth from "@/pages/Auth";
 import Transactions from "@/pages/Transactions";
 import Shifts from "@/pages/Shifts";
 import Todo from "@/pages/Todo";
+import UnifiedData from "@/pages/UnifiedData";
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,11 @@ const App = () => (
                 <Route path="/todo" element={
                   <RequireAuth>
                     <Todo />
+                  </RequireAuth>
+                } />
+                <Route path="/unified-data" element={
+                  <RequireAuth>
+                    <UnifiedData />
                   </RequireAuth>
                 } />
               </Routes>

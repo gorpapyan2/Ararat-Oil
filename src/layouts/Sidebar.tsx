@@ -19,6 +19,7 @@ import {
   IconTools,
   IconReceipt2,
   IconChecklist,
+  IconDatabase,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -189,6 +190,11 @@ export function Sidebar({
     {
       title: t("common.system"),
       items: [
+        {
+          to: "/unified-data",
+          label: t("common.unifiedData"),
+          icon: <IconDatabase size={20} />,
+        },
         {
           to: "/settings",
           label: t("common.settings"),

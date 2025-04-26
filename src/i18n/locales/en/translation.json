@@ -11,6 +11,7 @@
     "expenses": "Expenses",
     "reports": "Reports",
     "settings": "Settings",
+    "unifiedData": "Unified Data",
     "logout": "Logout",
     "loading": "Loading...",
     "search": "Search",
@@ -286,5 +287,18 @@
       "medium": "Medium",
       "low": "Low"
     }
+  },
+  "unifiedData": {
+    "title": "Unified Data Manager",
+    "description": "A unified interface for managing Fuel Supplies, Sales, and Expenses data",
+    "filters": "Filters",
+    "fuelSuppliesTab": "Fuel Supplies",
+    "salesTab": "Sales",
+    "expensesTab": "Expenses",
+    "searchPlaceholder": "Search...",
+    "clearFilters": "Clear all filters",
+    "noDataFound": "No data found",
+    "loading": "Loading data...",
+    "addNew": "Add New"
   }
 } 
