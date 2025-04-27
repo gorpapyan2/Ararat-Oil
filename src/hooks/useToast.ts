@@ -20,7 +20,7 @@ export const useToast = () => {
       id,
       title: options.title,
       description: options.description,
-      message: options.description || '', // Add the message field to satisfy the type
+      message: options.message || options.description || '', // Ensure message is not undefined
       duration: options.duration || 5000,
       type: options.type || 'info',
       createdAt: new Date(),
@@ -52,4 +52,4 @@ export const useToast = () => {
     info,
     dismiss: removeToast,
   };
-}; 
+};

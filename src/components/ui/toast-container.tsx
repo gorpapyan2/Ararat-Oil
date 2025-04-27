@@ -68,7 +68,7 @@ export function ToastContainer({ className }: ToastContainerProps) {
                 <p className="text-sm font-medium">{toast.title}</p>
               )}
               <p className={cn("text-sm", toast.title && "mt-1")}>
-                {toast.message || toast.description}
+                {toast.message}
               </p>
             </div>
             

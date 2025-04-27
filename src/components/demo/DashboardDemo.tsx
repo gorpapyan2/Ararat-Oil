@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import {
@@ -14,13 +15,21 @@ import {
   Settings,
   Fuel,
   ArrowRightLeft,
-  Filter
+  Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+
+// Helper function to get an appropriate icon based on action description
+const getActionIcon = (action: string) => {
+  if (action.includes("Fuel")) return <Droplet size={16} />;
+  if (action.includes("Payment")) return <DollarSign size={16} />;
+  if (action.includes("Tank")) return <Fuel size={16} />;
+  return <Settings size={16} />;
+};
 
 export function DashboardDemo() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -227,10 +236,7 @@ export function DashboardDemo() {
                 {recentActivity.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-3 py-2 border-b last:border-0">
                     <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                      {activity.action.includes("Fuel") ? <Droplet size={16} /> :
-                       activity.action.includes("Payment") ? <DollarSign size={16} /> :
-                       activity.action.includes("Tank") ? <GasPump size={16} /> :
-                       <Settings size={16} />}
+                      {getActionIcon(activity.action)}
                     </div>
                     
                     <div className="flex-1 min-w-0">

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { FillingSystem, deleteFillingSystem } from "@/services/filling-systems";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import {
   EnhancedTable,
@@ -45,15 +45,15 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
       await deleteFillingSystem(systemToDelete.id);
       toast({
         title: "Success",
-        description: "Filling system deleted successfully",
+        message: "Filling system deleted successfully",
       });
       onDelete();
       closeDeleteConfirm();
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to delete filling system",
-        variant: "destructive",
+        message: "Failed to delete filling system",
+        type: "error",
       });
     } finally {
       setIsDeleting(false);
@@ -106,12 +106,12 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
           ))}
           {fillingSystems.length === 0 && (
             <EnhancedRow>
-              <EnhancedCell
-                className="text-center text-muted-foreground h-32"
-                colSpan={3 as any}
+              <td 
+                className="text-center text-muted-foreground h-32 py-8 px-4"
+                colSpan={3}
               >
                 No filling systems found
-              </EnhancedCell>
+              </td>
             </EnhancedRow>
           )}
         </TableBody>
