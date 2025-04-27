@@ -7,7 +7,6 @@ import { SkipToContent } from "@/components/ui/skip-to-content";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Tooltip,
@@ -16,6 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
+import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import {
   IconDashboard,
   IconGasStation,
@@ -250,8 +250,21 @@ export function AdminShell({ children }: AdminShellProps) {
         </nav>
       </div>
 
-      {/* Sidebar footer with collapse button */}
-      <div className="border-t p-4">
+      {/* Sidebar footer with theme switcher, collapse button and signout */}
+      <div className="border-t p-4 space-y-4">
+        {/* Theme switcher */}
+        <div className={cn(
+          "flex items-center", 
+          sidebarCollapsed ? "justify-center" : "justify-between"
+        )}>
+          {!sidebarCollapsed && (
+            <span className="text-sm text-muted-foreground">
+              {t("common.theme")}
+            </span>
+          )}
+          <ThemeSwitcher variant="ghost" />
+        </div>
+
         {/* Toggle collapse button */}
         <Button
           variant="outline"
@@ -275,7 +288,7 @@ export function AdminShell({ children }: AdminShellProps) {
           variant="ghost"
           size="sm"
           onClick={signOut}
-          className="mt-4 w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+          className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
         >
           <IconLogout className="h-4 w-4 mr-2" />
           {!sidebarCollapsed && <span>Sign out</span>}
@@ -284,39 +297,43 @@ export function AdminShell({ children }: AdminShellProps) {
     </div>
   );
   return (
-    <div className="flex h-screen bg-[hsl(var(--background))]">
-      {/* Skip to content link for accessibility */}
+    <div className="relative min-h-screen">
       <SkipToContent />
+      
+      {/* Sidebar - desktop version */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 md:block md:flex-col",
+          sidebarCollapsed ? "md:w-[70px]" : "md:w-[240px]",
+        )}
+      >
+        {renderSidebarContent()}
+      </aside>
 
-      {/* Desktop Sidebar - fixed position */}
-      {!isMobile && (
-        <aside
-          className={cn(
-            "fixed left-0 top-0 z-30 h-full border-r bg-card/50 backdrop-blur transition-all duration-300",
-            sidebarCollapsed ? "w-[72px]" : "w-[256px]",
-          )}
-        >
+      {/* Mobile sidebar - sheet component */}
+      <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className={cn("fixed left-4 top-3 z-40 md:hidden")}
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle Menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="p-0">
           {renderSidebarContent()}
-        </aside>
-      )}
+        </SheetContent>
+      </Sheet>
 
-      {/* Mobile sidebar - using Sheet component */}
-      {isMobile && (
-        <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
-          <SheetTrigger asChild></SheetTrigger>
-          <SheetContent side="left" className="p-0 w-[320px]">
-            {renderSidebarContent()}
-          </SheetContent>
-        </Sheet>
-      )}
-
-      {/* Main content area */}
+      {/* Main content */}
       <main
         id="main-content"
-        className="flex flex-col min-h-screen transition-all duration-300 w-full"
-        style={{
-          marginLeft: !isMobile ? `${sidebarWidth}px` : "0",
-        }}
+        className={cn(
+          "flex min-h-screen flex-col bg-background transition-all duration-300",
+          sidebarCollapsed ? "md:pl-[70px]" : "md:pl-[240px]",
+        )}
         tabIndex={-1}
       >
         {/* Header */}
@@ -327,9 +344,7 @@ export function AdminShell({ children }: AdminShellProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Right side header elements */}
-            <ThemeToggle />
-
+            {/* Right side header elements - removed ThemeToggle */}
             {/* User profile button placeholder */}
             <Button variant="ghost" size="icon" className="rounded-full">
               <span className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium">

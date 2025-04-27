@@ -5,7 +5,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Bell, HelpCircle, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 
 interface HeaderProps {
   className?: string;
@@ -43,8 +42,6 @@ export function Header({ className }: HeaderProps) {
         >
           <Bell className="h-5 w-5" />
         </Button>
-
-        <ThemeSwitcher variant="ghost" />
 
         <Button
           variant="ghost"
