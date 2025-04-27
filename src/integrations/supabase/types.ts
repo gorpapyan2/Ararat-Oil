@@ -108,7 +108,7 @@ export type Database = {
           delivery_date: string
           employee_id: string
           id: string
-          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_method: string | null
           payment_status: string
           price_per_liter: number
           provider_id: string
@@ -122,7 +122,7 @@ export type Database = {
           delivery_date: string
           employee_id: string
           id?: string
-          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_method?: string | null
           payment_status?: string
           price_per_liter: number
           provider_id: string
@@ -136,7 +136,7 @@ export type Database = {
           delivery_date?: string
           employee_id?: string
           id?: string
-          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_method?: string | null
           payment_status?: string
           price_per_liter?: number
           provider_id?: string
@@ -194,53 +194,6 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      }
-      inventory: {
-        Row: {
-          closing_stock: number
-          created_at: string | null
-          date: string
-          fuel_type: string
-          id: string
-          opening_stock: number
-          received: number
-          sold: number
-          tank_id: string | null
-          unit_price: number
-        }
-        Insert: {
-          closing_stock: number
-          created_at?: string | null
-          date: string
-          fuel_type: string
-          id?: string
-          opening_stock: number
-          received: number
-          sold: number
-          tank_id?: string | null
-          unit_price: number
-        }
-        Update: {
-          closing_stock?: number
-          created_at?: string | null
-          date?: string
-          fuel_type?: string
-          id?: string
-          opening_stock?: number
-          received?: number
-          sold?: number
-          tank_id?: string | null
-          unit_price?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "inventory_tank_id_fkey"
-            columns: ["tank_id"]
-            isOneToOne: false
-            referencedRelation: "fuel_tanks"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       payment_methods: {
         Row: {
@@ -327,9 +280,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           period: string
-          profit: number
-          total_expenses: number
-          total_sales: number
+          profit?: number
+          total_expenses?: number
+          total_sales?: number
         }
         Update: {
           created_at?: string | null
@@ -399,13 +352,6 @@ export type Database = {
             referencedRelation: "filling_systems"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "sales_shift_id_fkey"
-            columns: ["shift_id"]
-            isOneToOne: false
-            referencedRelation: "shifts"
-            referencedColumns: ["id"]
-          },
         ]
       }
       shifts: {
@@ -416,7 +362,7 @@ export type Database = {
           end_time: string | null
           id: string
           opening_cash: number
-          sales_total: number | null
+          sales_total: number
           start_time: string
           status: string
           updated_at: string | null
@@ -427,10 +373,10 @@ export type Database = {
           employee_id: string
           end_time?: string | null
           id?: string
-          opening_cash: number
-          sales_total?: number | null
+          opening_cash?: number
+          sales_total?: number
           start_time?: string
-          status?: string
+          status: string
           updated_at?: string | null
         }
         Update: {
@@ -440,7 +386,7 @@ export type Database = {
           end_time?: string | null
           id?: string
           opening_cash?: number
-          sales_total?: number | null
+          sales_total?: number
           start_time?: string
           status?: string
           updated_at?: string | null
@@ -502,7 +448,7 @@ export type Database = {
           entity_id: string | null
           entity_type: string | null
           id: string
-          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_method: string | null
           payment_reference: string | null
           payment_status: string
           sale_id: string | null
@@ -516,7 +462,7 @@ export type Database = {
           entity_id?: string | null
           entity_type?: string | null
           id?: string
-          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_method?: string | null
           payment_reference?: string | null
           payment_status?: string
           sale_id?: string | null
@@ -530,7 +476,7 @@ export type Database = {
           entity_id?: string | null
           entity_type?: string | null
           id?: string
-          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_method?: string | null
           payment_reference?: string | null
           payment_status?: string
           sale_id?: string | null
@@ -610,12 +556,19 @@ export type Database = {
       }
     }
     Enums: {
-      payment_method:
-        | "cash"
-        | "card"
-        | "bank_transfer"
-        | "mobile_payment"
-        | "new_value"
+      employee_status: "active" | "on_leave" | "terminated"
+      expense_category:
+        | "utilities"
+        | "rent"
+        | "salaries"
+        | "maintenance"
+        | "supplies"
+        | "taxes"
+        | "insurance"
+        | "other"
+      fuel_type: "petrol" | "diesel" | "gas" | "kerosene" | "cng"
+      payment_method: "cash" | "card" | "bank_transfer" | "mobile_payment"
+      payment_status: "pending" | "completed" | "failed" | "refunded"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -731,13 +684,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      payment_method: [
-        "cash",
-        "card",
-        "bank_transfer",
-        "mobile_payment",
-        "new_value",
+      employee_status: ["active", "on_leave", "terminated"],
+      expense_category: [
+        "utilities",
+        "rent",
+        "salaries",
+        "maintenance",
+        "supplies",
+        "taxes",
+        "insurance",
+        "other",
       ],
+      fuel_type: ["petrol", "diesel", "gas", "kerosene", "cng"],
+      payment_method: ["cash", "card", "bank_transfer", "mobile_payment"],
+      payment_status: ["pending", "completed", "failed", "refunded"],
     },
   },
 } as const
