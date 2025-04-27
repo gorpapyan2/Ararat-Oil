@@ -5,7 +5,7 @@ import {
   Command,
   CommandDialog,
   CommandEmpty,
-  CommandGroup,
+  CommandGroup as CmdGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -73,7 +73,7 @@ export function AdvancedSearchInput({
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           {recentSearches && recentSearches.length > 0 && (
-            <CommandGroup heading="Recent Searches">
+            <CmdGroup>
               {recentSearches.map((search) => (
                 <CommandItem
                   key={search}
@@ -84,9 +84,9 @@ export function AdvancedSearchInput({
                   {search}
                 </CommandItem>
               ))}
-            </CommandGroup>
+            </CmdGroup>
           )}
-          <CommandGroup heading="Suggestions">
+          <CmdGroup>
             <CommandItem onSelect={() => handleSelect("System: Pump 1")}>
               System: Pump 1
             </CommandItem>
@@ -102,7 +102,7 @@ export function AdvancedSearchInput({
             <CommandItem onSelect={() => handleSelect("Date: This Week")}>
               Date: This Week
             </CommandItem>
-          </CommandGroup>
+          </CmdGroup>
         </CommandList>
       </CommandDialog>
     </div>

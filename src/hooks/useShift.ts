@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Shift } from '@/types';
 import { 
@@ -27,11 +28,13 @@ export function useShift() {
     setIsLoading(true);
     try {
       const shift = await fetchActiveShift(user.id);
-      setActiveShift(shift);
-      
-      // If we have an active shift, fetch the current sales total
       if (shift) {
-        updateShiftSalesTotal(shift.id);
+        setActiveShift(shift as Shift);
+        
+        // If we have an active shift, fetch the current sales total
+        updateShiftSalesTotal((shift as Shift).id);
+      } else {
+        setActiveShift(null);
       }
     } catch (error) {
       console.error('Error checking active shift', error);

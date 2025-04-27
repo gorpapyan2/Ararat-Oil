@@ -1,3 +1,4 @@
+
 import { ShiftControl } from "@/components/sales/ShiftControl";
 import { PageLayout } from "@/layouts/PageLayout";
 import { ChartBar } from "lucide-react";
@@ -12,9 +13,10 @@ import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { fetchEmployeeByUserId, fetchShiftHistory } from "@/utils/api-helpers";
 
-interface ShiftHistoryItem extends Omit<Shift, 'sales_total'> {
+interface ShiftHistoryItem extends Omit<Shift, 'sales_total' | 'status'> {
   sales_total: number | null;
   employee_name: string;
+  status: 'OPEN' | 'CLOSED';
 }
 
 // Helper function to format dates
@@ -43,7 +45,7 @@ const Shifts = () => {
     try {
       // First, get the employee name
       const employee = await fetchEmployeeByUserId(user.id);
-      const employeeName = employee?.name || 'Current User';
+      const employeeName = employee && typeof employee === 'object' ? (employee as any).name || 'Current User' : 'Current User';
       
       // Then get shift history
       const shifts = await fetchShiftHistory(user.id);
@@ -51,10 +53,11 @@ const Shifts = () => {
       // Format the data for display
       const formattedData = shifts.map(shift => ({
         ...shift,
-        employee_name: employeeName
+        employee_name: employeeName,
+        status: shift.status as 'OPEN' | 'CLOSED'
       }));
       
-      setShiftHistory(formattedData);
+      setShiftHistory(formattedData as ShiftHistoryItem[]);
     } catch (error: any) {
       console.error('Error loading shift history:', error);
       setError(error.message || 'Failed to load shift history');
@@ -65,8 +68,8 @@ const Shifts = () => {
 
   return (
     <PageLayout
-      title={t("common.shifts")}
-      description={t("shifts.description", "Manage your work shifts and view shift history")}
+      titleKey="common.shifts"
+      descriptionKey="shifts.description"
       icon={ChartBar}
     >
       <div className="space-y-6">
@@ -150,6 +153,6 @@ const Shifts = () => {
       </div>
     </PageLayout>
   );
-};
+}
 
 export default Shifts; 

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { FillingSystem, deleteFillingSystem } from "@/services/filling-systems";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,10 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
           ))}
           {fillingSystems.length === 0 && (
             <EnhancedRow>
-              <EnhancedCell colSpan={3} className="text-center text-muted-foreground h-32">
+              <EnhancedCell
+                className="text-center text-muted-foreground h-32"
+                colSpan={3 as any}
+              >
                 No filling systems found
               </EnhancedCell>
             </EnhancedRow>

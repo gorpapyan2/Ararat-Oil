@@ -1,10 +1,15 @@
+
 import React, { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Check, AlertCircle, Info } from 'lucide-react';
-import useAppStore from '@/store/useAppStore';
+import { useAppStore } from '@/store/useAppStore';
 import { cn } from '@/lib/utils';
 
-export function ToastContainer() {
+interface ToastContainerProps {
+  className?: string;
+}
+
+export function ToastContainer({ className }: ToastContainerProps) {
   const { toasts, removeToast } = useAppStore();
   
   // Handle keyboard navigation and accessibility
@@ -26,7 +31,10 @@ export function ToastContainer() {
   
   return (
     <div
-      className="fixed bottom-0 right-0 z-50 p-4 space-y-4 max-h-screen overflow-hidden pointer-events-none"
+      className={cn(
+        "fixed bottom-0 right-0 z-50 p-4 space-y-4 max-h-screen overflow-hidden pointer-events-none",
+        className
+      )}
       role="region"
       aria-label="Notifications"
     >
@@ -59,7 +67,9 @@ export function ToastContainer() {
               {toast.title && (
                 <p className="text-sm font-medium">{toast.title}</p>
               )}
-              <p className={cn("text-sm", toast.title && "mt-1")}>{toast.message}</p>
+              <p className={cn("text-sm", toast.title && "mt-1")}>
+                {toast.message || toast.description}
+              </p>
             </div>
             
             <button
@@ -75,4 +85,4 @@ export function ToastContainer() {
       </AnimatePresence>
     </div>
   );
-} 
+}

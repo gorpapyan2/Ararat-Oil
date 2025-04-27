@@ -8,8 +8,6 @@ export function Toaster() {
   const isMobile = useIsMobile();
   
   return (
-    <ToastContainer 
-      className={isMobile ? "bottom-0 left-0 right-0 flex flex-col-reverse items-center" : ""}
-    />
+    <ToastContainer />
   );
 }

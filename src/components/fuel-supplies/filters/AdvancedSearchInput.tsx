@@ -4,7 +4,7 @@ import { Search, Command, X } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
-  CommandGroup,
+  CommandGroup as CmdGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -74,7 +74,7 @@ export function AdvancedSearchInput({ value, onChange }: AdvancedSearchInputProp
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           {recentSearches && recentSearches.length > 0 && (
-            <CommandGroup heading="Recent Searches">
+            <CmdGroup>
               {recentSearches.map((search) => (
                 <CommandItem
                   key={search}
@@ -85,9 +85,9 @@ export function AdvancedSearchInput({ value, onChange }: AdvancedSearchInputProp
                   {search}
                 </CommandItem>
               ))}
-            </CommandGroup>
+            </CmdGroup>
           )}
-          <CommandGroup heading="Suggestions">
+          <CmdGroup>
             <CommandItem onSelect={() => handleSelect("Provider: Gazprom")}>
               Provider: Gazprom
             </CommandItem>
@@ -97,7 +97,7 @@ export function AdvancedSearchInput({ value, onChange }: AdvancedSearchInputProp
             <CommandItem onSelect={() => handleSelect("Tank: Main Storage")}>
               Tank: Main Storage
             </CommandItem>
-          </CommandGroup>
+          </CmdGroup>
         </CommandList>
       </CommandDialog>
     </div>

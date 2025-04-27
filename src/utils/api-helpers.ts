@@ -30,14 +30,23 @@ export async function safeQuery<T>(
 export async function fetchEmployeeByUserId(userId: string) {
   if (!userId) return null;
   
-  return safeQuery(
-    supabase
+  try {
+    const { data, error } = await supabase
       .from('employees')
       .select('id, name')
       .eq('id', userId)
-      .maybeSingle(),
-    'Fetching employee record'
-  );
+      .maybeSingle();
+      
+    if (error) {
+      console.error('Error fetching employee record:', error);
+      return null;
+    }
+    
+    return data;
+  } catch (err) {
+    console.error('Exception in fetching employee record:', err);
+    return null;
+  }
 }
 
 /**
@@ -46,15 +55,24 @@ export async function fetchEmployeeByUserId(userId: string) {
 export async function fetchActiveShift(employeeId: string) {
   if (!employeeId) return null;
   
-  return safeQuery(
-    supabase
+  try {
+    const { data, error } = await supabase
       .from('shifts')
       .select()
       .eq('employee_id', employeeId)
       .eq('status', 'OPEN')
-      .maybeSingle(),
-    'Fetching active shift'
-  );
+      .maybeSingle();
+      
+    if (error) {
+      console.error('Error fetching active shift:', error);
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Exception in fetching active shift:', error);
+    return null;
+  }
 }
 
 /**
@@ -81,4 +99,4 @@ export async function fetchShiftHistory(employeeId: string, limit = 10) {
     console.error('Exception in fetching shift history:', err);
     return [];
   }
-} 
+}

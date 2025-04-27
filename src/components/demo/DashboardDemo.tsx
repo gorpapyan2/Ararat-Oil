@@ -12,7 +12,7 @@ import {
   Bell,
   User,
   Settings,
-  GasPump,
+  Fuel,
   ArrowRightLeft,
   Filter
 } from "lucide-react";
@@ -64,7 +64,7 @@ export function DashboardDemo() {
         
         <nav className="p-4 space-y-1">
           <NavItem icon={BarChart3} label="Dashboard" isActive />
-          <NavItem icon={GasPump} label="Fuel Supplies" />
+          <NavItem icon={Fuel} label="Fuel Supplies" />
           <NavItem icon={Car} label="Sales" />
           <NavItem icon={CalendarDays} label="Schedule" />
           <NavItem icon={TrendingUp} label="Reports" />
@@ -275,7 +275,7 @@ export function DashboardDemo() {
       {/* Mobile bottom navigation */}
       <div className="md:hidden mobile-nav">
         <MobileNavItem icon={BarChart3} label="Dashboard" isActive />
-        <MobileNavItem icon={GasPump} label="Supplies" />
+        <MobileNavItem icon={Fuel} label="Supplies" />
         <MobileNavItem icon={Car} label="Sales" />
         <MobileNavItem icon={Settings} label="More" />
       </div>
@@ -316,4 +316,4 @@ function MobileNavItem({ icon: Icon, label, isActive }: NavItemProps) {
       <span>{label}</span>
     </div>
   );
-} 
+}

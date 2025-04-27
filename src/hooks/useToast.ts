@@ -1,3 +1,4 @@
+
 import { useAppStore } from '@/store/useAppStore';
 import { v4 as uuidv4 } from 'uuid';
 import { Toast } from '@/types/toast';
@@ -5,6 +6,7 @@ import { Toast } from '@/types/toast';
 interface ToastOptions {
   title?: string;
   description?: string;
+  message?: string;
   duration?: number;
   type?: 'success' | 'error' | 'warning' | 'info';
 }
@@ -18,6 +20,7 @@ export const useToast = () => {
       id,
       title: options.title,
       description: options.description,
+      message: options.description || '', // Add the message field to satisfy the type
       duration: options.duration || 5000,
       type: options.type || 'info',
       createdAt: new Date(),

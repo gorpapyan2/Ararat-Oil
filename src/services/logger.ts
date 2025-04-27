@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
 
 // Initialize Sentry (should be called in main.tsx)
 export const initSentry = () => {
@@ -9,7 +8,7 @@ export const initSentry = () => {
   if (!isDevelopment || import.meta.env.VITE_ENABLE_SENTRY_IN_DEV === 'true') {
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN || '',
-      integrations: [new BrowserTracing()],
+      integrations: [],
       
       // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring
       // We recommend adjusting this value in production
@@ -114,4 +113,4 @@ export const logger = {
   },
 };
 
-export default logger; 
+export default logger;
