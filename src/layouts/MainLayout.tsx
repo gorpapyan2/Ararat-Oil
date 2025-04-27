@@ -114,13 +114,12 @@ export function MainLayout({ children }: MainLayoutProps) {
         />
       )}
       
-      {/* Main content area */}
+      {/* Main content area - updated to remove header padding */}
       <main
         id="main-content" 
         className="min-h-screen overflow-auto transition-all duration-300"
         style={{ 
-          marginLeft: !isMobile ? `${sidebarWidth}px` : '0px',
-          paddingTop: isMobile ? '4rem' : '0'
+          marginLeft: !isMobile ? `${sidebarWidth}px` : '0px'
         }}
         role="main"
         tabIndex={-1}
