@@ -70,23 +70,27 @@
     "chartsAndInsights": "Գրաֆիկներ և պատկերացումներ",
     "profitLossOverview": "Շահույթի/Ծախսերի ակնարկ",
     "period": "Ժամանակահատված",
-    "profit": "Շահույթ"
+    "profit": "Շահույթ",
+    "theme": "Տեսք",
+    "metricsSectionLabel": "Հիմնական մետրիկներ",
+    "chartsSectionLabel": "Գրաֆիկներ և տեղեկություններ"
   },
   "auth": {
     "signIn": {
       "title": "Մուտք",
       "description": "Մուտք գործեք Ձեր հաշիվ",
-      "emailPlaceholder": "Էլ․ փոստ",
+      "emailPlaceholder": "Էլ․ փոստի հասցե",
       "passwordPlaceholder": "Գաղտնաբառ",
       "button": "Մուտք",
       "contactAdmin": "Հաշիվ ստանալու համար դիմեք ձեր ադմինիստրատորին",
-      "loading": "Մուտք..."
+      "loading": "Վերմիքացված է...",
+      "signingIn": "Մուտք գործվում է..."
     },
     "email": "Էլ․ փոստ",
     "password": "Գաղտնաբառ",
     "signInToYourAccount": "Մուտք գործեք Ձեր հաշիվ",
     "contactAdmin": "Հաշիվ ստանալու համար դիմեք ձեր ադմինիստրատորին",
-    "signingIn": "Մուտք...",
+    "signingIn": "Մուտք գործվում է...",
     "authError": "Տեղի է ունեցել անսպասելի սխալ: Խնդրում ենք կրկին փորձել.",
     "signOut": "Ելք"
   },
@@ -297,5 +301,9 @@
   "fuelManagement": {
     "title": "Վառելիքի կառավարում",
     "description": "Ձեր վառելիքի համակարգերի, ամպոկների և մատակարարումների կառավարում"
+  },
+  "index": {
+    "welcome": "Բարի գալուստ Ձեր հավելված",
+    "tagline": "Սկսեք Ձեր զարմանալի նախագիծը այստեղ"
   }
 }

@@ -67,21 +67,9 @@ const DialogContent = React.forwardRef<
       };
     }, []);
 
-    const hasTitleComponent =
-      React.Children.toArray(children).some(
-        (child) =>
-          React.isValidElement(child) &&
-          child.type === DialogHeader &&
-          React.Children.toArray(child.props.children).some(
-            (headerChild) =>
-              React.isValidElement(headerChild) &&
-              headerChild.type === DialogTitle,
-          ),
-      ) ||
-      React.Children.toArray(children).some(
-        (child) => React.isValidElement(child) && child.type === DialogTitle,
-      );
-
+    // Generate a unique ID for the hidden title
+    const hiddenTitleId = React.useId();
+    
     return (
       <DialogPortal>
         <DialogOverlay />
@@ -104,22 +92,21 @@ const DialogContent = React.forwardRef<
           // Add additional ARIA attributes for better screen reader support
           aria-modal="true"
           role="dialog"
-          aria-labelledby={hasTitleComponent ? undefined : "dialog-title"}
+          // Always use the hidden title ID to ensure accessibility
+          aria-labelledby={hiddenTitleId}
           aria-describedby={
-            screenReaderDescription ? "dialog-description" : undefined
+            screenReaderDescription ? `${hiddenTitleId}-desc` : undefined
           }
           {...props}
         >
-          {!hasTitleComponent && (
-            <VisuallyHidden>
-              <DialogTitle id="dialog-title">{title}</DialogTitle>
-            </VisuallyHidden>
-          )}
-          {screenReaderDescription && (
-            <VisuallyHidden id="dialog-description">
-              {screenReaderDescription}
-            </VisuallyHidden>
-          )}
+          {/* Always render a visually hidden title for screen readers */}
+          <VisuallyHidden>
+            <DialogTitle id={hiddenTitleId}>{title}</DialogTitle>
+            {screenReaderDescription && (
+              <div id={`${hiddenTitleId}-desc`}>{screenReaderDescription}</div>
+            )}
+          </VisuallyHidden>
+          
           {children}
           <DialogPrimitive.Close
             className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"

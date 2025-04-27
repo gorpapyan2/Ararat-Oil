@@ -1,18 +1,12 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import Backend from "i18next-http-backend";
 
 // Import translations directly
 import hyTranslation from "./locales/hy/translation.json";
-
-// We'll load translations asynchronously instead of importing them directly
-// This comment is left to show what we're replacing
-// import enTranslation from './locales/en/translation.json';
-// import hyTranslation from './locales/hy/translation.json';
+import enTranslation from "./locales/en/translation.json";
 
 i18n
-  // Removed Backend as we're now importing translations directly
   // detect user language
   .use(LanguageDetector)
   // pass the i18n instance to react-i18next
@@ -23,9 +17,12 @@ i18n
       hy: {
         translation: hyTranslation,
       },
+      en: {
+        translation: enTranslation,
+      }
     },
     fallbackLng: "hy",
-    supportedLngs: ["hy"],
+    supportedLngs: ["hy", "en"],
     debug: process.env.NODE_ENV === "development",
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
