@@ -8,63 +8,46 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
-import {
-  IconDashboard,
-  IconGasStation,
-  IconTank,
-  IconReportAnalytics,
-  IconCurrencyDollar,
-  IconUsers,
-  IconTruck,
-  IconSettings,
-  IconLogout,
-  IconReceipt2,
-  IconChecklist,
-} from "@tabler/icons-react";
-
+import { IconDashboard, IconGasStation, IconTank, IconReportAnalytics, IconCurrencyDollar, IconUsers, IconTruck, IconSettings, IconLogout, IconReceipt2, IconChecklist } from "@tabler/icons-react";
 type AdminShellProps = {
   children: React.ReactNode;
 };
-
 interface NavItem {
   to: string;
   label: string;
   icon: React.ReactNode;
 }
-
 interface NavSection {
   title: string;
   items: NavItem[];
 }
-
-export function AdminShell({ children }: AdminShellProps) {
-  const { t } = useTranslation();
-  const { pathname } = useLocation();
+export function AdminShell({
+  children
+}: AdminShellProps) {
+  const {
+    t
+  } = useTranslation();
+  const {
+    pathname
+  } = useLocation();
   const isAuthPage = pathname === "/auth" || pathname === "/login";
   const isMobile = useIsMobile();
-  const { signOut } = useAuth();
-  
+  const {
+    signOut
+  } = useAuth();
+
   // Mobile sidebar state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  
+
   // Sidebar state - get initial state from localStorage
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const savedState = localStorage.getItem('sidebarCollapsed');
     return savedState ? JSON.parse(savedState) : false;
   });
-  
+
   // Save sidebar state to localStorage
   useEffect(() => {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
@@ -76,119 +59,82 @@ export function AdminShell({ children }: AdminShellProps) {
       setIsMobileSidebarOpen(false);
     }
   }, [pathname, isMobile]);
-
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
-
   const isActive = (path: string) => pathname === path;
 
   // Organized navigation sections
-  const navSections: NavSection[] = [
-    {
-      title: t("common.overview"),
-      items: [
-        {
-          to: "/",
-          label: t("common.dashboard"),
-          icon: <IconDashboard size={20} />,
-        },
-        {
-          to: "/todo",
-          label: "Todo List",
-          icon: <IconChecklist size={20} />,
-        },
-      ]
-    },
-    {
-      title: t("common.fuelManagement"),
-      items: [
-        {
-          to: "/fuel-management",
-          label: t("common.fuelManagement"),
-          icon: <IconGasStation size={20} />,
-        },
-      ]
-    },
-    {
-      title: t("common.salesFinance"),
-      items: [
-        {
-          to: "/sales",
-          label: t("common.sales"),
-          icon: <IconCurrencyDollar size={20} />,
-        },
-        {
-          to: "/expenses",
-          label: t("common.expenses"),
-          icon: <IconReceipt2 size={20} />,
-        },
-      ]
-    },
-    {
-      title: t("common.management"),
-      items: [
-        {
-          to: "/employees",
-          label: t("common.employees"),
-          icon: <IconUsers size={20} />,
-        },
-        {
-          to: "/reports",
-          label: t("common.reports"),
-          icon: <IconReportAnalytics size={20} />,
-        },
-        {
-          to: "/settings",
-          label: t("common.settings"),
-          icon: <IconSettings size={20} />,
-        },
-      ]
-    },
-  ];
+  const navSections: NavSection[] = [{
+    title: t("common.overview"),
+    items: [{
+      to: "/",
+      label: t("common.dashboard"),
+      icon: <IconDashboard size={20} />
+    }, {
+      to: "/todo",
+      label: "Todo List",
+      icon: <IconChecklist size={20} />
+    }]
+  }, {
+    title: t("common.fuelManagement"),
+    items: [{
+      to: "/fuel-management",
+      label: t("common.fuelManagement"),
+      icon: <IconGasStation size={20} />
+    }]
+  }, {
+    title: t("common.salesFinance"),
+    items: [{
+      to: "/sales",
+      label: t("common.sales"),
+      icon: <IconCurrencyDollar size={20} />
+    }, {
+      to: "/expenses",
+      label: t("common.expenses"),
+      icon: <IconReceipt2 size={20} />
+    }]
+  }, {
+    title: t("common.management"),
+    items: [{
+      to: "/employees",
+      label: t("common.employees"),
+      icon: <IconUsers size={20} />
+    }, {
+      to: "/reports",
+      label: t("common.reports"),
+      icon: <IconReportAnalytics size={20} />
+    }, {
+      to: "/settings",
+      label: t("common.settings"),
+      icon: <IconSettings size={20} />
+    }]
+  }];
 
   // Use a different layout for the auth page
   if (isAuthPage) {
-    return (
-      <div className="min-h-screen bg-[hsl(var(--background))]">
-        <main 
-          id="main-content" 
-          className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8"
-          tabIndex={-1}
-        >
+    return <div className="min-h-screen bg-[hsl(var(--background))]">
+        <main id="main-content" className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8" tabIndex={-1}>
           {children}
         </main>
         <Toaster />
-      </div>
-    );
+      </div>;
   }
 
   // Render a nav item with tooltip if sidebar is collapsed
   const renderNavItem = (item: NavItem) => {
     const isItemActive = isActive(item.to);
-    
+
     // Common styling for the nav item
-    const navItemClasses = cn(
-      "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
-      "hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-      isItemActive 
-        ? "bg-primary/15 text-primary font-medium" 
-        : "text-foreground/80 hover:text-foreground"
-    );
-    
+    const navItemClasses = cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all", "hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", isItemActive ? "bg-primary/15 text-primary font-medium" : "text-foreground/80 hover:text-foreground");
     const label = sidebarCollapsed ? null : <span>{item.label}</span>;
-    
+
     // If sidebar is collapsed, wrap in tooltip
     if (sidebarCollapsed && !isMobile) {
-      return (
-        <TooltipProvider key={item.to}>
+      return <TooltipProvider key={item.to}>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <Link 
-                to={item.to}
-                className={navItemClasses}
-                aria-current={isItemActive ? "page" : undefined}
-              >
+              <Link to={item.to} className={navItemClasses} aria-current={isItemActive ? "page" : undefined}>
                 {item.icon}
                 <span className="sr-only">{item.label}</span>
               </Link>
@@ -197,142 +143,83 @@ export function AdminShell({ children }: AdminShellProps) {
               {item.label}
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-      );
+        </TooltipProvider>;
     }
-    
+
     // Regular rendering
-    return (
-      <Link 
-        key={item.to}
-        to={item.to}
-        className={navItemClasses}
-        aria-current={isItemActive ? "page" : undefined}
-      >
+    return <Link key={item.to} to={item.to} className={navItemClasses} aria-current={isItemActive ? "page" : undefined}>
         {item.icon}
         {label}
-      </Link>
-    );
+      </Link>;
   };
 
   // Calculate sidebar width for main content margin
   const sidebarWidth = sidebarCollapsed ? 72 : 256;
 
   // Sidebar content rendering function used in both desktop and mobile views
-  const renderSidebarContent = () => (
-    <div className="flex h-full w-full flex-col overflow-hidden">
+  const renderSidebarContent = () => <div className="flex h-full w-full flex-col overflow-hidden">
       {/* Sidebar header */}
       <div className="flex h-14 items-center border-b px-4">
-        <div className={cn(
-          "flex items-center transition-all duration-300",
-          sidebarCollapsed ? "justify-center w-full" : "gap-2"
-        )}>
-          {!sidebarCollapsed && (
-            <span className="font-heading font-bold text-xl">Ararat Oil</span>
-          )}
-          {sidebarCollapsed && (
-            <span className="font-heading font-bold text-accent text-lg">AO</span>
-          )}
+        <div className={cn("flex items-center transition-all duration-300", sidebarCollapsed ? "justify-center w-full" : "gap-2")}>
+          {!sidebarCollapsed && <span className="font-heading font-bold text-xl">Ararat Oil</span>}
+          {sidebarCollapsed && <span className="font-heading font-bold text-accent text-lg">AO</span>}
         </div>
       </div>
       
       {/* Sidebar navigation */}
       <div className="flex-1 overflow-auto">
         <nav className="flex flex-col gap-6 p-4">
-          {navSections.map((section, idx) => (
-            <div key={idx} className="flex flex-col gap-1">
-              {!sidebarCollapsed && (
-                <h3 className="px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          {navSections.map((section, idx) => <div key={idx} className="flex flex-col gap-1">
+              {!sidebarCollapsed && <h3 className="px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   {section.title}
-                </h3>
-              )}
+                </h3>}
               <div className="flex flex-col gap-1">
                 {section.items.map(renderNavItem)}
               </div>
-            </div>
-          ))}
+            </div>)}
         </nav>
       </div>
       
       {/* Sidebar footer with collapse button */}
       <div className="border-t p-4">
         {/* Toggle collapse button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={toggleSidebarCollapse}
-          className="w-full justify-center"
-          title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {sidebarCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <>
+        <Button variant="outline" size="sm" onClick={toggleSidebarCollapse} className="w-full justify-center" title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
+          {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <>
               <ChevronLeft className="h-4 w-4 mr-2" />
               <span>Collapse</span>
-            </>
-          )}
+            </>}
         </Button>
         
         {/* Sign out button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={signOut}
-          className="mt-4 w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
-        >
+        <Button variant="ghost" size="sm" onClick={signOut} className="mt-4 w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20">
           <IconLogout className="h-4 w-4 mr-2" />
           {!sidebarCollapsed && <span>Sign out</span>}
         </Button>
       </div>
-    </div>
-  );
-
-  return (
-    <div className="flex h-screen bg-[hsl(var(--background))]">
+    </div>;
+  return <div className="flex h-screen bg-[hsl(var(--background))]">
       {/* Skip to content link for accessibility */}
       <SkipToContent />
       
       {/* Desktop Sidebar - fixed position */}
-      {!isMobile && (
-        <aside
-          className={cn(
-            "fixed left-0 top-0 z-30 h-full border-r bg-card/50 backdrop-blur transition-all duration-300",
-            sidebarCollapsed ? "w-[72px]" : "w-[256px]"
-          )}
-        >
+      {!isMobile && <aside className={cn("fixed left-0 top-0 z-30 h-full border-r bg-card/50 backdrop-blur transition-all duration-300", sidebarCollapsed ? "w-[72px]" : "w-[256px]")}>
           {renderSidebarContent()}
-        </aside>
-      )}
+        </aside>}
       
       {/* Mobile sidebar - using Sheet component */}
-      {isMobile && (
-        <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+      {isMobile && <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
           <SheetTrigger asChild>
-            <Button
-              size="icon"
-              variant="outline"
-              className="fixed left-4 top-3 z-40 md:hidden"
-            >
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
+            
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-[320px]">
             {renderSidebarContent()}
           </SheetContent>
-        </Sheet>
-      )}
+        </Sheet>}
       
       {/* Main content area */}
-      <main
-        id="main-content"
-        className="flex flex-col min-h-screen transition-all duration-300 w-full"
-        style={{ 
-          marginLeft: !isMobile ? `${sidebarWidth}px` : '0'
-        }}
-        tabIndex={-1}
-      >
+      <main id="main-content" className="flex flex-col min-h-screen transition-all duration-300 w-full" style={{
+      marginLeft: !isMobile ? `${sidebarWidth}px` : '0'
+    }} tabIndex={-1}>
         {/* Header */}
         <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
           <div className="flex-1 font-heading font-semibold text-xl">
@@ -360,6 +247,5 @@ export function AdminShell({ children }: AdminShellProps) {
       </main>
       
       <Toaster />
-    </div>
-  );
+    </div>;
 }
