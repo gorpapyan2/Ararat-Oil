@@ -6,6 +6,7 @@ import { fetchSales } from "@/services/sales";
 import { fetchExpenses } from "@/services/expenses";
 import { fetchPetrolProviders } from "@/services/petrol-providers";
 import { fetchFillingSystems } from "@/services/filling-systems";
+import { fetchFuelTanks } from "@/services/tanks";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -121,6 +122,12 @@ export function UnifiedDataManager() {
     }
   });
 
+  // Query tanks data for fuel-supplies tab filters
+  const { data: tanksData = [], isLoading: tanksLoading } = useQuery({
+    queryKey: ["fuel-tanks"],
+    queryFn: fetchFuelTanks
+  });
+
   // Sample categories data for fuel types
   const categories = [
     { id: "diesel", name: "Diesel" },
@@ -162,6 +169,45 @@ export function UnifiedDataManager() {
         const supplyDate = supply.delivery_date?.slice(0, 10);
         return supplyDate === filterDate;
       });
+    }
+
+    if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1])) {
+      const [startDate, endDate] = filters.dateRange;
+      
+      filtered = filtered.filter(supply => {
+        if (!supply.delivery_date) return false;
+        
+        const supplyDate = new Date(supply.delivery_date);
+        
+        // If we have both start and end date
+        if (startDate && endDate) {
+          // Set end date to end of day for inclusive comparison
+          const endOfDay = new Date(endDate);
+          endOfDay.setHours(23, 59, 59, 999);
+          
+          return supplyDate >= startDate && supplyDate <= endOfDay;
+        }
+        
+        // If we only have start date
+        if (startDate && !endDate) {
+          return supplyDate >= startDate;
+        }
+        
+        // If we only have end date
+        if (!startDate && endDate) {
+          // Set end date to end of day for inclusive comparison
+          const endOfDay = new Date(endDate);
+          endOfDay.setHours(23, 59, 59, 999);
+          
+          return supplyDate <= endOfDay;
+        }
+        
+        return true;
+      });
+    }
+
+    if (filters.tankId && filters.tankId !== "all") {
+      filtered = filtered.filter(supply => supply.tank && supply.tank.id === filters.tankId);
     }
 
     if (filters.provider && filters.provider !== "all") {
@@ -880,14 +926,16 @@ export function UnifiedDataManager() {
             title={t("unifiedData.fuelSuppliesTab")}
             columns={suppliesColumns}
             data={filteredSupplies}
-            isLoading={suppliesLoading || providersLoading}
+            isLoading={suppliesLoading || providersLoading || tanksLoading}
             onEdit={handleEditSupply}
             onDelete={handleDeleteSupply}
             providers={providersData}
             categories={categories}
+            systems={[]}
+            tanks={tanksData}
             onFiltersChange={handleFiltersChange}
             filters={filters}
-            searchColumn="provider.name"
+            searchColumn="provider"
             searchPlaceholder={t("unifiedData.searchPlaceholder")}
             summaryComponent={FuelSuppliesSummaryComponent}
           />

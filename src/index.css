@@ -2,10 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Professional Deep Blue Theme */
-
 @layer base {
+  /* Light mode variables */
   :root {
+    --background: 210 40% 98%;
+    --foreground: 217 65% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 217 65% 10%;
+    --primary: 210 90% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 32% 90%;
+    --secondary-foreground: 215 32% 27%;
+    --accent: 134 61% 53%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 215 32% 90%;
+    --muted-foreground: 215 32% 40%;
+    --border: 215 28% 85%;
+    --input: 215 28% 85%;
+    --ring: 142 71% 45%;
+    --radius: 0.9rem;
+  }
+
+  /* Dark mode variables */
+  .dark {
     --background: 217 65% 10%;
     --foreground: 210 40% 98%;
     --card: 222 47% 11%;
@@ -21,11 +40,10 @@
     --border: 215 28% 17%;
     --input: 215 28% 17%;
     --ring: 142 71% 45%;
-    --radius: 0.9rem;
   }
 
   body {
-    @apply bg-background text-[color:theme('colors.text.base')] antialiased;
+    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] antialiased;
   }
 }
 
@@ -34,13 +52,13 @@
     @apply backdrop-blur-lg bg-white/5 border border-white/10 shadow-neumorphic rounded-2xl;
   }
   .btn-accent {
-    @apply bg-accent text-white hover:bg-accent/90 transition;
+    @apply bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition;
   }
   .card-modern {
-    @apply bg-card text-card-foreground shadow-neumorphic rounded-2xl border border-border/20;
+    @apply bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] shadow-neumorphic rounded-2xl border border-[hsl(var(--border))]/20;
   }
   .surface-secondary {
-    @apply bg-secondary text-secondary-foreground border border-border/20;
+    @apply bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] border border-[hsl(var(--border))]/20;
   }
   /* Hide scrollbar but keep functionality */
   .no-scrollbar {
@@ -52,5 +70,3 @@
     display: none;  /* Chrome, Safari, Opera */
   }
 }
-
-/* Override card, button, input, etc for accessibility/contrast as needed */

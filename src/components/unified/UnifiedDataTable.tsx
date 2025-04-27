@@ -43,6 +43,7 @@ import { RangeSliderFilter } from "@/components/fuel-supplies/filters/RangeSlide
 import { DateRangeFilter } from "@/components/fuel-supplies/filters/DateRangeFilter";
 import { TabSpecificFilters } from "@/components/unified/filters/TabSpecificFilters";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next"; // Import the useTranslation hook
 
 // Filter context type definitions
 interface FiltersShape {
@@ -104,6 +105,7 @@ interface UnifiedDataTableProps<TData, TValue> {
   providers: { id: string; name: string }[];
   categories?: { id: string; name: string }[];
   systems?: { id: string; name: string }[];
+  tanks?: { id: string; name: string; fuel_type: string; capacity: number; current_level: number }[];
   onFiltersChange: (filters: Partial<FiltersShape>) => void;
   filters: FiltersShape;
   searchColumn?: string;
@@ -126,6 +128,7 @@ export function UnifiedDataTable<TData, TValue>({
   providers,
   categories,
   systems = providers,
+  tanks = [],
   onFiltersChange,
   filters: initialFilters,
   searchColumn = "name",
@@ -140,6 +143,7 @@ export function UnifiedDataTable<TData, TValue>({
   const [filters, setFilters] = useState<FiltersShape>(initialFilters);
   const [filtersCollapsed, setFiltersCollapsed] = useState(true);
   const [, startTransition] = useTransition();
+  const { t } = useTranslation(); // Add the useTranslation hook
 
   // Determine active tab based on title
   const activeTab = useMemo(() => {
@@ -342,38 +346,56 @@ export function UnifiedDataTable<TData, TValue>({
       <FiltersCtx.Provider value={{ filters, setPartial, providers, categories, systems }}>
         <Card className="border-none shadow-sm bg-card/60 backdrop-blur-sm">
           {/* FILTER BAR HEADER - Collapse/Expand Trigger */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border/10">
-            <div className="flex items-center gap-2">
-              <FilterIcon className="h-4 w-4 text-accent" />
-              <h3 className="text-sm font-medium">Filters</h3>
-            </div>
-            <button
-              type="button"
-              className="ml-auto inline-flex items-center justify-center rounded-md p-1 hover:bg-muted"
-              onClick={() => setFiltersCollapsed((v) => !v)}
-              aria-label={filtersCollapsed ? 'Expand filters' : 'Collapse filters'}
-            >
-              {filtersCollapsed ? <ChevronDown /> : <ChevronUp />}
-            </button>
-            {hasActiveFilters && (
-              <Button size="sm" variant="ghost" onClick={clearAllFilters} className="gap-1 text-xs">
-                <ClearIcon className="h-3 w-3" /> Clear all
+          <div className="flex flex-col space-y-4 p-4">
+            {/* Left side - search and filter toggle */}
+            <div className="flex items-center space-x-2">
+              <div className="relative flex-1 md:w-80 md:flex-none">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder={searchPlaceholder}
+                  value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""}
+                  onChange={(event) =>
+                    table.getColumn(searchColumn)?.setFilterValue(event.target.value)
+                  }
+                  className="w-full pl-8 bg-background/50 border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFiltersCollapsed(!filtersCollapsed)}
+                className="flex items-center gap-1 bg-background/50 border-border/50 hover:bg-background/80 transition-colors"
+              >
+                <FilterIcon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline-block">{t("common.filters")}</span>
+                {filtersCollapsed ? (
+                  <ChevronDown className="h-3.5 w-3.5 ml-1" />
+                ) : (
+                  <ChevronUp className="h-3.5 w-3.5 ml-1" />
+                )}
               </Button>
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="bg-primary/10 text-primary-foreground">
+                  {hasActiveFilters ? "Active Filters" : ""}
+                </Badge>
+              )}
+            </div>
+            
+            {/* FILTERS SECTION */}
+            {!filtersCollapsed && (
+              <TabSpecificFilters
+                activeTab={activeTab}
+                filters={filters}
+                onFiltersChange={setPartial}
+                providers={providers}
+                categories={categories}
+                systems={systems}
+                tanks={tanks}
+                expanded={!filtersCollapsed}
+              />
             )}
           </div>
-          
-          {/* FILTERS SECTION */}
-          {!filtersCollapsed && (
-            <TabSpecificFilters
-              activeTab={activeTab}
-              filters={filters}
-              onFiltersChange={setPartial}
-              providers={providers}
-              categories={categories}
-              systems={systems}
-              expanded={!filtersCollapsed}
-            />
-          )}
         </Card>
       </FiltersCtx.Provider>
 

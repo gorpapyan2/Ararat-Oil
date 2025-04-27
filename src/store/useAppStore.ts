@@ -53,9 +53,9 @@ export const useAppStore = create<AppState>()(
         // Apply the theme to the document
         if (theme === 'system') {
           const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          document.documentElement.classList.toggle('dark', systemTheme === 'dark');
+          document.documentElement.className = systemTheme;
         } else {
-          document.documentElement.classList.toggle('dark', theme === 'dark');
+          document.documentElement.className = theme;
         }
         
         logger.trackAction('changed_theme', { theme });
@@ -108,28 +108,44 @@ export const useAppStore = create<AppState>()(
 
 // Create a hook to listen for system theme changes
 export const initThemeListener = () => {
-  const { theme, setTheme } = useAppStore.getState();
+  // Get the current theme from storage or use system default
+  const storedTheme = localStorage.getItem('ararat-oil-app-storage');
+  let initialTheme: AppTheme = 'system';
   
-  if (theme === 'system') {
+  if (storedTheme) {
+    try {
+      const parsedState = JSON.parse(storedTheme);
+      if (parsedState.state && parsedState.state.theme) {
+        initialTheme = parsedState.state.theme;
+      }
+    } catch (e) {
+      console.error('Failed to parse stored theme', e);
+    }
+  }
+  
+  // Apply the initial theme
+  if (initialTheme === 'system') {
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.className = systemTheme;
+    
+    // Set up listener for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleChange = (e: MediaQueryListEvent) => {
-      document.documentElement.classList.toggle('dark', e.matches);
+      const newTheme = e.matches ? 'dark' : 'light';
+      document.documentElement.className = newTheme;
     };
     
     mediaQuery.addEventListener('change', handleChange);
     
-    // Initial setup
-    document.documentElement.classList.toggle('dark', mediaQuery.matches);
-    
-    // Cleanup
+    // Return cleanup function
     return () => mediaQuery.removeEventListener('change', handleChange);
+  } else {
+    // Apply saved theme
+    document.documentElement.className = initialTheme;
   }
   
-  // Apply saved theme
-  document.documentElement.classList.toggle('dark', theme === 'dark');
-  
-  return () => {}; // No cleanup needed
+  return () => {}; // No cleanup needed for non-system themes
 };
 
 export default useAppStore; 

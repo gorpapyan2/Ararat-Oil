@@ -14,7 +14,9 @@ import { initThemeListener } from './store/useAppStore'
 initSentry();
 
 // Initialize theme system
-initThemeListener();
+document.addEventListener('DOMContentLoaded', () => {
+  initThemeListener();
+});
 
 // Loading component while translations are being fetched
 const Loader = () => (
