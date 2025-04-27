@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { FillingSystem, deleteFillingSystem } from "@/services/filling-systems";
 import { Button } from "@/components/ui/button";
@@ -20,11 +19,17 @@ interface FillingSystemListProps {
   onDelete: () => void;
 }
 
-export function FillingSystemList({ fillingSystems, isLoading, onDelete }: FillingSystemListProps) {
+export function FillingSystemList({
+  fillingSystems,
+  isLoading,
+  onDelete,
+}: FillingSystemListProps) {
   const { toast } = useToast();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [systemToDelete, setSystemToDelete] = useState<FillingSystem | null>(null);
+  const [systemToDelete, setSystemToDelete] = useState<FillingSystem | null>(
+    null,
+  );
 
   const openDeleteConfirm = (system: FillingSystem) => {
     setSystemToDelete(system);
@@ -39,7 +44,7 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
 
   const handleDelete = async () => {
     if (!systemToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await deleteFillingSystem(systemToDelete.id);
@@ -75,7 +80,9 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
           <EnhancedRow>
             <EnhancedHeaderCell>System Name</EnhancedHeaderCell>
             <EnhancedHeaderCell>Associated Tank</EnhancedHeaderCell>
-            <EnhancedHeaderCell className="text-center">Actions</EnhancedHeaderCell>
+            <EnhancedHeaderCell className="text-center">
+              Actions
+            </EnhancedHeaderCell>
           </EnhancedRow>
         </EnhancedHeader>
         <TableBody>
@@ -85,12 +92,14 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
               <EnhancedCell>
                 {system.tank ? (
                   <span className="flex items-center">
-                    {system.tank.name} 
+                    {system.tank.name}
                     <span className="ml-2 text-xs text-muted-foreground">
                       ({system.tank.fuel_type})
                     </span>
                   </span>
-                ) : 'N/A'}
+                ) : (
+                  "N/A"
+                )}
               </EnhancedCell>
               <EnhancedCell className="text-center">
                 <Button
@@ -106,7 +115,7 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
           ))}
           {fillingSystems.length === 0 && (
             <EnhancedRow>
-              <td 
+              <td
                 className="text-center text-muted-foreground h-32 py-8 px-4"
                 colSpan={3}
               >
@@ -116,7 +125,7 @@ export function FillingSystemList({ fillingSystems, isLoading, onDelete }: Filli
           )}
         </TableBody>
       </EnhancedTable>
-      
+
       {systemToDelete && (
         <ConfirmDeleteDialog
           isOpen={isConfirmOpen}

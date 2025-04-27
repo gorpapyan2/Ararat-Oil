@@ -1,18 +1,42 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { PaymentMethod } from "@/types";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/utils";
 
 const paymentSchema = z.object({
-  payment_method: z.enum(['cash', 'card', 'bank_transfer', 'mobile_payment'] as const),
+  payment_method: z.enum([
+    "cash",
+    "card",
+    "bank_transfer",
+    "mobile_payment",
+  ] as const),
   payment_reference: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -34,21 +58,21 @@ interface PaymentMethodFormProps {
   };
 }
 
-export function PaymentMethodForm({ 
-  onSubmit, 
-  isSubmitting = false, 
-  amount, 
+export function PaymentMethodForm({
+  onSubmit,
+  isSubmitting = false,
+  amount,
   title = "Payment Details",
   description = "Complete payment information below",
   referenceLabel = "Payment Reference",
-  entityDetails 
+  entityDetails,
 }: PaymentMethodFormProps) {
   const form = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      payment_method: 'cash',
-      payment_reference: '',
-      notes: '',
+      payment_method: "cash",
+      payment_reference: "",
+      notes: "",
     },
   });
 
@@ -59,18 +83,22 @@ export function PaymentMethodForm({
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
-        
+
         {entityDetails && (
           <CardContent className="pt-0 pb-3">
             <div className="bg-muted/50 p-3 rounded-md">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <p className="text-muted-foreground">Invoice #:</p>
-                  <p className="font-medium">{entityDetails.id.substring(0, 8)}</p>
+                  <p className="font-medium">
+                    {entityDetails.id.substring(0, 8)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Date:</p>
-                  <p className="font-medium">{new Date(entityDetails.date).toLocaleDateString()}</p>
+                  <p className="font-medium">
+                    {new Date(entityDetails.date).toLocaleDateString()}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Type:</p>
@@ -86,7 +114,7 @@ export function PaymentMethodForm({
             </div>
           </CardContent>
         )}
-        
+
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -107,8 +135,12 @@ export function PaymentMethodForm({
                     <SelectContent>
                       <SelectItem value="cash">Cash</SelectItem>
                       <SelectItem value="card">Card</SelectItem>
-                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                      <SelectItem value="mobile_payment">Mobile Payment</SelectItem>
+                      <SelectItem value="bank_transfer">
+                        Bank Transfer
+                      </SelectItem>
+                      <SelectItem value="mobile_payment">
+                        Mobile Payment
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -123,13 +155,16 @@ export function PaymentMethodForm({
                 <FormItem>
                   <FormLabel>{referenceLabel}</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder={`Enter ${referenceLabel.toLowerCase()}`} />
+                    <Input
+                      {...field}
+                      placeholder={`Enter ${referenceLabel.toLowerCase()}`}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="notes"
@@ -143,15 +178,19 @@ export function PaymentMethodForm({
                 </FormItem>
               )}
             />
-            
+
             <Separator className="my-4" />
-            
+
             <div className="flex justify-between items-center pt-2">
               <div className="text-lg font-semibold">Total Amount:</div>
               <div className="text-lg font-bold">{formatCurrency(amount)}</div>
             </div>
-            
-            <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
+
+            <Button
+              type="submit"
+              className="w-full mt-4"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Processing..." : "Complete Payment"}
             </Button>
           </form>

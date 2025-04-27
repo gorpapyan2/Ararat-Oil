@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -27,8 +26,12 @@ export function RangeSliderFilter({
   className = "",
 }: RangeSliderFilterProps) {
   const [localValue, setLocalValue] = React.useState<[number, number]>(value);
-  const [minInput, setMinInput] = React.useState<string>(value[0] ? value[0].toString() : "");
-  const [maxInput, setMaxInput] = React.useState<string>(value[1] ? value[1].toString() : "");
+  const [minInput, setMinInput] = React.useState<string>(
+    value[0] ? value[0].toString() : "",
+  );
+  const [maxInput, setMaxInput] = React.useState<string>(
+    value[1] ? value[1].toString() : "",
+  );
 
   // Update local state when prop value changes
   React.useEffect(() => {
@@ -72,7 +75,9 @@ export function RangeSliderFilter({
   return (
     <div className={`flex flex-col space-y-3 ${className}`}>
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium text-muted-foreground">{label}</label>
+        <label className="text-xs font-medium text-muted-foreground">
+          {label}
+        </label>
         <div className="flex items-center text-xs text-muted-foreground space-x-1">
           <span>Range:</span>
           <span>
@@ -82,7 +87,7 @@ export function RangeSliderFilter({
           </span>
         </div>
       </div>
-      
+
       <Slider
         defaultValue={[min, max]}
         value={localValue}
@@ -92,7 +97,7 @@ export function RangeSliderFilter({
         onValueChange={handleSliderChange}
         className="py-2"
       />
-      
+
       <div className="flex space-x-2">
         <div className="w-full flex items-center space-x-2">
           <Input

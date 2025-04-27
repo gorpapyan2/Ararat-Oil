@@ -1,27 +1,24 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  TrendingUp, 
-  DollarSign, 
-  Fuel, 
-  BarChart4, 
+import {
+  TrendingUp,
+  DollarSign,
+  Fuel,
+  BarChart4,
   ArrowUpRight,
   ArrowDownRight,
   Users,
-  CalendarRange
+  CalendarRange,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Import our custom UI components
-import { 
-  MetricCard, 
-  ActionCard, 
-  SummaryCard 
+import {
+  MetricCard,
+  ActionCard,
+  SummaryCard,
 } from "@/components/ui-custom/data-card";
-import { 
-  PageHeader, 
-  CreateButton 
-} from "@/components/ui-custom/page-header";
+import { PageHeader, CreateButton } from "@/components/ui-custom/page-header";
 
 // Import services
 import { fetchSales } from "@/services/sales";
@@ -30,7 +27,12 @@ import { fetchFuelTanks } from "@/services/tanks";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-custom/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui-custom/card";
 
 export default function Dashboard() {
   const { session } = useAuth();
@@ -38,36 +40,36 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   // Fetch sales data
-  const { 
-    data: salesData, 
-    isLoading: isSalesLoading, 
-    error: salesError 
+  const {
+    data: salesData,
+    isLoading: isSalesLoading,
+    error: salesError,
   } = useQuery({
-    queryKey: ['sales', session?.user?.id],
+    queryKey: ["sales", session?.user?.id],
     queryFn: fetchSales,
     enabled: !!session?.user,
     retry: 1,
   });
 
   // Fetch expenses data
-  const { 
-    data: expensesData, 
-    isLoading: isExpensesLoading, 
-    error: expensesError 
+  const {
+    data: expensesData,
+    isLoading: isExpensesLoading,
+    error: expensesError,
   } = useQuery({
-    queryKey: ['expenses', session?.user?.id],
+    queryKey: ["expenses", session?.user?.id],
     queryFn: fetchExpenses,
     enabled: !!session?.user,
     retry: 1,
   });
 
   // Fetch fuel tanks data
-  const { 
-    data: tanksData, 
-    isLoading: isTanksLoading, 
-    error: tanksError 
+  const {
+    data: tanksData,
+    isLoading: isTanksLoading,
+    error: tanksError,
   } = useQuery({
-    queryKey: ['fuel-tanks', session?.user?.id],
+    queryKey: ["fuel-tanks", session?.user?.id],
     queryFn: fetchFuelTanks,
     enabled: !!session?.user,
     retry: 1,
@@ -99,27 +101,32 @@ export default function Dashboard() {
   }, [salesError, expensesError, tanksError, toast]);
 
   // Calculate metrics
-  const totalSales = salesData?.reduce((sum, sale) => 
-    sum + Number(sale.total_sales || 0), 0) || 0;
-  
-  const totalExpenses = expensesData?.reduce((sum, expense) => 
-    sum + Number(expense.amount || 0), 0) || 0;
-  
+  const totalSales =
+    salesData?.reduce((sum, sale) => sum + Number(sale.total_sales || 0), 0) ||
+    0;
+
+  const totalExpenses =
+    expensesData?.reduce(
+      (sum, expense) => sum + Number(expense.amount || 0),
+      0,
+    ) || 0;
+
   const netProfit = totalSales - totalExpenses;
-  
+
   // Calculate inventory value based on current tank levels
   const fuelPrices = {
     petrol: 500, // Example price per liter in AMD
     diesel: 550,
     gas: 300,
     kerosene: 600,
-    cng: 350
+    cng: 350,
   };
-  
-  const inventoryValue = tanksData?.reduce((sum, tank) => {
-    const pricePerLiter = fuelPrices[tank.fuel_type] || 500;
-    return sum + (tank.current_level * pricePerLiter);
-  }, 0) || 0;
+
+  const inventoryValue =
+    tanksData?.reduce((sum, tank) => {
+      const pricePerLiter = fuelPrices[tank.fuel_type] || 500;
+      return sum + tank.current_level * pricePerLiter;
+    }, 0) || 0;
 
   const isLoading = isSalesLoading || isExpensesLoading || isTanksLoading;
   const hasError = !!salesError || !!expensesError || !!tanksError;
@@ -129,7 +136,7 @@ export default function Dashboard() {
     sales: { value: "20.1%", positive: true },
     expenses: { value: "12.5%", positive: false },
     profit: { value: "15.3%", positive: true },
-    inventory: { value: "5.2%", positive: true }
+    inventory: { value: "5.2%", positive: true },
   };
 
   // Format currency values
@@ -159,11 +166,15 @@ export default function Dashboard() {
             title="Total Sales"
             value={isLoading ? "Loading..." : formatCurrency(totalSales)}
             icon={<DollarSign className="h-5 w-5" />}
-            trend={!isLoading ? {
-              value: mockTrends.sales.value,
-              positive: mockTrends.sales.positive,
-              label: "vs last month"
-            } : undefined}
+            trend={
+              !isLoading
+                ? {
+                    value: mockTrends.sales.value,
+                    positive: mockTrends.sales.positive,
+                    label: "vs last month",
+                  }
+                : undefined
+            }
             loading={isLoading}
             onClick={() => navigate("/sales")}
           />
@@ -173,11 +184,15 @@ export default function Dashboard() {
             title="Total Expenses"
             value={isLoading ? "Loading..." : formatCurrency(totalExpenses)}
             icon={<TrendingUp className="h-5 w-5" />}
-            trend={!isLoading ? {
-              value: mockTrends.expenses.value,
-              positive: mockTrends.expenses.positive,
-              label: "vs last month"
-            } : undefined}
+            trend={
+              !isLoading
+                ? {
+                    value: mockTrends.expenses.value,
+                    positive: mockTrends.expenses.positive,
+                    label: "vs last month",
+                  }
+                : undefined
+            }
             loading={isLoading}
             onClick={() => navigate("/expenses")}
           />
@@ -186,15 +201,22 @@ export default function Dashboard() {
           <MetricCard
             title="Net Profit"
             value={isLoading ? "Loading..." : formatCurrency(netProfit)}
-            icon={netProfit >= 0 
-              ? <ArrowUpRight className="h-5 w-5" /> 
-              : <ArrowDownRight className="h-5 w-5" />
+            icon={
+              netProfit >= 0 ? (
+                <ArrowUpRight className="h-5 w-5" />
+              ) : (
+                <ArrowDownRight className="h-5 w-5" />
+              )
             }
-            trend={!isLoading ? {
-              value: mockTrends.profit.value,
-              positive: mockTrends.profit.positive,
-              label: "vs last month"
-            } : undefined}
+            trend={
+              !isLoading
+                ? {
+                    value: mockTrends.profit.value,
+                    positive: mockTrends.profit.positive,
+                    label: "vs last month",
+                  }
+                : undefined
+            }
             loading={isLoading}
             className={netProfit < 0 ? "border-red-200" : ""}
           />
@@ -204,11 +226,15 @@ export default function Dashboard() {
             title="Inventory Value"
             value={isLoading ? "Loading..." : formatCurrency(inventoryValue)}
             icon={<Fuel className="h-5 w-5" />}
-            trend={!isLoading ? {
-              value: mockTrends.inventory.value,
-              positive: mockTrends.inventory.positive,
-              label: "vs last month"
-            } : undefined}
+            trend={
+              !isLoading
+                ? {
+                    value: mockTrends.inventory.value,
+                    positive: mockTrends.inventory.positive,
+                    label: "vs last month",
+                  }
+                : undefined
+            }
             loading={isLoading}
             onClick={() => navigate("/fuel-management?tab=tanks")}
           />
@@ -227,7 +253,9 @@ export default function Dashboard() {
               <div className="text-center text-muted-foreground">
                 <BarChart4 className="mx-auto h-16 w-16 mb-4 opacity-50" />
                 <p>Chart visualization will be implemented here</p>
-                <p className="text-sm mt-2">Showing data for the last 6 months</p>
+                <p className="text-sm mt-2">
+                  Showing data for the last 6 months
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -255,7 +283,7 @@ export default function Dashboard() {
               ]}
               action={{
                 label: "View all tanks",
-                onClick: () => navigate("/fuel-management?tab=tanks")
+                onClick: () => navigate("/fuel-management?tab=tanks"),
               }}
             />
 

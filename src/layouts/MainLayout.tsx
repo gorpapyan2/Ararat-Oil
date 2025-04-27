@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/layouts/Sidebar";
 import { useLocation } from "react-router-dom";
@@ -17,16 +16,16 @@ export function MainLayout({ children }: MainLayoutProps) {
   const { pathname } = useLocation();
   const isAuthPage = pathname === "/auth";
   const isMobile = useIsMobile();
-  
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    const savedState = localStorage.getItem('sidebarCollapsed');
+    const savedState = localStorage.getItem("sidebarCollapsed");
     return savedState ? JSON.parse(savedState) : false;
   });
-  
+
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  
+
   useEffect(() => {
-    localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
+    localStorage.setItem("sidebarCollapsed", JSON.stringify(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
   const toggleSidebarCollapse = () => {
@@ -48,8 +47,8 @@ export function MainLayout({ children }: MainLayoutProps) {
   if (isAuthPage) {
     return (
       <div className="min-h-screen bg-background">
-        <main 
-          id="main-content" 
+        <main
+          id="main-content"
           className="flex min-h-screen flex-col items-center justify-center"
           tabIndex={-1}
         >
@@ -66,7 +65,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <>
       <SkipToContent />
-      
+
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggleCollapse={toggleSidebarCollapse}
@@ -74,7 +73,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         isOpen={mobileSidebarOpen}
         onToggle={toggleMobileSidebar}
       />
-      
+
       {/* Mobile menu toggle button */}
       {isMobile && (
         <Button
@@ -89,7 +88,7 @@ export function MainLayout({ children }: MainLayoutProps) {
             "transition-all duration-200 ease-in-out",
             "hover:bg-primary/90 hover:scale-105",
             "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background",
-            mobileSidebarOpen && "bg-background text-foreground rotate-90"
+            mobileSidebarOpen && "bg-background text-foreground rotate-90",
           )}
           aria-label={mobileSidebarOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileSidebarOpen}
@@ -104,31 +103,29 @@ export function MainLayout({ children }: MainLayoutProps) {
           )}
         </Button>
       )}
-      
+
       {/* Overlay for mobile sidebar */}
       {isMobile && mobileSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           aria-hidden="true"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
-      
+
       {/* Main content area - updated to remove header padding */}
       <main
-        id="main-content" 
+        id="main-content"
         className="min-h-screen overflow-auto transition-all duration-300"
-        style={{ 
-          marginLeft: !isMobile ? `${sidebarWidth}px` : '0px'
+        style={{
+          marginLeft: !isMobile ? `${sidebarWidth}px` : "0px",
         }}
         role="main"
         tabIndex={-1}
       >
-        <div className="container mx-auto py-6 px-4 md:px-6">
-          {children}
-        </div>
+        <div className="container mx-auto py-6 px-4 md:px-6">{children}</div>
       </main>
-      
+
       <Toaster />
     </>
   );

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  
+
   // Only show the theme toggle after component mount to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);

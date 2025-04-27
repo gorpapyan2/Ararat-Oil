@@ -1,5 +1,5 @@
 // Basic entity types
-export type EmployeeStatus = 'active' | 'on_leave' | 'terminated';
+export type EmployeeStatus = "active" | "on_leave" | "terminated";
 
 export interface Employee {
   id: string;
@@ -12,7 +12,7 @@ export interface Employee {
   created_at?: string;
 }
 
-export type FuelType = 'petrol' | 'diesel' | 'gas' | 'kerosene' | 'cng';
+export type FuelType = "petrol" | "diesel" | "gas" | "kerosene" | "cng";
 
 export interface FuelTank {
   id: string;
@@ -40,8 +40,12 @@ export interface PetrolProvider {
 }
 
 // Transaction related types
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
-export type PaymentMethod = 'cash' | 'card' | 'bank_transfer' | 'mobile_payment';
+export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
+export type PaymentMethod =
+  | "cash"
+  | "card"
+  | "bank_transfer"
+  | "mobile_payment";
 
 export interface Transaction {
   id: string;
@@ -52,7 +56,7 @@ export interface Transaction {
   employee_id: string;
   sale_id?: string;
   entity_id?: string;
-  entity_type?: 'sale' | 'expense' | 'fuel_supply';
+  entity_type?: "sale" | "expense" | "fuel_supply";
   description?: string;
   created_at?: string;
   updated_at?: string;
@@ -77,15 +81,15 @@ export interface Sale {
 }
 
 // Expense related
-export type ExpenseCategory = 
-  'utilities' | 
-  'rent' | 
-  'salaries' | 
-  'maintenance' | 
-  'supplies' | 
-  'taxes' | 
-  'insurance' | 
-  'other';
+export type ExpenseCategory =
+  | "utilities"
+  | "rent"
+  | "salaries"
+  | "maintenance"
+  | "supplies"
+  | "taxes"
+  | "insurance"
+  | "other";
 
 export interface Expense {
   id: string;
@@ -114,7 +118,7 @@ export interface FuelSupply {
   payment_method?: PaymentMethod;
   payment_status?: PaymentStatus;
   created_at?: string;
-  
+
   // Join fields
   provider?: PetrolProvider;
   tank?: FuelTank;
@@ -140,7 +144,7 @@ export interface Shift {
   opening_cash: number;
   closing_cash?: number;
   sales_total: number;
-  status: 'OPEN' | 'CLOSED';
+  status: "OPEN" | "CLOSED";
   created_at?: string;
   updated_at?: string;
 }
@@ -152,6 +156,6 @@ export interface TankLevelChange {
   change_amount: number;
   previous_level: number;
   new_level: number;
-  change_type: 'add' | 'subtract';
+  change_type: "add" | "subtract";
   created_at?: string;
 }

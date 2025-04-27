@@ -4,7 +4,11 @@ import { FuelSuppliesForm } from "./FuelSuppliesForm";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import { ConfirmAddDialog } from "./ConfirmAddDialog";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { createFuelSupply, updateFuelSupply, deleteFuelSupply } from "@/services/fuel-supplies";
+import {
+  createFuelSupply,
+  updateFuelSupply,
+  deleteFuelSupply,
+} from "@/services/fuel-supplies";
 import { useToast } from "@/hooks/use-toast";
 import { FuelSupply } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -15,13 +19,24 @@ import { FuelSuppliesSummary } from "./summary/FuelSuppliesSummary";
 import { format } from "date-fns";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Building, Droplet, Banknote, UserCircle2, MessageSquare, Pencil, Trash2 } from "lucide-react";
+import {
+  Calendar,
+  Building,
+  Droplet,
+  Banknote,
+  UserCircle2,
+  MessageSquare,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 
 interface FuelSuppliesManagerProps {
   onRenderAction?: (actionNode: React.ReactNode) => void;
 }
 
-export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps) {
+export function FuelSuppliesManager({
+  onRenderAction,
+}: FuelSuppliesManagerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSupply, setEditingSupply] = useState<FuelSupply | null>(null);
   const [deletingSupply, setDeletingSupply] = useState<FuelSupply | null>(null);
@@ -46,7 +61,7 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
     providers,
     filteredSupplies,
     isLoading,
-    refetchSupplies
+    refetchSupplies,
   } = useFuelSuppliesFilters();
 
   // Add new state variables for confirmation
@@ -55,14 +70,15 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
   const [pendingData, setPendingData] = useState<any>(null);
 
   const { data: tanks } = useQuery({
-    queryKey: ['fuel-tanks'],
-    queryFn: fetchFuelTanks
+    queryKey: ["fuel-tanks"],
+    queryFn: fetchFuelTanks,
   });
 
   // Handler for updating filters in a modern, scalable way
   const handleFiltersChange = (updates: Partial<typeof filters>) => {
     if ("search" in updates) {
-      const searchValue = typeof updates.search === 'string' ? updates.search : '';
+      const searchValue =
+        typeof updates.search === "string" ? updates.search : "";
       setSearch(searchValue);
     }
     if ("date" in updates && setDate) setDate(updates.date!);
@@ -93,7 +109,8 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
       setConfirmData(null);
       toast({
         title: "Success",
-        description: "Fuel supply record created successfully and tank level updated",
+        description:
+          "Fuel supply record created successfully and tank level updated",
       });
     },
     onError: (error) => {
@@ -107,8 +124,13 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<FuelSupply> }) =>
-      updateFuelSupply(id, updates),
+    mutationFn: ({
+      id,
+      updates,
+    }: {
+      id: string;
+      updates: Partial<FuelSupply>;
+    }) => updateFuelSupply(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
@@ -159,13 +181,15 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
     } else {
       // Handle create with confirmation
       setPendingData(data);
-      
+
       // Find the provider name
-      const providerName = providers?.find(p => p.id === data.provider_id)?.name;
-      
+      const providerName = providers?.find(
+        (p) => p.id === data.provider_id,
+      )?.name;
+
       // Find the tank details
-      const selectedTank = tanks?.find(t => t.id === data.tank_id);
-      
+      const selectedTank = tanks?.find((t) => t.id === data.tank_id);
+
       // Prepare confirmation data with proper numeric conversions
       setConfirmData({
         quantity: Number(data.quantity_liters) || 0,
@@ -174,9 +198,9 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
         providerName,
         tankName: selectedTank?.name,
         tankCapacity: Number(selectedTank?.capacity) || 0,
-        tankLevel: Number(selectedTank?.current_level) || 0
+        tankLevel: Number(selectedTank?.current_level) || 0,
       });
-      
+
       setIsConfirmOpen(true);
     }
   };
@@ -221,169 +245,196 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
   };
 
   // Define columns for the UnifiedDataTable
-  const columns = useMemo<ColumnDef<FuelSupply>[]>(() => [
-    {
-      id: "delivery_date",
-      header: () => <div className="text-left font-medium">Delivery Date</div>,
-      accessorKey: "delivery_date",
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("delivery_date"));
-        return (
-          <div className="flex items-center gap-2 py-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{isNaN(date.getTime()) ? "N/A" : format(date, "PP")}</span>
-          </div>
-        );
-      },
-    },
-    {
-      id: "provider",
-      header: () => <div className="text-left font-medium">Provider</div>,
-      accessorKey: "provider.name",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2 py-2">
-          <Building className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{row.original.provider?.name || "N/A"}</span>
-        </div>
-      ),
-    },
-    {
-      id: "tank",
-      header: () => <div className="text-left font-medium">Tank</div>,
-      accessorKey: "tank.name",
-      cell: ({ row }) => {
-        const tank = row.original.tank;
-        return (
-          <div className="flex items-center gap-2 py-2">
-            <div className="flex flex-col">
-              <span className="font-medium">{tank?.name || "N/A"}</span>
-              {tank?.fuel_type && (
-                <Badge variant="outline" className="mt-1">
-                  {tank.fuel_type}
-                </Badge>
-              )}
+  const columns = useMemo<ColumnDef<FuelSupply>[]>(
+    () => [
+      {
+        id: "delivery_date",
+        header: () => (
+          <div className="text-left font-medium">Delivery Date</div>
+        ),
+        accessorKey: "delivery_date",
+        cell: ({ row }) => {
+          const date = new Date(row.getValue("delivery_date"));
+          return (
+            <div className="flex items-center gap-2 py-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">
+                {isNaN(date.getTime()) ? "N/A" : format(date, "PP")}
+              </span>
             </div>
-          </div>
-        );
+          );
+        },
       },
-    },
-    {
-      id: "quantity_liters",
-      header: () => <div className="text-right font-medium">Quantity (Liters)</div>,
-      accessorKey: "quantity_liters",
-      cell: ({ row }) => {
-        const quantity = row.getValue("quantity_liters");
-        const value = quantity !== undefined && quantity !== null 
-          ? Number(quantity).toFixed(2) 
-          : '0';
-        
-        return (
-          <div className="text-right font-medium tabular-nums">
-            <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
-              {value} L
+      {
+        id: "provider",
+        header: () => <div className="text-left font-medium">Provider</div>,
+        accessorKey: "provider.name",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2 py-2">
+            <Building className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">
+              {row.original.provider?.name || "N/A"}
             </span>
           </div>
-        );
+        ),
       },
-    },
-    {
-      id: "price_per_liter",
-      header: () => <div className="text-right font-medium">Price per Liter</div>,
-      accessorKey: "price_per_liter",
-      cell: ({ row }) => {
-        const price = row.getValue("price_per_liter");
-        return <div className="text-right font-medium tabular-nums">
-          {typeof price === 'number' ? price.toLocaleString() : '0'} ֏
-        </div>;
+      {
+        id: "tank",
+        header: () => <div className="text-left font-medium">Tank</div>,
+        accessorKey: "tank.name",
+        cell: ({ row }) => {
+          const tank = row.original.tank;
+          return (
+            <div className="flex items-center gap-2 py-2">
+              <div className="flex flex-col">
+                <span className="font-medium">{tank?.name || "N/A"}</span>
+                {tank?.fuel_type && (
+                  <Badge variant="outline" className="mt-1">
+                    {tank.fuel_type}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          );
+        },
       },
-    },
-    {
-      id: "total_cost",
-      header: () => <div className="text-right font-medium">Total Cost</div>,
-      accessorKey: "total_cost",
-      cell: ({ row }) => {
-        const value = row.getValue("total_cost");
-        const formattedValue = value !== undefined && value !== null 
-          ? Number(value).toLocaleString() 
-          : '0';
-          
-        return (
-          <div className="text-right font-medium tabular-nums">
-            <span className="font-semibold text-primary">{formattedValue} ֏</span>
+      {
+        id: "quantity_liters",
+        header: () => (
+          <div className="text-right font-medium">Quantity (Liters)</div>
+        ),
+        accessorKey: "quantity_liters",
+        cell: ({ row }) => {
+          const quantity = row.getValue("quantity_liters");
+          const value =
+            quantity !== undefined && quantity !== null
+              ? Number(quantity).toFixed(2)
+              : "0";
+
+          return (
+            <div className="text-right font-medium tabular-nums">
+              <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
+                {value} L
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        id: "price_per_liter",
+        header: () => (
+          <div className="text-right font-medium">Price per Liter</div>
+        ),
+        accessorKey: "price_per_liter",
+        cell: ({ row }) => {
+          const price = row.getValue("price_per_liter");
+          return (
+            <div className="text-right font-medium tabular-nums">
+              {typeof price === "number" ? price.toLocaleString() : "0"} ֏
+            </div>
+          );
+        },
+      },
+      {
+        id: "total_cost",
+        header: () => <div className="text-right font-medium">Total Cost</div>,
+        accessorKey: "total_cost",
+        cell: ({ row }) => {
+          const value = row.getValue("total_cost");
+          const formattedValue =
+            value !== undefined && value !== null
+              ? Number(value).toLocaleString()
+              : "0";
+
+          return (
+            <div className="text-right font-medium tabular-nums">
+              <span className="font-semibold text-primary">
+                {formattedValue} ֏
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        id: "employee",
+        header: () => <div className="text-left font-medium">Employee</div>,
+        accessorKey: "employee.name",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2 py-2">
+            <UserCircle2 className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">
+              {row.original.employee?.name || "N/A"}
+            </span>
           </div>
-        );
+        ),
       },
-    },
-    {
-      id: "employee",
-      header: () => <div className="text-left font-medium">Employee</div>,
-      accessorKey: "employee.name",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2 py-2">
-          <UserCircle2 className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{row.original.employee?.name || "N/A"}</span>
-        </div>
-      ),
-    },
-    {
-      id: "comments",
-      header: () => <div className="text-left font-medium">Comments</div>,
-      accessorKey: "comments",
-      cell: ({ row }) => (
-        <div className="max-w-[200px] truncate" title={row.getValue("comments") as string || ""}>
-          {row.getValue("comments") || "N/A"}
-        </div>
-      ),
-    },
-    {
-      id: "actions",
-      header: () => <div className="text-center font-medium">Actions</div>,
-      cell: ({ row }) => {
-        const supply = row.original;
-        return (
-          <div className="flex justify-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(supply);
-              }}
-            >
-              <Pencil className="h-4 w-4" />
-              <span className="sr-only">Edit</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(supply);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span className="sr-only">Delete</span>
-            </Button>
+      {
+        id: "comments",
+        header: () => <div className="text-left font-medium">Comments</div>,
+        accessorKey: "comments",
+        cell: ({ row }) => (
+          <div
+            className="max-w-[200px] truncate"
+            title={(row.getValue("comments") as string) || ""}
+          >
+            {row.getValue("comments") || "N/A"}
           </div>
-        );
+        ),
       },
-    },
-  ], []);
+      {
+        id: "actions",
+        header: () => <div className="text-center font-medium">Actions</div>,
+        cell: ({ row }) => {
+          const supply = row.original;
+          return (
+            <div className="flex justify-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(supply);
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+                <span className="sr-only">Edit</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(supply);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete</span>
+              </Button>
+            </div>
+          );
+        },
+      },
+    ],
+    [],
+  );
 
   // Memoize the add button to prevent recreation on every render
-  const addButton = useMemo(() => (
-    <Button 
-      onClick={handleAdd} 
-      className="gap-2 shadow-sm"
-      size="sm"
-      aria-label="Add new fuel supply"
-    >
-      <Plus className="h-4 w-4" />
-      <span>Add Supply</span>
-    </Button>
-  ), []);
+  const addButton = useMemo(
+    () => (
+      <Button
+        onClick={handleAdd}
+        className="gap-2 shadow-sm"
+        size="sm"
+        aria-label="Add new fuel supply"
+      >
+        <Plus className="h-4 w-4" />
+        <span>Add Supply</span>
+      </Button>
+    ),
+    [],
+  );
 
   // Use useEffect to handle action rendering to avoid state updates during render
   useEffect(() => {
@@ -393,7 +444,7 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
   }, [onRenderAction, addButton]);
 
   return (
-    <div className="space-y-6">      
+    <div className="space-y-6">
       <UnifiedDataTable
         title="Fuel Supplies"
         columns={columns}
@@ -409,7 +460,10 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
           date: filters.date,
           provider: filters.provider || "all",
           fuelType: filters.type || "all",
-          quantityRange: [filters.minQuantity || 0, filters.maxQuantity || 10000],
+          quantityRange: [
+            filters.minQuantity || 0,
+            filters.maxQuantity || 10000,
+          ],
           priceRange: [filters.minPrice || 0, filters.maxPrice || 10000],
           totalRange: [filters.minTotal || 0, filters.maxTotal || 10000000],
         }}
@@ -417,14 +471,14 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
         searchPlaceholder="Search by provider..."
         summaryComponent={<FuelSuppliesSummary supplies={filteredSupplies} />}
       />
-      
+
       <FuelSuppliesForm
         open={isDialogOpen}
         onOpenChange={handleDialogOpenChange}
         onSubmit={handleSubmit}
         defaultValues={editingSupply}
       />
-      
+
       <ConfirmDeleteDialog
         open={!!deletingSupply}
         onOpenChange={handleDeleteDialogOpenChange}
@@ -436,7 +490,7 @@ export function FuelSuppliesManager({ onRenderAction }: FuelSuppliesManagerProps
             : undefined
         }
       />
-      
+
       {confirmData && (
         <ConfirmAddDialog
           open={isConfirmOpen}

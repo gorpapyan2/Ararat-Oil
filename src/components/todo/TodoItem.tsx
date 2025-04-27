@@ -21,7 +21,7 @@ interface TodoItemProps {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string, text: string) => void;
-  onPriorityChange: (id: string, priority: TodoItemType['priority']) => void;
+  onPriorityChange: (id: string, priority: TodoItemType["priority"]) => void;
 }
 
 export function TodoItem({
@@ -65,7 +65,8 @@ export function TodoItem({
   // Priority colors
   const priorityColors = {
     low: "bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700",
-    medium: "bg-blue-200 hover:bg-blue-300 text-blue-800 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800",
+    medium:
+      "bg-blue-200 hover:bg-blue-300 text-blue-800 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800",
     high: "bg-red-200 hover:bg-red-300 text-red-800 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800",
   };
 
@@ -80,14 +81,16 @@ export function TodoItem({
       className={cn(
         "group flex items-center justify-between p-3 border rounded-lg transition-all",
         "hover:border-primary/50 hover:bg-muted/30",
-        todo.completed && "opacity-70 bg-muted"
+        todo.completed && "opacity-70 bg-muted",
       )}
     >
       <div className="flex items-center gap-3 flex-grow min-w-0">
         <Checkbox
           checked={todo.completed}
           onCheckedChange={() => onToggle(todo.id)}
-          aria-label={todo.completed ? t("todo.markIncomplete") : t("todo.markComplete")}
+          aria-label={
+            todo.completed ? t("todo.markIncomplete") : t("todo.markComplete")
+          }
           className="h-5 w-5"
         />
 
@@ -107,7 +110,7 @@ export function TodoItem({
               <span
                 className={cn(
                   "text-foreground transition-all",
-                  todo.completed && "line-through text-muted-foreground"
+                  todo.completed && "line-through text-muted-foreground",
                 )}
               >
                 {todo.text}
@@ -116,16 +119,20 @@ export function TodoItem({
                 variant="outline"
                 className={cn(
                   "text-xs py-0 px-1.5 h-5 transition-all",
-                  priorityColors[todo.priority]
+                  priorityColors[todo.priority],
                 )}
               >
                 {priorityIcons[todo.priority]}
-                <span className="ml-1 text-[10px]">{t(`todo.priority.${todo.priority}`)}</span>
+                <span className="ml-1 text-[10px]">
+                  {t(`todo.priority.${todo.priority}`)}
+                </span>
               </Badge>
             </div>
             <div className="text-xs text-muted-foreground mt-1">
               {todo.completed && todo.completedAt
-                ? t("todo.completedOn", { date: format(new Date(todo.completedAt), "PP") })
+                ? t("todo.completedOn", {
+                    date: format(new Date(todo.completedAt), "PP"),
+                  })
                 : format(new Date(todo.createdAt), "PP")}
             </div>
           </div>
@@ -156,7 +163,9 @@ export function TodoItem({
             >
               <Flag className="mr-2 h-4 w-4" />
               <span>{t("todo.priority.high")}</span>
-              {todo.priority === "high" && <Check className="ml-auto h-4 w-4" />}
+              {todo.priority === "high" && (
+                <Check className="ml-auto h-4 w-4" />
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onPriorityChange(todo.id, "medium")}
@@ -164,7 +173,9 @@ export function TodoItem({
             >
               <Flag className="mr-2 h-4 w-4" />
               <span>{t("todo.priority.medium")}</span>
-              {todo.priority === "medium" && <Check className="ml-auto h-4 w-4" />}
+              {todo.priority === "medium" && (
+                <Check className="ml-auto h-4 w-4" />
+              )}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onPriorityChange(todo.id, "low")}
@@ -187,4 +198,4 @@ export function TodoItem({
       )}
     </div>
   );
-} 
+}

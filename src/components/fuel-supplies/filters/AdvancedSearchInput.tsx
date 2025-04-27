@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Command, X } from "lucide-react";
 import {
@@ -25,7 +24,10 @@ const recentSearches = [
   "january delivery",
 ];
 
-export function AdvancedSearchInput({ value, onChange }: AdvancedSearchInputProps) {
+export function AdvancedSearchInput({
+  value,
+  onChange,
+}: AdvancedSearchInputProps) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
 
@@ -70,7 +72,11 @@ export function AdvancedSearchInput({ value, onChange }: AdvancedSearchInputProp
       </div>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search supplies..." value={inputValue} onValueChange={setInputValue} />
+        <CommandInput
+          placeholder="Search supplies..."
+          value={inputValue}
+          onValueChange={setInputValue}
+        />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           {recentSearches && recentSearches.length > 0 && (

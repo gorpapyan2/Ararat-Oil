@@ -1,4 +1,3 @@
-
 import React from "react";
 import { SalesFilters } from "./SalesFilters";
 import { SalesRangesFilters } from "./SalesRangesFilters";
@@ -40,8 +39,12 @@ export function SalesHeader({
       <div className="flex flex-wrap justify-between items-center gap-4 mb-2">
         <div className="hidden">
           {/* Prevent duplication with card header */}
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Sales</h2>
-          <p className="text-sm text-muted-foreground mt-1">Manage and track fuel sales records</p>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+            Sales
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage and track fuel sales records
+          </p>
         </div>
         <div className="ml-auto">
           <NewSaleButton />
@@ -67,4 +70,3 @@ export function SalesHeader({
     </div>
   );
 }
-

@@ -1,7 +1,10 @@
-
 import { useState } from "react";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,7 +34,7 @@ export function CategoryManager({
         </DialogHeader>
         <div className="space-y-2">
           <form
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault();
               if (newCat.trim().length) {
                 onAdd(newCat.trim());
@@ -42,15 +45,20 @@ export function CategoryManager({
           >
             <Input
               value={newCat}
-              onChange={e => setNewCat(e.target.value)}
+              onChange={(e) => setNewCat(e.target.value)}
               placeholder="New category"
               autoFocus
             />
-            <Button type="submit" variant="secondary">Add</Button>
+            <Button type="submit" variant="secondary">
+              Add
+            </Button>
           </form>
           <div className="space-y-1">
-            {categories.map(c => (
-              <div key={c} className="flex items-center px-2 py-1 rounded group hover:bg-muted">
+            {categories.map((c) => (
+              <div
+                key={c}
+                className="flex items-center px-2 py-1 rounded group hover:bg-muted"
+              >
                 <span className="flex-1">{c}</span>
                 <Button
                   variant="destructive"

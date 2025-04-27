@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { FuelTank } from "@/services/supabase";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,18 +14,20 @@ interface TankLevelEditorProps {
 
 export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
   const [amount, setAmount] = useState<number>(0);
-  const [operation, setOperation] = useState<'add' | 'subtract'>('add');
+  const [operation, setOperation] = useState<"add" | "subtract">("add");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: updateTankLevel,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fuel-tanks'] });
-      queryClient.invalidateQueries({ queryKey: ['tank-level-changes', tank.id] });
+      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+      queryClient.invalidateQueries({
+        queryKey: ["tank-level-changes", tank.id],
+      });
       toast({
         title: "Tank level updated",
-        description: `Successfully ${operation === 'add' ? 'added' : 'subtracted'} ${amount} liters.`,
+        description: `Successfully ${operation === "add" ? "added" : "subtracted"} ${amount} liters.`,
       });
       onComplete();
     },
@@ -41,7 +42,7 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (amount <= 0) {
       toast({
         title: "Invalid amount",
@@ -51,9 +52,9 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
       return;
     }
 
-    const finalAmount = operation === 'add' ? amount : -amount;
+    const finalAmount = operation === "add" ? amount : -amount;
     const newLevel = tank.current_level + finalAmount;
-    
+
     // Validate new level doesn't exceed capacity or go below 0
     if (newLevel > tank.capacity) {
       toast({
@@ -63,7 +64,7 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
       });
       return;
     }
-    
+
     if (newLevel < 0) {
       toast({
         title: "Invalid operation",
@@ -72,13 +73,13 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
       });
       return;
     }
-    
+
     mutation.mutate({
       tankId: tank.id,
       changeAmount: finalAmount,
       previousLevel: tank.current_level,
       newLevel: newLevel,
-      changeType: operation
+      changeType: operation,
     });
   };
 
@@ -87,40 +88,40 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
       <div className="flex gap-2">
         <Button
           type="button"
-          variant={operation === 'add' ? 'default' : 'outline'}
+          variant={operation === "add" ? "default" : "outline"}
           size="sm"
           className="flex-1"
-          onClick={() => setOperation('add')}
+          onClick={() => setOperation("add")}
         >
           <Plus className="h-4 w-4 mr-1" /> Add
         </Button>
         <Button
           type="button"
-          variant={operation === 'subtract' ? 'default' : 'outline'}
+          variant={operation === "subtract" ? "default" : "outline"}
           size="sm"
           className="flex-1"
-          onClick={() => setOperation('subtract')}
+          onClick={() => setOperation("subtract")}
         >
           <Minus className="h-4 w-4 mr-1" /> Subtract
         </Button>
       </div>
-      
+
       <div className="flex gap-2">
         <Input
           type="number"
-          value={amount || ''}
+          value={amount || ""}
           onChange={(e) => setAmount(Number(e.target.value))}
           placeholder="Amount in liters"
           className="h-9"
           min="0"
           step="0.01"
         />
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           size="sm"
           disabled={mutation.isPending || amount <= 0}
         >
-          {mutation.isPending ? 'Saving...' : 'Save'}
+          {mutation.isPending ? "Saving..." : "Save"}
         </Button>
       </div>
     </form>

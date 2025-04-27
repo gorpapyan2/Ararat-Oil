@@ -1,12 +1,29 @@
-
 import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Employee } from "@/services/supabase";
 import { useEffect } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface EmployeeFormData {
   name: string;
@@ -14,7 +31,7 @@ interface EmployeeFormData {
   contact: string;
   hire_date: string;
   salary: number;
-  status: Employee['status'];
+  status: Employee["status"];
 }
 
 interface EmployeeDialogProps {
@@ -24,13 +41,18 @@ interface EmployeeDialogProps {
   onSubmit: (data: EmployeeFormData) => void;
 }
 
-export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: EmployeeDialogProps) {
+export function EmployeeDialog({
+  open,
+  onOpenChange,
+  employee,
+  onSubmit,
+}: EmployeeDialogProps) {
   const form = useForm<EmployeeFormData>({
     defaultValues: {
       name: "",
       position: "",
       contact: "",
-      hire_date: new Date().toISOString().split('T')[0],
+      hire_date: new Date().toISOString().split("T")[0],
       salary: 0,
       status: "active",
     },
@@ -51,7 +73,7 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
         name: "",
         position: "",
         contact: "",
-        hire_date: new Date().toISOString().split('T')[0],
+        hire_date: new Date().toISOString().split("T")[0],
         salary: 0,
         status: "active",
       });
@@ -67,10 +89,15 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{employee ? 'Edit Employee' : 'Add New Employee'}</DialogTitle>
+          <DialogTitle>
+            {employee ? "Edit Employee" : "Add New Employee"}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -130,11 +157,13 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
                 <FormItem>
                   <FormLabel>Salary</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="50000" 
+                    <Input
+                      type="number"
+                      placeholder="50000"
                       {...field}
-                      onChange={e => field.onChange(parseFloat(e.target.value))}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value))
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -147,7 +176,10 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select employee status" />
@@ -164,11 +196,15 @@ export function EmployeeDialog({ open, onOpenChange, employee, onSubmit }: Emplo
               )}
             />
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit">
-                {employee ? 'Update' : 'Save'} Employee
+                {employee ? "Update" : "Save"} Employee
               </Button>
             </div>
           </form>

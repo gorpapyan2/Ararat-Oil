@@ -1,15 +1,12 @@
 import { Input } from "@/components/ui/input";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  ToggleGroup, 
-  ToggleGroupItem 
-} from "@/components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Search, ArrowUpDown, Check, ListFilter } from "lucide-react";
 import { FilterType, SortType } from "@/store/useTodoStore";
 import { useTranslation } from "react-i18next";
@@ -86,8 +83,8 @@ export function TodoFilter({
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <ToggleGroup 
-          type="single" 
+        <ToggleGroup
+          type="single"
           value={filter}
           onValueChange={(value) => {
             if (value) onFilterChange(value as FilterType);
@@ -95,8 +92,8 @@ export function TodoFilter({
           className="flex border rounded-md"
           aria-label={t("todo.filterTasks")}
         >
-          <ToggleGroupItem 
-            value="all" 
+          <ToggleGroupItem
+            value="all"
             aria-label={t("todo.all")}
             className="flex-1 px-3 py-1 text-xs sm:px-4"
           >
@@ -108,8 +105,8 @@ export function TodoFilter({
               </span>
             </div>
           </ToggleGroupItem>
-          <ToggleGroupItem 
-            value="active" 
+          <ToggleGroupItem
+            value="active"
             aria-label={t("todo.active")}
             className="flex-1 px-3 py-1 text-xs sm:px-4"
           >
@@ -121,8 +118,8 @@ export function TodoFilter({
               </span>
             </div>
           </ToggleGroupItem>
-          <ToggleGroupItem 
-            value="completed" 
+          <ToggleGroupItem
+            value="completed"
             aria-label={t("todo.completed")}
             className="flex-1 px-3 py-1 text-xs sm:px-4"
           >
@@ -138,4 +135,4 @@ export function TodoFilter({
       </div>
     </div>
   );
-} 
+}

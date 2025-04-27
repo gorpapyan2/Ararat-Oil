@@ -17,9 +17,22 @@ import React from "react";
 export function SalesManager() {
   // Filters and data state
   const {
-    search, setSearch, date, setDate, systemId, setSystemId,
-    systems, litersRange, setLitersRange, priceRange, setPriceRange, totalSalesRange, setTotalSalesRange,
-    filteredSales, isLoading, refetchSales
+    search,
+    setSearch,
+    date,
+    setDate,
+    systemId,
+    setSystemId,
+    systems,
+    litersRange,
+    setLitersRange,
+    priceRange,
+    setPriceRange,
+    totalSalesRange,
+    setTotalSalesRange,
+    filteredSales,
+    isLoading,
+    refetchSales,
   } = useSalesFilters();
 
   // Mutations & modals
@@ -34,7 +47,7 @@ export function SalesManager() {
     handleDelete,
     confirmDelete,
     updateMutation,
-    deleteMutation
+    deleteMutation,
   } = useSalesMutations();
 
   const { toast } = useToast();
@@ -50,7 +63,7 @@ export function SalesManager() {
   // Handle search changes with recent searches
   const handleSearchChange = (newSearch: string) => {
     if (newSearch && !recentSearches.includes(newSearch)) {
-      setRecentSearches(prev => [newSearch, ...prev.slice(0, 4)]);
+      setRecentSearches((prev) => [newSearch, ...prev.slice(0, 4)]);
     }
     setSearch(newSearch);
   };
@@ -61,7 +74,8 @@ export function SalesManager() {
     if (updates.systemId !== undefined) setSystemId(updates.systemId);
     if (updates.litersRange !== undefined) setLitersRange(updates.litersRange);
     if (updates.priceRange !== undefined) setPriceRange(updates.priceRange);
-    if (updates.totalSalesRange !== undefined) setTotalSalesRange(updates.totalSalesRange);
+    if (updates.totalSalesRange !== undefined)
+      setTotalSalesRange(updates.totalSalesRange);
   };
 
   const handleViewSale = (sale: Sale) => {
@@ -103,15 +117,15 @@ export function SalesManager() {
           <ShiftControl />
         </CardContent>
       </Card>
-      
+
       {/* Floating New Sale Button (Mobile) */}
       <div className="fixed bottom-4 right-4 md:hidden z-10">
         <NewSaleButton />
       </div>
-      
+
       {/* Sales Summary Cards */}
       <SalesSummary sales={filteredSales} />
-      
+
       {/* Filter Bar & Actions */}
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
@@ -120,30 +134,30 @@ export function SalesManager() {
             <NewSaleButton />
           </div>
         </div>
-        
+
         <SalesFilterBar
           filters={{
             date,
             systemId,
             litersRange,
             priceRange,
-            totalSalesRange
+            totalSalesRange,
           }}
           onFiltersChange={handleFiltersChange}
           systems={safeSystemsList}
           isLoading={isLoading}
         />
       </div>
-      
+
       {/* Data Table */}
       <SalesDataTable
         columns={columns}
         data={filteredSales}
         isLoading={isLoading}
       />
-      
+
       {/* Dialogs */}
-      <SalesDialogs 
+      <SalesDialogs
         isEditDialogOpen={isEditDialogOpen}
         setIsEditDialogOpen={setIsEditDialogOpen}
         selectedSale={selectedSale}

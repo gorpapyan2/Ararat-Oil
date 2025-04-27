@@ -3,17 +3,19 @@ import { Transaction, PaymentMethod, PaymentStatus } from "@/types";
 
 export const fetchTransactions = async (): Promise<Transaction[]> => {
   const { data, error } = await supabase
-    .from('transactions')
-    .select(`
+    .from("transactions")
+    .select(
+      `
       *,
       employee:employees(name),
       sale:sales(id, filling_system:filling_systems(name))
-    `)
-    .order('created_at', { ascending: false });
+    `,
+    )
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
 
-  return (data || []).map(item => ({
+  return (data || []).map((item) => ({
     id: item.id,
     sale_id: item.sale_id,
     amount: item.amount,
@@ -21,31 +23,40 @@ export const fetchTransactions = async (): Promise<Transaction[]> => {
     payment_reference: item.payment_reference,
     payment_status: item.payment_status as PaymentStatus,
     employee_id: item.employee_id,
-    description: item.description || '',
-    entity_type: item.entity_type as 'sale' | 'expense' | 'fuel_supply' || null,
+    description: item.description || "",
+    entity_type:
+      (item.entity_type as "sale" | "expense" | "fuel_supply") || null,
     entity_id: item.entity_id || null,
     created_at: item.created_at,
     updated_at: item.updated_at,
     // Add these optional properties if they exist in the result
     ...(item.employee && { employee: item.employee }),
-    ...(item.sale && { 
+    ...(item.sale && {
       sale: {
         ...item.sale,
-        filling_system_name: item.sale.filling_system?.name
-      }
+        filling_system_name: item.sale.filling_system?.name,
+      },
     }),
   }));
 };
 
-export const createTransaction = async (transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>): Promise<Transaction> => {
+export const createTransaction = async (
+  transaction: Omit<Transaction, "id" | "created_at" | "updated_at">,
+): Promise<Transaction> => {
   // Ensure payment_method is a valid enum value
-  const validPaymentMethods = ["cash", "card", "bank_transfer", "mobile_payment", "new_value"];
-  const paymentMethod = validPaymentMethods.includes(transaction.payment_method) 
-    ? transaction.payment_method 
+  const validPaymentMethods = [
+    "cash",
+    "card",
+    "bank_transfer",
+    "mobile_payment",
+    "new_value",
+  ];
+  const paymentMethod = validPaymentMethods.includes(transaction.payment_method)
+    ? transaction.payment_method
     : "cash"; // Default to cash if invalid
 
   const { data, error } = await supabase
-    .from('transactions')
+    .from("transactions")
     .insert({
       sale_id: transaction.sale_id,
       amount: transaction.amount,
@@ -55,7 +66,7 @@ export const createTransaction = async (transaction: Omit<Transaction, 'id' | 'c
       employee_id: transaction.employee_id,
       description: transaction.description,
       entity_type: transaction.entity_type,
-      entity_id: transaction.entity_id
+      entity_id: transaction.entity_id,
     })
     .select()
     .single();
@@ -70,22 +81,23 @@ export const createTransaction = async (transaction: Omit<Transaction, 'id' | 'c
     payment_reference: data.payment_reference,
     payment_status: data.payment_status as PaymentStatus,
     employee_id: data.employee_id,
-    description: data.description || '',
-    entity_type: data.entity_type as 'sale' | 'expense' | 'fuel_supply' || null,
+    description: data.description || "",
+    entity_type:
+      (data.entity_type as "sale" | "expense" | "fuel_supply") || null,
     entity_id: data.entity_id || null,
     created_at: data.created_at,
-    updated_at: data.updated_at
+    updated_at: data.updated_at,
   };
 };
 
 export const updateTransaction = async (
-  id: string, 
-  updates: Partial<Omit<Transaction, 'id' | 'created_at' | 'updated_at'>>
+  id: string,
+  updates: Partial<Omit<Transaction, "id" | "created_at" | "updated_at">>,
 ): Promise<Transaction> => {
   const { data, error } = await supabase
-    .from('transactions')
+    .from("transactions")
     .update(updates)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -99,10 +111,11 @@ export const updateTransaction = async (
     payment_reference: data.payment_reference,
     payment_status: data.payment_status as PaymentStatus,
     employee_id: data.employee_id,
-    description: data.description || '',
-    entity_type: data.entity_type as 'sale' | 'expense' | 'fuel_supply' || null,
+    description: data.description || "",
+    entity_type:
+      (data.entity_type as "sale" | "expense" | "fuel_supply") || null,
     entity_id: data.entity_id || null,
     created_at: data.created_at,
-    updated_at: data.updated_at
+    updated_at: data.updated_at,
   };
 };

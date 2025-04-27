@@ -1,4 +1,3 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 
@@ -9,11 +8,11 @@ interface SidebarSectionProps {
   collapsed?: boolean;
 }
 
-export function SidebarSection({ 
-  title, 
-  children, 
+export function SidebarSection({
+  title,
+  children,
   className,
-  collapsed = false 
+  collapsed = false,
 }: SidebarSectionProps) {
   return (
     <div className={cn("py-2", className)}>
@@ -22,9 +21,7 @@ export function SidebarSection({
           {title}
         </h3>
       )}
-      <div className="space-y-1 px-2">
-        {children}
-      </div>
+      <div className="space-y-1 px-2">{children}</div>
     </div>
   );
 }

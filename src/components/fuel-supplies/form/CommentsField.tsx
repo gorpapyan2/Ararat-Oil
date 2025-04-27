@@ -1,5 +1,9 @@
-
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Control } from "react-hook-form";
 
@@ -16,7 +20,10 @@ export function CommentsField({ control }: CommentsFieldProps) {
         <FormItem>
           <FormLabel className="text-base font-medium">Comments</FormLabel>
           <FormControl>
-            <Textarea {...field} placeholder="Optional comments about the fuel supply" />
+            <Textarea
+              {...field}
+              placeholder="Optional comments about the fuel supply"
+            />
           </FormControl>
         </FormItem>
       )}

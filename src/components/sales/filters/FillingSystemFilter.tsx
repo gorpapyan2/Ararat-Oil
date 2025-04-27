@@ -16,11 +16,11 @@ interface FillingSystemFilterProps {
   isLoading?: boolean;
 }
 
-export function FillingSystemFilter({ 
-  value = "all", 
-  onChange, 
+export function FillingSystemFilter({
+  value = "all",
+  onChange,
   systems = [],
-  isLoading = false 
+  isLoading = false,
 }: FillingSystemFilterProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
@@ -28,19 +28,21 @@ export function FillingSystemFilter({
   // Ensure systems is always defined and an array
   const systemsList = Array.isArray(systems) ? systems : [];
   const selectedSystem = systemsList.find((system) => system.id === value);
-  
+
   // Filter systems based on search
   const filteredSystems = React.useMemo(() => {
     if (!search) return systemsList;
     const lowerSearch = search.toLowerCase();
-    return systemsList.filter(sys => 
-      sys.name.toLowerCase().includes(lowerSearch)
+    return systemsList.filter((sys) =>
+      sys.name.toLowerCase().includes(lowerSearch),
     );
   }, [systemsList, search]);
-  
+
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted-foreground">Filling System</label>
+      <label className="text-xs font-medium text-muted-foreground">
+        Filling System
+      </label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -51,14 +53,12 @@ export function FillingSystemFilter({
           >
             <div className="flex items-center">
               <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
-              {value && selectedSystem
-                ? selectedSystem.name
-                : "All systems"}
+              {value && selectedSystem ? selectedSystem.name : "All systems"}
             </div>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent 
+        <PopoverContent
           className="w-full p-2 bg-background border shadow-lg shadow-primary/5 z-50"
           sideOffset={4}
         >
@@ -69,12 +69,14 @@ export function FillingSystemFilter({
               onChange={(e) => setSearch(e.target.value)}
               className="h-9"
             />
-            
+
             <div className="max-h-[300px] overflow-y-auto">
               {isLoading ? (
                 <div className="py-6 text-center text-sm">
                   <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                  <p className="mt-2 text-muted-foreground">Loading systems...</p>
+                  <p className="mt-2 text-muted-foreground">
+                    Loading systems...
+                  </p>
                 </div>
               ) : filteredSystems.length === 0 && search ? (
                 <div className="py-6 text-center text-sm text-muted-foreground">
@@ -85,7 +87,7 @@ export function FillingSystemFilter({
                   <div
                     className={cn(
                       "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
-                      value === "all" ? "bg-accent text-accent-foreground" : ""
+                      value === "all" ? "bg-accent text-accent-foreground" : "",
                     )}
                     onClick={() => {
                       onChange("all");
@@ -96,18 +98,20 @@ export function FillingSystemFilter({
                     <Check
                       className={cn(
                         "h-4 w-4",
-                        value === "all" ? "opacity-100" : "opacity-0"
+                        value === "all" ? "opacity-100" : "opacity-0",
                       )}
                     />
                     All systems
                   </div>
-                  
+
                   {filteredSystems.map((system) => (
                     <div
                       key={system.id}
                       className={cn(
                         "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
-                        value === system.id ? "bg-accent text-accent-foreground" : ""
+                        value === system.id
+                          ? "bg-accent text-accent-foreground"
+                          : "",
                       )}
                       onClick={() => {
                         onChange(system.id);
@@ -118,7 +122,7 @@ export function FillingSystemFilter({
                       <Check
                         className={cn(
                           "h-4 w-4",
-                          value === system.id ? "opacity-100" : "opacity-0"
+                          value === system.id ? "opacity-100" : "opacity-0",
                         )}
                       />
                       {system.name}

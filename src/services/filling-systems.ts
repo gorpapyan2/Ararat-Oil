@@ -9,119 +9,133 @@ export interface FillingSystem {
   created_at?: string;
 }
 
-export const createFillingSystem = async (name: string, tankId: string): Promise<FillingSystem> => {
+export const createFillingSystem = async (
+  name: string,
+  tankId: string,
+): Promise<FillingSystem> => {
   const { data, error } = await supabase
-    .from('filling_systems')
+    .from("filling_systems")
     .insert([{ name, tank_id: tankId }])
     .select()
     .single();
-    
+
   if (error) throw error;
   return data;
 };
 
 // Helper function to check if tank_ids exist in the fuel_tanks table
-export const validateTankIds = async (tankIds: string[]): Promise<Record<string, boolean>> => {
+export const validateTankIds = async (
+  tankIds: string[],
+): Promise<Record<string, boolean>> => {
   if (!tankIds.length) return {};
-  
+
   const { data, error } = await supabase
-    .from('fuel_tanks')
-    .select('id')
-    .in('id', tankIds);
-    
+    .from("fuel_tanks")
+    .select("id")
+    .in("id", tankIds);
+
   if (error) {
-    console.error('Error validating tank IDs:', error);
+    console.error("Error validating tank IDs:", error);
     return {};
   }
-  
-  const validIds = new Set((data || []).map(tank => tank.id));
+
+  const validIds = new Set((data || []).map((tank) => tank.id));
   const result: Record<string, boolean> = {};
-  
-  tankIds.forEach(id => {
+
+  tankIds.forEach((id) => {
     result[id] = validIds.has(id);
   });
-  
+
   return result;
 };
 
 export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
-      throw new Error('Authentication required');
+      throw new Error("Authentication required");
     }
 
     // Use foreign table syntax instead of nested select
     const { data, error } = await supabase
-      .from('filling_systems')
-      .select(`
+      .from("filling_systems")
+      .select(
+        `
         id,
         name,
         tank_id,
         created_at,
         tank:fuel_tanks(id, name, capacity, current_level, fuel_type, created_at)
-      `)
-      .order('name');
-      
+      `,
+      )
+      .order("name");
+
     if (error) {
-      console.error('Error fetching filling systems:', error);
+      console.error("Error fetching filling systems:", error);
       throw error;
     }
 
     if (!data) {
       return [];
     }
-    
+
     // Collect all tank_ids for validation
     const tankIds = data
-      .map(item => item.tank_id)
-      .filter(id => id != null && id !== '');
-      
+      .map((item) => item.tank_id)
+      .filter((id) => id != null && id !== "");
+
     // Validate if tank_ids actually exist
     const validTankIds = await validateTankIds(tankIds);
-    
+
     // Transform the data to ensure proper typing of nested tank objects
-    return data.map(item => {
+    return data.map((item) => {
       // Handle tank data - Supabase can return either an array or object depending on the query
       let tankData = null;
-      
+
       if (item.tank) {
         // If it's an array, take the first item
         if (Array.isArray(item.tank) && item.tank.length > 0) {
           tankData = item.tank[0];
-        } 
+        }
         // If it's a direct object (non-array), use it directly
-        else if (typeof item.tank === 'object') {
+        else if (typeof item.tank === "object") {
           tankData = item.tank;
         }
       }
-      
+
       return {
         id: item.id,
         name: item.name,
         tank_id: item.tank_id,
         created_at: item.created_at,
-        tank: tankData ? {
-          id: tankData.id,
-          name: tankData.name,
-          capacity: tankData.capacity || 0,
-          current_level: typeof tankData.current_level === 'number' ? tankData.current_level : 0,
-          fuel_type: tankData.fuel_type as FuelType,
-          created_at: tankData.created_at
-        } : undefined
+        tank: tankData
+          ? {
+              id: tankData.id,
+              name: tankData.name,
+              capacity: tankData.capacity || 0,
+              current_level:
+                typeof tankData.current_level === "number"
+                  ? tankData.current_level
+                  : 0,
+              fuel_type: tankData.fuel_type as FuelType,
+              created_at: tankData.created_at,
+            }
+          : undefined,
       };
     });
   } catch (err: any) {
-    console.error('Failed to fetch filling systems:', err);
-    throw new Error(err.message || 'Failed to fetch filling systems data');
+    console.error("Failed to fetch filling systems:", err);
+    throw new Error(err.message || "Failed to fetch filling systems data");
   }
 };
 
 export const deleteFillingSystem = async (id: string): Promise<void> => {
   const { error } = await supabase
-    .from('filling_systems')
+    .from("filling_systems")
     .delete()
-    .eq('id', id);
-    
+    .eq("id", id);
+
   if (error) throw error;
 };

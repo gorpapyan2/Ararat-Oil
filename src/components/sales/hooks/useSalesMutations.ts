@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteSale, updateSale } from "@/services/sales";
@@ -11,7 +10,7 @@ export function useSalesMutations() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<string | null>(null);
-  
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -83,12 +82,12 @@ export function useSalesMutations() {
     setSelectedSale(sale);
     setIsEditDialogOpen(true);
   }, []);
-  
+
   const handleDelete = useCallback((id: string) => {
     setSaleToDelete(id);
     setIsDeleteDialogOpen(true);
   }, []);
-  
+
   const confirmDelete = useCallback(() => {
     if (saleToDelete) {
       deleteMutation.mutate(saleToDelete);

@@ -23,11 +23,11 @@ const languages = [
   { code: "hy", label: "Armenian", nativeLabel: "Հայերեն" },
 ];
 
-export function LanguageSwitcher({ 
-  collapsed = false, 
-  variant = "sidebar", 
+export function LanguageSwitcher({
+  collapsed = false,
+  variant = "sidebar",
   size = "default",
-  className
+  className,
 }: LanguageSwitcherProps) {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
@@ -43,9 +43,9 @@ export function LanguageSwitcher({
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className={cn("rounded-full", className)}
             aria-label={t("common.changeLanguage")}
           >
@@ -59,12 +59,10 @@ export function LanguageSwitcher({
               onClick={() => changeLanguage(lang.code)}
               className={cn(
                 "flex items-center gap-2 cursor-pointer",
-                currentLanguage === lang.code && "font-medium"
+                currentLanguage === lang.code && "font-medium",
               )}
             >
-              {currentLanguage === lang.code && (
-                <Check className="h-4 w-4" />
-              )}
+              {currentLanguage === lang.code && <Check className="h-4 w-4" />}
               <span className={currentLanguage === lang.code ? "ml-0" : "ml-6"}>
                 {lang.nativeLabel}
               </span>
@@ -86,12 +84,14 @@ export function LanguageSwitcher({
             className={cn(
               "min-h-[36px] transition-all duration-200",
               collapsed ? "w-10 p-0" : "min-w-[80px]",
-              className
+              className,
             )}
             aria-label={t("common.changeLanguage")}
           >
             {collapsed ? (
-              <span className="font-medium">{currentLanguage === "en" ? "HY" : "EN"}</span>
+              <span className="font-medium">
+                {currentLanguage === "en" ? "HY" : "EN"}
+              </span>
             ) : (
               <span className="font-medium flex items-center gap-2">
                 <Globe className="h-4 w-4" />
@@ -107,12 +107,10 @@ export function LanguageSwitcher({
               onClick={() => changeLanguage(lang.code)}
               className={cn(
                 "flex items-center gap-2 cursor-pointer",
-                currentLanguage === lang.code && "font-medium"
+                currentLanguage === lang.code && "font-medium",
               )}
             >
-              {currentLanguage === lang.code && (
-                <Check className="h-4 w-4" />
-              )}
+              {currentLanguage === lang.code && <Check className="h-4 w-4" />}
               <span className={currentLanguage === lang.code ? "ml-0" : "ml-6"}>
                 {lang.nativeLabel}
               </span>
@@ -138,4 +136,4 @@ export function LanguageSwitcher({
       </span>
     </Button>
   );
-} 
+}

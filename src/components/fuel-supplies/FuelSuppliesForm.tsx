@@ -94,7 +94,7 @@ export function FuelSuppliesForm({
   useEffect(() => {
     const qtyNum = Number(quantity) || 0;
     const priceNum = Number(price) || 0;
-    
+
     const total = qtyNum * priceNum;
     form.setValue("total_cost", Number(total.toFixed(2)));
   }, [quantity, price, form]);
@@ -113,7 +113,7 @@ export function FuelSuppliesForm({
             {editing ? "Edit Fuel Supply" : "Add Fuel Supply"}
           </DialogTitle>
           <DialogDescription>
-            {editing 
+            {editing
               ? "Update the details of this fuel supply record."
               : "Fill in the details to add a new fuel supply record."}
           </DialogDescription>

@@ -16,31 +16,35 @@ interface ProviderFilterProps {
   isLoading?: boolean;
 }
 
-export function ProviderFilter({ 
-  value = "all", 
-  onChange, 
+export function ProviderFilter({
+  value = "all",
+  onChange,
   providers = [],
-  isLoading = false 
+  isLoading = false,
 }: ProviderFilterProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
 
   // Ensure providers is always defined and an array
   const providersList = Array.isArray(providers) ? providers : [];
-  const selectedProvider = providersList.find((provider) => provider.id === value);
-  
+  const selectedProvider = providersList.find(
+    (provider) => provider.id === value,
+  );
+
   // Filter providers based on search
   const filteredProviders = React.useMemo(() => {
     if (!search) return providersList;
     const lowerSearch = search.toLowerCase();
-    return providersList.filter(prov => 
-      prov.name.toLowerCase().includes(lowerSearch)
+    return providersList.filter((prov) =>
+      prov.name.toLowerCase().includes(lowerSearch),
     );
   }, [providersList, search]);
-  
+
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted-foreground">Provider</label>
+      <label className="text-xs font-medium text-muted-foreground">
+        Provider
+      </label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -55,7 +59,7 @@ export function ProviderFilter({
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent 
+        <PopoverContent
           className="w-full p-2 bg-background border shadow-lg shadow-primary/5 z-50"
           sideOffset={4}
         >
@@ -66,12 +70,14 @@ export function ProviderFilter({
               onChange={(e) => setSearch(e.target.value)}
               className="h-9"
             />
-            
+
             <div className="max-h-[300px] overflow-y-auto">
               {isLoading ? (
                 <div className="py-6 text-center text-sm">
                   <div className="h-4 w-4 animate-spin mx-auto border-2 border-primary/50 border-t-primary rounded-full" />
-                  <p className="mt-2 text-muted-foreground">Loading providers...</p>
+                  <p className="mt-2 text-muted-foreground">
+                    Loading providers...
+                  </p>
                 </div>
               ) : filteredProviders.length === 0 && search ? (
                 <div className="py-6 text-center text-sm text-muted-foreground">
@@ -82,7 +88,7 @@ export function ProviderFilter({
                   <div
                     className={cn(
                       "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
-                      value === "all" ? "bg-accent text-accent-foreground" : ""
+                      value === "all" ? "bg-accent text-accent-foreground" : "",
                     )}
                     onClick={() => {
                       onChange("all");
@@ -93,18 +99,20 @@ export function ProviderFilter({
                     <Check
                       className={cn(
                         "h-4 w-4",
-                        value === "all" ? "opacity-100" : "opacity-0"
+                        value === "all" ? "opacity-100" : "opacity-0",
                       )}
                     />
                     All providers
                   </div>
-                  
+
                   {filteredProviders.map((provider) => (
                     <div
                       key={provider.id}
                       className={cn(
                         "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
-                        value === provider.id ? "bg-accent text-accent-foreground" : ""
+                        value === provider.id
+                          ? "bg-accent text-accent-foreground"
+                          : "",
                       )}
                       onClick={() => {
                         onChange(provider.id);
@@ -115,7 +123,7 @@ export function ProviderFilter({
                       <Check
                         className={cn(
                           "h-4 w-4",
-                          value === provider.id ? "opacity-100" : "opacity-0"
+                          value === provider.id ? "opacity-100" : "opacity-0",
                         )}
                       />
                       {provider.name}

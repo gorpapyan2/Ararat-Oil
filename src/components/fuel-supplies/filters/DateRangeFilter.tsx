@@ -1,9 +1,19 @@
-
 import { CalendarIcon, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  format,
+  subDays,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +28,7 @@ interface DateRangeFilterProps {
 
 export function DateRangeFilter({ date, onDateChange }: DateRangeFilterProps) {
   const today = new Date();
-  
+
   const presets = [
     { name: "Today", value: today },
     { name: "Yesterday", value: subDays(today, 1) },
@@ -30,7 +40,9 @@ export function DateRangeFilter({ date, onDateChange }: DateRangeFilterProps) {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted-foreground">Delivery Date</label>
+      <label className="text-xs font-medium text-muted-foreground">
+        Delivery Date
+      </label>
       <div className="flex gap-2">
         <Popover>
           <PopoverTrigger asChild>
@@ -52,7 +64,7 @@ export function DateRangeFilter({ date, onDateChange }: DateRangeFilterProps) {
             />
           </PopoverContent>
         </Popover>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="h-9 px-2">
@@ -67,9 +79,11 @@ export function DateRangeFilter({ date, onDateChange }: DateRangeFilterProps) {
                 className="flex items-center justify-between"
               >
                 <span>{preset.name}</span>
-                {date && format(date, "yyyy-MM-dd") === format(preset.value, "yyyy-MM-dd") && (
-                  <Check className="h-4 w-4" />
-                )}
+                {date &&
+                  format(date, "yyyy-MM-dd") ===
+                    format(preset.value, "yyyy-MM-dd") && (
+                    <Check className="h-4 w-4" />
+                  )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuItem onClick={() => onDateChange(undefined)}>

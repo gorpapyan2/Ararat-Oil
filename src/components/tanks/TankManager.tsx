@@ -15,12 +15,16 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
   const [isEditingLevels, setIsEditingLevels] = useState(false);
 
   // Fetch tanks
-  const { data: tanks, isLoading, refetch } = useQuery({
-    queryKey: ['fuel-tanks'],
+  const {
+    data: tanks,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["fuel-tanks"],
     queryFn: fetchFuelTanks,
     staleTime: 0,
     refetchOnWindowFocus: true,
-    refetchOnMount: "always"
+    refetchOnMount: "always",
   });
 
   // Refetch on mount and on interval
@@ -31,23 +35,26 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
     }, 5000);
     return () => clearInterval(intervalId);
   }, [refetch]);
-  
+
   // Ensure we have an array even if the fetched data is undefined
   const tanksData = Array.isArray(tanks) ? tanks : [];
 
   // Create action buttons - memoize to prevent recreation on every render
-  const actionButtons = useMemo(() => (
-    <div className="flex items-center gap-3">
-      <Button variant="outline" onClick={() => setIsEditingLevels(true)}>
-        <Gauge className="mr-2 h-4 w-4" />
-        Edit Levels
-      </Button>
-      <Button onClick={() => setIsAddingTank(true)}>
-        <Plus className="mr-2 h-4 w-4" />
-        Add New Tank
-      </Button>
-    </div>
-  ), []);
+  const actionButtons = useMemo(
+    () => (
+      <div className="flex items-center gap-3">
+        <Button variant="outline" onClick={() => setIsEditingLevels(true)}>
+          <Gauge className="mr-2 h-4 w-4" />
+          Edit Levels
+        </Button>
+        <Button onClick={() => setIsAddingTank(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add New Tank
+        </Button>
+      </div>
+    ),
+    [],
+  );
 
   // Use useEffect to handle action rendering to avoid state updates during render
   useEffect(() => {
@@ -58,7 +65,7 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
 
   return (
     <div className="space-y-6">
-      <TankList 
+      <TankList
         tanks={tanksData}
         isLoading={isLoading}
         isEditMode={isEditingLevels}
@@ -68,7 +75,7 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
         }}
       />
 
-      <TankForm 
+      <TankForm
         isOpen={isAddingTank}
         onOpenChange={(open) => setIsAddingTank(open)}
         onTankAdded={() => {

@@ -23,9 +23,14 @@ interface FillingSystemSelectProps {
   value?: string;
 }
 
-export function FillingSystemSelect({ control, onChange, onSelect, value }: FillingSystemSelectProps) {
+export function FillingSystemSelect({
+  control,
+  onChange,
+  onSelect,
+  value,
+}: FillingSystemSelectProps) {
   const { data: fillingSystems, isLoading } = useQuery({
-    queryKey: ['filling-systems'],
+    queryKey: ["filling-systems"],
     queryFn: fetchFillingSystems,
   });
 
@@ -36,8 +41,10 @@ export function FillingSystemSelect({ control, onChange, onSelect, value }: Fill
       rules={{ required: "Filling system is required" }}
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-base font-medium">Filling System</FormLabel>
-          <Select 
+          <FormLabel className="text-base font-medium">
+            Filling System
+          </FormLabel>
+          <Select
             onValueChange={(value) => {
               field.onChange(value);
               if (onChange) {
@@ -46,7 +53,7 @@ export function FillingSystemSelect({ control, onChange, onSelect, value }: Fill
               if (onSelect) {
                 onSelect(value);
               }
-            }} 
+            }}
             value={value || field.value || ""}
           >
             <FormControl>
@@ -57,7 +64,8 @@ export function FillingSystemSelect({ control, onChange, onSelect, value }: Fill
             <SelectContent>
               {fillingSystems?.map((system) => (
                 <SelectItem key={system.id} value={system.id}>
-                  {system.name}{system.tank?.fuel_type ? ` (${system.tank.fuel_type})` : ''}
+                  {system.name}
+                  {system.tank?.fuel_type ? ` (${system.tank.fuel_type})` : ""}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -67,4 +75,4 @@ export function FillingSystemSelect({ control, onChange, onSelect, value }: Fill
       )}
     />
   );
-} 
+}

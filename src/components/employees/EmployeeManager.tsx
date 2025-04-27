@@ -1,7 +1,11 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchEmployees, createEmployee, updateEmployee, deleteEmployee } from "@/services/supabase";
+import {
+  fetchEmployees,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
+} from "@/services/supabase";
 import { EmployeeList } from "./EmployeeList";
 import { EmployeeHeader } from "./EmployeeHeader";
 import { EmployeeDialog } from "./EmployeeDialog";
@@ -10,19 +14,21 @@ import { useToast } from "@/hooks/use-toast";
 
 export function EmployeeManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null,
+  );
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  
+
   const { data: employees, isLoading } = useQuery({
-    queryKey: ['employees'],
-    queryFn: fetchEmployees
+    queryKey: ["employees"],
+    queryFn: fetchEmployees,
   });
 
   const createMutation = useMutation({
     mutationFn: createEmployee,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
       setIsDialogOpen(false);
       toast({
         title: "Success",
@@ -39,10 +45,10 @@ export function EmployeeManager() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Employee> }) => 
+    mutationFn: ({ id, data }: { id: string; data: Partial<Employee> }) =>
       updateEmployee(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
       setIsDialogOpen(false);
       setSelectedEmployee(null);
       toast({
@@ -62,7 +68,7 @@ export function EmployeeManager() {
   const deleteMutation = useMutation({
     mutationFn: deleteEmployee,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
       toast({
         title: "Success",
         description: "Employee deleted successfully",
@@ -94,14 +100,14 @@ export function EmployeeManager() {
   return (
     <div className="space-y-6">
       <EmployeeHeader onAdd={handleAdd} />
-      <EmployeeList 
-        employees={employees || []} 
-        isLoading={isLoading} 
+      <EmployeeList
+        employees={employees || []}
+        isLoading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
-      <EmployeeDialog 
-        open={isDialogOpen} 
+      <EmployeeDialog
+        open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         employee={selectedEmployee}
         onSubmit={(data) => {

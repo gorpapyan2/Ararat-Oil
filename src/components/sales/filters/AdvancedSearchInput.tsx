@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,7 +68,11 @@ export function AdvancedSearchInput({
       </div>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search supplies..." value={inputValue} onValueChange={setInputValue} />
+        <CommandInput
+          placeholder="Search supplies..."
+          value={inputValue}
+          onValueChange={setInputValue}
+        />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           {recentSearches && recentSearches.length > 0 && (

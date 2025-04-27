@@ -1,5 +1,10 @@
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import {
   PieChart,
@@ -7,7 +12,7 @@ import {
   Cell,
   ResponsiveContainer,
   Legend,
-  Tooltip
+  Tooltip,
 } from "recharts";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
@@ -25,15 +30,15 @@ const COLORS = ["#3AA655", "#F6C90E", "#3E7CB1", "#F17300"];
 export function FuelDistributionChart() {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  
+
   return (
     <Card>
       <CardHeader className="space-y-1">
         <CardTitle className="text-xl md:text-2xl font-bold">
-          {t('dashboard.fuelDistribution')}
+          {t("dashboard.fuelDistribution")}
         </CardTitle>
         <CardDescription>
-          {t('dashboard.fuelDistributionDescription')}
+          {t("dashboard.fuelDistributionDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -45,28 +50,35 @@ export function FuelDistributionChart() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => 
-                  isMobile ? 
-                  `${(percent * 100).toFixed(0)}%` :
-                  `${name}: ${(percent * 100).toFixed(0)}%`
+                label={({ name, percent }) =>
+                  isMobile
+                    ? `${(percent * 100).toFixed(0)}%`
+                    : `${name}: ${(percent * 100).toFixed(0)}%`
                 }
                 outerRadius={isMobile ? 80 : 100}
                 fill="#8884d8"
                 dataKey="value"
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip
                 formatter={(value) => `${value}%`}
-                contentStyle={{ 
-                  borderRadius: '8px', 
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)', 
-                  border: '1px solid #e2e8f0' 
+                contentStyle={{
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  border: "1px solid #e2e8f0",
                 }}
               />
-              <Legend layout={isMobile ? "horizontal" : "vertical"} verticalAlign={isMobile ? "bottom" : "middle"} align={isMobile ? "center" : "right"} />
+              <Legend
+                layout={isMobile ? "horizontal" : "vertical"}
+                verticalAlign={isMobile ? "bottom" : "middle"}
+                align={isMobile ? "center" : "right"}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>

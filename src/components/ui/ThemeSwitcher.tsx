@@ -8,9 +8,9 @@ interface ThemeSwitcherProps {
   variant?: "ghost" | "accent" | "default" | "outline";
 }
 
-export function ThemeSwitcher({ 
+export function ThemeSwitcher({
   className,
-  variant = "ghost" 
+  variant = "ghost",
 }: ThemeSwitcherProps) {
   // Use the app store for theme management
   const { theme, setTheme } = useAppStore();
@@ -41,7 +41,9 @@ export function ThemeSwitcher({
       size="icon"
       className={className}
       onClick={toggleTheme}
-      aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+      aria-label={
+        theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+      }
     >
       {theme === "light" ? (
         <Moon className="h-5 w-5 transition-all" />
@@ -53,4 +55,4 @@ export function ThemeSwitcher({
       </span>
     </Button>
   );
-} 
+}

@@ -9,7 +9,11 @@ type AuthContextProps = {
   profile: any;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error?: string }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName?: string,
+  ) => Promise<{ error?: string }>;
   signOut: () => void;
 };
 
@@ -33,7 +37,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
-      
+
       if (initialSession?.user) {
         supabase
           .from("profiles")
@@ -47,10 +51,12 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, currentSession) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-      
+
       if (currentSession?.user) {
         supabase
           .from("profiles")
@@ -62,7 +68,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           });
       } else {
         setProfile(null);
-        if (event === 'SIGNED_OUT') {
+        if (event === "SIGNED_OUT") {
           navigate("/auth");
         }
       }
@@ -76,11 +82,14 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       if (error) return { error: error.message };
       return {};
     } catch (error: any) {
-      return { error: error.message || 'An error occurred during sign in' };
+      return { error: error.message || "An error occurred during sign in" };
     } finally {
       setIsLoading(false);
     }
@@ -88,8 +97,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     // Return a message indicating signup is disabled
-    return { error: "Signup is disabled. Please contact your administrator for account access." };
-    
+    return {
+      error:
+        "Signup is disabled. Please contact your administrator for account access.",
+    };
+
     // The code below is kept but will never be executed
     setIsLoading(true);
     try {
@@ -103,7 +115,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) return { error: error.message };
       return {};
     } catch (error: any) {
-      return { error: error.message || 'An error occurred during sign up' };
+      return { error: error.message || "An error occurred during sign up" };
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +134,9 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, isLoading, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{ user, session, profile, isLoading, signIn, signUp, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );

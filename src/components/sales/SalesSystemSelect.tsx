@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { FillingSystemSelect } from "./FillingSystemSelect";
 
@@ -8,7 +7,11 @@ interface SalesSystemSelectProps {
   systems: { id: string; name: string }[];
 }
 
-export function SalesSystemSelect({ value, onChange, systems }: SalesSystemSelectProps) {
+export function SalesSystemSelect({
+  value,
+  onChange,
+  systems,
+}: SalesSystemSelectProps) {
   return (
     <FillingSystemSelect
       value={value}

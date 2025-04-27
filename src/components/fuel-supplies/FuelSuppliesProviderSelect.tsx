@@ -1,5 +1,10 @@
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface FuelSuppliesProviderSelectProps {
   value: string;
@@ -10,11 +15,13 @@ interface FuelSuppliesProviderSelectProps {
 export function FuelSuppliesProviderSelect({
   value,
   onChange,
-  providers
+  providers,
 }: FuelSuppliesProviderSelectProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted-foreground">Provider</label>
+      <label className="text-xs font-medium text-muted-foreground">
+        Provider
+      </label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="h-9">
           <SelectValue placeholder="All providers" />

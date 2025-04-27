@@ -1,16 +1,40 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CalendarIcon, ChevronDown, FileText, DollarSign, CreditCard, AlignLeft } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronDown,
+  FileText,
+  DollarSign,
+  CreditCard,
+  AlignLeft,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import {
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectContent,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { ExpenseCategory, PaymentMethod, Expense } from "@/types";
-import { Form, FormField, FormLabel, FormItem, FormMessage, FormControl } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormLabel,
+  FormItem,
+  FormMessage,
+  FormControl,
+} from "@/components/ui/form";
 import { format } from "date-fns";
 import { useState } from "react";
 import { CurrencyField } from "@/components/form-fields/CurrencyField";
@@ -20,7 +44,10 @@ const schema = z.object({
   date: z.date({ required_error: "Expense date is required" }),
   category: z.string().min(1, "Category required"),
   description: z.string().min(2, "Description required"),
-  amount: z.coerce.number().positive("Positive value").finite("Must be a number"),
+  amount: z.coerce
+    .number()
+    .positive("Positive value")
+    .finite("Must be a number"),
   payment_method: z.string().min(1, "Payment method required"),
   invoice_number: z.string().optional(),
   notes: z.string().optional(),
@@ -35,9 +62,19 @@ interface ExpensesFormProps {
   onCancel: () => void;
 }
 
-export function ExpensesForm({ categories, expense, onSubmit, onCancel }: ExpensesFormProps) {
+export function ExpensesForm({
+  categories,
+  expense,
+  onSubmit,
+  onCancel,
+}: ExpensesFormProps) {
   // Payment methods
-  const paymentMethods: PaymentMethod[] = ["cash", "card", "bank_transfer", "mobile_payment"];
+  const paymentMethods: PaymentMethod[] = [
+    "cash",
+    "card",
+    "bank_transfer",
+    "mobile_payment",
+  ];
 
   const defaultValues: FormData = {
     date: expense?.date ? new Date(expense.date) : new Date(),
@@ -61,7 +98,7 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
     <Form {...form}>
       <form
         className="space-y-4"
-        onSubmit={form.handleSubmit(data => {
+        onSubmit={form.handleSubmit((data) => {
           onSubmit(data);
           form.reset();
         })}
@@ -72,9 +109,7 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
           name="date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Expense Date
-              </FormLabel>
+              <FormLabel>Expense Date</FormLabel>
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -82,11 +117,15 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
                       variant={"outline"}
                       className={cn(
                         "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
+                        !field.value && "text-muted-foreground",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
@@ -94,8 +133,11 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={d => { field.onChange(d); setCalendarOpen(false); }}
-                    disabled={date => date > new Date()}
+                    onSelect={(d) => {
+                      field.onChange(d);
+                      setCalendarOpen(false);
+                    }}
+                    disabled={(date) => date > new Date()}
                     initialFocus
                     className={cn("p-3 pointer-events-auto")}
                   />
@@ -119,7 +161,9 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -167,7 +211,7 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
                 <SelectContent>
                   {paymentMethods.map((method) => (
                     <SelectItem key={method} value={method}>
-                      {method.replace('_', ' ').toUpperCase()}
+                      {method.replace("_", " ").toUpperCase()}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -207,8 +251,12 @@ export function ExpensesForm({ categories, expense, onSubmit, onCancel }: Expens
 
         {/* Actions */}
         <div className="flex gap-2 justify-end">
-          <Button variant="outline" type="button" onClick={onCancel}>Cancel</Button>
-          <Button type="submit" className="bg-primary text-white">Save</Button>
+          <Button variant="outline" type="button" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" className="bg-primary text-white">
+            Save
+          </Button>
         </div>
       </form>
     </Form>

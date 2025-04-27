@@ -59,9 +59,15 @@ export function CardGrid({ metrics, className = "" }: CardGridProps) {
       </div>
 
       {/* Hidden grid for desktop layout, used for positioning */}
-      <div className={`hidden lg:grid lg:grid-cols-${Math.min(metrics.length, 4)} gap-4 absolute inset-0 -z-10`}>
+      <div
+        className={`hidden lg:grid lg:grid-cols-${Math.min(metrics.length, 4)} gap-4 absolute inset-0 -z-10`}
+      >
         {metrics.map((_, i) => (
-          <div key={i} className="opacity-0 pointer-events-none" aria-hidden="true" />
+          <div
+            key={i}
+            className="opacity-0 pointer-events-none"
+            aria-hidden="true"
+          />
         ))}
       </div>
 
@@ -79,4 +85,4 @@ export function CardGrid({ metrics, className = "" }: CardGridProps) {
       )}
     </div>
   );
-} 
+}

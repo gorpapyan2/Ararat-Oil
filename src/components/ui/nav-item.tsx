@@ -12,13 +12,13 @@ export interface NavItemProps {
   collapsed?: boolean;
 }
 
-export function NavItem({ 
-  to, 
-  label, 
-  icon, 
-  active = false, 
+export function NavItem({
+  to,
+  label,
+  icon,
+  active = false,
   onClick,
-  collapsed = false
+  collapsed = false,
 }: NavItemProps) {
   const { t } = useTranslation();
   const handleClick = () => {
@@ -36,7 +36,7 @@ export function NavItem({
         active
           ? "bg-accent/15 text-accent hover:bg-accent/20"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
-        collapsed && "justify-center px-2 py-2 w-10 h-10"
+        collapsed && "justify-center px-2 py-2 w-10 h-10",
       )}
     >
       <span className="text-muted-foreground/70">{icon}</span>

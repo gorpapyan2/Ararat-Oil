@@ -78,4 +78,4 @@ Our application implements the following accessibility features:
 - [Web Content Accessibility Guidelines (WCAG)](https://www.w3.org/WAI/standards-guidelines/wcag/)
 - [MDN Accessibility Documentation](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
 - [A11y Project Checklist](https://www.a11yproject.com/checklist/)
-- [Inclusive Components](https://inclusive-components.design/) 
+- [Inclusive Components](https://inclusive-components.design/)

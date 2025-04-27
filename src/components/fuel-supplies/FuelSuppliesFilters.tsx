@@ -1,4 +1,3 @@
-
 import { FuelSuppliesSearchBar } from "./FuelSuppliesSearchBar";
 import { FuelSuppliesDatePicker } from "./FuelSuppliesDatePicker";
 import { FuelSuppliesProviderSelect } from "./FuelSuppliesProviderSelect";
@@ -43,8 +42,8 @@ export function FuelSuppliesFilters({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <FuelSuppliesDatePicker date={date} onDateChange={onDateChange} />
-          <FuelSuppliesProviderSelect 
-            value={providerId} 
+          <FuelSuppliesProviderSelect
+            value={providerId}
             onChange={onProviderChange}
             providers={providers}
           />

@@ -1,5 +1,17 @@
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Employee } from "@/types";
 import type { Control } from "react-hook-form";
 import { CurrencyField } from "@/components/form-fields/CurrencyField";
@@ -10,9 +22,12 @@ interface PriceAndEmployeeInputsProps {
   employees?: Employee[];
 }
 
-export function PriceAndEmployeeInputs({ control, employees }: PriceAndEmployeeInputsProps) {
+export function PriceAndEmployeeInputs({
+  control,
+  employees,
+}: PriceAndEmployeeInputsProps) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="space-y-4">
       <CurrencyField
@@ -23,17 +38,16 @@ export function PriceAndEmployeeInputs({ control, employees }: PriceAndEmployeeI
         required
         min={0}
       />
-      
+
       <FormField
         control={control}
         name="employee_id"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-base font-medium">{t("sales.employee")}</FormLabel>
-            <Select 
-              onValueChange={field.onChange} 
-              defaultValue={field.value}
-            >
+            <FormLabel className="text-base font-medium">
+              {t("sales.employee")}
+            </FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder={t("common.selectAnOption")} />
@@ -53,4 +67,4 @@ export function PriceAndEmployeeInputs({ control, employees }: PriceAndEmployeeI
       />
     </div>
   );
-} 
+}

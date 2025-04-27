@@ -1,5 +1,5 @@
-import { PostgrestError, PostgrestSingleResponse } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { PostgrestError, PostgrestSingleResponse } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Helper function to ensure consistent error handling and response parsing
@@ -7,16 +7,16 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export async function safeQuery<T>(
   query: Promise<PostgrestSingleResponse<T>>,
-  errorMessage = 'Database query failed'
+  errorMessage = "Database query failed",
 ): Promise<T | null> {
   try {
     const { data, error } = await query;
-    
+
     if (error) {
       console.error(`${errorMessage}:`, error);
       return null;
     }
-    
+
     return data;
   } catch (err) {
     console.error(`Exception in ${errorMessage}:`, err);
@@ -29,22 +29,22 @@ export async function safeQuery<T>(
  */
 export async function fetchEmployeeByUserId(userId: string) {
   if (!userId) return null;
-  
+
   try {
     const { data, error } = await supabase
-      .from('employees')
-      .select('id, name')
-      .eq('id', userId)
+      .from("employees")
+      .select("id, name")
+      .eq("id", userId)
       .maybeSingle();
-      
+
     if (error) {
-      console.error('Error fetching employee record:', error);
+      console.error("Error fetching employee record:", error);
       return null;
     }
-    
+
     return data;
   } catch (err) {
-    console.error('Exception in fetching employee record:', err);
+    console.error("Exception in fetching employee record:", err);
     return null;
   }
 }
@@ -54,23 +54,23 @@ export async function fetchEmployeeByUserId(userId: string) {
  */
 export async function fetchActiveShift(employeeId: string) {
   if (!employeeId) return null;
-  
+
   try {
     const { data, error } = await supabase
-      .from('shifts')
+      .from("shifts")
       .select()
-      .eq('employee_id', employeeId)
-      .eq('status', 'OPEN')
+      .eq("employee_id", employeeId)
+      .eq("status", "OPEN")
       .maybeSingle();
-      
+
     if (error) {
-      console.error('Error fetching active shift:', error);
+      console.error("Error fetching active shift:", error);
       return null;
     }
-    
+
     return data;
   } catch (error) {
-    console.error('Exception in fetching active shift:', error);
+    console.error("Exception in fetching active shift:", error);
     return null;
   }
 }
@@ -80,23 +80,23 @@ export async function fetchActiveShift(employeeId: string) {
  */
 export async function fetchShiftHistory(employeeId: string, limit = 10) {
   if (!employeeId) return [];
-  
+
   try {
     const { data, error } = await supabase
-      .from('shifts')
+      .from("shifts")
       .select()
-      .eq('employee_id', employeeId)
-      .order('created_at', { ascending: false })
+      .eq("employee_id", employeeId)
+      .order("created_at", { ascending: false })
       .limit(limit);
-      
+
     if (error) {
-      console.error('Error fetching shift history:', error);
+      console.error("Error fetching shift history:", error);
       return [];
     }
-    
+
     return data || [];
   } catch (err) {
-    console.error('Exception in fetching shift history:', err);
+    console.error("Exception in fetching shift history:", err);
     return [];
   }
 }

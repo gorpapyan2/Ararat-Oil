@@ -1,4 +1,3 @@
-
 import { Edit, Trash2 } from "lucide-react";
 import {
   Table,
@@ -19,28 +18,33 @@ interface EmployeeListProps {
   onDelete: (id: string) => void;
 }
 
-export function EmployeeList({ employees, isLoading, onEdit, onDelete }: EmployeeListProps) {
-  const getStatusBadgeVariant = (status: Employee['status']) => {
+export function EmployeeList({
+  employees,
+  isLoading,
+  onEdit,
+  onDelete,
+}: EmployeeListProps) {
+  const getStatusBadgeVariant = (status: Employee["status"]) => {
     switch (status) {
-      case 'active':
-        return 'default';
-      case 'on_leave':
-        return 'secondary';
-      case 'terminated':
-        return 'destructive';
+      case "active":
+        return "default";
+      case "on_leave":
+        return "secondary";
+      case "terminated":
+        return "destructive";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
-  const formatStatus = (status: Employee['status']) => {
+  const formatStatus = (status: Employee["status"]) => {
     switch (status) {
-      case 'active':
-        return 'Active';
-      case 'on_leave':
-        return 'On Leave';
-      case 'terminated':
-        return 'Terminated';
+      case "active":
+        return "Active";
+      case "on_leave":
+        return "On Leave";
+      case "terminated":
+        return "Terminated";
       default:
         return status;
     }
@@ -70,7 +74,9 @@ export function EmployeeList({ employees, isLoading, onEdit, onDelete }: Employe
               <TableCell className="font-medium">{employee.name}</TableCell>
               <TableCell>{employee.position}</TableCell>
               <TableCell>{employee.contact}</TableCell>
-              <TableCell>{new Date(employee.hire_date).toLocaleDateString()}</TableCell>
+              <TableCell>
+                {new Date(employee.hire_date).toLocaleDateString()}
+              </TableCell>
               <TableCell>${employee.salary.toLocaleString()}</TableCell>
               <TableCell>
                 <Badge variant={getStatusBadgeVariant(employee.status)}>

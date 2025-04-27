@@ -1,8 +1,7 @@
-
 import { LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import { useTranslation } from "react-i18next";
 
 interface SidebarFooterProps {
@@ -11,18 +10,28 @@ interface SidebarFooterProps {
   onSignOut: () => void;
 }
 
-export function SidebarFooter({ collapsed, onToggleCollapse, onSignOut }: SidebarFooterProps) {
+export function SidebarFooter({
+  collapsed,
+  onToggleCollapse,
+  onSignOut,
+}: SidebarFooterProps) {
   const { t } = useTranslation();
 
   return (
     <div className="border-t p-4 space-y-4">
       {/* Theme toggle */}
-      <div className={cn(
-        "flex items-center",
-        collapsed ? "justify-center" : "justify-between"
-      )}>
-        {!collapsed && <span className="text-sm text-muted-foreground">{t("common.theme")}</span>}
-        <ThemeToggle />
+      <div
+        className={cn(
+          "flex items-center",
+          collapsed ? "justify-center" : "justify-between",
+        )}
+      >
+        {!collapsed && (
+          <span className="text-sm text-muted-foreground">
+            {t("common.theme")}
+          </span>
+        )}
+        <ThemeSwitcher variant="ghost" />
       </div>
 
       {/* Collapse button */}

@@ -14,37 +14,48 @@ interface HeaderProps {
 export function Header({ className }: HeaderProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
-  
+
   return (
-    <header className={cn(
-      "h-16 shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-      "flex items-center justify-between px-4",
-      className
-    )}>
+    <header
+      className={cn(
+        "h-16 shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "flex items-center justify-between px-4",
+        className,
+      )}
+    >
       <div className="flex-1">
         {/* Placeholder for left section if needed */}
       </div>
-      
+
       <div className="flex items-center space-x-2">
-        <Button variant="ghost" size="icon" aria-label={t("common.help") || "Help"}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("common.help") || "Help"}
+        >
           <HelpCircle className="h-5 w-5" />
         </Button>
-        
-        <Button variant="ghost" size="icon" aria-label={t("common.notifications") || "Notifications"}>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("common.notifications") || "Notifications"}
+        >
           <Bell className="h-5 w-5" />
         </Button>
-        
+
         <ThemeSwitcher variant="ghost" />
-        
-        <Button variant="ghost" size="icon" aria-label={t("common.settings") || "Settings"}>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("common.settings") || "Settings"}
+        >
           <Settings className="h-5 w-5" />
         </Button>
-        
-        <LanguageSwitcher 
-          variant="icon"
-          className="ml-2"
-        />
+
+        <LanguageSwitcher variant="icon" className="ml-2" />
       </div>
     </header>
   );
-} 
+}

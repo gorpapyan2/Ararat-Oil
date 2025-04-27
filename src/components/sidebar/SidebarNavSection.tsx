@@ -1,4 +1,3 @@
-
 import { NavItem } from "@/components/ui/nav-item";
 import { SidebarSection } from "@/components/ui/sidebar-section";
 import { useLocation } from "react-router-dom";
@@ -16,7 +15,11 @@ interface SidebarNavSectionProps {
   collapsed: boolean;
 }
 
-export function SidebarNavSection({ title, items, collapsed }: SidebarNavSectionProps) {
+export function SidebarNavSection({
+  title,
+  items,
+  collapsed,
+}: SidebarNavSectionProps) {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
 

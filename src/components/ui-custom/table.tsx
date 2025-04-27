@@ -22,52 +22,61 @@ const Table = React.forwardRef<
     noShadow?: boolean;
     maxHeight?: string;
   }
->(({ 
-  className, 
-  containerClassName,
-  isLoading = false,
-  stickyHeader = false,
-  maxHeight = "none",
-  noShadow = false,
-  children,
-  ...props 
-}, ref) => (
-  <div 
-    className={cn(
-      "relative rounded-xl border bg-card", 
-      !noShadow && "shadow-sm",
-      containerClassName
-    )}
-  >
-    <div 
+>(
+  (
+    {
+      className,
+      containerClassName,
+      isLoading = false,
+      stickyHeader = false,
+      maxHeight = "none",
+      noShadow = false,
+      children,
+      ...props
+    },
+    ref,
+  ) => (
+    <div
       className={cn(
-        "overflow-auto no-scrollbar",
-        stickyHeader && "rounded-xl",
-        maxHeight !== "none" && "max-h-[--max-height]"
+        "relative rounded-xl border bg-card",
+        !noShadow && "shadow-sm",
+        containerClassName,
       )}
-      style={maxHeight !== "none" ? { "--max-height": maxHeight } as React.CSSProperties : {}}
     >
-      <ShadcnTable
-        ref={ref}
+      <div
         className={cn(
-          "w-full caption-bottom text-sm",
-          isLoading && "opacity-50",
-          className,
+          "overflow-auto no-scrollbar",
+          stickyHeader && "rounded-xl",
+          maxHeight !== "none" && "max-h-[--max-height]",
         )}
-        {...props}
+        style={
+          maxHeight !== "none"
+            ? ({ "--max-height": maxHeight } as React.CSSProperties)
+            : {}
+        }
       >
-        {children}
-      </ShadcnTable>
-      
-      {/* Loading overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
-          <div className="rounded-full h-8 w-8 border-4 border-primary/30 border-t-primary animate-spin" />
-        </div>
-      )}
+        <ShadcnTable
+          ref={ref}
+          className={cn(
+            "w-full caption-bottom text-sm",
+            isLoading && "opacity-50",
+            className,
+          )}
+          {...props}
+        >
+          {children}
+        </ShadcnTable>
+
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
+            <div className="rounded-full h-8 w-8 border-4 border-primary/30 border-t-primary animate-spin" />
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-));
+  ),
+);
 Table.displayName = "Table";
 
 // Custom Header with sticky option
@@ -81,8 +90,9 @@ const TableHeader = React.forwardRef<
     ref={ref}
     className={cn(
       "[&_tr]:border-b",
-      sticky && "sticky top-0 z-10 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60",
-      className
+      sticky &&
+        "sticky top-0 z-10 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60",
+      className,
     )}
     {...props}
   />
@@ -109,7 +119,9 @@ const TableBody = React.forwardRef<
             {emptyContent || (
               <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground p-4">
                 <p className="text-lg">No data to display</p>
-                <p className="text-sm">Try adjusting your filters or search criteria</p>
+                <p className="text-sm">
+                  Try adjusting your filters or search criteria
+                </p>
               </div>
             )}
           </TableCell>
@@ -136,7 +148,8 @@ const TableHead = React.forwardRef<
     sortDirection?: "asc" | "desc" | null;
   }
 >(({ className, sortable = false, sortDirection, children, ...props }, ref) => {
-  const sortIcon = sortDirection === "asc" ? "↑" : sortDirection === "desc" ? "↓" : "↕";
+  const sortIcon =
+    sortDirection === "asc" ? "↑" : sortDirection === "desc" ? "↓" : "↕";
 
   return (
     <ShadcnTableHead
@@ -145,7 +158,7 @@ const TableHead = React.forwardRef<
         "h-12 px-4 text-left align-middle font-medium text-muted-foreground",
         "[&:has([role=checkbox])]:pr-0",
         sortable && "cursor-pointer hover:text-foreground transition-colors",
-        className
+        className,
       )}
       {...props}
     >
@@ -170,7 +183,7 @@ const TableRow = React.forwardRef<
     className={cn(
       "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
       highlight && "bg-primary/5",
-      className
+      className,
     )}
     {...props}
   />
@@ -197,7 +210,7 @@ const TableFooter = React.forwardRef<
     ref={ref}
     className={cn(
       "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
-      className
+      className,
     )}
     {...props}
   />
@@ -244,8 +257,8 @@ function DataTable<T>({
   emptyContent,
 }: DataTableProps<T>) {
   return (
-    <Table 
-      className={className} 
+    <Table
+      className={className}
       isLoading={isLoading}
       stickyHeader={stickyHeader}
       maxHeight={maxHeight}
@@ -253,7 +266,7 @@ function DataTable<T>({
       <TableHeader sticky={stickyHeader}>
         <TableRow>
           {columns.map((column) => (
-            <TableHead 
+            <TableHead
               key={column.accessor as string}
               sortable={column.sortable}
             >
@@ -264,17 +277,16 @@ function DataTable<T>({
       </TableHeader>
       <TableBody empty={data.length === 0} emptyContent={emptyContent}>
         {data.map((item, i) => (
-          <TableRow 
-            key={i} 
+          <TableRow
+            key={i}
             onClick={onRowClick ? () => onRowClick(item) : undefined}
             className={onRowClick ? "cursor-pointer" : undefined}
           >
             {columns.map((column) => (
               <TableCell key={column.accessor as string}>
-                {column.cell 
+                {column.cell
                   ? column.cell(item[column.accessor], item)
-                  : item[column.accessor] as React.ReactNode
-                }
+                  : (item[column.accessor] as React.ReactNode)}
               </TableCell>
             ))}
           </TableRow>

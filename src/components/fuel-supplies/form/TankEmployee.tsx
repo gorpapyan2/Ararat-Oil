@@ -1,6 +1,17 @@
-
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Control } from "react-hook-form";
 import { Employee, FuelTank } from "@/types";
 
@@ -27,7 +38,7 @@ export function TankEmployee({ control, tanks, employees }: TankEmployeeProps) {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {tanks?.map(tank => (
+                {tanks?.map((tank) => (
                   <SelectItem key={tank.id} value={tank.id}>
                     {tank.name} ({tank.fuel_type})
                   </SelectItem>
@@ -53,7 +64,7 @@ export function TankEmployee({ control, tanks, employees }: TankEmployeeProps) {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {employees?.map(employee => (
+                {employees?.map((employee) => (
                   <SelectItem key={employee.id} value={employee.id}>
                     {employee.name}
                   </SelectItem>

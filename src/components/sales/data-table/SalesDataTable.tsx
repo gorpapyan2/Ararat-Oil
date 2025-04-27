@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   ColumnDef,
@@ -79,7 +78,9 @@ export function SalesDataTable<TData, TValue>({
       <div className="flex items-center justify-between">
         <Input
           placeholder={searchPlaceholder}
-          value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""}
+          value={
+            (table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
             table.getColumn(searchColumn)?.setFilterValue(event.target.value)
           }
@@ -88,7 +89,10 @@ export function SalesDataTable<TData, TValue>({
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto flex gap-1 items-center">
+              <Button
+                variant="outline"
+                className="ml-auto flex gap-1 items-center"
+              >
                 Columns <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -106,10 +110,13 @@ export function SalesDataTable<TData, TValue>({
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id === "filling_system_name" ? "Filling System" : 
-                       column.id === "price_per_unit" ? "Price/Unit" :
-                       column.id === "total_sales" ? "Total Sales" :
-                       column.id}
+                      {column.id === "filling_system_name"
+                        ? "Filling System"
+                        : column.id === "price_per_unit"
+                          ? "Price/Unit"
+                          : column.id === "total_sales"
+                            ? "Total Sales"
+                            : column.id}
                     </DropdownMenuCheckboxItem>
                   );
                 })}
@@ -124,7 +131,7 @@ export function SalesDataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead 
+                    <TableHead
                       key={header.id}
                       className={header.id === "actions" ? "w-[120px]" : ""}
                     >
@@ -132,7 +139,7 @@ export function SalesDataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -151,7 +158,7 @@ export function SalesDataTable<TData, TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

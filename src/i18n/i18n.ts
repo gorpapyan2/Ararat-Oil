@@ -1,10 +1,10 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import Backend from 'i18next-http-backend';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+import Backend from "i18next-http-backend";
 
 // Import translations directly
-import hyTranslation from './locales/hy/translation.json';
+import hyTranslation from "./locales/hy/translation.json";
 
 // We'll load translations asynchronously instead of importing them directly
 // This comment is left to show what we're replacing
@@ -21,22 +21,22 @@ i18n
   .init({
     resources: {
       hy: {
-        translation: hyTranslation
-      }
+        translation: hyTranslation,
+      },
     },
-    fallbackLng: 'hy',
-    supportedLngs: ['hy'],
-    debug: process.env.NODE_ENV === 'development',
+    fallbackLng: "hy",
+    supportedLngs: ["hy"],
+    debug: process.env.NODE_ENV === "development",
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },
     detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
+      order: ["localStorage", "navigator"],
+      caches: ["localStorage"],
     },
     react: {
       useSuspense: true, // Use React Suspense for loading translations
     },
   });
 
-export default i18n; 
+export default i18n;

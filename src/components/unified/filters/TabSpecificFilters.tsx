@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -26,21 +30,21 @@ interface FiltersShape {
   // Common filters
   date?: Date;
   dateRange?: [Date | undefined, Date | undefined];
-  
+
   // Fuel Supplies specific filters
   provider: string;
   tankId?: string;
-  
+
   // Sales specific filters
   systemId?: string;
   salesFuelType?: string;
   employeeId?: string;
-  
+
   // Expenses specific filters
   expenseCategory?: string;
   paymentMethod?: string;
   paymentStatus?: string;
-  
+
   // Range filters
   quantityRange: [number, number];
   priceRange: [number, number];
@@ -55,7 +59,13 @@ interface TabFiltersProps {
   categories?: { id: string; name: string }[];
   systems?: { id: string; name: string }[];
   expenseCategories?: { id: string; name: string }[];
-  tanks?: { id: string; name: string; fuel_type: string; capacity: number; current_level: number }[];
+  tanks?: {
+    id: string;
+    name: string;
+    fuel_type: string;
+    capacity: number;
+    current_level: number;
+  }[];
 }
 
 export function TabSpecificFilters({
@@ -76,7 +86,8 @@ export function TabSpecificFilters({
     let count = 0;
     // Common filters
     if (filters.date) count++;
-    if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1])) count++;
+    if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1]))
+      count++;
     // Tab-specific filters
     if (activeTab === "fuel-supplies") {
       if (filters.provider && filters.provider !== "all") count++;
@@ -89,7 +100,11 @@ export function TabSpecificFilters({
       if (filters.paymentStatus && filters.paymentStatus !== "all") count++;
     }
     // Range filters
-    if (filters.quantityRange[0] > 0 || filters.quantityRange[1] < (activeTab === "expenses" ? 1000000 : 10000)) count++;
+    if (
+      filters.quantityRange[0] > 0 ||
+      filters.quantityRange[1] < (activeTab === "expenses" ? 1000000 : 10000)
+    )
+      count++;
     if (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000) count++;
     if (filters.totalRange[0] > 0 || filters.totalRange[1] < 10000000) count++;
     return count;
@@ -126,13 +141,15 @@ export function TabSpecificFilters({
           className="w-full"
         />
       </div>
-      
+
       <Separator className="my-2 opacity-50" />
-      
+
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {/* Provider filter */}
         <div className="w-full flex flex-col gap-2">
-          <Label className="text-sm font-medium text-muted-foreground">{t("fuelSupplies.provider")}</Label>
+          <Label className="text-sm font-medium text-muted-foreground">
+            {t("fuelSupplies.provider")}
+          </Label>
           <Select
             value={filters.provider}
             onValueChange={(value) => onFiltersChange({ provider: value })}
@@ -152,7 +169,9 @@ export function TabSpecificFilters({
         </div>
         {/* Tank filter */}
         <div className="w-full flex flex-col gap-2">
-          <Label className="text-sm font-medium text-muted-foreground">{t("fuelSupplies.tank")}</Label>
+          <Label className="text-sm font-medium text-muted-foreground">
+            {t("fuelSupplies.tank")}
+          </Label>
           <Select
             value={filters.tankId || "all"}
             onValueChange={(value) => onFiltersChange({ tankId: value })}
@@ -170,7 +189,7 @@ export function TabSpecificFilters({
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="w-full lg:col-span-3 grid gap-5 sm:grid-cols-2">
           {/* Price and Total Cost filters remain unchanged */}
           <RangeSliderFilter
@@ -210,7 +229,9 @@ export function TabSpecificFilters({
                 }`}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.date ? format(filters.date, "PPP") : t("common.selectAnOption")}
+                {filters.date
+                  ? format(filters.date, "PPP")
+                  : t("common.selectAnOption")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -224,7 +245,7 @@ export function TabSpecificFilters({
           </Popover>
         </div>
       </div>
-      
+
       <div className="grid gap-4">
         {/* Filling System filter */}
         <div className="w-full flex flex-col gap-1.5">
@@ -238,18 +259,19 @@ export function TabSpecificFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Systems</SelectItem>
-              {systems && systems.map((system) => (
-                <SelectItem key={system.id} value={system.id}>
-                  {system.name}
-                </SelectItem>
-              ))}
+              {systems &&
+                systems.map((system) => (
+                  <SelectItem key={system.id} value={system.id}>
+                    {system.name}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
       </div>
-      
+
       <Separator className="my-4" />
-      
+
       <div className="grid gap-6 md:grid-cols-3">
         <RangeSliderFilter
           label={t("sales.unitPrice")}
@@ -287,7 +309,9 @@ export function TabSpecificFilters({
                 }`}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.date ? format(filters.date, "PPP") : t("common.selectAnOption")}
+                {filters.date
+                  ? format(filters.date, "PPP")
+                  : t("common.selectAnOption")}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -301,29 +325,32 @@ export function TabSpecificFilters({
           </Popover>
         </div>
       </div>
-      
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {/* Category filter */}
         <div className="w-full flex flex-col gap-1.5">
           <Label>{t("expenses.expenseCategory")}</Label>
           <Select
             value={filters.expenseCategory}
-            onValueChange={(value) => onFiltersChange({ expenseCategory: value })}
+            onValueChange={(value) =>
+              onFiltersChange({ expenseCategory: value })
+            }
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder={t("common.selectAnOption")} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {expenseCategories && expenseCategories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
+              {expenseCategories &&
+                expenseCategories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
-        
+
         {/* Payment Method filter */}
         <div className="w-full flex flex-col gap-1.5">
           <Label>{t("expenses.paymentMethod")}</Label>
@@ -341,7 +368,7 @@ export function TabSpecificFilters({
             </SelectContent>
           </Select>
         </div>
-        
+
         {/* Payment Status filter */}
         <div className="w-full flex flex-col gap-1.5">
           <Label>{t("expenses.paymentStatus")}</Label>
@@ -361,9 +388,9 @@ export function TabSpecificFilters({
           </Select>
         </div>
       </div>
-      
+
       <Separator className="my-4" />
-      
+
       <div className="grid gap-6 md:grid-cols-3">
         <RangeSliderFilter
           label={t("expenses.amount")}
@@ -381,19 +408,22 @@ export function TabSpecificFilters({
   // Render active filter chips
   const renderActiveFilterChips = () => {
     const activeFiltersCount = getActiveFiltersCount();
-    
+
     if (activeFiltersCount === 0) {
       return null;
     }
-    
+
     return (
       <div className="flex flex-wrap gap-2 mt-6 pt-4 border-t border-border/30">
         {filters.date && (
-          <Badge variant="secondary" className="px-3 py-1.5 h-auto rounded-md bg-primary/10 hover:bg-primary/20 transition-colors">
+          <Badge
+            variant="secondary"
+            className="px-3 py-1.5 h-auto rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
+          >
             {t("common.date")}: {format(filters.date, "PP")}
             <Button
-              variant="ghost" 
-              size="icon" 
+              variant="ghost"
+              size="icon"
               className="h-4 w-4 ml-1.5 opacity-70 hover:opacity-100"
               onClick={() => onFiltersChange({ date: undefined })}
             >
@@ -402,57 +432,78 @@ export function TabSpecificFilters({
             </Button>
           </Badge>
         )}
-        
-        {filters.dateRange && (filters.dateRange[0] || filters.dateRange[1]) && (
-          <Badge variant="secondary" className="px-3 py-1.5 h-auto rounded-md bg-primary/10 hover:bg-primary/20 transition-colors">
-            {t("common.period")}: {filters.dateRange[0] ? format(filters.dateRange[0], "PP") : '?'} - {filters.dateRange[1] ? format(filters.dateRange[1], "PP") : '?'}
-            <Button
-              variant="ghost" 
-              size="icon" 
-              className="h-4 w-4 ml-1.5 opacity-70 hover:opacity-100"
-              onClick={() => onFiltersChange({ dateRange: [undefined, undefined] })}
+
+        {filters.dateRange &&
+          (filters.dateRange[0] || filters.dateRange[1]) && (
+            <Badge
+              variant="secondary"
+              className="px-3 py-1.5 h-auto rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
             >
-              <X className="h-3 w-3" />
-              <span className="sr-only">Clear date range filter</span>
-            </Button>
-          </Badge>
-        )}
-        
+              {t("common.period")}:{" "}
+              {filters.dateRange[0] ? format(filters.dateRange[0], "PP") : "?"}{" "}
+              -{" "}
+              {filters.dateRange[1] ? format(filters.dateRange[1], "PP") : "?"}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 ml-1.5 opacity-70 hover:opacity-100"
+                onClick={() =>
+                  onFiltersChange({ dateRange: [undefined, undefined] })
+                }
+              >
+                <X className="h-3 w-3" />
+                <span className="sr-only">Clear date range filter</span>
+              </Button>
+            </Badge>
+          )}
+
         {/* Tab-specific filter chips */}
-        {activeTab === "fuel-supplies" && filters.provider && filters.provider !== "all" && (
-          <Badge variant="secondary" className="px-3 py-1.5 h-auto rounded-md bg-primary/10 hover:bg-primary/20 transition-colors">
-            {t("fuelSupplies.provider")}: {providers.find(p => p.id === filters.provider)?.name}
-            <Button
-              variant="ghost" 
-              size="icon" 
-              className="h-4 w-4 ml-1.5 opacity-70 hover:opacity-100"
-              onClick={() => onFiltersChange({ provider: "all" })}
+        {activeTab === "fuel-supplies" &&
+          filters.provider &&
+          filters.provider !== "all" && (
+            <Badge
+              variant="secondary"
+              className="px-3 py-1.5 h-auto rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
             >
-              <X className="h-3 w-3" />
-              <span className="sr-only">Clear provider filter</span>
-            </Button>
-          </Badge>
-        )}
-        
-        {activeTab === "fuel-supplies" && filters.tankId && filters.tankId !== "all" && (
-          <Badge variant="secondary" className="px-3 py-1.5 h-auto rounded-md bg-primary/10 hover:bg-primary/20 transition-colors">
-            {t("fuelSupplies.tank")}: {tanks.find(t => t.id === filters.tankId)?.name}
-            <Button
-              variant="ghost" 
-              size="icon" 
-              className="h-4 w-4 ml-1.5 opacity-70 hover:opacity-100"
-              onClick={() => onFiltersChange({ tankId: "all" })}
+              {t("fuelSupplies.provider")}:{" "}
+              {providers.find((p) => p.id === filters.provider)?.name}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 ml-1.5 opacity-70 hover:opacity-100"
+                onClick={() => onFiltersChange({ provider: "all" })}
+              >
+                <X className="h-3 w-3" />
+                <span className="sr-only">Clear provider filter</span>
+              </Button>
+            </Badge>
+          )}
+
+        {activeTab === "fuel-supplies" &&
+          filters.tankId &&
+          filters.tankId !== "all" && (
+            <Badge
+              variant="secondary"
+              className="px-3 py-1.5 h-auto rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
             >
-              <X className="h-3 w-3" />
-              <span className="sr-only">Clear tank filter</span>
-            </Button>
-          </Badge>
-        )}
-        
+              {t("fuelSupplies.tank")}:{" "}
+              {tanks.find((t) => t.id === filters.tankId)?.name}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 ml-1.5 opacity-70 hover:opacity-100"
+                onClick={() => onFiltersChange({ tankId: "all" })}
+              >
+                <X className="h-3 w-3" />
+                <span className="sr-only">Clear tank filter</span>
+              </Button>
+            </Badge>
+          )}
+
         {activeFiltersCount > 0 && (
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={resetFilters}
             className="ml-auto"
           >

@@ -1,22 +1,19 @@
 import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { 
-  IconUsers, 
+import {
+  IconUsers,
   IconUserPlus,
   IconEdit,
-  IconTrash
+  IconTrash,
 } from "@tabler/icons-react";
 
 // Import our custom UI components
-import { 
-  PageHeader, 
-  CreateButton 
-} from "@/components/ui-custom/page-header";
+import { PageHeader, CreateButton } from "@/components/ui-custom/page-header";
 import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui-custom/card";
 import { MetricCard } from "@/components/ui-custom/data-card";
 
@@ -28,16 +25,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 // Import employee-related components and services
-import { 
-  useQuery, 
-  useMutation, 
-  useQueryClient 
-} from "@tanstack/react-query";
-import { 
-  fetchEmployees, 
-  createEmployee, 
-  updateEmployee, 
-  deleteEmployee 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchEmployees,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
 } from "@/services/employees";
 import { Employee, EmployeeStatus } from "@/types";
 import { EmployeeDialog } from "@/components/employees/EmployeeDialog";
@@ -49,11 +42,13 @@ export default function EmployeesNew() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // State for dialog and employee selection
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null,
+  );
+
   // Unified filters state
   const [filters, setFilters] = useState({
     search: "",
@@ -66,21 +61,18 @@ export default function EmployeesNew() {
     priceRange: [0, 10000] as [number, number],
     totalRange: [0, 10000000] as [number, number],
   });
-  
+
   // Fetch employees data
-  const { 
-    data: employees = [], 
-    isLoading 
-  } = useQuery({
-    queryKey: ['employees'],
-    queryFn: fetchEmployees
+  const { data: employees = [], isLoading } = useQuery({
+    queryKey: ["employees"],
+    queryFn: fetchEmployees,
   });
-  
+
   // Mutations for CRUD operations
   const createMutation = useMutation({
     mutationFn: createEmployee,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
       setIsDialogOpen(false);
       toast({
         title: "Success",
@@ -97,10 +89,10 @@ export default function EmployeesNew() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Employee> }) => 
+    mutationFn: ({ id, data }: { id: string; data: Partial<Employee> }) =>
       updateEmployee(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
       setIsDialogOpen(false);
       setSelectedEmployee(null);
       toast({
@@ -120,7 +112,7 @@ export default function EmployeesNew() {
   const deleteMutation = useMutation({
     mutationFn: deleteEmployee,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
       toast({
         title: "Success",
         description: "Employee deleted successfully",
@@ -134,7 +126,7 @@ export default function EmployeesNew() {
       });
     },
   });
-  
+
   // Handle actions
   const handleAdd = () => {
     setSelectedEmployee(null);
@@ -157,34 +149,38 @@ export default function EmployeesNew() {
 
   // Handle filter changes
   const handleFiltersChange = (updates: any) => {
-    setFilters(prev => ({ ...prev, ...updates }));
+    setFilters((prev) => ({ ...prev, ...updates }));
   };
-  
+
   // Calculate metrics
   const totalEmployees = employees.length;
-  const activeEmployees = employees.filter(emp => emp.status === "active").length;
-  const onLeaveEmployees = employees.filter(emp => emp.status === "on_leave").length;
-  
+  const activeEmployees = employees.filter(
+    (emp) => emp.status === "active",
+  ).length;
+  const onLeaveEmployees = employees.filter(
+    (emp) => emp.status === "on_leave",
+  ).length;
+
   // Extract unique positions for filtering
   const uniquePositions = useMemo(() => {
-    return Array.from(new Set(employees.map(emp => emp.position)))
+    return Array.from(new Set(employees.map((emp) => emp.position)))
       .filter(Boolean)
       .sort();
   }, [employees]);
-  
+
   // Create position categories for filter
   const positionCategories = useMemo(() => {
-    return uniquePositions.map(position => ({
+    return uniquePositions.map((position) => ({
       id: position,
-      name: position
+      name: position,
     }));
   }, [uniquePositions]);
-  
+
   // Format salary
   const formatSalary = (salary: number) => {
     return `${salary.toLocaleString()} ֏`;
   };
-  
+
   // Get status badge variant
   const getStatusBadgeVariant = (status: EmployeeStatus) => {
     switch (status) {
@@ -198,7 +194,7 @@ export default function EmployeesNew() {
         return "outline";
     }
   };
-  
+
   // Format status text
   const formatStatus = (status: EmployeeStatus) => {
     switch (status) {
@@ -212,39 +208,41 @@ export default function EmployeesNew() {
         return status;
     }
   };
-  
+
   // Define table columns
   const columns: ColumnDef<Employee, any>[] = [
     {
-      accessorKey: 'name',
-      header: () => t('employees.name'),
-      cell: ({ row }) => <span className="font-medium">{row.getValue('name')}</span>,
+      accessorKey: "name",
+      header: () => t("employees.name"),
+      cell: ({ row }) => (
+        <span className="font-medium">{row.getValue("name")}</span>
+      ),
     },
     {
-      accessorKey: 'position',
-      header: () => t('employees.position'),
-      cell: ({ row }) => row.getValue('position'),
+      accessorKey: "position",
+      header: () => t("employees.position"),
+      cell: ({ row }) => row.getValue("position"),
     },
     {
-      accessorKey: 'email',
-      header: () => t('employees.email'),
-      cell: ({ row }) => row.getValue('email'),
+      accessorKey: "email",
+      header: () => t("employees.email"),
+      cell: ({ row }) => row.getValue("email"),
     },
     {
-      accessorKey: 'phone',
-      header: () => t('employees.phone'),
-      cell: ({ row }) => row.getValue('phone'),
+      accessorKey: "phone",
+      header: () => t("employees.phone"),
+      cell: ({ row }) => row.getValue("phone"),
     },
     {
-      accessorKey: 'salary',
-      header: () => t('employees.salary'),
-      cell: ({ row }) => formatSalary(row.getValue('salary')),
+      accessorKey: "salary",
+      header: () => t("employees.salary"),
+      cell: ({ row }) => formatSalary(row.getValue("salary")),
     },
     {
-      accessorKey: 'status',
-      header: () => t('employees.status'),
+      accessorKey: "status",
+      header: () => t("employees.status"),
       cell: ({ row }) => {
-        const status = row.getValue('status') as EmployeeStatus;
+        const status = row.getValue("status") as EmployeeStatus;
         return (
           <Badge variant={getStatusBadgeVariant(status)}>
             {formatStatus(status)}
@@ -253,32 +251,45 @@ export default function EmployeesNew() {
       },
     },
     {
-      accessorKey: 'hire_date',
-      header: () => t('employees.hireDate'),
-      cell: ({ row }) => format(new Date(row.getValue('hire_date')), 'MMM dd, yyyy'),
+      accessorKey: "hire_date",
+      header: () => t("employees.hireDate"),
+      cell: ({ row }) =>
+        format(new Date(row.getValue("hire_date")), "MMM dd, yyyy"),
     },
     {
-      id: 'actions',
+      id: "actions",
       cell: ({ row }) => {
         const employee = row.original;
         return (
           <div className="flex items-center justify-end gap-2">
-            <Button variant="ghost" size="icon" onClick={(e) => {
-              e.stopPropagation();
-              handleView(employee);
-            }}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleView(employee);
+              }}
+            >
               <IconUsers className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(employee);
-            }}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(employee);
+              }}
+            >
               <IconEdit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(employee.id);
-            }}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(employee.id);
+              }}
+            >
               <IconTrash className="h-4 w-4" />
             </Button>
           </div>
@@ -301,7 +312,7 @@ export default function EmployeesNew() {
         trend={{
           value: `${Math.round((activeEmployees / totalEmployees) * 100)}%`,
           positive: true,
-          label: t("employees.ofTotal")
+          label: t("employees.ofTotal"),
         }}
       />
       <MetricCard
@@ -310,7 +321,7 @@ export default function EmployeesNew() {
         trend={{
           value: `${Math.round((onLeaveEmployees / totalEmployees) * 100)}%`,
           positive: false,
-          label: t("employees.ofTotal")
+          label: t("employees.ofTotal"),
         }}
       />
     </div>
@@ -322,14 +333,14 @@ export default function EmployeesNew() {
         title={t("employees.title")}
         description={t("employees.description")}
         actions={
-          <CreateButton 
+          <CreateButton
             label={t("employees.addEmployee")}
             onClick={handleAdd}
             icon={<IconUserPlus className="h-4 w-4 mr-2" />}
           />
         }
       />
-      
+
       {/* Employees Data Table with Unified Components */}
       <UnifiedDataTable
         title={t("employees.title")}
@@ -346,10 +357,10 @@ export default function EmployeesNew() {
         searchPlaceholder={t("employees.searchPlaceholder")}
         summaryComponent={EmployeeSummaryComponent}
       />
-      
+
       {/* Employee Dialog */}
-      <EmployeeDialog 
-        open={isDialogOpen} 
+      <EmployeeDialog
+        open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         employee={selectedEmployee}
         onSubmit={(data) => {

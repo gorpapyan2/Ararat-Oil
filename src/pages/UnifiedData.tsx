@@ -14,4 +14,4 @@ const UnifiedData = () => {
   );
 };
 
-export default UnifiedData; 
+export default UnifiedData;

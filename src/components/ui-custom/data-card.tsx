@@ -1,12 +1,12 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { 
+import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle 
+  CardTitle,
 } from "./card";
 import { Button } from "@/components/ui/button";
 import { ArrowRightIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
@@ -40,12 +40,12 @@ export function MetricCard({
   onClick,
 }: MetricCardProps) {
   return (
-    <Card 
+    <Card
       className={cn(
         "overflow-hidden transition-all duration-300",
         onClick && "cursor-pointer hover:shadow-md hover:scale-[1.01]",
         loading && "animate-pulse",
-        className
+        className,
       )}
       onClick={onClick}
     >
@@ -69,36 +69,45 @@ export function MetricCard({
 
       <CardContent className="pb-2">
         <div className="text-2xl font-bold">
-          {loading ? <div className="h-8 w-24 bg-muted rounded animate-pulse" /> : value}
+          {loading ? (
+            <div className="h-8 w-24 bg-muted rounded animate-pulse" />
+          ) : (
+            value
+          )}
         </div>
-        
+
         {trend && (
-          <div className={cn(
-            "flex items-center mt-1 text-sm font-medium",
-            trend.positive ? "text-green-600 dark:text-green-500" : "text-red-600 dark:text-red-500"
-          )}>
-            {trend.positive 
-              ? <TrendingUpIcon className="w-4 h-4 mr-1" />
-              : <TrendingDownIcon className="w-4 h-4 mr-1" />
-            }
+          <div
+            className={cn(
+              "flex items-center mt-1 text-sm font-medium",
+              trend.positive
+                ? "text-green-600 dark:text-green-500"
+                : "text-red-600 dark:text-red-500",
+            )}
+          >
+            {trend.positive ? (
+              <TrendingUpIcon className="w-4 h-4 mr-1" />
+            ) : (
+              <TrendingDownIcon className="w-4 h-4 mr-1" />
+            )}
             <span>{trend.value}</span>
-            {trend.label && <span className="text-muted-foreground ml-1">({trend.label})</span>}
+            {trend.label && (
+              <span className="text-muted-foreground ml-1">
+                ({trend.label})
+              </span>
+            )}
           </div>
         )}
       </CardContent>
 
-      {footer && (
-        <CardFooter className="pt-2">
-          {footer}
-        </CardFooter>
-      )}
+      {footer && <CardFooter className="pt-2">{footer}</CardFooter>}
     </Card>
   );
 }
 
 // Action card with colored status
 export interface ActionCardProps {
-  title: string; 
+  title: string;
   description?: string;
   status?: "success" | "warning" | "error" | "info" | "muted";
   actionLabel?: string;
@@ -131,10 +140,12 @@ export function ActionCard({
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             {status && (
-              <div className={cn(
-                "w-2 h-2 rounded-full mr-2",
-                statusColors[status]
-              )} />
+              <div
+                className={cn(
+                  "w-2 h-2 rounded-full mr-2",
+                  statusColors[status],
+                )}
+              />
             )}
             <CardTitle size="sm">{title}</CardTitle>
           </div>
@@ -148,8 +159,8 @@ export function ActionCard({
       </CardHeader>
       {onAction && (
         <CardFooter>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             className="p-0 h-auto text-sm font-medium"
             onClick={onAction}
           >
@@ -188,7 +199,7 @@ export function SummaryCard({
     muted: "text-muted-foreground",
     success: "text-green-600 dark:text-green-500",
     warning: "text-amber-600 dark:text-amber-500",
-    danger: "text-red-600 dark:text-red-500"
+    danger: "text-red-600 dark:text-red-500",
   };
 
   return (
@@ -200,11 +211,17 @@ export function SummaryCard({
         <div className="space-y-2">
           {metrics.map((metric, index) => (
             <div key={index} className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">{metric.label}</span>
-              <span className={cn(
-                "font-medium", 
-                metric.color ? colorVariants[metric.color] : colorVariants.default
-              )}>
+              <span className="text-sm text-muted-foreground">
+                {metric.label}
+              </span>
+              <span
+                className={cn(
+                  "font-medium",
+                  metric.color
+                    ? colorVariants[metric.color]
+                    : colorVariants.default,
+                )}
+              >
                 {metric.value}
               </span>
             </div>

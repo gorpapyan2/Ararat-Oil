@@ -11,11 +11,12 @@ export function ThemeShowcase() {
         <h1 className="text-2xl font-bold">Theme Showcase</h1>
         <ThemeSwitcher variant="accent" />
       </div>
-      
+
       <p className="text-muted-foreground">
-        This page demonstrates the improved theming with better contrast in both dark and light modes.
+        This page demonstrates the improved theming with better contrast in both
+        dark and light modes.
       </p>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -41,12 +42,13 @@ export function ThemeShowcase() {
               </div>
             </div>
             <p className="text-sm">
-              The theme switcher now supports multiple variants to better match your application's design.
-              The accent variant provides better visibility in both light and dark modes.
+              The theme switcher now supports multiple variants to better match
+              your application's design. The accent variant provides better
+              visibility in both light and dark modes.
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Color Contrast</CardTitle>
@@ -55,30 +57,48 @@ export function ThemeShowcase() {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-background border rounded-md">
                 <h3 className="font-medium mb-2">Background</h3>
-                <p className="text-sm text-foreground">Foreground on Background</p>
-                <p className="text-sm text-primary mt-2">Primary on Background</p>
-                <p className="text-sm text-accent-foreground mt-2">Accent Foreground on Background</p>
+                <p className="text-sm text-foreground">
+                  Foreground on Background
+                </p>
+                <p className="text-sm text-primary mt-2">
+                  Primary on Background
+                </p>
+                <p className="text-sm text-accent-foreground mt-2">
+                  Accent Foreground on Background
+                </p>
               </div>
               <div className="p-4 bg-card rounded-md">
                 <h3 className="font-medium mb-2">Card</h3>
-                <p className="text-sm text-card-foreground">Card Foreground on Card</p>
+                <p className="text-sm text-card-foreground">
+                  Card Foreground on Card
+                </p>
                 <p className="text-sm text-primary mt-2">Primary on Card</p>
-                <p className="text-sm text-accent-foreground mt-2">Accent Foreground on Card</p>
+                <p className="text-sm text-accent-foreground mt-2">
+                  Accent Foreground on Card
+                </p>
               </div>
               <div className="p-4 bg-primary rounded-md">
-                <h3 className="font-medium text-primary-foreground mb-2">Primary</h3>
-                <p className="text-sm text-primary-foreground">Primary Foreground on Primary</p>
+                <h3 className="font-medium text-primary-foreground mb-2">
+                  Primary
+                </h3>
+                <p className="text-sm text-primary-foreground">
+                  Primary Foreground on Primary
+                </p>
               </div>
               <div className="p-4 bg-accent rounded-md">
-                <h3 className="font-medium text-accent-foreground mb-2">Accent</h3>
-                <p className="text-sm text-accent-foreground">Accent Foreground on Accent</p>
+                <h3 className="font-medium text-accent-foreground mb-2">
+                  Accent
+                </h3>
+                <p className="text-sm text-accent-foreground">
+                  Accent Foreground on Accent
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-      
+
       <ButtonShowcase />
     </div>
   );
-} 
+}

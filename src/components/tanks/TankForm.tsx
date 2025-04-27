@@ -2,12 +2,32 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createFuelTank } from "@/services/supabase";
 import { FuelType } from "@/types";
 import * as z from "zod";
@@ -21,16 +41,20 @@ interface TankFormProps {
 
 // Form validation schema using zod
 const formSchema = z.object({
-  name: z.string({ required_error: "Tank name is required" })
+  name: z
+    .string({ required_error: "Tank name is required" })
     .min(2, "Tank name must be at least 2 characters"),
   fuel_type: z.enum(["petrol", "diesel", "cng"] as const, {
     required_error: "Fuel type is required",
   }),
-  capacity: z.coerce.number({ required_error: "Capacity is required" })
+  capacity: z.coerce
+    .number({ required_error: "Capacity is required" })
     .positive("Capacity must be greater than zero"),
-  current_level: z.coerce.number({ required_error: "Current level is required" })
+  current_level: z.coerce
+    .number({ required_error: "Current level is required" })
     .nonnegative("Current level must be a positive number or zero")
-    .optional().default(0),
+    .optional()
+    .default(0),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -53,7 +77,7 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
   const mutation = useMutation({
     mutationFn: createFuelTank,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fuel-tanks'] });
+      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       toast({
         title: "Tank added successfully",
         description: "The new fuel tank has been added.",
@@ -77,13 +101,13 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
   const onSubmit = (data: FormData) => {
     // Validate that current level doesn't exceed capacity
     if (data.current_level && data.current_level > data.capacity) {
-      form.setError('current_level', { 
-        type: 'manual', 
-        message: 'Current level cannot exceed capacity' 
+      form.setError("current_level", {
+        type: "manual",
+        message: "Current level cannot exceed capacity",
       });
       return;
     }
-    
+
     // Instead of creating directly, show confirmation dialog
     setPendingTankData({
       name: data.name,
@@ -91,16 +115,16 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
       capacity: Number(data.capacity),
       current_level: Number(data.current_level || 0),
     });
-    
+
     setConfirmDialogOpen(true);
   };
-  
+
   const handleConfirmTank = () => {
     if (pendingTankData) {
       mutation.mutate(pendingTankData);
     }
   };
-  
+
   const handleCancelTank = () => {
     setConfirmDialogOpen(false);
     // Keep form open for editing
@@ -131,15 +155,15 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="fuel_type"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Fuel Type</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
@@ -157,7 +181,7 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="capacity"
@@ -165,10 +189,10 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
                   <FormItem>
                     <FormLabel>Tank Capacity (liters)</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="Capacity in liters" 
-                        {...field} 
+                      <Input
+                        type="number"
+                        placeholder="Capacity in liters"
+                        {...field}
                         min={0}
                       />
                     </FormControl>
@@ -176,7 +200,7 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="current_level"
@@ -184,10 +208,10 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
                   <FormItem>
                     <FormLabel>Current Fuel Level (liters)</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="Current level in liters" 
-                        {...field} 
+                      <Input
+                        type="number"
+                        placeholder="Current level in liters"
+                        {...field}
                         min={0}
                       />
                     </FormControl>
@@ -195,21 +219,21 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
                   </FormItem>
                 )}
               />
-              
+
               <DialogFooter>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={mutation.isPending}
                   className="w-full sm:w-auto"
                 >
-                  {mutation.isPending ? 'Adding...' : 'Add Tank'}
+                  {mutation.isPending ? "Adding..." : "Add Tank"}
                 </Button>
               </DialogFooter>
             </form>
           </Form>
         </DialogContent>
       </Dialog>
-      
+
       {pendingTankData && (
         <ConfirmAddTankDialog
           open={confirmDialogOpen}
@@ -219,11 +243,15 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
           loading={mutation.isPending}
           data={{
             name: pendingTankData.name,
-            fuelType: pendingTankData.fuel_type === 'cng' ? 'CNG' :
-                     pendingTankData.fuel_type === 'petrol' ? 'Petrol' : 
-                     pendingTankData.fuel_type === 'diesel' ? 'Diesel' : 
-                     pendingTankData.fuel_type,
-            capacity: pendingTankData.capacity
+            fuelType:
+              pendingTankData.fuel_type === "cng"
+                ? "CNG"
+                : pendingTankData.fuel_type === "petrol"
+                  ? "Petrol"
+                  : pendingTankData.fuel_type === "diesel"
+                    ? "Diesel"
+                    : pendingTankData.fuel_type,
+            capacity: pendingTankData.capacity,
           }}
         />
       )}

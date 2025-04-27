@@ -11,14 +11,14 @@ interface LoadingProps {
 const sizeMap = {
   sm: "h-4 w-4",
   md: "h-8 w-8",
-  lg: "h-12 w-12"
+  lg: "h-12 w-12",
 };
 
-export function Loading({ 
-  variant = "inline", 
-  size = "md", 
+export function Loading({
+  variant = "inline",
+  size = "md",
   text = "Loading...",
-  className 
+  className,
 }: LoadingProps) {
   if (variant === "fullscreen") {
     return (
@@ -44,4 +44,4 @@ export function Loading({
       {text && <p className="text-muted-foreground">{text}</p>}
     </div>
   );
-} 
+}

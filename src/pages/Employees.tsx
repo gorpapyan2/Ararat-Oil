@@ -1,4 +1,3 @@
-
 import { EmployeeManager } from "@/components/employees/EmployeeManager";
 
 export default function Employees() {

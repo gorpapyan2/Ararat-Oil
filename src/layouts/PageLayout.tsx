@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -25,7 +24,7 @@ export function PageLayout({
 }: PageLayoutProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
-  
+
   return (
     <div className={cn("space-y-6", className)}>
       <div className="flex flex-col gap-2">
@@ -37,7 +36,9 @@ export function PageLayout({
               </div>
             )}
             <div>
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight">{t(titleKey)}</h1>
+              <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+                {t(titleKey)}
+              </h1>
               {descriptionKey && (
                 <p className="text-sm md:text-base text-muted-foreground mt-1">
                   {t(descriptionKey)}
@@ -45,19 +46,13 @@ export function PageLayout({
               )}
             </div>
           </div>
-          
-          {action && (
-            <div className="w-full sm:w-auto">
-              {action}
-            </div>
-          )}
+
+          {action && <div className="w-full sm:w-auto">{action}</div>}
         </div>
         <Separator className="mt-4" />
       </div>
-      
-      <div className="space-y-6">
-        {children}
-      </div>
+
+      <div className="space-y-6">{children}</div>
     </div>
   );
 }

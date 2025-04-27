@@ -1,6 +1,10 @@
-
 import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { createFillingSystem } from "@/services/filling-systems";
@@ -34,12 +38,16 @@ interface FormData {
   tank_id: string;
 }
 
-export function FillingSystemForm({ isOpen, onOpenChange, onSuccess }: FillingSystemFormProps) {
+export function FillingSystemForm({
+  isOpen,
+  onOpenChange,
+  onSuccess,
+}: FillingSystemFormProps) {
   const { toast } = useToast();
   const form = useForm<FormData>();
 
   const { data: tanks } = useQuery({
-    queryKey: ['fuel-tanks'],
+    queryKey: ["fuel-tanks"],
     queryFn: fetchFuelTanks,
   });
 
@@ -83,7 +91,7 @@ export function FillingSystemForm({ isOpen, onOpenChange, onSuccess }: FillingSy
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="tank_id"
@@ -91,7 +99,10 @@ export function FillingSystemForm({ isOpen, onOpenChange, onSuccess }: FillingSy
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Associated Tank</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a tank" />

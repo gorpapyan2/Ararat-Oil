@@ -1,13 +1,12 @@
-
 import * as React from "react";
 
 // Breakpoint constants
 export const BREAKPOINTS = {
-  MOBILE: 640,     // sm
-  TABLET: 768,     // md
-  DESKTOP: 1024,   // lg
-  LARGE: 1280,     // xl
-  XLARGE: 1536     // 2xl
+  MOBILE: 640, // sm
+  TABLET: 768, // md
+  DESKTOP: 1024, // lg
+  LARGE: 1280, // xl
+  XLARGE: 1536, // 2xl
 };
 
 /**
@@ -45,16 +44,23 @@ export function useIsMobile(): boolean {
  * useBreakpoint - React hook to detect current breakpoint
  * - Returns 'mobile', 'tablet', 'desktop', 'large', or 'xlarge'
  */
-export function useBreakpoint(): 'mobile' | 'tablet' | 'desktop' | 'large' | 'xlarge' {
-  const [breakpoint, setBreakpoint] = React.useState<'mobile' | 'tablet' | 'desktop' | 'large' | 'xlarge'>(() => {
-    if (typeof window === "undefined") return 'desktop'; // SSR default
-    
+export function useBreakpoint():
+  | "mobile"
+  | "tablet"
+  | "desktop"
+  | "large"
+  | "xlarge" {
+  const [breakpoint, setBreakpoint] = React.useState<
+    "mobile" | "tablet" | "desktop" | "large" | "xlarge"
+  >(() => {
+    if (typeof window === "undefined") return "desktop"; // SSR default
+
     const width = window.innerWidth;
-    if (width < BREAKPOINTS.MOBILE) return 'mobile';
-    if (width < BREAKPOINTS.TABLET) return 'tablet';
-    if (width < BREAKPOINTS.DESKTOP) return 'desktop';
-    if (width < BREAKPOINTS.LARGE) return 'large';
-    return 'xlarge';
+    if (width < BREAKPOINTS.MOBILE) return "mobile";
+    if (width < BREAKPOINTS.TABLET) return "tablet";
+    if (width < BREAKPOINTS.DESKTOP) return "desktop";
+    if (width < BREAKPOINTS.LARGE) return "large";
+    return "xlarge";
   });
 
   React.useEffect(() => {
@@ -62,11 +68,11 @@ export function useBreakpoint(): 'mobile' | 'tablet' | 'desktop' | 'large' | 'xl
 
     const handleResize = () => {
       const width = window.innerWidth;
-      if (width < BREAKPOINTS.MOBILE) setBreakpoint('mobile');
-      else if (width < BREAKPOINTS.TABLET) setBreakpoint('tablet');
-      else if (width < BREAKPOINTS.DESKTOP) setBreakpoint('desktop');
-      else if (width < BREAKPOINTS.LARGE) setBreakpoint('large');
-      else setBreakpoint('xlarge');
+      if (width < BREAKPOINTS.MOBILE) setBreakpoint("mobile");
+      else if (width < BREAKPOINTS.TABLET) setBreakpoint("tablet");
+      else if (width < BREAKPOINTS.DESKTOP) setBreakpoint("desktop");
+      else if (width < BREAKPOINTS.LARGE) setBreakpoint("large");
+      else setBreakpoint("xlarge");
     };
 
     window.addEventListener("resize", handleResize);

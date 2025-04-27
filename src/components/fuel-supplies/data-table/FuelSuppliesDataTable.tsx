@@ -15,7 +15,7 @@ import {
   Info,
   Tag,
   Building,
-  MessageSquare
+  MessageSquare,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -28,7 +28,12 @@ import { FuelSupply } from "@/types";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface DataTableProps {
@@ -38,18 +43,25 @@ interface DataTableProps {
   onDelete: (supply: FuelSupply) => void;
 }
 
-export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: DataTableProps) {
+export function FuelSuppliesDataTable({
+  data,
+  isLoading,
+  onEdit,
+  onDelete,
+}: DataTableProps) {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [selectedSupply, setSelectedSupply] = useState<FuelSupply | null>(null);
 
   // Pre-process the data to ensure numbers are proper numbers
   const processedData = useMemo(() => {
-    return data.map(supply => ({
+    return data.map((supply) => ({
       ...supply,
-      quantity_liters: typeof supply.quantity_liters === 'number' ? supply.quantity_liters : 0,
-      price_per_liter: typeof supply.price_per_liter === 'number' ? supply.price_per_liter : 0,
-      total_cost: typeof supply.total_cost === 'number' ? supply.total_cost : 0
+      quantity_liters:
+        typeof supply.quantity_liters === "number" ? supply.quantity_liters : 0,
+      price_per_liter:
+        typeof supply.price_per_liter === "number" ? supply.price_per_liter : 0,
+      total_cost: typeof supply.total_cost === "number" ? supply.total_cost : 0,
     }));
   }, [data]);
 
@@ -85,7 +97,9 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
         return (
           <div className="flex items-center gap-2 py-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{isNaN(date.getTime()) ? "N/A" : format(date, "PP")}</span>
+            <span className="font-medium">
+              {isNaN(date.getTime()) ? "N/A" : format(date, "PP")}
+            </span>
           </div>
         );
       },
@@ -101,7 +115,9 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
       cell: ({ row }) => (
         <div className="flex items-center gap-2 py-2">
           <Building className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{row.original.provider?.name || "N/A"}</span>
+          <span className="font-medium">
+            {row.original.provider?.name || "N/A"}
+          </span>
         </div>
       ),
     },
@@ -141,7 +157,7 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
       cell: ({ row }) => {
         const value = row.getValue("quantity_liters");
         const displayValue = formatNumber(value);
-        
+
         return (
           <div className="text-right font-medium tabular-nums py-2">
             <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
@@ -162,7 +178,7 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
       cell: ({ row }) => {
         const value = row.getValue("price_per_liter");
         const displayValue = formatCurrency(value);
-        
+
         return (
           <div className="text-right font-medium tabular-nums py-2">
             {displayValue} ֏
@@ -181,7 +197,7 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
       cell: ({ row }) => {
         const value = row.getValue("total_cost");
         const displayValue = formatCurrency(value);
-        
+
         return (
           <div className="text-right font-medium tabular-nums py-2">
             <span className="font-semibold text-primary">{displayValue} ֏</span>
@@ -200,7 +216,9 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
       cell: ({ row }) => (
         <div className="flex items-center gap-2 py-2">
           <UserCircle2 className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{row.original.employee?.name || "N/A"}</span>
+          <span className="font-medium">
+            {row.original.employee?.name || "N/A"}
+          </span>
         </div>
       ),
     },
@@ -215,7 +233,10 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
       cell: ({ row }) => (
         <div className="flex items-start gap-2 py-2">
           <MessageSquare className="h-4 w-4 text-muted-foreground mt-0.5" />
-          <span className="max-w-[200px] truncate" title={row.original.comments || "N/A"}>
+          <span
+            className="max-w-[200px] truncate"
+            title={row.original.comments || "N/A"}
+          >
             {row.original.comments || "N/A"}
           </span>
         </div>
@@ -240,7 +261,9 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
                     }}
                     className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
                   >
-                    <span className="sr-only">{t("fuelSupplies.editTooltip")}</span>
+                    <span className="sr-only">
+                      {t("fuelSupplies.editTooltip")}
+                    </span>
                     <Pencil className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -262,7 +285,7 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onEdit(supply)}
                   className="flex items-center"
                 >
@@ -270,7 +293,7 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
                   <span>{t("common.edit")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onDelete(supply)}
                   className="text-destructive focus:text-destructive flex items-center"
                 >
@@ -301,33 +324,35 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-primary" />
-                <span className="font-medium">
-                  {deliveryDate}
-                </span>
+                <span className="font-medium">{deliveryDate}</span>
               </div>
               <Badge className="font-medium bg-primary/10 text-primary hover:bg-primary/20 border-0">
                 {supply.tank?.fuel_type || "N/A"}
               </Badge>
             </div>
           </div>
-          
+
           <div>
             <div className="flex p-3 items-center">
               <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
                 <Building className="h-3.5 w-3.5" />
                 {t("fuelSupplies.provider")}
               </span>
-              <span className="w-2/3 font-medium">{supply.provider?.name || "N/A"}</span>
+              <span className="w-2/3 font-medium">
+                {supply.provider?.name || "N/A"}
+              </span>
             </div>
-            
+
             <div className="flex p-3 items-center bg-muted/30">
               <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
                 <Droplet className="h-3.5 w-3.5" />
                 {t("fuelSupplies.tank")}
               </span>
-              <span className="w-2/3 font-medium">{supply.tank?.name || "N/A"}</span>
+              <span className="w-2/3 font-medium">
+                {supply.tank?.name || "N/A"}
+              </span>
             </div>
-            
+
             <div className="flex p-3 items-center">
               <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
                 <Tag className="h-3.5 w-3.5" />
@@ -339,7 +364,7 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
                 </span>
               </span>
             </div>
-            
+
             <div className="flex p-3 items-center bg-muted/30">
               <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
                 <Banknote className="h-3.5 w-3.5" />
@@ -349,7 +374,7 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
                 {pricePerLiter} ֏
               </span>
             </div>
-            
+
             <div className="flex p-3 items-center">
               <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
                 <Banknote className="h-3.5 w-3.5" />
@@ -359,29 +384,34 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
                 {totalCost} ֏
               </span>
             </div>
-            
+
             {supply.comments && (
               <div className="flex p-3 items-start bg-muted/30">
                 <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
                   <MessageSquare className="h-3.5 w-3.5" />
                   {t("fuelSupplies.comments")}
                 </span>
-                <span className="w-2/3 text-sm truncate" title={supply.comments}>
+                <span
+                  className="w-2/3 text-sm truncate"
+                  title={supply.comments}
+                >
                   {supply.comments}
                 </span>
               </div>
             )}
           </div>
-          
+
           <div className="p-3 bg-accent/20 flex justify-between items-center border-t">
             <div className="flex items-center gap-1.5">
               <UserCircle2 className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">{supply.employee?.name || "N/A"}</span>
+              <span className="text-sm font-medium">
+                {supply.employee?.name || "N/A"}
+              </span>
             </div>
             <div className="flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -390,9 +420,9 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
               >
                 <Pencil className="h-4 w-4" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -410,10 +440,12 @@ export function FuelSuppliesDataTable({ data, isLoading, onEdit, onDelete }: Dat
 
   // Use the new DataTable component
   return (
-    <div className="rounded-lg bg-card text-card-foreground shadow-sm overflow-hidden border border-border/40 
+    <div
+      className="rounded-lg bg-card text-card-foreground shadow-sm overflow-hidden border border-border/40 
       [&_tr:hover]:bg-primary/5 [&_tr]:transition-colors [&_tr]:group
       [&_th]:text-muted-foreground [&_th]:font-medium [&_th]:border-b [&_th]:border-border/50
-      [&_td]:border-b [&_td]:border-border/10 [&_.pagination]:mt-2">
+      [&_td]:border-b [&_td]:border-border/10 [&_.pagination]:mt-2"
+    >
       <DataTable
         columns={columns}
         data={processedData}

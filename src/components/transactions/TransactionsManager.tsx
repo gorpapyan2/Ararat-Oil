@@ -11,19 +11,29 @@ export function TransactionsManager() {
   const [search, setSearch] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<Date | undefined>(undefined);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
   const { toast } = useToast();
 
-  const { data: transactions, isLoading, refetch } = useQuery({
-    queryKey: ['transactions', search, paymentMethod, dateRange],
+  const {
+    data: transactions,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["transactions", search, paymentMethod, dateRange],
     queryFn: async () => {
       const allTransactions = await fetchTransactions();
-      return allTransactions.filter(transaction => 
-        (search ? transaction.id.includes(search) : true) &&
-        (paymentMethod ? transaction.payment_method === paymentMethod : true) &&
-        (dateRange ? new Date(transaction.created_at || '') >= dateRange : true)
+      return allTransactions.filter(
+        (transaction) =>
+          (search ? transaction.id.includes(search) : true) &&
+          (paymentMethod
+            ? transaction.payment_method === paymentMethod
+            : true) &&
+          (dateRange
+            ? new Date(transaction.created_at || "") >= dateRange
+            : true),
       );
-    }
+    },
   });
 
   const handleViewDetails = (transaction: Transaction) => {
@@ -56,7 +66,7 @@ export function TransactionsManager() {
 
   return (
     <div className="space-y-6">
-      <TransactionsHeader 
+      <TransactionsHeader
         search={search}
         onSearchChange={setSearch}
         paymentMethod={paymentMethod}
@@ -65,15 +75,15 @@ export function TransactionsManager() {
         onDateRangeChange={setDateRange}
         onFiltersChange={handleFiltersChange}
       />
-      
-      <TransactionsTable 
-        transactions={transactions || []} 
+
+      <TransactionsTable
+        transactions={transactions || []}
         isLoading={isLoading}
         onViewDetails={handleViewDetails}
         onEdit={handleEdit}
       />
-      
-      <TransactionsDialogs 
+
+      <TransactionsDialogs
         transaction={selectedTransaction}
         onClose={() => setSelectedTransaction(null)}
       />

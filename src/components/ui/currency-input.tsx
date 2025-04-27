@@ -2,7 +2,8 @@ import * as React from "react";
 import { Input } from "./input";
 import { formatInputCurrency, parseCurrencyInput } from "@/lib/utils";
 
-interface CurrencyInputProps extends Omit<React.ComponentProps<typeof Input>, 'onChange' | 'value'> {
+interface CurrencyInputProps
+  extends Omit<React.ComponentProps<typeof Input>, "onChange" | "value"> {
   value?: number;
   onChange?: (value: number) => void;
   symbol?: string;
@@ -23,10 +24,10 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
       const inputValue = e.target.value;
       // Remove any non-numeric characters for processing
       const numericValue = parseCurrencyInput(inputValue);
-      
+
       // Update the display value
       setDisplayValue(inputValue);
-      
+
       // Call the onChange handler with the numeric value
       if (onChange) {
         onChange(numericValue);
@@ -57,9 +58,9 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
         />
       </div>
     );
-  }
+  },
 );
 
 CurrencyInput.displayName = "CurrencyInput";
 
-export { CurrencyInput }; 
+export { CurrencyInput };

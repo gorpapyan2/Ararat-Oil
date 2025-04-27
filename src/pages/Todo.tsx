@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 
 const TodoPage = () => {
   const { t } = useTranslation();
-  
+
   return (
     <PageLayout
       titleKey="todo.title"
@@ -17,4 +17,4 @@ const TodoPage = () => {
   );
 };
 
-export default TodoPage; 
+export default TodoPage;

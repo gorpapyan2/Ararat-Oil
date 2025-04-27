@@ -25,15 +25,15 @@ export function PageHeader({
 }: PageHeaderProps) {
   const { t } = useTranslation();
   const translatedTitle = titleKey ? t(titleKey) : title;
-  const translatedDescription = descriptionKey ? t(descriptionKey) : description;
+  const translatedDescription = descriptionKey
+    ? t(descriptionKey)
+    : description;
 
   return (
     <div className={cn("mb-8", className)}>
       {/* Breadcrumbs */}
-      {breadcrumbs && (
-        <div className="mb-2">{breadcrumbs}</div>
-      )}
-      
+      {breadcrumbs && <div className="mb-2">{breadcrumbs}</div>}
+
       {/* Title and actions row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -46,11 +46,9 @@ export function PageHeader({
             </p>
           )}
         </div>
-        
+
         {actions && (
-          <div className="flex items-center gap-2 shrink-0">
-            {actions}
-          </div>
+          <div className="flex items-center gap-2 shrink-0">{actions}</div>
         )}
       </div>
     </div>
@@ -70,7 +68,7 @@ export function PageHeaderAction({
   onClick,
   disabled = false,
   className,
-  variant = "default"
+  variant = "default",
 }: PageHeaderActionProps) {
   return (
     <Button

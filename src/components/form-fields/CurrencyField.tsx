@@ -1,6 +1,12 @@
 import React from "react";
 import { useController, Control } from "react-hook-form";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { CurrencyInput } from "@/components/ui/currency-input";
 
 interface CurrencyFieldProps {
@@ -51,7 +57,9 @@ export const CurrencyField: React.FC<CurrencyFieldProps> = ({
       rules={rules}
       render={({ field }) => (
         <FormItem className={className}>
-          {label && <FormLabel className="text-base font-medium">{label}</FormLabel>}
+          {label && (
+            <FormLabel className="text-base font-medium">{label}</FormLabel>
+          )}
           <FormControl>
             <CurrencyInput
               value={field.value}
@@ -68,4 +76,4 @@ export const CurrencyField: React.FC<CurrencyFieldProps> = ({
       )}
     />
   );
-}; 
+};

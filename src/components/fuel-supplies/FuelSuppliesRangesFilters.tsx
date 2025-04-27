@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
@@ -28,7 +27,9 @@ export function FuelSuppliesRangesFilters({
           max={10000}
           step={100}
           value={[quantityRange[0], quantityRange[1]]}
-          onValueChange={(value) => onQuantityRangeChange(value as [number, number])}
+          onValueChange={(value) =>
+            onQuantityRangeChange(value as [number, number])
+          }
           className="mt-2"
         />
         <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -44,7 +45,9 @@ export function FuelSuppliesRangesFilters({
           max={1000}
           step={10}
           value={[priceRange[0], priceRange[1]]}
-          onValueChange={(value) => onPriceRangeChange(value as [number, number])}
+          onValueChange={(value) =>
+            onPriceRangeChange(value as [number, number])
+          }
           className="mt-2"
         />
         <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -60,7 +63,9 @@ export function FuelSuppliesRangesFilters({
           max={10000000}
           step={100000}
           value={[totalCostRange[0], totalCostRange[1]]}
-          onValueChange={(value) => onTotalCostRangeChange(value as [number, number])}
+          onValueChange={(value) =>
+            onTotalCostRangeChange(value as [number, number])
+          }
           className="mt-2"
         />
         <div className="flex justify-between text-xs text-muted-foreground mt-1">

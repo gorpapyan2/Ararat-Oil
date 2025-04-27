@@ -38,35 +38,40 @@ interface SalesFormProps {
 export function SalesForm({ onSubmit, sale }: SalesFormProps) {
   const { t } = useTranslation();
   const form = useForm<SalesFormValues>({
-    defaultValues: sale ? {
-      filling_system_id: sale.filling_system_id,
-      meter_start: sale.meter_start,
-      meter_end: sale.meter_end,
-      unit_price: sale.price_per_unit,
-      employee_id: sale.employee_id,
-    } : undefined
+    defaultValues: sale
+      ? {
+          filling_system_id: sale.filling_system_id,
+          meter_start: sale.meter_start,
+          meter_end: sale.meter_end,
+          unit_price: sale.price_per_unit,
+          employee_id: sale.employee_id,
+        }
+      : undefined,
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFillingSystem, setSelectedFillingSystem] = useState<string>(sale?.filling_system_id || "");
+  const [selectedFillingSystem, setSelectedFillingSystem] = useState<string>(
+    sale?.filling_system_id || "",
+  );
   const { activeShift } = useShift();
 
   const { data: employees } = useQuery({
-    queryKey: ['employees'],
-    queryFn: fetchEmployees
+    queryKey: ["employees"],
+    queryFn: fetchEmployees,
   });
 
   const { data: latestSale } = useQuery({
-    queryKey: ['latest-sale', selectedFillingSystem],
-    queryFn: () => selectedFillingSystem ? fetchLatestSale(selectedFillingSystem) : null,
-    enabled: !!selectedFillingSystem && !sale // Only fetch latest sale if no sale prop is provided
+    queryKey: ["latest-sale", selectedFillingSystem],
+    queryFn: () =>
+      selectedFillingSystem ? fetchLatestSale(selectedFillingSystem) : null,
+    enabled: !!selectedFillingSystem && !sale, // Only fetch latest sale if no sale prop is provided
   });
 
   // Update default values when filling system changes or latest sale is loaded
   useEffect(() => {
     if (latestSale && !sale) {
-      form.setValue('meter_start', latestSale.meter_end);
-      form.setValue('unit_price', latestSale.price_per_unit);
+      form.setValue("meter_start", latestSale.meter_end);
+      form.setValue("unit_price", latestSale.price_per_unit);
     }
   }, [latestSale, form, sale]);
 
@@ -80,14 +85,14 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
         unit_price: sale.price_per_unit,
         employee_id: sale.employee_id,
       });
-      
+
       setSelectedFillingSystem(sale.filling_system_id);
     }
   }, [sale, form]);
 
   const handleFillingSystemChange = (value: string) => {
     setSelectedFillingSystem(value);
-    form.setValue('filling_system_id', value);
+    form.setValue("filling_system_id", value);
   };
 
   const handleSubmit = async (data: SalesFormValues) => {
@@ -104,9 +109,13 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <DialogHeader>
-          <h2 className="text-lg font-semibold">{sale ? 'Edit Sale' : 'New Sale'}</h2>
+          <h2 className="text-lg font-semibold">
+            {sale ? "Edit Sale" : "New Sale"}
+          </h2>
           <p className="text-sm text-muted-foreground">
-            {sale ? 'Edit sale details below' : 'Record a new sale by filling in the details below'}
+            {sale
+              ? "Edit sale details below"
+              : "Record a new sale by filling in the details below"}
           </p>
         </DialogHeader>
 
@@ -114,15 +123,13 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
           <Alert variant="destructive" className="my-4">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>{t("common.error")}</AlertTitle>
-            <AlertDescription>
-              {t("shifts.noActiveShift")}
-            </AlertDescription>
+            <AlertDescription>{t("shifts.noActiveShift")}</AlertDescription>
           </Alert>
         )}
 
         <div className="space-y-4">
-          <FillingSystemSelect 
-            control={form.control} 
+          <FillingSystemSelect
+            control={form.control}
             onChange={handleFillingSystemChange}
             value={selectedFillingSystem}
           />
@@ -157,7 +164,7 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
             )}
           />
 
-          <PriceAndEmployeeInputs 
+          <PriceAndEmployeeInputs
             control={form.control}
             employees={employees}
           />
@@ -165,7 +172,7 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
 
         <DialogFooter>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : (sale ? "Update Sale" : "Create Sale")}
+            {isSubmitting ? "Saving..." : sale ? "Update Sale" : "Create Sale"}
           </Button>
         </DialogFooter>
       </form>

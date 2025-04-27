@@ -1,5 +1,9 @@
-
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { SalesForm } from "./SalesForm";
 import {
   AlertDialog,
@@ -9,7 +13,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Sale } from "@/types";
 
@@ -37,11 +41,11 @@ export function SalesDialogs({
     <>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
-          <DialogTitle>
-            {selectedSale ? 'Edit Sale' : 'New Sale'}
-          </DialogTitle>
+          <DialogTitle>{selectedSale ? "Edit Sale" : "New Sale"}</DialogTitle>
           <DialogDescription>
-            {selectedSale ? 'Update the details of this sale.' : 'Create a new sale record.'}
+            {selectedSale
+              ? "Update the details of this sale."
+              : "Create a new sale record."}
           </DialogDescription>
           <SalesForm
             sale={selectedSale}
@@ -49,14 +53,17 @@ export function SalesDialogs({
               if (selectedSale) {
                 updateSale({
                   id: selectedSale.id,
-                  ...data
+                  ...data,
                 });
               }
             }}
           />
         </DialogContent>
       </Dialog>
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -67,7 +74,9 @@ export function SalesDialogs({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={confirmDelete}>
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

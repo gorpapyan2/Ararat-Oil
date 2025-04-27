@@ -11,7 +11,7 @@ type SetValue<T> = (value: T | ((prevValue: T) => T)) => void;
  */
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T
+  initialValue: T,
 ): [T, SetValue<T>] {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
@@ -57,7 +57,10 @@ export function useLocalStorage<T>(
         try {
           setStoredValue(JSON.parse(event.newValue));
         } catch (e) {
-          console.error(`Error parsing localStorage change for key "${key}":`, e);
+          console.error(
+            `Error parsing localStorage change for key "${key}":`,
+            e,
+          );
         }
       }
     }
@@ -76,4 +79,4 @@ export function useLocalStorage<T>(
   }, [key]);
 
   return [storedValue, setValue];
-} 
+}

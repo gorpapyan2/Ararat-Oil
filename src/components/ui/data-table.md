@@ -29,7 +29,12 @@ interface User {
 // Sample data
 const users: User[] = [
   { id: "1", name: "John Doe", email: "john@example.com", status: "active" },
-  { id: "2", name: "Jane Smith", email: "jane@example.com", status: "inactive" },
+  {
+    id: "2",
+    name: "Jane Smith",
+    email: "jane@example.com",
+    status: "inactive",
+  },
 ];
 
 // Define columns
@@ -49,7 +54,9 @@ const columns = [
     header: "Status",
     accessorKey: "status",
     cell: ({ row }) => (
-      <Badge variant={row.original.status === "active" ? "default" : "destructive"}>
+      <Badge
+        variant={row.original.status === "active" ? "default" : "destructive"}
+      >
         {row.original.status}
       </Badge>
     ),
@@ -97,36 +104,36 @@ function MyComponent() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `data` | `TData[]` | Required | The data to display in the table |
-| `columns` | `ColumnDef<TData, TValue>[]` | Required | Column definitions for the table |
-| `enableFilters` | `boolean` | `true` | Enable column-specific filtering |
-| `enableGlobalFilter` | `boolean` | `true` | Enable global search across all columns |
-| `enableColumnVisibility` | `boolean` | `true` | Enable toggling column visibility |
-| `enableSorting` | `boolean` | `true` | Enable column sorting |
-| `enablePagination` | `boolean` | `true` | Enable pagination |
-| `enableRowSelection` | `boolean` | `false` | Enable row selection |
-| `enableExport` | `boolean` | `false` | Enable data export |
-| `className` | `string` | `undefined` | Additional CSS class for the table container |
-| `title` | `string` | `undefined` | Table title |
-| `subtitle` | `string` | `undefined` | Table subtitle |
-| `mobileCardRenderer` | `(item: TData, index: number) => React.ReactNode` | `undefined` | Custom renderer for mobile card view |
-| `emptyMessage` | `string` | `"No data"` | Message to display when there's no data |
-| `loadingMessage` | `string` | `undefined` | Message to display while loading |
-| `isLoading` | `boolean` | `false` | Whether the table is in a loading state |
-| `loadingRows` | `number` | `5` | Number of skeleton rows to show when loading |
-| `pageCount` | `number` | `undefined` | For manual pagination, the total number of pages |
-| `pageSizeOptions` | `number[]` | `[10, 25, 50, 100]` | Available page size options |
-| `defaultPageSize` | `number` | `10` | Default page size |
-| `onRowClick` | `(item: TData) => void` | `undefined` | Callback when a row is clicked |
-| `onExport` | `() => void` | `undefined` | Callback when export button is clicked |
-| `onRowSelectionChange` | `(rowSelection: RowSelectionState) => void` | `undefined` | Callback when row selection changes |
-| `initialSorting` | `SortingState` | `[]` | Initial sorting state |
-| `initialFilters` | `ColumnFiltersState` | `[]` | Initial filters state |
-| `initialColumnVisibility` | `VisibilityState` | `{}` | Initial column visibility state |
-| `globalFilterFn` | `FilterFn<TData>` | `undefined` | Custom global filter function |
+| Prop                      | Type                                              | Default             | Description                                      |
+| ------------------------- | ------------------------------------------------- | ------------------- | ------------------------------------------------ |
+| `data`                    | `TData[]`                                         | Required            | The data to display in the table                 |
+| `columns`                 | `ColumnDef<TData, TValue>[]`                      | Required            | Column definitions for the table                 |
+| `enableFilters`           | `boolean`                                         | `true`              | Enable column-specific filtering                 |
+| `enableGlobalFilter`      | `boolean`                                         | `true`              | Enable global search across all columns          |
+| `enableColumnVisibility`  | `boolean`                                         | `true`              | Enable toggling column visibility                |
+| `enableSorting`           | `boolean`                                         | `true`              | Enable column sorting                            |
+| `enablePagination`        | `boolean`                                         | `true`              | Enable pagination                                |
+| `enableRowSelection`      | `boolean`                                         | `false`             | Enable row selection                             |
+| `enableExport`            | `boolean`                                         | `false`             | Enable data export                               |
+| `className`               | `string`                                          | `undefined`         | Additional CSS class for the table container     |
+| `title`                   | `string`                                          | `undefined`         | Table title                                      |
+| `subtitle`                | `string`                                          | `undefined`         | Table subtitle                                   |
+| `mobileCardRenderer`      | `(item: TData, index: number) => React.ReactNode` | `undefined`         | Custom renderer for mobile card view             |
+| `emptyMessage`            | `string`                                          | `"No data"`         | Message to display when there's no data          |
+| `loadingMessage`          | `string`                                          | `undefined`         | Message to display while loading                 |
+| `isLoading`               | `boolean`                                         | `false`             | Whether the table is in a loading state          |
+| `loadingRows`             | `number`                                          | `5`                 | Number of skeleton rows to show when loading     |
+| `pageCount`               | `number`                                          | `undefined`         | For manual pagination, the total number of pages |
+| `pageSizeOptions`         | `number[]`                                        | `[10, 25, 50, 100]` | Available page size options                      |
+| `defaultPageSize`         | `number`                                          | `10`                | Default page size                                |
+| `onRowClick`              | `(item: TData) => void`                           | `undefined`         | Callback when a row is clicked                   |
+| `onExport`                | `() => void`                                      | `undefined`         | Callback when export button is clicked           |
+| `onRowSelectionChange`    | `(rowSelection: RowSelectionState) => void`       | `undefined`         | Callback when row selection changes              |
+| `initialSorting`          | `SortingState`                                    | `[]`                | Initial sorting state                            |
+| `initialFilters`          | `ColumnFiltersState`                              | `[]`                | Initial filters state                            |
+| `initialColumnVisibility` | `VisibilityState`                                 | `{}`                | Initial column visibility state                  |
+| `globalFilterFn`          | `FilterFn<TData>`                                 | `undefined`         | Custom global filter function                    |
 
 ## Advanced Example
 
-For a complete example showing various features, see the `DataTableExample` component in `src/components/examples/DataTableExample.tsx`. 
+For a complete example showing various features, see the `DataTableExample` component in `src/components/examples/DataTableExample.tsx`.

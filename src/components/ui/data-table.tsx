@@ -15,10 +15,10 @@ import {
   FilterFn,
 } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
-import { 
-  ChevronDown, 
-  Filter, 
-  Download, 
+import {
+  ChevronDown,
+  Filter,
+  Download,
   Search,
   SlidersHorizontal,
   MoreHorizontal,
@@ -63,7 +63,7 @@ export interface DataTableProps<TData, TValue> {
   // Core props
   data: TData[];
   columns: ColumnDef<TData, TValue>[];
-  
+
   // Feature flags
   enableFilters?: boolean;
   enableGlobalFilter?: boolean;
@@ -80,26 +80,26 @@ export interface DataTableProps<TData, TValue> {
   mobileCardRenderer?: (item: TData, index: number) => React.ReactNode;
   emptyMessage?: string;
   loadingMessage?: string;
-  
+
   // Loading state
   isLoading?: boolean;
   loadingRows?: number;
-  
+
   // Pagination options
   pageCount?: number;
   pageSizeOptions?: number[];
   defaultPageSize?: number;
-  
+
   // Callback props
   onRowClick?: (item: TData) => void;
   onExport?: () => void;
   onRowSelectionChange?: (rowSelection: RowSelectionState) => void;
-  
+
   // Initial states
   initialSorting?: SortingState;
   initialFilters?: ColumnFiltersState;
   initialColumnVisibility?: VisibilityState;
-  
+
   // Custom filter function
   globalFilterFn?: FilterFn<TData>;
 }
@@ -108,7 +108,7 @@ export function DataTable<TData, TValue>({
   // Core props
   data,
   columns,
-  
+
   // Feature flags
   enableFilters = true,
   enableGlobalFilter = true,
@@ -117,7 +117,7 @@ export function DataTable<TData, TValue>({
   enablePagination = true,
   enableRowSelection = false,
   enableExport = false,
-  
+
   // UI customization
   className,
   title,
@@ -125,50 +125,52 @@ export function DataTable<TData, TValue>({
   mobileCardRenderer,
   emptyMessage,
   loadingMessage,
-  
+
   // Loading state
   isLoading = false,
   loadingRows = 5,
-  
+
   // Pagination options
   pageCount,
   pageSizeOptions = [10, 25, 50, 100],
   defaultPageSize = 10,
-  
+
   // Callback props
   onRowClick,
   onExport,
   onRowSelectionChange,
-  
+
   // Initial states
   initialSorting = [],
   initialFilters = [],
   initialColumnVisibility = {},
-  
+
   // Custom filter function
   globalFilterFn,
 }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  
+
   // State
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(initialFilters);
+  const [columnFilters, setColumnFilters] =
+    React.useState<ColumnFiltersState>(initialFilters);
   const [globalFilter, setGlobalFilter] = React.useState<string>("");
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(initialColumnVisibility);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>(initialColumnVisibility);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: defaultPageSize,
   });
-  
+
   // Handle row selection changes
   React.useEffect(() => {
     if (onRowSelectionChange) {
       onRowSelectionChange(rowSelection);
     }
   }, [rowSelection, onRowSelectionChange]);
-  
+
   // Create table instance
   const table = useReactTable({
     data,
@@ -179,15 +181,17 @@ export function DataTable<TData, TValue>({
     enableMultiRowSelection: enableRowSelection,
     manualPagination: !!pageCount,
     pageCount,
-    
+
     // Register core row model
     getCoreRowModel: getCoreRowModel(),
-    
+
     // Feature models
     getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
     getFilteredRowModel: enableFilters ? getFilteredRowModel() : undefined,
-    getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
-    
+    getPaginationRowModel: enablePagination
+      ? getPaginationRowModel()
+      : undefined,
+
     // State handlers
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -195,7 +199,7 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
-    
+
     // State
     state: {
       sorting,
@@ -205,41 +209,44 @@ export function DataTable<TData, TValue>({
       rowSelection,
       pagination,
     },
-    
+
     // Default options
     initialState: {
       pagination: {
         pageSize: defaultPageSize,
       },
     },
-    
+
     // Custom filter function for global filter
     globalFilterFn: globalFilterFn,
   });
-  
+
   // Calculate mapping of column IDs to header text for mobile view
   const headerMap = React.useMemo(() => {
     const map: Record<string, string> = {};
-    columns.forEach(column => {
-      if (typeof column.header === 'string') {
+    columns.forEach((column) => {
+      if (typeof column.header === "string") {
         map[column.id] = column.header;
-      } else if (column.header && typeof column.id === 'string') {
+      } else if (column.header && typeof column.id === "string") {
         map[column.id] = column.id;
       }
     });
     return map;
   }, [columns]);
-  
+
   // Handle errors gracefully
   React.useEffect(() => {
     if (isMobile && !mobileCardRenderer) {
-      logger.warn("DataTable: No mobileCardRenderer provided for mobile view. Using default cell rendering.", {
-        component: "DataTable",
-        table: title,
-      });
+      logger.warn(
+        "DataTable: No mobileCardRenderer provided for mobile view. Using default cell rendering.",
+        {
+          component: "DataTable",
+          table: title,
+        },
+      );
     }
   }, [isMobile, mobileCardRenderer, title]);
-  
+
   // Loading state
   if (isLoading) {
     return (
@@ -248,7 +255,7 @@ export function DataTable<TData, TValue>({
           {title && <h2 className="text-xl font-semibold">{title}</h2>}
           <div className="h-8" aria-hidden="true" />
         </div>
-        
+
         <div className="hidden md:block">
           {/* Desktop skeleton */}
           <div className="rounded-md border">
@@ -260,7 +267,7 @@ export function DataTable<TData, TValue>({
             </div>
           </div>
         </div>
-        
+
         <div className="md:hidden space-y-3">
           {/* Mobile skeleton */}
           {Array.from({ length: Math.min(loadingRows, 3) }).map((_, i) => (
@@ -273,12 +280,12 @@ export function DataTable<TData, TValue>({
             </Card>
           ))}
         </div>
-        
+
         <div className="h-10" aria-hidden="true" />
       </div>
     );
   }
-  
+
   // Empty state
   if (!isLoading && data.length === 0) {
     return (
@@ -286,16 +293,23 @@ export function DataTable<TData, TValue>({
         <div className="flex justify-between items-center mb-4">
           {title && <h2 className="text-xl font-semibold">{title}</h2>}
         </div>
-        
+
         <div className="flex flex-col items-center justify-center py-12 bg-muted/20 rounded-lg border border-dashed">
-          <X className="h-10 w-10 text-muted-foreground mb-3" aria-hidden="true" />
-          <h3 className="text-lg font-medium">{emptyMessage || t("common.noData")}</h3>
-          <p className="text-muted-foreground mt-1">{t("common.noDataDescription")}</p>
+          <X
+            className="h-10 w-10 text-muted-foreground mb-3"
+            aria-hidden="true"
+          />
+          <h3 className="text-lg font-medium">
+            {emptyMessage || t("common.noData")}
+          </h3>
+          <p className="text-muted-foreground mt-1">
+            {t("common.noDataDescription")}
+          </p>
         </div>
       </div>
     );
   }
-  
+
   // Around line 278, find the ToolbarButton component
   const ToolbarButton = React.forwardRef<
     HTMLButtonElement,
@@ -308,13 +322,13 @@ export function DataTable<TData, TValue>({
       className={cn(
         "h-8 gap-1 text-xs",
         active && "bg-accent text-accent-foreground",
-        className
+        className,
       )}
       {...props}
     />
   ));
   ToolbarButton.displayName = "ToolbarButton";
-  
+
   // Toolbar components
   const Toolbar = () => (
     <div className="flex flex-col md:flex-row gap-3 md:items-center justify-between py-4">
@@ -323,11 +337,13 @@ export function DataTable<TData, TValue>({
         {title && (
           <div>
             <h2 className="text-xl font-semibold">{title}</h2>
-            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            )}
           </div>
         )}
       </div>
-      
+
       {/* Right side: actions and filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         {enableGlobalFilter && (
@@ -341,7 +357,7 @@ export function DataTable<TData, TValue>({
             />
           </div>
         )}
-        
+
         <div className="flex items-center gap-2">
           {enableColumnVisibility && (
             <DropdownMenu>
@@ -354,13 +370,15 @@ export function DataTable<TData, TValue>({
               <DropdownMenuContent align="end" className="w-[180px]">
                 {table
                   .getAllColumns()
-                  .filter(column => column.getCanHide())
-                  .map(column => (
+                  .filter((column) => column.getCanHide())
+                  .map((column) => (
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       className="capitalize"
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
@@ -368,11 +386,11 @@ export function DataTable<TData, TValue>({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          
+
           {enableExport && (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="h-9"
               onClick={onExport}
             >
@@ -384,7 +402,7 @@ export function DataTable<TData, TValue>({
       </div>
     </div>
   );
-  
+
   // Mobile view (Card layout)
   const MobileView = () => (
     <div className="space-y-4" role="table" aria-label={title || "Data table"}>
@@ -398,18 +416,22 @@ export function DataTable<TData, TValue>({
               onClick={onRowClick ? () => onRowClick(row.original) : undefined}
               tabIndex={onRowClick ? 0 : undefined}
               role="row"
-              onKeyDown={onRowClick ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onRowClick(row.original);
-                }
-              } : undefined}
+              onKeyDown={
+                onRowClick
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onRowClick(row.original);
+                      }
+                    }
+                  : undefined
+              }
             >
               {mobileCardRenderer(row.original, index)}
             </div>
           );
         }
-        
+
         // Default card layout
         return (
           <Card
@@ -417,30 +439,38 @@ export function DataTable<TData, TValue>({
             className={cn(
               "overflow-hidden transition-all",
               row.getIsSelected() && "ring-2 ring-primary",
-              onRowClick && "cursor-pointer"
+              onRowClick && "cursor-pointer",
             )}
             onClick={onRowClick ? () => onRowClick(row.original) : undefined}
             tabIndex={onRowClick ? 0 : undefined}
             role="row"
-            onKeyDown={onRowClick ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onRowClick(row.original);
-              }
-            } : undefined}
+            onKeyDown={
+              onRowClick
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onRowClick(row.original);
+                    }
+                  }
+                : undefined
+            }
           >
             <CardContent className="p-0">
               <div className="divide-y">
-                {row.getVisibleCells().map(cell => {
-                  const headerText = headerMap[cell.column.id] || cell.column.id;
-                  
+                {row.getVisibleCells().map((cell) => {
+                  const headerText =
+                    headerMap[cell.column.id] || cell.column.id;
+
                   return (
                     <div key={cell.id} className="flex p-3 gap-2" role="cell">
                       <div className="w-1/3 font-medium text-muted-foreground text-sm">
                         {headerText}
                       </div>
                       <div className="w-2/3">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
                       </div>
                     </div>
                   );
@@ -452,34 +482,46 @@ export function DataTable<TData, TValue>({
       })}
     </div>
   );
-  
+
   // Desktop view (Table layout)
   const DesktopView = () => (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
-          {table.getHeaderGroups().map(headerGroup => (
+          {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
+              {headerGroup.headers.map((header) => (
                 <TableHead key={header.id} colSpan={header.colSpan}>
                   {header.isPlaceholder ? null : (
-                    <div className={cn(
-                      header.column.getCanSort() && "cursor-pointer select-none flex items-center gap-1",
-                      "relative" // For filter dropdown
-                    )}>
+                    <div
+                      className={cn(
+                        header.column.getCanSort() &&
+                          "cursor-pointer select-none flex items-center gap-1",
+                        "relative", // For filter dropdown
+                      )}
+                    >
                       <div
                         className={cn(
                           "flex items-center gap-1",
-                          header.column.getCanSort() && "hover:text-foreground"
+                          header.column.getCanSort() && "hover:text-foreground",
                         )}
-                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                        onClick={
+                          header.column.getCanSort()
+                            ? header.column.getToggleSortingHandler()
+                            : undefined
+                        }
                       >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+
                         {header.column.getCanSort() && (
                           <div className="text-muted-foreground">
                             {{
-                              asc: <ChevronDown className="h-4 w-4 rotate-180" />,
+                              asc: (
+                                <ChevronDown className="h-4 w-4 rotate-180" />
+                              ),
                               desc: <ChevronDown className="h-4 w-4" />,
                             }[header.column.getIsSorted() as string] ?? (
                               <ChevronDown className="h-4 w-4 opacity-0 group-hover:opacity-50" />
@@ -487,20 +529,29 @@ export function DataTable<TData, TValue>({
                           </div>
                         )}
                       </div>
-                      
+
                       {header.column.getCanFilter() && (
                         <div className="absolute right-0 top-0">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                              >
                                 <Filter className="h-3.5 w-3.5" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <Input
                                 placeholder={`${t("common.filterBy")} ${header.column.id}`}
-                                value={(header.column.getFilterValue() as string) ?? ""}
-                                onChange={(e) => header.column.setFilterValue(e.target.value)}
+                                value={
+                                  (header.column.getFilterValue() as string) ??
+                                  ""
+                                }
+                                onChange={(e) =>
+                                  header.column.setFilterValue(e.target.value)
+                                }
                                 className="w-36 px-2 py-1 text-sm"
                               />
                             </DropdownMenuContent>
@@ -516,24 +567,30 @@ export function DataTable<TData, TValue>({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.length > 0 ? (
-            table.getRowModel().rows.map(row => (
+            table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
                 className={cn(
                   onRowClick && "cursor-pointer",
-                  row.getIsSelected() && "bg-primary/5"
+                  row.getIsSelected() && "bg-primary/5",
                 )}
                 data-state={row.getIsSelected() ? "selected" : undefined}
-                onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                onClick={
+                  onRowClick ? () => onRowClick(row.original) : undefined
+                }
                 tabIndex={onRowClick ? 0 : undefined}
-                onKeyDown={onRowClick ? (e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onRowClick(row.original);
-                  }
-                } : undefined}
+                onKeyDown={
+                  onRowClick
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onRowClick(row.original);
+                        }
+                      }
+                    : undefined
+                }
               >
-                {row.getVisibleCells().map(cell => (
+                {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
@@ -551,41 +608,48 @@ export function DataTable<TData, TValue>({
       </Table>
     </div>
   );
-  
+
   // Add this function before the PaginationControls component
   // Utility function to get page range to display
-  const getPageRange = (currentPage: number, totalPages: number, maxPagesToShow: number) => {
+  const getPageRange = (
+    currentPage: number,
+    totalPages: number,
+    maxPagesToShow: number,
+  ) => {
     // Calculate start and end page indices
     const halfPoint = Math.floor(maxPagesToShow / 2);
     let startPage = Math.max(currentPage - halfPoint, 0);
     const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages - 1);
-    
+
     // Adjust start page if we're near the end
     if (endPage - startPage + 1 < maxPagesToShow) {
       startPage = Math.max(endPage - maxPagesToShow + 1, 0);
     }
-    
+
     // Create the page range array
-    return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+    return Array.from(
+      { length: endPage - startPage + 1 },
+      (_, i) => startPage + i,
+    );
   };
-  
+
   // PaginationControls component with fixed button props
   const PaginationControls = () => {
     const { pageSize, pageIndex } = table.getState().pagination;
     const totalRows = table.getFilteredRowModel().rows.length;
-    
+
     return (
       <div className="flex items-center justify-between py-2">
         <div className="text-sm text-muted-foreground flex-1">
           {t("common.pagination", {
             showing: `${pageIndex * pageSize + 1} - ${Math.min(
               (pageIndex + 1) * pageSize,
-              totalRows
+              totalRows,
             )}`,
             of: totalRows,
           })}
         </div>
-        
+
         {isMobile ? (
           <div className="flex items-center gap-1">
             <Button
@@ -638,39 +702,47 @@ export function DataTable<TData, TValue>({
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            
+
             {/* Page buttons */}
             <div className="flex items-center">
               {/* Create array of pages to show */}
-              {Array.from({ length: Math.min(5, table.getPageCount()) }).map((_, i) => {
-                // Show pages around current page
-                const currentPageIndex = getPageRange(
-                  pageIndex,
-                  table.getPageCount(),
-                  5
-                )[i];
-                
-                return (
-                  <Button
-                    key={currentPageIndex}
-                    variant={pageIndex === currentPageIndex ? "accent" : "outline"}
-                    size="sm"
-                    className={cn(
-                      "h-8 w-8 p-0",
-                      pageIndex === currentPageIndex
-                        ? "bg-accent text-accent-foreground"
-                        : ""
-                    )}
-                    onClick={() => table.setPageIndex(currentPageIndex)}
-                    aria-label={t("common.goToPage", { page: currentPageIndex + 1 })}
-                    aria-current={pageIndex === currentPageIndex ? "page" : undefined}
-                  >
-                    {currentPageIndex + 1}
-                  </Button>
-                );
-              })}
+              {Array.from({ length: Math.min(5, table.getPageCount()) }).map(
+                (_, i) => {
+                  // Show pages around current page
+                  const currentPageIndex = getPageRange(
+                    pageIndex,
+                    table.getPageCount(),
+                    5,
+                  )[i];
+
+                  return (
+                    <Button
+                      key={currentPageIndex}
+                      variant={
+                        pageIndex === currentPageIndex ? "accent" : "outline"
+                      }
+                      size="sm"
+                      className={cn(
+                        "h-8 w-8 p-0",
+                        pageIndex === currentPageIndex
+                          ? "bg-accent text-accent-foreground"
+                          : "",
+                      )}
+                      onClick={() => table.setPageIndex(currentPageIndex)}
+                      aria-label={t("common.goToPage", {
+                        page: currentPageIndex + 1,
+                      })}
+                      aria-current={
+                        pageIndex === currentPageIndex ? "page" : undefined
+                      }
+                    >
+                      {currentPageIndex + 1}
+                    </Button>
+                  );
+                },
+              )}
             </div>
-            
+
             <Button
               variant="outline"
               size="sm"
@@ -697,12 +769,12 @@ export function DataTable<TData, TValue>({
       </div>
     );
   };
-  
+
   // Full table layout
   return (
     <div className={cn("w-full space-y-2", className)}>
       <Toolbar />
-      
+
       {/* Accessibility announcement for screen readers */}
       <div className="sr-only" aria-live="polite">
         {t("common.dataTableAnnouncement", {
@@ -712,14 +784,12 @@ export function DataTable<TData, TValue>({
           total: Math.ceil(data.length / table.getState().pagination.pageSize),
         })}
       </div>
-      
+
       {/* Responsive layout */}
-      <div>
-        {isMobile ? <MobileView /> : <DesktopView />}
-      </div>
-      
+      <div>{isMobile ? <MobileView /> : <DesktopView />}</div>
+
       {/* Pagination controls */}
       {enablePagination && data.length > 0 && <PaginationControls />}
     </div>
   );
-} 
+}

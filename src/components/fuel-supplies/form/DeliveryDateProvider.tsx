@@ -1,11 +1,26 @@
-
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Control } from "react-hook-form";
 import { PetrolProvider } from "@/types";
@@ -15,7 +30,10 @@ interface DeliveryDateProviderProps {
   providers?: PetrolProvider[];
 }
 
-export function DeliveryDateProvider({ control, providers }: DeliveryDateProviderProps) {
+export function DeliveryDateProvider({
+  control,
+  providers,
+}: DeliveryDateProviderProps) {
   return (
     <>
       <FormField
@@ -23,12 +41,24 @@ export function DeliveryDateProvider({ control, providers }: DeliveryDateProvide
         name="delivery_date"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-base font-medium">Delivery Date</FormLabel>
+            <FormLabel className="text-base font-medium">
+              Delivery Date
+            </FormLabel>
             <Popover>
               <PopoverTrigger asChild>
                 <FormControl>
-                  <Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                    {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full pl-3 text-left font-normal",
+                      !field.value && "text-muted-foreground",
+                    )}
+                  >
+                    {field.value ? (
+                      format(new Date(field.value), "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
                 </FormControl>
@@ -37,7 +67,9 @@ export function DeliveryDateProvider({ control, providers }: DeliveryDateProvide
                 <Calendar
                   mode="single"
                   selected={new Date(field.value)}
-                  onSelect={date => field.onChange(format(date || new Date(), 'yyyy-MM-dd'))}
+                  onSelect={(date) =>
+                    field.onChange(format(date || new Date(), "yyyy-MM-dd"))
+                  }
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
                 />
@@ -54,7 +86,9 @@ export function DeliveryDateProvider({ control, providers }: DeliveryDateProvide
         rules={{ required: "Provider is required" }}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-base font-medium">Petrol Provider</FormLabel>
+            <FormLabel className="text-base font-medium">
+              Petrol Provider
+            </FormLabel>
             <Select onValueChange={field.onChange} value={field.value}>
               <FormControl>
                 <SelectTrigger>
@@ -62,7 +96,7 @@ export function DeliveryDateProvider({ control, providers }: DeliveryDateProvide
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {providers?.map(provider => (
+                {providers?.map((provider) => (
                   <SelectItem key={provider.id} value={provider.id}>
                     {provider.name}
                   </SelectItem>

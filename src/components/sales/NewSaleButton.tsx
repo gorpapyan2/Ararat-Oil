@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SalesForm } from "./SalesForm";
 import { useState } from "react";
 import { createSale } from "@/services/sales";
@@ -20,9 +26,9 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
   const handleSubmit = async (data: any) => {
     try {
       await createSale(data);
-      queryClient.invalidateQueries({ queryKey: ['sales'] });
-      queryClient.invalidateQueries({ queryKey: ['fuel-tanks'] });
-      queryClient.invalidateQueries({ queryKey: ['latest-sale'] });
+      queryClient.invalidateQueries({ queryKey: ["sales"] });
+      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+      queryClient.invalidateQueries({ queryKey: ["latest-sale"] });
 
       toast({
         title: "Success",
@@ -43,7 +49,9 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className={`h-9 px-4 rounded-md shadow-sm flex items-center gap-1.5 transition-all hover:shadow ${className || ""}`}>
+        <Button
+          className={`h-9 px-4 rounded-md shadow-sm flex items-center gap-1.5 transition-all hover:shadow ${className || ""}`}
+        >
           <Plus className="h-4 w-4" />
           <span>Add Sale</span>
         </Button>

@@ -1,14 +1,10 @@
-
-import { useState, useEffect } from 'react';
-import { Shift } from '@/types';
-import { 
-  startShift, 
-  closeShift 
-} from '@/services/shifts';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { fetchActiveShift } from '@/utils/api-helpers';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { Shift } from "@/types";
+import { startShift, closeShift } from "@/services/shifts";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { fetchActiveShift } from "@/utils/api-helpers";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useShift() {
   const [activeShift, setActiveShift] = useState<Shift | null>(null);
@@ -30,14 +26,14 @@ export function useShift() {
       const shift = await fetchActiveShift(user.id);
       if (shift) {
         setActiveShift(shift as Shift);
-        
+
         // If we have an active shift, fetch the current sales total
         updateShiftSalesTotal((shift as Shift).id);
       } else {
         setActiveShift(null);
       }
     } catch (error) {
-      console.error('Error checking active shift', error);
+      console.error("Error checking active shift", error);
     } finally {
       setIsLoading(false);
     }
@@ -47,26 +43,27 @@ export function useShift() {
     try {
       // Get sum of total_sales for this shift
       const { data, error } = await supabase
-        .from('sales')
-        .select('total_sales')
-        .eq('shift_id', shiftId);
-        
+        .from("sales")
+        .select("total_sales")
+        .eq("shift_id", shiftId);
+
       if (error) {
-        console.error('Error fetching sales total:', error);
+        console.error("Error fetching sales total:", error);
         return;
       }
-      
-      const salesTotal = data?.reduce((sum, sale) => sum + (sale.total_sales || 0), 0) || 0;
-      
+
+      const salesTotal =
+        data?.reduce((sum, sale) => sum + (sale.total_sales || 0), 0) || 0;
+
       // Update the shift object with current sales total
       if (activeShift) {
         setActiveShift({
           ...activeShift,
-          sales_total: salesTotal
+          sales_total: salesTotal,
         });
       }
     } catch (error) {
-      console.error('Error updating shift sales total', error);
+      console.error("Error updating shift sales total", error);
     }
   };
 
@@ -76,15 +73,15 @@ export function useShift() {
       const newShift = await startShift(openingCash);
       setActiveShift(newShift);
       toast({
-        title: 'Shift Started',
-        description: 'Your shift has begun successfully.'
+        title: "Shift Started",
+        description: "Your shift has begun successfully.",
       });
       return newShift;
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to start shift',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to start shift",
+        variant: "destructive",
       });
       throw error;
     } finally {
@@ -94,26 +91,26 @@ export function useShift() {
 
   const endShift = async (closingCash: number) => {
     if (!activeShift) {
-      throw new Error('No active shift to close');
+      throw new Error("No active shift to close");
     }
 
     try {
       setIsLoading(true);
       // First update the sales total one last time
       await updateShiftSalesTotal(activeShift.id);
-      
+
       const closedShift = await closeShift(activeShift.id, closingCash);
       setActiveShift(null);
       toast({
-        title: 'Shift Closed',
-        description: 'Your shift has been closed successfully.'
+        title: "Shift Closed",
+        description: "Your shift has been closed successfully.",
       });
       return closedShift;
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to close shift',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to close shift",
+        variant: "destructive",
       });
       throw error;
     } finally {
@@ -126,6 +123,6 @@ export function useShift() {
     beginShift,
     endShift,
     checkActiveShift,
-    isLoading
+    isLoading,
   };
 }

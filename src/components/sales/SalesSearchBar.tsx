@@ -1,4 +1,3 @@
-
 import { SearchBar } from "@/components/ui/SearchBar";
 import React from "react";
 

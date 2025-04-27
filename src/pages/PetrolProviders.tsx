@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon, Pencil, Trash2 } from "lucide-react";
@@ -32,23 +31,24 @@ import {
 } from "@/services/petrol-providers";
 
 export default function PetrolProviders() {
-  const [selectedProvider, setSelectedProvider] = useState<PetrolProvider | null>(null);
+  const [selectedProvider, setSelectedProvider] =
+    useState<PetrolProvider | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: providers = [] } = useQuery({
-    queryKey: ['petrol-providers'],
+    queryKey: ["petrol-providers"],
     queryFn: fetchPetrolProviders,
   });
 
   const createMutation = useMutation({
     mutationFn: createPetrolProvider,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['petrol-providers'] });
+      queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast({ title: "Success", description: "Provider created successfully" });
     },
   });
@@ -57,7 +57,7 @@ export default function PetrolProviders() {
     mutationFn: ({ id, data }: { id: string; data: Partial<PetrolProvider> }) =>
       updatePetrolProvider(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['petrol-providers'] });
+      queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast({ title: "Success", description: "Provider updated successfully" });
     },
   });
@@ -65,7 +65,7 @@ export default function PetrolProviders() {
   const deleteMutation = useMutation({
     mutationFn: deletePetrolProvider,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['petrol-providers'] });
+      queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast({ title: "Success", description: "Provider deleted successfully" });
     },
   });
@@ -133,22 +133,26 @@ export default function PetrolProviders() {
           setIsEditDialogOpen(false);
           setSelectedProvider(null);
         }}
-        onSubmit={(data) => 
-          updateMutation.mutateAsync({ 
-            id: selectedProvider!.id, 
-            data 
+        onSubmit={(data) =>
+          updateMutation.mutateAsync({
+            id: selectedProvider!.id,
+            data,
           })
         }
         initialData={selectedProvider ?? undefined}
         title="Edit Provider"
       />
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the provider. This action cannot be undone.
+              This will permanently delete the provider. This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

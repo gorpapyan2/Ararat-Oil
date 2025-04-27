@@ -13,14 +13,16 @@ export function FuelSuppliesHeader({ onAdd }: FuelSuppliesHeaderProps) {
           <Fuel className="h-6 w-6" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">Fuel Supplies</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
+            Fuel Supplies
+          </h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
             Manage fuel supplies and deliveries
           </p>
         </div>
       </div>
-      <Button 
-        onClick={onAdd} 
+      <Button
+        onClick={onAdd}
         className="w-full sm:w-auto gap-2 shadow-sm"
         size="sm"
         aria-label="Add new fuel supply"

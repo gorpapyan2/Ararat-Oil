@@ -1,4 +1,3 @@
-
 import { ExpensesManager } from "@/components/expenses/ExpensesManager";
 
 const Expenses = () => {

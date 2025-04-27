@@ -11,13 +11,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { 
-  ChevronDown, 
-  Filter, 
-  Download, 
-  ChevronLeft, 
+import {
+  ChevronDown,
+  Filter,
+  Download,
+  ChevronLeft,
   ChevronRight,
-  MoreHorizontal 
+  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,8 +82,11 @@ export function MobileAwareDataTable<T>({
   onRowClick,
 }: MobileAwareDataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
@@ -113,8 +116,8 @@ export function MobileAwareDataTable<T>({
   // Build a map of column IDs to header names for mobile view
   const headerNames = React.useMemo(() => {
     const headerMap: Record<string, string> = {};
-    columns.forEach(column => {
-      if (typeof column.header === 'string') {
+    columns.forEach((column) => {
+      if (typeof column.header === "string") {
         headerMap[column.id] = column.header;
       }
     });
@@ -139,7 +142,7 @@ export function MobileAwareDataTable<T>({
             </div>
           </div>
         </div>
-        
+
         <div className="md:hidden space-y-3">
           {/* Mobile skeleton */}
           {[...Array(3)].map((_, i) => (
@@ -161,7 +164,9 @@ export function MobileAwareDataTable<T>({
   if (!data.length) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center space-y-2">
-        <p className="text-lg font-medium text-muted-foreground">{emptyMessage}</p>
+        <p className="text-lg font-medium text-muted-foreground">
+          {emptyMessage}
+        </p>
       </div>
     );
   }
@@ -171,11 +176,13 @@ export function MobileAwareDataTable<T>({
     <div className="space-y-4 md:hidden">
       {/* Add a descriptive heading for screen readers */}
       <div className="sr-only" aria-live="polite">
-        {title ? `${title} - Showing ${table.getRowModel().rows.length} items in card format for mobile view` : "Table data in card format for mobile view"}
+        {title
+          ? `${title} - Showing ${table.getRowModel().rows.length} items in card format for mobile view`
+          : "Table data in card format for mobile view"}
       </div>
-      
+
       {/* Cards */}
-      <div 
+      <div
         className="space-y-4"
         // Add role for accessibility
         role="table"
@@ -189,29 +196,39 @@ export function MobileAwareDataTable<T>({
                 "rounded-lg border border-border bg-card text-card-foreground p-4 shadow-sm",
                 "transition-colors duration-200 ease-in-out",
                 row.getIsSelected() && "border-primary/50 bg-primary/5",
-                onRowClick ? "cursor-pointer hover:border-primary/30" : ""
+                onRowClick ? "cursor-pointer hover:border-primary/30" : "",
               )}
               onClick={onRowClick ? () => onRowClick(row.original) : undefined}
               data-state={row.getIsSelected() && "selected"}
               // Add role for accessibility
               role="row"
               tabIndex={onRowClick ? 0 : undefined}
-              onKeyDown={onRowClick ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onRowClick(row.original);
-                }
-              } : undefined}
+              onKeyDown={
+                onRowClick
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onRowClick(row.original);
+                      }
+                    }
+                  : undefined
+              }
             >
               {row.getVisibleCells().map((cell) => {
                 // Get the header text for this cell
-                const headerText = headerNames[cell.column.id] || cell.column.id;
-                
+                const headerText =
+                  headerNames[cell.column.id] || cell.column.id;
+
                 return (
                   <div key={cell.id} className="mb-3 last:mb-0" role="cell">
-                    <div className="text-sm font-medium text-muted-foreground mb-1">{headerText}</div>
+                    <div className="text-sm font-medium text-muted-foreground mb-1">
+                      {headerText}
+                    </div>
                     <div className="text-foreground">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </div>
                   </div>
                 );
@@ -224,7 +241,7 @@ export function MobileAwareDataTable<T>({
           </div>
         )}
       </div>
-      
+
       <div className="py-2">
         <MobilePagination table={table} />
       </div>
@@ -250,7 +267,7 @@ export function MobileAwareDataTable<T>({
             </div>
           )}
         </div>
-        
+
         {enableFiltering && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -270,7 +287,9 @@ export function MobileAwareDataTable<T>({
                       key={column.id}
                       className="capitalize"
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
@@ -280,7 +299,7 @@ export function MobileAwareDataTable<T>({
           </DropdownMenu>
         )}
       </div>
-      
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -293,7 +312,7 @@ export function MobileAwareDataTable<T>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -307,14 +326,16 @@ export function MobileAwareDataTable<T>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
                   className={onRowClick ? "cursor-pointer" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -338,17 +359,17 @@ export function MobileAwareDataTable<T>({
         <div className="flex-1 text-sm text-muted-foreground">
           Showing{" "}
           <strong>
-            {table.getFilteredRowModel().rows.length 
+            {table.getFilteredRowModel().rows.length
               ? `${table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-${Math.min(
-                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length
-              )}` 
+                  (table.getState().pagination.pageIndex + 1) *
+                    table.getState().pagination.pageSize,
+                  table.getFilteredRowModel().rows.length,
+                )}`
               : 0}
           </strong>{" "}
-          of{" "}
-          <strong>{table.getFilteredRowModel().rows.length}</strong> records
+          of <strong>{table.getFilteredRowModel().rows.length}</strong> records
         </div>
-        
+
         <DesktopPagination table={table} />
       </div>
     </div>
@@ -357,7 +378,7 @@ export function MobileAwareDataTable<T>({
   const MobilePagination = ({ table }: { table: any }) => {
     const currentPage = table.getState().pagination.pageIndex + 1;
     const totalPages = table.getPageCount();
-    
+
     return (
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
@@ -408,11 +429,12 @@ export function MobileAwareDataTable<T>({
               />
             )}
           </PaginationItem>
-          
+
           {[...Array(Math.min(5, table.getPageCount()))].map((_, i) => {
             const pageIndex = i;
-            const isCurrentPage = table.getState().pagination.pageIndex === pageIndex;
-            
+            const isCurrentPage =
+              table.getState().pagination.pageIndex === pageIndex;
+
             return (
               <PaginationItem key={i}>
                 <PaginationLink
@@ -428,7 +450,7 @@ export function MobileAwareDataTable<T>({
               </PaginationItem>
             );
           })}
-          
+
           <PaginationItem>
             {table.getCanNextPage() ? (
               <PaginationNext
@@ -457,4 +479,4 @@ export function MobileAwareDataTable<T>({
       <DesktopView />
     </div>
   );
-} 
+}

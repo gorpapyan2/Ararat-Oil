@@ -1,7 +1,14 @@
-
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { PaymentMethodForm, PaymentFormData } from "@/components/shared/PaymentMethodForm";
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  PaymentMethodForm,
+  PaymentFormData,
+} from "@/components/shared/PaymentMethodForm";
 import { useTransactionCreation } from "@/hooks/useTransactionCreation";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -29,7 +36,7 @@ export function InvoiceForm({
   amount,
   employeeId,
   entityDetails,
-  title = "Payment Invoice"
+  title = "Payment Invoice",
 }: InvoiceFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
@@ -44,27 +51,28 @@ export function InvoiceForm({
 
   const handlePayment = async (data: PaymentFormData) => {
     setIsProcessing(true);
-    
+
     try {
       await createTransaction({
         amount,
         payment_method: data.payment_method,
         payment_reference: data.payment_reference,
         employee_id: employeeId,
-        description: entityDetails.description || `Payment for ${entityDetails.type}`,
-        entity_type: entityDetails.type as 'sale' | 'expense' | 'fuel_supply',
+        description:
+          entityDetails.description || `Payment for ${entityDetails.type}`,
+        entity_type: entityDetails.type as "sale" | "expense" | "fuel_supply",
         entity_id: entityDetails.id,
       });
-      
+
       toast({
         title: "Payment Completed",
         description: "The invoice has been successfully processed.",
       });
-      
+
       if (onComplete) {
         onComplete();
       }
-      
+
       onOpenChange(false);
     } catch (error) {
       console.error("Payment error:", error);
@@ -84,11 +92,13 @@ export function InvoiceForm({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        
+
         {isProcessing ? (
           <div className="flex flex-col items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="mt-4 text-sm text-muted-foreground">Processing payment...</p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Processing payment...
+            </p>
           </div>
         ) : (
           <PaymentMethodForm

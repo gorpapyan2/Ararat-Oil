@@ -20,7 +20,7 @@ const Card = React.forwardRef<
     default: "bg-card border-border/40",
     outline: "bg-transparent border-border",
     elevated: "bg-card border-0 shadow-lg",
-    subtle: "bg-muted/50 border-0", 
+    subtle: "bg-muted/50 border-0",
   };
 
   return (
@@ -31,7 +31,7 @@ const Card = React.forwardRef<
         "rounded-xl border shadow transition-all duration-200",
         "hover:shadow-md",
         variantClasses[variant],
-        className
+        className,
       )}
       {...props}
     />
@@ -71,7 +71,7 @@ const CardTitle = React.forwardRef<
       className={cn(
         "font-heading font-semibold leading-tight",
         sizeClasses[size],
-        className
+        className,
       )}
       {...props}
     />
@@ -101,10 +101,7 @@ const CardContent = React.forwardRef<
 >(({ className, noPadding = false, ...props }, ref) => (
   <ShadcnCardContent
     ref={ref}
-    className={cn(
-      noPadding ? "p-0" : "p-6 pt-0",
-      className
-    )}
+    className={cn(noPadding ? "p-0" : "p-6 pt-0", className)}
     {...props}
   />
 ));
@@ -130,7 +127,7 @@ const CardFooter = React.forwardRef<
       className={cn(
         "flex items-center p-6 pt-2",
         alignClasses[align],
-        className
+        className,
       )}
       {...props}
     />
@@ -174,7 +171,9 @@ const StatsCard: React.FC<StatsCardProps> = ({
       <CardContent>
         <div className="text-3xl font-bold tracking-tight">{value}</div>
         {change && (
-          <div className={cn("mt-1 text-sm", directionClasses[change.direction])}>
+          <div
+            className={cn("mt-1 text-sm", directionClasses[change.direction])}
+          >
             {change.direction === "up" && "↑ "}
             {change.direction === "down" && "↓ "}
             {change.value}

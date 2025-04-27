@@ -1,8 +1,11 @@
-
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
 
 interface FuelSuppliesDatePickerProps {
@@ -10,10 +13,15 @@ interface FuelSuppliesDatePickerProps {
   onDateChange: (date: Date | undefined) => void;
 }
 
-export function FuelSuppliesDatePicker({ date, onDateChange }: FuelSuppliesDatePickerProps) {
+export function FuelSuppliesDatePicker({
+  date,
+  onDateChange,
+}: FuelSuppliesDatePickerProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted-foreground">Delivery Date</label>
+      <label className="text-xs font-medium text-muted-foreground">
+        Delivery Date
+      </label>
       <Popover>
         <PopoverTrigger asChild>
           <Button

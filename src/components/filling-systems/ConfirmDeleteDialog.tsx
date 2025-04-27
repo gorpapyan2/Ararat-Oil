@@ -6,7 +6,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
 interface ConfirmDeleteDialogProps {
@@ -22,7 +22,7 @@ export function ConfirmDeleteDialog({
   onClose,
   onConfirm,
   systemName,
-  isDeleting
+  isDeleting,
 }: ConfirmDeleteDialogProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
@@ -30,7 +30,8 @@ export function ConfirmDeleteDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Filling System</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the "{systemName}" filling system? This action cannot be undone.
+            Are you sure you want to delete the "{systemName}" filling system?
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -49,4 +50,4 @@ export function ConfirmDeleteDialog({
       </AlertDialogContent>
     </AlertDialog>
   );
-} 
+}

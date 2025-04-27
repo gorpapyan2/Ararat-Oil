@@ -1,6 +1,12 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { TransactionsManager } from "@/components/transactions/TransactionsManager";
 
 const Transactions = () => {
@@ -17,10 +23,12 @@ const Transactions = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      
+
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="text-xl font-medium">Transaction Management</CardTitle>
+          <CardTitle className="text-xl font-medium">
+            Transaction Management
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <TransactionsManager />

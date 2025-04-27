@@ -1,5 +1,11 @@
-
-import { Home, Settings, Users, BarChart, Receipt, ListChecks } from "lucide-react";
+import {
+  Home,
+  Settings,
+  Users,
+  BarChart,
+  Receipt,
+  ListChecks,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const useSidebarNavConfig = () => {

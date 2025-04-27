@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  ToggleGroup, 
-  ToggleGroupItem 
-} from "@/components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Flag } from "lucide-react";
 import { TodoItem } from "@/store/useTodoStore";
 import { useTranslation } from "react-i18next";
@@ -30,7 +27,8 @@ export function TodoForm({ onAddTodo }: TodoFormProps) {
 
   const priorityColors = {
     low: "data-[state=on]:bg-slate-200 data-[state=on]:text-slate-800 dark:data-[state=on]:bg-slate-800 dark:data-[state=on]:text-slate-200",
-    medium: "data-[state=on]:bg-blue-200 data-[state=on]:text-blue-800 dark:data-[state=on]:bg-blue-900 dark:data-[state=on]:text-blue-200",
+    medium:
+      "data-[state=on]:bg-blue-200 data-[state=on]:text-blue-800 dark:data-[state=on]:bg-blue-900 dark:data-[state=on]:text-blue-200",
     high: "data-[state=on]:bg-red-200 data-[state=on]:text-red-800 dark:data-[state=on]:bg-red-900 dark:data-[state=on]:text-red-200",
   };
 
@@ -44,7 +42,11 @@ export function TodoForm({ onAddTodo }: TodoFormProps) {
           aria-label={t("todo.inputPlaceholder")}
           className="flex-grow"
         />
-        <Button type="submit" disabled={!text.trim()} aria-label={t("todo.addTodo")}>
+        <Button
+          type="submit"
+          disabled={!text.trim()}
+          aria-label={t("todo.addTodo")}
+        >
           {t("todo.addTodo")}
         </Button>
       </div>
@@ -61,26 +63,35 @@ export function TodoForm({ onAddTodo }: TodoFormProps) {
           }}
           className="border rounded-md"
         >
-          <ToggleGroupItem 
-            value="low" 
+          <ToggleGroupItem
+            value="low"
             aria-label={t("todo.priority.low")}
-            className={cn("flex items-center gap-1 text-xs", priorityColors.low)}
+            className={cn(
+              "flex items-center gap-1 text-xs",
+              priorityColors.low,
+            )}
           >
             <Flag className="h-3 w-3" />
             <span>{t("todo.priority.low")}</span>
           </ToggleGroupItem>
-          <ToggleGroupItem 
-            value="medium" 
+          <ToggleGroupItem
+            value="medium"
             aria-label={t("todo.priority.medium")}
-            className={cn("flex items-center gap-1 text-xs", priorityColors.medium)}
+            className={cn(
+              "flex items-center gap-1 text-xs",
+              priorityColors.medium,
+            )}
           >
             <Flag className="h-3 w-3" />
             <span>{t("todo.priority.medium")}</span>
           </ToggleGroupItem>
-          <ToggleGroupItem 
-            value="high" 
+          <ToggleGroupItem
+            value="high"
             aria-label={t("todo.priority.high")}
-            className={cn("flex items-center gap-1 text-xs", priorityColors.high)}
+            className={cn(
+              "flex items-center gap-1 text-xs",
+              priorityColors.high,
+            )}
           >
             <Flag className="h-3 w-3" />
             <span>{t("todo.priority.high")}</span>
@@ -89,4 +100,4 @@ export function TodoForm({ onAddTodo }: TodoFormProps) {
       </div>
     </form>
   );
-} 
+}

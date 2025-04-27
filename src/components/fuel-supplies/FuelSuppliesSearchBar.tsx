@@ -1,4 +1,3 @@
-
 import { SearchBar } from "@/components/ui/SearchBar";
 
 interface FuelSuppliesSearchBarProps {
@@ -6,7 +5,10 @@ interface FuelSuppliesSearchBarProps {
   onChange: (v: string) => void;
 }
 
-export function FuelSuppliesSearchBar({ value, onChange }: FuelSuppliesSearchBarProps) {
+export function FuelSuppliesSearchBar({
+  value,
+  onChange,
+}: FuelSuppliesSearchBarProps) {
   return (
     <SearchBar
       value={value}

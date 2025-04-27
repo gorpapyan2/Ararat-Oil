@@ -8,7 +8,7 @@ interface FillingSystemHeaderProps {
 
 export function FillingSystemHeader({ onAddNew }: FillingSystemHeaderProps) {
   const { t } = useTranslation();
-  
+
   return (
     <div className="flex items-center justify-between">
       <h1 className="text-2xl font-semibold">{t("fillingSystems.title")}</h1>

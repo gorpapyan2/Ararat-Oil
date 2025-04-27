@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   CardDescription,
-  CardFooter 
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,42 +18,46 @@ import { cn } from "@/lib/utils";
 
 export function TodoList() {
   const { t } = useTranslation();
-  const { 
-    todos, 
-    filter, 
-    sort, 
+  const {
+    todos,
+    filter,
+    sort,
     search,
-    addTodo, 
-    toggleTodo, 
-    deleteTodo, 
-    editTodo, 
-    clearCompleted, 
-    setFilter, 
-    setSort, 
+    addTodo,
+    toggleTodo,
+    deleteTodo,
+    editTodo,
+    clearCompleted,
+    setFilter,
+    setSort,
     setSearch,
-    updatePriority 
+    updatePriority,
   } = useTodoStore();
 
   // Filter and sort todos
   const filteredAndSortedTodos = useMemo(() => {
     // First, filter by search term
-    let filtered = todos.filter(todo => 
-      todo.text.toLowerCase().includes(search.toLowerCase())
+    let filtered = todos.filter((todo) =>
+      todo.text.toLowerCase().includes(search.toLowerCase()),
     );
 
     // Then filter by status
     if (filter === "active") {
-      filtered = filtered.filter(todo => !todo.completed);
+      filtered = filtered.filter((todo) => !todo.completed);
     } else if (filter === "completed") {
-      filtered = filtered.filter(todo => todo.completed);
+      filtered = filtered.filter((todo) => todo.completed);
     }
 
     // Finally, sort
     return [...filtered].sort((a, b) => {
       if (sort === "date-asc") {
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        return (
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
       } else if (sort === "date-desc") {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       } else if (sort === "priority") {
         const priorityOrder = { high: 0, medium: 1, low: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -64,8 +68,8 @@ export function TodoList() {
 
   // Count todos by status for the filter UI
   const totalTodos = todos.length;
-  const activeTodos = todos.filter(todo => !todo.completed).length;
-  const completedTodos = todos.filter(todo => todo.completed).length;
+  const activeTodos = todos.filter((todo) => !todo.completed).length;
+  const completedTodos = todos.filter((todo) => todo.completed).length;
 
   // Check if there are any completed todos
   const hasCompletedTodos = completedTodos > 0;
@@ -108,10 +112,14 @@ export function TodoList() {
               )}
             </div>
           ) : (
-            <ScrollArea className={cn(
-              "border rounded-md",
-              filteredAndSortedTodos.length > 6 ? "h-[420px]" : "max-h-[420px]"
-            )}>
+            <ScrollArea
+              className={cn(
+                "border rounded-md",
+                filteredAndSortedTodos.length > 6
+                  ? "h-[420px]"
+                  : "max-h-[420px]",
+              )}
+            >
               <div className="p-3 space-y-3">
                 {filteredAndSortedTodos.map((todo) => (
                   <TodoItem
@@ -145,4 +153,4 @@ export function TodoList() {
       </CardFooter>
     </Card>
   );
-} 
+}

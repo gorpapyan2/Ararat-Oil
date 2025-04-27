@@ -34,30 +34,29 @@ export function useKeyboardNavigation({
   onActivate,
   wrapAround = true,
 }: KeyboardNavProps = {}) {
-  
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent) => {
       // Handle navigation keys
       if (navigationKeys.includes(event.key) && onNavigate) {
         event.preventDefault();
-        
+
         let direction = 0;
         if (event.key === "ArrowDown" || event.key === "ArrowRight") {
           direction = 1;
         } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
           direction = -1;
         }
-        
+
         onNavigate(event, direction);
       }
-      
+
       // Handle activation keys
       if (activationKeys.includes(event.key) && onActivate) {
         event.preventDefault();
         onActivate(event);
       }
     },
-    [navigationKeys, activationKeys, onNavigate, onActivate]
+    [navigationKeys, activationKeys, onNavigate, onActivate],
   );
 
   return { handleKeyDown };
@@ -68,22 +67,24 @@ export function useKeyboardNavigation({
  */
 export function useFocusTrap(
   containerRef: React.RefObject<HTMLElement>,
-  isActive: boolean = true
+  isActive: boolean = true,
 ) {
   React.useEffect(() => {
     if (!isActive || !containerRef.current) return;
 
     const container = containerRef.current;
     const focusableElements = container.querySelectorAll(
-      'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+      'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])',
     );
-    
+
     const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-    
+    const lastElement = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement;
+
     const handleTabKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-      
+      if (e.key !== "Tab") return;
+
       if (e.shiftKey) {
         // If shift + tab and on first element, move to last element
         if (document.activeElement === firstElement) {
@@ -98,15 +99,15 @@ export function useFocusTrap(
         }
       }
     };
-    
+
     // Focus the first focusable element when the trap activates
     firstElement?.focus();
-    
+
     // Add event listener for tab key
-    document.addEventListener('keydown', handleTabKey);
-    
+    document.addEventListener("keydown", handleTabKey);
+
     return () => {
-      document.removeEventListener('keydown', handleTabKey);
+      document.removeEventListener("keydown", handleTabKey);
     };
   }, [containerRef, isActive]);
 }
@@ -116,28 +117,28 @@ export function useFocusTrap(
  */
 export function useSkipToContent(contentId: string = "main-content") {
   const [isVisible, setIsVisible] = React.useState(false);
-  
+
   const skipLinkRef = React.useRef<HTMLAnchorElement>(null);
-  
+
   const showSkipLink = () => setIsVisible(true);
   const hideSkipLink = () => setIsVisible(false);
-  
+
   React.useEffect(() => {
     const skipLink = skipLinkRef.current;
     if (!skipLink) return;
-    
-    skipLink.addEventListener('focus', showSkipLink);
-    skipLink.addEventListener('blur', hideSkipLink);
-    
+
+    skipLink.addEventListener("focus", showSkipLink);
+    skipLink.addEventListener("blur", hideSkipLink);
+
     return () => {
-      skipLink.removeEventListener('focus', showSkipLink);
-      skipLink.removeEventListener('blur', hideSkipLink);
+      skipLink.removeEventListener("focus", showSkipLink);
+      skipLink.removeEventListener("blur", hideSkipLink);
     };
   }, []);
-  
+
   return {
     skipLinkRef,
     isVisible,
     contentId,
   };
-} 
+}

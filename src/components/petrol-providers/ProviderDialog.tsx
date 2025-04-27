@@ -1,8 +1,19 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PetrolProvider } from "@/services/petrol-providers";
@@ -16,10 +27,16 @@ interface ProviderDialogProps {
   title: string;
 }
 
-export function ProviderDialog({ isOpen, onClose, onSubmit, initialData, title }: ProviderDialogProps) {
+export function ProviderDialog({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData,
+  title,
+}: ProviderDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  
+
   const form = useForm({
     defaultValues: {
       name: initialData?.name || "",
@@ -50,9 +67,12 @@ export function ProviderDialog({ isOpen, onClose, onSubmit, initialData, title }
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -66,7 +86,7 @@ export function ProviderDialog({ isOpen, onClose, onSubmit, initialData, title }
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="contact"
@@ -80,7 +100,7 @@ export function ProviderDialog({ isOpen, onClose, onSubmit, initialData, title }
                 </FormItem>
               )}
             />
-            
+
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel

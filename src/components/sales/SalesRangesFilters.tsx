@@ -1,4 +1,3 @@
-
 import React from "react";
 
 interface SalesRangesFiltersProps {
@@ -17,7 +16,7 @@ const handleRangeChange = (
   idx: number,
   value: string,
   range: [number, number],
-  setRange: (r: [number, number]) => void
+  setRange: (r: [number, number]) => void,
 ) => {
   const newVal = value === "" ? 0 : Number(value);
   const updated: [number, number] = [...range] as [number, number];
@@ -58,9 +57,18 @@ export function SalesRangesFilters({
             className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(litersRange[0])}
             min={0}
-            onChange={e => handleRangeChange(0, e.target.value, litersRange, onLitersRangeChange)}
+            onChange={(e) =>
+              handleRangeChange(
+                0,
+                e.target.value,
+                litersRange,
+                onLitersRangeChange,
+              )
+            }
           />
-          <span className="text-lg text-muted-foreground font-medium mx-1">–</span>
+          <span className="text-lg text-muted-foreground font-medium mx-1">
+            –
+          </span>
           <input
             type="number"
             inputMode="numeric"
@@ -68,7 +76,14 @@ export function SalesRangesFilters({
             className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(litersRange[1])}
             min={0}
-            onChange={e => handleRangeChange(1, e.target.value, litersRange, onLitersRangeChange)}
+            onChange={(e) =>
+              handleRangeChange(
+                1,
+                e.target.value,
+                litersRange,
+                onLitersRangeChange,
+              )
+            }
           />
         </div>
       </div>
@@ -85,9 +100,18 @@ export function SalesRangesFilters({
             className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(priceRange[0])}
             min={0}
-            onChange={e => handleRangeChange(0, e.target.value, priceRange, onPriceRangeChange)}
+            onChange={(e) =>
+              handleRangeChange(
+                0,
+                e.target.value,
+                priceRange,
+                onPriceRangeChange,
+              )
+            }
           />
-          <span className="text-lg text-muted-foreground font-medium mx-1">–</span>
+          <span className="text-lg text-muted-foreground font-medium mx-1">
+            –
+          </span>
           <input
             type="number"
             inputMode="numeric"
@@ -95,7 +119,14 @@ export function SalesRangesFilters({
             className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(priceRange[1])}
             min={0}
-            onChange={e => handleRangeChange(1, e.target.value, priceRange, onPriceRangeChange)}
+            onChange={(e) =>
+              handleRangeChange(
+                1,
+                e.target.value,
+                priceRange,
+                onPriceRangeChange,
+              )
+            }
           />
         </div>
       </div>
@@ -112,9 +143,18 @@ export function SalesRangesFilters({
             className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(totalSalesRange[0])}
             min={0}
-            onChange={e => handleRangeChange(0, e.target.value, totalSalesRange, onTotalSalesRangeChange)}
+            onChange={(e) =>
+              handleRangeChange(
+                0,
+                e.target.value,
+                totalSalesRange,
+                onTotalSalesRangeChange,
+              )
+            }
           />
-          <span className="text-lg text-muted-foreground font-medium mx-1">–</span>
+          <span className="text-lg text-muted-foreground font-medium mx-1">
+            –
+          </span>
           <input
             type="number"
             inputMode="numeric"
@@ -122,7 +162,14 @@ export function SalesRangesFilters({
             className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(totalSalesRange[1])}
             min={0}
-            onChange={e => handleRangeChange(1, e.target.value, totalSalesRange, onTotalSalesRangeChange)}
+            onChange={(e) =>
+              handleRangeChange(
+                1,
+                e.target.value,
+                totalSalesRange,
+                onTotalSalesRangeChange,
+              )
+            }
           />
         </div>
       </div>

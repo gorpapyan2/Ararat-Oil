@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { fetchTankLevelChanges } from "@/services/supabase";
 import { History } from "lucide-react";
@@ -9,10 +8,10 @@ interface TankHistoryProps {
 
 export function TankHistory({ tankId }: TankHistoryProps) {
   const { data: changes, isLoading } = useQuery({
-    queryKey: ['tank-level-changes', tankId],
+    queryKey: ["tank-level-changes", tankId],
     queryFn: () => fetchTankLevelChanges(tankId),
     staleTime: 0,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
   });
 
   if (isLoading) {
@@ -42,14 +41,25 @@ export function TankHistory({ tankId }: TankHistoryProps) {
       <ul className="space-y-1 max-h-32 overflow-y-auto">
         {changes.map((change) => (
           <li key={change.id} className="flex items-center text-xs">
-            <span className={change.change_type === "add" ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
+            <span
+              className={
+                change.change_type === "add"
+                  ? "text-green-600 font-semibold"
+                  : "text-red-600 font-semibold"
+              }
+            >
               {change.change_type === "add" ? "+" : "-"}
               {Number(change.change_amount).toLocaleString()} liters
             </span>
             <span className="mx-1 text-muted-foreground">
-              (from {Number(change.previous_level).toLocaleString()} to {Number(change.new_level).toLocaleString()}) •
+              (from {Number(change.previous_level).toLocaleString()} to{" "}
+              {Number(change.new_level).toLocaleString()}) •
             </span>
-            <span className="ml-1">{change.created_at ? new Date(change.created_at).toLocaleString() : ""}</span>
+            <span className="ml-1">
+              {change.created_at
+                ? new Date(change.created_at).toLocaleString()
+                : ""}
+            </span>
           </li>
         ))}
       </ul>

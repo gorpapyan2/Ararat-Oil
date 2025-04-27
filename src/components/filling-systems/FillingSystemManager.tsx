@@ -8,25 +8,27 @@ import { fetchFillingSystems } from "@/services/filling-systems";
 
 export function FillingSystemManager() {
   const [isAddingSystem, setIsAddingSystem] = useState(false);
-  
-  const { data: fillingSystems, isLoading, refetch } = useQuery({
-    queryKey: ['filling-systems'],
+
+  const {
+    data: fillingSystems,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["filling-systems"],
     queryFn: fetchFillingSystems,
   });
 
   return (
     <div className="space-y-6">
-      <FillingSystemHeader 
-        onAddNew={() => setIsAddingSystem(true)}
-      />
+      <FillingSystemHeader onAddNew={() => setIsAddingSystem(true)} />
 
-      <FillingSystemList 
-        fillingSystems={fillingSystems || []} 
+      <FillingSystemList
+        fillingSystems={fillingSystems || []}
         isLoading={isLoading}
         onDelete={() => refetch()}
       />
 
-      <FillingSystemForm 
+      <FillingSystemForm
         isOpen={isAddingSystem}
         onOpenChange={(open) => setIsAddingSystem(open)}
         onSuccess={() => {
@@ -34,7 +36,7 @@ export function FillingSystemManager() {
           refetch();
         }}
       />
-      
+
       {/* Diagnostic tools */}
       <TankDiagnostics />
     </div>

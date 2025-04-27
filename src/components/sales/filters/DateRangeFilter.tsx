@@ -1,8 +1,11 @@
-
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -16,7 +19,11 @@ interface DateRangeFilterProps {
   }[];
 }
 
-export function DateRangeFilter({ date, onDateChange, presets }: DateRangeFilterProps) {
+export function DateRangeFilter({
+  date,
+  onDateChange,
+  presets,
+}: DateRangeFilterProps) {
   const [open, setOpen] = React.useState(false);
 
   const handlePresetClick = (getDate: () => Date) => {
@@ -38,7 +45,7 @@ export function DateRangeFilter({ date, onDateChange, presets }: DateRangeFilter
             variant="outline"
             className={cn(
               "w-full h-9 justify-start text-left font-normal",
-              !date && "text-muted-foreground"
+              !date && "text-muted-foreground",
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />

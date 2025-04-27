@@ -10,7 +10,9 @@ export function TankDiagnostics() {
   const [tanks, setTanks] = useState<any[]>([]);
   const [fillingSystems, setFillingSystems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [validationResults, setValidationResults] = useState<Record<string, boolean>>({});
+  const [validationResults, setValidationResults] = useState<
+    Record<string, boolean>
+  >({});
 
   const runDiagnostics = async () => {
     setLoading(true);
@@ -18,30 +20,30 @@ export function TankDiagnostics() {
       // Fetch tanks directly
       const tanksData = await fetchFuelTanks();
       setTanks(tanksData);
-      
+
       // Fetch filling systems with raw query
       const { data: systems, error } = await supabase
-        .from('filling_systems')
-        .select('*');
-        
+        .from("filling_systems")
+        .select("*");
+
       if (error) {
-        console.error('Error fetching filling systems:', error);
+        console.error("Error fetching filling systems:", error);
         throw error;
       }
-      
+
       setFillingSystems(systems || []);
-      
+
       // Validate tank IDs
       if (systems && systems.length > 0) {
         const tankIds = systems
           .map((system: any) => system.tank_id)
-          .filter((id: string) => id != null && id !== '');
-          
+          .filter((id: string) => id != null && id !== "");
+
         const validations = await validateTankIds(tankIds);
         setValidationResults(validations);
       }
     } catch (err) {
-      console.error('Diagnostics error:', err);
+      console.error("Diagnostics error:", err);
     } finally {
       setLoading(false);
     }
@@ -49,24 +51,24 @@ export function TankDiagnostics() {
 
   return (
     <div className="mt-8">
-      <Button 
-        onClick={() => setIsOpen(!isOpen)} 
+      <Button
+        onClick={() => setIsOpen(!isOpen)}
         variant="outline"
         className="mb-4"
       >
         {isOpen ? "Hide Diagnostics" : "Show Diagnostics"}
       </Button>
-      
+
       {isOpen && (
         <div className="space-y-4">
-          <Button 
-            onClick={runDiagnostics} 
+          <Button
+            onClick={runDiagnostics}
             disabled={loading}
             variant="secondary"
           >
             {loading ? "Running..." : "Run Tank Diagnostics"}
           </Button>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -76,16 +78,18 @@ export function TankDiagnostics() {
                 <pre className="text-xs">{JSON.stringify(tanks, null, 2)}</pre>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Filling Systems ({fillingSystems.length})</CardTitle>
               </CardHeader>
               <CardContent className="max-h-96 overflow-auto">
-                <pre className="text-xs">{JSON.stringify(fillingSystems, null, 2)}</pre>
+                <pre className="text-xs">
+                  {JSON.stringify(fillingSystems, null, 2)}
+                </pre>
               </CardContent>
             </Card>
-            
+
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Tank ID Validation Results</CardTitle>
@@ -102,22 +106,29 @@ export function TankDiagnostics() {
                   </thead>
                   <tbody>
                     {fillingSystems.map((system: any) => {
-                      const tankExists = system.tank_id ? validationResults[system.tank_id] : false;
-                      const problem = !system.tank_id 
-                        ? "No tank ID assigned" 
-                        : !tankExists 
-                          ? "Tank ID does not exist in database" 
+                      const tankExists = system.tank_id
+                        ? validationResults[system.tank_id]
+                        : false;
+                      const problem = !system.tank_id
+                        ? "No tank ID assigned"
+                        : !tankExists
+                          ? "Tank ID does not exist in database"
                           : "";
-                          
+
                       return (
-                        <tr key={system.id} className={problem ? "bg-red-950/20" : ""}>
+                        <tr
+                          key={system.id}
+                          className={problem ? "bg-red-950/20" : ""}
+                        >
                           <td className="border p-2">{system.name}</td>
-                          <td className="border p-2">{system.tank_id || "—"}</td>
                           <td className="border p-2">
-                            {system.tank_id 
-                              ? (tankExists 
-                                ? "✅ Yes" 
-                                : "❌ No") 
+                            {system.tank_id || "—"}
+                          </td>
+                          <td className="border p-2">
+                            {system.tank_id
+                              ? tankExists
+                                ? "✅ Yes"
+                                : "❌ No"
                               : "—"}
                           </td>
                           <td className="border p-2 text-red-400">{problem}</td>
@@ -133,4 +144,4 @@ export function TankDiagnostics() {
       )}
     </div>
   );
-} 
+}

@@ -5,7 +5,7 @@ import { Fuel } from "lucide-react";
 
 export function Tanks() {
   const [action, setAction] = useState<React.ReactNode>(null);
-  
+
   return (
     <PageLayout
       titleKey="tanks.title"

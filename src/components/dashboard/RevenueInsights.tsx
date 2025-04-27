@@ -1,5 +1,10 @@
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import {
   BarChart,
@@ -9,7 +14,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
+  Legend,
 } from "recharts";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
@@ -26,15 +31,15 @@ const data = [
 export function RevenueInsights() {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="space-y-1">
         <CardTitle className="text-xl md:text-2xl font-bold">
-          {t('dashboard.revenueInsights')}
+          {t("dashboard.revenueInsights")}
         </CardTitle>
         <CardDescription>
-          {t('dashboard.revenueInsightsDescription')}
+          {t("dashboard.revenueInsightsDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -50,37 +55,37 @@ export function RevenueInsights() {
               }}
             >
               <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-              <XAxis 
-                dataKey="name" 
+              <XAxis
+                dataKey="name"
                 tick={{ fontSize: isMobile ? 10 : 12 }}
                 tickMargin={10}
               />
-              <YAxis 
+              <YAxis
                 tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                 tick={{ fontSize: isMobile ? 10 : 12 }}
                 width={isMobile ? 40 : 60}
               />
-              <Tooltip 
-                formatter={(value) => `${(Number(value)).toLocaleString()}֏`}
-                labelStyle={{ fontWeight: 'bold' }}
-                contentStyle={{ 
-                  borderRadius: '8px', 
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)', 
-                  border: '1px solid #e2e8f0' 
+              <Tooltip
+                formatter={(value) => `${Number(value).toLocaleString()}֏`}
+                labelStyle={{ fontWeight: "bold" }}
+                contentStyle={{
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  border: "1px solid #e2e8f0",
                 }}
               />
               <Legend iconSize={isMobile ? 8 : 10} />
-              <Bar 
-                name={t('dashboard.revenue')}
-                dataKey="revenue" 
-                fill="#3AA655" 
-                radius={[4, 4, 0, 0]} 
+              <Bar
+                name={t("dashboard.revenue")}
+                dataKey="revenue"
+                fill="#3AA655"
+                radius={[4, 4, 0, 0]}
               />
-              <Bar 
-                name={t('dashboard.expenses')}
-                dataKey="expenses" 
-                fill="#F6C90E" 
-                radius={[4, 4, 0, 0]} 
+              <Bar
+                name={t("dashboard.expenses")}
+                dataKey="expenses"
+                fill="#F6C90E"
+                radius={[4, 4, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>

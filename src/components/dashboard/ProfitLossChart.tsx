@@ -14,16 +14,16 @@ import {
 export function ProfitLossChart() {
   const { t } = useTranslation();
   const { data: profitLossData, isLoading } = useQuery({
-    queryKey: ['profit-loss'],
+    queryKey: ["profit-loss"],
     queryFn: fetchProfitLoss,
   });
 
-  if (isLoading) return <div>{t('common.loading')}</div>;
+  if (isLoading) return <div>{t("common.loading")}</div>;
 
   return (
     <Card className="col-span-4">
       <CardHeader>
-        <CardTitle>{t('dashboard.profitLossOverview')}</CardTitle>
+        <CardTitle>{t("dashboard.profitLossOverview")}</CardTitle>
       </CardHeader>
       <CardContent className="pl-2">
         <ResponsiveContainer width="100%" height={350}>
@@ -46,7 +46,7 @@ export function ProfitLossChart() {
               dataKey="period"
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => value.split('-')[1]}
+              tickFormatter={(value) => value.split("-")[1]}
               className="text-sm"
             />
             <YAxis
@@ -55,44 +55,45 @@ export function ProfitLossChart() {
               tickFormatter={(value) => `${value.toLocaleString()}֏`}
               className="text-sm"
             />
-            <Tooltip content={({ active, payload }) => {
-              if (active && payload && payload.length) {
-                return (
-                  <div className="rounded-lg border bg-background p-2 shadow-sm">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          {t('dashboard.period')}
-                        </span>
-                        <span className="font-bold text-muted-foreground">
-                          {payload[0].payload.period}
-                        </span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          {t('dashboard.profit')}
-                        </span>
-                        <span className="font-bold">
-                          {payload[0].value?.toLocaleString()}֏
-                        </span>
+            <Tooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="rounded-lg border bg-background p-2 shadow-sm">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            {t("dashboard.period")}
+                          </span>
+                          <span className="font-bold text-muted-foreground">
+                            {payload[0].payload.period}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            {t("dashboard.profit")}
+                          </span>
+                          <span className="font-bold">
+                            {payload[0].value?.toLocaleString()}֏
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              }
-              return null;
-            }}
-          />
-          <Area
-            type="monotone"
-            dataKey="profit"
-            stroke="#A7D129"
-            fill="url(#profit)"
-            strokeWidth={2}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </CardContent>
-  </Card>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="profit"
+              stroke="#A7D129"
+              fill="url(#profit)"
+              strokeWidth={2}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { SidebarLogo } from "@/components/sidebar/SidebarLogo";
@@ -20,12 +19,12 @@ export function Sidebar({
   onToggleCollapse,
   isMobile = false,
   isOpen,
-  onToggle
+  onToggle,
 }: SidebarProps) {
   const { t } = useTranslation();
   const { signOut } = useAuth();
   const navConfig = useSidebarNavConfig();
-  
+
   const collapsed = externalCollapsed !== undefined ? externalCollapsed : false;
 
   return (
@@ -35,7 +34,7 @@ export function Sidebar({
         "fixed top-0 left-0 h-screen z-30 transition-all duration-300",
         collapsed ? "w-[70px]" : "w-[240px]",
         isMobile && "z-50 shadow-lg",
-        isMobile && !isOpen && "transform -translate-x-full"
+        isMobile && !isOpen && "transform -translate-x-full",
       )}
       role="navigation"
       aria-label="Main navigation"

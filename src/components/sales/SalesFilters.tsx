@@ -1,4 +1,3 @@
-
 import React from "react";
 import { SalesSearchBar } from "./SalesSearchBar";
 import { SalesDatePicker } from "./SalesDatePicker";
@@ -33,7 +32,11 @@ export function SalesFilters({
           <SalesDatePicker date={date} onDateChange={onDateChange} />
         </div>
         <div className="flex flex-col justify-end">
-          <SalesSystemSelect value={systemId} onChange={onSystemChange} systems={systems} />
+          <SalesSystemSelect
+            value={systemId}
+            onChange={onSystemChange}
+            systems={systems}
+          />
         </div>
       </div>
     </section>

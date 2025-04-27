@@ -1,24 +1,21 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { 
-  IconCurrencyDollar, 
+import {
+  IconCurrencyDollar,
   IconPlus,
   IconEye,
   IconEdit,
-  IconTrash
+  IconTrash,
 } from "@tabler/icons-react";
 
 // Import our custom UI components
-import { 
-  PageHeader, 
-  CreateButton 
-} from "@/components/ui-custom/page-header";
+import { PageHeader, CreateButton } from "@/components/ui-custom/page-header";
 import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui-custom/card";
 import { MetricCard } from "@/components/ui-custom/data-card";
 
@@ -41,14 +38,9 @@ import { ColumnDef } from "@tanstack/react-table";
 export default function SalesNew() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  
+
   // Get sales data and filters from existing hooks
-  const {
-    systems, 
-    filteredSales, 
-    isLoading, 
-    refetchSales
-  } = useSalesFilters();
+  const { systems, filteredSales, isLoading, refetchSales } = useSalesFilters();
 
   // Mutations & modals from existing hook
   const {
@@ -62,27 +54,25 @@ export default function SalesNew() {
     handleDelete,
     confirmDelete,
     updateMutation,
-    deleteMutation
+    deleteMutation,
   } = useSalesMutations();
 
   // Calculate summary metrics
   const totalSalesAmount = filteredSales.reduce(
-    (sum, sale) => sum + (sale.total_sales || 0), 
-    0
+    (sum, sale) => sum + (sale.total_sales || 0),
+    0,
   );
-  
+
   const totalLiters = filteredSales.reduce(
-    (sum, sale) => sum + (sale.quantity || 0), 
-    0
+    (sum, sale) => sum + (sale.quantity || 0),
+    0,
   );
-  
-  const averagePrice = totalLiters > 0 
-    ? totalSalesAmount / totalLiters 
-    : 0;
+
+  const averagePrice = totalLiters > 0 ? totalSalesAmount / totalLiters : 0;
 
   // Format currency values
   const formatCurrency = (value: number | undefined | null) => {
-    if (value === undefined || value === null) return '0 ֏';
+    if (value === undefined || value === null) return "0 ֏";
     return `${value.toLocaleString()} ֏`;
   };
 
@@ -95,86 +85,101 @@ export default function SalesNew() {
   // Define table columns
   const columns: ColumnDef<Sale, any>[] = [
     {
-      accessorKey: 'id',
-      header: () => 'Invoice #',
-      cell: ({ row }) => <span className="font-medium">#{row.getValue('id')}</span>,
-    },
-    {
-      accessorKey: 'date',
-      header: () => 'Date',
-      cell: ({ row }) => format(new Date(row.getValue('date')), 'MMM dd, yyyy'),
-    },
-    {
-      accessorKey: 'filling_system_name',
-      header: () => 'Filling System',
-      cell: ({ row }) => row.getValue('filling_system_name'),
-    },
-    {
-      accessorKey: 'fuel_type',
-      header: () => 'Fuel Type',
+      accessorKey: "id",
+      header: () => "Invoice #",
       cell: ({ row }) => (
-        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-          {row.getValue('fuel_type')}
+        <span className="font-medium">#{row.getValue("id")}</span>
+      ),
+    },
+    {
+      accessorKey: "date",
+      header: () => "Date",
+      cell: ({ row }) => format(new Date(row.getValue("date")), "MMM dd, yyyy"),
+    },
+    {
+      accessorKey: "filling_system_name",
+      header: () => "Filling System",
+      cell: ({ row }) => row.getValue("filling_system_name"),
+    },
+    {
+      accessorKey: "fuel_type",
+      header: () => "Fuel Type",
+      cell: ({ row }) => (
+        <Badge
+          variant="outline"
+          className="bg-primary/10 text-primary border-primary/20"
+        >
+          {row.getValue("fuel_type")}
         </Badge>
       ),
     },
     {
-      accessorKey: 'quantity',
-      header: () => 'Liters',
+      accessorKey: "quantity",
+      header: () => "Liters",
       cell: ({ row }) => {
-        const quantity = row.getValue('quantity');
-        return quantity !== undefined && quantity !== null 
-          ? Number(quantity).toLocaleString() 
-          : '0';
+        const quantity = row.getValue("quantity");
+        return quantity !== undefined && quantity !== null
+          ? Number(quantity).toLocaleString()
+          : "0";
       },
     },
     {
-      accessorKey: 'price_per_liter',
-      header: () => 'Price/L',
+      accessorKey: "price_per_liter",
+      header: () => "Price/L",
       cell: ({ row }) => {
-        const price = row.getValue('price_per_liter');
-        return formatCurrency(typeof price === 'number' ? price : undefined);
+        const price = row.getValue("price_per_liter");
+        return formatCurrency(typeof price === "number" ? price : undefined);
       },
     },
     {
-      accessorKey: 'total_sales',
-      header: () => 'Total',
+      accessorKey: "total_sales",
+      header: () => "Total",
       cell: ({ row }) => {
-        const total = row.getValue('total_sales');
-        return formatCurrency(typeof total === 'number' ? total : undefined);
+        const total = row.getValue("total_sales");
+        return formatCurrency(typeof total === "number" ? total : undefined);
       },
     },
     {
-      accessorKey: 'shift',
-      header: () => 'Shift',
+      accessorKey: "shift",
+      header: () => "Shift",
       cell: ({ row }) => (
-        <Badge variant="secondary">
-          {row.getValue('shift')}
-        </Badge>
+        <Badge variant="secondary">{row.getValue("shift")}</Badge>
       ),
     },
     {
-      id: 'actions',
+      id: "actions",
       cell: ({ row }) => {
         const sale = row.original;
         return (
           <div className="flex items-center justify-end gap-2">
-            <Button variant="ghost" size="icon" onClick={(e) => {
-              e.stopPropagation();
-              handleViewSale(sale);
-            }}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewSale(sale);
+              }}
+            >
               <IconEye className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(sale);
-            }}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(sale);
+              }}
+            >
               <IconEdit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(sale.id);
-            }}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(sale.id);
+              }}
+            >
               <IconTrash className="h-4 w-4" />
             </Button>
           </div>
@@ -198,26 +203,28 @@ export default function SalesNew() {
 
   // Handle filter changes
   const handleFiltersChange = (updates: any) => {
-    setFilters(prev => ({ ...prev, ...updates }));
+    setFilters((prev) => ({ ...prev, ...updates }));
   };
 
   // Create fuel type categories
   const fuelTypeCategories = useMemo(() => {
-    const uniqueFuelTypes = Array.from(new Set(filteredSales.map(sale => sale.fuel_type)))
+    const uniqueFuelTypes = Array.from(
+      new Set(filteredSales.map((sale) => sale.fuel_type)),
+    )
       .filter(Boolean)
       .sort();
-    
-    return uniqueFuelTypes.map(type => ({
+
+    return uniqueFuelTypes.map((type) => ({
       id: type,
-      name: type
+      name: type,
     }));
   }, [filteredSales]);
 
   // Create filling systems data
   const systemsData = useMemo(() => {
-    return systems.map(system => ({
+    return systems.map((system) => ({
       id: system.id,
-      name: system.name
+      name: system.name,
     }));
   }, [systems]);
 
@@ -231,7 +238,7 @@ export default function SalesNew() {
         trend={{
           value: "+5.2%",
           positive: true,
-          label: "vs last month"
+          label: "vs last month",
         }}
       />
       <MetricCard
@@ -240,7 +247,7 @@ export default function SalesNew() {
         trend={{
           value: "+3.1%",
           positive: true,
-          label: "vs last month"
+          label: "vs last month",
         }}
       />
       <MetricCard
@@ -249,7 +256,7 @@ export default function SalesNew() {
         trend={{
           value: "+0.8%",
           positive: true,
-          label: "vs last month"
+          label: "vs last month",
         }}
       />
     </div>
@@ -261,7 +268,7 @@ export default function SalesNew() {
         title={t("sales.title")}
         description={t("sales.description")}
         actions={
-          <CreateButton 
+          <CreateButton
             label={t("sales.newSale")}
             onClick={() => handleViewSale({} as Sale)}
           />
@@ -297,7 +304,7 @@ export default function SalesNew() {
       />
 
       {/* Dialogs */}
-      <SalesDialogs 
+      <SalesDialogs
         isEditDialogOpen={isEditDialogOpen}
         setIsEditDialogOpen={setIsEditDialogOpen}
         selectedSale={selectedSale}

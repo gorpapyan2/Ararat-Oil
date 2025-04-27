@@ -10,11 +10,12 @@ export function ThemeTest() {
         <h1 className="text-2xl font-bold">Theme Test Page</h1>
         <ThemeSwitcher variant="accent" />
       </div>
-      
+
       <p className="text-muted-foreground">
-        This page demonstrates theming with proper contrast in both dark and light modes.
+        This page demonstrates theming with proper contrast in both dark and
+        light modes.
       </p>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -49,7 +50,7 @@ export function ThemeTest() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Button Variants</CardTitle>
@@ -62,7 +63,9 @@ export function ThemeTest() {
               </div>
               <div className="space-y-2">
                 <Button variant="secondary">Secondary</Button>
-                <p className="text-sm text-muted-foreground">Secondary action</p>
+                <p className="text-sm text-muted-foreground">
+                  Secondary action
+                </p>
               </div>
               <div className="space-y-2">
                 <Button variant="accent">Accent</Button>
@@ -84,7 +87,7 @@ export function ThemeTest() {
           </CardContent>
         </Card>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Text Colors</CardTitle>
@@ -97,7 +100,9 @@ export function ThemeTest() {
             </div>
             <div className="space-y-2">
               <p className="text-muted-foreground">Muted Foreground</p>
-              <p className="text-sm text-muted-foreground">--muted-foreground</p>
+              <p className="text-sm text-muted-foreground">
+                --muted-foreground
+              </p>
             </div>
             <div className="space-y-2">
               <p className="text-primary">Primary</p>
@@ -105,11 +110,15 @@ export function ThemeTest() {
             </div>
             <div className="space-y-2">
               <p className="text-secondary-foreground">Secondary</p>
-              <p className="text-sm text-muted-foreground">--secondary-foreground</p>
+              <p className="text-sm text-muted-foreground">
+                --secondary-foreground
+              </p>
             </div>
             <div className="space-y-2">
               <p className="text-accent-foreground">Accent</p>
-              <p className="text-sm text-muted-foreground">--accent-foreground</p>
+              <p className="text-sm text-muted-foreground">
+                --accent-foreground
+              </p>
             </div>
             <div className="space-y-2">
               <p className="text-destructive">Destructive</p>
@@ -120,4 +129,4 @@ export function ThemeTest() {
       </Card>
     </div>
   );
-} 
+}

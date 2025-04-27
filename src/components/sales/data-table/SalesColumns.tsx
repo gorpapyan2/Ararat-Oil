@@ -1,4 +1,3 @@
-
 import { ColumnDef } from "@tanstack/react-table";
 import { Sale } from "@/types";
 import { format } from "date-fns";
@@ -11,13 +10,18 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 
 export const getSalesColumns = (
   onView: (sale: Sale) => void,
   onEdit: (sale: Sale) => void,
-  onDelete: (id: string) => void
+  onDelete: (id: string) => void,
 ): ColumnDef<Sale>[] => [
   {
     accessorKey: "date",
@@ -56,7 +60,9 @@ export const getSalesColumns = (
     header: "Price/Unit (֏)",
     cell: ({ row }) => {
       const price = parseFloat(row.getValue("price_per_unit"));
-      return <div className="text-right font-medium">{price.toLocaleString()}</div>;
+      return (
+        <div className="text-right font-medium">{price.toLocaleString()}</div>
+      );
     },
   },
   {
@@ -76,7 +82,7 @@ export const getSalesColumns = (
     header: "Actions",
     cell: ({ row }) => {
       const sale = row.original;
-      
+
       return (
         <div className="flex items-center justify-end gap-2">
           <TooltipProvider>
@@ -96,7 +102,7 @@ export const getSalesColumns = (
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -114,7 +120,7 @@ export const getSalesColumns = (
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -132,7 +138,7 @@ export const getSalesColumns = (
                 Edit sale
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
                 onClick={() => onDelete(sale.id)}
               >
