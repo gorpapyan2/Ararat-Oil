@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Loading } from "@/components/ui/loading";
 
 const AuthForm = () => {
   const { signIn, user, isLoading: authLoading } = useAuth();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -43,22 +45,20 @@ const AuthForm = () => {
   };
 
   if (authLoading) {
-    return <Loading variant="fullscreen" text="Loading authentication..." />;
+    return <Loading variant="fullscreen" text={t('auth.signIn.loading')} />;
   }
 
   return (
     <div className="flex justify-center items-center min-h-screen p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Sign In</CardTitle>
-          <CardDescription>
-            Sign into your account
-          </CardDescription>
+          <CardTitle>{t('auth.signIn.title')}</CardTitle>
+          <CardDescription>{t('auth.signIn.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              placeholder="Email"
+              placeholder={t('auth.signIn.emailPlaceholder')}
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
@@ -67,7 +67,7 @@ const AuthForm = () => {
               className="bg-background"
             />
             <Input
-              placeholder="Password"
+              placeholder={t('auth.signIn.passwordPlaceholder')}
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
@@ -87,14 +87,14 @@ const AuthForm = () => {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <Loading variant="inline" size="sm" text="Signing In..." />
+                <Loading variant="inline" size="sm" text={t('auth.signIn.signingIn')} />
               ) : (
-                "Sign In"
+                t('auth.signIn.button')
               )}
             </Button>
           </form>
           <div className="text-sm mt-4 text-center text-muted-foreground">
-            Contact your administrator for account access
+            {t('auth.signIn.contactAdmin')}
           </div>
         </CardContent>
       </Card>

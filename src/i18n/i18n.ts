@@ -18,8 +18,8 @@ i18n
   // init i18next
   .init({
     // Removed static resources object since we're loading dynamically
-    fallbackLng: 'en',
-    supportedLngs: ['en', 'hy'],
+    fallbackLng: 'hy',
+    supportedLngs: ['hy'],
     debug: process.env.NODE_ENV === 'development',
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default

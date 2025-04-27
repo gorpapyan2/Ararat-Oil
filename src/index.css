@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,45 +7,45 @@
 @layer base {
   /* Light mode variables */
   :root {
-    --background: 210 40% 98%;
-    --foreground: 217 65% 10%;
+    --background: 149 14% 97%; /* #F7F9F8 */
+    --foreground: 0 0% 20%;   /* #333333 */
     --card: 0 0% 100%;
-    --card-foreground: 217 65% 10%;
-    --primary: 210 90% 50%;
+    --card-foreground: 0 0% 20%;
+    --primary: 135 48% 44%;   /* #3AA655 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 215 32% 90%;
-    --secondary-foreground: 215 32% 27%;
-    --accent: 134 61% 53%;
-    --accent-foreground: 0 0% 100%;
-    --muted: 215 32% 90%;
-    --muted-foreground: 215 32% 40%;
-    --border: 215 28% 85%;
-    --input: 215 28% 85%;
-    --ring: 142 71% 45%;
+    --secondary: 0 0% 95%;    /* #F2F2F2 */
+    --secondary-foreground: 0 0% 20%;
+    --accent: 48 93% 51%;     /* #F6C90E */
+    --accent-foreground: 0 0% 10%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 135 48% 44%;
     --radius: 0.9rem;
   }
 
   /* Dark mode variables */
   .dark {
-    --background: 217 65% 10%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --primary: 210 90% 50%;
+    --background: 0 0% 10%;   /* #1A1A1A */
+    --foreground: 0 0% 88%;   /* #E0E0E0 */
+    --card: 0 0% 15%;         /* #262626 */
+    --card-foreground: 0 0% 88%;
+    --primary: 135 48% 44%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 215 32% 27%;
-    --secondary-foreground: 210 40% 98%;
-    --accent: 134 61% 53%;
-    --accent-foreground: 0 0% 100%;
-    --muted: 215 32% 27%;
-    --muted-foreground: 215 20% 65%;
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 142 71% 45%;
+    --secondary: 0 0% 25%;    /* #404040 */
+    --secondary-foreground: 0 0% 88%;
+    --accent: 48 93% 51%;
+    --accent-foreground: 0 0% 20%;
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 65%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 135 48% 44%;
   }
 
   body {
-    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] antialiased;
+    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] font-sans antialiased;
   }
 }
 

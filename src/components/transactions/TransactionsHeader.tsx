@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,6 +14,7 @@ interface TransactionsHeaderProps {
   onPaymentMethodChange: (method: string | null) => void;
   dateRange: Date | undefined;
   onDateRangeChange: (date: Date | undefined) => void;
+  onFiltersChange?: (filters: any) => void;
 }
 
 export function TransactionsHeader({
@@ -23,7 +23,8 @@ export function TransactionsHeader({
   paymentMethod,
   onPaymentMethodChange,
   dateRange,
-  onDateRangeChange
+  onDateRangeChange,
+  onFiltersChange
 }: TransactionsHeaderProps) {
   const paymentMethods: PaymentMethod[] = ['cash', 'card', 'bank_transfer', 'mobile_payment'];
 

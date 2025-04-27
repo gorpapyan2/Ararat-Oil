@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,31 +19,30 @@ export default {
     },
     extend: {
       colors: {
-        background: "#0A1929",           // Deep Navy
-        primary: {
-          DEFAULT: "#1E88E5",           // Professional Blue
-          foreground: "#FFFFFF"
+        background: {
+          light: "#F7F9F8",
+          dark: "#1A1A1A",
         },
-        secondary: {
-          DEFAULT: "#334155",           // Slate Blue
-          foreground: "#FFFFFF"
+        primary: {
+          DEFAULT: "#3AA655",
+          foreground: "#FFFFFF",
         },
         accent: {
-          DEFAULT: "#3CCF4E",           // Success Green
-          foreground: "#FFFFFF"
+          DEFAULT: "#F6C90E",
+          foreground: "#1A1A1A",
         },
         text: {
-          base: "#F8FAFC",             // Light Text
-          muted: "#94A3B8"             // Muted Text
+          light: "#333333",
+          dark: "#E0E0E0",
+        },
+        card: {
+          light: "#FFFFFF",
+          dark: "#262626",
         },
         border: "#1E293B",             // Border Color
         muted: {
           DEFAULT: "#334155",          // Muted Background
           foreground: "#3CCF4E"        // Muted with Green accent
-        },
-        card: {
-          DEFAULT: "#0F172A",          // Card Background
-          foreground: "#F8FAFC"
         },
       },
       boxShadow: {
@@ -54,6 +52,10 @@ export default {
         lg: "1.2rem",
         md: "0.9rem",
         sm: "0.6rem"
+      },
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui"],
+        heading: ["Poppins", "ui-sans-serif", "system-ui"],
       },
       keyframes: {
         'accordion-down': {

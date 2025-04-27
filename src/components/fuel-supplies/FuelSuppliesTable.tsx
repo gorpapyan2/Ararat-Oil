@@ -1,127 +1,220 @@
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { format } from "date-fns";
+import { useMemo } from "react";
 import { FuelSupply } from "@/types";
-import { Pencil, Trash2 } from "lucide-react";
+import { format } from "date-fns";
+import { UnifiedDataTable } from "@/components/unified/UnifiedDataTable";
+import { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { Edit, MoreHorizontal, Trash2, Calendar, Fuel, Droplet, Banknote, Truck } from "lucide-react";
 
 interface FuelSuppliesTableProps {
   fuelSupplies: FuelSupply[];
   isLoading: boolean;
   onEdit: (supply: FuelSupply) => void;
   onDelete: (supply: FuelSupply) => void;
+  providers?: { id: string; name: string }[];
+  fuelTypes?: { id: string; name: string }[];
+  onFiltersChange?: (filters: any) => void;
 }
 
-export function FuelSuppliesTable({ fuelSupplies, isLoading, onEdit, onDelete }: FuelSuppliesTableProps) {
-  // Helper function to safely format numbers
-  const formatNumber = (value: any, decimals = 2) => {
-    // If the value is undefined, null, or an empty string, return "0.00"
-    if (value === undefined || value === null || value === "") return "0.00";
-    
-    const num = Number(value);
-    
-    // Check if the value is a valid number
-    if (isNaN(num)) return "0.00";
-    
-    // Format the number with the specified decimals
-    return num.toFixed(decimals);
-  };
-
-  // Helper function to safely format currency
-  const formatCurrency = (value: any) => {
-    // If the value is undefined, null, or an empty string, return "0"
-    if (value === undefined || value === null || value === "") return "0";
-    
-    const num = Number(value);
-    
-    // Check if the value is a valid number
-    if (isNaN(num)) return "0";
-    
-    // Format the number as currency
-    return Math.round(num).toLocaleString();
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-pulse text-muted-foreground">Loading records...</div>
-      </div>
-    );
-  }
-
-  if (!fuelSupplies?.length) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 text-center space-y-2">
-        <p className="text-lg font-medium text-muted-foreground">No fuel supply records found</p>
-        <p className="text-sm text-muted-foreground">Add a new record to get started</p>
-      </div>
-    );
-  }
+export function FuelSuppliesTable({ 
+  fuelSupplies, 
+  isLoading, 
+  onEdit, 
+  onDelete,
+  providers = [],
+  fuelTypes = [],
+  onFiltersChange = () => {}
+}: FuelSuppliesTableProps) {
+  
+  // Define columns for the UnifiedDataTable
+  const columns = useMemo<ColumnDef<FuelSupply>[]>(() => [
+    {
+      id: "date",
+      header: () => <div className="text-left font-medium">Date</div>,
+      accessorKey: "delivery_date",
+      cell: ({ row }) => {
+        const date = row.getValue("delivery_date");
+        return (
+          <div className="flex items-center gap-2 py-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">
+              {date && typeof date === 'string' 
+                ? format(new Date(date), "PP") 
+                : "N/A"}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "provider_name",
+      header: () => <div className="text-left font-medium">Provider</div>,
+      accessorKey: "provider.name",
+      cell: ({ row }) => {
+        const provider = row.getValue("provider.name") as string;
+        return (
+          <div className="flex items-center gap-2 py-2">
+            <Truck className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">{provider || "N/A"}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "tank_name",
+      header: () => <div className="text-left font-medium">Tank</div>,
+      accessorKey: "tank.name",
+      cell: ({ row }) => {
+        const tank = row.getValue("tank.name") as string;
+        return (
+          <div className="flex items-center gap-2 py-2">
+            <Droplet className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">{tank || "N/A"}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "quantity_liters",
+      header: () => <div className="text-right font-medium">Quantity (Liters)</div>,
+      accessorKey: "quantity_liters",
+      cell: ({ row }) => {
+        const quantity = row.getValue("quantity_liters");
+        const value = quantity !== undefined && quantity !== null 
+          ? Number(quantity).toFixed(2) 
+          : '0.00';
+        
+        return (
+          <div className="text-right font-medium tabular-nums">
+            <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
+              {value} L
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "price_per_liter",
+      header: () => <div className="text-right font-medium">Price per Liter (֏)</div>,
+      accessorKey: "price_per_liter",
+      cell: ({ row }) => {
+        const price = row.getValue("price_per_liter");
+        const formattedPrice = price !== undefined && price !== null 
+          ? Number(price).toLocaleString() 
+          : '0';
+          
+        return (
+          <div className="text-right font-medium tabular-nums">
+            {formattedPrice} ֏
+          </div>
+        );
+      },
+    },
+    {
+      id: "total_cost",
+      header: () => <div className="text-right font-medium">Total Cost (֏)</div>,
+      accessorKey: "total_cost",
+      cell: ({ row }) => {
+        const totalCost = row.getValue("total_cost");
+        const formattedValue = totalCost !== undefined && totalCost !== null 
+          ? Number(totalCost).toLocaleString() 
+          : '0';
+          
+        return (
+          <div className="text-right font-medium tabular-nums">
+            <span className="font-semibold text-primary">{formattedValue} ֏</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "employee_name",
+      header: () => <div className="text-left font-medium">Employee</div>,
+      accessorKey: "employee.name",
+      cell: ({ row }) => {
+        const employee = row.getValue("employee.name") as string;
+        return (
+          <div className="flex items-center gap-2 py-2">
+            <Banknote className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">{employee || "N/A"}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "comments",
+      header: () => <div className="text-left font-medium">Comments</div>,
+      accessorKey: "comments",
+      cell: ({ row }) => {
+        const comments = row.getValue("comments") as string;
+        return (
+          <div className="flex items-center gap-2 py-2">
+            <span className="font-medium">{comments || "N/A"}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-center font-medium">Actions</div>,
+      cell: ({ row }) => {
+        const supply = row.original;
+        return (
+          <div className="flex justify-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit(supply)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit supply
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-red-600"
+                  onClick={() => onDelete(supply)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete supply
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    },
+  ], [onEdit, onDelete]);
 
   return (
-    <div className="border rounded-lg overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50">
-            <TableHead className="font-medium">Delivery Date</TableHead>
-            <TableHead className="font-medium">Provider</TableHead>
-            <TableHead className="font-medium">Tank</TableHead>
-            <TableHead className="font-medium text-right">Quantity (Liters)</TableHead>
-            <TableHead className="font-medium text-right">Price per Liter (֏)</TableHead>
-            <TableHead className="font-medium text-right">Total Cost (֏)</TableHead>
-            <TableHead className="font-medium">Employee</TableHead>
-            <TableHead className="font-medium">Comments</TableHead>
-            <TableHead className="font-medium text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {fuelSupplies.map((supply) => (
-            <TableRow key={supply.id} className="hover:bg-muted/50">
-              <TableCell>
-                {isNaN(new Date(supply.delivery_date).getTime()) 
-                  ? "N/A" 
-                  : format(new Date(supply.delivery_date), 'PP')}
-              </TableCell>
-              <TableCell>{supply.provider?.name || 'N/A'}</TableCell>
-              <TableCell>
-                {supply.tank?.name || 'N/A'} ({supply.tank?.fuel_type || 'N/A'})
-              </TableCell>
-              <TableCell className="text-right">{formatNumber(supply.quantity_liters)}</TableCell>
-              <TableCell className="text-right">{formatCurrency(supply.price_per_liter)} ֏</TableCell>
-              <TableCell className="text-right">{formatCurrency(supply.total_cost)} ֏</TableCell>
-              <TableCell>{supply.employee?.name || 'N/A'}</TableCell>
-              <TableCell>{supply.comments || 'N/A'}</TableCell>
-              <TableCell className="flex gap-2 justify-center items-center">
-                <button
-                  className="text-blue-500 hover:text-blue-700"
-                  title="Edit"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(supply);
-                  }}
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  className="text-red-500 hover:text-red-600"
-                  title="Delete"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(supply);
-                  }}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <UnifiedDataTable
+      title="Fuel Supplies"
+      columns={columns}
+      data={fuelSupplies}
+      isLoading={isLoading}
+      providers={providers}
+      categories={fuelTypes}
+      onFiltersChange={onFiltersChange}
+      filters={{
+        search: "",
+        provider: "all",
+        systemId: "all",
+        salesFuelType: "all",
+        quantityRange: [0, 10000],
+        priceRange: [0, 10000],
+        totalRange: [0, 10000000],
+      }}
+      searchColumn="provider.name"
+      searchPlaceholder="Search by provider..."
+    />
   );
 }

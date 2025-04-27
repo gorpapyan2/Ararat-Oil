@@ -5,8 +5,8 @@ import { Receipt } from "lucide-react";
 const Sales = () => {
   return (
     <PageLayout
-      title="Sales"
-      description="View and manage fuel sales records"
+      titleKey="sales.title"
+      descriptionKey="sales.description"
       icon={Receipt}
     >
       <SalesManager />

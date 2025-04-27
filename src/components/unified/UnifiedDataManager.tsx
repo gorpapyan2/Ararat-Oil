@@ -377,7 +377,11 @@ export function UnifiedDataManager() {
       header: () => <div className="text-right font-medium">{t("fuelSupplies.quantity")}</div>,
       accessorKey: "quantity_liters",
       cell: ({ row }) => {
-        const value = Number(row.getValue("quantity_liters") || 0).toFixed(2);
+        const quantity = row.getValue('quantity_liters');
+        const value = quantity !== undefined && quantity !== null 
+          ? Number(quantity).toFixed(2) 
+          : '0';
+        
         return (
           <div className="text-right font-medium tabular-nums">
             <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
@@ -392,12 +396,10 @@ export function UnifiedDataManager() {
       header: () => <div className="text-right font-medium">{t("fuelSupplies.pricePerLiter")}</div>,
       accessorKey: "price_per_liter",
       cell: ({ row }) => {
-        const value = Number(row.getValue("price_per_liter") || 0).toLocaleString();
-        return (
-          <div className="text-right font-medium tabular-nums">
-            {value} ֏
-          </div>
-        );
+        const price = row.getValue('price_per_liter');
+        return <div className="text-right font-medium tabular-nums">
+          {typeof price === 'number' ? price.toLocaleString() : '0'} ֏
+        </div>;
       },
     },
     {
@@ -405,10 +407,14 @@ export function UnifiedDataManager() {
       header: () => <div className="text-right font-medium">{t("fuelSupplies.totalCost")}</div>,
       accessorKey: "total_cost",
       cell: ({ row }) => {
-        const value = Number(row.getValue("total_cost") || 0).toLocaleString();
+        const value = row.getValue('total_cost');
+        const formattedValue = value !== undefined && value !== null 
+          ? Number(value).toLocaleString() 
+          : '0';
+        
         return (
           <div className="text-right font-medium tabular-nums">
-            <span className="font-semibold text-primary">{value} ֏</span>
+            <span className="font-semibold text-primary">{formattedValue} ֏</span>
           </div>
         );
       },
@@ -477,11 +483,15 @@ export function UnifiedDataManager() {
       header: () => <div className="text-right font-medium">{t("common.quantity")}</div>,
       accessorKey: "quantity",
       cell: ({ row }) => {
-        const amount = parseFloat(row.getValue("quantity") as string);
+        const amount = row.getValue('quantity');
+        const formattedAmount = amount !== undefined && amount !== null 
+          ? Number(amount).toFixed(2) 
+          : '0';
+        
         return (
           <div className="text-right font-medium tabular-nums">
             <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
-              {amount.toFixed(2)} L
+              {formattedAmount} L
             </span>
           </div>
         );
@@ -492,8 +502,12 @@ export function UnifiedDataManager() {
       header: () => <div className="text-right font-medium">{t("sales.unitPrice")}</div>,
       accessorKey: "price_per_unit",
       cell: ({ row }) => {
-        const price = parseFloat(row.getValue("price_per_unit") as string);
-        return <div className="text-right font-medium tabular-nums">{price.toLocaleString()} ֏</div>;
+        const value = row.getValue('price_per_unit');
+        return (
+          <div className="text-right font-medium tabular-nums">
+            {typeof value === 'number' ? value.toLocaleString() : '0'} ֏
+          </div>
+        );
       },
     },
     {
@@ -501,10 +515,14 @@ export function UnifiedDataManager() {
       header: () => <div className="text-right font-medium">{t("sales.totalSales")}</div>,
       accessorKey: "total_sales",
       cell: ({ row }) => {
-        const totalSales = parseFloat(row.getValue("total_sales") as string);
+        const totalSales = row.getValue('total_sales');
+        const formattedValue = totalSales !== undefined && totalSales !== null 
+          ? Number(totalSales).toLocaleString() 
+          : '0';
+        
         return (
           <div className="text-right font-medium tabular-nums">
-            <span className="font-semibold text-primary">{totalSales.toLocaleString()} ֏</span>
+            <span className="font-semibold text-primary">{formattedValue} ֏</span>
           </div>
         );
       },
@@ -596,10 +614,14 @@ export function UnifiedDataManager() {
       header: () => <div className="text-right font-medium">{t("expenses.amount")}</div>,
       accessorKey: "amount",
       cell: ({ row }) => {
-        const value = Number(row.getValue("amount") || 0).toLocaleString();
+        const value = row.getValue('amount');
+        const formattedValue = value !== undefined && value !== null 
+          ? Number(value).toLocaleString() 
+          : '0';
+        
         return (
           <div className="text-right font-medium tabular-nums">
-            <span className="font-semibold text-primary">{value} ֏</span>
+            <span className="font-semibold text-primary">{formattedValue} ֏</span>
           </div>
         );
       },

@@ -1,16 +1,17 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { MainLayout } from "@/layouts/MainLayout";
+import { Suspense, lazy } from "react";
+import { ThemeProvider } from "./components/theme-provider";
+import { AdminShell } from "@/layouts/AdminShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { Loading } from "@/components/ui/loading";
-import { ThemeProvider } from "next-themes";
 
-import Dashboard from "@/pages/Dashboard";
+import DashboardNew from "@/pages/DashboardNew";
 import Tanks from "@/pages/Tanks";
-import Employees from "@/pages/Employees";
+import EmployeesNew from "@/pages/EmployeesNew";
 import FillingSystems from "@/pages/FillingSystems";
-import Sales from "@/pages/Sales";
+import SalesNew from "@/pages/SalesNew";
 import PetrolProviders from "@/pages/PetrolProviders";
 import FuelSupplies from "@/pages/FuelSupplies";
 import Expenses from "@/pages/Expenses";
@@ -19,6 +20,8 @@ import Transactions from "@/pages/Transactions";
 import Shifts from "@/pages/Shifts";
 import Todo from "@/pages/Todo";
 import UnifiedData from "@/pages/UnifiedData";
+import FuelManagement from "@/pages/FuelManagement";
+import Settings from "@/pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -38,37 +41,47 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 }
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="dark">
+  <ThemeProvider defaultTheme="dark">
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
           <AuthProvider>
-            <MainLayout>
+            <AdminShell>
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/" element={
                   <RequireAuth>
-                    <Dashboard />
+                    <DashboardNew />
+                  </RequireAuth>
+                } />
+                <Route path="/fuel-management" element={
+                  <RequireAuth>
+                    <FuelManagement />
                   </RequireAuth>
                 } />
                 <Route path="/tanks" element={
                   <RequireAuth>
-                    <Tanks />
+                    <Navigate to="/fuel-management?tab=tanks" replace />
                   </RequireAuth>
                 } />
                 <Route path="/filling-systems" element={
                   <RequireAuth>
-                    <FillingSystems />
+                    <Navigate to="/fuel-management?tab=filling-systems" replace />
+                  </RequireAuth>
+                } />
+                <Route path="/fuel-supplies" element={
+                  <RequireAuth>
+                    <Navigate to="/fuel-management?tab=fuel-supplies" replace />
                   </RequireAuth>
                 } />
                 <Route path="/employees" element={
                   <RequireAuth>
-                    <Employees />
+                    <EmployeesNew />
                   </RequireAuth>
                 } />
                 <Route path="/sales" element={
                   <RequireAuth>
-                    <Sales />
+                    <SalesNew />
                   </RequireAuth>
                 } />
                 <Route path="/shifts" element={
@@ -79,11 +92,6 @@ const App = () => (
                 <Route path="/providers" element={
                   <RequireAuth>
                     <PetrolProviders />
-                  </RequireAuth>
-                } />
-                <Route path="/fuel-supplies" element={
-                  <RequireAuth>
-                    <FuelSupplies />
                   </RequireAuth>
                 } />
                 <Route path="/expenses" element={
@@ -109,8 +117,13 @@ const App = () => (
                     <UnifiedData />
                   </RequireAuth>
                 } />
+                <Route path="/settings" element={
+                  <RequireAuth>
+                    <Settings />
+                  </RequireAuth>
+                } />
               </Routes>
-            </MainLayout>
+            </AdminShell>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
