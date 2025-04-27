@@ -8,8 +8,10 @@ import { useEffect, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { CardGrid, MetricCardProps } from "@/components/ui/card-grid";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 export function DashboardMetrics() {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const { toast } = useToast();
 
@@ -89,9 +91,9 @@ export function DashboardMetrics() {
     if (isLoading) {
       // Return loading placeholders
       return Array(4).fill({
-        title: "Loading...",
+        title: t('common.loading'),
         value: <Skeleton className="h-8 w-32" />,
-        description: "Loading data...",
+        description: t('common.loading'),
         icon: PieChart
       });
     }
@@ -102,32 +104,32 @@ export function DashboardMetrics() {
 
     return [
       {
-        title: "Total Sales",
+        title: t('dashboard.totalSales'),
         value: `${totalSales.toLocaleString()} ֏`,
         description: "+20.1% from last month",
         icon: DollarSign,
       },
       {
-        title: "Total Expenses",
+        title: t('dashboard.totalExpenses'),
         value: `${totalExpenses.toLocaleString()} ֏`,
         description: "+19% from last month",
         icon: TrendingUp,
       },
       {
-        title: "Net Profit",
+        title: t('dashboard.netProfit'),
         value: `${netProfit.toLocaleString()} ֏`,
         description: "+15% from last month",
         icon: netProfit >= 0 ? ArrowUp : ArrowDown,
         iconColor: netProfit >= 0 ? "text-green-500" : "text-red-500",
       },
       {
-        title: "Inventory Value",
+        title: t('dashboard.inventoryValue'),
         value: `${inventoryValue.toLocaleString()} ֏`,
         description: "Based on current tank levels",
         icon: Fuel,
       }
     ];
-  }, [isLoading, hasError, totalSales, totalExpenses, netProfit, inventoryValue]);
+  }, [isLoading, hasError, totalSales, totalExpenses, netProfit, inventoryValue, t]);
 
   if (hasError) {
     return (

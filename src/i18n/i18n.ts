@@ -3,21 +3,27 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Backend from 'i18next-http-backend';
 
+// Import translations directly
+import hyTranslation from './locales/hy/translation.json';
+
 // We'll load translations asynchronously instead of importing them directly
 // This comment is left to show what we're replacing
 // import enTranslation from './locales/en/translation.json';
 // import hyTranslation from './locales/hy/translation.json';
 
 i18n
-  // Load translations from backend
-  .use(Backend)
+  // Removed Backend as we're now importing translations directly
   // detect user language
   .use(LanguageDetector)
   // pass the i18n instance to react-i18next
   .use(initReactI18next)
   // init i18next
   .init({
-    // Removed static resources object since we're loading dynamically
+    resources: {
+      hy: {
+        translation: hyTranslation
+      }
+    },
     fallbackLng: 'hy',
     supportedLngs: ['hy'],
     debug: process.env.NODE_ENV === 'development',
@@ -27,10 +33,6 @@ i18n
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
-    },
-    backend: {
-      // Path to load translations from
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
     },
     react: {
       useSuspense: true, // Use React Suspense for loading translations

@@ -84,7 +84,12 @@
     "recentSales": "Recent Sales",
     "recentExpenses": "Recent Expenses",
     "tankLevels": "Tank Levels",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "keyMetrics": "Key Metrics",
+    "chartsAndInsights": "Charts and insights",
+    "profitLossOverview": "Profit/Loss Overview",
+    "period": "Period",
+    "profit": "Profit"
   },
   "tanks": {
     "title": "Fuel Tanks",

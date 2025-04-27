@@ -62,10 +62,26 @@
     "dataTableAnnouncement": "Տվյալների աղյուսակ {{title}}՝ {{count}} տարր, էջ {{page}}՝ {{total}}-ից",
     "openMenu": "Բացել ընտրացանկը",
     "filterBy": "Զտել ըստ",
-    "unifiedData": "Միասնական տվյալներ"
+    "unifiedData": "Միասնական տվյալներ",
+    "fuelManagement": "Վառելիքի կառավարում",
+    "todo": "Գործերի ցանկ",
+    "viewAll": "Դիտել բոլորը",
+    "keyMetrics": "Հիմնական ցուցանիշներ",
+    "chartsAndInsights": "Գրաֆիկներ և պատկերացումներ",
+    "profitLossOverview": "Շահույթի/Ծախսերի ակնարկ",
+    "period": "Ժամանակահատված",
+    "profit": "Շահույթ"
   },
   "auth": {
-    "signIn": "Մուտք",
+    "signIn": {
+      "title": "Մուտք",
+      "description": "Մուտք գործեք Ձեր հաշիվ",
+      "emailPlaceholder": "Էլ․ փոստ",
+      "passwordPlaceholder": "Գաղտնաբառ",
+      "button": "Մուտք",
+      "contactAdmin": "Հաշիվ ստանալու համար դիմեք ձեր ադմինիստրատորին",
+      "loading": "Մուտք..."
+    },
     "email": "Էլ․ փոստ",
     "password": "Գաղտնաբառ",
     "signInToYourAccount": "Մուտք գործեք Ձեր հաշիվ",
@@ -88,7 +104,12 @@
     "recentSales": "Վերջին վաճառքներ",
     "recentExpenses": "Վերջին ծախսեր",
     "tankLevels": "Բաքերի մակարդակներ",
-    "viewAll": "Դիտել բոլորը"
+    "viewAll": "Դիտել բոլորը",
+    "keyMetrics": "Հիմնական ցուցանիշներ",
+    "chartsAndInsights": "Գրաֆիկներ և պատկերացումներ",
+    "profitLossOverview": "Շահույթի/Ծախսերի ակնարկ",
+    "period": "Ժամանակահատված",
+    "profit": "Շահույթ"
   },
   "tanks": {
     "title": "Վառելիքի բաքեր",
@@ -161,7 +182,8 @@
     "editTooltip": "Խմբագրել այս վառելիքի մատակարարումը",
     "noSuppliesFound": "Վառելիքի մատակարարումներ չեն գտնվել",
     "supplies": "Մատակարարումներ",
-    "manageSupplies": "Կառավարել մատակարարումները"
+    "manageSupplies": "Կառավարել մատակարարումները",
+    "periodFilter": "Ժամանակահատված"
   },
   "sales": {
     "title": "Վաճառքներ",
@@ -183,7 +205,8 @@
     "saleDeleted": "Վաճառքը հաջողությամբ ջնջվել է",
     "errorCreatingSale": "Վաճառքի ստեղծման սխալ",
     "errorUpdatingSale": "Վաճառքի թարմացման սխալ",
-    "errorDeletingSale": "Վաճառքի ջնջման սխալ"
+    "errorDeletingSale": "Վաճառքի ջնջման սխալ",
+    "totalSales": "Ընդհանուր վաճառքներ"
   },
   "expenses": {
     "title": "Ծախսեր",
@@ -233,7 +256,16 @@
     "employeeDeleted": "Աշխատակիցը հաջողությամբ ջնջվել է",
     "errorCreatingEmployee": "Աշխատակցի ստեղծման սխալ",
     "errorUpdatingEmployee": "Աշխատակցի թարմացման սխալ",
-    "errorDeletingEmployee": "Աշխատակցի ջնջման սխալ"
+    "errorDeletingEmployee": "Աշխատակցի ջնջման սխալ",
+    "totalEmployees": "Ընդհանուր աշխատողներ",
+    "activeEmployees": "Ակտիվ աշխատողներ",
+    "ofTotal": "ընդհանուրից",
+    "onLeave": "Արձակուրդի մեջ",
+    "searchPlaceholder": "Որոնել աշխատողներ...",
+    "name": "Անուն",
+    "phone": "Հեռախոս",
+    "salary": "Աշխատավարձ",
+    "hireDate": "Աշխատանքի ընդունման ամսաթիվ"
   },
   "shifts": {
     "activeShift": "Ակտիվ հերթափոխ",
@@ -247,62 +279,23 @@
     "description": "Կառավարեք ձեր աշխատանքային հերթափոխերը և դիտեք հերթափոխների պատմությունը",
     "currentShift": "Ընթացիկ հերթափոխ",
     "shiftControl": "Հերթափոխի կառավարում",
-    "recentShifts": "Վերջին հերթափոխեր",
-    "startTime": "Սկսման ժամը",
-    "endTime": "Ավարտի ժամը",
-    "open": "Բաց",
-    "closed": "Փակ",
-    "shiftHistory": "Հերթափոխի պատմություն",
-    "noActiveShift": "Ակտիվ հերթափոխ չի գտնվել: Վաճառք ստեղծելու համար խնդրում ենք սկսել հերթափոխ:"
-  },
-  "todo": {
-    "title": "Առաջադրանքների հավելված",
-    "description": "Կազմակերպեք առաջադրանքները, սահմանեք առաջնահերթությունները և հետևեք ձեր առաջընթացին",
-    "listTitle": "Առաջադրանքներ",
-    "listDescription": "Արդյունավետ կառավարեք ձեր առաջադրանքները",
-    "addTodo": "Ավելացնել",
-    "inputPlaceholder": "Ավելացնել նոր առաջադրանք...",
-    "noTodos": "Առաջադրանքներ չկան։ Ավելացրեք վերևում!",
-    "noActiveTodos": "Ակտիվ առաջադրանքներ չկան։ Հիանալի է!",
-    "noCompletedTodos": "Ավարտված առաջադրանքներ չկան։",
-    "noSearchResults": "Ձեր որոնմանը համապատասխանող առաջադրանքներ չկան։",
-    "itemsLeft": "տարր մնաց",
-    "clearCompleted": "Մաքրել ավարտվածները",
-    "all": "Բոլորը",
-    "active": "Ակտիվ",
-    "completed": "Ավարտված",
-    "markComplete": "Նշել ավարտված",
-    "markIncomplete": "Նշել չավարտված",
-    "deleteTodo": "Ջնջել առաջադրանքը",
-    "editTodo": "Խմբագրել առաջադրանքը",
-    "edit": "Խմբագրել",
-    "delete": "Ջնջել",
-    "options": "Առաջադրանքի տարբերակներ",
-    "filterTasks": "Զտել առաջադրանքները",
-    "search": "Որոնել առաջադրանքներ...",
-    "sortBy": "Դասավորել ըստ",
-    "sortByDateDesc": "Նորագույնից",
-    "sortByDateAsc": "Հնագույնից",
-    "sortByPriority": "Առաջնահերթություն",
-    "completedOn": "Ավարտվել է {{date}}-ին",
-    "priority": {
-      "label": "Առաջնահերթություն",
-      "high": "Բարձր",
-      "medium": "Միջին",
-      "low": "Ցածր"
-    }
+    "recentShifts": "Վերջին հերթափոխեր"
   },
   "unifiedData": {
-    "title": "Միասնական տվյալների կառավարիչ",
-    "description": "Վառելիքի մատակարարումների, վաճառքների և ծախսերի տվյալների կառավարման միասնական ինտերֆեյս",
-    "filters": "Զտիչներ",
+    "title": "Միասնական տվյալներ",
+    "description": "Տվյալների տեսադաշտ և կառավարում մեկ տեղում",
     "fuelSuppliesTab": "Վառելիքի մատակարարումներ",
     "salesTab": "Վաճառքներ",
     "expensesTab": "Ծախսեր",
-    "searchPlaceholder": "Որոնել...",
-    "clearFilters": "Մաքրել բոլոր զտիչները",
-    "noDataFound": "Տվյալներ չեն գտնվել",
-    "loading": "Տվյալները բեռնվում են...",
-    "addNew": "Ավելացնել նորը"
+    "addNew": "Ավելացնել նորը",
+    "searchPlaceholder": "Որոնել..."
+  },
+  "todo": {
+    "title": "Գործերի ցանկ",
+    "description": "Ձեր գործերի ցուցակի կառավարում և դիտում"
+  },
+  "fuelManagement": {
+    "title": "Վառելիքի կառավարում",
+    "description": "Ձեր վառելիքի համակարգերի, ամպոկների և մատակարարումների կառավարում"
   }
 }

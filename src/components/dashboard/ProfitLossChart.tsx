@@ -1,6 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { fetchProfitLoss } from "@/services/financials";
 import {
   Area,
@@ -12,17 +12,18 @@ import {
 } from "recharts";
 
 export function ProfitLossChart() {
+  const { t } = useTranslation();
   const { data: profitLossData, isLoading } = useQuery({
     queryKey: ['profit-loss'],
     queryFn: fetchProfitLoss,
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div>{t('common.loading')}</div>;
 
   return (
     <Card className="col-span-4">
       <CardHeader>
-        <CardTitle>Profit/Loss Overview</CardTitle>
+        <CardTitle>{t('dashboard.profitLossOverview')}</CardTitle>
       </CardHeader>
       <CardContent className="pl-2">
         <ResponsiveContainer width="100%" height={350}>
@@ -61,7 +62,7 @@ export function ProfitLossChart() {
                     <div className="grid grid-cols-2 gap-2">
                       <div className="flex flex-col">
                         <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          Period
+                          {t('dashboard.period')}
                         </span>
                         <span className="font-bold text-muted-foreground">
                           {payload[0].payload.period}
@@ -69,7 +70,7 @@ export function ProfitLossChart() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          Profit
+                          {t('dashboard.profit')}
                         </span>
                         <span className="font-bold">
                           {payload[0].value?.toLocaleString()}֏

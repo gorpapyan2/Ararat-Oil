@@ -21,7 +21,9 @@
     "totalSales": "Ընդհանուր վաճառքներ",
     "totalLiters": "Ընդհանուր լիտրեր",
     "averagePrice": "Միջին գին",
-    "searchPlaceholder": "Որոնել վաճառքներ..."
+    "searchPlaceholder": "Որոնել վաճառքներ...",
+    "fillingSystem": "Լցման համակարգ",
+    "unitPrice": "Միավորի գին"
   },
   "tanks": {
     "title": "Ամպոկներ",
@@ -39,7 +41,12 @@
   },
   "unifiedData": {
     "title": "Միավորված տվյալներ",
-    "description": "Տվյալների տեսադաշտ և կառավարում մեկ տեղում"
+    "description": "Տվյալների տեսադաշտ և կառավարում մեկ տեղում",
+    "fuelSuppliesTab": "Վառելիքի մատակարարումներ",
+    "salesTab": "Վաճառքներ",
+    "expensesTab": "Ծախսեր",
+    "addNew": "Ավելացնել նորը",
+    "searchPlaceholder": "Որոնել..."
   },
   "todo": {
     "title": "Գործերի ցանկ",
@@ -77,7 +84,10 @@
     "selectDateRange": "Ընտրել ամսաթվի միջակայք",
     "clear": "Մաքրել",
     "apply": "Կիրառել",
-    "clearDateRange": "Մաքրել ամսաթվի միջակայքը"
+    "clearDateRange": "Մաքրել ամսաթվի միջակայքը",
+    "date": "Ամսաթիվ",
+    "quantity": "Քանակ",
+    "actions": "Գործողություններ"
   },
   "fuelManagement": {
     "description": "Ձեր վառելիքի համակարգերի, ամպոկների և մատակարարումների կառավարում",
@@ -97,7 +107,20 @@
     "latestDelivery": "Վերջին առաքում"
   },
   "fuelSupplies": {
-    "periodFilter": "Ժամանակահատված"
+    "periodFilter": "Ժամանակահատված",
+    "deliveryDate": "Առաքման ամսաթիվ",
+    "provider": "Մատակարար",
+    "tank": "Ամպոկ",
+    "quantity": "Քանակ",
+    "pricePerLiter": "Գին՝ լիտրի համար",
+    "totalCost": "Ընդհանուր արժեք"
+  },
+  "expenses": {
+    "expenseDate": "Ծախսի ամսաթիվ",
+    "expenseCategory": "Ծախսի կատեգորիա",
+    "expenseDetails": "Ծախսի մանրամասները",
+    "amount": "Գումար",
+    "paymentMethod": "Վճարման եղանակ"
   },
   "employees": {
     "totalEmployees": "Ընդհանուր աշխատողներ",

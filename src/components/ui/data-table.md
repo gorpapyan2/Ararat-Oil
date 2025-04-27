@@ -64,7 +64,6 @@ function MyComponent() {
       columns={columns}
       title="Users"
       enableExport={true}
-      onRowClick={(user) => console.log("Clicked on", user.name)}
     />
   );
 }

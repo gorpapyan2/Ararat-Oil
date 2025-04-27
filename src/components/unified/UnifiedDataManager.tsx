@@ -690,7 +690,6 @@ export function UnifiedDataManager() {
 
   // Handlers for fuel supplies
   const handleEditSupply = (item: FuelSupply) => {
-    console.log("Edit fuel supply:", item);
     toast({
       title: "Edit Fuel Supply",
       description: `Editing supply from ${item.provider?.name} (${format(new Date(item.delivery_date), "PP")})`,
@@ -698,7 +697,6 @@ export function UnifiedDataManager() {
   };
 
   const handleDeleteSupply = (item: FuelSupply) => {
-    console.log("Delete fuel supply:", item);
     toast({
       title: "Delete Fuel Supply",
       description: `Are you sure you want to delete this supply record?`,
@@ -708,7 +706,6 @@ export function UnifiedDataManager() {
 
   // Handlers for sales
   const handleViewSale = (item: Sale) => {
-    console.log("View sale:", item);
     toast({
       title: `Sale Details: ${item.filling_system_name}`,
       description: (
@@ -724,7 +721,6 @@ export function UnifiedDataManager() {
   };
 
   const handleEditSale = (item: Sale) => {
-    console.log("Edit sale:", item);
     toast({
       title: "Edit Sale",
       description: `Editing sale from ${item.filling_system_name} (${format(new Date(item.date), "PP")})`,
@@ -732,7 +728,6 @@ export function UnifiedDataManager() {
   };
 
   const handleDeleteSale = (item: Sale) => {
-    console.log("Delete sale:", item);
     toast({
       title: "Delete Sale",
       description: `Are you sure you want to delete this sale record?`,
@@ -742,7 +737,6 @@ export function UnifiedDataManager() {
 
   // Handlers for expenses
   const handleEditExpense = (item: Expense) => {
-    console.log("Edit expense:", item);
     toast({
       title: "Edit Expense",
       description: `Editing expense: ${item.description} (${format(new Date(item.date), "PP")})`,
@@ -750,7 +744,6 @@ export function UnifiedDataManager() {
   };
 
   const handleDeleteExpense = (item: Expense) => {
-    console.log("Delete expense:", item);
     toast({
       title: "Delete Expense",
       description: `Are you sure you want to delete this expense record?`,
@@ -767,7 +760,6 @@ export function UnifiedDataManager() {
     if (activeTab === "sales") entityType = "sale";
     if (activeTab === "expenses") entityType = "expense";
     
-    console.log(`Add new ${entityType}`);
     toast({
       title: `Add New ${activeTab === "fuel-supplies" ? "Fuel Supply" : activeTab === "sales" ? "Sale" : "Expense"}`,
       description: "Opening form to add a new record",

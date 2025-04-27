@@ -72,9 +72,6 @@ export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
       return [];
     }
     
-    // Debug raw data from Supabase
-    console.log('Raw filling systems data:', JSON.stringify(data, null, 2));
-    
     // Collect all tank_ids for validation
     const tankIds = data
       .map(item => item.tank_id)
@@ -82,14 +79,9 @@ export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
       
     // Validate if tank_ids actually exist
     const validTankIds = await validateTankIds(tankIds);
-    console.log('Tank ID validation results:', validTankIds);
     
     // Transform the data to ensure proper typing of nested tank objects
     return data.map(item => {
-      // Debug each item's tank data
-      console.log(`Processing system "${item.name}" (ID: ${item.id}), tank_id: ${item.tank_id}`);
-      console.log('Tank data:', item.tank);
-      
       // Handle tank data - Supabase can return either an array or object depending on the query
       let tankData = null;
       
@@ -101,16 +93,6 @@ export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
         // If it's a direct object (non-array), use it directly
         else if (typeof item.tank === 'object') {
           tankData = item.tank;
-        }
-      }
-      
-      if (!tankData) {
-        console.log(`WARNING: No tank data found for system "${item.name}" with tank_id: ${item.tank_id}`);
-        
-        // Additional check: Verify if the tank_id exists but wasn't joined properly
-        if (item.tank_id) {
-          const tankExists = validTankIds[item.tank_id];
-          console.log(`System has tank_id (${item.tank_id}) - tank exists in database: ${tankExists ? 'YES' : 'NO'}`);
         }
       }
       
