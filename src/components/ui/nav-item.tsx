@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 export interface NavItemProps {
   to: string;
@@ -19,6 +20,7 @@ export function NavItem({
   onClick,
   collapsed = false
 }: NavItemProps) {
+  const { t } = useTranslation();
   const handleClick = () => {
     if (onClick) {
       onClick();
@@ -38,7 +40,7 @@ export function NavItem({
       )}
     >
       <span className="text-muted-foreground/70">{icon}</span>
-      {!collapsed && <span>{label}</span>}
+      {!collapsed && <span>{t(label)}</span>}
     </Link>
   );
 }

@@ -901,7 +901,7 @@ export function UnifiedDataManager() {
             isLoading={salesLoading || systemsLoading}
             onEdit={handleEditSale}
             onDelete={handleDeleteSale}
-            providers={providersData}
+            providers={[]}
             categories={categories}
             systems={systemsData}
             onFiltersChange={handleFiltersChange}

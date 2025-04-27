@@ -29,7 +29,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useTranslation } from "react-i18next";
 
 interface SidebarProps {
@@ -328,11 +327,6 @@ export function Sidebar({
             </>
           )}
         </Button>
-        
-        {/* Language switcher */}
-        <div className={cn("mt-4", collapsed ? "flex justify-center" : "")}>
-          <LanguageSwitcher collapsed={collapsed} />
-        </div>
         
         {/* Logout button */}
         <Button

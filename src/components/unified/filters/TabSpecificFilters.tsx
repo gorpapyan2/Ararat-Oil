@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RangeSliderFilter } from "@/components/fuel-supplies/filters/RangeSliderFilter";
-import { Search, CalendarIcon, X } from "lucide-react";
+import { Search, CalendarIcon, X, ChevronDown, ChevronUp } from "lucide-react";
 
 // Common filter shape interface
 interface FiltersShape {
@@ -66,10 +66,11 @@ export function TabSpecificFilters({
   providers,
   categories,
   systems,
-  expenseCategories
-}: TabFiltersProps) {
+  expenseCategories,
+  expanded = true,
+}: TabFiltersProps & { expanded?: boolean }) {
   const { t } = useTranslation();
-  
+
   // Helper function to count active filters
   const getActiveFiltersCount = () => {
     let count = 0;
@@ -85,8 +86,6 @@ export function TabSpecificFilters({
       if (filters.tankId && filters.tankId !== "all") count++;
     } else if (activeTab === "sales") {
       if (filters.systemId && filters.systemId !== "all") count++;
-      if (filters.salesFuelType && filters.salesFuelType !== "all") count++;
-      if (filters.employeeId && filters.employeeId !== "all") count++;
     } else if (activeTab === "expenses") {
       if (filters.expenseCategory && filters.expenseCategory !== "all") count++;
       if (filters.paymentMethod && filters.paymentMethod !== "all") count++;
@@ -269,7 +268,7 @@ export function TabSpecificFilters({
         {renderDateFilter()}
       </div>
       
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4">
         {/* Filling System filter */}
         <div className="w-full flex flex-col gap-1.5">
           <Label>{t("sales.fillingSystem")}</Label>
@@ -281,31 +280,10 @@ export function TabSpecificFilters({
               <SelectValue placeholder={t("common.selectAnOption")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Systems</SelectItem>
+              <SelectItem value="all">All Filling Systems</SelectItem>
               {systems?.map((system) => (
                 <SelectItem key={system.id} value={system.id}>
                   {system.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {/* Fuel Type filter */}
-        <div className="w-full flex flex-col gap-1.5">
-          <Label>{t("common.fuelType")}</Label>
-          <Select
-            value={filters.salesFuelType}
-            onValueChange={(value) => onFiltersChange({ salesFuelType: value })}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.selectAnOption")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Fuel Types</SelectItem>
-              {categories?.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -472,7 +450,7 @@ export function TabSpecificFilters({
           </Badge>
         )}
         
-        {/* More filter chips based on active tab */}
+        {/* Tab-specific filter chips */}
         {activeTab === "fuel-supplies" && filters.provider && filters.provider !== "all" && (
           <Badge variant="secondary" className="px-3 py-1 h-auto">
             {t("fuelSupplies.provider")}: {providers.find(p => p.id === filters.provider)?.name}
@@ -484,6 +462,21 @@ export function TabSpecificFilters({
             >
               <X className="h-3 w-3" />
               <span className="sr-only">Clear provider filter</span>
+            </Button>
+          </Badge>
+        )}
+        
+        {activeTab === "sales" && filters.systemId && filters.systemId !== "all" && (
+          <Badge variant="secondary" className="px-3 py-1 h-auto">
+            {t("sales.fillingSystem")}: {systems?.find(s => s.id === filters.systemId)?.name}
+            <Button
+              variant="ghost" 
+              size="icon" 
+              className="h-4 w-4 ml-1"
+              onClick={() => onFiltersChange({ systemId: "all" })}
+            >
+              <X className="h-3 w-3" />
+              <span className="sr-only">Clear system filter</span>
             </Button>
           </Badge>
         )}
@@ -505,11 +498,22 @@ export function TabSpecificFilters({
   return (
     <Card className="mb-6 overflow-hidden">
       <CardContent className="p-4 sm:p-6">
-        {activeTab === "fuel-supplies" && renderFuelSuppliesFilters()}
-        {activeTab === "sales" && renderSalesFilters()}
-        {activeTab === "expenses" && renderExpensesFilters()}
-        {renderActiveFilterChips()}
+        {expanded && (
+          <>
+            {/* Force sales tab if providers is empty and systems is populated */}
+            {providers.length === 0 && systems && systems.length > 0 ? (
+              renderSalesFilters()
+            ) : (
+              <>
+                {activeTab === "fuel-supplies" && renderFuelSuppliesFilters()}
+                {activeTab === "sales" && renderSalesFilters()}
+                {activeTab === "expenses" && renderExpensesFilters()}
+              </>
+            )}
+            {renderActiveFilterChips()}
+          </>
+        )}
       </CardContent>
     </Card>
   );
-} 
+}

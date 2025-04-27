@@ -10,20 +10,20 @@ import { Command as CommandPrimitive } from "cmdk"
 // that don't rely on the problematic cmdk library
 
 const Command = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive>
+  React.ElementRef<typeof CommandPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Root>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive
+  <CommandPrimitive.Root
     ref={ref}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
+      "flex h-full w-full flex-col overflow-hidden rounded-md backdrop-blur-md bg-popover/80 text-popover-foreground",
       className
     )}
     {...props}
   />
 ))
 
-Command.displayName = CommandPrimitive.displayName
+Command.displayName = CommandPrimitive.Root?.displayName || "Command"
 
 interface CommandDialogProps extends DialogProps {
   commandDialogTitle?: string;
@@ -32,7 +32,7 @@ interface CommandDialogProps extends DialogProps {
 const CommandDialog = ({ children, commandDialogTitle = "Search", ...props }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0 shadow-lg shadow-primary/5">
+      <DialogContent className="overflow-hidden p-0">
         <DialogHeader className="sr-only">
           <DialogTitle>{commandDialogTitle}</DialogTitle>
         </DialogHeader>
@@ -61,7 +61,7 @@ const CommandInput = React.forwardRef<
   </div>
 ))
 
-CommandInput.displayName = CommandPrimitive.Input.displayName
+CommandInput.displayName = CommandPrimitive.Input?.displayName || "CommandInput"
 
 const CommandList = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.List>,
@@ -74,7 +74,7 @@ const CommandList = React.forwardRef<
   />
 ))
 
-CommandList.displayName = CommandPrimitive.List.displayName
+CommandList.displayName = CommandPrimitive.List?.displayName || "CommandList"
 
 const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
@@ -87,7 +87,7 @@ const CommandEmpty = React.forwardRef<
   />
 ))
 
-CommandEmpty.displayName = CommandPrimitive.Empty.displayName
+CommandEmpty.displayName = CommandPrimitive.Empty?.displayName || "CommandEmpty"
 
 const CommandGroup = React.forwardRef<
   HTMLDivElement,

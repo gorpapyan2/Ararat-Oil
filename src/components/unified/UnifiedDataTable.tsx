@@ -1,4 +1,4 @@
-import React, { useState, useMemo, createContext, useContext, useTransition } from "react";
+import React, { useState, useMemo, createContext, useContext, useTransition, useEffect } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -25,7 +25,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -42,18 +41,39 @@ import {
 } from "lucide-react";
 import { RangeSliderFilter } from "@/components/fuel-supplies/filters/RangeSliderFilter";
 import { DateRangeFilter } from "@/components/fuel-supplies/filters/DateRangeFilter";
+import { TabSpecificFilters } from "@/components/unified/filters/TabSpecificFilters";
 import { format } from "date-fns";
 
 // Filter context type definitions
 interface FiltersShape {
+  // Common filters
   search: string;
   date?: Date;
+  dateRange?: [Date | undefined, Date | undefined];
+  
+  // Fuel Supplies specific filters
   provider: string;
-  category?: string;
+  tankId?: string;
+  fuelType?: string;
+  
+  // Sales specific filters
   systemId?: string;
+  salesFuelType?: string;
+  employeeId?: string;
+  
+  // Expenses specific filters
+  expenseCategory?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  
+  // Range filters
   quantityRange: [number, number];
   priceRange: [number, number];
   totalRange: [number, number];
+  
+  // Backward compatibility
+  category?: string;
+  activeTab?: string;
   [key: string]: any;
 }
 
@@ -118,8 +138,43 @@ export function UnifiedDataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialState?.columnVisibility || {});
   const [rowSelection, setRowSelection] = useState({});
   const [filters, setFilters] = useState<FiltersShape>(initialFilters);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(true);
+  const [filtersCollapsed, setFiltersCollapsed] = useState(true);
   const [, startTransition] = useTransition();
+
+  // Determine active tab based on title
+  const activeTab = useMemo(() => {
+    const normalizedTitle = title.toLowerCase();
+    let tab: "fuel-supplies" | "sales" | "expenses" = "fuel-supplies";
+    
+    // Check for sales-related terms in various languages
+    if (normalizedTitle.includes('sales') || 
+        normalizedTitle.includes('վաճառք') || 
+        normalizedTitle === 'վաճառք') {
+      tab = "sales";
+    } 
+    // Check for expenses-related terms in various languages
+    else if (normalizedTitle.includes('expenses') || 
+             normalizedTitle.includes('ծախսեր')) {
+      tab = "expenses";
+    } 
+    // Default to fuel supplies for other cases
+    else if (normalizedTitle.includes('fuel') || 
+             normalizedTitle.includes('supplies') || 
+             normalizedTitle.includes('վառելիքի') || 
+             normalizedTitle.includes('մատակարարումներ')) {
+      tab = "fuel-supplies";
+    }
+    
+    return tab;
+  }, [title]);
+
+  // Set the active tab in filters
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      activeTab
+    }));
+  }, [activeTab]);
 
   // Simplified filter setter that automatically updates both local state and parent
   const setPartial = (updates: Partial<FiltersShape>) => {
@@ -136,35 +191,84 @@ export function UnifiedDataTable<TData, TValue>({
         });
       }
     }
+    
+    // Handle tab-specific filter updates
+    if (activeTab === "sales" && 'systemId' in updates) {
+      // For sales tab, when system is changed, update the table's column filters
+      const systemId = updates.systemId;
+      if (systemId && systemId !== 'all') {
+        setColumnFilters(prev => {
+          const existing = prev.filter(f => f.id !== 'filling_system_id');
+          return [...existing, { id: 'filling_system_id', value: systemId }];
+        });
+      } else {
+        setColumnFilters(prev => prev.filter(f => f.id !== 'filling_system_id'));
+      }
+    }
   };
 
   // Detect if any filters are active
   const hasActiveFilters = useMemo(() => {
-    return Object.entries(filters).some(([k, v]) => {
-      if (k === 'provider' || k === 'category') return v !== 'all' && v !== '';
-      if (Array.isArray(v)) return v[0] > 0 || v[1] > 0;
-      if (k === 'search') return Boolean(v);
-      return Boolean(v);
-    });
-  }, [filters]);
+    // Check tab-specific filters first
+    if (activeTab === "sales") {
+      // For sales tab, check only relevant filters
+      if (filters.systemId && filters.systemId !== "all") return true;
+    } else if (activeTab === "fuel-supplies") {
+      // For fuel supplies tab
+      if (filters.provider && filters.provider !== "all") return true;
+      if (filters.fuelType && filters.fuelType !== "all") return true;
+      if (filters.tankId && filters.tankId !== "all") return true;
+      // Backward compatibility
+      if (filters.category && filters.category !== "all") return true;
+    } else if (activeTab === "expenses") {
+      // For expenses tab
+      if (filters.expenseCategory && filters.expenseCategory !== "all") return true;
+      if (filters.paymentMethod && filters.paymentMethod !== "all") return true;
+      if (filters.paymentStatus && filters.paymentStatus !== "all") return true;
+    }
+    
+    // Check common filters
+    if (filters.search) return true;
+    if (filters.date) return true;
+    if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1])) return true;
+    
+    // Check range filters with appropriate defaults based on tab
+    const quantityMax = activeTab === "expenses" ? 1000000 : 10000;
+    if (filters.quantityRange && (filters.quantityRange[0] > 0 || (filters.quantityRange[1] > 0 && filters.quantityRange[1] < quantityMax))) return true;
+    
+    if (filters.priceRange && (filters.priceRange[0] > 0 || (filters.priceRange[1] > 0 && filters.priceRange[1] < 10000))) return true;
+    
+    if (filters.totalRange && (filters.totalRange[0] > 0 || (filters.totalRange[1] > 0 && filters.totalRange[1] < 10000000))) return true;
+    
+    return false;
+  }, [filters, activeTab]);
 
   // Clear all filters
   const clearAllFilters = () => {
     const clearedFilters: FiltersShape = {
       search: '',
       date: undefined,
+      dateRange: [undefined, undefined],
       provider: 'all',
-      category: 'all',
+      tankId: 'all',
+      fuelType: 'all',
+      category: 'all', // Backward compatibility
       systemId: 'all',
-      quantityRange: [0, 0],
-      priceRange: [0, 0],
-      totalRange: [0, 0],
+      salesFuelType: 'all', // Keeping for backward compatibility
+      employeeId: 'all', // Keeping for backward compatibility
+      expenseCategory: 'all',
+      paymentMethod: 'all',
+      paymentStatus: 'all',
+      quantityRange: [0, activeTab === "expenses" ? 1000000 : 10000],
+      priceRange: [0, 10000],
+      totalRange: [0, 10000000],
+      activeTab, // Preserve the active tab
     };
     setPartial(clearedFilters);
     setColumnFilters([]);
   };
 
-  // Initialize table
+  // Initialize table with tab-specific column filter handling
   const table = useReactTable({
     data,
     columns,
@@ -177,7 +281,28 @@ export function UnifiedDataTable<TData, TValue>({
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: (newColumnFilters) => {
+      // Ensure we have the actual column filters array
+      const columnFiltersArray = Array.isArray(newColumnFilters) 
+        ? newColumnFilters 
+        : [];
+      
+      // Special handling for column filters from tab-specific actions
+      const searchFilter = columnFiltersArray.find(f => f.id === searchColumn);
+      const systemFilter = columnFiltersArray.find(f => f.id === 'filling_system_id');
+      
+      // Update filters state based on column filters if they exist
+      if (searchFilter && searchFilter.value) {
+        setFilters(prev => ({ ...prev, search: searchFilter.value as string }));
+      }
+      
+      if (activeTab === "sales" && systemFilter && systemFilter.value) {
+        setFilters(prev => ({ ...prev, systemId: systemFilter.value as string }));
+      }
+      
+      // Update column filters state
+      setColumnFilters(newColumnFilters);
+    },
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -216,144 +341,39 @@ export function UnifiedDataTable<TData, TValue>({
       
       <FiltersCtx.Provider value={{ filters, setPartial, providers, categories, systems }}>
         <Card className="border-none shadow-sm bg-card/60 backdrop-blur-sm">
-          {/* Filter Header */}
+          {/* FILTER BAR HEADER - Collapse/Expand Trigger */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/10">
             <div className="flex items-center gap-2">
               <FilterIcon className="h-4 w-4 text-accent" />
-              <h3 className="text-sm font-medium">{title} Filters</h3>
+              <h3 className="text-sm font-medium">Filters</h3>
             </div>
+            <button
+              type="button"
+              className="ml-auto inline-flex items-center justify-center rounded-md p-1 hover:bg-muted"
+              onClick={() => setFiltersCollapsed((v) => !v)}
+              aria-label={filtersCollapsed ? 'Expand filters' : 'Collapse filters'}
+            >
+              {filtersCollapsed ? <ChevronDown /> : <ChevronUp />}
+            </button>
             {hasActiveFilters && (
               <Button size="sm" variant="ghost" onClick={clearAllFilters} className="gap-1 text-xs">
                 <ClearIcon className="h-3 w-3" /> Clear all
               </Button>
             )}
-            <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="icon" className="ml-2 h-8 w-8">
-                  {isFiltersOpen ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-            </Collapsible>
           </div>
           
-          {/* Active Filters Chips */}
-          {hasActiveFilters && <ActiveFilterChips />}
-          
-          {/* Filter Content */}
-          <Collapsible open={isFiltersOpen}>
-            <CollapsibleContent>
-              <CardContent className="p-4">
-                {/* Basic Search */}
-                <div className="relative mb-4">
-                  <Input
-                    placeholder={searchPlaceholder}
-                    value={filters.search}
-                    onChange={(e) => setPartial({ search: e.target.value })}
-                    className="pr-8"
-                  />
-                  <Search className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                </div>
-
-                {/* Filter Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <DateRangeFilter
-                    date={filters.date}
-                    onDateChange={(date) => setPartial({ date })}
-                  />
-                  
-                  <div className="flex flex-col space-y-2">
-                    <label className="text-sm font-medium">Provider</label>
-                    <select
-                      value={filters.provider}
-                      onChange={(e) => setPartial({ provider: e.target.value })}
-                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="all">All Providers</option>
-                      {providers.map((provider) => (
-                        <option key={provider.id} value={provider.id}>
-                          {provider.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  {/* Add System selector if we're on the sales tab */}
-                  {title.toLowerCase().includes('sales') && (
-                    <div className="flex flex-col space-y-2">
-                      <label className="text-sm font-medium">Filling System</label>
-                      <select
-                        value={filters.systemId}
-                        onChange={(e) => setPartial({ systemId: e.target.value })}
-                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="all">All Systems</option>
-                        {systems.map((system) => (
-                          <option key={system.id} value={system.id}>
-                            {system.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  
-                  {categories && (
-                    <div className="flex flex-col space-y-2">
-                      <label className="text-sm font-medium">Fuel Type</label>
-                      <select
-                        value={filters.category}
-                        onChange={(e) => setPartial({ category: e.target.value })}
-                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="all">All Fuel Types</option>
-                        {categories.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-                
-                <Separator className="opacity-50 mb-6" />
-                
-                {/* Range Filters */}
-                <div className="grid md:grid-cols-3 gap-6">
-                  <RangeSliderFilter
-                    label="Quantity"
-                    min={0}
-                    max={10000}
-                    step={100}
-                    value={filters.quantityRange}
-                    onChange={(quantityRange) => setPartial({ quantityRange })}
-                    formatValue={(val) => `${val} L`}
-                  />
-                  <RangeSliderFilter
-                    label="Price"
-                    min={0}
-                    max={2000}
-                    step={10}
-                    value={filters.priceRange}
-                    onChange={(priceRange) => setPartial({ priceRange })}
-                    formatValue={(val) => `${val} ֏`}
-                  />
-                  <RangeSliderFilter
-                    label="Total"
-                    min={0}
-                    max={1000000}
-                    step={1000}
-                    value={filters.totalRange}
-                    onChange={(totalRange) => setPartial({ totalRange })}
-                    formatValue={(val) => `${val.toLocaleString()} ֏`}
-                  />
-                </div>
-              </CardContent>
-            </CollapsibleContent>
-          </Collapsible>
+          {/* FILTERS SECTION */}
+          {!filtersCollapsed && (
+            <TabSpecificFilters
+              activeTab={activeTab}
+              filters={filters}
+              onFiltersChange={setPartial}
+              providers={providers}
+              categories={categories}
+              systems={systems}
+              expanded={!filtersCollapsed}
+            />
+          )}
         </Card>
       </FiltersCtx.Provider>
 
@@ -487,10 +507,27 @@ export function UnifiedDataTable<TData, TValue>({
 // Active Filter Chips Component
 function ActiveFilterChips() {
   const { filters, setPartial, providers, categories, systems } = useFiltersCtx();
+  // Get activeTab from parent component context
+  const activeTabCtx = useMemo(() => {
+    if (filters.activeTab) {
+      return filters.activeTab as "fuel-supplies" | "sales" | "expenses";
+    }
+    
+    // Detect from available filters
+    if (filters.systemId && filters.systemId !== "all") {
+      return "sales";
+    } else if (filters.provider && filters.provider !== "all") {
+      return "fuel-supplies";
+    } else if (filters.expenseCategory && filters.expenseCategory !== "all") {
+      return "expenses";
+    }
+    
+    return "fuel-supplies"; // Default
+  }, [filters]);
   
   const chips: { id: string; label: string; clear: () => void }[] = [];
 
-  // Search filter
+  // Common filters - always show regardless of tab
   if (filters.search) {
     chips.push({
       id: "search",
@@ -499,7 +536,6 @@ function ActiveFilterChips() {
     });
   }
   
-  // Date filter
   if (filters.date) {
     chips.push({
       id: "date",
@@ -508,57 +544,94 @@ function ActiveFilterChips() {
     });
   }
   
-  // Provider filter
-  if (filters.provider && filters.provider !== "all") {
-    const selectedProvider = providers.find(p => p.id === filters.provider);
-    const providerName = selectedProvider?.name || filters.provider;
+  // Tab-specific filters
+  if (activeTabCtx === "fuel-supplies") {
+    // Provider filter - for fuel supplies
+    if (filters.provider && filters.provider !== "all") {
+      const selectedProvider = providers.find(p => p.id === filters.provider);
+      const providerName = selectedProvider?.name || filters.provider;
+      
+      chips.push({
+        id: "provider",
+        label: `Provider: ${providerName}`,
+        clear: () => setPartial({ provider: "all" }),
+      });
+    }
     
-    chips.push({
-      id: "provider",
-      label: `Provider: ${providerName}`,
-      clear: () => setPartial({ provider: "all" }),
-    });
-  }
-  
-  // System filter (for sales)
-  if (filters.systemId && filters.systemId !== "all" && systems) {
-    const selectedSystem = systems.find(s => s.id === filters.systemId);
-    const systemName = selectedSystem?.name || filters.systemId;
+    // Fuel Type filter - for fuel supplies (using category for backward compatibility)
+    if (categories && filters.category && filters.category !== "all") {
+      const selectedCategory = categories.find(c => c.id === filters.category);
+      const categoryName = selectedCategory?.name || filters.category;
+      
+      chips.push({
+        id: "category",
+        label: `Fuel Type: ${categoryName}`,
+        clear: () => setPartial({ category: "all" }),
+      });
+    }
     
-    chips.push({
-      id: "system",
-      label: `System: ${systemName}`,
-      clear: () => setPartial({ systemId: "all" }),
-    });
-  }
-  
-  // Category filter (if available)
-  if (categories && filters.category && filters.category !== "all") {
-    const selectedCategory = categories.find(c => c.id === filters.category);
-    const categoryName = selectedCategory?.name || filters.category;
+    // New fuelType property if used
+    if (filters.fuelType && filters.fuelType !== "all") {
+      const selectedFuelType = categories?.find(c => c.id === filters.fuelType);
+      const fuelTypeName = selectedFuelType?.name || filters.fuelType;
+      
+      chips.push({
+        id: "fuelType",
+        label: `Fuel Type: ${fuelTypeName}`,
+        clear: () => setPartial({ fuelType: "all" }),
+      });
+    }
+  } else if (activeTabCtx === "sales") {
+    // System filter - for sales
+    if (filters.systemId && filters.systemId !== "all" && systems) {
+      const selectedSystem = systems.find(s => s.id === filters.systemId);
+      const systemName = selectedSystem?.name || filters.systemId;
+      
+      chips.push({
+        id: "system",
+        label: `Filling System: ${systemName}`,
+        clear: () => setPartial({ systemId: "all" }),
+      });
+    }
+  } else if (activeTabCtx === "expenses") {
+    // Expense category filter
+    if (filters.expenseCategory && filters.expenseCategory !== "all") {
+      const selectedCategory = categories?.find(c => c.id === filters.expenseCategory);
+      const categoryName = selectedCategory?.name || filters.expenseCategory;
+      
+      chips.push({
+        id: "expenseCategory",
+        label: `Category: ${categoryName}`,
+        clear: () => setPartial({ expenseCategory: "all" }),
+      });
+    }
     
-    chips.push({
-      id: "category",
-      label: `Fuel Type: ${categoryName}`,
-      clear: () => setPartial({ category: "all" }),
-    });
+    // Payment method filter
+    if (filters.paymentMethod && filters.paymentMethod !== "all") {
+      chips.push({
+        id: "paymentMethod",
+        label: `Payment: ${filters.paymentMethod}`,
+        clear: () => setPartial({ paymentMethod: "all" }),
+      });
+    }
   }
 
   // Range filters helper
-  const rangeChip = (range: [number, number], label: string, key: keyof FiltersShape) => {
-    if (range[0] > 0 || range[1] > 0) {
+  const rangeChip = (range: [number, number], label: string, key: keyof FiltersShape, defaultMax: number) => {
+    if (range[0] > 0 || (range[1] > 0 && range[1] < defaultMax)) {
       chips.push({
         id: key as string,
         label: `${label}: ${range[0]} — ${range[1]}`,
-        clear: () => setPartial({ [key]: [0, 0] } as Partial<FiltersShape>),
+        clear: () => setPartial({ [key]: [0, defaultMax] } as Partial<FiltersShape>),
       });
     }
   };
 
-  // Add range filter chips
-  rangeChip(filters.quantityRange, "Quantity", "quantityRange");
-  rangeChip(filters.priceRange, "Price", "priceRange");
-  rangeChip(filters.totalRange, "Total", "totalRange");
+  // Add range filter chips with appropriate defaults based on tab
+  const quantityMax = activeTabCtx === "expenses" ? 1000000 : 10000;
+  rangeChip(filters.quantityRange, "Quantity", "quantityRange", quantityMax);
+  rangeChip(filters.priceRange, "Price", "priceRange", 10000);
+  rangeChip(filters.totalRange, "Total", "totalRange", 10000000);
 
   if (!chips.length) return null;
 
