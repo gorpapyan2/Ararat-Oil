@@ -10,10 +10,10 @@ import { Command as CommandPrimitive } from "cmdk"
 // that don't rely on the problematic cmdk library
 
 const Command = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Root>
+  React.ElementRef<typeof CommandPrimitive>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive.Root
+  <CommandPrimitive
     ref={ref}
     className={cn(
       "flex h-full w-full flex-col overflow-hidden rounded-md backdrop-blur-md bg-popover/80 text-popover-foreground",
@@ -23,7 +23,7 @@ const Command = React.forwardRef<
   />
 ))
 
-Command.displayName = CommandPrimitive.Root?.displayName || "Command"
+Command.displayName = CommandPrimitive.displayName || "Command"
 
 interface CommandDialogProps extends DialogProps {
   commandDialogTitle?: string;

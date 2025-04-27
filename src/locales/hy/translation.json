@@ -17,7 +17,11 @@
   },
   "sales": {
     "title": "Վաճառքներ",
-    "description": "Վառելիքի վաճառքների գրառումները դիտել և կառավարել"
+    "description": "Վառելիքի վաճառքների գրառումները դիտել և կառավարել",
+    "totalSales": "Ընդհանուր վաճառքներ",
+    "totalLiters": "Ընդհանուր լիտրեր",
+    "averagePrice": "Միջին գին",
+    "searchPlaceholder": "Որոնել վաճառքներ..."
   },
   "tanks": {
     "title": "Ամպոկներ",
@@ -29,7 +33,7 @@
   },
   "dashboard": {
     "title": "Վահանակ",
-    "description": "Քայլառումներ, գրաֆիկներ և հիմնական մետրի",
+    "description": "Քայլառումներ, գրաֆիկներ և հիմնական մետրիկներ",
     "metricsSectionLabel": "Հիմնական մետրիկներ",
     "chartsSectionLabel": "Գրաֆիկներ և տեղեկություններ"
   },
@@ -58,10 +62,26 @@
     "expandSidebar": "Ընդլայնել կողային մաս",
     "collapseSidebar": "Թեքել կողային մաս",
     "toggleMenu": "Փոխարկել մենյու",
-    "signOut": "Ելք"
+    "signOut": "Ելք",
+    "filters": "Ֆիլտրեր",
+    "allProviders": "Բոլոր մատակարարները",
+    "allTanks": "Բոլոր ամպոկները",
+    "today": "Այսօր",
+    "yesterday": "Երեկ",
+    "thisWeek": "Այս շաբաթ",
+    "lastWeek": "Նախորդ շաբաթ",
+    "thisMonth": "Այս ամիս",
+    "lastMonth": "Նախորդ ամիս",
+    "last30Days": "Վերջին 30 օր",
+    "last90Days": "Վերջին 90 օր",
+    "selectDateRange": "Ընտրել ամսաթվի միջակայք",
+    "clear": "Մաքրել",
+    "apply": "Կիրառել",
+    "clearDateRange": "Մաքրել ամսաթվի միջակայքը"
   },
   "fuelManagement": {
-    "description": "Ձեր վառելիքի համակարգերի, ամպոկների և մատակարարումների կառավարում"
+    "description": "Ձեր վառելիքի համակարգերի, ամպոկների և մատակարարումների կառավարում",
+    "title": "Վառելիքի կառավարում"
   },
   "fuelSuppliesManager": {
     "title": "Վառելիքի մատակարարումներ",
@@ -75,5 +95,19 @@
     "averagePerSupply": "Միջին՝ {{avg}}֏ մատակարարման համար",
     "currentMonth": "Ընթացիկ ամիս",
     "latestDelivery": "Վերջին առաքում"
+  },
+  "fuelSupplies": {
+    "periodFilter": "Ժամանակահատված"
+  },
+  "employees": {
+    "totalEmployees": "Ընդհանուր աշխատողներ",
+    "activeEmployees": "Ակտիվ աշխատողներ",
+    "ofTotal": "ընդհանուրից",
+    "onLeave": "Արձակուրդի մեջ",
+    "searchPlaceholder": "Որոնել աշխատողներ...",
+    "name": "Անուն",
+    "phone": "Հեռախոս",
+    "salary": "Աշխատավարձ",
+    "hireDate": "Աշխատանքի ընդունման ամսաթիվ"
   }
 }
