@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/layouts/Sidebar";
 import { useLocation } from "react-router-dom";
@@ -7,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { SkipToContent } from "@/components/ui/skip-to-content";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Header } from "@/components/ui/header";
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -18,7 +18,6 @@ export function MainLayout({ children }: MainLayoutProps) {
   const isAuthPage = pathname === "/auth";
   const isMobile = useIsMobile();
   
-  // Sidebar state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const savedState = localStorage.getItem('sidebarCollapsed');
     return savedState ? JSON.parse(savedState) : false;
@@ -26,7 +25,6 @@ export function MainLayout({ children }: MainLayoutProps) {
   
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   
-  // Save sidebar state to localStorage
   useEffect(() => {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
   }, [sidebarCollapsed]);
@@ -65,13 +63,10 @@ export function MainLayout({ children }: MainLayoutProps) {
   // Calculate sidebar width for main content margin
   const sidebarWidth = sidebarCollapsed ? 70 : 240;
 
-  // Regular layout with sidebar for other pages
   return (
     <>
-      {/* Add skip link for keyboard users to bypass navigation */}
       <SkipToContent />
       
-      {/* Fixed sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggleCollapse={toggleSidebarCollapse}
@@ -80,7 +75,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         onToggle={toggleMobileSidebar}
       />
       
-      {/* Mobile menu toggle button - positioned in top-left corner */}
+      {/* Mobile menu toggle button */}
       {isMobile && (
         <Button
           onClick={toggleMobileSidebar}
@@ -110,7 +105,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         </Button>
       )}
       
-      {/* Overlay to close mobile sidebar when clicking outside */}
+      {/* Overlay for mobile sidebar */}
       {isMobile && mobileSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
@@ -119,20 +114,17 @@ export function MainLayout({ children }: MainLayoutProps) {
         />
       )}
       
-      {/* Main content area with left margin to account for fixed sidebar */}
+      {/* Main content area */}
       <main
         id="main-content" 
         className="min-h-screen overflow-auto transition-all duration-300"
         style={{ 
           marginLeft: !isMobile ? `${sidebarWidth}px` : '0px',
-          paddingTop: isMobile ? '4rem' : '0' // Add padding when in mobile view to avoid content being hidden by the toggle button
+          paddingTop: isMobile ? '4rem' : '0'
         }}
         role="main"
         tabIndex={-1}
       >
-        {/* Add header at the top of the main content */}
-        <Header />
-        
         <div className="container mx-auto py-6 px-4 md:px-6">
           {children}
         </div>

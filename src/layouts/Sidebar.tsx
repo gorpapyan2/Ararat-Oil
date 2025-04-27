@@ -1,26 +1,21 @@
-import { useState, useEffect, useRef } from "react";
+
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { NavItem } from "@/components/ui/nav-item";
+import { SidebarSection } from "@/components/ui/sidebar-section";
 import {
-  IconDashboard,
-  IconGasStation,
-  IconTank,
-  IconReportAnalytics,
-  IconTruckDelivery,
-  IconSettings,
-  IconLogout,
-  IconChevronLeft,
-  IconChevronRight,
-  IconCurrencyDollar,
-  IconUsers,
-  IconTruck,
-  IconChartBar,
-  IconTools,
-  IconReceipt2,
-  IconChecklist,
-  IconDatabase,
-} from "@tabler/icons-react";
+  Home,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  GasPump,
+  BarChart,
+  Users,
+  Receipt,
+  ListChecks
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -30,223 +25,35 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface SidebarProps {
   collapsed?: boolean;
-  onNavItemClick?: () => void;
   onToggleCollapse?: (collapsed: boolean) => void;
   isMobile?: boolean;
   isOpen?: boolean;
   onToggle?: () => void;
 }
 
-// Interface for creating navigation sections
-interface NavSection {
-  title: string;
-  items: NavItem[];
-}
-
-// Interface for navigation items
-interface NavItem {
-  to: string;
-  label: string;
-  icon: React.ReactNode;
-}
-
 export function Sidebar({ 
   collapsed: externalCollapsed, 
-  onNavItemClick,
   onToggleCollapse,
   isMobile = false,
   isOpen,
   onToggle
-}: SidebarProps = {}) {
+}: SidebarProps) {
   const { t } = useTranslation();
-  const sidebarRef = useRef<HTMLElement>(null);
-  
-  // Initialize state from localStorage or default to false
-  const [internalCollapsed, setInternalCollapsed] = useState(() => {
-    const savedState = localStorage.getItem('sidebarCollapsed');
-    return savedState ? JSON.parse(savedState) : false;
-  });
-  
   const location = useLocation();
   const { signOut } = useAuth();
   
-  // Use external collapsed state if provided, otherwise use internal state
-  const collapsed = externalCollapsed !== undefined ? externalCollapsed : internalCollapsed;
-
-  // Save internal state to localStorage when it changes
-  useEffect(() => {
-    if (externalCollapsed === undefined) {
-      localStorage.setItem('sidebarCollapsed', JSON.stringify(internalCollapsed));
-    }
-  }, [internalCollapsed, externalCollapsed]);
-
-  // Handle keyboard events for the sidebar toggle
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleSidebar();
-    }
-  };
-
+  const collapsed = externalCollapsed !== undefined ? externalCollapsed : false;
   const isActive = (path: string) => location.pathname === path;
-
-  const toggleSidebar = () => {
-    if (externalCollapsed !== undefined && onToggleCollapse) {
-      // If external state is managed, call the parent's toggle function
-      onToggleCollapse(!externalCollapsed);
-    } else {
-      // Otherwise use internal state
-      setInternalCollapsed(!internalCollapsed);
-    }
-    
-    // For mobile compatibility
-    if (onToggle) {
-      onToggle();
-    }
-  };
-
-  const handleNavItemClick = (to: string) => {
-    if (onNavItemClick) {
-      onNavItemClick();
-    }
-  };
-
-  // Organized navigation sections
-  const navSections: NavSection[] = [
-    {
-      title: t("common.overview"),
-      items: [
-        {
-          to: "/",
-          label: t("common.dashboard"),
-          icon: <IconDashboard size={20} />,
-        },
-        {
-          to: "/todo",
-          label: "Todo List",
-          icon: <IconChecklist size={20} />,
-        },
-      ]
-    },
-    {
-      title: t("common.operations"),
-      items: [
-        {
-          to: "/filling-systems",
-          label: t("common.fillingSystems"),
-          icon: <IconGasStation size={20} />,
-        },
-        {
-          to: "/tanks",
-          label: t("common.tanks"),
-          icon: <IconTank size={20} />,
-        },
-        {
-          to: "/fuel-supplies",
-          label: t("common.fuelSupplies"),
-          icon: <IconTruck size={20} />,
-        },
-      ]
-    },
-    {
-      title: t("common.salesFinance"),
-      items: [
-        {
-          to: "/sales",
-          label: t("common.sales"),
-          icon: <IconCurrencyDollar size={20} />,
-        },
-        {
-          to: "/shifts",
-          label: t("common.shifts"),
-          icon: <IconChartBar size={20} />,
-        },
-        {
-          to: "/expenses",
-          label: t("common.expenses"),
-          icon: <IconReceipt2 size={20} />,
-        },
-      ]
-    },
-    {
-      title: t("common.management"),
-      items: [
-        {
-          to: "/employees",
-          label: t("common.employees"),
-          icon: <IconUsers size={20} />,
-        },
-        {
-          to: "/reports",
-          label: t("common.reports"),
-          icon: <IconReportAnalytics size={20} />,
-        },
-      ]
-    },
-    {
-      title: t("common.system"),
-      items: [
-        {
-          to: "/unified-data",
-          label: t("common.unifiedData"),
-          icon: <IconDatabase size={20} />,
-        },
-        {
-          to: "/settings",
-          label: t("common.settings"),
-          icon: <IconSettings size={20} />,
-        },
-      ]
-    }
-  ];
-
-  // Function to render a navigation item with tooltip if collapsed
-  const renderNavItem = (item: NavItem) => {
-    if (collapsed && !isMobile) {
-      return (
-        <TooltipProvider key={item.to}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div onClick={() => handleNavItemClick(item.to)}>
-                <NavItem
-                  to={item.to}
-                  icon={item.icon}
-                  label={item.label}
-                  active={isActive(item.to)}
-                  collapsed={collapsed}
-                />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              {item.label}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    }
-    
-    return (
-      <div key={item.to} onClick={() => handleNavItemClick(item.to)}>
-        <NavItem
-          to={item.to}
-          icon={item.icon}
-          label={item.label}
-          active={isActive(item.to)}
-          collapsed={collapsed}
-        />
-      </div>
-    );
-  };
 
   return (
     <aside
-      ref={sidebarRef}
       className={cn(
-        "flex flex-col border-r bg-background transition-all duration-300 ease-in-out",
-        "h-screen fixed top-0 left-0", // Fixed position to viewport
+        "flex flex-col border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "fixed top-0 left-0 h-screen z-30 transition-all duration-300",
         collapsed ? "w-[70px]" : "w-[240px]",
         isMobile && "z-50 shadow-lg",
         isMobile && !isOpen && "transform -translate-x-full"
@@ -254,97 +61,88 @@ export function Sidebar({
       role="navigation"
       aria-label="Main navigation"
     >
-      {/* Fixed header */}
-      <div className="flex items-center justify-between p-4 border-b shrink-0 bg-muted/30">
+      {/* Logo section */}
+      <div className={cn(
+        "h-16 flex items-center px-4 border-b",
+        collapsed ? "justify-center" : "justify-between"
+      )}>
         {!collapsed ? (
-          <div className="text-xl font-bold text-foreground">Ararat Oil</div>
+          <span className="font-heading font-bold text-xl">Ararat Oil</span>
         ) : (
-          <div className="w-full flex justify-center">
-            <span className="text-accent font-bold text-lg">AO</span>
-          </div>
-        )}
-        
-        {/* Mobile close button in header */}
-        {isMobile && isOpen && (
-          <button
-            onClick={onToggle}
-            className="p-1 -mr-1 rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-accent"
-            aria-label="Close sidebar"
-          >
-            <IconChevronLeft className="h-5 w-5" />
-          </button>
+          <span className="font-heading font-bold text-accent text-lg">AO</span>
         )}
       </div>
-      
-      {/* Scrollable navigation area */}
-      <nav className="flex-1 overflow-y-auto py-4 no-scrollbar">
-        {navSections.map((section, index) => (
-          <div key={index} className="mb-4">
-            {/* Section heading - only show when not collapsed */}
-            {!collapsed && (
-              <div className="px-4 mb-1">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {section.title}
-                </h3>
-              </div>
-            )}
-            
-            {/* Section items */}
-            <div className="space-y-1 px-2">
-              {section.items.map(renderNavItem)}
-            </div>
-            
-            {/* Divider - show for all sections except the last one */}
-            {index < navSections.length - 1 && (
-              <div className="h-px bg-border mx-2 my-2" />
-            )}
-          </div>
-        ))}
-      </nav>
-      
-      {/* Fixed footer with controls - always at bottom */}
-      <div className="p-4 border-t shrink-0 bg-background">
-        {/* Collapse/Expand button with keyboard support and improved touch target */}
+
+      {/* Navigation sections */}
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        <SidebarSection title={collapsed ? undefined : t("common.overview")} collapsed={collapsed}>
+          <NavItem to="/" icon={<Home size={20} />} label={t("common.dashboard")} active={isActive("/")} collapsed={collapsed} />
+          <NavItem to="/todo" icon={<ListChecks size={20} />} label={t("common.todo")} active={isActive("/todo")} collapsed={collapsed} />
+        </SidebarSection>
+
+        <SidebarSection title={collapsed ? undefined : t("common.fuelManagement")} collapsed={collapsed}>
+          <NavItem 
+            to="/fuel-management" 
+            icon={<GasPump size={20} />} 
+            label={t("common.fuelManagement")} 
+            active={isActive("/fuel-management")} 
+            collapsed={collapsed}
+          />
+        </SidebarSection>
+
+        <SidebarSection title={collapsed ? undefined : t("common.salesFinance")} collapsed={collapsed}>
+          <NavItem to="/sales" icon={<BarChart size={20} />} label={t("common.sales")} active={isActive("/sales")} collapsed={collapsed} />
+          <NavItem to="/expenses" icon={<Receipt size={20} />} label={t("common.expenses")} active={isActive("/expenses")} collapsed={collapsed} />
+        </SidebarSection>
+
+        <SidebarSection title={collapsed ? undefined : t("common.management")} collapsed={collapsed}>
+          <NavItem to="/employees" icon={<Users size={20} />} label={t("common.employees")} active={isActive("/employees")} collapsed={collapsed} />
+          <NavItem to="/settings" icon={<Settings size={20} />} label={t("common.settings")} active={isActive("/settings")} collapsed={collapsed} />
+        </SidebarSection>
+      </div>
+
+      {/* Footer section */}
+      <div className="border-t p-4 space-y-4">
+        {/* Theme toggle */}
+        <div className={cn(
+          "flex items-center",
+          collapsed ? "justify-center" : "justify-between"
+        )}>
+          {!collapsed && <span className="text-sm text-muted-foreground">{t("common.theme")}</span>}
+          <ThemeToggle variant="ghost" size="sm" />
+        </div>
+
+        {/* Collapse button */}
         <Button
           variant="ghost"
           size="sm"
-          className={cn(
-            "w-full justify-center p-2 h-auto min-h-[44px]",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          )}
-          onClick={toggleSidebar}
-          onKeyDown={handleKeyDown}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-expanded={!collapsed}
-          aria-controls={sidebarRef.current?.id || "sidebar-content"}
+          className="w-full justify-center"
+          onClick={() => onToggleCollapse?.(!collapsed)}
+          title={collapsed ? t("common.expand") : t("common.collapse")}
         >
           {collapsed ? (
-            <IconChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4" />
           ) : (
             <>
-              <IconChevronLeft className="h-5 w-5 mr-2" />
+              <ChevronLeft className="h-4 w-4 mr-2" />
               <span>{t("common.collapse")}</span>
             </>
           )}
         </Button>
-        
-        {/* Logout button */}
+
+        {/* Sign out button */}
         <Button
           variant="ghost"
           size="sm"
-          className={cn(
-            "text-red-500 hover:text-red-700 hover:bg-red-50 mt-4 w-full justify-center p-2 h-auto min-h-[44px]",
-            "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          )}
           onClick={signOut}
-          aria-label={t("auth.signOut")}
+          className="w-full justify-center text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
         >
           {collapsed ? (
-            <IconLogout className="h-5 w-5" />
+            <LogOut className="h-4 w-4" />
           ) : (
             <>
-              <IconLogout className="h-5 w-5 mr-2" />
-              <span>{t("auth.signOut")}</span>
+              <LogOut className="h-4 w-4 mr-2" />
+              <span>{t("common.signOut")}</span>
             </>
           )}
         </Button>
