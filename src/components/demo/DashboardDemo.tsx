@@ -21,6 +21,9 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchFuelTanks } from "@/services/tanks";
+import { RevenueExpensesChart } from "@/components/dashboard/RevenueExpensesChart";
 
 // Helper function to get an appropriate icon based on action description
 const getActionIcon = (action: string) => {
@@ -101,13 +104,24 @@ export function DashboardDemo() {
     },
   ];
 
-  // Demo fuel inventory
-  const inventory = [
-    { id: 1, name: "Diesel", level: 45, capacity: 20000, warning: false },
-    { id: 2, name: "Regular", level: 22, capacity: 27000, warning: true },
-    { id: 3, name: "Premium", level: 78, capacity: 21000, warning: false },
-    { id: 4, name: "Gas", level: 65, capacity: 27000, warning: false },
-  ];
+  // Real fuel tank inventory from server
+  const { data: tanksData = [] } = useQuery({
+    queryKey: ["fuel-tanks"],
+    queryFn: fetchFuelTanks,
+    retry: 1,
+  });
+  const inventory = tanksData.map((tank) => {
+    const levelPercent = tank.capacity
+      ? Math.round((tank.current_level / tank.capacity) * 100)
+      : 0;
+    return {
+      id: tank.id,
+      name: tank.name,
+      level: levelPercent,
+      capacity: tank.capacity,
+      warning: levelPercent < 25,
+    };
+  });
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -241,6 +255,11 @@ export function DashboardDemo() {
 
           {/* Main content grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="col-span-1 lg:col-span-3 dashboard-card">
+              <h3 className="font-semibold mb-4">Revenue & Expenses Overview</h3>
+              <RevenueExpensesChart />
+            </Card>
+
             {/* Fuel inventory */}
             <Card className="col-span-1 dashboard-card">
               <div className="flex justify-between items-center mb-4">
