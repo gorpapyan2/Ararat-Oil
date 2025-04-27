@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PetrolProvider } from "@/services/petrol-providers";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface ProviderDialogProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export function ProviderDialog({
 }: ProviderDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const form = useForm({
     defaultValues: {
@@ -52,8 +54,8 @@ export function ProviderDialog({
       onClose();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save provider. Please try again.",
+        title: t("common.error"),
+        description: t("petrolProviders.saveError"),
         variant: "destructive",
       });
     } finally {
@@ -78,9 +80,9 @@ export function ProviderDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t("petrolProviders.providerName")}</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter provider name" />
+                    <Input {...field} placeholder={t("petrolProviders.providerName")} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -92,9 +94,9 @@ export function ProviderDialog({
               name="contact"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Contact</FormLabel>
+                  <FormLabel>{t("petrolProviders.contact")}</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter contact information" />
+                    <Input {...field} placeholder={t("petrolProviders.contactInformation")} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -103,10 +105,10 @@ export function ProviderDialog({
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                Save
+                {t("common.save")}
               </Button>
             </div>
           </form>

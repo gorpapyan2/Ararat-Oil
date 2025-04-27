@@ -11,6 +11,7 @@ import {
   IconCamera,
   IconCheck,
   IconX,
+  IconDeviceLaptop,
 } from "@tabler/icons-react";
 
 // Import our custom UI components
@@ -208,30 +209,30 @@ export default function Settings() {
     <div className="space-y-8">
       {/* Page Header */}
       <PageHeader
-        title="Settings"
-        description="Manage your account settings and preferences"
+        title={t("settings.title")}
+        description={t("settings.description")}
       />
 
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <IconUser className="h-4 w-4" />
-            <span>Profile</span>
+            <span>{t("settings.tabs.profile")}</span>
           </TabsTrigger>
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <IconMoon className="h-4 w-4" />
-            <span>Appearance</span>
+            <span>{t("settings.tabs.appearance")}</span>
           </TabsTrigger>
           <TabsTrigger
             value="notifications"
             className="flex items-center gap-2"
           >
             <IconBell className="h-4 w-4" />
-            <span>Notifications</span>
+            <span>{t("settings.tabs.notifications")}</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <IconLock className="h-4 w-4" />
-            <span>Security</span>
+            <span>{t("settings.tabs.security")}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -239,9 +240,9 @@ export default function Settings() {
         <TabsContent value="profile" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
+              <CardTitle>{t("settings.profile.title")}</CardTitle>
               <CardDescription>
-                Update your account profile information and contact details
+                {t("settings.profile.description")}
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleProfileSubmit}>
@@ -258,15 +259,15 @@ export default function Settings() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium">Profile Photo</h3>
+                    <h3 className="text-sm font-medium">{t("settings.profile.photo")}</h3>
                     <div className="flex gap-2">
                       <Button type="button" variant="outline" size="sm">
                         <IconCamera className="h-4 w-4 mr-2" />
-                        Change
+                        {t("settings.profile.change")}
                       </Button>
                       <Button type="button" variant="outline" size="sm">
                         <IconX className="h-4 w-4 mr-2" />
-                        Remove
+                        {t("settings.profile.remove")}
                       </Button>
                     </div>
                   </div>
@@ -277,18 +278,18 @@ export default function Settings() {
                 {/* Form Fields */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
+                    <Label htmlFor="fullName">{t("settings.profile.fullName")}</Label>
                     <Input
                       id="fullName"
                       name="fullName"
                       value={profileForm.fullName}
                       onChange={handleProfileChange}
-                      placeholder="John Doe"
+                      placeholder={t("settings.profile.fullName")}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email">{t("settings.profile.email")}</Label>
                     <Input
                       id="email"
                       name="email"
@@ -301,7 +302,7 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone">{t("settings.profile.phone")}</Label>
                     <Input
                       id="phone"
                       name="phone"
@@ -312,13 +313,13 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="position">Position</Label>
+                    <Label htmlFor="position">{t("settings.profile.position")}</Label>
                     <Input
                       id="position"
                       name="position"
                       value={profileForm.position}
                       onChange={handleProfileChange}
-                      placeholder="Manager"
+                      placeholder={t("settings.profile.position")}
                     />
                   </div>
                 </div>
@@ -341,18 +342,18 @@ export default function Settings() {
                     })
                   }
                 >
-                  Cancel
+                  {t("settings.profile.cancel")}
                 </Button>
                 <Button type="submit" disabled={profileForm.isLoading}>
                   {profileForm.isLoading ? (
                     <span className="flex items-center gap-1">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      Saving...
+                      {t("settings.profile.saving")}
                     </span>
                   ) : (
                     <span className="flex items-center gap-1">
                       <IconCheck className="h-4 w-4" />
-                      Save Changes
+                      {t("settings.profile.saveChanges")}
                     </span>
                   )}
                 </Button>
@@ -365,14 +366,14 @@ export default function Settings() {
         <TabsContent value="appearance" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Appearance</CardTitle>
+              <CardTitle>{t("settings.appearance.title")}</CardTitle>
               <CardDescription>
-                Customize the appearance of the application
+                {t("settings.appearance.description")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Theme</h3>
+                <h3 className="text-sm font-medium">{t("settings.appearance.theme")}</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div
                     className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "light" ? "border-primary bg-primary/5" : ""}`}
@@ -381,7 +382,7 @@ export default function Settings() {
                     <div className="rounded-full bg-primary/10 p-2">
                       <IconSun className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium">Light</span>
+                    <span className="text-sm font-medium">{t("settings.appearance.light")}</span>
                   </div>
 
                   <div
@@ -391,7 +392,7 @@ export default function Settings() {
                     <div className="rounded-full bg-primary/10 p-2">
                       <IconMoon className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium">Dark</span>
+                    <span className="text-sm font-medium">{t("settings.appearance.dark")}</span>
                   </div>
 
                   <div
@@ -399,9 +400,9 @@ export default function Settings() {
                     onClick={() => setTheme("system")}
                   >
                     <div className="rounded-full bg-primary/10 p-2">
-                      <IconDeviceDesktop className="h-5 w-5 text-primary" />
+                      <IconDeviceLaptop className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium">System</span>
+                    <span className="text-sm font-medium">{t("settings.appearance.system")}</span>
                   </div>
                 </div>
               </div>
@@ -409,14 +410,14 @@ export default function Settings() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Sidebar</h3>
+                <h3 className="text-sm font-medium">{t("settings.appearance.sidebar")}</h3>
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="sidebarCollapsed" className="text-base">
-                      Collapsed Sidebar
+                      {t("settings.appearance.collapsedSidebar")}
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Start with sidebar collapsed by default
+                      {t("settings.appearance.collapsedSidebarDescription")}
                     </p>
                   </div>
                   <Switch
@@ -443,9 +444,9 @@ export default function Settings() {
         <TabsContent value="notifications" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
+              <CardTitle>{t("settings.notifications.title")}</CardTitle>
               <CardDescription>
-                Configure how and when you receive notifications
+                {t("settings.notifications.description")}
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleNotificationSubmit}>
@@ -454,10 +455,10 @@ export default function Settings() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="emailAlerts" className="text-base">
-                        Email Alerts
+                        {t("settings.notifications.emailAlerts")}
                       </Label>
                       <p className="text-sm text-muted-foreground">
-                        Receive important alerts via email
+                        {t("settings.notifications.emailAlertsDescription")}
                       </p>
                     </div>
                     <Switch
@@ -474,10 +475,10 @@ export default function Settings() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="smsAlerts" className="text-base">
-                        SMS Alerts
+                        {t("settings.notifications.smsAlerts")}
                       </Label>
                       <p className="text-sm text-muted-foreground">
-                        Receive urgent alerts via SMS
+                        {t("settings.notifications.smsAlertsDescription")}
                       </p>
                     </div>
                     <Switch
@@ -494,10 +495,10 @@ export default function Settings() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="salesReports" className="text-base">
-                        Sales Reports
+                        {t("settings.notifications.salesReports")}
                       </Label>
                       <p className="text-sm text-muted-foreground">
-                        Receive daily sales reports
+                        {t("settings.notifications.salesReportsDescription")}
                       </p>
                     </div>
                     <Switch
@@ -514,10 +515,10 @@ export default function Settings() {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="inventoryAlerts" className="text-base">
-                        Inventory Alerts
+                        {t("settings.notifications.inventoryAlerts")}
                       </Label>
                       <p className="text-sm text-muted-foreground">
-                        Get notified when inventory is low
+                        {t("settings.notifications.inventoryAlertsDescription")}
                       </p>
                     </div>
                     <Switch
@@ -548,18 +549,18 @@ export default function Settings() {
                     })
                   }
                 >
-                  Reset
+                  {t("settings.notifications.reset")}
                 </Button>
                 <Button type="submit" disabled={notificationPrefs.isLoading}>
                   {notificationPrefs.isLoading ? (
                     <span className="flex items-center gap-1">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      Saving...
+                      {t("settings.notifications.saving")}
                     </span>
                   ) : (
                     <span className="flex items-center gap-1">
                       <IconCheck className="h-4 w-4" />
-                      Save Preferences
+                      {t("settings.notifications.savePreferences")}
                     </span>
                   )}
                 </Button>
@@ -572,16 +573,16 @@ export default function Settings() {
         <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Change Password</CardTitle>
+              <CardTitle>{t("settings.security.title")}</CardTitle>
               <CardDescription>
-                Update your password to keep your account secure
+                {t("settings.security.description")}
               </CardDescription>
             </CardHeader>
             <form onSubmit={handlePasswordSubmit}>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
+                    <Label htmlFor="currentPassword">{t("settings.security.currentPassword")}</Label>
                     <Input
                       id="currentPassword"
                       name="currentPassword"
@@ -595,7 +596,7 @@ export default function Settings() {
                   <Separator />
 
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
+                    <Label htmlFor="newPassword">{t("settings.security.newPassword")}</Label>
                     <Input
                       id="newPassword"
                       name="newPassword"
@@ -605,15 +606,12 @@ export default function Settings() {
                       placeholder="••••••••"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Password must be at least 8 characters long and include a
-                      mix of letters, numbers, and symbols.
+                      {t("settings.security.passwordRequirements")}
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">
-                      Confirm New Password
-                    </Label>
+                    <Label htmlFor="confirmPassword">{t("settings.security.confirmPassword")}</Label>
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -638,18 +636,18 @@ export default function Settings() {
                     })
                   }
                 >
-                  Cancel
+                  {t("settings.security.cancel")}
                 </Button>
                 <Button type="submit" disabled={passwordForm.isLoading}>
                   {passwordForm.isLoading ? (
                     <span className="flex items-center gap-1">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      Updating...
+                      {t("settings.security.updating")}
                     </span>
                   ) : (
                     <span className="flex items-center gap-1">
                       <IconCheck className="h-4 w-4" />
-                      Update Password
+                      {t("settings.security.updatePassword")}
                     </span>
                   )}
                 </Button>
@@ -659,20 +657,20 @@ export default function Settings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Account Security</CardTitle>
+              <CardTitle>{t("settings.security.accountSecurityTitle")}</CardTitle>
               <CardDescription>
-                Manage additional security settings for your account
+                {t("settings.security.accountSecurityDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-medium">Session Management</h3>
+                  <h3 className="text-base font-medium">{t("settings.security.sessionManagementTitle")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Manage your active sessions and sign out from other devices
+                    {t("settings.security.sessionManagementDescription")}
                   </p>
                 </div>
-                <Button variant="outline">Manage Sessions</Button>
+                <Button variant="outline">{t("settings.security.manageSessions")}</Button>
               </div>
 
               <Separator />
@@ -680,13 +678,13 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-medium text-red-600 dark:text-red-500">
-                    Danger Zone
+                    {t("settings.security.dangerZoneTitle")}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Permanently delete your account and all associated data
+                    {t("settings.security.dangerZoneDescription")}
                   </p>
                 </div>
-                <Button variant="destructive">Delete Account</Button>
+                <Button variant="destructive">{t("settings.security.deleteAccount")}</Button>
               </div>
             </CardContent>
           </Card>

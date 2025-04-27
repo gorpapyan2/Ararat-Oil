@@ -21,6 +21,7 @@ import {
   Banknote,
   Truck,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface FuelSuppliesTableProps {
   fuelSupplies: FuelSupply[];
@@ -41,6 +42,8 @@ export function FuelSuppliesTable({
   fuelTypes = [],
   onFiltersChange = () => {},
 }: FuelSuppliesTableProps) {
+  const { t } = useTranslation();
+
   // Define columns for the UnifiedDataTable
   const columns = useMemo<ColumnDef<FuelSupply>[]>(
     () => [
@@ -183,7 +186,7 @@ export function FuelSuppliesTable({
       },
       {
         id: "actions",
-        header: () => <div className="text-center font-medium">Actions</div>,
+        header: () => <div className="text-center font-medium">{t("common.actions")}</div>,
         cell: ({ row }) => {
           const supply = row.original;
           return (
@@ -191,21 +194,21 @@ export function FuelSuppliesTable({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
+                    <span className="sr-only">{t("common.openMenu")}</span>
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => onEdit(supply)}>
                     <Edit className="mr-2 h-4 w-4" />
-                    Edit supply
+                    {t("fuelSupplies.editSupply")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-red-600"
                     onClick={() => onDelete(supply)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete supply
+                    {t("common.delete")} {t("fuelSupplies.supplies").toLowerCase()}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -214,12 +217,12 @@ export function FuelSuppliesTable({
         },
       },
     ],
-    [onEdit, onDelete],
+    [onEdit, onDelete, t],
   );
 
   return (
     <UnifiedDataTable
-      title="Fuel Supplies"
+      title={t("fuelSupplies.title")}
       columns={columns}
       data={fuelSupplies}
       isLoading={isLoading}
@@ -236,7 +239,7 @@ export function FuelSuppliesTable({
         totalRange: [0, 10000000],
       }}
       searchColumn="provider.name"
-      searchPlaceholder="Search by provider..."
+      searchPlaceholder={t("fuelSupplies.searchProviderPlaceholder")}
     />
   );
 }

@@ -36,6 +36,7 @@
     "percentage": "percentage",
     "success": "Success",
     "error": "Error",
+    "errorMessage": "Error: {{message}}",
     "warning": "Warning",
     "petrol": "Petrol",
     "diesel": "Diesel",
@@ -89,7 +90,74 @@
     "chartsAndInsights": "Charts and insights",
     "profitLossOverview": "Profit/Loss Overview",
     "period": "Period",
-    "profit": "Profit"
+    "profit": "Profit",
+    "vsLastMonth": "vs last month",
+    "last30Days": "Last 30 Days",
+    "revenueExpensesOverview": "Revenue & Expenses Overview",
+    "chartImplementationNote": "Chart visualization will be implemented here",
+    "showingDataLast6Months": "Showing data for the last 6 months",
+    "staffPerformance": "Staff Performance",
+    "staffPerformanceDescription": "3 employees exceeded their sales targets this month",
+    "viewEmployeeDetails": "View employee details",
+    "fuelInventoryStatus": "Fuel Inventory Status",
+    "viewAllTanks": "View all tanks",
+    "quickActions": "Quick Actions",
+    "newSale": "New Sale",
+    "addExpense": "Add Expense",
+    "recordSupply": "Record Supply",
+    "runReport": "Run Report",
+    "keyPerformanceIndicators": "Key Performance Indicators",
+    "chartsAdditionalInfo": "Charts and Additional Information"
+  },
+  "dashboardDemo": {
+    "appName": "AraraTOil",
+    "adminUser": "Admin User",
+    "adminEmail": "admin@araratoil.com",
+    "toggleMenu": "Toggle menu",
+    "search": "Search...",
+    "notifications": "Notifications",
+    "title": "Fuel Station Overview",
+    "subtitle": "Monitor your station's performance and inventory",
+    "dateFormat": "Today, May 30, 2023",
+    "viewReports": "View Reports",
+    "metrics": {
+      "totalSales": "Total Sales",
+      "fuelVolume": "Fuel Volume",
+      "transactions": "Transactions",
+      "vehiclesServed": "Vehicles Served",
+      "fromLastWeek": "from last week"
+    },
+    "charts": {
+      "revenueExpenses": "Revenue & Expenses Overview"
+    },
+    "fuelInventory": {
+      "title": "Fuel Inventory",
+      "filter": "Filter",
+      "lowIndicator": "Low",
+      "liters": "liters",
+      "viewAllTanks": "View All Tanks"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "viewAll": "View All",
+      "fuelSupplyAdded": "Fuel Supply Added",
+      "paymentReceived": "Payment Received",
+      "tankLevelUpdated": "Tank Level Updated", 
+      "maintenanceScheduled": "Maintenance Scheduled",
+      "statusCompleted": "Completed",
+      "statusWarning": "Warning",
+      "statusPending": "Pending"
+    },
+    "navItems": {
+      "dashboard": "Dashboard",
+      "fuelSupplies": "Fuel Supplies",
+      "sales": "Sales",
+      "schedule": "Schedule",
+      "reports": "Reports",
+      "settings": "Settings",
+      "supplies": "Supplies",
+      "more": "More"
+    }
   },
   "tanks": {
     "title": "Fuel Tanks",
@@ -162,7 +230,8 @@
     "editTooltip": "Edit this fuel supply",
     "noSuppliesFound": "No fuel supplies found",
     "supplies": "Supplies",
-    "manageSupplies": "Manage supplies"
+    "manageSupplies": "Manage supplies",
+    "searchProviderPlaceholder": "Search provider..."
   },
   "sales": {
     "title": "Sales",
@@ -305,5 +374,78 @@
     "noDataFound": "No data found",
     "loading": "Loading data...",
     "addNew": "Add New"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account settings and preferences",
+    "tabs": {
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "notifications": "Notifications",
+      "security": "Security"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "description": "Update your account profile information and contact details",
+      "photo": "Profile Photo",
+      "change": "Change",
+      "remove": "Remove",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "position": "Position",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize the appearance of the application",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark", 
+      "system": "System"
+    },
+    "notifications": {
+      "title": "Notification Settings",
+      "description": "Configure how you receive notifications",
+      "email": "Email Notifications",
+      "push": "Push Notifications",
+      "sales": "Sales notifications",
+      "inventory": "Inventory alerts",
+      "updates": "System updates",
+      "security": "Security alerts",
+      "saveSettings": "Save Settings"
+    },
+    "security": {
+      "title": "Security Settings",
+      "description": "Update your password and security preferences",
+      "passwordSection": "Change Password",
+      "passwordDescription": "Update your password to keep your account secure",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "twoFactorSection": "Two-Factor Authentication",
+      "twoFactorDescription": "Add an extra layer of security to your account",
+      "enableTwoFactor": "Enable two-factor authentication",
+      "disableTwoFactor": "Disable two-factor authentication",
+      "updatePassword": "Update Password"
+    }
+  },
+  "petrolProviders": {
+    "title": "Petrol Providers",
+    "description": "Manage your petrol providers",
+    "addProvider": "Add Provider",
+    "editProvider": "Edit Provider",
+    "deleteProvider": "Delete Provider",
+    "providerCreated": "Provider created successfully",
+    "providerUpdated": "Provider updated successfully",
+    "providerDeleted": "Provider deleted successfully",
+    "deleteConfirmTitle": "Are you sure?",
+    "deleteConfirmDescription": "This will permanently delete the provider. This action cannot be undone.",
+    "contact": "Contact Information",
+    "providerName": "Provider Name",
+    "contactInformation": "Contact Information",
+    "saveError": "Failed to save provider. Please try again."
   }
 }

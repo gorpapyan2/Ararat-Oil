@@ -29,6 +29,7 @@ import {
   deletePetrolProvider,
   type PetrolProvider,
 } from "@/services/petrol-providers";
+import { useTranslation } from "react-i18next";
 
 export default function PetrolProviders() {
   const [selectedProvider, setSelectedProvider] =
@@ -39,6 +40,7 @@ export default function PetrolProviders() {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: providers = [] } = useQuery({
     queryKey: ["petrol-providers"],
@@ -49,7 +51,7 @@ export default function PetrolProviders() {
     mutationFn: createPetrolProvider,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
-      toast({ title: "Success", description: "Provider created successfully" });
+      toast({ title: t("common.success"), description: t("petrolProviders.providerCreated") });
     },
   });
 
@@ -58,7 +60,7 @@ export default function PetrolProviders() {
       updatePetrolProvider(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
-      toast({ title: "Success", description: "Provider updated successfully" });
+      toast({ title: t("common.success"), description: t("petrolProviders.providerUpdated") });
     },
   });
 
@@ -66,26 +68,26 @@ export default function PetrolProviders() {
     mutationFn: deletePetrolProvider,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
-      toast({ title: "Success", description: "Provider deleted successfully" });
+      toast({ title: t("common.success"), description: t("petrolProviders.providerDeleted") });
     },
   });
 
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Petrol Providers</h1>
+        <h1 className="text-2xl font-semibold">{t("petrolProviders.title")}</h1>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <PlusIcon className="h-4 w-4 mr-2" />
-          Add Provider
+          {t("petrolProviders.addProvider")}
         </Button>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Contact</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>{t("common.name")}</TableHead>
+            <TableHead>{t("petrolProviders.contact")}</TableHead>
+            <TableHead>{t("common.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -124,7 +126,7 @@ export default function PetrolProviders() {
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         onSubmit={createMutation.mutateAsync}
-        title="Add Provider"
+        title={t("petrolProviders.addProvider")}
       />
 
       <ProviderDialog
@@ -140,7 +142,7 @@ export default function PetrolProviders() {
           })
         }
         initialData={selectedProvider ?? undefined}
-        title="Edit Provider"
+        title={t("petrolProviders.editProvider")}
       />
 
       <AlertDialog
@@ -149,14 +151,13 @@ export default function PetrolProviders() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t("petrolProviders.deleteConfirmTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the provider. This action cannot be
-              undone.
+              {t("petrolProviders.deleteConfirmDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (selectedProvider) {
@@ -166,7 +167,7 @@ export default function PetrolProviders() {
                 }
               }}
             >
-              Delete
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -6,6 +6,7 @@ import { TransactionsHeader } from "./TransactionsHeader";
 import { TransactionsDialogs } from "./TransactionsDialogs";
 import { Transaction } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 export function TransactionsManager() {
   const [search, setSearch] = useState("");
@@ -14,6 +15,7 @@ export function TransactionsManager() {
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const {
     data: transactions,
@@ -39,16 +41,16 @@ export function TransactionsManager() {
   const handleViewDetails = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     toast({
-      title: "Transaction Details",
-      description: `Viewing details for transaction ${transaction.id}`,
+      title: t("transactions.detailsTitle"),
+      description: t("transactions.detailsDescription", { id: transaction.id }),
     });
   };
 
   const handleEdit = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     toast({
-      title: "Edit Transaction",
-      description: `Editing transaction ${transaction.id}`,
+      title: t("transactions.editTitle"),
+      description: t("transactions.editDescription", { id: transaction.id }),
     });
   };
 

@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFuelTanks } from "@/services/tanks";
 import { RevenueExpensesChart } from "@/components/dashboard/RevenueExpensesChart";
+import { useTranslation } from "react-i18next";
 
 // Helper function to get an appropriate icon based on action description
 const getActionIcon = (action: string) => {
@@ -35,32 +36,33 @@ const getActionIcon = (action: string) => {
 
 export function DashboardDemo() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Demo metrics data
   const metrics = [
     {
-      label: "Total Sales",
+      label: t("dashboardDemo.metrics.totalSales"),
       value: "27,835 ֏",
       icon: DollarSign,
       change: "+5.3%",
       isUp: true,
     },
     {
-      label: "Fuel Volume",
+      label: t("dashboardDemo.metrics.fuelVolume"),
       value: "1,256 L",
       icon: Droplet,
       change: "-2.1%",
       isUp: false,
     },
     {
-      label: "Transactions",
+      label: t("dashboardDemo.metrics.transactions"),
       value: "184",
       icon: ArrowRightLeft,
       change: "+12.4%",
       isUp: true,
     },
     {
-      label: "Vehicles Served",
+      label: t("dashboardDemo.metrics.vehiclesServed"),
       value: "96",
       icon: Car,
       change: "+3.8%",
@@ -72,7 +74,7 @@ export function DashboardDemo() {
   const recentActivity = [
     {
       id: 1,
-      action: "Fuel Supply Added",
+      action: t("dashboardDemo.recentActivity.fuelSupplyAdded"),
       date: "Today, 10:32 AM",
       user: "Emma S.",
       amount: "2500L Diesel",
@@ -80,7 +82,7 @@ export function DashboardDemo() {
     },
     {
       id: 2,
-      action: "Payment Received",
+      action: t("dashboardDemo.recentActivity.paymentReceived"),
       date: "Today, 09:15 AM",
       user: "John D.",
       amount: "15,400 ֏",
@@ -88,7 +90,7 @@ export function DashboardDemo() {
     },
     {
       id: 3,
-      action: "Tank Level Updated",
+      action: t("dashboardDemo.recentActivity.tankLevelUpdated"),
       date: "Yesterday",
       user: "Anna M.",
       amount: "Gas Tank #2",
@@ -96,7 +98,7 @@ export function DashboardDemo() {
     },
     {
       id: 4,
-      action: "Maintenance Scheduled",
+      action: t("dashboardDemo.recentActivity.maintenanceScheduled"),
       date: "Yesterday",
       user: "Robert K.",
       amount: "Pump #3",
@@ -133,16 +135,16 @@ export function DashboardDemo() {
         )}
       >
         <div className="flex h-16 items-center border-b px-6">
-          <h1 className="text-xl font-bold text-primary">AraraTOil</h1>
+          <h1 className="text-xl font-bold text-primary">{t("dashboardDemo.appName")}</h1>
         </div>
 
         <nav className="p-4 space-y-1">
-          <NavItem icon={BarChart3} label="Dashboard" isActive />
-          <NavItem icon={Fuel} label="Fuel Supplies" />
-          <NavItem icon={Car} label="Sales" />
-          <NavItem icon={CalendarDays} label="Schedule" />
-          <NavItem icon={TrendingUp} label="Reports" />
-          <NavItem icon={Settings} label="Settings" />
+          <NavItem icon={BarChart3} label={t("dashboardDemo.navItems.dashboard")} isActive />
+          <NavItem icon={Fuel} label={t("dashboardDemo.navItems.fuelSupplies")} />
+          <NavItem icon={Car} label={t("dashboardDemo.navItems.sales")} />
+          <NavItem icon={CalendarDays} label={t("dashboardDemo.navItems.schedule")} />
+          <NavItem icon={TrendingUp} label={t("dashboardDemo.navItems.reports")} />
+          <NavItem icon={Settings} label={t("dashboardDemo.navItems.settings")} />
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
@@ -151,9 +153,9 @@ export function DashboardDemo() {
               <User size={16} />
             </div>
             <div>
-              <p className="text-sm font-medium">Admin User</p>
+              <p className="text-sm font-medium">{t("dashboardDemo.adminUser")}</p>
               <p className="text-xs text-muted-foreground">
-                admin@araratoil.com
+                {t("dashboardDemo.adminEmail")}
               </p>
             </div>
           </div>
@@ -172,9 +174,9 @@ export function DashboardDemo() {
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             >
               <Menu size={20} />
-              <span className="sr-only">Toggle menu</span>
+              <span className="sr-only">{t("dashboardDemo.toggleMenu")}</span>
             </Button>
-            <h2 className="text-lg font-medium">Dashboard</h2>
+            <h2 className="text-lg font-medium">{t("dashboardDemo.navItems.dashboard")}</h2>
           </div>
 
           <div className="flex items-center gap-2">
@@ -182,7 +184,7 @@ export function DashboardDemo() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search..."
+                placeholder={t("dashboardDemo.search")}
                 className="pl-8 h-9 md:w-64 lg:w-80"
               />
             </div>
@@ -190,7 +192,7 @@ export function DashboardDemo() {
             <Button variant="ghost" size="icon" className="relative">
               <Bell size={20} />
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
-              <span className="sr-only">Notifications</span>
+              <span className="sr-only">{t("dashboardDemo.notifications")}</span>
             </Button>
 
             <ThemeSwitcher />
@@ -202,22 +204,22 @@ export function DashboardDemo() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1">
-                Fuel Station Overview
+                {t("dashboardDemo.title")}
               </h1>
               <p className="text-muted-foreground">
-                Monitor your station's performance and inventory
+                {t("dashboardDemo.subtitle")}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-md">
                 <CalendarDays size={14} />
-                <span>Today, May 30, 2023</span>
+                <span>{t("dashboardDemo.dateFormat")}</span>
               </div>
 
               <Button className="gap-2">
                 <TrendingUp size={16} />
-                <span>View Reports</span>
+                <span>{t("dashboardDemo.viewReports")}</span>
               </Button>
             </div>
           </div>
@@ -247,7 +249,7 @@ export function DashboardDemo() {
                     size={14}
                     className={!metric.isUp ? "rotate-180" : ""}
                   />
-                  <span>{metric.change} from last week</span>
+                  <span>{metric.change} {t("dashboardDemo.metrics.fromLastWeek")}</span>
                 </div>
               </Card>
             ))}
@@ -256,17 +258,17 @@ export function DashboardDemo() {
           {/* Main content grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="col-span-1 lg:col-span-3 dashboard-card">
-              <h3 className="font-semibold mb-4">Revenue & Expenses Overview</h3>
+              <h3 className="font-semibold mb-4">{t("dashboardDemo.charts.revenueExpenses")}</h3>
               <RevenueExpensesChart />
             </Card>
 
             {/* Fuel inventory */}
             <Card className="col-span-1 dashboard-card">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold">Fuel Inventory</h3>
+                <h3 className="font-semibold">{t("dashboardDemo.fuelInventory.title")}</h3>
                 <Button variant="outline" size="sm">
                   <Filter size={14} className="mr-1" />
-                  Filter
+                  {t("dashboardDemo.fuelInventory.filter")}
                 </Button>
               </div>
 
@@ -279,7 +281,7 @@ export function DashboardDemo() {
                         {item.level}%
                         {item.warning && (
                           <span className="ml-2 px-1.5 py-0.5 rounded-sm bg-warning/20 text-warning text-xs">
-                            Low
+                            {t("dashboardDemo.fuelInventory.lowIndicator")}
                           </span>
                         )}
                       </span>
@@ -301,7 +303,7 @@ export function DashboardDemo() {
                       {Math.round(
                         (item.capacity * item.level) / 100,
                       ).toLocaleString()}{" "}
-                      / {item.capacity.toLocaleString()} liters
+                      / {item.capacity.toLocaleString()} {t("dashboardDemo.fuelInventory.liters")}
                     </p>
                   </div>
                 ))}
@@ -309,7 +311,7 @@ export function DashboardDemo() {
 
               <div className="mt-4 pt-4 border-t">
                 <Button variant="outline" className="w-full">
-                  View All Tanks
+                  {t("dashboardDemo.fuelInventory.viewAllTanks")}
                 </Button>
               </div>
             </Card>
@@ -317,9 +319,9 @@ export function DashboardDemo() {
             {/* Recent activity */}
             <Card className="col-span-1 lg:col-span-2 dashboard-card">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold">Recent Activity</h3>
+                <h3 className="font-semibold">{t("dashboardDemo.recentActivity.title")}</h3>
                 <Button variant="link" size="sm" className="text-primary">
-                  View All
+                  {t("dashboardDemo.recentActivity.viewAll")}
                 </Button>
               </div>
 
@@ -363,10 +365,10 @@ export function DashboardDemo() {
                             }
                           >
                             {activity.status === "completed"
-                              ? "Completed"
+                              ? t("dashboardDemo.recentActivity.statusCompleted")
                               : activity.status === "warning"
-                                ? "Warning"
-                                : "Pending"}
+                                ? t("dashboardDemo.recentActivity.statusWarning")
+                                : t("dashboardDemo.recentActivity.statusPending")}
                           </Badge>
                         </div>
                       </div>
@@ -377,6 +379,16 @@ export function DashboardDemo() {
             </Card>
           </div>
         </main>
+
+        {/* Mobile navigation */}
+        <div className="block sm:hidden fixed bottom-0 left-0 right-0 bg-card border-t z-10">
+          <div className="flex justify-around">
+            <MobileNavItem icon={BarChart3} label={t("dashboardDemo.navItems.dashboard")} isActive />
+            <MobileNavItem icon={Fuel} label={t("dashboardDemo.navItems.supplies")} />
+            <MobileNavItem icon={Car} label={t("dashboardDemo.navItems.sales")} />
+            <MobileNavItem icon={Settings} label={t("dashboardDemo.navItems.more")} />
+          </div>
+        </div>
       </div>
 
       {/* Mobile overlay when sidebar is open */}
@@ -386,14 +398,6 @@ export function DashboardDemo() {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-
-      {/* Mobile bottom navigation */}
-      <div className="md:hidden mobile-nav">
-        <MobileNavItem icon={BarChart3} label="Dashboard" isActive />
-        <MobileNavItem icon={Fuel} label="Supplies" />
-        <MobileNavItem icon={Car} label="Sales" />
-        <MobileNavItem icon={Settings} label="More" />
-      </div>
     </div>
   );
 }

@@ -29,6 +29,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface FuelSuppliesManagerProps {
   onRenderAction?: (actionNode: React.ReactNode) => void;
@@ -44,6 +45,7 @@ export function FuelSuppliesManager({
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // Use the filter hook
   const {
@@ -446,7 +448,7 @@ export function FuelSuppliesManager({
   return (
     <div className="space-y-6">
       <UnifiedDataTable
-        title="Fuel Supplies"
+        title={t("fuelSupplies.title")}
         columns={columns}
         data={filteredSupplies}
         isLoading={isLoading}
@@ -468,7 +470,7 @@ export function FuelSuppliesManager({
           totalRange: [filters.minTotal || 0, filters.maxTotal || 10000000],
         }}
         searchColumn="provider.name"
-        searchPlaceholder="Search by provider..."
+        searchPlaceholder={t("fuelSupplies.searchProviderPlaceholder")}
         summaryComponent={<FuelSuppliesSummary supplies={filteredSupplies} />}
       />
 

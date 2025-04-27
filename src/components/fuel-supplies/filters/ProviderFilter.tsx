@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "react-i18next";
 
 interface ProviderFilterProps {
   value: string;
@@ -24,6 +25,7 @@ export function ProviderFilter({
 }: ProviderFilterProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
+  const { t } = useTranslation();
 
   // Ensure providers is always defined and an array
   const providersList = Array.isArray(providers) ? providers : [];
@@ -43,7 +45,7 @@ export function ProviderFilter({
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-xs font-medium text-muted-foreground">
-        Provider
+        {t("common.providers")}
       </label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -55,7 +57,7 @@ export function ProviderFilter({
           >
             {value && selectedProvider
               ? selectedProvider.name
-              : "All providers"}
+              : t("common.allProviders")}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -65,7 +67,7 @@ export function ProviderFilter({
         >
           <div className="flex flex-col space-y-2">
             <Input
-              placeholder="Search provider..."
+              placeholder={t("fuelSupplies.searchProviderPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-9"
@@ -76,12 +78,12 @@ export function ProviderFilter({
                 <div className="py-6 text-center text-sm">
                   <div className="h-4 w-4 animate-spin mx-auto border-2 border-primary/50 border-t-primary rounded-full" />
                   <p className="mt-2 text-muted-foreground">
-                    Loading providers...
+                    {t("common.loading")}
                   </p>
                 </div>
               ) : filteredProviders.length === 0 && search ? (
                 <div className="py-6 text-center text-sm text-muted-foreground">
-                  No providers found.
+                  {t("common.noResults")}
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -102,7 +104,7 @@ export function ProviderFilter({
                         value === "all" ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    All providers
+                    {t("common.allProviders")}
                   </div>
 
                   {filteredProviders.map((provider) => (

@@ -385,7 +385,7 @@ export function UnifiedDataTable<TData, TValue>({
             <div className="flex flex-col items-center gap-2">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
               <span className="text-sm text-muted-foreground">
-                Loading data...
+                {t("unifiedData.loading")}
               </span>
             </div>
           </div>
@@ -475,7 +475,7 @@ export function UnifiedDataTable<TData, TValue>({
       <Card className="border-none shadow-sm">
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">{title} Data</h3>
+            <h3 className="text-lg font-medium">{title}</h3>
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -483,7 +483,7 @@ export function UnifiedDataTable<TData, TValue>({
                     variant="outline"
                     className="ml-auto flex gap-1 items-center"
                   >
-                    Columns <ChevronDown className="h-4 w-4" />
+                    {t("common.columns")} <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -552,7 +552,7 @@ export function UnifiedDataTable<TData, TValue>({
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      No data found
+                      {t("common.noData")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -564,13 +564,13 @@ export function UnifiedDataTable<TData, TValue>({
             <div className="flex-1 text-sm text-muted-foreground">
               {table.getFilteredSelectedRowModel().rows.length > 0 && (
                 <span>
-                  {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                  {table.getFilteredRowModel().rows.length} row(s) selected
+                  {table.getFilteredSelectedRowModel().rows.length} {t("common.of")}{" "}
+                  {table.getFilteredRowModel().rows.length} {t("common.rowsPerPage")}
                 </span>
               )}
               {table.getFilteredSelectedRowModel().rows.length === 0 && (
                 <span>
-                  {table.getFilteredRowModel().rows.length} total items
+                  {table.getFilteredRowModel().rows.length} {t("common.total")}
                 </span>
               )}
             </div>
@@ -581,10 +581,10 @@ export function UnifiedDataTable<TData, TValue>({
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
               >
-                Previous
+                {t("common.previousPage")}
               </Button>
               <span className="text-sm text-muted-foreground">
-                Page {table.getState().pagination.pageIndex + 1} of{" "}
+                {t("common.pagination")} {table.getState().pagination.pageIndex + 1} {t("common.of")}{" "}
                 {table.getPageCount()}
               </span>
               <Button
@@ -593,7 +593,7 @@ export function UnifiedDataTable<TData, TValue>({
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
               >
-                Next
+                {t("common.nextPage")}
               </Button>
             </div>
           </div>

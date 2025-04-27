@@ -28,6 +28,7 @@ import Todo from "@/pages/Todo";
 import UnifiedData from "@/pages/UnifiedData";
 import FuelManagement from "@/pages/FuelManagement";
 import Settings from "@/pages/Settings";
+import { DashboardDemo } from "@/components/demo/DashboardDemo";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,14 @@ const App = () => (
                   element={
                     <RequireAuth>
                       <DashboardNew />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/demo"
+                  element={
+                    <RequireAuth>
+                      <DashboardDemo />
                     </RequireAuth>
                   }
                 />

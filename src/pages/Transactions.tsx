@@ -8,18 +8,21 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { TransactionsManager } from "@/components/transactions/TransactionsManager";
+import { useTranslation } from "react-i18next";
 
 const Transactions = () => {
+  const { t } = useTranslation();
+  
   return (
     <div className="container mx-auto py-6 space-y-6 max-w-7xl">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+            <BreadcrumbLink href="/">{t("common.dashboard")}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Transactions</BreadcrumbPage>
+            <BreadcrumbPage>{t("transactions.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -27,7 +30,7 @@ const Transactions = () => {
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
           <CardTitle className="text-xl font-medium">
-            Transaction Management
+            {t("transactions.management")}
           </CardTitle>
         </CardHeader>
         <CardContent>

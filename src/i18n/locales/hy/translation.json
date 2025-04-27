@@ -36,6 +36,7 @@
     "percentage": "տոկոս",
     "success": "Հաջողություն",
     "error": "Սխալ",
+    "errorMessage": "Սխալ: {{message}}",
     "warning": "Զգուշացում",
     "petrol": "Բենզին",
     "diesel": "Դիզել",
@@ -128,8 +129,23 @@
     "profitLossOverview": "Շահույթի/Ծախսերի ակնարկ",
     "period": "Ժամանակահատված",
     "profit": "Շահույթ",
-    "metricsSectionLabel": "Հիմնական մետրիկներ",
-    "chartsSectionLabel": "Գրաֆիկներ և տեղեկություններ"
+    "vsLastMonth": "անցած ամսվա համեմատ",
+    "last30Days": "Վերջին 30 օր",
+    "revenueExpensesOverview": "Եկամուտների և ծախսերի ակնարկ",
+    "chartImplementationNote": "Գրաֆիկների պատկերումը կիրականացվի այստեղ",
+    "showingDataLast6Months": "Ցուցադրվում են վերջին 6 ամիսների տվյալները",
+    "staffPerformance": "Անձնակազմի արդյունավետություն",
+    "staffPerformanceDescription": "3 աշխատակիցներ գերազանցել են իրենց վաճառքի թիրախները այս ամիս",
+    "viewEmployeeDetails": "Դիտել աշխատակցի մանրամասները",
+    "fuelInventoryStatus": "Վառելիքի պաշարների կարգավիճակ",
+    "viewAllTanks": "Դիտել բոլոր բաքերը",
+    "quickActions": "Արագ գործողություններ",
+    "newSale": "Նոր վաճառք",
+    "addExpense": "Ավելացնել ծախս",
+    "recordSupply": "Գրանցել մատակարարում",
+    "runReport": "Գործարկել հաշվետվություն",
+    "keyPerformanceIndicators": "Հիմնական կատարողական ցուցանիշներ",
+    "chartsAdditionalInfo": "Գրաֆիկներ և լրացուցիչ տեղեկատվություն"
   },
   "tanks": {
     "title": "Ամպոկներ",
@@ -209,7 +225,8 @@
     "noSuppliesFound": "Վառելիքի մատակարարումներ չեն գտնվել",
     "supplies": "Մատակարարումներ",
     "manageSupplies": "Կառավարել մատակարարումները",
-    "periodFilter": "Ժամանակահատված"
+    "periodFilter": "Ժամանակահատված",
+    "searchProviderPlaceholder": "Որոնել մատակարար..."
   },
   "sales": {
     "title": "Վաճառքներ",
@@ -381,5 +398,128 @@
   "index": {
     "welcome": "Բարի գալուստ Ձեր հավելված",
     "tagline": "Սկսեք Ձեր զարմանալի նախագիծը այստեղ"
+  },
+  "dashboardDemo": {
+    "appName": "ԱրարատՕյլ",
+    "adminUser": "Ադմին",
+    "adminEmail": "admin@araratoil.com",
+    "toggleMenu": "Փոխել ընտրացանկը",
+    "search": "Որոնել...",
+    "notifications": "Ծանուցումներ",
+    "title": "Լցակայանի ակնարկ",
+    "subtitle": "Հետևեք ձեր կայանի արդյունավետությանը և պաշարներին",
+    "dateFormat": "Այսօր, Մայիս 30, 2023",
+    "viewReports": "Դիտել հաշվետվությունները",
+    "metrics": {
+      "totalSales": "Ընդհանուր վաճառք",
+      "fuelVolume": "Վառելիքի ծավալ",
+      "transactions": "Գործարքներ",
+      "vehiclesServed": "Սպասարկված մեքենաներ",
+      "fromLastWeek": "անցած շաբաթվա համեմատ"
+    },
+    "charts": {
+      "revenueExpenses": "Եկամուտների և ծախսերի ակնարկ"
+    },
+    "fuelInventory": {
+      "title": "Վառելիքի պաշարներ",
+      "filter": "Զտիչ",
+      "lowIndicator": "Ցածր",
+      "liters": "լիտր",
+      "viewAllTanks": "Դիտել բոլոր ամպոկները"
+    },
+    "recentActivity": {
+      "title": "Վերջին գործողություններ",
+      "viewAll": "Դիտել բոլորը",
+      "fuelSupplyAdded": "Վառելիքի մատակարարում է ավելացվել",
+      "paymentReceived": "Վճարումը ստացվել է",
+      "tankLevelUpdated": "Ամպոկի մակարդակը թարմացվել է", 
+      "maintenanceScheduled": "Սպասարկումը պլանավորվել է",
+      "statusCompleted": "Ավարտված",
+      "statusWarning": "Զգուշացում",
+      "statusPending": "Սպասման մեջ"
+    },
+    "navItems": {
+      "dashboard": "Վահանակ",
+      "fuelSupplies": "Վառելիքի մատակարարումներ",
+      "sales": "Վաճառք",
+      "schedule": "Ժամանակացույց",
+      "reports": "Հաշվետվություններ",
+      "settings": "Կարգավորումներ",
+      "supplies": "Մատակարարումներ",
+      "more": "Ավելին"
+    }
+  },
+  "settings": {
+    "title": "Կարգավորումներ",
+    "description": "Կառավարեք ձեր հաշվի կարգավորումները և նախընտրությունները",
+    "tabs": {
+      "profile": "Պրոֆիլ",
+      "appearance": "Տեսք",
+      "notifications": "Ծանուցումներ",
+      "security": "Անվտանգություն"
+    },
+    "profile": {
+      "title": "Պրոֆիլի տեղեկատվություն",
+      "description": "Թարմացրեք ձեր հաշվի պրոֆիլը և կոնտակտային տվյալները",
+      "photo": "Պրոֆիլի լուսանկար",
+      "change": "Փոփոխել",
+      "remove": "Հեռացնել",
+      "fullName": "Լրիվ անուն",
+      "email": "Էլ․ փոստի հասցե",
+      "phone": "Հեռախոսահամար",
+      "position": "Պաշտոն",
+      "cancel": "Չեղարկել",
+      "saving": "Պահպանվում է...",
+      "saveChanges": "Պահպանել փոփոխությունները"
+    },
+    "appearance": {
+      "title": "Տեսք",
+      "description": "Կարգավորեք հավելվածի տեսքը",
+      "theme": "Տեսք",
+      "light": "Լուսավոր",
+      "dark": "Մուգ", 
+      "system": "Համակարգային"
+    },
+    "notifications": {
+      "title": "Ծանուցումների կարգավորումներ",
+      "description": "Կարգավորեք ծանուցումների ստացման եղանակը",
+      "email": "Էլ․ փոստի ծանուցումներ",
+      "push": "Push ծանուցումներ",
+      "sales": "Վաճառքի ծանուցումներ",
+      "inventory": "Պաշարների զգուշացումներ",
+      "updates": "Համակարգի թարմացումներ",
+      "security": "Անվտանգության զգուշացումներ",
+      "saveSettings": "Պահպանել կարգավորումները"
+    },
+    "security": {
+      "title": "Անվտանգության կարգավորումներ",
+      "description": "Թարմացրեք ձեր գաղտնաբառը և անվտանգության նախընտրությունները",
+      "passwordSection": "Փոխել գաղտնաբառը",
+      "passwordDescription": "Թարմացրեք ձեր գաղտնաբառը՝ հաշիվը անվտանգ պահելու համար",
+      "currentPassword": "Ընթացիկ գաղտնաբառ",
+      "newPassword": "Նոր գաղտնաբառ",
+      "confirmPassword": "Հաստատել նոր գաղտնաբառը",
+      "twoFactorSection": "Երկու-գործոնային նույնականացում",
+      "twoFactorDescription": "Ավելացրեք անվտանգության լրացուցիչ շերտ ձեր հաշվին",
+      "enableTwoFactor": "Միացնել երկու-գործոնային նույնականացումը",
+      "disableTwoFactor": "Անջատել երկու-գործոնային նույնականացումը",
+      "updatePassword": "Թարմացնել գաղտնաբառը"
+    }
+  },
+  "petrolProviders": {
+    "title": "Վառելիքի մատակարարներ",
+    "description": "Կառավարեք Ձեր վառելիքի մատակարարներին",
+    "addProvider": "Ավելացնել մատակարար",
+    "editProvider": "Խմբագրել մատակարարին",
+    "deleteProvider": "Ջնջել մատակարարին",
+    "providerCreated": "Մատակարարը հաջողությամբ ստեղծվել է",
+    "providerUpdated": "Մատակարարի տվյալները հաջողությամբ թարմացվել են",
+    "providerDeleted": "Մատակարարը հաջողությամբ ջնջվել է",
+    "deleteConfirmTitle": "Համոզվա՞ծ եք",
+    "deleteConfirmDescription": "Սա մշտապես կջնջի մատակարարին: Այս գործողությունը հետ դարձնել հնարավոր չէ",
+    "contact": "Կոնտակտային տվյալներ",
+    "providerName": "Մատակարարի անունը",
+    "contactInformation": "Կոնտակտային տվյալներ",
+    "saveError": "Չհաջողվեց պահպանել մատակարարին: Խնդրում ենք կրկին փորձել:"
   }
 }

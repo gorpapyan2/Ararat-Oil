@@ -1,5 +1,6 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   TrendingUp,
   DollarSign,
@@ -34,10 +35,14 @@ import {
   CardTitle,
 } from "@/components/ui-custom/card";
 
+// Import API services
+import { fetchDashboardData, type DashboardData } from "@/services/dashboard";
+
 export default function Dashboard() {
   const { session } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Fetch sales data
   const {
@@ -75,6 +80,18 @@ export default function Dashboard() {
     retry: 1,
   });
 
+  // Fetch dashboard data from API
+  const { 
+    data: dashboardData, 
+    isLoading: isDashboardLoading,
+    error: dashboardError
+  } = useQuery<DashboardData>({
+    queryKey: ["dashboard", session?.user?.id],
+    queryFn: fetchDashboardData,
+    enabled: !!session?.user,
+    retry: 1,
+  });
+
   // Show errors in toast notifications
   React.useEffect(() => {
     if (salesError) {
@@ -98,7 +115,14 @@ export default function Dashboard() {
         variant: "destructive",
       });
     }
-  }, [salesError, expensesError, tanksError, toast]);
+    if (dashboardError) {
+      toast({
+        title: "Error loading dashboard data",
+        description: dashboardError.message,
+        variant: "destructive",
+      });
+    }
+  }, [salesError, expensesError, tanksError, dashboardError, toast]);
 
   // Calculate metrics
   const totalSales =
@@ -128,15 +152,15 @@ export default function Dashboard() {
       return sum + tank.current_level * pricePerLiter;
     }, 0) || 0;
 
-  const isLoading = isSalesLoading || isExpensesLoading || isTanksLoading;
-  const hasError = !!salesError || !!expensesError || !!tanksError;
+  const isLoading = isSalesLoading || isExpensesLoading || isTanksLoading || isDashboardLoading;
+  const hasError = !!salesError || !!expensesError || !!tanksError || !!dashboardError;
 
   // Mock data for trends (in a real app, this would come from the API)
   const mockTrends = {
-    sales: { value: "20.1%", positive: true },
-    expenses: { value: "12.5%", positive: false },
-    profit: { value: "15.3%", positive: true },
-    inventory: { value: "5.2%", positive: true },
+    sales: { value: "8.2%", positive: true },
+    expenses: { value: "4.1%", positive: false },
+    profit: { value: "12.5%", positive: true },
+    inventory: { value: "2.7%", positive: true },
   };
 
   // Format currency values
@@ -148,30 +172,30 @@ export default function Dashboard() {
     <div className="space-y-8">
       {/* Page Header */}
       <PageHeader
-        title="Dashboard"
-        description="Overview of your business performance"
+        title={t("dashboard.title")}
+        description={t("dashboard.description")}
         actions={
           <Button variant="outline" size="sm">
             <CalendarRange className="mr-2 h-4 w-4" />
-            Last 30 Days
+            {t("dashboard.last30Days")}
           </Button>
         }
       />
 
       {/* KPI Metrics Grid */}
-      <section aria-label="Key Performance Indicators">
+      <section aria-label={t("dashboard.keyPerformanceIndicators")}>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {/* Sales Metric */}
           <MetricCard
-            title="Total Sales"
-            value={isLoading ? "Loading..." : formatCurrency(totalSales)}
+            title={t("dashboard.totalSales")}
+            value={isLoading ? t("common.loading") : formatCurrency(totalSales)}
             icon={<DollarSign className="h-5 w-5" />}
             trend={
               !isLoading
                 ? {
                     value: mockTrends.sales.value,
                     positive: mockTrends.sales.positive,
-                    label: "vs last month",
+                    label: t("dashboard.vsLastMonth"),
                   }
                 : undefined
             }
@@ -181,15 +205,15 @@ export default function Dashboard() {
 
           {/* Expenses Metric */}
           <MetricCard
-            title="Total Expenses"
-            value={isLoading ? "Loading..." : formatCurrency(totalExpenses)}
+            title={t("dashboard.totalExpenses")}
+            value={isLoading ? t("common.loading") : formatCurrency(totalExpenses)}
             icon={<TrendingUp className="h-5 w-5" />}
             trend={
               !isLoading
                 ? {
                     value: mockTrends.expenses.value,
                     positive: mockTrends.expenses.positive,
-                    label: "vs last month",
+                    label: t("dashboard.vsLastMonth"),
                   }
                 : undefined
             }
@@ -199,8 +223,8 @@ export default function Dashboard() {
 
           {/* Net Profit Metric */}
           <MetricCard
-            title="Net Profit"
-            value={isLoading ? "Loading..." : formatCurrency(netProfit)}
+            title={t("dashboard.netProfit")}
+            value={isLoading ? t("common.loading") : formatCurrency(netProfit)}
             icon={
               netProfit >= 0 ? (
                 <ArrowUpRight className="h-5 w-5" />
@@ -213,7 +237,7 @@ export default function Dashboard() {
                 ? {
                     value: mockTrends.profit.value,
                     positive: mockTrends.profit.positive,
-                    label: "vs last month",
+                    label: t("dashboard.vsLastMonth"),
                   }
                 : undefined
             }
@@ -223,15 +247,15 @@ export default function Dashboard() {
 
           {/* Inventory Value Metric */}
           <MetricCard
-            title="Inventory Value"
-            value={isLoading ? "Loading..." : formatCurrency(inventoryValue)}
+            title={t("dashboard.inventoryValue")}
+            value={isLoading ? t("common.loading") : formatCurrency(inventoryValue)}
             icon={<Fuel className="h-5 w-5" />}
             trend={
               !isLoading
                 ? {
                     value: mockTrends.inventory.value,
                     positive: mockTrends.inventory.positive,
-                    label: "vs last month",
+                    label: t("dashboard.vsLastMonth"),
                   }
                 : undefined
             }
@@ -242,19 +266,19 @@ export default function Dashboard() {
       </section>
 
       {/* Charts and Additional Info */}
-      <section aria-label="Charts and Additional Information">
+      <section aria-label={t("dashboard.chartsAdditionalInfo")}>
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
           {/* Main Chart - Takes up 2/3 of the space on large screens */}
           <Card className="lg:col-span-2">
             <CardHeader className="pb-2">
-              <CardTitle size="md">Revenue & Expenses Overview</CardTitle>
+              <CardTitle size="md">{t("dashboard.revenueExpensesOverview")}</CardTitle>
             </CardHeader>
             <CardContent className="h-80 flex items-center justify-center">
               <div className="text-center text-muted-foreground">
                 <BarChart4 className="mx-auto h-16 w-16 mb-4 opacity-50" />
-                <p>Chart visualization will be implemented here</p>
+                <p>{t("dashboard.chartImplementationNote")}</p>
                 <p className="text-sm mt-2">
-                  Showing data for the last 6 months
+                  {t("dashboard.showingDataLast6Months")}
                 </p>
               </div>
             </CardContent>
@@ -264,25 +288,25 @@ export default function Dashboard() {
           <div className="space-y-4">
             {/* Staff Activity Card */}
             <ActionCard
-              title="Staff Performance"
-              description="3 employees exceeded their sales targets this month"
+              title={t("dashboard.staffPerformance")}
+              description={t("dashboard.staffPerformanceDescription")}
               status="success"
               icon={<Users className="h-5 w-5" />}
-              actionLabel="View employee details"
+              actionLabel={t("dashboard.viewEmployeeDetails")}
               onAction={() => navigate("/employees")}
             />
 
             {/* Fuel Levels Summary */}
             <SummaryCard
-              title="Fuel Inventory Status"
+              title={t("dashboard.fuelInventoryStatus")}
               metrics={[
-                { label: "Petrol", value: "85%", color: "success" },
-                { label: "Diesel", value: "62%", color: "default" },
-                { label: "CNG", value: "28%", color: "warning" },
+                { label: t("common.petrol"), value: "85%", color: "success" },
+                { label: t("common.diesel"), value: "62%", color: "default" },
+                { label: t("common.cng"), value: "28%", color: "warning" },
                 { label: "Kerosene", value: "91%", color: "success" },
               ]}
               action={{
-                label: "View all tanks",
+                label: t("dashboard.viewAllTanks"),
                 onClick: () => navigate("/fuel-management?tab=tanks"),
               }}
             />
@@ -290,24 +314,24 @@ export default function Dashboard() {
             {/* Quick Actions Card */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle size="sm">Quick Actions</CardTitle>
+                <CardTitle size="sm">{t("dashboard.quickActions")}</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-2">
                 <Button size="sm" variant="outline" className="justify-start">
                   <DollarSign className="mr-2 h-4 w-4" />
-                  New Sale
+                  {t("dashboard.newSale")}
                 </Button>
                 <Button size="sm" variant="outline" className="justify-start">
                   <TrendingUp className="mr-2 h-4 w-4" />
-                  Add Expense
+                  {t("dashboard.addExpense")}
                 </Button>
                 <Button size="sm" variant="outline" className="justify-start">
                   <Fuel className="mr-2 h-4 w-4" />
-                  Record Supply
+                  {t("dashboard.recordSupply")}
                 </Button>
                 <Button size="sm" variant="outline" className="justify-start">
                   <BarChart4 className="mr-2 h-4 w-4" />
-                  Run Report
+                  {t("dashboard.runReport")}
                 </Button>
               </CardContent>
             </Card>
