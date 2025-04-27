@@ -173,6 +173,8 @@ const App = () => (
                     </RequireAuth>
                   }
                 />
+                {/* Catch-all route to redirect any unmatched paths */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </AdminShell>
           </AuthProvider>

@@ -23,6 +23,7 @@ i18n
     },
     fallbackLng: "hy",
     supportedLngs: ["hy", "en"],
+    load: 'currentOnly',
     debug: process.env.NODE_ENV === "development",
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
@@ -32,7 +33,7 @@ i18n
       caches: ["localStorage"],
     },
     react: {
-      useSuspense: true, // Use React Suspense for loading translations
+      useSuspense: false, // Disable suspense to prevent loading issues
     },
   });
 

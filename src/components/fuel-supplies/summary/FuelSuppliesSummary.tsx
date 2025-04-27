@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CardGrid } from "@/components/ui/card-grid";
 import { FuelSupply } from "@/types";
 import { format } from "date-fns";
 import { TrendingUp, DollarSign, Droplet, Calendar } from "lucide-react";
@@ -63,84 +64,11 @@ export function FuelSuppliesSummary({ supplies }: FuelSuppliesSummaryProps) {
     };
   }, [supplies]);
 
-  return (
-    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div>
-        <Card className="h-full">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Fuel Quantity
-            </CardTitle>
-            <Droplet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {summary.totalQuantity.toLocaleString()} L
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {summary.suppliesCount} total supplies
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      <div>
-        <Card className="h-full">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {summary.totalCost.toLocaleString()} ֏
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Average:{" "}
-              {summary.suppliesCount > 0
-                ? (summary.totalCost / summary.suppliesCount).toLocaleString()
-                : 0}{" "}
-              ֏ per supply
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      <div>
-        <Card className="h-full">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Month</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {summary.currentMonthQuantity.toLocaleString()} L
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {summary.currentMonthCost.toLocaleString()} ֏ total cost
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      <div>
-        <Card className="h-full">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Latest Delivery
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {summary.latestDelivery
-                ? format(summary.latestDelivery, "PP")
-                : "N/A"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {summary.latestDelivery
-                ? format(summary.latestDelivery, "p")
-                : ""}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+  const metrics = [
+    { title: 'Total Fuel Quantity', value: `${summary.totalQuantity.toLocaleString()} L`, description: `${summary.suppliesCount} total supplies`, icon: Droplet },
+    { title: 'Total Cost', value: `${summary.totalCost.toLocaleString()} ֏`, description: `Average: ${summary.suppliesCount > 0 ? (summary.totalCost / summary.suppliesCount).toLocaleString() : 0} ֏ per supply`, icon: DollarSign },
+    { title: 'Current Month', value: `${summary.currentMonthQuantity.toLocaleString()} L`, description: `${summary.currentMonthCost.toLocaleString()} ֏ total cost`, icon: TrendingUp },
+    { title: 'Latest Delivery', value: summary.latestDelivery ? format(summary.latestDelivery, 'PP') : 'N/A', description: summary.latestDelivery ? format(summary.latestDelivery, 'p') : '', icon: Calendar },
+  ];
+  return <CardGrid metrics={metrics} />;
 }
