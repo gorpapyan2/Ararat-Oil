@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { FuelSuppliesForm } from "./FuelSuppliesForm";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
@@ -77,7 +77,7 @@ export function FuelSuppliesManager({
   });
 
   // Handler for updating filters in a modern, scalable way
-  const handleFiltersChange = (updates: Partial<typeof filters>) => {
+  const handleFiltersChange = useCallback((updates: Partial<typeof filters>) => {
     if ("search" in updates) {
       const searchValue =
         typeof updates.search === "string" ? updates.search : "";
@@ -98,7 +98,7 @@ export function FuelSuppliesManager({
       setMinTotal(updates.totalRange![0]);
       setMaxTotal(updates.totalRange![1]);
     }
-  };
+  }, [setSearch, setDate, setProvider, setType, setMinQuantity, setMaxQuantity, setMinPrice, setMaxPrice, setMinTotal, setMaxTotal]);
 
   const createMutation = useMutation({
     mutationFn: createFuelSupply,
@@ -152,47 +152,37 @@ export function FuelSuppliesManager({
     },
   });
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setEditingSupply(null);
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (supply: FuelSupply) => {
+  const handleEdit = useCallback((supply: FuelSupply) => {
     setEditingSupply(supply);
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  const handleDelete = (supply: FuelSupply) => {
+  const handleDelete = useCallback((supply: FuelSupply) => {
     setDeletingSupply(supply);
-  };
+  }, []);
 
-  const handleDialogOpenChange = (open: boolean) => {
+  const handleDialogOpenChange = useCallback((open: boolean) => {
     if (!open) {
       setEditingSupply(null);
       setIsDialogOpen(false);
     }
-  };
+  }, []);
 
-  const handleSubmit = (data: any) => {
+  const handleSubmit = useCallback((data: any) => {
     if (editingSupply) {
-      // Handle update
       updateMutation.mutate({
         id: editingSupply.id,
         updates: data,
       });
     } else {
-      // Handle create with confirmation
       setPendingData(data);
-
-      // Find the provider name
-      const providerName = providers?.find(
-        (p) => p.id === data.provider_id,
-      )?.name;
-
-      // Find the tank details
+      const providerName = providers?.find((p) => p.id === data.provider_id)?.name;
       const selectedTank = tanks?.find((t) => t.id === data.tank_id);
-
-      // Prepare confirmation data with proper numeric conversions
       setConfirmData({
         quantity: Number(data.quantity_liters) || 0,
         price: Number(data.price_per_liter) || 0,
@@ -202,27 +192,25 @@ export function FuelSuppliesManager({
         tankCapacity: Number(selectedTank?.capacity) || 0,
         tankLevel: Number(selectedTank?.current_level) || 0,
       });
-
       setIsConfirmOpen(true);
     }
-  };
+  }, [editingSupply, updateMutation, providers, tanks]);
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = useCallback(() => {
     if (pendingData) {
       createMutation.mutate(pendingData);
     }
-  };
+  }, [pendingData, createMutation]);
 
-  const handleConfirmCancel = () => {
+  const handleConfirmCancel = useCallback(() => {
     setIsConfirmOpen(false);
-    // Keep the form open so the user can modify details
-  };
+  }, []);
 
-  const handleDeleteDialogOpenChange = (open: boolean) => {
+  const handleDeleteDialogOpenChange = useCallback((open: boolean) => {
     if (!open) setDeletingSupply(null);
-  };
+  }, []);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     if (!deletingSupply) return;
     setDeleteLoading(true);
     try {
@@ -244,7 +232,7 @@ export function FuelSuppliesManager({
       setDeleteLoading(false);
       setDeletingSupply(null);
     }
-  };
+  }, [deletingSupply, queryClient, toast]);
 
   // Define columns for the UnifiedDataTable
   const columns = useMemo<ColumnDef<FuelSupply>[]>(

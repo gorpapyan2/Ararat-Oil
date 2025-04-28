@@ -590,6 +590,7 @@ export default function Settings() {
                       value={passwordForm.currentPassword}
                       onChange={handlePasswordChange}
                       placeholder="••••••••"
+                      autoComplete="current-password"
                     />
                   </div>
 
@@ -604,6 +605,7 @@ export default function Settings() {
                       value={passwordForm.newPassword}
                       onChange={handlePasswordChange}
                       placeholder="••••••••"
+                      autoComplete="new-password"
                     />
                     <p className="text-xs text-muted-foreground">
                       {t("settings.security.passwordRequirements")}
@@ -619,6 +621,7 @@ export default function Settings() {
                       value={passwordForm.confirmPassword}
                       onChange={handlePasswordChange}
                       placeholder="••••••••"
+                      autoComplete="new-password"
                     />
                   </div>
                 </div>

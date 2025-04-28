@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
   IconUsers,
@@ -128,29 +128,29 @@ export default function EmployeesNew() {
   });
 
   // Handle actions
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setSelectedEmployee(null);
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (employee: Employee) => {
+  const handleEdit = useCallback((employee: Employee) => {
     setSelectedEmployee(employee);
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  const handleView = (employee: Employee) => {
+  const handleView = useCallback((employee: Employee) => {
     setSelectedEmployee(employee);
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = useCallback((id: string) => {
     deleteMutation.mutate(id);
-  };
+  }, [deleteMutation]);
 
   // Handle filter changes
-  const handleFiltersChange = (updates: any) => {
+  const handleFiltersChange = useCallback((updates: any) => {
     setFilters((prev) => ({ ...prev, ...updates }));
-  };
+  }, []);
 
   // Calculate metrics
   const totalEmployees = employees.length;

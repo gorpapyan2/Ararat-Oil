@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchExpenses } from "@/services/expenses";
 import { Expense } from "@/types";
@@ -80,29 +80,27 @@ export function ExpensesManager() {
 
   // TODO: Add create/update/deleteExpense mutations here
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setSelectedExpense(null);
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (expense: Expense) => {
+  const handleEdit = useCallback((expense: Expense) => {
     setSelectedExpense(expense);
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  // Categories
-  const onAddCategory = (name: string) => {
-    if (!categories.includes(name)) setCategories([...categories, name]);
-  };
-
-  const onDeleteCategory = (name: string) => {
-    setCategories(categories.filter((c) => c !== name));
-  };
-
-  // Handle filter changes
-  const handleFiltersChange = (updates: any) => {
+  const handleFiltersChange = useCallback((updates: any) => {
     setFilters((prev) => ({ ...prev, ...updates }));
-  };
+  }, []);
+
+  const onAddCategory = useCallback((name: string) => {
+    if (!categories.includes(name)) setCategories([...categories, name]);
+  }, [categories]);
+
+  const onDeleteCategory = useCallback((name: string) => {
+    setCategories(categories.filter((c) => c !== name));
+  }, [categories]);
 
   // Create category options for filter
   const categoryOptions = useMemo(() => {

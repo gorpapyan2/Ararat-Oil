@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -72,11 +72,32 @@ export default function PetrolProviders() {
     },
   });
 
+  const handleOpenCreateDialog = useCallback(() => setIsCreateDialogOpen(true), []);
+  const handleOpenEditDialog = useCallback((provider: PetrolProvider) => {
+    setSelectedProvider(provider);
+    setIsEditDialogOpen(true);
+  }, []);
+  const handleOpenDeleteDialog = useCallback((provider: PetrolProvider) => {
+    setSelectedProvider(provider);
+    setIsDeleteDialogOpen(true);
+  }, []);
+  const handleCloseEditDialog = useCallback(() => {
+    setIsEditDialogOpen(false);
+    setSelectedProvider(null);
+  }, []);
+  const handleDeleteProvider = useCallback(() => {
+    if (selectedProvider) {
+      deleteMutation.mutate(selectedProvider.id);
+      setIsDeleteDialogOpen(false);
+      setSelectedProvider(null);
+    }
+  }, [selectedProvider, deleteMutation]);
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">{t("petrolProviders.title")}</h1>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={handleOpenCreateDialog}>
           <PlusIcon className="h-4 w-4 mr-2" />
           {t("petrolProviders.addProvider")}
         </Button>
@@ -99,20 +120,14 @@ export default function PetrolProviders() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => {
-                    setSelectedProvider(provider);
-                    setIsEditDialogOpen(true);
-                  }}
+                  onClick={() => handleOpenEditDialog(provider)}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => {
-                    setSelectedProvider(provider);
-                    setIsDeleteDialogOpen(true);
-                  }}
+                  onClick={() => handleOpenDeleteDialog(provider)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -131,10 +146,7 @@ export default function PetrolProviders() {
 
       <ProviderDialog
         isOpen={isEditDialogOpen}
-        onClose={() => {
-          setIsEditDialogOpen(false);
-          setSelectedProvider(null);
-        }}
+        onClose={handleCloseEditDialog}
         onSubmit={(data) =>
           updateMutation.mutateAsync({
             id: selectedProvider!.id,
@@ -158,15 +170,7 @@ export default function PetrolProviders() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (selectedProvider) {
-                  deleteMutation.mutate(selectedProvider.id);
-                  setIsDeleteDialogOpen(false);
-                  setSelectedProvider(null);
-                }
-              }}
-            >
+            <AlertDialogAction onClick={handleDeleteProvider}>
               {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
