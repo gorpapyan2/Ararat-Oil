@@ -71,6 +71,7 @@ const AuthForm = () => {
               type="email"
               disabled={isSubmitting}
               className="bg-background"
+              autoComplete="username"
             />
             <Input
               placeholder={t("auth.signIn.passwordPlaceholder")}

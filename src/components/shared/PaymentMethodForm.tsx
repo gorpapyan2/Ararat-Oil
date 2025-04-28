@@ -172,7 +172,7 @@ export function PaymentMethodForm({
                 <FormItem>
                   <FormLabel>Notes (Optional)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Additional payment notes" />
+                    <Input {...field} placeholder="Additional payment notes" autoComplete="off" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

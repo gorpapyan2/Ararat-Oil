@@ -149,7 +149,7 @@ export function TankForm({ isOpen, onOpenChange, onTankAdded }: TankFormProps) {
                   <FormItem>
                     <FormLabel>Tank Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Tank name" {...field} />
+                      <Input placeholder="Tank name" {...field} autoComplete="off" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

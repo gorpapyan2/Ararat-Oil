@@ -66,7 +66,7 @@ export function FuelSuppliesTable({
         },
       },
       {
-        id: "provider_name",
+        id: "provider.name",
         header: () => <div className="text-left font-medium">Provider</div>,
         accessorKey: "provider.name",
         cell: ({ row }) => {

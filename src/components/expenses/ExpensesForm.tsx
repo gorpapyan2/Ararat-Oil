@@ -180,7 +180,7 @@ export function ExpensesForm({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Expense description" />
+                <Input {...field} placeholder="Expense description" autoComplete="off" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -229,7 +229,7 @@ export function ExpensesForm({
             <FormItem>
               <FormLabel>Invoice Number (Optional)</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Invoice number" />
+                <Input {...field} placeholder="Invoice number" autoComplete="off" />
               </FormControl>
             </FormItem>
           )}

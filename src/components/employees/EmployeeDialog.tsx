@@ -105,7 +105,7 @@ export function EmployeeDialog({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="John Doe" {...field} autoComplete="name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,7 +118,7 @@ export function EmployeeDialog({
                 <FormItem>
                   <FormLabel>Position</FormLabel>
                   <FormControl>
-                    <Input placeholder="Manager" {...field} />
+                    <Input placeholder="Manager" {...field} autoComplete="organization-title" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,7 +131,7 @@ export function EmployeeDialog({
                 <FormItem>
                   <FormLabel>Contact</FormLabel>
                   <FormControl>
-                    <Input placeholder="Email or Phone" {...field} />
+                    <Input placeholder="Email or Phone" {...field} autoComplete="email" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -144,7 +144,7 @@ export function EmployeeDialog({
                 <FormItem>
                   <FormLabel>Hire Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type="date" {...field} autoComplete="date" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

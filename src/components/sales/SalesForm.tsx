@@ -142,7 +142,7 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
               <FormItem>
                 <FormLabel>Meter Start</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" {...field} />
+                  <Input type="number" step="0.01" {...field} autoComplete="off" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -157,7 +157,7 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
               <FormItem>
                 <FormLabel>Meter End</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" {...field} />
+                  <Input type="number" step="0.01" {...field} autoComplete="off" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

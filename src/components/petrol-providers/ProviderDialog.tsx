@@ -82,7 +82,7 @@ export function ProviderDialog({
                 <FormItem>
                   <FormLabel>{t("petrolProviders.providerName")}</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder={t("petrolProviders.providerName")} />
+                    <Input {...field} placeholder={t("petrolProviders.providerName")} autoComplete="organization" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,7 +96,7 @@ export function ProviderDialog({
                 <FormItem>
                   <FormLabel>{t("petrolProviders.contact")}</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder={t("petrolProviders.contactInformation")} />
+                    <Input {...field} placeholder={t("petrolProviders.contactInformation")} autoComplete="tel" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
