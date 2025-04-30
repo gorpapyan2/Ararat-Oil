@@ -120,6 +120,7 @@ export function FuelSuppliesDataTable({
           </span>
         </div>
       ),
+      filterFn: "nestedStringFilter",
     },
     {
       id: "tank",

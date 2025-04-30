@@ -1112,7 +1112,7 @@ export function UnifiedDataManager() {
         <TabsContent value="fuel-supplies">
           <UnifiedDataTable
             title={t("unifiedData.fuelSuppliesTab")}
-            columns={suppliesColumns}
+            columns={suppliesColumns as unknown as ColumnDef<unknown, unknown>[]}
             data={filteredSupplies}
             isLoading={suppliesLoading || providersLoading || tanksLoading}
             onEdit={handleEditSupply}
@@ -1132,7 +1132,7 @@ export function UnifiedDataManager() {
         <TabsContent value="sales">
           <UnifiedDataTable
             title={t("unifiedData.salesTab")}
-            columns={salesColumns}
+            columns={salesColumns as unknown as ColumnDef<unknown, unknown>[]}
             data={filteredSales}
             isLoading={salesLoading || systemsLoading}
             onEdit={handleEditSale}
@@ -1151,7 +1151,7 @@ export function UnifiedDataManager() {
         <TabsContent value="expenses">
           <UnifiedDataTable
             title={t("unifiedData.expensesTab")}
-            columns={expensesColumns}
+            columns={expensesColumns as unknown as ColumnDef<unknown, unknown>[]}
             data={filteredExpenses}
             isLoading={expensesLoading}
             onEdit={handleEditExpense}

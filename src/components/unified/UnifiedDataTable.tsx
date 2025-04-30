@@ -5,6 +5,7 @@ import React, {
   useContext,
   useTransition,
   useEffect,
+  memo,
 } from "react";
 import {
   ColumnDef,
@@ -131,7 +132,8 @@ interface UnifiedDataTableProps<TData, TValue> {
   summaryComponent?: React.ReactNode;
 }
 
-export function UnifiedDataTable<TData, TValue>({
+// Memoize the component to prevent unnecessary re-renders
+export const UnifiedDataTable = memo(function UnifiedDataTable<TData, TValue>({
   title,
   columns,
   data,
@@ -214,12 +216,25 @@ export function UnifiedDataTable<TData, TValue>({
     if ("search" in updates && updates.search !== undefined) {
       const searchVal = updates.search;
       if (searchColumn) {
-        setColumnFilters((prev) => {
-          const existing = prev.filter((f) => f.id !== searchColumn);
-          return searchVal
-            ? [...existing, { id: searchColumn, value: searchVal }]
-            : existing;
-        });
+        // Check if searchColumn is a dot-notation path like 'provider.name'
+        if (searchColumn.includes(".")) {
+          // Handle the search in a more general way in the table's filterFn
+          // This avoids errors when nested properties don't exist
+          setColumnFilters((prev) => {
+            const existing = prev.filter((f) => f.id !== searchColumn);
+            return searchVal
+              ? [...existing, { id: searchColumn, value: searchVal }]
+              : existing;
+          });
+        } else {
+          // Standard direct property filter
+          setColumnFilters((prev) => {
+            const existing = prev.filter((f) => f.id !== searchColumn);
+            return searchVal
+              ? [...existing, { id: searchColumn, value: searchVal }]
+              : existing;
+          });
+        }
       }
     }
 
@@ -240,6 +255,12 @@ export function UnifiedDataTable<TData, TValue>({
     }
   };
 
+  // Custom filter function for dot notation paths
+  const getNestedValue = (obj: any, path: string) => {
+    const keys = path.split('.');
+    return keys.reduce((o, k) => (o && typeof o === 'object' ? o[k] : undefined), obj);
+  };
+
   // Detect if any filters are active
   const hasActiveFilters = useMemo(() => {
     // Check tab-specific filters first
@@ -249,47 +270,23 @@ export function UnifiedDataTable<TData, TValue>({
     } else if (activeTab === "fuel-supplies") {
       // For fuel supplies tab
       if (filters.provider && filters.provider !== "all") return true;
-      if (filters.fuelType && filters.fuelType !== "all") return true;
       if (filters.tankId && filters.tankId !== "all") return true;
-      // Backward compatibility
-      if (filters.category && filters.category !== "all") return true;
-    } else if (activeTab === "expenses") {
-      // For expenses tab
-      if (filters.expenseCategory && filters.expenseCategory !== "all")
-        return true;
-      if (filters.paymentMethod && filters.paymentMethod !== "all") return true;
-      if (filters.paymentStatus && filters.paymentStatus !== "all") return true;
     }
 
     // Check common filters
-    if (filters.search) return true;
-    if (filters.date) return true;
     if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1]))
       return true;
+    if (filters.date) return true;
 
-    // Check range filters with appropriate defaults based on tab
-    const quantityMax = activeTab === "expenses" ? 1000000 : 10000;
-    if (
-      filters.quantityRange &&
-      (filters.quantityRange[0] > 0 ||
-        (filters.quantityRange[1] > 0 &&
-          filters.quantityRange[1] < quantityMax))
-    )
-      return true;
+    // Check range filters
+    const [qtyMin, qtyMax] = filters.quantityRange;
+    if (qtyMin > 0 || qtyMax > 0) return true;
 
-    if (
-      filters.priceRange &&
-      (filters.priceRange[0] > 0 ||
-        (filters.priceRange[1] > 0 && filters.priceRange[1] < 10000))
-    )
-      return true;
+    const [priceMin, priceMax] = filters.priceRange;
+    if (priceMin > 0 || priceMax > 0) return true;
 
-    if (
-      filters.totalRange &&
-      (filters.totalRange[0] > 0 ||
-        (filters.totalRange[1] > 0 && filters.totalRange[1] < 10000000))
-    )
-      return true;
+    const [totalMin, totalMax] = filters.totalRange;
+    if (totalMin > 0 || totalMax > 0) return true;
 
     return false;
   }, [filters, activeTab]);
@@ -319,56 +316,46 @@ export function UnifiedDataTable<TData, TValue>({
     setColumnFilters([]);
   };
 
-  // Initialize table with tab-specific column filter handling
+  // Create the table with our data and columns
   const table = useReactTable({
     data,
     columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
     },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: (newColumnFilters) => {
-      // Ensure we have the actual column filters array
-      const columnFiltersArray = Array.isArray(newColumnFilters)
-        ? newColumnFilters
-        : [];
-
-      // Special handling for column filters from tab-specific actions
-      const searchFilter = columnFiltersArray.find(
-        (f) => f.id === searchColumn,
-      );
-      const systemFilter = columnFiltersArray.find(
-        (f) => f.id === "filling_system_id",
-      );
-
-      // Update filters state based on column filters if they exist
-      if (searchFilter && searchFilter.value) {
-        setFilters((prev) => ({
-          ...prev,
-          search: searchFilter.value as string,
-        }));
-      }
-
-      if (activeTab === "sales" && systemFilter && systemFilter.value) {
-        setFilters((prev) => ({
-          ...prev,
-          systemId: systemFilter.value as string,
-        }));
-      }
-
-      // Update column filters state
-      setColumnFilters(newColumnFilters);
+    filterFns: {
+      // Add custom filter functions
+      nestedStringFilter: (row, columnId, filterValue) => {
+        const value = getNestedValue(row.original, columnId);
+        if (value === undefined) return false;
+        return String(value).toLowerCase().includes(String(filterValue).toLowerCase());
+      },
     },
-    onColumnVisibilityChange: setColumnVisibility,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    // Override the default column filtering logic to handle nested properties
+    globalFilterFn: (row, columnId, filterValue) => {
+      // Check if this is a nested property search
+      if (columnId.includes('.')) {
+        const value = getNestedValue(row.original, columnId);
+        return value !== undefined && 
+          String(value).toLowerCase().includes(String(filterValue).toLowerCase());
+      }
+      
+      // Fall back to default string filtering for direct properties
+      const value = row.getValue(columnId);
+      return value !== undefined && 
+        String(value).toLowerCase().includes(String(filterValue).toLowerCase());
+    },
   });
 
   // If in loading state, show loading indicator
@@ -601,10 +588,10 @@ export function UnifiedDataTable<TData, TValue>({
       </Card>
     </div>
   );
-}
+});
 
-// Active Filter Chips Component
-function ActiveFilterChips() {
+// Memoize smaller components for better performance
+const ActiveFilterChips = memo(function ActiveFilterChips() {
   const { filters, setPartial, providers, categories, systems } =
     useFiltersCtx();
   // Get activeTab from parent component context
@@ -761,4 +748,4 @@ function ActiveFilterChips() {
       ))}
     </div>
   );
-}
+});

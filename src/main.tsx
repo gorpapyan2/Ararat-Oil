@@ -9,9 +9,13 @@ import "./index.css";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { initSentry } from "./services/logger";
 import { initThemeListener } from "./store/useAppStore";
+import { initPerformanceMonitoring } from "./utils/performance";
 
 // Initialize Sentry for error monitoring
 initSentry();
+
+// Initialize performance monitoring
+initPerformanceMonitoring();
 
 // Initialize theme system
 document.addEventListener("DOMContentLoaded", () => {

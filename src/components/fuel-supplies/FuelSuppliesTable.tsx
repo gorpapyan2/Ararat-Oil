@@ -67,17 +67,13 @@ export function FuelSuppliesTable({
       },
       {
         id: "provider.name",
-        header: () => <div className="text-left font-medium">Provider</div>,
+        header: t("fuel-supplies.provider"),
         accessorKey: "provider.name",
         cell: ({ row }) => {
           const provider = row.getValue("provider.name") as string;
-          return (
-            <div className="flex items-center gap-2 py-2">
-              <Truck className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">{provider || "N/A"}</span>
-            </div>
-          );
+          return provider || t("common.unknown");
         },
+        filterFn: "nestedStringFilter",
       },
       {
         id: "tank_name",

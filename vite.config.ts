@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -24,12 +25,16 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' &&
     componentTagger(),
+    mode === 'analyze' && visualizer({
+      open: true,
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Add aliases for problematic modules
-      'i18next-http-backend': path.resolve(__dirname, 'node_modules/i18next-http-backend/esm/index.js'),
     },
     // Add main field for better CommonJS compatibility
     mainFields: ['browser', 'module', 'main'],
@@ -39,7 +44,6 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     exclude: [
       '@radix-ui/react-scroll-area',
-      'i18next-http-backend',
       '@tanstack/react-query',
       'react-router-dom',
       'next-themes'
@@ -58,6 +62,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    // Enable source maps when analyzing
+    sourcemap: mode === 'analyze',
     // Improve chunking strategy
     chunkSizeWarningLimit: 1000,
     commonjsOptions: {
@@ -68,7 +74,6 @@ export default defineConfig(({ mode }) => ({
       defaultIsModuleExports: true,
       dynamicRequireTargets: [
         // Target specific modules causing issues
-        'node_modules/i18next-http-backend/**/*.js',
       ],
     },
     rollupOptions: {
@@ -76,7 +81,7 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           ui: ['@radix-ui/react-scroll-area', 'next-themes'],
-          i18n: ['i18next', 'react-i18next', 'i18next-http-backend'],
+          i18n: ['i18next', 'react-i18next'],
         },
       },
     },

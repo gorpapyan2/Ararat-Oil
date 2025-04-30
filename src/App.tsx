@@ -6,29 +6,42 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { lazy, Suspense } from "react";
 import { ThemeProvider } from "./components/theme-provider";
 import { AdminShell } from "@/layouts/AdminShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { Loading } from "@/components/ui/loading";
 
-import DashboardNew from "@/pages/DashboardNew";
-import Tanks from "@/pages/Tanks";
-import EmployeesNew from "@/pages/EmployeesNew";
-import FillingSystems from "@/pages/FillingSystems";
-import SalesNew from "@/pages/SalesNew";
-import PetrolProviders from "@/pages/PetrolProviders";
-import FuelSupplies from "@/pages/FuelSupplies";
-import Expenses from "@/pages/Expenses";
+// Import Auth directly since it's needed for initial load
 import Auth from "@/pages/Auth";
-import Transactions from "@/pages/Transactions";
-import Shifts from "@/pages/Shifts";
-import Todo from "@/pages/Todo";
-import UnifiedData from "@/pages/UnifiedData";
-import FuelManagement from "@/pages/FuelManagement";
-import Settings from "@/pages/Settings";
-import { DashboardDemo } from "@/components/demo/DashboardDemo";
+
+// Lazy load other page components with prefetching for critical routes
+const DashboardNew = lazy(() => 
+  import(/* webpackPrefetch: true */ "@/pages/DashboardNew")
+);
+const FuelManagement = lazy(() => 
+  import(/* webpackPrefetch: true */ "@/pages/FuelManagement")
+);
+const EmployeesNew = lazy(() => import("@/pages/EmployeesNew"));
+const SalesNew = lazy(() => 
+  import(/* webpackPrefetch: true */ "@/pages/SalesNew")
+);
+const PetrolProviders = lazy(() => import("@/pages/PetrolProviders"));
+const Expenses = lazy(() => import("@/pages/Expenses"));
+const Transactions = lazy(() => import("@/pages/Transactions"));
+const Shifts = lazy(() => import("@/pages/Shifts"));
+const Todo = lazy(() => import("@/pages/Todo"));
+const UnifiedData = lazy(() => import("@/pages/UnifiedData"));
+const Settings = lazy(() => 
+  import(/* webpackPrefetch: true */ "@/pages/Settings")
+);
+// Fix for named export
+const DashboardDemo = lazy(() => 
+  import("@/components/demo/DashboardDemo").then(module => ({ 
+    default: module.DashboardDemo 
+  }))
+);
 
 const queryClient = new QueryClient();
 
@@ -63,7 +76,9 @@ const App = () => (
                   path="/"
                   element={
                     <RequireAuth>
-                      <DashboardNew />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading dashboard..." />}>
+                        <DashboardNew />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -71,7 +86,9 @@ const App = () => (
                   path="/demo"
                   element={
                     <RequireAuth>
-                      <DashboardDemo />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading demo..." />}>
+                        <DashboardDemo />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -79,7 +96,9 @@ const App = () => (
                   path="/fuel-management"
                   element={
                     <RequireAuth>
-                      <FuelManagement />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
+                        <FuelManagement />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -117,7 +136,9 @@ const App = () => (
                   path="/employees"
                   element={
                     <RequireAuth>
-                      <EmployeesNew />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading employees..." />}>
+                        <EmployeesNew />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -125,7 +146,9 @@ const App = () => (
                   path="/sales"
                   element={
                     <RequireAuth>
-                      <SalesNew />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading sales..." />}>
+                        <SalesNew />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -133,7 +156,9 @@ const App = () => (
                   path="/shifts"
                   element={
                     <RequireAuth>
-                      <Shifts />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
+                        <Shifts />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -141,7 +166,9 @@ const App = () => (
                   path="/providers"
                   element={
                     <RequireAuth>
-                      <PetrolProviders />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading providers..." />}>
+                        <PetrolProviders />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -149,7 +176,9 @@ const App = () => (
                   path="/expenses"
                   element={
                     <RequireAuth>
-                      <Expenses />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading expenses..." />}>
+                        <Expenses />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -157,7 +186,9 @@ const App = () => (
                   path="/transactions"
                   element={
                     <RequireAuth>
-                      <Transactions />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading transactions..." />}>
+                        <Transactions />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -165,7 +196,9 @@ const App = () => (
                   path="/todo"
                   element={
                     <RequireAuth>
-                      <Todo />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading todo..." />}>
+                        <Todo />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -173,7 +206,9 @@ const App = () => (
                   path="/unified-data"
                   element={
                     <RequireAuth>
-                      <UnifiedData />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading unified data..." />}>
+                        <UnifiedData />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
@@ -181,7 +216,9 @@ const App = () => (
                   path="/settings"
                   element={
                     <RequireAuth>
-                      <Settings />
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading settings..." />}>
+                        <Settings />
+                      </Suspense>
                     </RequireAuth>
                   }
                 />
