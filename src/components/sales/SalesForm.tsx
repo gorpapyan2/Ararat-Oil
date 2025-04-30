@@ -14,7 +14,7 @@ import { PriceAndEmployeeInputs } from "@/components/sales/form/PriceAndEmployee
 import { useQuery } from "@tanstack/react-query";
 import { fetchEmployees } from "@/services/employees";
 import { fetchLatestSale } from "@/services/sales";
-import { DialogHeader, DialogFooter } from "@/components/ui/dialog";
+import { DialogFooter } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 import { Sale } from "@/types";
 import { useShift } from "@/hooks/useShift";
@@ -38,7 +38,7 @@ interface SalesFormProps {
 export function SalesForm({ onSubmit, sale }: SalesFormProps) {
   const { t } = useTranslation();
   const form = useForm<SalesFormValues>({
-    defaultValues: sale
+    defaultValues: sale?.id
       ? {
           filling_system_id: sale.filling_system_id,
           meter_start: sale.meter_start,
@@ -60,24 +60,27 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
     queryFn: fetchEmployees,
   });
 
-  const { data: latestSale } = useQuery({
+  const { data: latestSale, isSuccess: latestSaleLoaded } = useQuery({
     queryKey: ["latest-sale", selectedFillingSystem],
     queryFn: () =>
       selectedFillingSystem ? fetchLatestSale(selectedFillingSystem) : null,
-    enabled: !!selectedFillingSystem && !sale, // Only fetch latest sale if no sale prop is provided
+    enabled: !!selectedFillingSystem && !sale?.id, // Only fetch latest sale if no sale id is provided
   });
 
   // Update default values when filling system changes or latest sale is loaded
   useEffect(() => {
-    if (latestSale && !sale) {
-      form.setValue("meter_start", latestSale.meter_end);
-      form.setValue("unit_price", latestSale.price_per_unit);
+    if (latestSale && !sale?.id && latestSaleLoaded && selectedFillingSystem) {
+      // Use setTimeout to ensure this runs after the component renders
+      setTimeout(() => {
+        form.setValue("meter_start", latestSale.meter_end);
+        form.setValue("unit_price", latestSale.price_per_unit);
+      }, 0);
     }
-  }, [latestSale, form, sale]);
+  }, [latestSale, form, sale, latestSaleLoaded, selectedFillingSystem]);
 
   // Set initial values if sale prop is provided
   useEffect(() => {
-    if (sale) {
+    if (sale?.id) {
       form.reset({
         filling_system_id: sale.filling_system_id,
         meter_start: sale.meter_start,
@@ -99,27 +102,18 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
     try {
       setIsSubmitting(true);
       await onSubmit(data);
-      if (!sale) form.reset(); // Only reset if creating a new sale
+      if (!sale?.id) form.reset(); // Only reset if creating a new sale
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const isSaleWithId = !!sale?.id;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <DialogHeader>
-          <h2 className="text-lg font-semibold">
-            {sale ? "Edit Sale" : "New Sale"}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {sale
-              ? "Edit sale details below"
-              : "Record a new sale by filling in the details below"}
-          </p>
-        </DialogHeader>
-
-        {!activeShift && !sale && (
+        {!activeShift && !isSaleWithId && (
           <Alert variant="destructive" className="my-4">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>{t("common.error")}</AlertTitle>
@@ -172,7 +166,7 @@ export function SalesForm({ onSubmit, sale }: SalesFormProps) {
 
         <DialogFooter>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : sale ? "Update Sale" : "Create Sale"}
+            {isSubmitting ? "Saving..." : isSaleWithId ? "Update Sale" : "Create Sale"}
           </Button>
         </DialogFooter>
       </form>

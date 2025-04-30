@@ -25,6 +25,7 @@ interface SalesDialogsProps {
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (open: boolean) => void;
   confirmDelete: () => void;
+  createSale?: (data: any) => void;
 }
 
 export function SalesDialogs({
@@ -35,26 +36,34 @@ export function SalesDialogs({
   isDeleteDialogOpen,
   setIsDeleteDialogOpen,
   confirmDelete,
+  createSale,
 }: SalesDialogsProps) {
+  // Check if we're creating a new sale or editing an existing one
+  const isCreatingNew = !selectedSale?.id;
+  
   // Using direct prop functions to avoid hook inconsistencies
   return (
     <>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
-          <DialogTitle>{selectedSale ? "Edit Sale" : "New Sale"}</DialogTitle>
+          <DialogTitle>{isCreatingNew ? "New Sale" : "Edit Sale"}</DialogTitle>
           <DialogDescription>
-            {selectedSale
-              ? "Update the details of this sale."
-              : "Create a new sale record."}
+            {isCreatingNew
+              ? "Create a new sale record."
+              : "Update the details of this sale."}
           </DialogDescription>
           <SalesForm
             sale={selectedSale}
             onSubmit={(data) => {
-              if (selectedSale) {
+              if (selectedSale?.id) {
+                // Update existing sale
                 updateSale({
                   id: selectedSale.id,
                   ...data,
                 });
+              } else if (createSale) {
+                // Create new sale
+                createSale(data);
               }
             }}
           />

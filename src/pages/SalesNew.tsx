@@ -34,10 +34,15 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Sale } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createSale } from "@/services/sales";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SalesNew() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Get sales data and filters from existing hooks
   const { systems, filteredSales, isLoading, refetchSales } = useSalesFilters();
@@ -56,6 +61,32 @@ export default function SalesNew() {
     updateMutation,
     deleteMutation,
   } = useSalesMutations();
+
+  // Add create sale mutation
+  const createSaleMutation = useMutation({
+    mutationFn: createSale,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sales"] });
+      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+      queryClient.invalidateQueries({ queryKey: ["latest-sale"] });
+      
+      toast({
+        title: "Success",
+        description: "Sale created successfully and tank level updated",
+      });
+      
+      setIsEditDialogOpen(false);
+      setSelectedSale(null);
+    },
+    onError: (error: any) => {
+      console.error("Create error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create sale",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Calculate summary metrics
   const totalSalesAmount = filteredSales.reduce(
@@ -78,7 +109,12 @@ export default function SalesNew() {
 
   // Handle view sale details
   const handleViewSale = (sale: Sale) => {
-    setSelectedSale(sale);
+    // If creating a new sale, initialize with an empty object (no ID)
+    if (!sale.id) {
+      setSelectedSale({} as Sale);
+    } else {
+      setSelectedSale(sale);
+    }
     setIsEditDialogOpen(true);
   };
 
@@ -312,6 +348,7 @@ export default function SalesNew() {
         isDeleteDialogOpen={isDeleteDialogOpen}
         setIsDeleteDialogOpen={setIsDeleteDialogOpen}
         confirmDelete={confirmDelete}
+        createSale={createSaleMutation.mutate}
       />
     </div>
   );
