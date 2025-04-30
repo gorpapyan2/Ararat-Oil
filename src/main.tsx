@@ -18,6 +18,17 @@ document.addEventListener("DOMContentLoaded", () => {
   initThemeListener();
 });
 
+// Find root element and log if not found
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  console.error("Root element not found!");
+  // Create root element if missing
+  const newRoot = document.createElement('div');
+  newRoot.id = 'root';
+  document.body.appendChild(newRoot);
+  console.log("Created a new root element");
+}
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ErrorBoundary>

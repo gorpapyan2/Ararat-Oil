@@ -37,9 +37,12 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   const location = useLocation();
 
   if (isLoading) {
+    console.log("Auth is loading...");
     return <Loading variant="fullscreen" text="Checking authentication..." />;
   }
 
+  console.log("Auth state:", user ? "Authenticated" : "Not authenticated");
+  
   if (!user) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
