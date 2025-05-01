@@ -149,6 +149,16 @@ export interface Shift {
   updated_at?: string;
 }
 
+// Shift payment method relationship
+export interface ShiftPaymentMethod {
+  id: string;
+  shift_id: string;
+  payment_method: PaymentMethod;
+  amount: number;
+  reference?: string;
+  created_at?: string;
+}
+
 // Tank level change record type
 export interface TankLevelChange {
   id: string;

@@ -5,6 +5,7 @@ import {
   BarChart,
   Receipt,
   ListChecks,
+  CalendarClock,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -18,6 +19,7 @@ export const useSidebarNavConfig = () => {
     ],
     salesFinance: [
       { to: "/sales", icon: BarChart, label: t("common.sales") },
+      { to: "/shifts", icon: CalendarClock, label: t("common.shifts") },
       { to: "/expenses", icon: Receipt, label: t("common.expenses") },
     ],
     management: [

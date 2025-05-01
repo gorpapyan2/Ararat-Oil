@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronLeft, ChevronRight, CalendarClock } from "lucide-react";
 import { SkipToContent } from "@/components/ui/skip-to-content";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -107,6 +107,11 @@ export function AdminShell({ children }: AdminShellProps) {
           to: "/sales",
           label: t("common.sales"),
           icon: <IconCurrencyDollar size={20} />,
+        },
+        {
+          to: "/shifts",
+          label: t("common.shifts"),
+          icon: <CalendarClock size={20} />,
         },
         {
           to: "/expenses",

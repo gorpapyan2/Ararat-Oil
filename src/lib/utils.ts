@@ -123,3 +123,51 @@ export function parseCurrencyInput(value: string): number {
   const numValue = parseFloat(cleanValue);
   return isNaN(numValue) ? 0 : numValue;
 }
+
+/**
+ * Formats a date with both date and time information
+ * @param dateString Date string to format
+ * @returns Formatted date and time string
+ */
+export function formatDateTime(dateString: string): string {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+/**
+ * Calculates the duration between a start time and the current time
+ * @param startTimeString Start time as a date string
+ * @returns Formatted duration string (e.g. "2h 15m" or "45m")
+ */
+export function calculateDuration(startTimeString: string): string {
+  if (!startTimeString) return "-";
+  
+  try {
+    const startTime = new Date(startTimeString);
+    
+    // Check if date is valid
+    if (isNaN(startTime.getTime())) {
+      return "-";
+    }
+    
+    const currentTime = new Date();
+    
+    const durationMs = currentTime.getTime() - startTime.getTime();
+    const hours = Math.floor(durationMs / (1000 * 60 * 60));
+    const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  } catch (error) {
+    console.error("Error calculating duration:", error);
+    return "-";
+  }
+}

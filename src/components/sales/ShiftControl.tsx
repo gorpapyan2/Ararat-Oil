@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useShift } from "@/hooks/useShift";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -10,18 +11,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/lib/utils";
 import { CurrencyInput } from "@/components/ui/currency-input";
 
 export function ShiftControl() {
   const { t } = useTranslation();
-  const { activeShift, beginShift, endShift, isLoading } = useShift();
+  const navigate = useNavigate();
+  const { activeShift, beginShift, isLoading } = useShift();
   const [isStartShiftOpen, setIsStartShiftOpen] = useState(false);
-  const [isEndShiftOpen, setIsEndShiftOpen] = useState(false);
   const [openingCash, setOpeningCash] = useState(100000);
-  const [closingCash, setClosingCash] = useState(0);
 
   const handleStartShift = async () => {
     try {
@@ -32,13 +31,9 @@ export function ShiftControl() {
     }
   };
 
-  const handleEndShift = async () => {
-    try {
-      await endShift(closingCash);
-      setIsEndShiftOpen(false);
-    } catch (error) {
-      console.error("Error ending shift:", error);
-    }
+  const handleGoToCloseShift = () => {
+    // Use query parameter approach instead of a separate route
+    window.location.href = `${window.location.origin}/shifts?tab=close`;
   };
 
   return (
@@ -55,8 +50,7 @@ export function ShiftControl() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsEndShiftOpen(true)}
-            disabled={isLoading}
+            onClick={handleGoToCloseShift}
           >
             {t("shifts.endShift")}
           </Button>
@@ -101,51 +95,6 @@ export function ShiftControl() {
             </Button>
             <Button onClick={handleStartShift} disabled={isLoading}>
               {isLoading ? t("common.loading") : t("shifts.startShift")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* End Shift Dialog */}
-      <Dialog open={isEndShiftOpen} onOpenChange={setIsEndShiftOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("shifts.endShift")}</DialogTitle>
-            <DialogDescription>
-              {t("shifts.endShiftDescription")}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t("shifts.openingCash")}</Label>
-                <div className="p-2 border rounded bg-muted/50">
-                  {formatCurrency(activeShift?.opening_cash || 0)}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>{t("shifts.totalSales")}</Label>
-                <div className="p-2 border rounded bg-muted/50">
-                  {formatCurrency(activeShift?.sales_total || 0)}
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="closingCash">{t("shifts.closingCash")}</Label>
-              <CurrencyInput
-                id="closingCash"
-                value={closingCash}
-                onChange={setClosingCash}
-                placeholder="0"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEndShiftOpen(false)}>
-              {t("common.cancel")}
-            </Button>
-            <Button onClick={handleEndShift} disabled={isLoading}>
-              {isLoading ? t("common.loading") : t("shifts.endShift")}
             </Button>
           </DialogFooter>
         </DialogContent>

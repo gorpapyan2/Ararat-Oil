@@ -92,3 +92,26 @@ This application is a comprehensive management system for fuel stations (or simi
 - **API Layer:** Centralized in `src/services`, with each business domain having its own service file.
 
 This modular architecture ensures maintainability, extensibility, and a clear separation of concerns for developers and stakeholders.
+
+## Shift Management
+
+The application includes a comprehensive shift management system that allows employees to:
+
+1. Start a shift with an opening cash amount
+2. Track sales during the shift
+3. Close a shift with detailed payment method information
+4. View shift history and sales breakdown
+
+### Multi-Payment Method Support
+
+When closing a shift, employees can specify:
+- Different payment methods (cash, card, bank transfer, mobile payment)
+- Amount for each payment method
+- Reference/transaction numbers for non-cash payments
+- Notes for cash payments
+
+The system automatically calculates the total and ensures it matches the sales total for the shift. This detailed payment breakdown is stored and can be viewed in the shift history, allowing for better financial tracking and reconciliation.
+
+### Database Migration
+
+Before using the payment method tracking feature, the `shift_payment_methods` table needs to be created in the database. A migration script is provided in `src/migrations/shift_payment_methods.sql`.

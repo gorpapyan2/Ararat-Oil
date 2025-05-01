@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Shift } from "@/types";
+import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodForm";
+import { addShiftPaymentMethods, deleteShiftPaymentMethods } from "./shiftPaymentMethods";
 
 export async function startShift(openingCash: number): Promise<Shift> {
   try {
@@ -71,6 +73,7 @@ export async function startShift(openingCash: number): Promise<Shift> {
 export async function closeShift(
   shiftId: string,
   closingCash: number,
+  paymentMethods: PaymentMethodItem[] = [],
 ): Promise<Shift> {
   try {
     // First, get the current sales total for this shift
@@ -84,6 +87,15 @@ export async function closeShift(
     // Calculate the total sales amount
     const salesTotal =
       salesData?.reduce((sum, sale) => sum + (sale.total_sales || 0), 0) || 0;
+
+    // If payment methods were provided, save them
+    if (paymentMethods.length > 0) {
+      // First, delete any existing payment methods for this shift (in case of retry)
+      await deleteShiftPaymentMethods(shiftId);
+      
+      // Then add the new payment methods
+      await addShiftPaymentMethods(shiftId, paymentMethods);
+    }
 
     // Now update the shift with the closing details and sales total
     const { data, error } = await supabase

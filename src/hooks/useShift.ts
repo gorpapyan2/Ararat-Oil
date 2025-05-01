@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
-import { Shift } from "@/types";
+import { Shift, ShiftPaymentMethod } from "@/types";
 import { startShift, closeShift } from "@/services/shifts";
+import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { fetchActiveShift } from "@/utils/api-helpers";
 import { supabase } from "@/integrations/supabase/client";
+import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodForm";
 
 export function useShift() {
   const [activeShift, setActiveShift] = useState<Shift | null>(null);
+  const [shiftPaymentMethods, setShiftPaymentMethods] = useState<ShiftPaymentMethod[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -18,6 +21,22 @@ export function useShift() {
       checkActiveShift();
     }
   }, [user]);
+
+  // Fetch payment methods when shift changes
+  useEffect(() => {
+    if (activeShift) {
+      fetchShiftPaymentMethods(activeShift.id);
+      
+      // Set up periodic refresh of sales total if there's an active shift
+      const intervalId = setInterval(() => {
+        updateShiftSalesTotal(activeShift.id);
+      }, 30000); // Refresh every 30 seconds
+      
+      return () => clearInterval(intervalId); // Clean up interval on unmount or shift change
+    } else {
+      setShiftPaymentMethods([]);
+    }
+  }, [activeShift]);
 
   const checkActiveShift = async () => {
     if (!user) return;
@@ -36,6 +55,15 @@ export function useShift() {
       console.error("Error checking active shift", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchShiftPaymentMethods = async (shiftId: string) => {
+    try {
+      const methods = await getShiftPaymentMethods(shiftId);
+      setShiftPaymentMethods(methods);
+    } catch (error) {
+      console.error("Error fetching shift payment methods", error);
     }
   };
 
@@ -89,7 +117,7 @@ export function useShift() {
     }
   };
 
-  const endShift = async (closingCash: number) => {
+  const endShift = async (closingCash: number, paymentMethods?: PaymentMethodItem[]) => {
     if (!activeShift) {
       throw new Error("No active shift to close");
     }
@@ -99,7 +127,7 @@ export function useShift() {
       // First update the sales total one last time
       await updateShiftSalesTotal(activeShift.id);
 
-      const closedShift = await closeShift(activeShift.id, closingCash);
+      const closedShift = await closeShift(activeShift.id, closingCash, paymentMethods);
       setActiveShift(null);
       toast({
         title: "Shift Closed",
@@ -120,6 +148,7 @@ export function useShift() {
 
   return {
     activeShift,
+    shiftPaymentMethods,
     beginShift,
     endShift,
     checkActiveShift,

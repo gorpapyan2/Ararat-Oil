@@ -31,17 +31,12 @@ const PetrolProviders = lazy(() => import("@/pages/PetrolProviders"));
 const Expenses = lazy(() => import("@/pages/Expenses"));
 const Transactions = lazy(() => import("@/pages/Transactions"));
 const Shifts = lazy(() => import("@/pages/Shifts"));
+const ShiftClose = lazy(() => import("@/pages/ShiftClose"));
 const Todo = lazy(() => import("@/pages/Todo"));
-const UnifiedData = lazy(() => import("@/pages/UnifiedData"));
 const Settings = lazy(() => 
   import(/* webpackPrefetch: true */ "@/pages/Settings")
 );
 // Fix for named export
-const DashboardDemo = lazy(() => 
-  import("@/components/demo/DashboardDemo").then(module => ({ 
-    default: module.DashboardDemo 
-  }))
-);
 
 const queryClient = new QueryClient();
 
@@ -83,30 +78,12 @@ const App = () => (
                   }
                 />
                 <Route
-                  path="/demo"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading demo..." />}>
-                        <DashboardDemo />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
                   path="/fuel-management"
                   element={
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
                         <FuelManagement />
                       </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/tanks"
-                  element={
-                    <RequireAuth>
-                      <Navigate to="/fuel-management?tab=tanks" replace />
                     </RequireAuth>
                   }
                 />
@@ -163,6 +140,16 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/shifts/close"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shift close..." />}>
+                        <ShiftClose />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
                   path="/providers"
                   element={
                     <RequireAuth>
@@ -198,16 +185,6 @@ const App = () => (
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading todo..." />}>
                         <Todo />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/unified-data"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading unified data..." />}>
-                        <UnifiedData />
                       </Suspense>
                     </RequireAuth>
                   }
