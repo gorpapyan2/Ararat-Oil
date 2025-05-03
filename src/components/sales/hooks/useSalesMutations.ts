@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteSale, updateSale } from "@/services/sales";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { Sale } from "@/types";
 
 export function useSalesMutations() {

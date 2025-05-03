@@ -9,7 +9,7 @@ export function ThemeShowcase() {
     <div className="container mx-auto p-4 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Theme Showcase</h1>
-        <ThemeSwitcher variant="accent" />
+        <ThemeSwitcher variant="default" />
       </div>
 
       <p className="text-muted-foreground">
@@ -32,19 +32,10 @@ export function ThemeShowcase() {
                 <ThemeSwitcher variant="outline" />
                 <span className="text-xs text-muted-foreground">Outline</span>
               </div>
-              <div className="flex flex-col items-center gap-2">
-                <ThemeSwitcher variant="ghost" />
-                <span className="text-xs text-muted-foreground">Ghost</span>
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <ThemeSwitcher variant="accent" />
-                <span className="text-xs text-muted-foreground">Accent</span>
-              </div>
             </div>
             <p className="text-sm">
-              The theme switcher now supports multiple variants to better match
-              your application's design. The accent variant provides better
-              visibility in both light and dark modes.
+              The theme switcher now uses ToggleButton for better semantics and accessibility.
+              The button visually indicates the current theme state and toggles between light and dark modes.
             </p>
           </CardContent>
         </Card>

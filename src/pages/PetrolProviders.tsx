@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import {
   Table,
   TableHeader,
@@ -30,6 +30,8 @@ import {
   type PetrolProvider,
 } from "@/services/petrol-providers";
 import { useTranslation } from "react-i18next";
+import { CreateButton } from "@/components/ui/create-button";
+import { IconButton } from "@/components/ui/icon-button";
 
 export default function PetrolProviders() {
   const [selectedProvider, setSelectedProvider] =
@@ -97,10 +99,10 @@ export default function PetrolProviders() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">{t("petrolProviders.title")}</h1>
-        <Button onClick={handleOpenCreateDialog}>
-          <PlusIcon className="h-4 w-4 mr-2" />
-          {t("petrolProviders.addProvider")}
-        </Button>
+        <CreateButton 
+          onClick={handleOpenCreateDialog}
+          label={t("petrolProviders.addProvider")}
+        />
       </div>
 
       <Table>
@@ -117,20 +119,20 @@ export default function PetrolProviders() {
               <TableCell>{provider.name}</TableCell>
               <TableCell>{provider.contact}</TableCell>
               <TableCell className="space-x-2">
-                <Button
+                <IconButton
                   variant="outline"
                   size="icon"
                   onClick={() => handleOpenEditDialog(provider)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
+                  icon={<Pencil className="h-4 w-4" />}
+                  ariaLabel={t("common.edit")}
+                />
+                <IconButton
                   variant="outline"
                   size="icon"
                   onClick={() => handleOpenDeleteDialog(provider)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                  icon={<Trash2 className="h-4 w-4" />}
+                  ariaLabel={t("common.delete")}
+                />
               </TableCell>
             </TableRow>
           ))}

@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PetrolProvider } from "@/services/petrol-providers";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { useTranslation } from "react-i18next";
 
 interface ProviderDialogProps {

@@ -8,9 +8,9 @@ import {
 } from "@/services/supabase";
 import { EmployeeList } from "./EmployeeList";
 import { EmployeeHeader } from "./EmployeeHeader";
-import { EmployeeDialog } from "./EmployeeDialog";
+import { EmployeeDialogStandardized } from "./EmployeeDialogStandardized";
 import { Employee } from "@/services/supabase";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 
 export function EmployeeManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -106,7 +106,7 @@ export function EmployeeManager() {
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
-      <EmployeeDialog
+      <EmployeeDialogStandardized
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         employee={selectedEmployee}

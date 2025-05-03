@@ -3,7 +3,7 @@ import { Shift, ShiftPaymentMethod } from "@/types";
 import { startShift, closeShift } from "@/services/shifts";
 import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { fetchActiveShift } from "@/utils/api-helpers";
 import { supabase } from "@/integrations/supabase/client";
 import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodForm";

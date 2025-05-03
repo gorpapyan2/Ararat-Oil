@@ -1,12 +1,49 @@
 import * as React from "react";
-
 import { cn } from "@/lib/utils";
+import {
+  TablePrimitive,
+  TableHeaderPrimitive,
+  TableBodyPrimitive,
+  TableFooterPrimitive,
+  TableRowPrimitive,
+  TableHeadPrimitive,
+  TableCellPrimitive,
+  TableCaptionPrimitive,
+  type TablePrimitiveProps,
+  type TableHeaderPrimitiveProps,
+  type TableBodyPrimitiveProps,
+  type TableFooterPrimitiveProps,
+  type TableRowPrimitiveProps,
+  type TableHeadPrimitiveProps,
+  type TableCellPrimitiveProps,
+  type TableCaptionPrimitiveProps,
+} from "@/components/ui/primitives/table";
+
+export interface TableProps extends TablePrimitiveProps {
+  /**
+   * Controls whether the table takes up the full width of its container
+   * @default true
+   */
+  fullWidth?: boolean;
+  
+  /**
+   * Controls the border style of the table
+   * @default "default"
+   */
+  borderStyle?: "default" | "minimal" | "none";
+  
+  /**
+   * Controls the hover effect on table rows
+   * @default true
+   */
+  enableHover?: boolean;
+}
 
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
+  <div className="w-full overflow-auto">
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm", className)}
@@ -42,10 +79,7 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn(
-      "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
-      className,
-    )}
+    className={cn("bg-primary font-medium text-primary-foreground", className)}
     {...props}
   />
 ));
@@ -59,7 +93,7 @@ const TableRow = React.forwardRef<
     ref={ref}
     className={cn(
       "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
-      className,
+      className
     )}
     {...props}
   />
@@ -74,7 +108,7 @@ const TableHead = React.forwardRef<
     ref={ref}
     className={cn(
       "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
-      className,
+      className
     )}
     {...props}
   />

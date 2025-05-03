@@ -18,22 +18,24 @@ import {
   MetricCard,
   ActionCard,
   SummaryCard,
-} from "@/components/ui-custom/data-card";
-import { PageHeader, CreateButton } from "@/components/ui-custom/page-header";
+} from "@/components/ui/composed/cards";
+import { PageHeader } from "@/components/ui/page-header";
+import { CreateButton } from "@/components/ui/create-button";
 
 // Import services
 import { fetchSales } from "@/services/sales";
 import { fetchExpenses } from "@/services/expenses";
 import { fetchFuelTanks } from "@/services/tanks";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks";
+import { Button, ButtonLink } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui-custom/card";
+} from "@/components/ui/card";
+import { IconButton } from "@/components/ui/icon-button";
 
 // Import API services
 import { fetchDashboardData, type DashboardData } from "@/services/dashboard";
@@ -175,8 +177,11 @@ export default function Dashboard() {
         title={t("dashboard.title")}
         description={t("dashboard.description")}
         actions={
-          <Button variant="outline" size="sm">
-            <CalendarRange className="mr-2 h-4 w-4" />
+          <Button 
+            variant="outline" 
+            size="sm"
+            startIcon={<CalendarRange className="h-4 w-4" />}
+          >
             {t("dashboard.last30Days")}
           </Button>
         }
@@ -317,22 +322,42 @@ export default function Dashboard() {
                 <CardTitle size="sm">{t("dashboard.quickActions")}</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-2">
-                <Button size="sm" variant="outline" className="justify-start">
-                  <DollarSign className="mr-2 h-4 w-4" />
+                <ButtonLink 
+                  href="/sales/new"
+                  size="sm" 
+                  variant="outline" 
+                  className="justify-start"
+                  startIcon={<DollarSign className="h-4 w-4" />}
+                >
                   {t("dashboard.newSale")}
-                </Button>
-                <Button size="sm" variant="outline" className="justify-start">
-                  <TrendingUp className="mr-2 h-4 w-4" />
+                </ButtonLink>
+                <ButtonLink 
+                  href="/expenses/new"
+                  size="sm" 
+                  variant="outline" 
+                  className="justify-start"
+                  startIcon={<TrendingUp className="h-4 w-4" />}
+                >
                   {t("dashboard.addExpense")}
-                </Button>
-                <Button size="sm" variant="outline" className="justify-start">
-                  <Fuel className="mr-2 h-4 w-4" />
+                </ButtonLink>
+                <ButtonLink 
+                  href="/fuel-management?tab=supply"
+                  size="sm" 
+                  variant="outline" 
+                  className="justify-start"
+                  startIcon={<Fuel className="h-4 w-4" />}
+                >
                   {t("dashboard.recordSupply")}
-                </Button>
-                <Button size="sm" variant="outline" className="justify-start">
-                  <BarChart4 className="mr-2 h-4 w-4" />
+                </ButtonLink>
+                <ButtonLink 
+                  href="/reports"
+                  size="sm" 
+                  variant="outline" 
+                  className="justify-start"
+                  startIcon={<BarChart4 className="h-4 w-4" />}
+                >
                   {t("dashboard.runReport")}
-                </Button>
+                </ButtonLink>
               </CardContent>
             </Card>
           </div>

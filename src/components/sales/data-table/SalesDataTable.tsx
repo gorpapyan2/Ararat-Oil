@@ -36,6 +36,7 @@ interface DataTableProps<TData, TValue> {
   searchColumn?: string;
   searchPlaceholder?: string;
   isLoading?: boolean;
+  renderRowActions?: (rowData: TData) => React.ReactNode;
 }
 
 export function SalesDataTable<TData, TValue>({
@@ -44,6 +45,7 @@ export function SalesDataTable<TData, TValue>({
   searchColumn = "filling_system_name",
   searchPlaceholder = "Filter by filling system...",
   isLoading = false,
+  renderRowActions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -144,6 +146,7 @@ export function SalesDataTable<TData, TValue>({
                     </TableHead>
                   );
                 })}
+                {renderRowActions && <TableHead className="w-[150px]">Actions</TableHead>}
               </TableRow>
             ))}
           </TableHeader>
@@ -162,12 +165,17 @@ export function SalesDataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
+                  {renderRowActions && (
+                    <TableCell className="text-right">
+                      {renderRowActions(row.original as TData)}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={renderRowActions ? columns.length + 1 : columns.length}
                   className="h-24 text-center"
                 >
                   No sales found

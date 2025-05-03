@@ -1,0 +1,213 @@
+{
+  "components": {},
+  "duplicates": [
+    {
+      "name": "card",
+      "instances": [
+        {
+          "name": "card",
+          "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\card.tsx",
+          "directory": "ui"
+        },
+        {
+          "name": "card",
+          "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui-custom\\card.tsx",
+          "directory": "ui-custom"
+        }
+      ]
+    },
+    {
+      "name": "table",
+      "instances": [
+        {
+          "name": "table",
+          "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\table.tsx",
+          "directory": "ui"
+        },
+        {
+          "name": "table",
+          "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui-custom\\table.tsx",
+          "directory": "ui-custom"
+        }
+      ]
+    }
+  ],
+  "inconsistentNaming": [
+    {
+      "name": "accordion",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\accordion.tsx"
+    },
+    {
+      "name": "alert",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\alert.tsx"
+    },
+    {
+      "name": "avatar",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\avatar.tsx"
+    },
+    {
+      "name": "badge",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\badge.tsx"
+    },
+    {
+      "name": "breadcrumb",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\breadcrumb.tsx"
+    },
+    {
+      "name": "button",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\button.tsx"
+    },
+    {
+      "name": "calendar",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\calendar.tsx"
+    },
+    {
+      "name": "card",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\card.tsx"
+    },
+    {
+      "name": "carousel",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\carousel.tsx"
+    },
+    {
+      "name": "chart",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\chart.tsx"
+    },
+    {
+      "name": "checkbox",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\checkbox.tsx"
+    },
+    {
+      "name": "collapsible",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\collapsible.tsx"
+    },
+    {
+      "name": "command",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\command.tsx"
+    },
+    {
+      "name": "dialog",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\dialog.tsx"
+    },
+    {
+      "name": "drawer",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\drawer.tsx"
+    },
+    {
+      "name": "form",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\form.tsx"
+    },
+    {
+      "name": "header",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\header.tsx"
+    },
+    {
+      "name": "input",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\input.tsx"
+    },
+    {
+      "name": "label",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\label.tsx"
+    },
+    {
+      "name": "loading",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\loading.tsx"
+    },
+    {
+      "name": "menubar",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\menubar.tsx"
+    },
+    {
+      "name": "pagination",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\pagination.tsx"
+    },
+    {
+      "name": "popover",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\popover.tsx"
+    },
+    {
+      "name": "progress",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\progress.tsx"
+    },
+    {
+      "name": "resizable",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\resizable.tsx"
+    },
+    {
+      "name": "select",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\select.tsx"
+    },
+    {
+      "name": "separator",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\separator.tsx"
+    },
+    {
+      "name": "sheet",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\sheet.tsx"
+    },
+    {
+      "name": "skeleton",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\skeleton.tsx"
+    },
+    {
+      "name": "slider",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\slider.tsx"
+    },
+    {
+      "name": "sonner",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\sonner.tsx"
+    },
+    {
+      "name": "switch",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\switch.tsx"
+    },
+    {
+      "name": "table",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\table.tsx"
+    },
+    {
+      "name": "tabs",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\tabs.tsx"
+    },
+    {
+      "name": "textarea",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\textarea.tsx"
+    },
+    {
+      "name": "toast",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\toast.tsx"
+    },
+    {
+      "name": "toaster",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\toaster.tsx"
+    },
+    {
+      "name": "toggle",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\toggle.tsx"
+    },
+    {
+      "name": "tooltip",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\tooltip.tsx"
+    },
+    {
+      "name": "card",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui-custom\\card.tsx"
+    },
+    {
+      "name": "table",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui-custom\\table.tsx"
+    }
+  ],
+  "potentialUnused": [
+    {
+      "name": "ButtonShowcase",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\ButtonShowcase.tsx",
+      "reason": "Showcase/Demo component"
+    },
+    {
+      "name": "ThemeShowcase",
+      "path": "C:\\Users\\gor_p\\Documents\\Ararat OIL\\web-tech-whisperer-vibe\\src\\components\\ui\\ThemeShowcase.tsx",
+      "reason": "Showcase/Demo component"
+    }
+  ]
+}

@@ -4,8 +4,8 @@ import { useShift } from "@/hooks/useShift";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/layouts/PageLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MultiPaymentMethodForm, MultiPaymentFormData } from "@/components/shared/MultiPaymentMethodForm";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { MultiPaymentMethodFormStandardized, MultiPaymentFormData } from "@/components/shared/MultiPaymentMethodFormStandardized";
 import { formatCurrency, formatDateTime, calculateDuration } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
@@ -91,10 +91,13 @@ export default function ShiftClose() {
               </div>
             </CardContent>
             <CardFooter>
-              <a href="/shifts" className="inline-flex items-center justify-center rounded-md text-sm font-medium px-4 py-2 border border-input bg-background hover:bg-accent">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+              <ButtonLink 
+                href="/shifts" 
+                variant="outline"
+                startIcon={<ArrowLeft className="h-4 w-4" />}
+              >
                 {t("common.backToShifts")}
-              </a>
+              </ButtonLink>
             </CardFooter>
           </Card>
         </div>
@@ -107,13 +110,13 @@ export default function ShiftClose() {
       titleKey="shifts.closeShift"
       descriptionKey="shifts.endShiftDescription"
       action={
-        <a 
+        <ButtonLink 
           href="/shifts"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium px-4 py-2 border border-input bg-background hover:bg-accent"
+          variant="outline"
+          startIcon={<ArrowLeft className="h-4 w-4" />}
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
           {t("common.backToShifts")}
-        </a>
+        </ButtonLink>
       }
     >
       <div className="max-w-2xl mx-auto">
@@ -175,7 +178,7 @@ export default function ShiftClose() {
                   </div>
                 </div>
                 
-                <MultiPaymentMethodForm 
+                <MultiPaymentMethodFormStandardized 
                   onSubmit={handleEndShift}
                   isSubmitting={isLoading}
                   totalAmount={activeShift.sales_total || 0}
@@ -185,13 +188,13 @@ export default function ShiftClose() {
           </CardContent>
           
           <CardFooter className="flex justify-between border-t p-4">
-            <a
+            <ButtonLink
               href="/shifts"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium px-4 py-2 border border-input bg-background hover:bg-accent"
+              variant="outline"
+              startIcon={<ArrowLeft className="h-4 w-4" />}
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.cancel")}
-            </a>
+            </ButtonLink>
           </CardFooter>
         </Card>
       </div>

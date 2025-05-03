@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { createFillingSystem } from "@/services/filling-systems";
 import { fetchFuelTanks } from "@/services/supabase";
 import { useQuery } from "@tanstack/react-query";

@@ -14,7 +14,7 @@ import {
   Legend,
   Tooltip,
 } from "recharts";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useMediaQuery } from "@/hooks/useResponsive";
 
 // Sample data - this would come from your API
 const data = [

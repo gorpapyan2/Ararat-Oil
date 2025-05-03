@@ -36,6 +36,12 @@ const Todo = lazy(() => import("@/pages/Todo"));
 const Settings = lazy(() => 
   import(/* webpackPrefetch: true */ "@/pages/Settings")
 );
+// Development pages
+const ResponsiveTestPage = lazy(() => import("@/pages/dev/ResponsiveTestPage"));
+const ToastTester = lazy(() => import("@/pages/dev/ToastTester"));
+const DevTools = lazy(() => import("@/pages/dev/DevTools"));
+const CardComponentsPage = lazy(() => import("@/pages/dev/CardComponentsPage"));
+const ButtonComponentsPage = lazy(() => import("@/pages/dev/ButtonComponentsPage"));
 // Fix for named export
 
 const queryClient = new QueryClient();
@@ -195,6 +201,57 @@ const App = () => (
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading settings..." />}>
                         <Settings />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                {/* Development routes */}
+                <Route
+                  path="/dev"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading dev tools..." />}>
+                        <DevTools />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/dev/responsive-test"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading responsive test..." />}>
+                        <ResponsiveTestPage />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/dev/toast-test"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading toast tester..." />}>
+                        <ToastTester />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/dev/card-components"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading card components..." />}>
+                        <CardComponentsPage />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/dev/button-components"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading button components..." />}>
+                        <ButtonComponentsPage />
                       </Suspense>
                     </RequireAuth>
                   }

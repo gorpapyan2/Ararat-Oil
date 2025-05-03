@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CardGrid } from "@/components/ui/card-grid";
+import { CardGrid } from "@/components/ui/composed/cards";
 import { FuelSupply } from "@/types";
 import { format } from "date-fns";
 import { TrendingUp, DollarSign, Droplet, Calendar } from "lucide-react";

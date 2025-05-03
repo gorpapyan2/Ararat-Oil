@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "@/components/ui-custom/page-header";
+import { PageHeader } from "@/components/ui/page-header";
 import { IconGasStation, IconTank, IconTruck } from "@tabler/icons-react";
 
 // Import existing managers

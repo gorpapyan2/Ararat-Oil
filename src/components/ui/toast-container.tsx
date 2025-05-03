@@ -2,21 +2,36 @@ import React, { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Check, AlertCircle, Info } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
+import { useToast } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { Toast as ToastType } from "@/types/toast";
 
 interface ToastContainerProps {
   className?: string;
+  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
 }
 
-export function ToastContainer({ className }: ToastContainerProps) {
-  const { toasts, removeToast } = useAppStore();
+export function ToastContainer({ 
+  className, 
+  position = "bottom-right" 
+}: ToastContainerProps) {
+  // Use our consolidated hook to access toasts
+  const { toasts, dismiss } = useToast();
+
+  // Position classes
+  const positionClasses = {
+    "top-right": "top-0 right-0",
+    "top-left": "top-0 left-0",
+    "bottom-right": "bottom-0 right-0",
+    "bottom-left": "bottom-0 left-0",
+  };
 
   // Handle keyboard navigation and accessibility
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Close most recent toast on Escape
       if (e.key === "Escape" && toasts.length > 0) {
-        removeToast(toasts[toasts.length - 1].id);
+        dismiss(toasts[0].id);
       }
     };
 
@@ -24,14 +39,15 @@ export function ToastContainer({ className }: ToastContainerProps) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [toasts, removeToast]);
+  }, [toasts, dismiss]);
 
   if (toasts.length === 0) return null;
 
   return (
     <div
       className={cn(
-        "fixed bottom-0 right-0 z-50 p-4 space-y-4 max-h-screen overflow-hidden pointer-events-none",
+        "fixed z-50 p-4 space-y-4 max-h-screen overflow-hidden pointer-events-none",
+        positionClasses[position],
         className,
       )}
       role="region"
@@ -41,7 +57,7 @@ export function ToastContainer({ className }: ToastContainerProps) {
         {toasts.map((toast) => (
           <motion.div
             key={toast.id}
-            initial={{ opacity: 0, y: 50, scale: 0.8 }}
+            initial={{ opacity: 0, y: position.startsWith("top") ? -50 : 50, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
             className={cn(
@@ -71,14 +87,22 @@ export function ToastContainer({ className }: ToastContainerProps) {
                 <p className="text-sm font-medium">{toast.title}</p>
               )}
               <p className={cn("text-sm", toast.title && "mt-1")}>
-                {toast.message}
+                {toast.message || toast.description}
               </p>
+              {toast.action && (
+                <div className="mt-2">
+                  {toast.action}
+                </div>
+              )}
             </div>
 
             <button
               type="button"
               className="ml-4 flex-shrink-0 rounded-md p-1 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-white"
-              onClick={() => removeToast(toast.id)}
+              onClick={() => {
+                dismiss(toast.id);
+                toast.onOpenChange?.(false);
+              }}
               aria-label="Close notification"
             >
               <X className="h-4 w-4" />

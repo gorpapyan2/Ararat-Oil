@@ -1,31 +1,22 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import logger from "@/services/logger";
+import { Toast, ToastType } from "@/types/toast";
 
-// Define a type for toast notifications
-type ToastType = "success" | "error" | "warning" | "info";
-
-interface Toast {
-  id: string;
-  message: string;
-  type: ToastType;
-  duration?: number;
-  title?: string;
-}
-
-// Define app theme type
-type AppTheme = "light" | "dark" | "system";
+// Define the maximum number of toasts to display at once
+const TOAST_LIMIT = 5;
 
 // Define the shape of our store
 interface AppState {
   // Theme state
-  theme: AppTheme;
-  setTheme: (theme: AppTheme) => void;
+  theme: "light" | "dark" | "system";
+  setTheme: (theme: "light" | "dark" | "system") => void;
 
   // Toast notifications state
   toasts: Toast[];
-  addToast: (toast: Omit<Toast, "id">) => void;
+  addToast: (toast: Toast) => void;
   removeToast: (id: string) => void;
+  updateToast: (id: string, partialToast: Partial<Toast>) => void;
   clearToasts: () => void;
 
   // Sidebar state
@@ -46,7 +37,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       // Theme state
-      theme: "system" as AppTheme,
+      theme: "system",
       setTheme: (theme) => {
         set({ theme });
 
@@ -67,24 +58,20 @@ export const useAppStore = create<AppState>()(
       // Toast notifications state
       toasts: [],
       addToast: (toast) => {
-        const id = Date.now().toString();
         set((state) => ({
-          toasts: [...state.toasts, { ...toast, id }],
+          // Add the toast to the beginning of the array and limit the total number
+          toasts: [toast, ...state.toasts].slice(0, TOAST_LIMIT),
         }));
-
-        // Auto-remove toast after duration
-        const duration = toast.duration || 5000; // default 5 seconds
-        setTimeout(() => {
-          set((state) => ({
-            toasts: state.toasts.filter((t) => t.id !== id),
-          }));
-        }, duration);
-
-        return id;
       },
       removeToast: (id) =>
         set((state) => ({
           toasts: state.toasts.filter((toast) => toast.id !== id),
+        })),
+      updateToast: (id, partialToast) =>
+        set((state) => ({
+          toasts: state.toasts.map((toast) =>
+            toast.id === id ? { ...toast, ...partialToast } : toast
+          ),
         })),
       clearToasts: () => set({ toasts: [] }),
 
@@ -114,7 +101,7 @@ export const useAppStore = create<AppState>()(
 export const initThemeListener = () => {
   // Get the current theme from storage or use system default
   const storedTheme = localStorage.getItem("ararat-oil-app-storage");
-  let initialTheme: AppTheme = "system";
+  let initialTheme: "light" | "dark" | "system" = "system";
 
   if (storedTheme) {
     try {

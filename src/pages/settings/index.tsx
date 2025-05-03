@@ -8,7 +8,7 @@ import {
 } from "@tabler/icons-react";
 
 // Import our custom UI components
-import { PageHeader } from "@/components/ui-custom/page-header";
+import { PageHeader } from "@/components/ui/page-header";
 import { Loading } from "@/components/ui/loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";

@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { useLocation, useNavigate } from "react-router-dom";
 import { formatDateTime, calculateDuration } from "@/lib/utils";
-import { MultiPaymentMethodForm, MultiPaymentFormData } from "@/components/shared/MultiPaymentMethodForm";
+import { MultiPaymentMethodFormStandardized, MultiPaymentFormData } from "@/components/shared/MultiPaymentMethodFormStandardized";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 interface ShiftHistoryItem extends Omit<Shift, "sales_total" | "status"> {
@@ -697,7 +697,7 @@ const Shifts = () => {
                         </div>
                       </div>
                       
-                      <MultiPaymentMethodForm 
+                      <MultiPaymentMethodFormStandardized 
                         onSubmit={handleEndShift}
                         isSubmitting={isLoadingEndShift}
                         totalAmount={activeShift.sales_total || 0}

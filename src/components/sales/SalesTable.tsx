@@ -1,21 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Sale } from "@/types";
 import { format } from "date-fns";
-import { UnifiedDataTable } from "@/components/unified/UnifiedDataTable";
-import { ColumnDef } from "@tanstack/react-table";
+import { StandardizedDataTable, FiltersShape } from "@/components/unified/StandardizedDataTable";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Edit,
-  MoreHorizontal,
-  Trash2,
-  Eye,
   Calendar,
   Fuel,
   Droplet,
@@ -25,12 +13,15 @@ import {
 interface SalesTableProps {
   sales: Sale[];
   isLoading: boolean;
-  onEdit?: (sale: Sale) => void;
+  onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onView?: (sale: Sale) => void;
   systems?: { id: string; name: string }[];
   fuelTypes?: { id: string; name: string }[];
   onFiltersChange?: (filters: any) => void;
+  totalCount?: number;
+  onPageChange?: (page: number, pageSize: number) => void;
+  onSortChange?: (column: string | null, direction: 'asc' | 'desc') => void;
 }
 
 export function SalesTable({
@@ -42,171 +33,121 @@ export function SalesTable({
   systems = [],
   fuelTypes = [],
   onFiltersChange = () => {},
+  totalCount = 0,
+  onPageChange,
+  onSortChange,
 }: SalesTableProps) {
-  // Define columns for the UnifiedDataTable
-  const columns = useMemo<ColumnDef<Sale>[]>(
-    () => [
-      {
-        id: "date",
-        header: () => <div className="text-left font-medium">Date</div>,
-        accessorKey: "date",
-        cell: ({ row }) => {
-          const date = row.getValue("date");
-          return (
-            <div className="flex items-center gap-2 py-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">
-                {date && typeof date === "string"
-                  ? format(new Date(date), "PP")
-                  : "N/A"}
-              </span>
-            </div>
-          );
-        },
-      },
-      {
-        id: "filling_system_name",
-        header: () => (
-          <div className="text-left font-medium">Filling System</div>
-        ),
-        accessorKey: "filling_system_name",
-        cell: ({ row }) => {
-          const system = row.getValue("filling_system_name") as string;
-          return (
-            <div className="flex items-center gap-2 py-2">
-              <Fuel className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">{system || "N/A"}</span>
-            </div>
-          );
-        },
-      },
-      {
-        id: "quantity",
-        header: () => (
-          <div className="text-right font-medium">Total Liters</div>
-        ),
-        accessorKey: "quantity",
-        cell: ({ row }) => {
-          const quantity = row.getValue("quantity");
-          const value =
-            quantity !== undefined && quantity !== null
-              ? Number(quantity).toFixed(2)
-              : "0";
+  const [filters, setFilters] = useState<FiltersShape>({
+    searchTerm: "",
+    product: "all",
+    fuelType: "all",
+  });
 
-          return (
-            <div className="text-right font-medium tabular-nums">
-              <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
-                {value} L
-              </span>
-            </div>
-          );
-        },
-      },
-      {
-        id: "price_per_unit",
-        header: () => <div className="text-right font-medium">Price/Unit</div>,
-        accessorKey: "price_per_unit",
-        cell: ({ row }) => {
-          const price = row.getValue("price_per_unit");
-          const formattedPrice =
-            price !== undefined && price !== null
-              ? Number(price).toLocaleString()
-              : "0";
+  // Handle filter changes
+  const handleFilterChange = (newFilters: FiltersShape) => {
+    setFilters(newFilters);
+    onFiltersChange(newFilters);
+  };
 
-          return (
-            <div className="text-right font-medium tabular-nums">
-              {formattedPrice} ֏
-            </div>
-          );
-        },
-      },
-      {
-        id: "total_sales",
-        header: () => <div className="text-right font-medium">Total Sales</div>,
-        accessorKey: "total_sales",
-        cell: ({ row }) => {
-          const totalSales = row.getValue("total_sales");
-          const formattedValue =
-            totalSales !== undefined && totalSales !== null
-              ? Number(totalSales).toLocaleString()
-              : "0";
+  // Define columns for the StandardizedDataTable
+  const columns = useMemo(() => [
+    {
+      accessorKey: "date" as keyof Sale,
+      header: "Date",
+      cell: (value: any, row: Sale) => (
+        <div className="flex items-center gap-2 py-2">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium">
+            {value && typeof value === "string"
+              ? format(new Date(value), "PP")
+              : "N/A"}
+          </span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "filling_system_name" as keyof Sale,
+      header: "Filling System",
+      cell: (value: any, row: Sale) => (
+        <div className="flex items-center gap-2 py-2">
+          <Fuel className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium">{value || "N/A"}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "quantity" as keyof Sale,
+      header: "Total Liters",
+      cell: (value: any, row: Sale) => {
+        const quantity = value !== undefined && value !== null
+          ? Number(value).toFixed(2)
+          : "0";
 
-          return (
-            <div className="text-right font-medium tabular-nums">
-              <span className="font-semibold text-primary">
-                {formattedValue} ֏
-              </span>
-            </div>
-          );
-        },
+        return (
+          <div className="text-right font-medium tabular-nums">
+            <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
+              {quantity} L
+            </span>
+          </div>
+        );
       },
-      {
-        id: "actions",
-        header: () => <div className="text-center font-medium">Actions</div>,
-        cell: ({ row }) => {
-          const sale = row.original;
-          return (
-            <div className="flex justify-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {onView && (
-                    <DropdownMenuItem onClick={() => onView(sale)}>
-                      <Eye className="mr-2 h-4 w-4" />
-                      View details
-                    </DropdownMenuItem>
-                  )}
-                  {onEdit && (
-                    <DropdownMenuItem onClick={() => onEdit(sale)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit sale
-                    </DropdownMenuItem>
-                  )}
-                  {onDelete && (
-                    <DropdownMenuItem
-                      className="text-red-600"
-                      onClick={() => onDelete(sale.id)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete sale
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        },
+    },
+    {
+      accessorKey: "price_per_unit" as keyof Sale,
+      header: "Price/Unit",
+      cell: (value: any, row: Sale) => {
+        const price = value !== undefined && value !== null
+          ? Number(value).toLocaleString()
+          : "0";
+
+        return (
+          <div className="text-right font-medium tabular-nums">
+            {price} ֏
+          </div>
+        );
       },
-    ],
-    [onView, onEdit, onDelete],
-  );
+    },
+    {
+      accessorKey: "total_sales" as keyof Sale,
+      header: "Total Sales",
+      cell: (value: any, row: Sale) => {
+        const formattedValue = value !== undefined && value !== null
+          ? Number(value).toLocaleString()
+          : "0";
+
+        return (
+          <div className="text-right font-medium tabular-nums">
+            <span className="font-semibold text-primary">
+              {formattedValue} ֏
+            </span>
+          </div>
+        );
+      },
+    },
+  ], []);
+
+  const isServerSide = Boolean(onPageChange && onSortChange);
 
   return (
-    <UnifiedDataTable
+    <StandardizedDataTable
       title="Sales"
       columns={columns}
       data={sales}
-      isLoading={isLoading}
-      providers={[]}
-      systems={systems}
-      categories={fuelTypes}
-      onFiltersChange={onFiltersChange}
-      filters={{
-        search: "",
-        provider: "all",
-        systemId: "all",
-        salesFuelType: "all",
-        quantityRange: [0, 10000],
-        priceRange: [0, 10000],
-        totalRange: [0, 10000000],
+      loading={isLoading}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      onRowClick={onView}
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      totalRows={totalCount}
+      serverSide={isServerSide}
+      onPageChange={onPageChange}
+      onSortChange={onSortChange}
+      exportOptions={{
+        enabled: true,
+        filename: 'sales-export',
+        exportAll: true
       }}
-      searchColumn="filling_system_name"
-      searchPlaceholder="Search by filling system..."
     />
   );
 }

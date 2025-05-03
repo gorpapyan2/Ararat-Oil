@@ -10,7 +10,7 @@ import {
   PaymentFormData,
 } from "@/components/shared/PaymentMethodForm";
 import { useTransactionCreation } from "@/hooks/useTransactionCreation";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { Loader2 } from "lucide-react";
 
 interface InvoiceFormProps {

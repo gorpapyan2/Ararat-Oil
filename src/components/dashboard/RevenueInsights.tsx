@@ -16,7 +16,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useMediaQuery } from "@/hooks/useResponsive";
 
 // Sample data - this would normally come from your API
 const data = [

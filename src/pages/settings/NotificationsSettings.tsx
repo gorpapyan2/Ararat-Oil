@@ -1,17 +1,17 @@
 import React, { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { useRenderCount } from "@/utils/performance";
 
 // UI components
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   CardDescription,
   CardFooter,
-} from "@/components/ui-custom/card";
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";

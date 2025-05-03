@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchExpenses } from "@/services/expenses";
 import { Expense } from "@/types";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { ExpensesForm } from "./ExpensesForm";
 import { CategoryManager } from "./CategoryManager";
+import { ExpensesTable } from "./ExpensesTable";
 import {
   Card,
   CardHeader,
@@ -20,18 +21,9 @@ import {
 } from "@/components/ui/card";
 import {
   Plus,
-  Pencil,
-  Trash2,
-  FileText,
   DollarSign,
-  CreditCard,
-  Calendar as CalendarIcon,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { ColumnDef } from "@tanstack/react-table";
-import { UnifiedDataTable } from "@/components/unified/UnifiedDataTable";
-import { MetricCard } from "@/components/ui-custom/data-card";
+import { MetricCard } from "@/components/ui/composed/cards";
 
 const DEFAULT_CATEGORIES = [
   "Rent",
@@ -47,6 +39,14 @@ const DEFAULT_CATEGORIES = [
   "Other",
 ];
 
+const DEFAULT_PAYMENT_METHODS = [
+  "Cash",
+  "Bank Transfer",
+  "Credit Card",
+  "Check",
+  "Mobile Payment",
+];
+
 export function ExpensesManager() {
   // State for add/edit form and category manager
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
@@ -55,6 +55,7 @@ export function ExpensesManager() {
 
   // Categories (stub: in memory, replace with backend persistence as needed)
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [paymentMethods] = useState(DEFAULT_PAYMENT_METHODS);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -63,8 +64,7 @@ export function ExpensesManager() {
     search: "",
     date: undefined,
     dateRange: [undefined, undefined] as [Date | undefined, Date | undefined],
-    provider: "all",
-    expenseCategory: "all",
+    category: "all",
     paymentMethod: "all",
     paymentStatus: "all",
     quantityRange: [0, 1000000] as [number, number],
@@ -85,9 +85,17 @@ export function ExpensesManager() {
     setIsDialogOpen(true);
   }, []);
 
-  const handleEdit = useCallback((expense: Expense) => {
-    setSelectedExpense(expense);
-    setIsDialogOpen(true);
+  const handleEdit = useCallback((id: string) => {
+    const expense = expenses.find(e => e.id === id);
+    if (expense) {
+      setSelectedExpense(expense);
+      setIsDialogOpen(true);
+    }
+  }, [expenses]);
+
+  const handleDelete = useCallback((id: string) => {
+    // TODO: Implement delete functionality
+    console.log("Delete expense with ID:", id);
   }, []);
 
   const handleFiltersChange = useCallback((updates: any) => {
@@ -110,6 +118,14 @@ export function ExpensesManager() {
     }));
   }, [categories]);
 
+  // Create payment method options for filter
+  const paymentMethodOptions = useMemo(() => {
+    return paymentMethods.map((method) => ({
+      id: method,
+      name: method,
+    }));
+  }, [paymentMethods]);
+
   // Calculate summary metrics
   const totalExpenses = expenses.reduce(
     (sum, expense) => sum + expense.amount,
@@ -120,88 +136,6 @@ export function ExpensesManager() {
     expenses.length > 0
       ? Math.max(...expenses.map((expense) => expense.amount))
       : 0;
-
-  // Define table columns
-  const columns: ColumnDef<Expense, any>[] = [
-    {
-      accessorKey: "date",
-      header: () => (
-        <div className="flex items-center">
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          <span>Date</span>
-        </div>
-      ),
-      cell: ({ row }) => format(new Date(row.getValue("date")), "MMM dd, yyyy"),
-    },
-    {
-      accessorKey: "category",
-      header: () => "Category",
-      cell: ({ row }) => (
-        <Badge variant="outline" className="capitalize">
-          {row.getValue("category")}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: "description",
-      header: () => "Description",
-      cell: ({ row }) => row.getValue("description"),
-    },
-    {
-      accessorKey: "amount",
-      header: () => (
-        <div className="flex items-center">
-          <DollarSign className="mr-2 h-4 w-4" />
-          <span>Amount (֏)</span>
-        </div>
-      ),
-      cell: ({ row }) => (
-        <span className="font-medium">
-          {Number(row.getValue("amount")).toLocaleString()} ֏
-        </span>
-      ),
-    },
-    {
-      accessorKey: "payment_method",
-      header: () => (
-        <div className="flex items-center">
-          <CreditCard className="mr-2 h-4 w-4" />
-          <span>Payment</span>
-        </div>
-      ),
-      cell: ({ row }) => row.getValue("payment_method") || "-",
-    },
-    {
-      accessorKey: "invoice_number",
-      header: () => "Invoice#",
-      cell: ({ row }) => row.getValue("invoice_number") || "-",
-    },
-    {
-      accessorKey: "notes",
-      header: () => "Notes",
-      cell: ({ row }) => row.getValue("notes") || "-",
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const expense = row.original;
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(expense);
-              }}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
 
   // Summary component
   const ExpensesSummaryComponent = (
@@ -259,82 +193,73 @@ export function ExpensesManager() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <CardTitle>Expense Management</CardTitle>
-              <CardDescription>
-                Track, add, or organize your business expenses
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setCategoryMgrOpen(true)}
-              >
-                Manage Categories
-              </Button>
-              <Button
-                onClick={handleAdd}
-                className="bg-primary hover:bg-primary/90 animate-fade-in text-neutral-950"
-              >
-                <Plus className="mr-2" /> New Expense
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-2 items-center justify-between">
+        <div className="flex gap-2">
+          <Button
+            onClick={handleAdd}
+            className="shadow-sm"
+            size="sm"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Expense
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCategoryMgrOpen(true)}
+          >
+            Manage Categories
+          </Button>
+        </div>
+      </div>
 
-      {/* Expenses Data Table with Unified Components */}
-      <UnifiedDataTable
-        title="Expenses"
-        columns={columns}
-        data={expenses}
+      {/* Summary and Category Breakdown */}
+      {ExpensesSummaryComponent}
+      {CategoryBreakdownComponent}
+
+      {/* Expenses Table */}
+      <ExpensesTable
+        expenses={expenses}
         isLoading={isLoading}
         onEdit={handleEdit}
-        providers={[]}
+        onDelete={handleDelete}
         categories={categoryOptions}
+        paymentMethods={paymentMethodOptions}
         onFiltersChange={handleFiltersChange}
-        filters={filters}
-        searchColumn="description"
-        searchPlaceholder="Search expenses..."
-        summaryComponent={
-          <>
-            {ExpensesSummaryComponent}
-            {CategoryBreakdownComponent}
-          </>
-        }
       />
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {selectedExpense ? "Edit Expense" : "Add Expense"}
-            </DialogTitle>
-          </DialogHeader>
-          <ExpensesForm
-            categories={categories}
-            expense={selectedExpense}
-            onSubmit={() => {
-              setIsDialogOpen(false);
-              // after mutation, invalidate and refetch
-              queryClient.invalidateQueries({
-                queryKey: ["expenses"],
-              });
-            }}
-            onCancel={() => setIsDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Add/Edit Expense Dialog */}
+      {isDialogOpen && (
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>
+                {selectedExpense ? "Edit Expense" : "Add New Expense"}
+              </DialogTitle>
+            </DialogHeader>
+            <ExpensesForm
+              expense={selectedExpense}
+              onCancel={() => setIsDialogOpen(false)}
+              onSubmit={(formData) => {
+                console.log("Form submitted:", formData);
+                // TODO: Submit to API
+                setIsDialogOpen(false);
+              }}
+              categories={categories}
+              paymentMethods={paymentMethods}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
 
+      {/* Category Manager Dialog */}
       <CategoryManager
+        open={categoryMgrOpen}
+        onOpenChange={setCategoryMgrOpen}
         categories={categories}
         onAdd={onAddCategory}
         onDelete={onDeleteCategory}
-        open={categoryMgrOpen}
-        setOpen={setCategoryMgrOpen}
       />
     </div>
   );

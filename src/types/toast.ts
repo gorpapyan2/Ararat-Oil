@@ -1,9 +1,18 @@
+import * as React from "react";
+
+export type ToastType = "success" | "error" | "warning" | "info";
+
 export interface Toast {
   id: string;
   title?: string;
   description?: string;
-  message: string; // Changed from optional to required
+  message: string; 
   duration: number;
-  type: "success" | "error" | "warning" | "info";
+  type: ToastType;
+  action?: React.ReactNode;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
   createdAt: Date;
 }
+
+export type ToastActionElement = React.ReactElement<HTMLButtonElement>;

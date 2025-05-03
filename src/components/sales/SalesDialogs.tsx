@@ -4,7 +4,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { SalesForm } from "./SalesForm";
+import { SalesFormStandardized } from "./SalesFormStandardized";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,7 +52,7 @@ export function SalesDialogs({
               ? "Create a new sale record."
               : "Update the details of this sale."}
           </DialogDescription>
-          <SalesForm
+          <SalesFormStandardized
             sale={selectedSale}
             onSubmit={(data) => {
               if (selectedSale?.id) {

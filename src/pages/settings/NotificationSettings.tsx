@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { useRenderCount } from "@/utils/performance";
 
 // UI components
@@ -11,7 +11,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui-custom/card";
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";

@@ -16,7 +16,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { FuelSuppliesSummary } from "../fuel-supplies/summary/FuelSuppliesSummary";
 import { FuelSupply, Sale, Expense } from "@/types";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { useTranslation } from "react-i18next";
 
 // This would typically be in a types file

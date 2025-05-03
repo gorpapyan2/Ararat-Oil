@@ -1,0 +1,205 @@
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
+import {
+  PageHeaderPrimitive,
+  PageHeaderTitlePrimitive,
+  PageHeaderDescriptionPrimitive,
+  PageHeaderActionsPrimitive,
+  PageHeaderBreadcrumbsPrimitive,
+} from "@/components/ui/primitives/page-header";
+
+export interface PageHeaderProps extends React.ComponentPropsWithoutRef<typeof PageHeaderPrimitive> {
+  /**
+   * Title text to display
+   */
+  title?: string;
+  
+  /**
+   * Translation key for title
+   */
+  titleKey?: string;
+  
+  /**
+   * Description text to display
+   */
+  description?: string;
+  
+  /**
+   * Translation key for description
+   */
+  descriptionKey?: string;
+  
+  /**
+   * Actions to display in the header (buttons, etc.)
+   */
+  actions?: React.ReactNode;
+  
+  /**
+   * Breadcrumbs to display above the title
+   */
+  breadcrumbs?: React.ReactNode;
+}
+
+/**
+ * Page header component with title, description, actions, and breadcrumbs
+ */
+export const PageHeader = React.forwardRef<
+  React.ElementRef<typeof PageHeaderPrimitive>,
+  PageHeaderProps
+>(({ 
+  className, 
+  title,
+  titleKey,
+  description,
+  descriptionKey,
+  actions,
+  breadcrumbs,
+  ...props 
+}, ref) => {
+  const { t } = useTranslation();
+  
+  const translatedTitle = titleKey ? t(titleKey) : title;
+  const translatedDescription = descriptionKey ? t(descriptionKey) : description;
+
+  return (
+    <PageHeaderPrimitive
+      ref={ref}
+      className={cn("mb-8", className)}
+      {...props}
+    >
+      {breadcrumbs && (
+        <PageHeaderBreadcrumbs className="mb-2">
+          {breadcrumbs}
+        </PageHeaderBreadcrumbs>
+      )}
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          {translatedTitle && (
+            <PageHeaderTitle>
+              {translatedTitle}
+            </PageHeaderTitle>
+          )}
+          
+          {translatedDescription && (
+            <PageHeaderDescription>
+              {translatedDescription}
+            </PageHeaderDescription>
+          )}
+        </div>
+
+        {actions && (
+          <PageHeaderActions>
+            {actions}
+          </PageHeaderActions>
+        )}
+      </div>
+    </PageHeaderPrimitive>
+  );
+});
+PageHeader.displayName = "PageHeader";
+
+export interface PageHeaderTitleProps extends React.ComponentPropsWithoutRef<typeof PageHeaderTitlePrimitive> {
+  /**
+   * Size variant for the title
+   * @default "default"
+   */
+  size?: "small" | "default" | "large";
+}
+
+/**
+ * Title component for the page header
+ */
+export const PageHeaderTitle = React.forwardRef<
+  React.ElementRef<typeof PageHeaderTitlePrimitive>,
+  PageHeaderTitleProps
+>(({ className, size = "default", ...props }, ref) => {
+  const sizeClasses = {
+    small: "text-xl md:text-2xl",
+    default: "text-2xl md:text-3xl",
+    large: "text-3xl md:text-4xl",
+  };
+
+  return (
+    <PageHeaderTitlePrimitive
+      ref={ref}
+      className={cn(
+        "font-heading font-semibold tracking-tight",
+        sizeClasses[size],
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+PageHeaderTitle.displayName = "PageHeaderTitle";
+
+export interface PageHeaderDescriptionProps extends React.ComponentPropsWithoutRef<typeof PageHeaderDescriptionPrimitive> {}
+
+/**
+ * Description component for the page header
+ */
+export const PageHeaderDescription = React.forwardRef<
+  React.ElementRef<typeof PageHeaderDescriptionPrimitive>,
+  PageHeaderDescriptionProps
+>(({ className, ...props }, ref) => {
+  return (
+    <PageHeaderDescriptionPrimitive
+      ref={ref}
+      className={cn("mt-1 text-muted-foreground", className)}
+      {...props}
+    />
+  );
+});
+PageHeaderDescription.displayName = "PageHeaderDescription";
+
+export interface PageHeaderActionsProps extends React.ComponentPropsWithoutRef<typeof PageHeaderActionsPrimitive> {}
+
+/**
+ * Actions container for the page header
+ */
+export const PageHeaderActions = React.forwardRef<
+  React.ElementRef<typeof PageHeaderActionsPrimitive>,
+  PageHeaderActionsProps
+>(({ className, ...props }, ref) => {
+  return (
+    <PageHeaderActionsPrimitive
+      ref={ref}
+      className={cn("flex items-center gap-2 shrink-0", className)}
+      {...props}
+    />
+  );
+});
+PageHeaderActions.displayName = "PageHeaderActions";
+
+export interface PageHeaderBreadcrumbsProps extends React.ComponentPropsWithoutRef<typeof PageHeaderBreadcrumbsPrimitive> {}
+
+/**
+ * Breadcrumbs container for the page header
+ */
+export const PageHeaderBreadcrumbs = React.forwardRef<
+  React.ElementRef<typeof PageHeaderBreadcrumbsPrimitive>,
+  PageHeaderBreadcrumbsProps
+>(({ className, ...props }, ref) => {
+  return (
+    <PageHeaderBreadcrumbsPrimitive
+      ref={ref}
+      className={cn("", className)}
+      {...props}
+    />
+  );
+});
+PageHeaderBreadcrumbs.displayName = "PageHeaderBreadcrumbs";
+
+/**
+ * Skeleton loading state for the page header
+ */
+export function PageHeaderSkeleton() {
+  return (
+    <div className="mb-8 animate-pulse">
+      <div className="h-9 w-64 bg-muted rounded mb-2" />
+      <div className="h-5 w-96 bg-muted rounded opacity-70" />
+    </div>
+  );
+} 

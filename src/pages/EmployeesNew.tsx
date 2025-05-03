@@ -3,26 +3,21 @@ import { useTranslation } from "react-i18next";
 import {
   IconUsers,
   IconUserPlus,
-  IconEdit,
-  IconTrash,
 } from "@tabler/icons-react";
 
 // Import our custom UI components
-import { PageHeader, CreateButton } from "@/components/ui-custom/page-header";
+import { PageHeader } from "@/components/ui/page-header";
+import { CreateButton } from "@/components/ui/create-button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui-custom/card";
-import { MetricCard } from "@/components/ui-custom/data-card";
+} from "@/components/ui/card";
+import { MetricCard } from "@/components/ui/composed/cards";
 
-// Import unified components
-import { UnifiedDataTable } from "@/components/unified/UnifiedDataTable";
-
-// Import UI components
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+// Import our specialized data table component
+import { EmployeesTable } from "@/components/employees/EmployeesTable";
 
 // Import employee-related components and services
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -32,11 +27,9 @@ import {
   updateEmployee,
   deleteEmployee,
 } from "@/services/employees";
-import { Employee, EmployeeStatus } from "@/types";
+import { Employee } from "@/types";
 import { EmployeeDialog } from "@/components/employees/EmployeeDialog";
-import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { ColumnDef } from "@tanstack/react-table";
+import { useToast } from "@/hooks";
 
 export default function EmployeesNew() {
   const { t } = useTranslation();
@@ -48,19 +41,6 @@ export default function EmployeesNew() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null,
   );
-
-  // Unified filters state
-  const [filters, setFilters] = useState({
-    search: "",
-    date: undefined,
-    dateRange: [undefined, undefined] as [Date | undefined, Date | undefined],
-    provider: "all",
-    systemId: "all",
-    employeeId: "all",
-    quantityRange: [0, 10000] as [number, number],
-    priceRange: [0, 10000] as [number, number],
-    totalRange: [0, 10000000] as [number, number],
-  });
 
   // Fetch employees data
   const { data: employees = [], isLoading } = useQuery({
@@ -147,11 +127,6 @@ export default function EmployeesNew() {
     deleteMutation.mutate(id);
   }, [deleteMutation]);
 
-  // Handle filter changes
-  const handleFiltersChange = useCallback((updates: any) => {
-    setFilters((prev) => ({ ...prev, ...updates }));
-  }, []);
-
   // Calculate metrics
   const totalEmployees = employees.length;
   const activeEmployees = employees.filter(
@@ -176,200 +151,77 @@ export default function EmployeesNew() {
     }));
   }, [uniquePositions]);
 
-  // Format salary
-  const formatSalary = (salary: number) => {
-    return `${salary.toLocaleString()} ֏`;
-  };
-
-  // Get status badge variant
-  const getStatusBadgeVariant = (status: EmployeeStatus) => {
-    switch (status) {
-      case "active":
-        return "default";
-      case "on_leave":
-        return "secondary";
-      case "terminated":
-        return "destructive";
-      default:
-        return "outline";
-    }
-  };
-
-  // Format status text
-  const formatStatus = (status: EmployeeStatus) => {
-    switch (status) {
-      case "active":
-        return "Active";
-      case "on_leave":
-        return "On Leave";
-      case "terminated":
-        return "Terminated";
-      default:
-        return status;
-    }
-  };
-
-  // Define table columns
-  const columns: ColumnDef<Employee, any>[] = [
-    {
-      accessorKey: "name",
-      header: () => t("employees.name"),
-      cell: ({ row }) => (
-        <span className="font-medium">{row.getValue("name")}</span>
-      ),
+  // Handle save
+  const handleSave = useCallback(
+    (data: any) => {
+      if (selectedEmployee?.id) {
+        updateMutation.mutate({
+          id: selectedEmployee.id,
+          data,
+        });
+      } else {
+        createMutation.mutate(data);
+      }
     },
-    {
-      accessorKey: "position",
-      header: () => t("employees.position"),
-      cell: ({ row }) => row.getValue("position"),
-    },
-    {
-      accessorKey: "email",
-      header: () => t("employees.email"),
-      cell: ({ row }) => row.getValue("email"),
-    },
-    {
-      accessorKey: "phone",
-      header: () => t("employees.phone"),
-      cell: ({ row }) => row.getValue("phone"),
-    },
-    {
-      accessorKey: "salary",
-      header: () => t("employees.salary"),
-      cell: ({ row }) => formatSalary(row.getValue("salary")),
-    },
-    {
-      accessorKey: "status",
-      header: () => t("employees.status"),
-      cell: ({ row }) => {
-        const status = row.getValue("status") as EmployeeStatus;
-        return (
-          <Badge variant={getStatusBadgeVariant(status)}>
-            {formatStatus(status)}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: "hire_date",
-      header: () => t("employees.hireDate"),
-      cell: ({ row }) =>
-        format(new Date(row.getValue("hire_date")), "MMM dd, yyyy"),
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const employee = row.original;
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleView(employee);
-              }}
-            >
-              <IconUsers className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(employee);
-              }}
-            >
-              <IconEdit className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(employee.id);
-              }}
-            >
-              <IconTrash className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
-
-  // Summary component
-  const EmployeeSummaryComponent = (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <MetricCard
-        title={t("employees.totalEmployees")}
-        value={totalEmployees.toString()}
-        icon={<IconUsers className="h-4 w-4" />}
-      />
-      <MetricCard
-        title={t("employees.activeEmployees")}
-        value={activeEmployees.toString()}
-        trend={{
-          value: `${Math.round((activeEmployees / totalEmployees) * 100)}%`,
-          positive: true,
-          label: t("employees.ofTotal"),
-        }}
-      />
-      <MetricCard
-        title={t("employees.onLeave")}
-        value={onLeaveEmployees.toString()}
-        trend={{
-          value: `${Math.round((onLeaveEmployees / totalEmployees) * 100)}%`,
-          positive: false,
-          label: t("employees.ofTotal"),
-        }}
-      />
-    </div>
+    [selectedEmployee, updateMutation, createMutation],
   );
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-4 space-y-6">
       <PageHeader
         title={t("employees.title")}
-        description={t("employees.description")}
+        icon={<IconUsers />}
         actions={
-          <CreateButton
-            label={t("employees.addEmployee")}
-            onClick={handleAdd}
-            icon={<IconUserPlus className="h-4 w-4 mr-2" />}
-          />
+          <CreateButton onClick={handleAdd}>
+            <IconUserPlus className="mr-2 h-4 w-4" />
+            {t("employees.add")}
+          </CreateButton>
         }
       />
 
-      {/* Employees Data Table with Unified Components */}
-      <UnifiedDataTable
-        title={t("employees.title")}
-        columns={columns}
-        data={employees}
-        isLoading={isLoading}
-        onEdit={handleEdit}
-        onDelete={(employee) => handleDelete(employee.id)}
-        providers={[]}
-        categories={positionCategories}
-        onFiltersChange={handleFiltersChange}
-        filters={filters}
-        searchColumn="name"
-        searchPlaceholder={t("employees.searchPlaceholder")}
-        summaryComponent={EmployeeSummaryComponent}
-      />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <MetricCard
+          title={t("employees.total_employees")}
+          value={totalEmployees}
+          icon={<IconUsers className="h-6 w-6" />}
+          className="bg-primary/10"
+        />
+        <MetricCard
+          title={t("employees.active_employees")}
+          value={activeEmployees}
+          icon={<IconUsers className="h-6 w-6" />}
+          className="bg-success/10"
+        />
+        <MetricCard
+          title={t("employees.on_leave")}
+          value={onLeaveEmployees}
+          icon={<IconUsers className="h-6 w-6" />}
+          className="bg-warning/10"
+        />
+      </div>
 
-      {/* Employee Dialog */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("employees.management")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EmployeesTable
+            employees={employees}
+            isLoading={isLoading}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onView={handleView}
+            positions={positionCategories}
+          />
+        </CardContent>
+      </Card>
+
       <EmployeeDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         employee={selectedEmployee}
-        onSubmit={(data) => {
-          if (selectedEmployee) {
-            updateMutation.mutate({ id: selectedEmployee.id, data });
-          } else {
-            createMutation.mutate(data);
-          }
-        }}
+        onSave={handleSave}
+        isLoading={createMutation.isPending || updateMutation.isPending}
       />
     </div>
   );

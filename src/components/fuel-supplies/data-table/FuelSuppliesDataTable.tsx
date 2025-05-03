@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/ui/composed/data-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ import {
 import { FuelSupply } from "@/types";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useMediaQuery } from "@/hooks/useResponsive";
 import {
   TooltipProvider,
   Tooltip,

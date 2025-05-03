@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { SkipToContent } from "@/components/ui/skip-to-content";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useResponsive";
 
 type MainLayoutProps = {
   children: React.ReactNode;

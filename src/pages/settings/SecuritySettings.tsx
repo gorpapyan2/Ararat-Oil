@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { useRenderCount } from "@/utils/performance";
 
 // UI components
@@ -11,7 +11,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui-custom/card";
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -47,6 +47,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { ActionButton } from "@/components/ui/action-button";
+import { IconButton } from "@/components/ui/icon-button";
 
 // Icons
 import {
@@ -60,6 +63,7 @@ import {
   History,
   LogOut,
   ExternalLink,
+  Download,
 } from "lucide-react";
 
 // Hooks and utilities
@@ -161,6 +165,8 @@ function SecuritySettings() {
     },
   });
 
+  const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
+
   // Update security setting (boolean)
   const updateSecuritySwitch = (key: keyof typeof security) => (checked: boolean) => {
     setSecurity({
@@ -187,16 +193,25 @@ function SecuritySettings() {
   };
 
   // Handle password form submission
-  const onPasswordSubmit = (data: z.infer<typeof passwordFormSchema>) => {
-    // In a real app, this would call an API to change the password
-    console.log("Password change submitted:", data);
-    toast({
-      title: "Password updated",
-      description: "Your password has been changed successfully.",
-    });
-    
-    // Reset form
-    passwordForm.reset();
+  const onPasswordSubmit = async (data: z.infer<typeof passwordFormSchema>) => {
+    setIsPasswordSubmitting(true);
+    try {
+      // Password update logic here
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulating API call
+      toast({
+        title: t("settings.security.passwordUpdated"),
+        description: t("settings.security.passwordUpdatedDescription"),
+      });
+      passwordForm.reset();
+    } catch (error) {
+      toast({
+        title: t("common.error"),
+        description: t("settings.security.passwordUpdateError"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsPasswordSubmitting(false);
+    }
   };
   
   // Handle session logout
@@ -321,9 +336,13 @@ function SecuritySettings() {
                 )}
               />
               
-              <Button type="submit">
+              <LoadingButton 
+                type="submit"
+                isLoading={isPasswordSubmitting}
+                loadingText={t("settings.security.updatingPassword")}
+              >
                 {t("settings.security.updatePassword")}
-              </Button>
+              </LoadingButton>
             </form>
           </Form>
         </CardContent>
@@ -420,9 +439,20 @@ function SecuritySettings() {
                         placeholder="123456" 
                         className="max-w-[200px]"
                       />
-                      <Button variant="secondary">
+                      <ActionButton 
+                        variant="secondary"
+                        confirmationMessage={t("settings.security.confirmVerificationAction")}
+                        confirmationTitle={t("settings.security.verifyTitle")}
+                        onConfirmedClick={() => {
+                          // Logic to verify 2FA code
+                          toast({
+                            title: t("settings.security.twoFactorEnabled"),
+                            description: t("settings.security.twoFactorEnabledDescription"),
+                          });
+                        }}
+                      >
                         {t("settings.security.verify")}
-                      </Button>
+                      </ActionButton>
                     </div>
                   </div>
                 </div>
@@ -459,9 +489,19 @@ function SecuritySettings() {
                       
                       {security.showRecoveryCodes && (
                         <div className="pt-2">
-                          <Button variant="outline" size="sm">
-                            {t("settings.security.downloadCodes")}
-                          </Button>
+                          <IconButton
+                            variant="outline"
+                            size="sm"
+                            icon={<Download className="h-4 w-4" />}
+                            onClick={() => {
+                              // Logic to download recovery codes
+                              toast({
+                                title: t("settings.security.codesDownloaded"),
+                                description: t("settings.security.codesDownloadedDescription"),
+                              });
+                            }}
+                            ariaLabel={t("settings.security.downloadCodes")}
+                          />
                         </div>
                       )}
                     </div>

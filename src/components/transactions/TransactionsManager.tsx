@@ -5,7 +5,7 @@ import { TransactionsTable } from "./TransactionsTable";
 import { TransactionsHeader } from "./TransactionsHeader";
 import { TransactionsDialogs } from "./TransactionsDialogs";
 import { Transaction } from "@/types";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { useTranslation } from "react-i18next";
 
 export function TransactionsManager() {

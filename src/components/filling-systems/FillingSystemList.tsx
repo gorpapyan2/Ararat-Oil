@@ -2,16 +2,9 @@ import { useState } from "react";
 import { FillingSystem, deleteFillingSystem } from "@/services/filling-systems";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/useToast";
+import { useToast } from "@/hooks";
 import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
-import {
-  EnhancedTable,
-  EnhancedHeader,
-  EnhancedRow,
-  EnhancedCell,
-  EnhancedHeaderCell,
-  TableBody,
-} from "@/components/ui/enhanced-table";
+import { StandardizedDataTable } from "@/components/unified/StandardizedDataTable";
 
 interface FillingSystemListProps {
   fillingSystems: FillingSystem[];
@@ -73,58 +66,42 @@ export function FillingSystemList({
     );
   }
 
+  const columns = [
+    {
+      header: "System Name",
+      accessorKey: "name" as keyof FillingSystem,
+    },
+    {
+      header: "Associated Tank",
+      accessorKey: "tank" as keyof FillingSystem,
+      cell: (value: any, row: FillingSystem) => {
+        return row.tank ? (
+          <span className="flex items-center">
+            {row.tank.name}
+            <span className="ml-2 text-xs text-muted-foreground">
+              ({row.tank.fuel_type})
+            </span>
+          </span>
+        ) : (
+          "N/A"
+        );
+      },
+    },
+  ];
+
   return (
     <>
-      <EnhancedTable>
-        <EnhancedHeader>
-          <EnhancedRow>
-            <EnhancedHeaderCell>System Name</EnhancedHeaderCell>
-            <EnhancedHeaderCell>Associated Tank</EnhancedHeaderCell>
-            <EnhancedHeaderCell className="text-center">
-              Actions
-            </EnhancedHeaderCell>
-          </EnhancedRow>
-        </EnhancedHeader>
-        <TableBody>
-          {fillingSystems.map((system) => (
-            <EnhancedRow key={system.id}>
-              <EnhancedCell>{system.name}</EnhancedCell>
-              <EnhancedCell>
-                {system.tank ? (
-                  <span className="flex items-center">
-                    {system.tank.name}
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      ({system.tank.fuel_type})
-                    </span>
-                  </span>
-                ) : (
-                  "N/A"
-                )}
-              </EnhancedCell>
-              <EnhancedCell className="text-center">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => openDeleteConfirm(system)}
-                  className="hover:bg-destructive/90"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </EnhancedCell>
-            </EnhancedRow>
-          ))}
-          {fillingSystems.length === 0 && (
-            <EnhancedRow>
-              <td
-                className="text-center text-muted-foreground h-32 py-8 px-4"
-                colSpan={3}
-              >
-                No filling systems found
-              </td>
-            </EnhancedRow>
-          )}
-        </TableBody>
-      </EnhancedTable>
+      <StandardizedDataTable
+        columns={columns}
+        data={fillingSystems}
+        loading={isLoading}
+        onDelete={(id) => {
+          const system = fillingSystems.find(sys => sys.id === id);
+          if (system) {
+            openDeleteConfirm(system);
+          }
+        }}
+      />
 
       {systemToDelete && (
         <ConfirmDeleteDialog

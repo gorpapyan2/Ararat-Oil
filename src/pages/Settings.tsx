@@ -15,7 +15,7 @@ import {
 } from "@tabler/icons-react";
 
 // Import our custom UI components
-import { PageHeader } from "@/components/ui-custom/page-header";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   Card,
   CardContent,
@@ -23,7 +23,7 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
-} from "@/components/ui-custom/card";
+} from "@/components/ui/card";
 
 // Import UI components
 import { Button } from "@/components/ui/button";
@@ -40,9 +40,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
+import { ActionButton } from "@/components/ui/action-button";
+import { LoadingButton } from "@/components/ui/loading-button";
 
 export default function Settings() {
   const { t } = useTranslation();
@@ -344,19 +346,14 @@ export default function Settings() {
                 >
                   {t("settings.profile.cancel")}
                 </Button>
-                <Button type="submit" disabled={profileForm.isLoading}>
-                  {profileForm.isLoading ? (
-                    <span className="flex items-center gap-1">
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      {t("settings.profile.saving")}
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1">
-                      <IconCheck className="h-4 w-4" />
-                      {t("settings.profile.saveChanges")}
-                    </span>
-                  )}
-                </Button>
+                <LoadingButton 
+                  type="submit"
+                  initialLoading={profileForm.isLoading}
+                  loadingText={t("settings.profile.saving")}
+                  startIcon={<IconCheck className="h-4 w-4" />}
+                >
+                  {t("settings.profile.saveChanges")}
+                </LoadingButton>
               </CardFooter>
             </form>
           </Card>
@@ -551,19 +548,14 @@ export default function Settings() {
                 >
                   {t("settings.notifications.reset")}
                 </Button>
-                <Button type="submit" disabled={notificationPrefs.isLoading}>
-                  {notificationPrefs.isLoading ? (
-                    <span className="flex items-center gap-1">
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      {t("settings.notifications.saving")}
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1">
-                      <IconCheck className="h-4 w-4" />
-                      {t("settings.notifications.savePreferences")}
-                    </span>
-                  )}
-                </Button>
+                <LoadingButton 
+                  type="submit"
+                  initialLoading={notificationPrefs.isLoading}
+                  loadingText={t("settings.notifications.saving")}
+                  startIcon={<IconCheck className="h-4 w-4" />}
+                >
+                  {t("settings.notifications.savePreferences")}
+                </LoadingButton>
               </CardFooter>
             </form>
           </Card>
@@ -641,19 +633,14 @@ export default function Settings() {
                 >
                   {t("settings.security.cancel")}
                 </Button>
-                <Button type="submit" disabled={passwordForm.isLoading}>
-                  {passwordForm.isLoading ? (
-                    <span className="flex items-center gap-1">
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      {t("settings.security.updating")}
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1">
-                      <IconCheck className="h-4 w-4" />
-                      {t("settings.security.updatePassword")}
-                    </span>
-                  )}
-                </Button>
+                <LoadingButton 
+                  type="submit"
+                  initialLoading={passwordForm.isLoading}
+                  loadingText={t("settings.security.updating")}
+                  startIcon={<IconCheck className="h-4 w-4" />}
+                >
+                  {t("settings.security.updatePassword")}
+                </LoadingButton>
               </CardFooter>
             </form>
           </Card>
@@ -687,7 +674,14 @@ export default function Settings() {
                     {t("settings.security.dangerZoneDescription")}
                   </p>
                 </div>
-                <Button variant="destructive">{t("settings.security.deleteAccount")}</Button>
+                <ActionButton 
+                  isDestructive
+                  requireConfirmation
+                  confirmationMessage={t("settings.security.deleteAccountConfirmation")}
+                  onClick={() => console.log("Delete account action")}
+                >
+                  {t("settings.security.deleteAccount")}
+                </ActionButton>
               </div>
             </CardContent>
           </Card>

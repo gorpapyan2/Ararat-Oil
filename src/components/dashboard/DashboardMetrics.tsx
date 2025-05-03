@@ -12,8 +12,8 @@ import { fetchExpenses } from "@/services/expenses";
 import { fetchFuelTanks } from "@/services/tanks";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useMemo } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { CardGrid, MetricCardProps } from "@/components/ui/card-grid";
+import { useToast } from "@/hooks";
+import { CardGrid, MetricCardProps } from "@/components/ui/composed/cards";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 

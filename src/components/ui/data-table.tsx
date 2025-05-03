@@ -56,7 +56,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useMediaQuery } from "@/hooks/useResponsive";
 import logger from "@/services/logger";
 
 export interface DataTableProps<TData, TValue> {

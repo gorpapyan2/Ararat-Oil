@@ -9,10 +9,11 @@ import {
 import { SalesForm } from "./SalesForm";
 import { useState } from "react";
 import { createSale } from "@/services/sales";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import React from "react";
+import { CreateButton } from "@/components/ui/create-button";
 
 interface NewSaleButtonProps {
   className?: string;
@@ -49,12 +50,10 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          className={`h-9 px-4 rounded-md shadow-sm flex items-center gap-1.5 transition-all hover:shadow ${className || ""}`}
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add Sale</span>
-        </Button>
+        <CreateButton 
+          label="Add Sale"
+          className={className}
+        />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>

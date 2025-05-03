@@ -1,10 +1,10 @@
-import { useAppStore } from "@/store/useAppStore";
+import { useToast } from "@/hooks";
 import { ToastContainer } from "./toast-container";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useResponsive";
 
 export function Toaster() {
-  const { toasts } = useAppStore();
+  const { toasts } = useToast();
   const isMobile = useIsMobile();
 
-  return <ToastContainer />;
+  return <ToastContainer position={isMobile ? "bottom-right" : "bottom-right"} />;
 }
