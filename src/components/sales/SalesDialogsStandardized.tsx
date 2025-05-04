@@ -10,7 +10,6 @@ interface SalesDialogsProps {
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (open: boolean) => void;
   confirmDelete: () => void;
-  createSale?: (data: any) => void;
   isLoading?: boolean;
 }
 
@@ -22,23 +21,16 @@ export function SalesDialogsStandardized({
   isDeleteDialogOpen,
   setIsDeleteDialogOpen,
   confirmDelete,
-  createSale,
   isLoading = false,
 }: SalesDialogsProps) {
-  // Check if we're creating a new sale or editing an existing one
-  const isCreatingNew = !selectedSale?.id;
-  
+  // We only handle editing existing sales in this dialog now
   return (
     <>
       <StandardDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
-        title={isCreatingNew ? "New Sale" : "Edit Sale"}
-        description={
-          isCreatingNew
-            ? "Create a new sale record."
-            : "Update the details of this sale."
-        }
+        title="Edit Sale"
+        description="Update the details of this sale."
         maxWidth="sm:max-w-lg"
       >
         <SalesFormStandardized
@@ -50,9 +42,6 @@ export function SalesDialogsStandardized({
                 id: selectedSale.id,
                 ...data,
               });
-            } else if (createSale) {
-              // Create new sale
-              createSale(data);
             }
           }}
         />

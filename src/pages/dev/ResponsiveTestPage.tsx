@@ -1,13 +1,12 @@
 import React from "react";
-import { ResponsiveTester } from "@/components/ResponsiveTester";
+import { ResponsiveTester } from "@/components/dev/ResponsiveTester";
 import { PageLayout } from "@/layouts/PageLayout";
 
 export default function ResponsiveTestPage() {
   return (
     <PageLayout
-      title="Responsive Hooks Tester"
-      subtitle="Test and visualize the responsive hooks capabilities"
-      className="container mx-auto py-8"
+      titleKey="responsiveTest.title"
+      descriptionKey="responsiveTest.description"
     >
       <ResponsiveTester />
     </PageLayout>

@@ -1,6 +1,6 @@
 import React from "react";
 import { PageLayout } from "@/layouts/PageLayout";
-import { CardComponentsTester } from "@/components/CardComponentsTester";
+import { CardComponentsTester } from "@/components/dev/CardComponentsTester";
 
 export default function CardComponentsPage() {
   return (

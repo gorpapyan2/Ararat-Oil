@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/composed/cards";
 import { PageHeader } from "@/components/ui/page-header";
 import { CreateButton } from "@/components/ui/create-button";
+import { IncomeExpenseOverview } from "@/components/dashboard/IncomeExpenseOverview";
 
 // Import services
 import { fetchSales } from "@/services/sales";
@@ -274,20 +275,9 @@ export default function Dashboard() {
       <section aria-label={t("dashboard.chartsAdditionalInfo")}>
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
           {/* Main Chart - Takes up 2/3 of the space on large screens */}
-          <Card className="lg:col-span-2">
-            <CardHeader className="pb-2">
-              <CardTitle size="md">{t("dashboard.revenueExpensesOverview")}</CardTitle>
-            </CardHeader>
-            <CardContent className="h-80 flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <BarChart4 className="mx-auto h-16 w-16 mb-4 opacity-50" />
-                <p>{t("dashboard.chartImplementationNote")}</p>
-                <p className="text-sm mt-2">
-                  {t("dashboard.showingDataLast6Months")}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="lg:col-span-2">
+            <IncomeExpenseOverview />
+          </div>
 
           {/* Right sidebar with additional cards */}
           <div className="space-y-4">

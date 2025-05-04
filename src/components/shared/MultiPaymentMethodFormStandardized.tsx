@@ -1,17 +1,9 @@
 import { useState } from "react";
 import * as z from "zod";
-import { PaymentMethod } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage 
-} from "@/components/ui/form";
+import { FormLabel } from "@/components/ui/form";
 import {
   Select,
   SelectTrigger,
@@ -24,7 +16,7 @@ import { Plus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 import { formatCurrency } from "@/lib/utils";
-import { FormSelect, FormCurrencyInput, FormInput } from "@/components/ui/composed/form-fields";
+import { FormProvider } from "react-hook-form";
 
 // Define the payment method item schema
 const paymentMethodItemSchema = z.object({
@@ -72,8 +64,6 @@ export function MultiPaymentMethodFormStandardized({
     },
   });
 
-  const { handleSubmit, formState } = form;
-
   // Calculate the current total from all payment methods
   const currentTotal = formPaymentMethods.reduce((sum, method) => sum + (method.amount || 0), 0);
   const remainingAmount = totalAmount - currentTotal;
@@ -111,16 +101,19 @@ export function MultiPaymentMethodFormStandardized({
     form.setValue("paymentMethods", updatedMethods);
   };
 
-  const submitHandler = useFormSubmitHandler({
+  // Create form submission handler with useFormSubmitHandler
+  const { isSubmitting: formSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler(
     form,
-    onSubmit,
-    successMessage: "Payment methods saved",
-  });
+    (data) => {
+      onSubmit(data);
+      return true;
+    }
+  );
 
   return (
     <div className="space-y-4">
-      <Form form={form}>
-        <form onSubmit={handleSubmit(submitHandler)}>
+      <FormProvider {...form}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-4">
             {formPaymentMethods.map((method, index) => (
               <div key={index} className="p-4 border rounded-md bg-muted/30 relative">
@@ -249,7 +242,7 @@ export function MultiPaymentMethodFormStandardized({
             </div>
           </div>
         </form>
-      </Form>
+      </FormProvider>
     </div>
   );
 } 

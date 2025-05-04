@@ -246,7 +246,6 @@ export function ExpensesManagerStandardized() {
             expenseDialog.close();
           }}
           categories={categories}
-          paymentMethods={paymentMethods}
         />
       </StandardDialog>
 

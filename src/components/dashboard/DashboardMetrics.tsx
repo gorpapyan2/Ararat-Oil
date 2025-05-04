@@ -116,9 +116,10 @@ export function DashboardMetrics() {
       // Return loading placeholders
       return Array(4).fill({
         title: t("common.loading"),
-        value: <Skeleton className="h-8 w-32" />,
+        value: "Loading...",
         description: t("common.loading"),
         icon: PieChart,
+        loading: true,
       });
     }
 

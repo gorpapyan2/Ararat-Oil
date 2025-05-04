@@ -21,7 +21,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { ProviderDialog } from "@/components/petrol-providers/ProviderDialog";
+import { ProviderDialogStandardized } from "@/components/petrol-providers/ProviderDialogStandardized";
 import {
   fetchPetrolProviders,
   createPetrolProvider,
@@ -139,16 +139,19 @@ export default function PetrolProviders() {
         </TableBody>
       </Table>
 
-      <ProviderDialog
-        isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
+      <ProviderDialogStandardized
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
         onSubmit={createMutation.mutateAsync}
         title={t("petrolProviders.addProvider")}
       />
 
-      <ProviderDialog
-        isOpen={isEditDialogOpen}
-        onClose={handleCloseEditDialog}
+      <ProviderDialogStandardized
+        open={isEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) setSelectedProvider(null);
+        }}
         onSubmit={(data) =>
           updateMutation.mutateAsync({
             id: selectedProvider!.id,

@@ -174,20 +174,74 @@ We've standardized imports across the application:
 
 - **Components Migrated**: 9/9 (100%)
 
-## Next Steps
+## Recent Progress
 
-1. Begin writing automated tests for the dialog components:
-   - Start with unit tests for primitives layer
-   - Add tests for dialog hooks
+### New Standardized Dialog Components (Date: Current)
 
-2. Create specialized dialog patterns for common use cases:
-   - ✅ Form dialog with built-in validation
-   - ✅ Multi-step dialog for complex workflows
-   - ✅ Confirmation dialog flow for critical actions
-   - ✅ Media upload dialogs for profile pictures
-   - ⬜ Nested dialogs for complex interactions
+The following components have been standardized to use the `StandardDialog` or specialized dialog components:
 
-3. Complete documentation with more usage examples
+1. **TransactionsDialogsStandardized**: Created to replace TransactionsDialogs, using StandardDialog
+2. **ConfirmDeleteDialogStandardized**: Created for fuel-supplies, using DeleteConfirmDialog
+3. **ConfirmAddDialogStandardized**: Created for fuel-supplies, using StandardDialog
+4. **ConfirmAddTankDialogStandardized**: Updated to use StandardDialog
+5. **ConfirmDeleteDialogStandardized (Filling Systems)**: Created for filling-systems, using DeleteConfirmDialog
+6. **DeleteConfirmDialogStandardized (Petrol Providers)**: Created for petrol providers, using DeleteConfirmDialog
+7. **PaymentDetailsDialogStandardized**: Created for shifts, using StandardDialog
+8. **SessionLogoutDialogStandardized**: Created for security settings, using ConfirmDialog
+
+Benefits of these standardizations:
+
+- Improved accessibility with better focus management
+- Consistent UI and behavior across all dialog components
+- Better type safety through well-defined interfaces
+- Enhanced developer experience with standardized component patterns
+
+### Enhance Test Coverage
+
+As part of our test coverage improvement initiative, we've added comprehensive test suites for the following dialog components:
+
+1. **StandardDialog**: Test suite covering rendering, visibility, actions, close functionality, and custom styling
+2. **DeleteConfirmDialog**: Test suite covering rendering, interaction (confirm/cancel), loading states, and custom button text
+3. **ConfirmDialog**: Test suite verifying rendering, visibility, action callbacks, loading states, and support for custom content
+
+These tests ensure the reliability and stability of our dialog components by verifying:
+- Proper rendering of dialog content
+- Correct handling of open/closed state
+- Appropriate event handling for actions
+- Accessibility features through keyboard interaction
+- Custom styling and configuration options
+
+### Next Steps for Dialog Standardization
+
+1. **Complete remaining non-standardized dialogs**:
+   - ✅ Update ConfirmDeleteDialog in filling-systems to use standardized patterns
+   - Create standardized versions of these remaining dialogs:
+     - ✅ Delete confirmation dialog in PetrolProviders.tsx
+     - ✅ Payment details dialog in Shifts.tsx
+     - ✅ Dialog in SecuritySettings.tsx
+
+2. **Improve Accessibility**:
+   - **ARIA Attributes Enhancement Plan**:
+     - Ensure all dialogs have appropriate `aria-labelledby` and `aria-describedby` attributes
+     - Add `aria-busy` state indicators for loading states
+     - Include `aria-controls` attributes for elements that control dialog visibility
+     - Implement `aria-live` regions for dynamic content updates within dialogs
+   
+   - **Keyboard Navigation Enhancement Plan**:
+     - Verify focus trapping works correctly in all dialog variants
+     - Implement focus restoration when dialogs close
+     - Ensure logical tab order within all dialog components
+     - Add keyboard shortcuts for common actions (Escape to close, Enter to confirm)
+   
+   - **Screen Reader Support Enhancement Plan**:
+     - Test all dialog components with screen readers (NVDA, JAWS, VoiceOver)
+     - Add descriptive announcements for dialog opening/closing states
+     - Ensure all actionable elements have clear accessible names
+     - Fix any identified screen reader navigation issues
+
+3. **Enhance Test Coverage**:
+   - Create unit tests for all standardized dialog components
+   - Add integration tests for dialog interactions
 
 ## Resources
 

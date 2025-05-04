@@ -1,20 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchFillingSystems } from "@/services/filling-systems";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FormSelect } from "@/components/ui/composed/form-fields";
 import type { Control } from "react-hook-form";
+import { useEffect } from "react";
+import { useWatch } from "react-hook-form";
 
 interface FillingSystemSelectProps {
   control: Control<any>;
@@ -29,50 +18,38 @@ export function FillingSystemSelect({
   onSelect,
   value,
 }: FillingSystemSelectProps) {
-  const { data: fillingSystems, isLoading } = useQuery({
+  const { data: fillingSystems = [], isLoading } = useQuery({
     queryKey: ["filling-systems"],
     queryFn: fetchFillingSystems,
   });
 
+  // Create options array for the FormSelect component
+  const options = fillingSystems.map(system => ({
+    value: system.id,
+    label: `${system.name}${system.tank?.fuel_type ? ` (${system.tank.fuel_type})` : ""}`
+  }));
+
+  // Watch for field changes
+  const selectedValue = useWatch({
+    control,
+    name: "filling_system_id"
+  });
+
+  // Call callbacks when the value changes
+  useEffect(() => {
+    if (selectedValue) {
+      if (onChange) onChange(selectedValue);
+      if (onSelect) onSelect(selectedValue);
+    }
+  }, [selectedValue, onChange, onSelect]);
+
   return (
-    <FormField
-      control={control}
+    <FormSelect
       name="filling_system_id"
-      rules={{ required: "Filling system is required" }}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="text-base font-medium">
-            Filling System
-          </FormLabel>
-          <Select
-            onValueChange={(value) => {
-              field.onChange(value);
-              if (onChange) {
-                onChange(value);
-              }
-              if (onSelect) {
-                onSelect(value);
-              }
-            }}
-            value={value || field.value || ""}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a filling system" />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {fillingSystems?.map((system) => (
-                <SelectItem key={system.id} value={system.id}>
-                  {system.name}
-                  {system.tank?.fuel_type ? ` (${system.tank.fuel_type})` : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
+      label="Filling System"
+      form={{ control } as any}
+      options={options}
+      placeholder="Select a filling system"
     />
   );
 }

@@ -8,7 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Control, useWatch } from "react-hook-form";
 import { useMemo } from "react";
-import { CurrencyField } from "@/components/form-fields/CurrencyField";
+import { FormCurrencyInput } from "@/components/ui/composed/form-fields";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { useTranslation } from "react-i18next";
 
@@ -135,13 +135,12 @@ export function QuantityAndPrice({
         />
       </div>
 
-      <CurrencyField
-        control={control}
+      <FormCurrencyInput
         name="price_per_liter"
         label={t("fuelSupplies.pricePerLiter")}
         placeholder="0"
-        required
-        min={0}
+        symbol="֏"
+        form={{ control } as any}
       />
 
       <FormField

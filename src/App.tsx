@@ -12,36 +12,80 @@ import { AdminShell } from "@/layouts/AdminShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { Loading } from "@/components/ui/loading";
-
+import ErrorBoundary from "@/components/ErrorBoundary";
 // Import Auth directly since it's needed for initial load
 import Auth from "@/pages/Auth";
 
+// Create a fallback component for failed imports
+const ImportErrorFallback = ({ pageName }: { pageName: string }) => (
+  <div className="p-8 flex flex-col items-center justify-center min-h-[60vh]">
+    <h2 className="text-xl font-semibold mb-4">Failed to load {pageName} page</h2>
+    <p className="mb-4">There was an error loading this page. Please try refreshing.</p>
+    <button 
+      onClick={() => window.location.reload()} 
+      className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+    >
+      Refresh Page
+    </button>
+  </div>
+);
+
+
 // Lazy load other page components with prefetching for critical routes
 const DashboardNew = lazy(() => 
-  import(/* webpackPrefetch: true */ "@/pages/DashboardNew")
+  import(/* webpackPrefetch: true, webpackChunkName: "dashboard" */ "@/pages/DashboardNew")
 );
 const FuelManagement = lazy(() => 
-  import(/* webpackPrefetch: true */ "@/pages/FuelManagement")
+  import(/* webpackChunkName: "fuel-management" */ "@/pages/FuelManagement")
 );
-const EmployeesNew = lazy(() => import("@/pages/EmployeesNew"));
+const EmployeesNew = lazy(() => 
+  import(/* webpackChunkName: "employees" */ "@/pages/EmployeesNew")
+);
 const SalesNew = lazy(() => 
-  import(/* webpackPrefetch: true */ "@/pages/SalesNew")
+  import(/* webpackPrefetch: true, webpackChunkName: "sales" */ "@/pages/sales/SalesNew")
 );
-const PetrolProviders = lazy(() => import("@/pages/PetrolProviders"));
-const Expenses = lazy(() => import("@/pages/Expenses"));
-const Transactions = lazy(() => import("@/pages/Transactions"));
-const Shifts = lazy(() => import("@/pages/Shifts"));
-const ShiftClose = lazy(() => import("@/pages/ShiftClose"));
-const Todo = lazy(() => import("@/pages/Todo"));
+const SalesCreate = lazy(() => 
+  import(/* webpackChunkName: "sales-create" */ "@/pages/sales/SalesCreate")
+);
+const FuelSupplyCreate = lazy(() => 
+  import(/* webpackChunkName: "fuel-supply-create" */ "@/pages/fuel-supplies/FuelSupplyCreate")
+);
+const PetrolProviders = lazy(() => 
+  import(/* webpackChunkName: "petrol-providers" */ "@/pages/PetrolProviders")
+);
+const Expenses = lazy(() => 
+  import(/* webpackChunkName: "expenses" */ "@/pages/Expenses")
+);
+const Transactions = lazy(() => 
+  import(/* webpackChunkName: "transactions" */ "@/pages/Transactions")
+);
+const TodoPage = lazy(() => 
+  import(/* webpackChunkName: "todo" */ "@/components/todo")
+);
+
+// Use simple imports for the Shifts components
+const Shifts = lazy(() => 
+  import(/* webpackChunkName: "shifts" */ "@/pages/shifts/Shifts")
+);
+const ShiftClose = lazy(() => 
+  import(/* webpackChunkName: "shift-close" */ "@/pages/shifts/ShiftClose")
+);
+const ShiftOpen = lazy(() => 
+  import(/* webpackChunkName: "shift-open" */ "@/pages/shifts/ShiftOpen")
+);
+const ShiftDetails = lazy(() => 
+  import(/* webpackChunkName: "shift-details" */ "@/pages/shifts/ShiftDetails")
+);
+
 const Settings = lazy(() => 
-  import(/* webpackPrefetch: true */ "@/pages/Settings")
+  import(/* webpackPrefetch: true, webpackChunkName: "settings" */ "@/pages/Settings")
 );
 // Development pages
-const ResponsiveTestPage = lazy(() => import("@/pages/dev/ResponsiveTestPage"));
-const ToastTester = lazy(() => import("@/pages/dev/ToastTester"));
-const DevTools = lazy(() => import("@/pages/dev/DevTools"));
-const CardComponentsPage = lazy(() => import("@/pages/dev/CardComponentsPage"));
-const ButtonComponentsPage = lazy(() => import("@/pages/dev/ButtonComponentsPage"));
+const ResponsiveTestPage = lazy(() => import(/* webpackChunkName: "dev-responsive" */ "@/pages/dev/ResponsiveTestPage"));
+const ToastTester = lazy(() => import(/* webpackChunkName: "dev-toast" */ "@/pages/dev/ToastTester"));
+const DevTools = lazy(() => import(/* webpackChunkName: "dev-tools" */ "@/pages/dev/DevTools"));
+const CardComponentsPage = lazy(() => import(/* webpackChunkName: "dev-card" */ "@/pages/dev/CardComponentsPage"));
+const ButtonComponentsPage = lazy(() => import(/* webpackChunkName: "dev-button" */ "@/pages/dev/ButtonComponentsPage"));
 // Fix for named export
 
 const queryClient = new QueryClient();
@@ -51,12 +95,9 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   const location = useLocation();
 
   if (isLoading) {
-    console.log("Auth is loading...");
     return <Loading variant="fullscreen" text="Checking authentication..." />;
   }
 
-  console.log("Auth state:", user ? "Authenticated" : "Not authenticated");
-  
   if (!user) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
@@ -88,7 +129,9 @@ const App = () => (
                   element={
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
-                        <FuelManagement />
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Management" />}>
+                          <FuelManagement />
+                        </ErrorBoundary>
                       </Suspense>
                     </RequireAuth>
                   }
@@ -136,11 +179,33 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/sales/create"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading sales creation form..." />}>
+                        <SalesCreate />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/fuel-supplies/create"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supply creation form..." />}>
+                        <FuelSupplyCreate />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
                   path="/shifts"
                   element={
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
-                        <Shifts />
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
+                          <Shifts />
+                        </ErrorBoundary>
                       </Suspense>
                     </RequireAuth>
                   }
@@ -150,7 +215,33 @@ const App = () => (
                   element={
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading shift close..." />}>
-                        <ShiftClose />
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Close" />}>
+                          <ShiftClose />
+                        </ErrorBoundary>
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/shifts/open"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shift open..." />}>
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Open" />}>
+                          <ShiftOpen />
+                        </ErrorBoundary>
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/shifts/:id"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shift details..." />}>
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Details" />}>
+                          <ShiftDetails />
+                        </ErrorBoundary>
                       </Suspense>
                     </RequireAuth>
                   }
@@ -190,7 +281,7 @@ const App = () => (
                   element={
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading todo..." />}>
-                        <Todo />
+                        <TodoPage />
                       </Suspense>
                     </RequireAuth>
                   }
@@ -257,7 +348,11 @@ const App = () => (
                   }
                 />
                 {/* Catch-all route to redirect any unmatched paths */}
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={
+                  <ErrorBoundary fallback={<ImportErrorFallback pageName="Page Not Found" />}>
+                    <Navigate to="/" replace />
+                  </ErrorBoundary>
+                } />
               </Routes>
             </AdminShell>
           </AuthProvider>

@@ -7,7 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { TransactionsManager } from "@/components/transactions/TransactionsManager";
+import { TransactionsManagerStandardized } from "@/components/transactions/TransactionsManagerStandardized";
 import { useTranslation } from "react-i18next";
 
 const Transactions = () => {
@@ -34,7 +34,7 @@ const Transactions = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <TransactionsManager />
+          <TransactionsManagerStandardized />
         </CardContent>
       </Card>
     </div>

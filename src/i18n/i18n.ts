@@ -35,6 +35,7 @@ i18n
     react: {
       useSuspense: false, // Disable suspense to prevent loading issues
     },
+    returnObjects: true, // Enable accessing nested objects in translations
   });
 
 export default i18n;

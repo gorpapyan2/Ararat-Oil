@@ -28,7 +28,7 @@ import {
   deleteEmployee,
 } from "@/services/employees";
 import { Employee } from "@/types";
-import { EmployeeDialog } from "@/components/employees/EmployeeDialog";
+import { EmployeeDialogStandardized } from "@/components/employees/EmployeeDialogStandardized";
 import { useToast } from "@/hooks";
 
 export default function EmployeesNew() {
@@ -170,7 +170,7 @@ export default function EmployeesNew() {
     <div className="container mx-auto p-4 space-y-6">
       <PageHeader
         title={t("employees.title")}
-        icon={<IconUsers />}
+        description={t("employees.subtitle")}
         actions={
           <CreateButton onClick={handleAdd}>
             <IconUserPlus className="mr-2 h-4 w-4" />
@@ -216,12 +216,11 @@ export default function EmployeesNew() {
         </CardContent>
       </Card>
 
-      <EmployeeDialog
+      <EmployeeDialogStandardized
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         employee={selectedEmployee}
-        onSave={handleSave}
-        isLoading={createMutation.isPending || updateMutation.isPending}
+        onSubmit={handleSave}
       />
     </div>
   );

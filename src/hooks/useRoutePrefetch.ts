@@ -21,7 +21,7 @@ export function useRoutePrefetch(routePath: string, options: PrefetchOptions = {
     const routeModules: Record<string, () => Promise<any>> = {
       "/": () => import("@/pages/DashboardNew"),
       "/fuel-management": () => import("@/pages/FuelManagement"),
-      "/sales": () => import("@/pages/SalesNew"),
+      "/sales": () => import("@/pages/sales/SalesNew"),
       "/employees": () => import("@/pages/EmployeesNew"),
       "/expenses": () => import("@/pages/Expenses"),
       "/settings": () => import("@/pages/settings"),

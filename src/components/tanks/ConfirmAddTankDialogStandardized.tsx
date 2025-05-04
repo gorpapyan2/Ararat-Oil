@@ -1,4 +1,5 @@
-import { ConfirmDialog } from "@/components/ui/dialog";
+import { StandardDialog } from "@/components/ui/composed/dialog";
+import { Button } from "@/components/ui/button";
 import { TankFormData } from "@/hooks/useTankDialog";
 
 interface ConfirmAddTankDialogStandardizedProps {
@@ -7,7 +8,11 @@ interface ConfirmAddTankDialogStandardizedProps {
   onConfirm: () => void;
   onCancel: () => void;
   isLoading?: boolean;
-  data: TankFormData | null;
+  data: {
+    name: string;
+    fuelType: string;
+    capacity: number;
+  };
 }
 
 export function ConfirmAddTankDialogStandardized({
@@ -15,55 +20,47 @@ export function ConfirmAddTankDialogStandardized({
   onOpenChange,
   onConfirm,
   onCancel,
-  isLoading = false,
+  isLoading,
   data,
 }: ConfirmAddTankDialogStandardizedProps) {
-  if (!data) return null;
-  
-  const formattedFuelType = data.fuel_type === "cng" 
-    ? "CNG" 
-    : data.fuel_type === "petrol" 
-      ? "Petrol" 
-      : "Diesel";
-      
+  // Create dialog actions
+  const actions = (
+    <div className="flex gap-2 justify-end">
+      <Button variant="outline" onClick={onCancel} disabled={isLoading}>
+        Cancel
+      </Button>
+      <Button variant="default" onClick={onConfirm} disabled={isLoading}>
+        {isLoading ? "Creating..." : "Create Tank"}
+      </Button>
+    </div>
+  );
+
   return (
-    <ConfirmDialog
+    <StandardDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Confirm New Tank"
-      description={
-        <div className="space-y-4">
-          <p>Please confirm the details for the new fuel tank:</p>
+      actions={actions}
+    >
+      <div className="space-y-4">
+        <p>Please confirm the details for the new fuel tank:</p>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            <div className="font-medium">Tank Name:</div>
-            <div>{data.name}</div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <div className="font-medium">Tank Name:</div>
+          <div>{data.name}</div>
 
-            <div className="font-medium">Fuel Type:</div>
-            <div>{formattedFuelType}</div>
+          <div className="font-medium">Fuel Type:</div>
+          <div>{data.fuelType}</div>
 
-            <div className="font-medium">Capacity:</div>
-            <div>{data.capacity.toLocaleString()} liters</div>
-            
-            {data.current_level > 0 && (
-              <>
-                <div className="font-medium">Current Level:</div>
-                <div>{data.current_level.toLocaleString()} liters</div>
-              </>
-            )}
-          </div>
-
-          <p className="text-sm text-muted-foreground">
-            After creating this tank, you can associate it with filling systems
-            and add fuel supplies to it.
-          </p>
+          <div className="font-medium">Capacity:</div>
+          <div>{data.capacity.toLocaleString()} liters</div>
         </div>
-      }
-      confirmLabel={isLoading ? "Creating..." : "Create Tank"}
-      cancelLabel="Cancel"
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-      isLoading={isLoading}
-    />
+
+        <p className="text-sm text-muted-foreground">
+          After creating this tank, you can associate it with filling systems
+          and add fuel supplies to it.
+        </p>
+      </div>
+    </StandardDialog>
   );
 } 

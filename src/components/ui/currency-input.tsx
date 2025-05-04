@@ -40,16 +40,16 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
     };
 
     return (
-      <div className="relative">
+      <div className="relative flex h-10 w-full rounded-md border border-input bg-background ring-offset-background">
         {symbol && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">
+          <span className="flex items-center px-3 text-muted-foreground">
             {symbol}
           </span>
         )}
         <Input
           type="text"
           ref={ref}
-          className={`${symbol ? "pl-10" : ""} ${className}`}
+          className="flex-1 border-0 bg-transparent rounded-l-none focus-visible:ring-0 focus-visible:ring-offset-0"
           value={displayValue}
           onChange={handleChange}
           onBlur={handleBlur}

@@ -267,7 +267,7 @@ export function AdminShell({ children }: AdminShellProps) {
               {t("common.theme")}
             </span>
           )}
-          <ThemeSwitcher variant="ghost" />
+          <ThemeSwitcher variant="default" />
         </div>
 
         {/* Toggle collapse button */}

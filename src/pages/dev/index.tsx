@@ -1,4 +1,4 @@
-import { DevToolsMenu } from "@/components/dev/dev-tools-menu";
+import { DevToolsMenu } from "@/components/dev/DevToolsMenu";
 import { useEffect, useState } from "react";
 
 export default function DevToolsPage() {

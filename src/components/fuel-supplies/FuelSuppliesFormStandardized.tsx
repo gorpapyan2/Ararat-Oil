@@ -5,6 +5,7 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { FormProvider } from "react-hook-form";
 
 // Services
 import { fetchPetrolProviders } from "@/services/petrol-providers";
@@ -29,6 +30,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl
+} from "@/components/ui/form";
 
 // Form Components
 import {
@@ -223,146 +230,148 @@ export function FuelSuppliesFormStandardized({
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            {/* Date Picker */}
-            <FormField 
-              name="delivery_date" 
-              label="Delivery Date"
-              form={form}
-              render={({ field }) => (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        format(new Date(field.value), "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={new Date(field.value)}
-                      onSelect={(date) =>
-                        field.onChange(format(date || new Date(), "yyyy-MM-dd"))
-                      }
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
-            />
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Date Picker */}
+              <FormField 
+                name="delivery_date" 
+                label="Delivery Date"
+                form={form}
+                render={({ field }) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value ? (
+                          format(new Date(field.value), "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={new Date(field.value)}
+                        onSelect={(date) =>
+                          field.onChange(format(date || new Date(), "yyyy-MM-dd"))
+                        }
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
 
-            {/* Provider Select */}
-            <FormSelect
-              name="provider_id"
-              label="Petrol Provider"
-              form={form}
-              options={providerOptions}
-              placeholder="Select a provider"
-            />
-          </div>
+              {/* Provider Select */}
+              <FormSelect
+                name="provider_id"
+                label="Petrol Provider"
+                form={form}
+                options={providerOptions}
+                placeholder="Select a provider"
+              />
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Tank Select */}
-            <FormSelect
-              name="tank_id"
-              label="Fuel Tank"
-              form={form}
-              options={tankOptions}
-              placeholder="Select a tank"
-            />
+            <div className="grid grid-cols-2 gap-4">
+              {/* Tank Select */}
+              <FormSelect
+                name="tank_id"
+                label="Fuel Tank"
+                form={form}
+                options={tankOptions}
+                placeholder="Select a tank"
+              />
 
-            {/* Employee Select */}
-            <FormSelect
-              name="employee_id"
-              label="Employee"
-              form={form}
-              options={employeeOptions}
-              placeholder="Select an employee"
-            />
-          </div>
+              {/* Employee Select */}
+              <FormSelect
+                name="employee_id"
+                label="Employee"
+                form={form}
+                options={employeeOptions}
+                placeholder="Select an employee"
+              />
+            </div>
 
-          <div className="space-y-4">
-            {/* Quantity Input */}
-            <FormInput
-              name="quantity_liters"
-              label="Quantity (Liters)"
-              form={form}
-              type="number"
-              inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              min={0}
-              description={
-                selectedTank ? (
-                  <div className="mt-2">
-                    <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+            <div className="space-y-4">
+              {/* Quantity Input */}
+              <FormInput
+                name="quantity_liters"
+                label="Quantity (Liters)"
+                form={form}
+                type="number"
+                inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                min={0}
+                description={
+                  selectedTank ? (
+                    <div className="mt-2">
+                      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-300 ${tankStatus.color}`}
+                          style={{
+                            width: `${Math.min(tankStatus.percentage, 100)}%`,
+                          }}
+                        ></div>
+                      </div>
                       <div
-                        className={`h-2 rounded-full transition-all duration-300 ${tankStatus.color}`}
-                        style={{
-                          width: `${Math.min(tankStatus.percentage, 100)}%`,
-                        }}
-                      ></div>
+                        className={`text-xs mt-1 transition-all duration-500 flex items-center ${tankStatus.isFull ? "text-red-500" : "text-muted-foreground"}`}
+                      >
+                        {tankStatus.str}
+                      </div>
                     </div>
-                    <div
-                      className={`text-xs mt-1 transition-all duration-500 flex items-center ${tankStatus.isFull ? "text-red-500" : "text-muted-foreground"}`}
-                    >
-                      {tankStatus.str}
-                    </div>
-                  </div>
-                ) : undefined
+                  ) : undefined
+                }
+              />
+
+              {/* Price Per Liter */}
+              <FormCurrencyInput
+                name="price_per_liter"
+                label="Price Per Liter"
+                form={form}
+                placeholder="0"
+                symbol="֏"
+              />
+
+              {/* Total Cost (calculated field) */}
+              <FormCurrencyInput
+                name="total_cost"
+                label="Total Cost"
+                form={form}
+                placeholder="0"
+                symbol="֏"
+                disabled={true}
+                className="cursor-not-allowed bg-gray-500/40 font-semibold"
+              />
+            </div>
+
+            {/* Comments Field */}
+            <FormTextarea
+              name="comments"
+              label="Comments"
+              form={form}
+              placeholder="Optional comments about the fuel supply"
+            />
+
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting 
+                ? "Processing..." 
+                : editing ? "Save Changes" : "Add Fuel Supply"
               }
-            />
-
-            {/* Price Per Liter */}
-            <FormCurrencyInput
-              name="price_per_liter"
-              label="Price Per Liter"
-              form={form}
-              placeholder="0"
-              symbol="֏"
-            />
-
-            {/* Total Cost (calculated field) */}
-            <FormCurrencyInput
-              name="total_cost"
-              label="Total Cost"
-              form={form}
-              placeholder="0"
-              symbol="֏"
-              disabled={true}
-              className="cursor-not-allowed bg-gray-500/40 font-semibold"
-            />
-          </div>
-
-          {/* Comments Field */}
-          <FormTextarea
-            name="comments"
-            label="Comments"
-            form={form}
-            placeholder="Optional comments about the fuel supply"
-          />
-
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting 
-              ? "Processing..." 
-              : editing ? "Save Changes" : "Add Fuel Supply"
-            }
-          </Button>
-        </form>
+            </Button>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );

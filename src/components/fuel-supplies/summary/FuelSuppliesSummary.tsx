@@ -6,16 +6,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CardGrid } from "@/components/ui/composed/cards";
+import { CardGrid, MetricCardProps } from "@/components/ui/composed/cards";
 import { FuelSupply } from "@/types";
 import { format } from "date-fns";
-import { TrendingUp, DollarSign, Droplet, Calendar } from "lucide-react";
+import { TrendingUp, DollarSign, Droplet, Calendar, Fuel, CircleDollarSign } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FuelSuppliesSummaryProps {
   supplies: FuelSupply[];
+  loading?: boolean;
+  className?: string;
 }
 
-export function FuelSuppliesSummary({ supplies }: FuelSuppliesSummaryProps) {
+// Helper function to format numbers
+const formatNumber = (num: number): string => {
+  return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+};
+
+export function FuelSuppliesSummary({ supplies, loading, className }: FuelSuppliesSummaryProps) {
   const summary = useMemo(() => {
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -64,11 +73,43 @@ export function FuelSuppliesSummary({ supplies }: FuelSuppliesSummaryProps) {
     };
   }, [supplies]);
 
-  const metrics = [
-    { title: 'Total Fuel Quantity', value: `${summary.totalQuantity.toLocaleString()} L`, description: `${summary.suppliesCount} total supplies`, icon: Droplet },
-    { title: 'Total Cost', value: `${summary.totalCost.toLocaleString()} ֏`, description: `Average: ${summary.suppliesCount > 0 ? (summary.totalCost / summary.suppliesCount).toLocaleString() : 0} ֏ per supply`, icon: DollarSign },
-    { title: 'Current Month', value: `${summary.currentMonthQuantity.toLocaleString()} L`, description: `${summary.currentMonthCost.toLocaleString()} ֏ total cost`, icon: TrendingUp },
-    { title: 'Latest Delivery', value: summary.latestDelivery ? format(summary.latestDelivery, 'PP') : 'N/A', description: summary.latestDelivery ? format(summary.latestDelivery, 'p') : '', icon: Calendar },
-  ];
-  return <CardGrid metrics={metrics} />;
+  // Create metrics for the CardGrid component
+  const metrics = useMemo<MetricCardProps[]>(() => {
+    if (loading) {
+      // Return loading placeholders
+      return Array(3).fill({
+        title: "Loading...",
+        value: "Loading...",
+        description: "Loading...",
+        loading: true
+      });
+    }
+
+    return [
+      {
+        title: "Total Fuel",
+        value: `${formatNumber(summary.totalQuantity)} L`,
+        description: `${formatNumber(summary.suppliesCount)} fuel deliveries`,
+        icon: <Fuel className="h-5 w-5" />,
+      },
+      {
+        title: "Monthly Fuel",
+        value: `${formatNumber(summary.currentMonthQuantity)} L`,
+        description: "Delivered this month",
+        icon: <TrendingUp className="h-5 w-5" />,
+      },
+      {
+        title: "Total Cost",
+        value: `${formatNumber(summary.totalCost)} ֏`,
+        description: `${formatNumber(summary.currentMonthCost)} ֏ this month`,
+        icon: <CircleDollarSign className="h-5 w-5" />,
+      },
+    ];
+  }, [loading, summary]);
+
+  return (
+    <div className={cn("", className)}>
+      <CardGrid metrics={metrics} />
+    </div>
+  );
 }

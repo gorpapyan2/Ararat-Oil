@@ -3,7 +3,7 @@ import { FillingSystem, deleteFillingSystem } from "@/services/filling-systems";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks";
-import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
+import { ConfirmDeleteDialogStandardized } from "./ConfirmDeleteDialogStandardized";
 import { StandardizedDataTable } from "@/components/unified/StandardizedDataTable";
 
 interface FillingSystemListProps {
@@ -70,6 +70,7 @@ export function FillingSystemList({
     {
       header: "System Name",
       accessorKey: "name" as keyof FillingSystem,
+      cell: (value: string, row: FillingSystem) => row.name
     },
     {
       header: "Associated Tank",
@@ -91,25 +92,53 @@ export function FillingSystemList({
 
   return (
     <>
-      <StandardizedDataTable
-        columns={columns}
-        data={fillingSystems}
-        loading={isLoading}
-        onDelete={(id) => {
-          const system = fillingSystems.find(sys => sys.id === id);
-          if (system) {
-            openDeleteConfirm(system);
-          }
-        }}
-      />
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full table-fixed">
+          <thead className="bg-muted">
+            <tr>
+              <th className="p-3 text-left font-medium">System Name</th>
+              <th className="p-3 text-left font-medium">Associated Tank</th>
+              <th className="p-3 text-center w-24">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fillingSystems.map((system) => (
+              <tr key={system.id} className="border-t">
+                <td className="p-3">{system.name}</td>
+                <td className="p-3">
+                  {system.tank ? (
+                    <span className="flex items-center">
+                      {system.tank.name}
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({system.tank.fuel_type})
+                      </span>
+                    </span>
+                  ) : (
+                    "N/A"
+                  )}
+                </td>
+                <td className="p-3 text-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => openDeleteConfirm(system)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {systemToDelete && (
-        <ConfirmDeleteDialog
-          isOpen={isConfirmOpen}
-          onClose={closeDeleteConfirm}
+        <ConfirmDeleteDialogStandardized
+          open={isConfirmOpen}
+          onOpenChange={setIsConfirmOpen}
           onConfirm={handleDelete}
           systemName={systemToDelete.name}
-          isDeleting={isDeleting}
+          isLoading={isDeleting}
         />
       )}
     </>

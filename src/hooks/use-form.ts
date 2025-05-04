@@ -40,13 +40,16 @@ export function useFormSubmitHandler<TFormValues>(
   options: UseFormSubmitHandlerOptions = {}
 ) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleSubmit: SubmitHandler<TFormValues> = async (data) => {
     setIsSubmitting(true);
+    setFormError(null);
     try {
       await onSubmit(data);
       options.onSuccess?.();
     } catch (error) {
+      setFormError(error instanceof Error ? error.message : "An unknown error occurred");
       options.onError?.(error instanceof Error ? error : new Error("An unknown error occurred"));
     } finally {
       setIsSubmitting(false);
@@ -57,6 +60,8 @@ export function useFormSubmitHandler<TFormValues>(
 
   return {
     isSubmitting,
+    formError,
+    setFormError,
     onSubmit: onSubmitHandler,
   };
 }

@@ -8,12 +8,18 @@ import { visualizer } from "rollup-plugin-visualizer";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
+    // Use server.open to automatically use the correct port
+    strictPort: false, // Allow fallback to another port if 8080 is unavailable
     port: 8080,
     hmr: {
       // Improve HMR connection stability
       timeout: 5000,
+      // Don't specify clientPort to let Vite auto-detect it
+      webSocketServer: 'ws',
     },
   },
+  // Add base configuration to ensure proper path resolution
+  base: '/',
   define: {
     // Add global module definition to avoid 'module is not defined' errors
     'global': {},
@@ -31,6 +37,11 @@ export default defineConfig(({ mode }) => ({
       gzipSize: true,
       brotliSize: true,
     }),
+    visualizer({
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -40,12 +51,13 @@ export default defineConfig(({ mode }) => ({
     mainFields: ['browser', 'module', 'main'],
     // Force ESM modules for problematic packages
     dedupe: ['react', 'react-dom'],
+    // Ensure .tsx files are properly handled
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
   optimizeDeps: {
     exclude: [
       '@radix-ui/react-scroll-area',
       '@tanstack/react-query',
-      'react-router-dom',
       'next-themes'
     ],
     // Increase the timeout for dependency optimization
@@ -60,12 +72,27 @@ export default defineConfig(({ mode }) => ({
         global: 'window'
       },
     },
+    // Improve handling of dynamic imports
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@tabler/icons-react',
+      'lucide-react',
+    ],
   },
   build: {
     // Enable source maps when analyzing
     sourcemap: mode === 'analyze',
     // Improve chunking strategy
     chunkSizeWarningLimit: 1000,
+    // Configure module preloading for better dynamic imports
+    modulePreload: {
+      polyfill: true,
+      resolveDependencies: (filename, deps, { hostId, hostType }) => {
+        return deps;
+      },
+    },
     commonjsOptions: {
       // Improve handling of CommonJS dependencies
       transformMixedEsModules: true,
@@ -78,10 +105,40 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-scroll-area', 'next-themes'],
-          i18n: ['i18next', 'react-i18next'],
+        // Improve code splitting
+        experimentalMinChunkSize: 10000,
+        manualChunks: (id) => {
+          // Core vendor libraries
+          if (id.includes('node_modules/react/') || 
+              id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          
+          // UI libraries
+          if (id.includes('@radix-ui/') || 
+              id.includes('next-themes/')) {
+            return 'vendor-ui';
+          }
+          
+          // Icons
+          if (id.includes('@tabler/icons-react')) {
+            return 'vendor-icons';
+          }
+          
+          // Routing
+          if (id.includes('react-router')) {
+            return 'vendor-router';
+          }
+          
+          // Data fetching
+          if (id.includes('@tanstack/react-query')) {
+            return 'vendor-query';
+          }
+          
+          // i18n
+          if (id.includes('i18next') || id.includes('react-i18next')) {
+            return 'vendor-i18n';
+          }
         },
       },
     },

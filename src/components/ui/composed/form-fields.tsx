@@ -39,6 +39,7 @@ export interface FormInputProps<TFieldValues extends FieldValues> extends FormFi
   placeholder?: string;
   autoComplete?: string;
   inputClassName?: string;
+  disabled?: boolean;
 }
 
 export function FormInput<TFieldValues extends FieldValues>({
@@ -51,6 +52,7 @@ export function FormInput<TFieldValues extends FieldValues>({
   autoComplete,
   className,
   inputClassName,
+  disabled,
 }: FormInputProps<TFieldValues>) {
   return (
     <FormField
@@ -67,6 +69,7 @@ export function FormInput<TFieldValues extends FieldValues>({
               autoComplete={autoComplete}
               className={inputClassName}
               value={field.value || ""}
+              disabled={disabled}
             />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
@@ -79,9 +82,13 @@ export function FormInput<TFieldValues extends FieldValues>({
 
 // FormSelect component
 export interface FormSelectProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; colorClass?: string }[];
   placeholder?: string;
   selectClassName?: string;
+  contentClassName?: string;
+  itemClassName?: string;
+  onChange?: (value: string) => void;
+  renderOption?: (option: { value: string; label: string; colorClass?: string }) => React.ReactNode;
 }
 
 export function FormSelect<TFieldValues extends FieldValues>({
@@ -93,6 +100,10 @@ export function FormSelect<TFieldValues extends FieldValues>({
   placeholder = "Select an option",
   className,
   selectClassName,
+  contentClassName,
+  itemClassName,
+  onChange,
+  renderOption,
 }: FormSelectProps<TFieldValues>) {
   return (
     <FormField
@@ -102,14 +113,24 @@ export function FormSelect<TFieldValues extends FieldValues>({
         <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
-            <Select onValueChange={field.onChange} value={field.value || ""}>
+            <Select 
+              onValueChange={(value) => {
+                field.onChange(value);
+                onChange?.(value);
+              }} 
+              value={field.value || ""}
+            >
               <SelectTrigger className={selectClassName}>
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={contentClassName}>
                 {options.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                  <SelectItem 
+                    key={option.value} 
+                    value={option.value}
+                    className={itemClassName}
+                  >
+                    {renderOption ? renderOption(option) : option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -145,7 +166,7 @@ export function FormCheckbox<TFieldValues extends FieldValues>({
           <FormControl>
             <Checkbox
               checked={field.value}
-              onCheckedChange={field.onChange}
+              onChange={field.onChange}
               disabled={disabled}
             />
           </FormControl>
@@ -398,7 +419,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 }
 
 // FormField - For custom field rendering while maintaining form structure
-interface FormFieldProps<T extends Record<string, any>> {
+interface CustomFormFieldProps<T extends Record<string, any>> {
   name: string;
   label: string;
   form: UseFormReturn<T>;
@@ -407,14 +428,14 @@ interface FormFieldProps<T extends Record<string, any>> {
   render: (field: ControllerRenderProps<T>) => React.ReactNode;
 }
 
-export function FormField<T extends Record<string, any>>({
+export function CustomFormField<T extends Record<string, any>>({
   name,
   label,
   form,
   description,
   className,
   render,
-}: FormFieldProps<T>) {
+}: CustomFormFieldProps<T>) {
   return (
     <FormItem className={className}>
       <FormLabel>{label}</FormLabel>

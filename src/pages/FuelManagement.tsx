@@ -5,9 +5,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { IconGasStation, IconTank, IconTruck } from "@tabler/icons-react";
 
 // Import existing managers
-import { FillingSystemManager } from "@/components/filling-systems/FillingSystemManager";
-import { TankManager } from "@/components/tanks/TankManager";
-import { FuelSuppliesManager } from "@/components/fuel-supplies/FuelSuppliesManager";
+import { FillingSystemManagerStandardized } from "@/components/filling-systems/FillingSystemManagerStandardized";
+import { TankManagerStandardized } from "@/components/tanks/TankManagerStandardized";
+import { FuelSuppliesManagerStandardized } from "@/components/fuel-supplies/FuelSuppliesManagerStandardized";
 import { useTranslation } from "react-i18next";
 
 // Tab values
@@ -101,15 +101,15 @@ export default function FuelManagement() {
         {/* Tab Content */}
         <div className="mt-6">
           <TabsContent value={TABS.FILLING_SYSTEMS} className="m-0">
-            <FillingSystemManager />
+            <FillingSystemManagerStandardized />
           </TabsContent>
 
           <TabsContent value={TABS.TANKS} className="m-0">
-            <TankManager onRenderAction={setTanksAction} />
+            <TankManagerStandardized onRenderAction={setTanksAction} />
           </TabsContent>
 
           <TabsContent value={TABS.FUEL_SUPPLIES} className="m-0">
-            <FuelSuppliesManager onRenderAction={setFuelSuppliesAction} />
+            <FuelSuppliesManagerStandardized onRenderAction={setFuelSuppliesAction} />
           </TabsContent>
         </div>
       </Tabs>

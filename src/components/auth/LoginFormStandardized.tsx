@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,8 @@ import { Loading } from "@/components/ui/loading";
 import { ArrowRight } from "lucide-react";
 import { FormInput } from "@/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { Form } from "@/components/ui/form";
+import { FormProvider } from "react-hook-form";
 
 // Define the form validation schema
 const loginSchema = z.object({
@@ -38,6 +40,7 @@ interface LoginFormProps {
 export function LoginFormStandardized({ onLogin, user, isLoading }: LoginFormProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [localFormError, setLocalFormError] = useState<string | null>(null);
   
   // Use the Zod form hook
   const form = useZodForm({
@@ -49,13 +52,13 @@ export function LoginFormStandardized({ onLogin, user, isLoading }: LoginFormPro
   });
 
   // Handle form submission with the custom hook
-  const { isSubmitting, formError, setFormError, onSubmit } = 
+  const { isSubmitting, onSubmit } = 
     useFormSubmitHandler<LoginFormData>(
       form,
       async (data) => {
         const { error } = await onLogin(data.email, data.password);
         if (error) {
-          setFormError(error);
+          setLocalFormError(error);
           return false; // Return false to indicate submission failed
         }
         return true; // Return true to indicate submission succeeded
@@ -81,42 +84,46 @@ export function LoginFormStandardized({ onLogin, user, isLoading }: LoginFormPro
           <CardDescription>{t("auth.signIn.description")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <FormInput
-              name="email"
-              label={t("auth.signIn.emailLabel")}
-              form={form}
-              placeholder={t("auth.signIn.emailPlaceholder")}
-              type="email"
-              disabled={isSubmitting}
-              autoComplete="username"
-            />
-            
-            <FormInput
-              name="password"
-              label={t("auth.signIn.passwordLabel")}
-              form={form}
-              placeholder={t("auth.signIn.passwordPlaceholder")}
-              type="password"
-              disabled={isSubmitting}
-              autoComplete="current-password"
-            />
-            
-            {formError && (
-              <Alert variant="destructive">
-                <AlertDescription>{formError}</AlertDescription>
-              </Alert>
-            )}
-            
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? t("auth.signIn.signingIn") : t("auth.signIn.button")}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </form>
+          <FormProvider {...form}>
+            <Form {...form}>
+              <form onSubmit={onSubmit} className="space-y-4">
+                <FormInput
+                  name="email"
+                  label={t("auth.signIn.emailLabel")}
+                  form={form}
+                  placeholder={t("auth.signIn.emailPlaceholder")}
+                  type="email"
+                  disabled={isSubmitting}
+                  autoComplete="username"
+                />
+                
+                <FormInput
+                  name="password"
+                  label={t("auth.signIn.passwordLabel")}
+                  form={form}
+                  placeholder={t("auth.signIn.passwordPlaceholder")}
+                  type="password"
+                  disabled={isSubmitting}
+                  autoComplete="current-password"
+                />
+                
+                {localFormError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{localFormError}</AlertDescription>
+                  </Alert>
+                )}
+                
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? t("auth.signIn.signingIn") : t("auth.signIn.button")}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </form>
+            </Form>
+          </FormProvider>
           
           <div className="text-sm mt-4 text-center text-muted-foreground">
             {t("auth.signIn.contactAdmin")}

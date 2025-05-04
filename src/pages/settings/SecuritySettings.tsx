@@ -50,6 +50,8 @@ import {
 import { LoadingButton } from "@/components/ui/loading-button";
 import { ActionButton } from "@/components/ui/action-button";
 import { IconButton } from "@/components/ui/icon-button";
+import { Badge } from "@/components/ui/badge";
+import { SessionLogoutDialogStandardized } from "@/components/settings/SessionLogoutDialogStandardized";
 
 // Icons
 import {
@@ -167,6 +169,11 @@ function SecuritySettings() {
 
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
 
+  // State for the session logout dialog
+  const [logoutSession, setLogoutSession] = useState<SessionDevice | null>(null);
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   // Update security setting (boolean)
   const updateSecuritySwitch = (key: keyof typeof security) => (checked: boolean) => {
     setSecurity({
@@ -214,22 +221,40 @@ function SecuritySettings() {
     }
   };
   
-  // Handle session logout
-  const handleSessionLogout = (sessionId: string) => {
-    // Filter out the session we want to remove
-    const updatedSessions = security.sessions.filter(
-      session => session.id !== sessionId
-    );
+  const handleSessionLogout = async (sessionId: string) => {
+    setIsLoggingOut(true);
     
-    setSecurity({
-      ...security,
-      sessions: updatedSessions
-    });
-    
-    toast({
-      title: "Device logged out",
-      description: "The device has been logged out successfully.",
-    });
+    try {
+      // Simulating API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update state to remove the session
+      setSecurity(prev => ({
+        ...prev,
+        sessions: prev.sessions.filter(session => session.id !== sessionId),
+      }));
+      
+      toast({
+        title: t("settings.security.logoutSuccess"),
+        message: t("settings.security.logoutSuccessDescription"),
+      });
+      
+      setIsLogoutDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: t("settings.security.logoutError"),
+        message: t("settings.security.logoutErrorDescription"),
+        type: "error",
+      });
+    } finally {
+      setIsLoggingOut(false);
+      setLogoutSession(null);
+    }
+  };
+  
+  const openLogoutDialog = (session: SessionDevice) => {
+    setLogoutSession(session);
+    setIsLogoutDialogOpen(true);
   };
   
   // Handle logout all sessions
@@ -665,26 +690,21 @@ function SecuritySettings() {
             {t("settings.security.activeSessionsDescription")}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
           <div className="space-y-4">
             {security.sessions.map(session => (
-              <div 
-                key={session.id} 
-                className={`p-4 rounded-lg border ${
-                  session.isCurrent ? "bg-muted/60" : ""
-                }`}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div className="space-y-1">
-                    <div className="font-medium flex items-center gap-2">
-                      {session.deviceName}
+              <div key={session.id} className="flex flex-col gap-1.5 p-4 border rounded-lg">
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">{session.deviceName}</span>
                       {session.isCurrent && (
-                        <span className="bg-green-500/20 text-green-600 dark:text-green-400 text-xs px-2 py-0.5 rounded">
+                        <Badge variant="outline" className="text-xs">
                           {t("settings.security.currentDevice")}
-                        </span>
+                        </Badge>
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    <div className="text-xs flex items-center gap-1 text-muted-foreground">
                       <span>{session.browser}</span>
                       <span>•</span>
                       <span>{session.location}</span>
@@ -692,48 +712,15 @@ function SecuritySettings() {
                   </div>
                   
                   {!session.isCurrent && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="text-destructive">
-                          <LogOut className="h-4 w-4 mr-1" />
-                          {t("settings.security.logout")}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>{t("settings.security.confirmLogout")}</DialogTitle>
-                          <DialogDescription>
-                            {t("settings.security.confirmLogoutDescription")}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-2 py-2">
-                          <p className="text-sm">
-                            <strong>{t("settings.security.device")}:</strong> {session.deviceName}
-                          </p>
-                          <p className="text-sm">
-                            <strong>{t("settings.security.browser")}:</strong> {session.browser}
-                          </p>
-                          <p className="text-sm">
-                            <strong>{t("settings.security.location")}:</strong> {session.location}
-                          </p>
-                          <p className="text-sm">
-                            <strong>{t("settings.security.ip")}:</strong> {session.ip}
-                          </p>
-                        </div>
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm">
-                            {t("common.cancel")}
-                          </Button>
-                          <Button 
-                            variant="destructive" 
-                            size="sm" 
-                            onClick={() => handleSessionLogout(session.id)}
-                          >
-                            {t("settings.security.logout")}
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-destructive"
+                      onClick={() => openLogoutDialog(session)}
+                    >
+                      <LogOut className="h-4 w-4 mr-1" />
+                      {t("settings.security.logout")}
+                    </Button>
                   )}
                 </div>
                 
@@ -799,6 +786,17 @@ function SecuritySettings() {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Session Logout Dialog */}
+      {logoutSession && (
+        <SessionLogoutDialogStandardized
+          open={isLogoutDialogOpen}
+          onOpenChange={setIsLogoutDialogOpen}
+          onConfirm={() => handleSessionLogout(logoutSession.id)}
+          isLoading={isLoggingOut}
+          session={logoutSession}
+        />
+      )}
     </div>
   );
 }

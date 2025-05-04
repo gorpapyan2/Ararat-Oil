@@ -13,12 +13,25 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks";
 import { createFuelTank } from "@/services/supabase";
 import { FuelType } from "@/types";
-import { ConfirmAddTankDialog } from "./ConfirmAddTankDialog";
 import { 
   FormInput, 
   FormSelect 
 } from "@/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { FuelTank } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ConfirmAddTankDialogStandardized } from "./ConfirmAddTankDialogStandardized";
+import { FormProvider } from "react-hook-form";
 
 interface TankFormProps {
   isOpen: boolean;
@@ -51,6 +64,8 @@ export function TankFormStandardized({ isOpen, onOpenChange, onTankAdded }: Tank
   const queryClient = useQueryClient();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [pendingTankData, setPendingTankData] = useState<FormData | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [formData, setFormData] = useState<FormData | null>(null);
 
   const form = useZodForm({
     schema: formSchema,
@@ -99,25 +114,32 @@ export function TankFormStandardized({ isOpen, onOpenChange, onTankAdded }: Tank
       }
 
       // Instead of creating directly, show confirmation dialog
-      setPendingTankData({
+      setFormData({
         name: data.name,
         fuel_type: data.fuel_type,
         capacity: Number(data.capacity),
         current_level: Number(data.current_level || 0),
       });
 
-      setConfirmDialogOpen(true);
+      setIsConfirmOpen(true);
     }
   );
 
-  const handleConfirmTank = () => {
-    if (pendingTankData) {
-      mutation.mutate(pendingTankData);
+  const handleConfirmSubmit = () => {
+    if (formData) {
+      // Create a properly typed object for the mutation
+      const tankData: Omit<FuelTank, "id" | "created_at"> = {
+        name: formData.name,
+        fuel_type: formData.fuel_type,
+        capacity: formData.capacity,
+        current_level: formData.current_level || 0
+      };
+      mutation.mutate(tankData);
     }
   };
 
-  const handleCancelTank = () => {
-    setConfirmDialogOpen(false);
+  const handleConfirmCancel = () => {
+    setIsConfirmOpen(false);
     // Keep form open for editing
   };
 
@@ -129,7 +151,11 @@ export function TankFormStandardized({ isOpen, onOpenChange, onTankAdded }: Tank
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <Dialog 
+        open={isOpen} 
+        onOpenChange={onOpenChange}
+        title="Add New Fuel Tank"
+      >
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>
             <DialogTitle>Add New Fuel Tank</DialogTitle>
@@ -137,71 +163,71 @@ export function TankFormStandardized({ isOpen, onOpenChange, onTankAdded }: Tank
               Enter the details of the new fuel tank
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <FormInput
-              name="name"
-              label="Tank Name"
-              form={form}
-              placeholder="Tank name"
-              autoComplete="off"
-            />
+          <FormProvider {...form}>
+            <form onSubmit={onSubmit} className="space-y-4">
+              <FormInput
+                name="name"
+                label="Tank Name"
+                form={form}
+                placeholder="Tank name"
+                autoComplete="off"
+              />
 
-            <FormSelect
-              name="fuel_type"
-              label="Fuel Type"
-              form={form}
-              options={fuelTypeOptions}
-              placeholder="Select fuel type"
-            />
+              <FormSelect
+                name="fuel_type"
+                label="Fuel Type"
+                form={form}
+                options={fuelTypeOptions}
+                placeholder="Select fuel type"
+              />
 
-            <FormInput
-              name="capacity"
-              label="Tank Capacity (liters)"
-              form={form}
-              type="number"
-              placeholder="Capacity in liters"
-              inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
+              <FormInput
+                name="capacity"
+                label="Tank Capacity (liters)"
+                form={form}
+                type="number"
+                placeholder="Capacity in liters"
+                inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
 
-            <FormInput
-              name="current_level"
-              label="Current Fuel Level (liters)"
-              form={form}
-              type="number"
-              placeholder="Current level in liters"
-              inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
+              <FormInput
+                name="current_level"
+                label="Current Fuel Level (liters)"
+                form={form}
+                type="number"
+                placeholder="Current level in liters"
+                inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
 
-            <DialogFooter>
-              <Button
-                type="submit"
-                disabled={isSubmitting || mutation.isPending}
-                className="w-full sm:w-auto"
-              >
-                {isSubmitting || mutation.isPending ? "Adding..." : "Add Tank"}
-              </Button>
-            </DialogFooter>
-          </form>
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || mutation.isPending}
+                  className="w-full sm:w-auto"
+                >
+                  {isSubmitting || mutation.isPending ? "Adding..." : "Add Tank"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </FormProvider>
         </DialogContent>
       </Dialog>
 
-      {pendingTankData && (
-        <ConfirmAddTankDialog
-          open={confirmDialogOpen}
-          onOpenChange={setConfirmDialogOpen}
-          onConfirm={handleConfirmTank}
-          onCancel={handleCancelTank}
-          loading={mutation.isPending}
+      {formData && (
+        <ConfirmAddTankDialogStandardized
+          open={isConfirmOpen}
+          onOpenChange={setIsConfirmOpen}
+          onConfirm={handleConfirmSubmit}
+          onCancel={handleConfirmCancel}
+          isLoading={isSubmitting}
           data={{
-            name: pendingTankData.name,
-            fuelType:
-              pendingTankData.fuel_type === "cng"
-                ? "CNG"
-                : pendingTankData.fuel_type === "petrol"
-                  ? "Petrol"
-                  : "Diesel",
-            capacity: pendingTankData.capacity,
-            currentLevel: pendingTankData.current_level,
+            name: formData.name,
+            fuelType: formData.fuel_type === "cng" 
+              ? "CNG" 
+              : formData.fuel_type === "petrol" 
+                ? "Petrol" 
+                : "Diesel",
+            capacity: Number(formData.capacity),
           }}
         />
       )}

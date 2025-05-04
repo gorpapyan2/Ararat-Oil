@@ -1,9 +1,9 @@
-import { ExpensesManager } from "@/components/expenses/ExpensesManager";
+import { ExpensesManagerStandardized } from "@/components/expenses/ExpensesManagerStandardized";
 
 const Expenses = () => {
   return (
     <div className="space-y-6">
-      <ExpensesManager />
+      <ExpensesManagerStandardized />
     </div>
   );
 };

@@ -179,7 +179,7 @@ export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveP
     return (
       <div
         role="presentation"
-        className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto"
+        className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto"
         onClick={handleOutsideClick}
       >
         {/* Modal backdrop */}
@@ -198,7 +198,7 @@ export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveP
           aria-labelledby={titleId}
           aria-describedby={description ? descriptionId : undefined}
           tabIndex={-1} // Make dialog focusable but not in tab order
-          className="relative z-50 w-full max-w-md overflow-auto rounded-md bg-background p-6 shadow-lg focus:outline-none"
+          className="relative z-[101] w-full max-w-md overflow-auto rounded-md bg-background p-6 shadow-lg focus:outline-none"
           {...props}
         >
           {/* Hidden but accessible title */}

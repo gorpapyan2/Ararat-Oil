@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/useZodForm";
 import { Expense } from "@/types";
+import { FormProvider } from "react-hook-form";
 
 // Define the form schema using Zod
 const expenseSchema = z.object({
@@ -78,87 +79,89 @@ export function ExpensesFormStandardized({
   }));
 
   return (
-    <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
-      {/* Date Picker */}
-      <FormDatePicker
-        name="date"
-        label="Expense Date"
-        form={form}
-        placeholder="Pick a date"
-        disabled={(date) => date > new Date()}
-      />
+    <FormProvider {...form}>
+      <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
+        {/* Date Picker */}
+        <FormDatePicker
+          name="date"
+          label="Expense Date"
+          form={form}
+          placeholder="Pick a date"
+          disabled={(date) => date > new Date()}
+        />
 
-      {/* Category */}
-      <FormSelect
-        name="category"
-        label="Category"
-        form={form}
-        options={categoryOptions}
-        placeholder="Select category"
-      />
+        {/* Category */}
+        <FormSelect
+          name="category"
+          label="Category"
+          form={form}
+          options={categoryOptions}
+          placeholder="Select category"
+        />
 
-      {/* Description */}
-      <FormInput
-        name="description"
-        label="Description"
-        form={form}
-        placeholder="Expense description"
-        autoComplete="off"
-      />
+        {/* Description */}
+        <FormInput
+          name="description"
+          label="Description"
+          form={form}
+          placeholder="Expense description"
+          autoComplete="off"
+        />
 
-      {/* Amount */}
-      <FormCurrencyInput
-        name="amount"
-        label="Amount (AMD)"
-        form={form}
-        placeholder="0"
-      />
+        {/* Amount */}
+        <FormCurrencyInput
+          name="amount"
+          label="Amount (AMD)"
+          form={form}
+          placeholder="0"
+        />
 
-      {/* Payment Method */}
-      <FormSelect
-        name="payment_method"
-        label="Payment Method"
-        form={form}
-        options={paymentMethods}
-        placeholder="Select payment method"
-      />
+        {/* Payment Method */}
+        <FormSelect
+          name="payment_method"
+          label="Payment Method"
+          form={form}
+          options={paymentMethods}
+          placeholder="Select payment method"
+        />
 
-      {/* Invoice Number */}
-      <FormInput
-        name="invoice_number"
-        label="Invoice Number (Optional)"
-        form={form}
-        placeholder="Invoice number"
-        autoComplete="off"
-      />
+        {/* Invoice Number */}
+        <FormInput
+          name="invoice_number"
+          label="Invoice Number (Optional)"
+          form={form}
+          placeholder="Invoice number"
+          autoComplete="off"
+        />
 
-      {/* Notes */}
-      <FormTextarea
-        name="notes"
-        label="Notes (Optional)"
-        form={form}
-        placeholder="Additional notes"
-        rows={2}
-      />
+        {/* Notes */}
+        <FormTextarea
+          name="notes"
+          label="Notes (Optional)"
+          form={form}
+          placeholder="Additional notes"
+          rows={2}
+        />
 
-      {/* Form Actions */}
-      <div className="flex justify-end space-x-2 pt-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? "Saving..."
-            : expense
-            ? "Update Expense"
-            : "Add Expense"}
-        </Button>
-      </div>
-    </form>
+        {/* Form Actions */}
+        <div className="flex justify-end space-x-2 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting
+              ? "Saving..."
+              : expense
+              ? "Update Expense"
+              : "Add Expense"}
+          </Button>
+        </div>
+      </form>
+    </FormProvider>
   );
 } 

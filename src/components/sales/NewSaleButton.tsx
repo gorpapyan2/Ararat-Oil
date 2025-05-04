@@ -1,13 +1,8 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { SalesForm } from "./SalesForm";
-import { useState } from "react";
+import { StandardDialog } from "@/components/ui/composed/dialog";
+import { DialogContent } from "@/components/ui/styled/dialog";
+import { SalesFormStandardized } from "./SalesFormStandardized";
+import { useState, useRef } from "react";
 import { createSale } from "@/services/sales";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,6 +18,7 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const handleSubmit = async (data: any) => {
     try {
@@ -48,19 +44,24 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <CreateButton 
-          label="Add Sale"
-          className={className}
-        />
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Add New Sale</DialogTitle>
-        </DialogHeader>
-        <SalesForm onSubmit={handleSubmit} />
-      </DialogContent>
-    </Dialog>
+    <>
+      <CreateButton 
+        ref={triggerRef}
+        label="Add Sale"
+        className={className}
+        onClick={() => setIsOpen(true)}
+      />
+      <StandardDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title="Add New Sale"
+        triggerRef={triggerRef}
+        maxWidth="sm:max-w-lg"
+      >
+        <DialogContent>
+          <SalesFormStandardized onSubmit={handleSubmit} />
+        </DialogContent>
+      </StandardDialog>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { ToastTester } from "@/components/ToastTester";
+import { ToastTester } from "@/components/dev/ToastTester";
 import { PageLayout } from "@/layouts/PageLayout";
 
 /**

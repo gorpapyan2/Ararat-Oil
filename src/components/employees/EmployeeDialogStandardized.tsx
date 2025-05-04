@@ -8,6 +8,7 @@ import {
   FormSelect,
 } from "@/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { Form } from "@/components/ui/form";
 
 // Define the employee status options
 const employeeStatusOptions = [
@@ -129,56 +130,58 @@ export function EmployeeDialogStandardized({
       maxWidth="sm:max-w-[425px]"
       actions={formActions}
     >
-      <form id="employee-form" onSubmit={handleSubmit} className="space-y-4">
-        <FormInput
-          name="name"
-          label="Name"
-          form={form}
-          placeholder="John Doe"
-          autoComplete="name"
-        />
-        
-        <FormInput
-          name="position"
-          label="Position"
-          form={form}
-          placeholder="Manager"
-          autoComplete="organization-title"
-        />
-        
-        <FormInput
-          name="contact"
-          label="Contact"
-          form={form}
-          placeholder="Email or Phone"
-          autoComplete="email"
-        />
-        
-        <FormInput
-          name="hire_date"
-          label="Hire Date"
-          form={form}
-          type="date"
-          autoComplete="date"
-        />
-        
-        <FormInput
-          name="salary"
-          label="Salary"
-          form={form}
-          type="number"
-          placeholder="50000"
-          inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        />
-        
-        <FormSelect
-          name="status"
-          label="Status"
-          form={form}
-          options={employeeStatusOptions}
-          placeholder="Select employee status"
-        />
-      </form>
+      <Form {...form}>
+        <form id="employee-form" onSubmit={handleSubmit} className="space-y-4">
+          <FormInput
+            name="name"
+            label="Name"
+            form={form}
+            placeholder="John Doe"
+            autoComplete="name"
+          />
+          
+          <FormInput
+            name="position"
+            label="Position"
+            form={form}
+            placeholder="Manager"
+            autoComplete="organization-title"
+          />
+          
+          <FormInput
+            name="contact"
+            label="Contact"
+            form={form}
+            placeholder="Email or Phone"
+            autoComplete="email"
+          />
+          
+          <FormInput
+            name="hire_date"
+            label="Hire Date"
+            form={form}
+            type="date"
+            autoComplete="date"
+          />
+          
+          <FormInput
+            name="salary"
+            label="Salary"
+            form={form}
+            type="number"
+            placeholder="50000"
+            inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+          
+          <FormSelect
+            name="status"
+            label="Status"
+            form={form}
+            options={employeeStatusOptions}
+            placeholder="Select employee status"
+          />
+        </form>
+      </Form>
     </StandardDialog>
   );
 } 
