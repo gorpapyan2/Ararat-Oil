@@ -6,12 +6,9 @@ import {
   IconBell,
   IconLock,
 } from "@tabler/icons-react";
-
-// Import our custom UI components
 import { PageHeader } from "@/components/ui/page-header";
-import { Loading } from "@/components/ui/loading";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
+import { Home, Settings } from "lucide-react";
+import { BreadcrumbPageWrapper } from "@/components/common/BreadcrumbPageWrapper";
 
 // Lazy load settings sections
 const ProfileSettings = lazy(() => import("./ProfileSettings"));
@@ -19,7 +16,7 @@ const AppearanceSettings = lazy(() => import("./AppearanceSettings"));
 const NotificationSettings = lazy(() => import("./NotificationSettings"));
 const SecuritySettings = lazy(() => import("./SecuritySettings"));
 
-export default function Settings() {
+export default function SettingsPage() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("profile");
 
@@ -59,64 +56,74 @@ export default function Settings() {
   }, [prefetchNextTab]);
 
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <PageHeader
-        title={t("settings.title")}
-        description={t("settings.description")}
-      />
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <IconUser className="h-4 w-4" />
-            <span>{t("settings.tabs.profile")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="appearance" className="flex items-center gap-2">
-            <IconMoon className="h-4 w-4" />
-            <span>{t("settings.tabs.appearance")}</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="notifications"
-            className="flex items-center gap-2"
-          >
-            <IconBell className="h-4 w-4" />
-            <span>{t("settings.tabs.notifications")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
-            <IconLock className="h-4 w-4" />
-            <span>{t("settings.tabs.security")}</span>
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Profile Tab */}
-        <TabsContent value="profile" className="space-y-6">
-          <Suspense fallback={<Loading variant="inline" text="Loading profile settings..." />}>
-            <ProfileSettings />
-          </Suspense>
-        </TabsContent>
-
-        {/* Appearance Tab */}
-        <TabsContent value="appearance" className="space-y-6">
-          <Suspense fallback={<Loading variant="inline" text="Loading appearance settings..." />}>
-            <AppearanceSettings />
-          </Suspense>
-        </TabsContent>
-
-        {/* Notifications Tab */}
-        <TabsContent value="notifications" className="space-y-6">
-          <Suspense fallback={<Loading variant="inline" text="Loading notification settings..." />}>
-            <NotificationSettings />
-          </Suspense>
-        </TabsContent>
-
-        {/* Security Tab */}
-        <TabsContent value="security" className="space-y-6">
-          <Suspense fallback={<Loading variant="inline" text="Loading security settings..." />}>
-            <SecuritySettings />
-          </Suspense>
-        </TabsContent>
-      </Tabs>
-    </div>
+    <BreadcrumbPageWrapper
+      breadcrumbs={[
+        { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
+        { 
+          name: t("common.settings"), 
+          href: "/settings", 
+          icon: <Settings className="h-4 w-4" />,
+          isCurrent: true
+        }
+      ]}
+      title={t("common.settings")}
+    >
+      <div className="space-y-6">
+        <PageHeader
+          title={t("common.settings")}
+          description={t("settings.description") || "Configure your application settings"}
+          icon={<Settings className="h-6 w-6 mr-2" />}
+        />
+        
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="border rounded-lg p-6 shadow-sm">
+              <h3 className="font-medium mb-4">User Preferences</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Language</label>
+                  <select className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm">
+                    <option>English</option>
+                    <option>Armenian</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Theme</label>
+                  <select className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm">
+                    <option>Light</option>
+                    <option>Dark</option>
+                    <option>System</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div className="border rounded-lg p-6 shadow-sm">
+              <h3 className="font-medium mb-4">Notification Settings</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Email Notifications</p>
+                    <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                  </div>
+                  <div>
+                    <input type="checkbox" className="rounded border-gray-300" defaultChecked />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Push Notifications</p>
+                    <p className="text-sm text-muted-foreground">Receive push notifications</p>
+                  </div>
+                  <div>
+                    <input type="checkbox" className="rounded border-gray-300" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </BreadcrumbPageWrapper>
   );
 } 

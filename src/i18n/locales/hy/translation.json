@@ -93,11 +93,14 @@
     "last6Months": "Վերջին 6 ամիս",
     "lastYear": "Վերջին տարի",
     "allTime": "Ամբողջ ժամանակահատվածը",
-    "selectDateRange": "Ընտրել ամսաթվի միջակայք",
+    "last7Days": "Վերջին 7 օր",
+    "previousMonth": "Նախորդ ամիս",
+    "previousYear": "Նախորդ տարի",
+    "selectDateRange": "Ընտրեք ժամանակահատված",
     "clear": "Մաքրել",
     "apply": "Կիրառել",
     "clearDateRange": "Մաքրել ամսաթվի միջակայքը",
-    "customRange": "Ընտրովի ժամանակահատված",
+    "customRange": "Ոչ ստանդարտ ժամանակահատված",
     "paymentMethod": "Վճարման եղանակ",
     "paymentMethods": "Վճարման եղանակներ",
     "amount": "Գումար",
@@ -478,7 +481,7 @@
     "tagline": "Սկսեք Ձեր զարմանալի նախագիծը այստեղ"
   },
   "dashboardDemo": {
-    "appName": "ԱրարատՕյլ",
+    "appName": "Արարատ Օյլ",
     "adminUser": "Ադմին",
     "adminEmail": "admin@araratoil.com",
     "toggleMenu": "Փոխել ընտրացանկը",
@@ -723,5 +726,11 @@
     "tankName": "Ամպոկի անուն",
     "status": "Կարգավիճակ",
     "currentLevel": "Ընթացիկ մակարդակ"
-  }
+  },
+  "allFuelTypes": "Բոլոր վառելիքի տեսակները",
+  "selectDateRange": "Ընտրեք ժամանակահատված",
+  "customRange": "Ոչ ստանդարտ ժամանակահատված",
+  "clear": "Մաքրել",
+  "today": "Այսօր",
+  "yesterday": "Երեկ"
 }

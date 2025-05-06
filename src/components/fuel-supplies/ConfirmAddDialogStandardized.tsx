@@ -1,5 +1,6 @@
 import { StandardDialog } from "@/components/ui/composed/dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 interface ConfirmAddDialogStandardizedProps {
   open: boolean;
@@ -58,6 +59,8 @@ export function ConfirmAddDialogStandardized({
   const percentFill = capacity > 0 ? (newLevel / capacity) * 100 : 0;
   const isOverCapacity = capacity > 0 && newLevel > capacity;
 
+  const { t } = useTranslation();
+
   // Create dialog actions
   const actions = (
     <div className="flex gap-2 justify-end">
@@ -93,7 +96,7 @@ export function ConfirmAddDialogStandardized({
           <div className="font-medium">Price per liter:</div>
           <div>{formatNumber(price, 0)} ֏</div>
 
-          <div className="font-medium">Total cost:</div>
+          <div className="font-medium">{t("common.totalCost")}:</div>
           <div className="font-semibold">{formatNumber(totalCost, 0)} ֏</div>
         </div>
 

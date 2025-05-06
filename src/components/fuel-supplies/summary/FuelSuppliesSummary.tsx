@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -9,7 +9,22 @@ import {
 } from "@/components/ui/card";
 import { CardGrid, MetricCardProps } from "@/components/ui/composed/cards";
 import { FuelSupply, FuelType } from "@/types";
-import { format, subDays, subMonths, subWeeks, isAfter, parseISO } from "date-fns";
+import { 
+  format, 
+  subDays, 
+  subMonths, 
+  subWeeks, 
+  isAfter, 
+  parseISO, 
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+  isWithinInterval,
+  isSameDay,
+  startOfDay,
+  endOfDay
+} from "date-fns";
 import { 
   TrendingUp, 
   DollarSign, 
@@ -17,7 +32,9 @@ import {
   Calendar, 
   Fuel, 
   CircleDollarSign,
-  Filter
+  Filter,
+  CalendarDays,
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,10 +49,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 // Types for filters
-type TimePeriod = "all" | "week" | "month" | "3months" | "6months" | "year";
+type TimePeriod = "all" | "week" | "month" | "3months" | "6months" | "year" | "custom";
 type GroupingFilter = "fuelType" | "tank";
+type DateRangeType = { from: Date | undefined; to: Date | undefined };
 
 interface FuelSuppliesSummaryProps {
   supplies: FuelSupply[];
@@ -44,7 +75,10 @@ interface FuelSuppliesSummaryProps {
   initialFilters?: {
     period?: TimePeriod;
     groupBy?: GroupingFilter;
+    dateRange?: DateRangeType;
+    fuelType?: string;
   };
+  onFilteredSuppliesChange?: (filteredSupplies: FuelSupply[]) => void;
 }
 
 // Helper function to format numbers
@@ -52,51 +86,221 @@ const formatNumber = (num: number): string => {
   return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
 };
 
+// Create date range presets
+const createDatePresets = (t: (key: string) => string): Array<{name: string; dates: DateRangeType; period: TimePeriod}> => {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  
+  return [
+    {
+      name: t("common.today"),
+      dates: { from: startOfDay(new Date()), to: endOfDay(new Date()) },
+      period: "custom" as TimePeriod
+    },
+    {
+      name: t("common.yesterday"),
+      dates: { from: startOfDay(subDays(new Date(), 1)), to: endOfDay(subDays(new Date(), 1)) },
+      period: "custom" as TimePeriod
+    },
+    {
+      name: t("common.last7Days"),
+      dates: { from: startOfDay(subDays(new Date(), 7)), to: endOfDay(new Date()) },
+      period: "week" as TimePeriod
+    },
+    {
+      name: t("common.previousMonth"),
+      dates: { 
+        from: startOfMonth(currentMonth === 0 ? new Date(new Date().getFullYear() - 1, 11, 1) : new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)), 
+        to: endOfMonth(currentMonth === 0 ? new Date(new Date().getFullYear() - 1, 11, 1) : new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1))
+      },
+      period: "month" as TimePeriod
+    },
+    {
+      name: t("common.last90Days"),
+      dates: { from: startOfDay(subDays(new Date(), 90)), to: endOfDay(new Date()) },
+      period: "3months" as TimePeriod
+    },
+    {
+      name: t("common.last6Months"),
+      dates: { from: startOfDay(subMonths(new Date(), 6)), to: endOfDay(new Date()) },
+      period: "6months" as TimePeriod
+    },
+    {
+      name: t("common.previousYear"),
+      dates: { 
+        from: startOfYear(new Date(currentYear - 1, 0, 1)), 
+        to: endOfYear(new Date(currentYear - 1, 0, 1))
+      },
+      period: "year" as TimePeriod
+    }
+  ];
+};
+
 export function FuelSuppliesSummary({ 
   supplies, 
   loading, 
   className,
-  initialFilters 
+  initialFilters,
+  onFilteredSuppliesChange
 }: FuelSuppliesSummaryProps) {
   const { t } = useTranslation();
   
   // State for filters
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(initialFilters?.period || "all");
   const [groupBy, setGroupBy] = useState<GroupingFilter>(initialFilters?.groupBy || "fuelType");
+  const [dateRange, setDateRange] = useState<DateRangeType>(initialFilters?.dateRange || { from: undefined, to: undefined });
+  const [selectedFuelType, setSelectedFuelType] = useState<string>(initialFilters?.fuelType || "all");
   
-  // Filter supplies by time period
+  // Create date presets
+  const datePresets = useMemo(() => createDatePresets(t), [t]);
+  
+  // Check if custom date range is selected
+  const isCustomRange = timePeriod === "custom" && dateRange.from && dateRange.to;
+  
+  // Get unique fuel types from supplies
+  const uniqueFuelTypes = useMemo(() => {
+    const types = new Set<string>();
+    supplies.forEach(supply => {
+      if (supply.tank?.fuel_type) {
+        types.add(supply.tank.fuel_type.toLowerCase());
+      }
+    });
+    return Array.from(types);
+  }, [supplies]);
+  
+  // Filter supplies by time period, date range, and fuel type
   const filteredSupplies = useMemo(() => {
-    if (timePeriod === "all") return supplies;
+    // First filter by fuel type if not "all"
+    let result = supplies;
     
-    const now = new Date();
-    let cutoffDate: Date;
-    
-    switch(timePeriod) {
-      case "week":
-        cutoffDate = subWeeks(now, 1);
-        break;
-      case "month":
-        cutoffDate = subMonths(now, 1);
-        break;
-      case "3months":
-        cutoffDate = subMonths(now, 3);
-        break;
-      case "6months":
-        cutoffDate = subMonths(now, 6);
-        break;
-      case "year":
-        cutoffDate = subMonths(now, 12);
-        break;
-      default:
-        return supplies;
+    if (selectedFuelType !== "all") {
+      result = result.filter(supply => 
+        supply.tank?.fuel_type?.toLowerCase() === selectedFuelType.toLowerCase()
+      );
     }
     
-    return supplies.filter(supply => {
-      const supplyDate = parseISO(supply.delivery_date);
-      return isAfter(supplyDate, cutoffDate);
+    // If not filtering by time, return all supplies
+    if (timePeriod === "all") return result;
+    
+    // If using custom date range
+    if (timePeriod === "custom" && dateRange.from && dateRange.to) {
+      return result.filter(supply => {
+        const supplyDate = typeof supply.delivery_date === 'string' 
+          ? parseISO(supply.delivery_date) 
+          : new Date(supply.delivery_date);
+        
+        // Normal date range check - the date-fns isWithinInterval is inclusive
+        return isWithinInterval(supplyDate, {
+          start: startOfDay(dateRange.from),
+          end: endOfDay(dateRange.to)
+        });
+      });
+    }
+    
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    return result.filter(supply => {
+      // Ensure delivery_date is parsed correctly
+      const supplyDate = typeof supply.delivery_date === 'string' 
+        ? parseISO(supply.delivery_date) 
+        : new Date(supply.delivery_date);
+      
+      // Date filters for specific time periods
+      switch(timePeriod) {
+        case "week": {
+          // Last 7 days
+          const cutoffDate = startOfDay(subDays(now, 7));
+          return isWithinInterval(supplyDate, {
+            start: cutoffDate,
+            end: endOfDay(now)
+          });
+        }
+        case "month": {
+          // Previous calendar month (not current)
+          if (currentMonth === 0) {
+            // If January, previous month is December of last year
+            return isWithinInterval(supplyDate, {
+              start: startOfMonth(new Date(currentYear - 1, 11, 1)),
+              end: endOfMonth(new Date(currentYear - 1, 11, 1))
+            });
+          } else {
+            return isWithinInterval(supplyDate, {
+              start: startOfMonth(new Date(currentYear, currentMonth - 1, 1)),
+              end: endOfMonth(new Date(currentYear, currentMonth - 1, 1))
+            });
+          }
+        }
+        case "3months": {
+          // Last 90 days
+          return isWithinInterval(supplyDate, {
+            start: startOfDay(subDays(now, 90)),
+            end: endOfDay(now)
+          });
+        }
+        case "6months": {
+          // Last 180 days
+          return isWithinInterval(supplyDate, {
+            start: startOfDay(subDays(now, 180)),
+            end: endOfDay(now)
+          });
+        }
+        case "year": {
+          // Previous calendar year (not current)
+          return isWithinInterval(supplyDate, {
+            start: startOfYear(new Date(currentYear - 1, 0, 1)),
+            end: endOfYear(new Date(currentYear - 1, 0, 1))
+          });
+        }
+        default:
+          return true;
+      }
     });
-  }, [supplies, timePeriod]);
+  }, [supplies, timePeriod, dateRange, selectedFuelType]);
   
+  // Emit filtered supplies back to parent component
+  useEffect(() => {
+    if (onFilteredSuppliesChange) {
+      onFilteredSuppliesChange(filteredSupplies);
+    }
+  }, [filteredSupplies, onFilteredSuppliesChange]);
+  
+  // Handle date range selection from calendar
+  const handleDateRangeChange = (range: DateRangeType | undefined) => {
+    // Handle case when range is undefined
+    if (!range) {
+      setDateRange({ from: undefined, to: undefined });
+      return;
+    }
+    
+    if (range.from && range.to) {
+      // Make sure the date range covers the full days (inclusive)
+      const normalizedRange = {
+        from: startOfDay(range.from),
+        to: endOfDay(range.to)
+      };
+      setDateRange(normalizedRange);
+      setTimePeriod("custom");
+    } else {
+      setDateRange(range);
+    }
+  };
+  
+  // Handle preset selection
+  const handlePresetSelect = (preset: {name: string, dates: DateRangeType, period: TimePeriod}) => {
+    setDateRange(preset.dates);
+    setTimePeriod(preset.period);
+  };
+  
+  // Clear all filters
+  const clearFilters = () => {
+    setTimePeriod("all");
+    setDateRange({ from: undefined, to: undefined });
+    setSelectedFuelType("all");
+  };
+
   const summary = useMemo(() => {
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -206,17 +410,23 @@ export function FuelSuppliesSummary({
     }
 
     // Create time period label for description
-    const periodLabel = timePeriod === "all" 
-      ? t("common.allTime") 
-      : timePeriod === "week" 
-        ? t("common.lastWeek")
-        : timePeriod === "month"
-          ? t("common.lastMonth")
-          : timePeriod === "3months"
-            ? t("common.last90Days")
-            : timePeriod === "6months"
-              ? t("common.last6Months")
-              : t("common.lastYear");
+    let periodLabel = "";
+    
+    if (timePeriod === "custom" && dateRange.from && dateRange.to) {
+      periodLabel = `${format(dateRange.from, "MMM d, yyyy")} - ${format(dateRange.to, "MMM d, yyyy")}`;
+    } else {
+      periodLabel = timePeriod === "all" 
+        ? t("common.allTime") 
+        : timePeriod === "week" 
+          ? t("common.last7Days") || "Last 7 Days"
+          : timePeriod === "month"
+            ? t("common.previousMonth") || "Previous Month"
+            : timePeriod === "3months"
+              ? t("common.last90Days")
+              : timePeriod === "6months"
+                ? t("common.last6Months")
+                : t("common.previousYear") || "Previous Year";
+    }
 
     return [
       {
@@ -238,7 +448,7 @@ export function FuelSuppliesSummary({
         icon: <CircleDollarSign className="h-5 w-5" />,
       },
     ];
-  }, [loading, summary, t, timePeriod]);
+  }, [loading, summary, t, timePeriod, dateRange]);
 
   // Get color for fuel type
   const getFuelTypeColor = (fuelType: string): string => {
@@ -278,49 +488,137 @@ export function FuelSuppliesSummary({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Filter controls */}
+      {/* Enhanced Filter controls */}
       <div className="flex flex-wrap justify-between items-center gap-4 pb-2">
         <h2 className="text-xl font-semibold">{t("fuelSupplies.summary")}</h2>
         
-        <div className="flex flex-wrap gap-4">
-          {/* Time period filter */}
-          <div className="flex items-center">
-            <Tabs value={timePeriod} onValueChange={(value) => setTimePeriod(value as TimePeriod)}>
-              <TabsList>
-                <TabsTrigger value="all">
-                  {t("common.allTime")}
-                </TabsTrigger>
-                <TabsTrigger value="week">
-                  {t("common.lastWeek")}
-                </TabsTrigger>
-                <TabsTrigger value="month">
-                  {t("common.lastMonth")} 
-                </TabsTrigger>
-                <TabsTrigger value="3months">
-                  {t("common.last90Days")}
-                </TabsTrigger>
-                <TabsTrigger value="year">
-                  {t("common.lastYear")}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+        <div className="flex flex-wrap gap-2 items-center">
+          {/* Time period filter with date range picker */}
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <CalendarDays className="h-4 w-4" />
+                  {isCustomRange ? (
+                    <span className="text-xs sm:text-sm truncate max-w-[150px]">
+                      {format(dateRange.from!, 'MMM d, yyyy')} - {format(dateRange.to!, 'MMM d, yyyy')}
+                    </span>
+                  ) : (
+                    <span>
+                      {timePeriod === "all" 
+                        ? t("common.allTime") 
+                        : timePeriod === "week" 
+                          ? t("common.last7Days")
+                          : timePeriod === "month"
+                            ? t("common.previousMonth")
+                            : timePeriod === "3months"
+                              ? t("common.last90Days")
+                              : timePeriod === "6months"
+                                ? t("common.last6Months")
+                                : t("common.previousYear")}
+                    </span>
+                  )}
+                  <ChevronDown className="h-3 w-3 ml-1" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <div className="p-3 border-b">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-sm font-medium">{t("common.selectDateRange")}</h4>
+                    <Button variant="ghost" size="sm" onClick={clearFilters}>
+                      {t("common.clear")}
+                    </Button>
+                  </div>
+                  
+                  {/* Date Presets */}
+                  <div className="grid grid-cols-2 gap-1">
+                    {datePresets.map((preset) => (
+                      <Button
+                        key={preset.name}
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "justify-start text-xs h-8",
+                          (timePeriod === preset.period && preset.period !== "custom") || 
+                          (preset.period === "custom" && 
+                           dateRange.from && dateRange.to && preset.dates.from && preset.dates.to &&
+                           isSameDay(dateRange.from, preset.dates.from) && 
+                           isSameDay(dateRange.to, preset.dates.to)) 
+                            ? "bg-primary/10" 
+                            : ""
+                        )}
+                        onClick={() => handlePresetSelect(preset)}
+                      >
+                        {preset.name}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "justify-start text-xs h-8",
+                        timePeriod === "all" ? "bg-primary/10" : ""
+                      )}
+                      onClick={() => {
+                        setTimePeriod("all");
+                        setDateRange({ from: undefined, to: undefined });
+                      }}
+                    >
+                      {t("common.allTime")}
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Calendar picker */}
+                <div className="p-3">
+                  <h4 className="text-sm font-medium mb-2">{t("common.customRange")}</h4>
+                  <CalendarComponent
+                    mode="range"
+                    selected={{
+                      from: dateRange.from || undefined,
+                      to: dateRange.to || undefined
+                    }}
+                    onSelect={handleDateRangeChange}
+                    initialFocus
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
           
+          {/* Fuel Type filter */}
+          <Select value={selectedFuelType} onValueChange={setSelectedFuelType}>
+            <SelectTrigger className="w-[150px]">
+              <span className="flex items-center gap-2">
+                <Fuel className="h-4 w-4" />
+                {selectedFuelType === "all" 
+                  ? t("common.allFuelTypes") || "All Fuel Types"
+                  : getFuelTypeName(selectedFuelType)}
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("common.allFuelTypes") || "All Fuel Types"}</SelectItem>
+              {uniqueFuelTypes.map(type => (
+                <SelectItem key={type} value={type}>
+                  {getFuelTypeName(type)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
           {/* Group by filter */}
-          <div className="flex items-center gap-2">
-            <Select value={groupBy} onValueChange={(value: GroupingFilter) => setGroupBy(value)}>
-              <SelectTrigger className="w-[180px]">
-                <span className="flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
-                  {t("common.groupBy")}
-                </span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fuelType">{t("common.fuelType")}</SelectItem>
-                <SelectItem value="tank">{t("common.tanks")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={groupBy} onValueChange={(value: GroupingFilter) => setGroupBy(value)}>
+            <SelectTrigger className="w-[150px]">
+              <span className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                {t("common.groupBy")}
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fuelType">{t("common.fuelType")}</SelectItem>
+              <SelectItem value="tank">{t("common.tanks")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       

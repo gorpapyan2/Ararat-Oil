@@ -2,29 +2,31 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TankManagerStandardized } from "@/components/tanks/TankManagerStandardized";
 import { PageHeader } from "@/components/ui/page-header";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { IconTank } from "@tabler/icons-react";
+import { Home, Fuel, Container } from "lucide-react";
+import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function TanksPage() {
   const { t } = useTranslation();
   const [action, setAction] = useState<React.ReactNode>(null);
 
-  // Configure breadcrumb navigation
-  const breadcrumbSegments = [
-    { name: t("common.dashboard"), href: "/" },
-    { name: t("common.fuelManagement"), href: "/fuel-management" },
-    { name: t("common.tanks"), href: "/fuel-management/tanks", isCurrent: true }
-  ];
-  
-  // Set document title programmatically
-  React.useEffect(() => {
-    document.title = `${t("common.tanks")} | Ararat Oil`;
-  }, [t]);
+  // Configure breadcrumb navigation with icons
+  usePageBreadcrumbs({
+    segments: [
+      { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
+      { name: t("common.fuelManagement"), href: "/fuel-management", icon: <Fuel className="h-4 w-4" /> },
+      { 
+        name: t("common.tanks"), 
+        href: "/fuel-management/tanks", 
+        isCurrent: true,
+        icon: <Container className="h-4 w-4" /> 
+      }
+    ],
+    title: t("common.tanks")
+  });
 
   return (
     <div className="space-y-6">
-      <Breadcrumb segments={breadcrumbSegments} className="mb-2" />
-      
       <PageHeader
         title={t("common.tanks")}
         description={t("tanks.description") || "Manage your fuel storage tanks"}

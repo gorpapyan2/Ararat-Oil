@@ -67,6 +67,8 @@ export function FuelSuppliesManagerStandardized({
     queryFn: fetchFuelTanks,
   });
 
+  const [summaryFilteredSupplies, setSummaryFilteredSupplies] = useState<FuelSupply[]>([]);
+
   // Handler for updating filters in a modern, scalable way
   const handleFiltersChange = useCallback((updates: Partial<typeof filters>) => {
     if ("search" in updates) {
@@ -240,12 +242,19 @@ export function FuelSuppliesManagerStandardized({
     console.log('Sample item:', filteredSupplies[0]);
   }
 
+  // Use summaryFilteredSupplies if available, otherwise default to filteredSupplies
+  const displayedSupplies = summaryFilteredSupplies.length > 0 ? summaryFilteredSupplies : filteredSupplies;
+
   return (
     <div className="space-y-6">
-      <FuelSuppliesSummary supplies={filteredSupplies} loading={isLoading} />
+      <FuelSuppliesSummary 
+        supplies={filteredSupplies} 
+        loading={isLoading} 
+        onFilteredSuppliesChange={setSummaryFilteredSupplies} 
+      />
 
       <FuelSuppliesTable
-        fuelSupplies={filteredSupplies}
+        fuelSupplies={displayedSupplies}
         isLoading={isLoading}
         onEdit={(id) => handleEdit(filteredSupplies.find(s => s.id === id) as FuelSupply)}
         onDelete={(id) => handleDelete(filteredSupplies.find(s => s.id === id) as FuelSupply)}

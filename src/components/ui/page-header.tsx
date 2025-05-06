@@ -6,7 +6,6 @@ import {
   PageHeaderTitlePrimitive,
   PageHeaderDescriptionPrimitive,
   PageHeaderActionsPrimitive,
-  PageHeaderBreadcrumbsPrimitive,
 } from "@/components/ui/primitives/page-header";
 
 export interface PageHeaderProps extends React.ComponentPropsWithoutRef<typeof PageHeaderPrimitive> {
@@ -36,11 +35,6 @@ export interface PageHeaderProps extends React.ComponentPropsWithoutRef<typeof P
   actions?: React.ReactNode;
   
   /**
-   * Breadcrumbs to display above the title
-   */
-  breadcrumbs?: React.ReactNode;
-
-  /**
    * Icon to display next to the title
    */
   icon?: React.ReactNode;
@@ -59,7 +53,6 @@ export const PageHeader = React.forwardRef<
   description,
   descriptionKey,
   actions,
-  breadcrumbs,
   icon,
   ...props 
 }, ref) => {
@@ -74,12 +67,6 @@ export const PageHeader = React.forwardRef<
       className={cn("mb-8", className)}
       {...props}
     >
-      {breadcrumbs && (
-        <PageHeaderBreadcrumbs className="mb-2">
-          {breadcrumbs}
-        </PageHeaderBreadcrumbs>
-      )}
-
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           {translatedTitle && (
@@ -179,25 +166,6 @@ export const PageHeaderActions = React.forwardRef<
   );
 });
 PageHeaderActions.displayName = "PageHeaderActions";
-
-export interface PageHeaderBreadcrumbsProps extends React.ComponentPropsWithoutRef<typeof PageHeaderBreadcrumbsPrimitive> {}
-
-/**
- * Breadcrumbs container for the page header
- */
-export const PageHeaderBreadcrumbs = React.forwardRef<
-  React.ElementRef<typeof PageHeaderBreadcrumbsPrimitive>,
-  PageHeaderBreadcrumbsProps
->(({ className, ...props }, ref) => {
-  return (
-    <PageHeaderBreadcrumbsPrimitive
-      ref={ref}
-      className={cn("", className)}
-      {...props}
-    />
-  );
-});
-PageHeaderBreadcrumbs.displayName = "PageHeaderBreadcrumbs";
 
 /**
  * Skeleton loading state for the page header

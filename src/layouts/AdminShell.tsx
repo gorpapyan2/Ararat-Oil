@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
   IconDashboard,
   IconGasStation,
@@ -30,6 +31,31 @@ import {
   IconChecklist,
 } from "@tabler/icons-react";
 import { DevMenu } from "@/components/ui/composed/dev-menu";
+
+// Define the BreadcrumbContext type
+type BreadcrumbSegment = {
+  name: string;
+  href: string;
+  isCurrent?: boolean;
+};
+
+type BreadcrumbContextType = {
+  breadcrumbs: BreadcrumbSegment[];
+  setBreadcrumbs: React.Dispatch<React.SetStateAction<BreadcrumbSegment[]>>;
+};
+
+// Create the BreadcrumbContext
+const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
+
+// Create a hook to use the BreadcrumbContext
+export const useBreadcrumbs = () => {
+  const context = useContext(BreadcrumbContext);
+  if (!context) {
+    throw new Error("useBreadcrumbs must be used within a BreadcrumbProvider");
+  }
+  return context;
+};
+
 type AdminShellProps = {
   children: React.ReactNode;
 };
@@ -73,6 +99,9 @@ export function AdminShell({ children }: AdminShellProps) {
     setSidebarCollapsed(!sidebarCollapsed);
   };
   const isActive = (path: string) => pathname === path;
+
+  // Add breadcrumb state
+  const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbSegment[]>([]);
 
   // Organized navigation sections
   const navSections: NavSection[] = [
@@ -302,72 +331,93 @@ export function AdminShell({ children }: AdminShellProps) {
       </div>
     </div>
   );
+
+  // Add styles for breadcrumb transitions
+  const breadcrumbContainerStyles = "transition-all duration-300 ease-in-out";
+  const breadcrumbAnimationStyles = "animate-in fade-in slide-in-from-left-5 duration-300";
+
   return (
-    <div className="relative min-h-screen">
-      <SkipToContent />
-      
-      {/* Sidebar - desktop version */}
-      <aside
-        className={cn(
-          "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 md:block md:flex-col",
-          sidebarCollapsed ? "md:w-[70px]" : "md:w-[240px]",
-        )}
-      >
-        {renderSidebarContent()}
-      </aside>
-
-      {/* Mobile sidebar - sheet component */}
-      <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
-        <SheetTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className={cn("fixed left-4 top-3 z-40 md:hidden")}
-          >
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle Menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="p-0">
+    <BreadcrumbContext.Provider value={{ breadcrumbs, setBreadcrumbs }}>
+      <div className="relative min-h-screen">
+        <SkipToContent />
+        
+        {/* Sidebar - desktop version */}
+        <aside
+          className={cn(
+            "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 md:block md:flex-col",
+            sidebarCollapsed ? "md:w-[70px]" : "md:w-[240px]",
+          )}
+        >
           {renderSidebarContent()}
-        </SheetContent>
-      </Sheet>
+        </aside>
 
-      {/* Main content */}
-      <main
-        id="main-content"
-        className={cn(
-          "flex min-h-screen flex-col bg-background transition-all duration-300",
-          sidebarCollapsed ? "md:pl-[70px]" : "md:pl-[240px]",
-        )}
-        tabIndex={-1}
-      >
-        {/* Header */}
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
-          <div className="flex-1 font-heading font-semibold text-xl">
-            {/* Page title would go here */}
-            Dashboard
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Add DevMenu */}
-            <DevMenu />
-            
-            {/* Right side header elements - removed ThemeToggle */}
-            {/* User profile button placeholder */}
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <span className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium">
-                AO
-              </span>
+        {/* Mobile sidebar - sheet component */}
+        <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className={cn("fixed left-4 top-3 z-40 md:hidden")}
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle Menu</span>
             </Button>
-          </div>
-        </header>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0">
+            {renderSidebarContent()}
+          </SheetContent>
+        </Sheet>
 
-        {/* Page content */}
-        <div className="flex-1 px-4 py-6 md:px-6 md:py-8">{children}</div>
-      </main>
+        {/* Main content */}
+        <main
+          id="main-content"
+          className={cn(
+            "flex min-h-screen flex-col bg-background transition-all duration-300",
+            sidebarCollapsed ? "md:pl-[70px]" : "md:pl-[240px]",
+          )}
+          tabIndex={-1}
+        >
+          {/* Header */}
+          <header className="sticky top-0 z-20 flex h-14 items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 shadow-sm">
+            <div className="flex-1 overflow-hidden flex items-center">
+              {/* Display breadcrumbs in header with enhanced styling */}
+              {breadcrumbs.length > 0 ? (
+                <div className={breadcrumbContainerStyles}>
+                  <Breadcrumb
+                    segments={breadcrumbs}
+                    className={`py-1 ${breadcrumbAnimationStyles}`}
+                  />
+                </div>
+              ) : (
+                <div className={`flex items-center ${breadcrumbAnimationStyles}`}>
+                  <span className="font-heading font-semibold text-xl">Dashboard</span>
+                </div>
+              )}
+            </div>
 
-      <Toaster />
-    </div>
+            <div className="flex items-center gap-3">
+              {/* Add DevMenu */}
+              <DevMenu />
+              
+              {/* User profile button placeholder */}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full hover:bg-primary/10 transition-colors"
+              >
+                <span className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium">
+                  AO
+                </span>
+              </Button>
+            </div>
+          </header>
+
+          {/* Page content */}
+          <div className="flex-1 px-4 py-6 md:px-6 md:py-8">{children}</div>
+        </main>
+
+        <Toaster />
+      </div>
+    </BreadcrumbContext.Provider>
   );
 }
