@@ -2,77 +2,86 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Tests the Supabase connection and fetches basic information about the fuel_supplies table
- * @returns Promise<void>
+ * For debugging purposes only - do not use in production
  */
-export async function testSupabaseConnection(): Promise<void> {
+export async function testSupabaseConnection() {
+  console.log("=== Supabase Connection Test ===");
+  
   try {
-    console.log("Testing Supabase connection...");
-    
-    // Check if we can connect to Supabase
-    const { data: connectionTestData, error: connectionError } = await supabase
+    // Test 1: Basic connection check
+    console.log("1. Checking base connection...");
+    const { data: testData, error: testError } = await supabase
       .from("fuel_supplies")
       .select("count")
       .limit(1);
-    
-    if (connectionError) {
-      console.error("Supabase connection error:", connectionError);
-      return;
+      
+    if (testError) {
+      console.error("Basic connection test failed:", testError);
+      return false;
     }
     
-    console.log("Supabase connection successful");
+    console.log("✅ Basic connection successful");
     
-    // Check if the fuel_supplies table exists and has data
+    // Test 2: Check if the fuel_supplies table exists and has data
+    console.log("2. Checking fuel_supplies table...");
     const { count, error: countError } = await supabase
       .from("fuel_supplies")
       .select("*", { count: "exact", head: true });
     
     if (countError) {
       console.error("Error checking fuel_supplies table:", countError);
-      return;
+      return false;
     }
     
-    console.log(`The fuel_supplies table has ${count} records`);
+    console.log(`✅ The fuel_supplies table has ${count} records`);
     
-    // Fetch a single record to check the structure
-    if (count && count > 0) {
-      const { data: sampleData, error: sampleError } = await supabase
-        .from("fuel_supplies")
-        .select("*")
-        .limit(1)
-        .single();
+    // Test 3: Simple query without relations
+    console.log("3. Executing simple query...");
+    const { data: simpleData, error: simpleError } = await supabase
+      .from("fuel_supplies")
+      .select("id, delivery_date")
+      .limit(3);
       
-      if (sampleError) {
-        console.error("Error fetching sample record:", sampleError);
-        return;
-      }
-      
-      console.log("Sample record structure:", Object.keys(sampleData));
-      console.log("Sample record values:", sampleData);
+    if (simpleError) {
+      console.error("Simple query failed:", simpleError);
+      return false;
     }
     
-    // Now check the full query that's used in the application
+    console.log(`✅ Simple query returned ${simpleData.length} items:`, simpleData);
+    
+    // Test 4: Full query with relations
+    console.log("4. Executing full query with relations...");
     const { data, error } = await supabase
       .from("fuel_supplies")
       .select(`
         *,
-        provider:petrol_providers(id, name, contact),
-        tank:fuel_tanks(id, name, fuel_type, capacity, current_level),
-        employee:employees(id, name, position, contact, salary, hire_date, status)
+        provider:petrol_providers!provider_id(id, name, contact),
+        tank:fuel_tanks!tank_id(id, name, fuel_type, capacity, current_level),
+        employee:employees!employee_id(id, name, position, contact, salary, hire_date, status)
       `)
-      .order("delivery_date", { ascending: false });
-
+      .limit(1);
+      
     if (error) {
-      console.error("Error with full query:", error);
-      return;
+      console.error("Full query with relations failed:", error);
+      return false;
     }
     
-    console.log(`Full query returned ${data?.length || 0} records`);
+    console.log(`✅ Full query returned ${data.length} items with relations`);
+    console.log("Sample data structure:", data[0] ? Object.keys(data[0]) : "No data");
     
-    if (data && data.length > 0) {
-      console.log("First record from full query:", data[0]);
+    if (data.length > 0) {
+      const sample = data[0];
+      console.log("Relation check:", {
+        hasProvider: Boolean(sample.provider),
+        hasTank: Boolean(sample.tank),
+        hasEmployee: Boolean(sample.employee)
+      });
     }
     
+    console.log("=== Connection Test Finished Successfully ===");
+    return true;
   } catch (e) {
-    console.error("Exception in testSupabaseConnection:", e);
+    console.error("Connection test failed with exception:", e);
+    return false;
   }
 } 

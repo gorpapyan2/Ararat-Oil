@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TankLevelEditor } from "./TankLevelEditor";
 import { Button } from "@/components/ui/button";
 import { TankHistory } from "./TankHistory";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ export function TankList({
   isEditMode,
   onEditComplete,
 }: TankListProps) {
+  const { t } = useTranslation();
   const [editingTankId, setEditingTankId] = useState<string | null>(null);
   const [selectedTank, setSelectedTank] = useState<FuelTank | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -52,9 +54,9 @@ export function TankList({
   if (!tanks.length) {
     return (
       <div className="p-6 text-center">
-        <h3 className="text-lg font-medium">No tanks found</h3>
+        <h3 className="text-lg font-medium">{t("tanks.noTanksFound")}</h3>
         <p className="text-sm text-muted-foreground mt-2">
-          Add a tank to get started tracking fuel inventory.
+          {t("tanks.addTankPrompt")}
         </p>
       </div>
     );
@@ -88,7 +90,7 @@ export function TankList({
               className={`overflow-hidden ${isEditMode ? "border-blue-400" : "cursor-pointer transition hover:shadow-lg"}`}
               onClick={() => !isEditMode && handleOpenHistory(tank)}
               tabIndex={!isEditMode ? 0 : undefined}
-              aria-label={`View history for ${tank.name}`}
+              aria-label={`${t("common.viewDetails")} ${tank.name}`}
             >
               <CardHeader className="pb-2">
                 <CardTitle className="flex justify-between items-center">
@@ -101,7 +103,7 @@ export function TankList({
               <CardContent>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm text-muted-foreground">
-                    Capacity: {tank.capacity} liters
+                    {t("common.capacity")}: {tank.capacity} {t("common.liters")}
                   </span>
                   <span className="text-sm font-medium">{fillPercentage}%</span>
                 </div>
@@ -111,9 +113,9 @@ export function TankList({
                   indicatorClassName={progressColor}
                 />
                 <div className="mt-2 text-sm">
-                  Current Level:{" "}
+                  {t("common.currentLevel")}:{" "}
                   <span className="font-medium">
-                    {tank.current_level} liters
+                    {tank.current_level} {t("common.liters")}
                   </span>
                 </div>
 
@@ -137,7 +139,7 @@ export function TankList({
                           setEditingTankId(tank.id);
                         }}
                       >
-                        Adjust Level
+                        {t("tanks.editLevels")}
                       </Button>
                     )}
                   </div>
@@ -149,15 +151,18 @@ export function TankList({
       </div>
 
       {/* Dialog for tank history */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog 
+        open={dialogOpen} 
+        onOpenChange={setDialogOpen} 
+        title={selectedTank?.name ? `${selectedTank.name} ${t("common.history")}` : t("common.history")}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedTank?.name} History</DialogTitle>
+            <DialogTitle>{selectedTank?.name} {t("common.history")}</DialogTitle>
           </DialogHeader>
           {selectedTank && (
             <div>
               <div className="mb-2 font-medium text-muted-foreground">
-                Fuel Type:{" "}
+                {t("common.fuelType")}:{" "}
                 <span className="font-semibold">{selectedTank.fuel_type}</span>
               </div>
               <TankHistory tankId={selectedTank.id} />

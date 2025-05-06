@@ -36,7 +36,7 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
     }
     
     // Now proceed with the full query including relations
-    // Looking at the Database type definitions, we need to use the table names with foreign keys
+    // Use the correct foreign key references with the bang (!) operator
     const { data, error } = await supabase
       .from("fuel_supplies")
       .select(`

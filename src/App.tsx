@@ -35,9 +35,26 @@ const ImportErrorFallback = ({ pageName }: { pageName: string }) => (
 const DashboardNew = lazy(() => 
   import(/* webpackPrefetch: true, webpackChunkName: "dashboard" */ "@/pages/DashboardNew")
 );
+
+// New Fuel Management pages
+const FuelManagementDashboard = lazy(() => 
+  import(/* webpackChunkName: "fuel-dashboard" */ "@/pages/fuel-management/FuelManagementDashboard")
+);
+const FillingSystemsPage = lazy(() => 
+  import(/* webpackChunkName: "filling-systems" */ "@/pages/fuel-management/FillingSystemsPage")
+);
+const TanksPage = lazy(() => 
+  import(/* webpackChunkName: "tanks" */ "@/pages/fuel-management/TanksPage")
+);
+const FuelSuppliesPage = lazy(() => 
+  import(/* webpackChunkName: "fuel-supplies" */ "@/pages/fuel-management/FuelSuppliesPage")
+);
+
+// Legacy fuel management page (will be removed later)
 const FuelManagement = lazy(() => 
   import(/* webpackChunkName: "fuel-management" */ "@/pages/FuelManagement")
 );
+
 const EmployeesNew = lazy(() => 
   import(/* webpackChunkName: "employees" */ "@/pages/EmployeesNew")
 );
@@ -128,8 +145,58 @@ const App = () => (
                     </RequireAuth>
                   }
                 />
+
+                {/* Fuel Management Routes */}
                 <Route
                   path="/fuel-management"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Management" />}>
+                          <FuelManagementDashboard />
+                        </ErrorBoundary>
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/fuel-management/filling-systems"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading filling systems..." />}>
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Filling Systems" />}>
+                          <FillingSystemsPage />
+                        </ErrorBoundary>
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/fuel-management/tanks"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading tanks..." />}>
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Tanks" />}>
+                          <TanksPage />
+                        </ErrorBoundary>
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/fuel-management/fuel-supplies"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supplies..." />}>
+                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Supplies" />}>
+                          <FuelSuppliesPage />
+                        </ErrorBoundary>
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/fuel-management-legacy"
                   element={
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
@@ -140,12 +207,14 @@ const App = () => (
                     </RequireAuth>
                   }
                 />
+
+                {/* Legacy routes - redirect to new structure */}
                 <Route
                   path="/filling-systems"
                   element={
                     <RequireAuth>
                       <Navigate
-                        to="/fuel-management?tab=filling-systems"
+                        to="/fuel-management/filling-systems"
                         replace
                       />
                     </RequireAuth>
@@ -156,12 +225,14 @@ const App = () => (
                   element={
                     <RequireAuth>
                       <Navigate
-                        to="/fuel-management?tab=fuel-supplies"
+                        to="/fuel-management/fuel-supplies"
                         replace
                       />
                     </RequireAuth>
                   }
                 />
+                
+                {/* Other routes... */}
                 <Route
                   path="/employees"
                   element={

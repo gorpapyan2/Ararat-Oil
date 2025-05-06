@@ -39,6 +39,11 @@ export interface PageHeaderProps extends React.ComponentPropsWithoutRef<typeof P
    * Breadcrumbs to display above the title
    */
   breadcrumbs?: React.ReactNode;
+
+  /**
+   * Icon to display next to the title
+   */
+  icon?: React.ReactNode;
 }
 
 /**
@@ -55,6 +60,7 @@ export const PageHeader = React.forwardRef<
   descriptionKey,
   actions,
   breadcrumbs,
+  icon,
   ...props 
 }, ref) => {
   const { t } = useTranslation();
@@ -78,6 +84,7 @@ export const PageHeader = React.forwardRef<
         <div>
           {translatedTitle && (
             <PageHeaderTitle>
+              {icon && <span className="inline-flex items-center">{icon}</span>}
               {translatedTitle}
             </PageHeaderTitle>
           )}

@@ -3,6 +3,7 @@ import { FillingSystem, deleteFillingSystem } from "@/services/filling-systems";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks";
+import { useTranslation } from "react-i18next";
 import { ConfirmDeleteDialogStandardized } from "./ConfirmDeleteDialogStandardized";
 import { StandardizedDataTable } from "@/components/unified/StandardizedDataTable";
 
@@ -17,6 +18,7 @@ export function FillingSystemList({
   isLoading,
   onDelete,
 }: FillingSystemListProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,15 +44,15 @@ export function FillingSystemList({
     try {
       await deleteFillingSystem(systemToDelete.id);
       toast({
-        title: "Success",
-        message: "Filling system deleted successfully",
+        title: t("common.success"),
+        message: t("fillingSystems.systemAdded"),
       });
       onDelete();
       closeDeleteConfirm();
     } catch (error) {
       toast({
-        title: "Error",
-        message: "Failed to delete filling system",
+        title: t("common.error"),
+        message: t("fillingSystems.errorAddingSystem"),
         type: "error",
       });
     } finally {
@@ -61,19 +63,19 @@ export function FillingSystemList({
   if (isLoading) {
     return (
       <div className="w-full p-8 flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       </div>
     );
   }
 
   const columns = [
     {
-      header: "System Name",
+      header: t("fillingSystems.systemName"),
       accessorKey: "name" as keyof FillingSystem,
       cell: (value: string, row: FillingSystem) => row.name
     },
     {
-      header: "Associated Tank",
+      header: t("fillingSystems.connectedTank"),
       accessorKey: "tank" as keyof FillingSystem,
       cell: (value: any, row: FillingSystem) => {
         return row.tank ? (
@@ -84,7 +86,7 @@ export function FillingSystemList({
             </span>
           </span>
         ) : (
-          "N/A"
+          t("common.unknown")
         );
       },
     },
@@ -96,9 +98,9 @@ export function FillingSystemList({
         <table className="w-full table-fixed">
           <thead className="bg-muted">
             <tr>
-              <th className="p-3 text-left font-medium">System Name</th>
-              <th className="p-3 text-left font-medium">Associated Tank</th>
-              <th className="p-3 text-center w-24">Actions</th>
+              <th className="p-3 text-left font-medium">{t("fillingSystems.systemName")}</th>
+              <th className="p-3 text-left font-medium">{t("fillingSystems.connectedTank")}</th>
+              <th className="p-3 text-center w-24">{t("common.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -114,7 +116,7 @@ export function FillingSystemList({
                       </span>
                     </span>
                   ) : (
-                    "N/A"
+                    t("common.unknown")
                   )}
                 </td>
                 <td className="p-3 text-center">

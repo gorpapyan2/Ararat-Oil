@@ -227,27 +227,40 @@ export function FuelSuppliesManagerStandardized({
     }
   }, [onRenderAction, handleAdd, t]);
 
+  // Enhanced debug logging
+  console.log('FuelSuppliesManagerStandardized - DEBUG INFO');
+  console.log('filteredSupplies:', { 
+    isArray: Array.isArray(filteredSupplies),
+    length: filteredSupplies?.length || 0,
+    isEmpty: !filteredSupplies || filteredSupplies.length === 0,
+    isLoading
+  });
+  
+  if (filteredSupplies && filteredSupplies.length > 0) {
+    console.log('Sample item:', filteredSupplies[0]);
+  }
+
   return (
     <div className="space-y-6">
-      <FuelSuppliesSummary supplies={filteredSupplies} isLoading={isLoading} />
+      <FuelSuppliesSummary supplies={filteredSupplies} loading={isLoading} />
 
       <FuelSuppliesTable
         fuelSupplies={filteredSupplies}
         isLoading={isLoading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onEdit={(id) => handleEdit(filteredSupplies.find(s => s.id === id) as FuelSupply)}
+        onDelete={(id) => handleDelete(filteredSupplies.find(s => s.id === id) as FuelSupply)}
         providers={providers || []}
         onFiltersChange={handleFiltersChange}
       />
 
       {/* Edit form */}
       <FuelSuppliesFormStandardized
-        isOpen={formDialog.isOpen}
+        open={formDialog.isOpen}
         onOpenChange={(open) => {
           formDialog.onOpenChange(open);
           if (!open) handleDialogClose();
         }}
-        supply={editingSupply}
+        defaultValues={editingSupply}
         onSubmit={handleSubmit}
       />
 
@@ -257,6 +270,7 @@ export function FuelSuppliesManagerStandardized({
         onOpenChange={confirmAddDialog.onOpenChange}
         onConfirm={handleConfirmSubmit}
         onCancel={confirmAddDialog.close}
+        isLoading={createMutation.isPending}
         data={confirmData || {}}
       />
 
@@ -265,9 +279,8 @@ export function FuelSuppliesManagerStandardized({
         open={confirmDeleteDialog.isOpen}
         onOpenChange={confirmDeleteDialog.onOpenChange}
         onConfirm={confirmDelete}
-        onCancel={confirmDeleteDialog.close}
-        loading={deleteLoading}
-        data={deletingSupply || {}}
+        isLoading={deleteLoading}
+        recordInfo={deletingSupply?.id}
       />
     </div>
   );

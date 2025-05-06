@@ -4,7 +4,7 @@ import { StandardDialog } from "@/components/ui/composed/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks";
 import { createFillingSystem } from "@/services/filling-systems";
-import { fetchFuelTanks } from "@/services/supabase";
+import { fetchFuelTanks } from "@/services/tanks";
 import { useQuery } from "@tanstack/react-query";
 import { FormInput, FormSelect } from "@/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";

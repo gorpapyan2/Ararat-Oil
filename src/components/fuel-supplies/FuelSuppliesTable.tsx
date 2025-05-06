@@ -67,6 +67,23 @@ export function FuelSuppliesTable({
     Array.isArray(fuelSupplies) ? fuelSupplies : [], 
   [fuelSupplies]);
 
+  // Enhanced debugging output
+  console.log('FuelSuppliesTable - DEBUG INFO');
+  console.log('Props received:', { 
+    fuelSupplies, 
+    isArray: Array.isArray(fuelSupplies),
+    length: fuelSupplies?.length || 0,
+    isEmpty: !fuelSupplies || fuelSupplies.length === 0,
+    isLoading 
+  });
+  
+  if (fuelSupplies && fuelSupplies.length > 0) {
+    console.log('First item in fuelSupplies:', fuelSupplies[0]);
+    console.log('Data structure check:', Object.keys(fuelSupplies[0]));
+  } else {
+    console.warn('No fuel supplies data to display!');
+  }
+
   // Handle filter changes
   const handleFilterChange = (newFilters: FiltersShape) => {
     setFilters(newFilters);
@@ -77,7 +94,7 @@ export function FuelSuppliesTable({
   const columns = useMemo(() => [
     {
       accessorKey: "delivery_date" as keyof FuelSupply,
-      header: "Date",
+      header: t("tableColumns.deliveryDate"),
       cell: (value: any, row: FuelSupply) => (
         <div className="flex items-center gap-2 py-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -91,7 +108,7 @@ export function FuelSuppliesTable({
     },
     {
       accessorKey: "provider" as keyof FuelSupply,
-      header: t("fuel-supplies.provider"),
+      header: t("tableColumns.provider"),
       cell: (value: any, row: FuelSupply) => {
         const provider = value && value.name ? value.name : t("common.unknown");
         return (
@@ -104,7 +121,7 @@ export function FuelSuppliesTable({
     },
     {
       accessorKey: "tank" as keyof FuelSupply,
-      header: "Tank",
+      header: t("tableColumns.tank"),
       cell: (value: any, row: FuelSupply) => {
         const tankName = value && value.name ? value.name : "N/A";
         return (
@@ -117,7 +134,7 @@ export function FuelSuppliesTable({
     },
     {
       accessorKey: "quantity_liters" as keyof FuelSupply,
-      header: "Quantity (Liters)",
+      header: t("tableColumns.quantity"),
       cell: (value: any, row: FuelSupply) => {
         const quantity = value !== undefined && value !== null
           ? Number(value).toFixed(2)
@@ -134,7 +151,7 @@ export function FuelSuppliesTable({
     },
     {
       accessorKey: "price_per_liter" as keyof FuelSupply,
-      header: "Price per Liter (֏)",
+      header: t("tableColumns.pricePerLiter"),
       cell: (value: any, row: FuelSupply) => {
         const price = value !== undefined && value !== null
           ? Number(value).toLocaleString()
@@ -149,7 +166,7 @@ export function FuelSuppliesTable({
     },
     {
       accessorKey: "total_cost" as keyof FuelSupply,
-      header: "Total Cost (֏)",
+      header: t("tableColumns.totalCost"),
       cell: (value: any, row: FuelSupply) => {
         const formattedValue = value !== undefined && value !== null
           ? Number(value).toLocaleString()
@@ -166,7 +183,7 @@ export function FuelSuppliesTable({
     },
     {
       accessorKey: "employee" as keyof FuelSupply,
-      header: "Employee",
+      header: t("tableColumns.employee"),
       cell: (value: any, row: FuelSupply) => {
         const employeeName = value && value.name ? value.name : "N/A";
         return (
@@ -179,7 +196,7 @@ export function FuelSuppliesTable({
     },
     {
       accessorKey: "comments" as keyof FuelSupply,
-      header: "Comments",
+      header: t("tableColumns.comments"),
       cell: (value: any) => (
         <div className="flex items-center gap-2 py-2">
           <span className="font-medium">{value || "N/A"}</span>

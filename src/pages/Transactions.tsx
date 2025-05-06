@@ -1,31 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { TransactionsManagerStandardized } from "@/components/transactions/TransactionsManagerStandardized";
 import { useTranslation } from "react-i18next";
 
 const Transactions = () => {
   const { t } = useTranslation();
   
+  // Configure breadcrumb navigation
+  const breadcrumbSegments = [
+    { name: t("common.dashboard"), href: "/" },
+    { name: t("transactions.title"), href: "/transactions", isCurrent: true }
+  ];
+
   return (
     <div className="container mx-auto py-6 space-y-6 max-w-7xl">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">{t("common.dashboard")}</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{t("transactions.title")}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb segments={breadcrumbSegments} />
 
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">

@@ -43,6 +43,8 @@
     "petrol": "Petrol",
     "diesel": "Diesel",
     "cng": "CNG",
+    "gas": "Gas",
+    "kerosene": "Kerosene",
     "noData": "No data found",
     "selectAnOption": "Select an option",
     "overview": "Overview",
@@ -78,7 +80,12 @@
     "appName": "Ararat Oil",
     "appShort": "AO",
     "collapse": "Collapse",
-    "expand": "Expand"
+    "expand": "Expand",
+    "fuelManagement": "Fuel Management",
+    "manage": "Manage",
+    "viewDetails": "View Details",
+    "supplies": "Supplies",
+    "history": "History"
   },
   "auth": {
     "signIn": "Sign In",
@@ -209,7 +216,9 @@
     "currentTankLevels": "Current Tank Levels",
     "saveLevels": "Save Levels",
     "addTankPrompt": "Add a tank to get started tracking fuel inventory.",
-    "levelUpdated": "Fuel level updated successfully"
+    "levelUpdated": "Fuel level updated successfully",
+    "totalCount": "{{count}} fuel tanks in your inventory",
+    "totalCapacity": "Total Capacity"
   },
   "fillingSystems": {
     "title": "Filling Systems",
@@ -220,7 +229,8 @@
     "connectedTank": "Connected Tank",
     "tankConnection": "Tank Connection",
     "systemAdded": "Filling system added successfully",
-    "errorAddingSystem": "Error adding filling system"
+    "errorAddingSystem": "Error adding filling system",
+    "totalCount": "{{count}} filling systems available"
   },
   "fuelSupplies": {
     "title": "Fuel Supplies",
@@ -265,7 +275,9 @@
     "noSuppliesFound": "No fuel supplies found",
     "supplies": "Supplies",
     "manageSupplies": "Manage supplies",
-    "searchProviderPlaceholder": "Search provider..."
+    "searchProviderPlaceholder": "Search provider...",
+    "totalCount": "{{count}} fuel supply records",
+    "fuelTypeBreakdown": "Fuel Type Breakdown"
   },
   "sales": {
     "title": "Sales",
@@ -542,5 +554,27 @@
     "pricePerLiter": "Price Per Liter",
     "totalCost": "Total Cost",
     "date": "Date"
+  },
+  "fuelManagement": {
+    "title": "Fuel Management",
+    "description": "Manage your fuel systems, tanks, and supplies",
+    "overview": "Fuel Management Overview",
+    "metrics": "Key Metrics"
+  },
+  "tableColumns": {
+    "date": "Date",
+    "deliveryDate": "Delivery Date",
+    "provider": "Provider",
+    "tank": "Tank",
+    "quantity": "Quantity (Liters)",
+    "pricePerLiter": "Price per Liter (֏)",
+    "totalCost": "Total Cost (֏)",
+    "employee": "Employee",
+    "comments": "Comments",
+    "actions": "Actions",
+    "fuelType": "Fuel Type",
+    "tankName": "Tank Name",
+    "status": "Status",
+    "currentLevel": "Current Level"
   }
 }
