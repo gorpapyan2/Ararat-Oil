@@ -6,6 +6,7 @@ import {
   Receipt,
   ListChecks,
   CalendarClock,
+  Bug,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -25,6 +26,9 @@ export const useSidebarNavConfig = () => {
     management: [
       { to: "/employees", icon: Users, label: t("common.employees") },
       { to: "/settings", icon: Settings, label: t("common.settings") },
+    ],
+    development: [
+      { to: "/debug", icon: Bug, label: t("common.debug") },
     ],
   };
 };

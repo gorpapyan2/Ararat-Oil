@@ -14,86 +14,186 @@ import { createTransaction } from "@/services/transactions";
  * @throws {Error} If fetching data fails
  */
 export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
-  const { data, error } = await supabase
-    .from("fuel_supplies")
-    .select(
-      `
-      *,
-      provider:petrol_providers(id, name, contact),
-      tank:fuel_tanks(id, name, fuel_type, capacity, current_level),
-      employee:employees(id, name, position, contact, salary, hire_date, status)
-    `,
-    )
-    .order("delivery_date", { ascending: false });
+  try {
+    console.log("Fetching fuel supplies...");
+    
+    // First check if the fuel_supplies table exists and has data
+    const { count, error: countError } = await supabase
+      .from("fuel_supplies")
+      .select("*", { count: "exact", head: true });
+    
+    if (countError) {
+      console.error("Error checking fuel_supplies count:", countError);
+      return [];
+    }
+    
+    console.log(`The fuel_supplies table has ${count} records`);
+    
+    // If no records, return empty array early
+    if (!count || count === 0) {
+      console.log("No fuel supplies found in database");
+      return [];
+    }
+    
+    // Now proceed with the full query including relations
+    // Looking at the Database type definitions, we need to use the table names with foreign keys
+    const { data, error } = await supabase
+      .from("fuel_supplies")
+      .select(`
+        *,
+        provider:petrol_providers!provider_id(id, name, contact),
+        tank:fuel_tanks!tank_id(id, name, fuel_type, capacity, current_level),
+        employee:employees!employee_id(id, name, position, contact, salary, hire_date, status)
+      `)
+      .order("delivery_date", { ascending: false });
 
-  if (error) {
-    // TODO: Replace with production logger
-    console.error("Error fetching fuel supplies:", error.message ?? error);
-    throw new Error(`Failed to fetch fuel supplies: ${error.message ?? error}`);
-  }
-
-  return (data ?? []).map((record) => {
-    // Safely access nested properties with null checks
-    const provider = record.provider ?? undefined;
-    const tank = record.tank
-      ? {
-          ...record.tank,
-          fuel_type: record.tank.fuel_type as FuelType,
-        }
-      : undefined;
-    const employee = record.employee
-      ? {
-          ...record.employee,
-          status: record.employee.status as EmployeeStatus,
-        }
-      : undefined;
-
-    // Handle payment_method type conversion - handle "new_value" explicitly
-    let paymentMethod: PaymentMethod | undefined = undefined;
-    if (record.payment_method) {
-      // Filter out "new_value" which isn't part of our PaymentMethod type
-      if (
-        ["cash", "card", "bank_transfer", "mobile_payment"].includes(
-          record.payment_method,
-        )
-      ) {
-        paymentMethod = record.payment_method as PaymentMethod;
+    if (error) {
+      console.error("Error fetching fuel supplies:", error.message ?? error);
+      // Try a more basic query without relations to see if that works
+      const { data: basicData, error: basicError } = await supabase
+        .from("fuel_supplies")
+        .select("*")
+        .order("delivery_date", { ascending: false });
+        
+      if (basicError) {
+        console.error("Even basic query failed:", basicError);
+        return [];
       }
+      
+      console.log(`Basic query returned ${basicData?.length || 0} records without relations`);
+      
+      // Transform basic data to match expected types
+      return (basicData || []).map(record => {
+        // Handle payment_method type conversion
+        let paymentMethod: PaymentMethod | undefined = undefined;
+        if (record.payment_method) {
+          if (
+            ["cash", "card", "bank_transfer", "mobile_payment"].includes(
+              record.payment_method,
+            )
+          ) {
+            paymentMethod = record.payment_method as PaymentMethod;
+          }
+        }
+
+        // Use type assertion to handle payment_status
+        const paymentStatus =
+          ((record as any).payment_status as PaymentStatus) || "pending";
+          
+        // Ensure numeric values are actual numbers
+        const quantity_liters =
+          typeof record.quantity_liters === "string"
+            ? parseFloat(record.quantity_liters)
+            : Number(record.quantity_liters) || 0;
+
+        const price_per_liter =
+          typeof record.price_per_liter === "string"
+            ? parseFloat(record.price_per_liter)
+            : Number(record.price_per_liter) || 0;
+
+        const total_cost =
+          typeof record.total_cost === "string"
+            ? parseFloat(record.total_cost)
+            : Number(record.total_cost) || 0;
+            
+        return {
+          ...record,
+          provider: undefined,
+          tank: undefined,
+          employee: undefined,
+          payment_status: paymentStatus,
+          payment_method: paymentMethod,
+          quantity_liters,
+          price_per_liter,
+          total_cost,
+        };
+      });
     }
 
-    // Use type assertion to handle payment_status that might not be detected by TypeScript
-    const paymentStatus =
-      ((record as any).payment_status as PaymentStatus) || "pending";
+    if (!data || data.length === 0) {
+      console.log("No fuel supplies found in database");
+      return [];
+    }
 
-    // Ensure numeric values are actual numbers, not strings
-    const quantity_liters =
-      typeof record.quantity_liters === "string"
-        ? parseFloat(record.quantity_liters)
-        : Number(record.quantity_liters) || 0;
+    console.log(`Successfully fetched ${data.length} fuel supplies`);
+    
+    // Log the first record to see its structure
+    if (data.length > 0) {
+      console.log("First record structure:", Object.keys(data[0]));
+      console.log("Sample relations:", {
+        provider: data[0].provider,
+        tank: data[0].tank,
+        employee: data[0].employee
+      });
+    }
+    
+    // Transform the data to match our expected types
+    return (data ?? []).map((record) => {
+      // Safely access nested properties with null checks
+      const provider = record.provider ?? undefined;
+      const tank = record.tank
+        ? {
+            ...record.tank,
+            fuel_type: record.tank.fuel_type as FuelType,
+          }
+        : undefined;
+      const employee = record.employee
+        ? {
+            ...record.employee,
+            status: record.employee.status as EmployeeStatus,
+          }
+        : undefined;
 
-    const price_per_liter =
-      typeof record.price_per_liter === "string"
-        ? parseFloat(record.price_per_liter)
-        : Number(record.price_per_liter) || 0;
+      // Handle payment_method type conversion - handle "new_value" explicitly
+      let paymentMethod: PaymentMethod | undefined = undefined;
+      if (record.payment_method) {
+        // Filter out "new_value" which isn't part of our PaymentMethod type
+        if (
+          ["cash", "card", "bank_transfer", "mobile_payment"].includes(
+            record.payment_method,
+          )
+        ) {
+          paymentMethod = record.payment_method as PaymentMethod;
+        }
+      }
 
-    const total_cost =
-      typeof record.total_cost === "string"
-        ? parseFloat(record.total_cost)
-        : Number(record.total_cost) || 0;
+      // Use type assertion to handle payment_status that might not be detected by TypeScript
+      const paymentStatus =
+        ((record as any).payment_status as PaymentStatus) || "pending";
 
-    // Return the transformed record
-    return {
-      ...record,
-      provider,
-      tank,
-      employee,
-      payment_status: paymentStatus,
-      payment_method: paymentMethod,
-      quantity_liters,
-      price_per_liter,
-      total_cost,
-    };
-  });
+      // Ensure numeric values are actual numbers, not strings
+      const quantity_liters =
+        typeof record.quantity_liters === "string"
+          ? parseFloat(record.quantity_liters)
+          : Number(record.quantity_liters) || 0;
+
+      const price_per_liter =
+        typeof record.price_per_liter === "string"
+          ? parseFloat(record.price_per_liter)
+          : Number(record.price_per_liter) || 0;
+
+      const total_cost =
+        typeof record.total_cost === "string"
+          ? parseFloat(record.total_cost)
+          : Number(record.total_cost) || 0;
+
+      // Return the transformed record
+      return {
+        ...record,
+        provider,
+        tank,
+        employee,
+        payment_status: paymentStatus,
+        payment_method: paymentMethod,
+        quantity_liters,
+        price_per_liter,
+        total_cost,
+      };
+    });
+  } catch (e) {
+    console.error("Exception fetching fuel supplies:", e);
+    return []; // Return empty array instead of throwing
+  }
 }
 
 export async function createFuelSupply(

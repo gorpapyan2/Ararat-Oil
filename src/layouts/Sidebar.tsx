@@ -57,6 +57,11 @@ export function Sidebar({
           items={navConfig.management}
           collapsed={collapsed}
         />
+        <SidebarNavSection
+          title={t("common.development")}
+          items={navConfig.development}
+          collapsed={collapsed}
+        />
       </div>
 
       <SidebarFooter

@@ -12,6 +12,24 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+// Debug component to be removed in production
+const DebugDataDisplay = ({ data, title }: { data: any[], title: string }) => {
+  if (process.env.NODE_ENV === 'production') return null;
+  
+  return (
+    <div className="mb-4 p-4 bg-black/10 rounded-md">
+      <h3 className="font-bold mb-2">{title} - {Array.isArray(data) ? data.length : 0} items</h3>
+      {Array.isArray(data) && data.length > 0 ? (
+        <div className="overflow-auto max-h-40">
+          <pre className="text-xs">{JSON.stringify(data[0], null, 2)}</pre>
+        </div>
+      ) : (
+        <p className="text-red-500">No data available!</p>
+      )}
+    </div>
+  );
+};
+
 interface FuelSuppliesTableProps {
   fuelSupplies: FuelSupply[];
   isLoading: boolean;
@@ -43,6 +61,11 @@ export function FuelSuppliesTable({
     supplier: "all",
     fuelType: "all",
   });
+
+  // Ensure fuelSupplies is always an array
+  const safeSupplies = useMemo(() => 
+    Array.isArray(fuelSupplies) ? fuelSupplies : [], 
+  [fuelSupplies]);
 
   // Handle filter changes
   const handleFilterChange = (newFilters: FiltersShape) => {
@@ -167,25 +190,36 @@ export function FuelSuppliesTable({
 
   const isServerSide = Boolean(onPageChange && onSortChange);
 
+  // Add debugging logs
+  console.log('FuelSuppliesTable rendering with:', {
+    dataLength: safeSupplies.length,
+    firstItem: safeSupplies.length > 0 ? safeSupplies[0] : null,
+    columns: columns.map(col => col.accessorKey.toString()),
+    props: { fuelSupplies, isLoading, providers }
+  });
+
   return (
-    <StandardizedDataTable
-      title={t("fuelSupplies.title")}
-      columns={columns}
-      data={fuelSupplies}
-      loading={isLoading}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      filters={filters}
-      onFilterChange={handleFilterChange}
-      totalRows={totalCount}
-      serverSide={isServerSide}
-      onPageChange={onPageChange}
-      onSortChange={onSortChange}
-      exportOptions={{
-        enabled: true,
-        filename: 'fuel-supplies-export',
-        exportAll: true
-      }}
-    />
+    <>
+      <StandardizedDataTable
+        title={t("fuelSupplies.title")}
+        columns={columns}
+        data={safeSupplies}
+        loading={isLoading}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        totalRows={totalCount}
+        serverSide={isServerSide}
+        onPageChange={onPageChange}
+        onSortChange={onSortChange}
+        exportOptions={{
+          enabled: true,
+          filename: 'fuel-supplies-export',
+          exportAll: true
+        }}
+      />
+      <DebugDataDisplay data={safeSupplies} title="Fuel Supplies Data" />
+    </>
   );
 }

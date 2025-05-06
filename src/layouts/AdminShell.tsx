@@ -29,6 +29,7 @@ import {
   IconReceipt2,
   IconChecklist,
 } from "@tabler/icons-react";
+import { DevMenu } from "@/components/ui/composed/dev-menu";
 type AdminShellProps = {
   children: React.ReactNode;
 };
@@ -349,6 +350,9 @@ export function AdminShell({ children }: AdminShellProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Add DevMenu */}
+            <DevMenu />
+            
             {/* Right side header elements - removed ThemeToggle */}
             {/* User profile button placeholder */}
             <Button variant="ghost" size="icon" className="rounded-full">

@@ -82,6 +82,18 @@ export function StandardizedDataTable<TData extends object>({
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [sorting, setSorting] = useState<{ id: string; desc: boolean }[]>([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  
+  // Ensure data is always an array
+  const safeData = useMemo(() => Array.isArray(data) ? data : [], [data]);
+
+  // Debug data
+  console.log('StandardizedDataTable received data:', {
+    dataLength: data?.length ?? 0,
+    safeDataLength: safeData.length,
+    firstItem: safeData.length > 0 ? JSON.stringify(safeData[0]) : null,
+    columnsCount: columns.length,
+    columnKeys: columns.map(col => col.accessorKey.toString()),
+  });
 
   // Convert our column format to the format expected by the DataTable
   const tableColumns = useMemo(() => {
@@ -193,7 +205,7 @@ export function StandardizedDataTable<TData extends object>({
     <DataTable
       title={title}
       columns={tableColumns}
-      data={data}
+      data={safeData}
       loading={loading}
       initialSorting={[]}
       defaultPageSize={10}

@@ -220,6 +220,15 @@ export function DataTable<TData, TValue>({
     pageCount: serverSide?.enabled ? Math.ceil(serverSide.totalRows / pagination.pageSize) : undefined,
   });
 
+  // Debug table row models
+  console.log('DataTable row models:', {
+    dataLength: data.length,
+    allRowsLength: table.getRowModel().rows.length,
+    hasServerSide: Boolean(serverSide?.enabled),
+    paginationState: pagination,
+    sortingState: sorting,
+  });
+
   // Handle export
   const handleExport = useCallback(() => {
     if (exportOptions?.enabled) {
@@ -422,32 +431,35 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+            {(() => {
+              const rows = table.getRowModel().rows;
+              return rows?.length ? (
+                rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + (selection?.enabled ? 1 : 0)}
+                    className="h-24 text-center"
+                  >
+                    {noResultsMessage}
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length + (selection?.enabled ? 1 : 0)}
-                  className="h-24 text-center"
-                >
-                  {noResultsMessage}
-                </TableCell>
-              </TableRow>
-            )}
+              );
+            })()}
           </TableBody>
           <TableFooter>
             {table.getFooterGroups().map((footerGroup) => (

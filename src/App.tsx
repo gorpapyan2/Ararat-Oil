@@ -84,9 +84,13 @@ const Settings = lazy(() =>
 const ResponsiveTestPage = lazy(() => import(/* webpackChunkName: "dev-responsive" */ "@/pages/dev/ResponsiveTestPage"));
 const ToastTester = lazy(() => import(/* webpackChunkName: "dev-toast" */ "@/pages/dev/ToastTester"));
 const DevTools = lazy(() => import(/* webpackChunkName: "dev-tools" */ "@/pages/dev/DevTools"));
-const CardComponentsPage = lazy(() => import(/* webpackChunkName: "dev-card" */ "@/pages/dev/CardComponentsPage"));
-const ButtonComponentsPage = lazy(() => import(/* webpackChunkName: "dev-button" */ "@/pages/dev/ButtonComponentsPage"));
+const CardComponentsPage = lazy(() => import(/* webpackChunkName: "dev-cards" */ "@/pages/dev/CardComponentsPage"));
+const ButtonComponentsPage = lazy(() => import(/* webpackChunkName: "dev-buttons" */ "@/pages/dev/ButtonComponentsPage"));
 // Fix for named export
+
+// Add new import for ConnectionInfo
+const ConnectionInfo = lazy(() => import(/* webpackChunkName: "dev-connection" */ "@/pages/dev/ConnectionInfo"));
+const DebugPage = lazy(() => import(/* webpackChunkName: "debug-page" */ "@/pages/DebugPage"));
 
 const queryClient = new QueryClient();
 
@@ -343,6 +347,26 @@ const App = () => (
                     <RequireAuth>
                       <Suspense fallback={<Loading variant="fullscreen" text="Loading button components..." />}>
                         <ButtonComponentsPage />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/dev/connection-info"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading connection info..." />}>
+                        <ConnectionInfo />
+                      </Suspense>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/debug"
+                  element={
+                    <RequireAuth>
+                      <Suspense fallback={<Loading variant="fullscreen" text="Loading debug page..." />}>
+                        <DebugPage />
                       </Suspense>
                     </RequireAuth>
                   }

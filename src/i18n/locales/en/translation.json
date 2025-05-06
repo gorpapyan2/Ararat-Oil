@@ -49,6 +49,8 @@
     "operations": "Operations",
     "salesFinance": "Sales & Finance",
     "management": "Management",
+    "development": "Development",
+    "debug": "Debug",
     "system": "System",
     "changeLanguage": "Change language",
     "showing": "Showing",
@@ -70,7 +72,13 @@
     "monthly": "Monthly",
     "monthlyView": "Monthly View",
     "summary": "Summary",
-    "summaryView": "Summary View"
+    "summaryView": "Summary View",
+    "unknown": "Unknown",
+    "back": "Back",
+    "appName": "Ararat Oil",
+    "appShort": "AO",
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "auth": {
     "signIn": "Sign In",
@@ -522,5 +530,17 @@
     "completePayment": "Complete Payment",
     "cashNotesPlaceholder": "Optional notes about cash payment",
     "referencePlaceholder": "Transaction or reference number"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "management": "Transactions Management"
+  },
+  "fuel-supplies": {
+    "provider": "Provider",
+    "tank": "Tank",
+    "quantity": "Quantity",
+    "pricePerLiter": "Price Per Liter",
+    "totalCost": "Total Cost",
+    "date": "Date"
   }
 }

@@ -1,10 +1,13 @@
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface SidebarLogoProps {
   collapsed: boolean;
 }
 
 export function SidebarLogo({ collapsed }: SidebarLogoProps) {
+  const { t } = useTranslation();
+  
   return (
     <div
       className={cn(
@@ -13,9 +16,9 @@ export function SidebarLogo({ collapsed }: SidebarLogoProps) {
       )}
     >
       {!collapsed ? (
-        <span className="font-heading font-bold text-xl">Ararat Oil</span>
+        <span className="font-heading font-bold text-xl">{t("common.appName")}</span>
       ) : (
-        <span className="font-heading font-bold text-accent text-lg">AO</span>
+        <span className="font-heading font-bold text-accent text-lg">{t("common.appShort")}</span>
       )}
     </div>
   );

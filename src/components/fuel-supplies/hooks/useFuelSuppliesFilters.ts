@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFuelSupplies } from "@/services/fuel-supplies";
 import { fetchPetrolProviders } from "@/services/petrol-providers";
@@ -20,10 +20,24 @@ export function useFuelSuppliesFilters() {
     data: supplies = [],
     isLoading: suppliesLoading,
     refetch: refetchSupplies,
+    error: suppliesError
   } = useQuery({
     queryKey: ["fuel-supplies"],
     queryFn: fetchFuelSupplies,
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Log query results for debugging
+  useEffect(() => {
+    if (suppliesError) {
+      console.error("Fuel supplies query error:", suppliesError);
+    } else if (supplies.length === 0) {
+      console.log("No fuel supplies data available");
+    } else {
+      console.log(`Loaded ${supplies.length} fuel supplies for filtering`);
+    }
+  }, [supplies, suppliesError]);
 
   // Query provider data with proper error handling
   const { data: providersData, isLoading: providersLoading } = useQuery({
@@ -60,6 +74,7 @@ export function useFuelSuppliesFilters() {
   }, [providersData, providersLoading]);
 
   const filteredSupplies = useMemo(() => {
+    console.log("Starting filtering with", supplies.length, "records");
     let filtered = supplies;
 
     if (search) {
@@ -113,6 +128,7 @@ export function useFuelSuppliesFilters() {
       });
     }
 
+    console.log("Final filtered supplies count:", filtered.length);
     return filtered;
   }, [
     supplies,

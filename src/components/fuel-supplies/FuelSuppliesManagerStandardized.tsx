@@ -232,7 +232,7 @@ export function FuelSuppliesManagerStandardized({
       <FuelSuppliesSummary supplies={filteredSupplies} isLoading={isLoading} />
 
       <FuelSuppliesTable
-        supplies={filteredSupplies}
+        fuelSupplies={filteredSupplies}
         isLoading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}
