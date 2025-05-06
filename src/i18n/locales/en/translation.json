@@ -85,7 +85,14 @@
     "manage": "Manage",
     "viewDetails": "View Details",
     "supplies": "Supplies",
-    "history": "History"
+    "history": "History",
+    "allTime": "All Time",
+    "lastWeek": "Last Week",
+    "lastMonth": "Last Month",
+    "last90Days": "Last 90 Days",
+    "last6Months": "Last 6 Months",
+    "lastYear": "Last Year",
+    "groupBy": "Group By"
   },
   "auth": {
     "signIn": "Sign In",
@@ -277,7 +284,8 @@
     "manageSupplies": "Manage supplies",
     "searchProviderPlaceholder": "Search provider...",
     "totalCount": "{{count}} fuel supply records",
-    "fuelTypeBreakdown": "Fuel Type Breakdown"
+    "fuelTypeBreakdown": "Fuel Type Breakdown",
+    "tankBreakdown": "Tank Breakdown"
   },
   "sales": {
     "title": "Sales",

@@ -90,6 +90,9 @@
     "lastMonth": "Անցած ամիս",
     "last30Days": "Վերջին 30 օր",
     "last90Days": "Վերջին 90 օր",
+    "last6Months": "Վերջին 6 ամիս",
+    "lastYear": "Վերջին տարի",
+    "allTime": "Ամբողջ ժամանակահատվածը",
     "selectDateRange": "Ընտրել ամսաթվի միջակայք",
     "clear": "Մաքրել",
     "apply": "Կիրառել",
@@ -111,7 +114,8 @@
     "manage": "Կառավարել",
     "viewDetails": "Տեսնել մանրամասները",
     "supplies": "Պաշարներ",
-    "history": "Պատմություն"
+    "history": "Պատմություն",
+    "groupBy": "Խմբավորել ըստ"
   },
   "auth": {
     "signIn": {
@@ -271,7 +275,8 @@
     "periodFilter": "Ժամանակահատված",
     "searchProviderPlaceholder": "Որոնել մատակարար...",
     "totalCount": "{{count}} վառելիքի մատակարարման գրառումներ",
-    "fuelTypeBreakdown": "Վառելիքի տեսակների բաշխում"
+    "fuelTypeBreakdown": "Վառելիքի տեսակների բաշխում",
+    "tankBreakdown": "Բաքերի բաշխում"
   },
   "sales": {
     "title": "Վաճառքներ",
