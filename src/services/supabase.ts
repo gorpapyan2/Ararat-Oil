@@ -11,6 +11,22 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
+// Check Supabase connection on import
+(async function checkSupabaseConnection() {
+  try {
+    console.log("Checking Supabase connection...");
+    const { data, error } = await supabase.from('petrol_providers').select('count').limit(1);
+    
+    if (error) {
+      console.error("Supabase connection error:", error);
+    } else {
+      console.log("Supabase connection successful, table access verified");
+    }
+  } catch (err) {
+    console.error("Failed to check Supabase connection:", err);
+  }
+})();
+
 // Re-export all types from types directory
 export * from "@/types";
 
@@ -21,6 +37,9 @@ export * from "./financials";
 export * from "./employees";
 export * from "./tanks";
 export * from "./transactions";
+
+// Don't re-export petrol-providers to avoid circular dependency
+// export * from "./petrol-providers";
 
 // We'll be more specific with these exports to avoid ambiguity
 export {

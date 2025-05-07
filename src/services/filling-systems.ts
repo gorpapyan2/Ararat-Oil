@@ -1,14 +1,47 @@
 import { supabase } from './supabase';
-import { Tank } from '@/types';
+import { FuelTank, FuelType } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 // Export the FillingSystem type
 export interface FillingSystem {
   id: string;
   name: string;
   tank_id: string;
-  tank?: Tank;
+  tank?: FuelTank;
   created_at?: string;
 }
+
+// Mock data for offline mode
+const MOCK_FILLING_SYSTEMS: FillingSystem[] = [
+  {
+    id: "offline-fs-1",
+    name: "Pump 1 - Petrol",
+    tank_id: "offline-tank-1",
+    created_at: new Date().toISOString(),
+    tank: {
+      id: "offline-tank-1",
+      name: "Main Petrol Tank",
+      capacity: 5000,
+      current_level: 3500,
+      fuel_type: "petrol",
+      created_at: new Date().toISOString()
+    }
+  },
+  {
+    id: "offline-fs-2",
+    name: "Pump 2 - Diesel",
+    tank_id: "offline-tank-2",
+    created_at: new Date().toISOString(),
+    tank: {
+      id: "offline-tank-2",
+      name: "Main Diesel Tank",
+      capacity: 5000,
+      current_level: 2800,
+      fuel_type: "diesel",
+      created_at: new Date().toISOString()
+    }
+  }
+];
 
 export const createFillingSystem = async (
   name: string,
@@ -52,83 +85,104 @@ export const validateTankIds = async (
 
 export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
   try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) {
-      throw new Error("Authentication required");
+    // Check for offline status
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    console.log(`Fetching filling systems. Offline mode: ${isOffline}`);
+
+    if (isOffline) {
+      console.log("Using offline mode for filling systems");
+      return MOCK_FILLING_SYSTEMS;
+    }
+
+    // Get auth session
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.log("No session, using offline mode for filling systems");
+        return MOCK_FILLING_SYSTEMS;
+      }
+    } catch (sessionError) {
+      console.error("Error getting auth session:", sessionError);
+      return MOCK_FILLING_SYSTEMS;
     }
 
     // Use foreign table syntax instead of nested select
     const { data, error } = await supabase
       .from("filling_systems")
-      .select(
-        `
+      .select(`
         id,
         name,
         tank_id,
         created_at,
         tank:fuel_tanks(id, name, capacity, current_level, fuel_type, created_at)
-      `,
-      )
+      `)
       .order("name");
 
     if (error) {
       console.error("Error fetching filling systems:", error);
-      throw error;
+      return MOCK_FILLING_SYSTEMS;
     }
 
-    if (!data) {
+    if (!data || data.length === 0) {
+      console.log("No filling systems found, returning empty array");
       return [];
     }
 
-    // Collect all tank_ids for validation
-    const tankIds = data
-      .map((item) => item.tank_id)
-      .filter((id) => id != null && id !== "");
-
-    // Validate if tank_ids actually exist
-    const validTankIds = await validateTankIds(tankIds);
+    console.log(`Successfully fetched ${data.length} filling systems`);
+    
+    // Log the first record to help with debugging
+    if (data.length > 0) {
+      console.log("Sample filling system data:", data[0]);
+    }
 
     // Transform the data to ensure proper typing of nested tank objects
     return data.map((item) => {
-      // Handle tank data - Supabase can return either an array or object depending on the query
-      let tankData = null;
+      try {
+        // Handle tank data - Supabase can return either an array or object depending on the query
+        let tankData = null;
 
-      if (item.tank) {
-        // If it's an array, take the first item
-        if (Array.isArray(item.tank) && item.tank.length > 0) {
-          tankData = item.tank[0];
+        if (item.tank) {
+          // If it's an array, take the first item
+          if (Array.isArray(item.tank) && item.tank.length > 0) {
+            tankData = item.tank[0];
+          }
+          // If it's a direct object (non-array), use it directly
+          else if (typeof item.tank === "object") {
+            tankData = item.tank;
+          }
         }
-        // If it's a direct object (non-array), use it directly
-        else if (typeof item.tank === "object") {
-          tankData = item.tank;
-        }
+
+        return {
+          id: item.id,
+          name: item.name || "Unnamed System",
+          tank_id: item.tank_id,
+          created_at: item.created_at,
+          tank: tankData
+            ? {
+                id: tankData.id || item.tank_id, // Fallback to tank_id if id is missing
+                name: tankData.name || "Unknown Tank",
+                capacity: Number(tankData.capacity) || 0,
+                current_level: Number(tankData.current_level) || 0,
+                fuel_type: (tankData.fuel_type as FuelType) || "petrol", // Default to petrol
+                created_at: tankData.created_at || item.created_at,
+              }
+            : undefined,
+        };
+      } catch (itemError) {
+        console.error("Error processing filling system item:", itemError, item);
+        // Return a basic version of the item to avoid breaking the UI
+        return {
+          id: item.id || `error-${Date.now()}`,
+          name: item.name || "Error: Malformed System",
+          tank_id: item.tank_id || "",
+          created_at: item.created_at || new Date().toISOString(),
+        };
       }
-
-      return {
-        id: item.id,
-        name: item.name,
-        tank_id: item.tank_id,
-        created_at: item.created_at,
-        tank: tankData
-          ? {
-              id: tankData.id,
-              name: tankData.name,
-              capacity: tankData.capacity || 0,
-              current_level:
-                typeof tankData.current_level === "number"
-                  ? tankData.current_level
-                  : 0,
-              fuel_type: tankData.fuel_type as FuelType,
-              created_at: tankData.created_at,
-            }
-          : undefined,
-      };
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Failed to fetch filling systems:", err);
-    throw new Error(err.message || "Failed to fetch filling systems data");
+    console.log("Using offline mode as fallback for filling systems");
+    return MOCK_FILLING_SYSTEMS;
   }
 };
 

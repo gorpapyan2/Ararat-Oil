@@ -36,10 +36,21 @@ export function ProviderManagerStandardized({ onRenderAction }: ProviderManagerS
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<PetrolProvider | null>(null);
 
-  // Fetch providers
-  const { data: providers, isLoading } = useQuery({
+  // Fetch providers with expanded error handling
+  const { data: providers, isLoading, error, isError } = useQuery({
     queryKey: ["petrol-providers"],
-    queryFn: () => fetchPetrolProviders({ activeOnly: false }),
+    queryFn: async () => {
+      console.log("Fetching petrol providers from ProviderManagerStandardized");
+      try {
+        const result = await fetchPetrolProviders({ activeOnly: false });
+        console.log("Provider fetch result:", result);
+        return result as PetrolProvider[];
+      } catch (error) {
+        console.error("Error in provider fetch queryFn:", error);
+        throw error;
+      }
+    },
+    retry: 2
   });
 
   // Delete provider mutation
@@ -56,10 +67,18 @@ export function ProviderManagerStandardized({ onRenderAction }: ProviderManagerS
   });
 
   // Filter providers based on search query
-  const filteredProviders = providers?.filter((provider) =>
-    provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    provider.contact.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProviders = providers && providers.length > 0
+    ? providers.filter(provider =>
+        provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        provider.contact.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
+
+  // Log providers data for debugging
+  React.useEffect(() => {
+    console.log("Providers data:", providers);
+    console.log("Filtered providers:", filteredProviders);
+  }, [providers, filteredProviders]);
 
   // Handle provider actions
   const handleEdit = useCallback((provider: PetrolProvider) => {
@@ -99,6 +118,22 @@ export function ProviderManagerStandardized({ onRenderAction }: ProviderManagerS
     return <div>{t("common.loading")}</div>;
   }
 
+  if (isError) {
+    return (
+      <div className="p-4 border border-destructive rounded-md bg-destructive/10">
+        <h3 className="text-lg font-medium text-destructive mb-2">{t("providers.error.fetch")}</h3>
+        <p className="text-sm text-muted-foreground">{String(error)}</p>
+        <Button 
+          variant="outline" 
+          className="mt-4"
+          onClick={() => queryClient.invalidateQueries({ queryKey: ["petrol-providers"] })}
+        >
+          {t("common.retry")}
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
@@ -125,14 +160,14 @@ export function ProviderManagerStandardized({ onRenderAction }: ProviderManagerS
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProviders?.length === 0 ? (
+            {!filteredProviders || filteredProviders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center">
                   {t("providers.noProviders")}
                 </TableCell>
               </TableRow>
             ) : (
-              filteredProviders?.map((provider) => (
+              filteredProviders.map((provider) => (
                 <TableRow key={provider.id}>
                   <TableCell>{provider.name}</TableCell>
                   <TableCell>{provider.contact}</TableCell>

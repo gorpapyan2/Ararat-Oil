@@ -36,7 +36,7 @@ export default function ShiftClose() {
   // Create a memoized navigation handler
   const navigateToShifts = useCallback(() => {
     // Use replace to prevent back-button issues
-    navigate('/shifts', { replace: true });
+    navigate('/finance/shifts', { replace: true });
   }, [navigate]);
 
   // Check for active shift on mount and periodically
@@ -47,7 +47,7 @@ export default function ShiftClose() {
       await checkActiveShift();
       if (!activeShift && !isShiftLoading) {
         // Use replace to prevent back-button issues
-        navigate('/shifts', { replace: true });
+        navigate('/finance/shifts', { replace: true });
       }
     };
 
@@ -71,7 +71,7 @@ export default function ShiftClose() {
     if (success) {
       redirectTimer = window.setTimeout(() => {
         // Use replace to prevent back-button issues
-        navigate('/shifts', { replace: true });
+        navigate('/finance/shifts', { replace: true });
       }, 2000);
     }
     

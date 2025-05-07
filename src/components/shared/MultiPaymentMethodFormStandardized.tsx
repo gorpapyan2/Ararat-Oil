@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,28 +12,56 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { CurrencyInput } from "@/components/ui/currency-input";
-import { Plus, X } from "lucide-react";
+import { Plus, X, AlertTriangle, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 import { formatCurrency } from "@/lib/utils";
 import { FormProvider } from "react-hook-form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Define the payment method item schema
+// Define standard payment method schema (non-zero amounts)
 const paymentMethodItemSchema = z.object({
   payment_method: z.enum([
     "cash",
     "card",
     "bank_transfer", 
     "mobile_payment"
-  ] as const),
-  amount: z.number().min(1, "Amount must be greater than zero"),
+  ] as const, { 
+    required_error: "Payment method is required"
+  }),
+  amount: z.number()
+    .min(0.01, "Amount must be greater than zero")
+    .nonnegative("Amount cannot be negative"),
   reference: z.string().optional(),
 });
 
-// Define the form schema for multiple payment methods
+// Define zero-total payment method schema (allows zero amounts)
+const zeroTotalPaymentMethodSchema = z.object({
+  payment_method: z.enum([
+    "cash",
+    "card",
+    "bank_transfer", 
+    "mobile_payment"
+  ] as const, { 
+    required_error: "Payment method is required"
+  }),
+  amount: z.number().nonnegative("Amount cannot be negative"),
+  reference: z.string().optional(),
+});
+
+// Standard multi-payment schema with validation
 const multiPaymentSchema = z.object({
   paymentMethods: z.array(paymentMethodItemSchema)
-    .min(1, "At least one payment method is required"),
+    .min(1, "At least one payment method is required")
+    .refine(
+      methods => methods.every(m => m.amount > 0),
+      { message: "All payment methods must have an amount greater than zero" }
+    )
+});
+
+// Zero-total multi-payment schema with relaxed validation
+const zeroTotalMultiPaymentSchema = z.object({
+  paymentMethods: z.array(zeroTotalPaymentMethodSchema)
 });
 
 export type PaymentMethodItem = z.infer<typeof paymentMethodItemSchema>;
@@ -53,12 +81,16 @@ export function MultiPaymentMethodFormStandardized({
   showTotal = true,
 }: MultiPaymentMethodFormStandardizedProps) {
   const { t } = useTranslation();
-  const [formPaymentMethods, setFormPaymentMethods] = useState<PaymentMethodItem[]>([
-    { payment_method: "cash", amount: totalAmount, reference: "" }
-  ]);
+  const isZeroTotal = Math.abs(totalAmount) < 0.01;
   
+  const [formPaymentMethods, setFormPaymentMethods] = useState<PaymentMethodItem[]>([
+    { payment_method: "cash", amount: isZeroTotal ? 0 : totalAmount, reference: "" }
+  ]);
+  const [formError, setFormError] = useState<string | null>(null);
+  
+  // Use the appropriate schema based on whether totalAmount is zero
   const form = useZodForm({
-    schema: multiPaymentSchema,
+    schema: isZeroTotal ? zeroTotalMultiPaymentSchema : multiPaymentSchema,
     defaultValues: {
       paymentMethods: formPaymentMethods,
     },
@@ -67,6 +99,7 @@ export function MultiPaymentMethodFormStandardized({
   // Calculate the current total from all payment methods
   const currentTotal = formPaymentMethods.reduce((sum, method) => sum + (method.amount || 0), 0);
   const remainingAmount = totalAmount - currentTotal;
+  const isBalanced = Math.abs(remainingAmount) < 0.01; // Use a small epsilon for floating-point comparison
 
   // Function to add a new payment method
   const addPaymentMethod = () => {
@@ -79,6 +112,7 @@ export function MultiPaymentMethodFormStandardized({
     const updatedMethods = [...formPaymentMethods, newMethod];
     setFormPaymentMethods(updatedMethods);
     form.setValue("paymentMethods", updatedMethods);
+    setFormError(null);
   };
 
   // Function to remove a payment method
@@ -88,6 +122,7 @@ export function MultiPaymentMethodFormStandardized({
     const updatedMethods = formPaymentMethods.filter((_, i) => i !== index);
     setFormPaymentMethods(updatedMethods);
     form.setValue("paymentMethods", updatedMethods);
+    setFormError(null);
   };
 
   // Update a specific payment method
@@ -99,12 +134,39 @@ export function MultiPaymentMethodFormStandardized({
     };
     setFormPaymentMethods(updatedMethods);
     form.setValue("paymentMethods", updatedMethods);
+    setFormError(null);
   };
 
   // Create form submission handler with useFormSubmitHandler
   const { isSubmitting: formSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler(
     form,
     (data) => {
+      // Skip validation for zero total amounts
+      if (isZeroTotal) {
+        onSubmit(data);
+        return true;
+      }
+      
+      // Additional validation before submission
+      const total = data.paymentMethods.reduce((sum, method) => sum + (method.amount || 0), 0);
+      
+      // Check if total matches expected amount
+      if (Math.abs(total - totalAmount) >= 0.01) {
+        setFormError(t("paymentMethods.totalMismatch", "Total amount must match the required total"));
+        return false;
+      }
+      
+      // Check if all payment methods have a valid payment_method and amount
+      const invalidMethods = data.paymentMethods.filter(
+        method => !method.payment_method || method.amount <= 0
+      );
+      
+      if (invalidMethods.length > 0) {
+        setFormError(t("paymentMethods.invalidMethods", "All payment methods must have a valid payment type and amount"));
+        return false;
+      }
+      
+      // If all validation passes, submit the form
       onSubmit(data);
       return true;
     }
@@ -114,6 +176,22 @@ export function MultiPaymentMethodFormStandardized({
     <div className="space-y-4">
       <FormProvider {...form}>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {formError && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{formError}</AlertDescription>
+            </Alert>
+          )}
+          
+          {isZeroTotal && (
+            <Alert variant="default" className="bg-blue-50 border-blue-100">
+              <Info className="h-4 w-4 text-blue-500" />
+              <AlertDescription className="text-blue-700">
+                {t("paymentMethods.zeroTotalMessage", "No sales recorded for this shift. You can close the shift without entering payment methods, or record payment methods with zero amount.")}
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="space-y-4">
             {formPaymentMethods.map((method, index) => (
               <div key={index} className="p-4 border rounded-md bg-muted/30 relative">
@@ -138,7 +216,7 @@ export function MultiPaymentMethodFormStandardized({
                     <Select
                       value={method.payment_method}
                       onValueChange={(value) => 
-                        updatePaymentMethod(index, "payment_method", value)
+                        updatePaymentMethod(index, "payment_method", value as PaymentMethodItem["payment_method"])
                       }
                     >
                       <SelectTrigger>
@@ -207,21 +285,19 @@ export function MultiPaymentMethodFormStandardized({
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{t("common.currentTotal")}:</span>
                     <span className={`font-medium ${
-                      currentTotal !== totalAmount ? "text-yellow-600" : "text-green-600"
+                      isBalanced ? "text-green-600" : "text-yellow-600"
                     }`}>
                       {formatCurrency(currentTotal)}
                     </span>
                   </div>
-                  {currentTotal !== totalAmount && (
+                  {!isBalanced && !isZeroTotal && (
                     <div className="flex justify-between items-center">
                       <span className="font-medium">
                         {remainingAmount > 0 
                           ? t("common.remainingAmount") 
                           : t("common.overpaymentAmount")}:
                       </span>
-                      <span className={`font-medium ${
-                        remainingAmount > 0 ? "text-red-600" : "text-red-600"
-                      }`}>
+                      <span className="font-medium text-red-600">
                         {formatCurrency(Math.abs(remainingAmount))}
                       </span>
                     </div>
@@ -230,15 +306,23 @@ export function MultiPaymentMethodFormStandardized({
               </>
             )}
             
-            {/* Submit button */}
+            {/* Submit button with clear status message */}
             <div className="pt-4">
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={isSubmitting || !form.formState.isValid || currentTotal !== totalAmount}
+                disabled={isSubmitting || (!isZeroTotal && !isBalanced)}
               >
                 {isSubmitting ? t("common.saving") : t("common.confirm")}
               </Button>
+              
+              {!isBalanced && !isZeroTotal && (
+                <p className="text-sm text-center mt-2 text-red-500">
+                  {remainingAmount > 0 
+                    ? t("paymentMethods.totalTooLow", "Total is less than required amount") 
+                    : t("paymentMethods.totalTooHigh", "Total exceeds required amount")}
+                </p>
+              )}
             </div>
           </div>
         </form>

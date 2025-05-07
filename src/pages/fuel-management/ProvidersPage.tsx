@@ -15,7 +15,7 @@ export default function ProvidersPage() {
     { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
     { name: t("common.fuelManagement"), href: "/fuel-management", icon: <Fuel className="h-4 w-4" /> },
     { 
-      name: t("common.providers"), 
+      name: t("providers.title") || t("common.providers"), 
       href: "/fuel-management/providers", 
       isCurrent: true,
       icon: <Building className="h-4 w-4" /> 
@@ -25,14 +25,14 @@ export default function ProvidersPage() {
   // Configure breadcrumb navigation with icons
   usePageBreadcrumbs({
     segments: breadcrumbSegments,
-    title: t("common.providers")
+    title: t("providers.title") || t("common.providers")
   });
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("common.providers")}
-        description={t("providers.description") || "Manage your fuel suppliers"}
+        title={t("providers.title") || t("common.providers")}
+        description={t("providers.description")}
         icon={<IconBuildingFactory className="h-6 w-6 mr-2" />}
         actions={action}
       />

@@ -218,7 +218,7 @@ const Shifts = () => {
   
   // Navigate to shift details
   const viewShiftDetails = (shift: ShiftHistoryItem) => {
-    navigate(`/shifts/${shift.id}`);
+    navigate(`/finance/shifts/${shift.id}`);
   };
   
   return (
@@ -228,7 +228,7 @@ const Shifts = () => {
       action={
         activeShift ? (
           <ButtonLink 
-            href="/shifts/close"
+            href="/finance/shifts/close"
             variant="default"
             className="bg-amber-600 hover:bg-amber-700"
           >
@@ -237,7 +237,7 @@ const Shifts = () => {
           </ButtonLink>
         ) : (
           <ButtonLink 
-            href="/shifts/open"
+            href="/finance/shifts/open"
             variant="default"
           >
             <Plus className="h-4 w-4 mr-2" />

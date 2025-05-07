@@ -6,9 +6,12 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { FormProvider } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks";
+import { useNavigate } from "react-router-dom";
 
 // Services
-import { fetchPetrolProviders } from "@/services/petrol-providers";
+import { fetchPetrolProviders, createSampleProvider } from "@/services/petrol-providers";
 import { fetchFuelTanks } from "@/services/tanks";
 import { fetchEmployees } from "@/services/employees";
 
@@ -105,6 +108,9 @@ export function FuelSuppliesForm({
   isConfirmOpen
 }: FuelSuppliesFormProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Fetch data with proper error handling and loading states
   const { 
@@ -156,6 +162,31 @@ export function FuelSuppliesForm({
   const { onSubmit: handleSubmit } = useFormSubmitHandler<FuelSupplyFormValues>(
     form,
     (data) => {
+      // Additional validation to prevent empty UUIDs
+      const requiredUuidFields = ['provider_id', 'tank_id', 'employee_id'] as const;
+      const emptyFields = requiredUuidFields.filter(field => !data[field] || data[field] === '');
+      
+      if (emptyFields.length > 0) {
+        const fieldNames = emptyFields.map(field => {
+          switch(field) {
+            case 'provider_id': return t("fuelSupplies.provider", "Provider");
+            case 'tank_id': return t("fuelSupplies.tank", "Fuel Tank");
+            case 'employee_id': return t("fuelSupplies.employee", "Employee");
+            default: return field;
+          }
+        });
+        
+        toast({
+          title: t("common.error"),
+          description: t("fuelSupplies.requiredFieldsError", "Please select a value for: {{fields}}", {
+            fields: fieldNames.join(', ')
+          }),
+          variant: "destructive",
+        });
+        
+        return false;
+      }
+      
       onSubmit(data as Omit<FuelSupply, "id" | "created_at">);
       return true;
     }
@@ -190,7 +221,7 @@ export function FuelSuppliesForm({
   // Get the current total from the form for display
   const totalCost = form.watch("total_cost") || 0;
 
-  // Provider options for select
+  // Provider options for select - ALWAYS call this hook, but its content may be empty
   const providerOptions = useMemo(() => {
     if (!providers || providers.length === 0) {
       return [];
@@ -204,53 +235,39 @@ export function FuelSuppliesForm({
       }));
   }, [providers]);
 
-  // Show loading state
-  const isLoading = isLoadingProviders || isLoadingTanks || isLoadingEmployees;
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      </div>
-    );
-  }
+  // Tank options for select with color-coded fuel types - ALWAYS call this hook
+  const tankOptions = useMemo(() => {
+    return tanks?.map(tank => {
+      const fuelTypeColor = fuelTypeColors[tank.fuel_type];
+      
+      return {
+        value: tank.id,
+        label: `${tank.name} (${tank.fuel_type})`,
+        colorClass: fuelTypeColor
+      };
+    }) || [];
+  }, [tanks]);
 
-  // Show error states
-  const error = providersError || tanksError || employeesError;
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          {error instanceof Error ? error.message : "Failed to load form data"}
-        </AlertDescription>
-      </Alert>
-    );
-  }
+  // Employee options for select - ALWAYS call this hook
+  const employeeOptions = useMemo(() => {
+    return employees?.map(employee => ({
+      value: employee.id,
+      label: employee.name,
+    })) || [];
+  }, [employees]);
 
-  // Show warning if no providers are available
-  if (!providers || providers.length === 0) {
-    return (
-      <Alert variant="default">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          No petrol providers found. Please add providers before creating a fuel supply.
-        </AlertDescription>
-      </Alert>
-    );
-  }
+  // Custom render function for tank options
+  const renderTankOption = (option: { value: string; label: string; colorClass?: string }) => (
+    <div>
+      {option.colorClass ? (
+        <span className={option.colorClass}>{option.label}</span>
+      ) : (
+        option.label
+      )}
+    </div>
+  );
 
-  // Compute explanatory string and visual percentage for tank
+  // Compute explanatory string and visual percentage for tank - ALWAYS call this hook
   const tankStatus = useMemo(() => {
     if (!selectedTank) {
       return { percentage: 0, str: "", color: "", isFull: false };
@@ -287,147 +304,204 @@ export function FuelSuppliesForm({
     };
   }, [selectedTank, quantity]);
 
-  // Tank options for select with color-coded fuel types
-  const tankOptions = useMemo(() => {
-    return tanks?.map(tank => {
-      const fuelTypeColor = fuelTypeColors[tank.fuel_type];
-      
-      return {
-        value: tank.id,
-        label: `${tank.name} (${tank.fuel_type})`,
-        colorClass: fuelTypeColor
-      };
-    }) || [];
-  }, [tanks]);
+  // Create a renderContent function to handle conditional rendering
+  const renderContent = () => {
+    // Show loading state
+    const isLoading = isLoadingProviders || isLoadingTanks || isLoadingEmployees;
+    if (isLoading) {
+      return (
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
+      );
+    }
 
-  // Employee options for select
-  const employeeOptions = useMemo(() => {
-    return employees?.map(employee => ({
-      value: employee.id,
-      label: employee.name,
-    })) || [];
-  }, [employees]);
+    // Show error states
+    const error = providersError || tanksError || employeesError;
+    if (error) {
+      return (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error instanceof Error ? error.message : "Failed to load form data"}
+          </AlertDescription>
+        </Alert>
+      );
+    }
 
-  // Custom render function for tank options
-  const renderTankOption = (option: { value: string; label: string; colorClass?: string }) => (
-    <div>
-      {option.colorClass ? (
-        <span className={option.colorClass}>{option.label}</span>
-      ) : (
-        option.label
-      )}
-    </div>
-  );
+    // Show warning if no providers are available
+    if (!providers || providers.length === 0) {
+      return (
+        <div className="space-y-6">
+          <Alert variant="default" className="border-amber-500 bg-amber-500/10">
+            <AlertCircle className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="flex flex-col space-y-3">
+              <p>{t("fuelSupplies.noProviders", "No petrol providers found. You need to create a provider before adding a fuel supply.")}</p>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      await createSampleProvider();
+                      await queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
+                      toast({
+                        title: t("common.success"),
+                        description: t("fuelSupplies.sampleProviderCreated", "Sample provider created successfully"),
+                      });
+                    } catch (error) {
+                      toast({
+                        title: t("common.error"),
+                        description: error instanceof Error 
+                          ? error.message 
+                          : t("fuelSupplies.providerCreateError", "Failed to create sample provider"),
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                >
+                  {t("fuelSupplies.createSampleProvider", "Create Sample Provider")}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate("/fuel-management/providers/create")}
+                >
+                  {t("fuelSupplies.createProvider", "Create Provider")}
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
+
+    // Regular form 
+    return (
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormDatePicker
+              name="delivery_date"
+              label={t("fuelSupplies.deliveryDate", "Delivery Date")}
+              form={form}
+              placeholder={t("fuelSupplies.selectDate", "Select date")}
+            />
+
+            <FormSelect
+              name="provider_id"
+              label={t("fuelSupplies.provider", "Provider")}
+              form={form}
+              options={providerOptions}
+              placeholder={t("fuelSupplies.selectProvider", "Select provider")}
+            />
+          </div>
+
+          <FormSelect
+            name="tank_id"
+            label={t("fuelSupplies.tank", "Fuel Tank")}
+            form={form}
+            options={tankOptions}
+            placeholder={t("fuelSupplies.selectTank", "Select tank")}
+            selectClassName={tankSelectStyles.trigger}
+            contentClassName={tankSelectStyles.content}
+            itemClassName={selectItemStyle}
+            renderOption={renderTankOption}
+          />
+
+          {selectedTank && (
+            <div className="rounded-md border p-3 bg-slate-900/50">
+              <div className="text-sm mb-2 flex justify-between">
+                <span>Tank Capacity: {selectedTank.capacity} L</span>
+                <span>Current Level: {selectedTank.current_level} L</span>
+              </div>
+              <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className={`h-2 ${tankStatus.color}`}
+                  style={{ width: `${Math.min(tankStatus.percentage, 100)}%` }}
+                ></div>
+              </div>
+              <p
+                className={`text-xs mt-1 ${
+                  tankStatus.isFull ? "text-red-400" : "text-slate-400"
+                }`}
+              >
+                {tankStatus.str}
+              </p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormInput
+              name="quantity_liters"
+              label={t("fuelSupplies.quantity", "Quantity (Liters)")}
+              type="number"
+              form={form}
+              inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+
+            <FormCurrencyInput
+              name="price_per_liter"
+              label={t("fuelSupplies.pricePerLiter", "Price Per Liter")}
+              form={form}
+              placeholder="0"
+              symbol="֏"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-2">
+              {t("fuelSupplies.totalCost", "Total Cost")}
+            </label>
+            <div className="h-10 px-3 py-2 rounded-md border border-input bg-muted flex items-center">
+              {totalCost.toFixed(2)} ֏
+            </div>
+          </div>
+
+          <FormSelect
+            name="employee_id"
+            label={t("fuelSupplies.employee", "Employee")}
+            form={form}
+            options={employeeOptions}
+            placeholder={t("fuelSupplies.selectEmployee", "Select employee")}
+          />
+
+          <FormTextarea
+            name="comments"
+            label={t("fuelSupplies.comments", "Comments")}
+            form={form}
+            placeholder={t("fuelSupplies.optionalComments", "Optional comments about the fuel supply")}
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full sm:w-auto"
+          >
+            {t("fuelSupplies.addFuelSupply", "Add Fuel Supply")}
+          </Button>
+        </div>
+      </form>
+    );
+  };
 
   return (
     <>
       <FormProvider {...form}>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormDatePicker
-                name="delivery_date"
-                label={t("fuelSupplies.deliveryDate", "Delivery Date")}
-                form={form}
-                placeholder={t("fuelSupplies.selectDate", "Select date")}
-              />
-
-              <FormSelect
-                name="provider_id"
-                label={t("fuelSupplies.provider", "Provider")}
-                form={form}
-                options={providerOptions}
-                placeholder={t("fuelSupplies.selectProvider", "Select provider")}
-              />
-            </div>
-
-            <FormSelect
-              name="tank_id"
-              label={t("fuelSupplies.tank", "Fuel Tank")}
-              form={form}
-              options={tankOptions}
-              placeholder={t("fuelSupplies.selectTank", "Select tank")}
-              selectClassName={tankSelectStyles.trigger}
-              contentClassName={tankSelectStyles.content}
-              itemClassName={selectItemStyle}
-              renderOption={renderTankOption}
-            />
-
-            {selectedTank && (
-              <div className="rounded-md border p-3 bg-slate-900/50">
-                <div className="text-sm mb-2 flex justify-between">
-                  <span>Tank Capacity: {selectedTank.capacity} L</span>
-                  <span>Current Level: {selectedTank.current_level} L</span>
-                </div>
-                <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-2 ${tankStatus.color}`}
-                    style={{ width: `${Math.min(tankStatus.percentage, 100)}%` }}
-                  ></div>
-                </div>
-                <p
-                  className={`text-xs mt-1 ${
-                    tankStatus.isFull ? "text-red-400" : "text-slate-400"
-                  }`}
-                >
-                  {tankStatus.str}
-                </p>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormInput
-                name="quantity_liters"
-                label={t("fuelSupplies.quantity", "Quantity (Liters)")}
-                type="number"
-                form={form}
-                inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-
-              <FormCurrencyInput
-                name="price_per_liter"
-                label={t("fuelSupplies.pricePerLiter", "Price Per Liter")}
-                form={form}
-                placeholder="0"
-                symbol="֏"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm font-medium mb-2">
-                {t("fuelSupplies.totalCost", "Total Cost")}
-              </label>
-              <div className="h-10 px-3 py-2 rounded-md border border-input bg-muted flex items-center">
-                {totalCost.toFixed(2)} ֏
-              </div>
-            </div>
-
-            <FormSelect
-              name="employee_id"
-              label={t("fuelSupplies.employee", "Employee")}
-              form={form}
-              options={employeeOptions}
-              placeholder={t("fuelSupplies.selectEmployee", "Select employee")}
-            />
-
-            <FormTextarea
-              name="comments"
-              label={t("fuelSupplies.comments", "Comments")}
-              form={form}
-              placeholder={t("fuelSupplies.optionalComments", "Optional comments about the fuel supply")}
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="w-full sm:w-auto"
-            >
-              {t("fuelSupplies.addFuelSupply", "Add Fuel Supply")}
-            </Button>
-          </div>
-        </form>
+        {renderContent()}
       </FormProvider>
 
       {/* Confirmation Dialog */}

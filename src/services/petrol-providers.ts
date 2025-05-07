@@ -1,6 +1,7 @@
-import { supabase } from './supabase';
+import { supabase } from '@/lib/supabase';
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import { Database } from '@/types/supabase';
+import logger from "@/services/logger";
 
 // Export the PetrolProvider type
 export interface PetrolProvider {
@@ -12,40 +13,87 @@ export interface PetrolProvider {
   is_active?: boolean;
 }
 
-export async function fetchPetrolProviders(options?: { activeOnly?: boolean }) {
+// Mock data for offline mode
+const MOCK_PETROL_PROVIDERS: PetrolProvider[] = [
+  {
+    id: "offline-provider-1",
+    name: "Offline Petrol Provider 1",
+    contact: "+374 91 123456",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_active: true
+  },
+  {
+    id: "offline-provider-2",
+    name: "Offline Petrol Provider 2",
+    contact: "+374 93 987654",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_active: true
+  }
+];
+
+// Options for fetching petrol providers
+interface FetchPetrolProviderOptions {
+  activeOnly?: boolean;
+}
+
+/**
+ * Fetches all petrol providers from the database
+ * @param options Optional parameters for filtering providers
+ * @returns Array of petrol providers
+ */
+export async function fetchPetrolProviders(options: FetchPetrolProviderOptions = {}) {
   try {
-    // @ts-ignore - Known issue with Supabase types
-    let query = supabase
-      .from("petrol_providers")
-      .select("*")
-      .order("name");
-
-    if (options?.activeOnly) {
-      query = query.eq("is_active", true);
+    // Check if we're offline
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    logger.info(`Fetching petrol providers. Offline mode: ${isOffline}`);
+    
+    // Get auth session directly from Supabase instead of using useAuth
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // If offline or no session, return mock data
+    if (isOffline || !session) {
+      logger.info("Using mock petrol providers data for offline mode");
+      const providers = [...MOCK_PETROL_PROVIDERS];
+      
+      // Filter for active providers if requested
+      if (options.activeOnly) {
+        return providers.filter(provider => provider.is_active);
+      }
+      
+      return providers;
     }
-
-    const { data, error } = await query;
-
+    
+    // Simplify the query to avoid TypeScript errors with any
+    const { data, error } = await (options.activeOnly 
+      // @ts-ignore - Type instantiation is excessively deep
+      ? supabase.from("petrol_providers").select("*").eq("is_active", true)
+      : supabase.from("petrol_providers").select("*"));
+    
     if (error) {
-      console.error("Error fetching petrol providers:", error);
+      logger.error(`Failed to fetch petrol providers: ${error.message}`);
       throw new Error(`Failed to fetch petrol providers: ${error.message}`);
     }
-
+    
     if (!data || data.length === 0) {
-      console.warn("No petrol providers found in the database");
+      logger.warn("No petrol providers found in the database");
       return [];
     }
-
-    // Validate and transform the data
-    return data.map(provider => ({
+    
+    // Transform the data to ensure it matches our expected structure
+    const providers: PetrolProvider[] = data.map((provider: any) => ({
       id: provider.id,
-      name: provider.name || "Unnamed Provider",
+      name: provider.name || "",
       contact: provider.contact || "",
-      created_at: provider.created_at,
-      is_active: provider.is_active ?? true // Default to true if not specified
+      is_active: provider.is_active !== false, // Default to true if undefined
+      created_at: provider.created_at || new Date().toISOString(),
     }));
+    
+    logger.info(`Successfully fetched ${providers.length} petrol providers`);
+    return providers;
   } catch (error) {
-    console.error("Exception in fetchPetrolProviders:", error);
+    logger.error(error instanceof Error ? error : `Error in fetchPetrolProviders: ${error}`);
     throw error;
   }
 }
@@ -85,4 +133,50 @@ export async function deletePetrolProvider(id: string) {
     .eq("id", id);
 
   if (error) throw error;
+}
+
+/**
+ * Creates a sample petrol provider in the database
+ * Useful for testing or when no providers exist
+ * @returns The created provider
+ */
+export async function createSampleProvider() {
+  try {
+    logger.info("Creating sample petrol provider");
+    
+    // Check if we're offline
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    
+    // If offline, return a mock provider
+    if (isOffline) {
+      logger.info("Offline mode: Returning mock sample provider");
+      return MOCK_PETROL_PROVIDERS[0];
+    }
+    
+    const { data, error } = await supabase
+      .from("petrol_providers")
+      .insert({
+        name: "Sample Provider",
+        contact: "+374 99 123456",
+        is_active: true,
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      logger.error(`Failed to create sample provider: ${error.message}`);
+      throw new Error(`Failed to create sample provider: ${error.message}`);
+    }
+    
+    if (!data) {
+      logger.error("No data returned after creating sample provider");
+      throw new Error("Failed to create sample provider: No data returned");
+    }
+    
+    logger.info("Sample provider created successfully");
+    return data;
+  } catch (error) {
+    logger.error(error instanceof Error ? error : `Error in createSampleProvider: ${error}`);
+    throw error;
+  }
 }

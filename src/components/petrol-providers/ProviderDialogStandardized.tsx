@@ -96,12 +96,16 @@ export function ProviderDialogStandardized({
     if (isEditing && provider) {
       updateMutation.mutate({ id: provider.id, data });
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate({
+        name: data.name,
+        contact: data.contact,
+        is_active: data.is_active
+      });
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={"Providers dialog"}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

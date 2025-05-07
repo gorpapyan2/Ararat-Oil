@@ -43,7 +43,7 @@ export default function ShiftOpen() {
 
   // Redirect to shifts page if already has an active shift
   if (activeShift && !success) {
-    navigate("/shifts");
+    navigate("/finance/shifts");
     return null;
   }
 
@@ -56,7 +56,7 @@ export default function ShiftOpen() {
       
       // Redirect after successful shift start
       setTimeout(() => {
-        navigate("/shifts");
+        navigate("/finance/shifts");
       }, 2000);
     } catch (error) {
       setError("Failed to start shift. Please try again.");
@@ -88,7 +88,7 @@ export default function ShiftOpen() {
       descriptionKey="shifts.startShiftDescription"
       action={
         <ButtonLink 
-          href="/shifts"
+          href="/finance/shifts"
           variant="outline"
           startIcon={<ArrowLeft className="h-4 w-4" />}
         >
@@ -143,7 +143,7 @@ export default function ShiftOpen() {
               
               <CardFooter className="flex justify-between border-t p-4">
                 <ButtonLink
-                  href="/shifts"
+                  href="/finance/shifts"
                   variant="outline"
                 >
                   {t("common.cancel")}

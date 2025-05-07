@@ -593,5 +593,33 @@
     "tankName": "Tank Name",
     "status": "Status",
     "currentLevel": "Current Level"
+  },
+  "providers": {
+    "title": "Providers",
+    "description": "Manage your fuel suppliers",
+    "addProvider": "Add Provider",
+    "searchPlaceholder": "Search providers...",
+    "name": "Name",
+    "contact": "Contact",
+    "status": "Status",
+    "createdAt": "Created At",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noProviders": "No providers found",
+    "edit": "Edit Provider",
+    "create": "Create Provider",
+    "confirmDelete": "Are you sure you want to delete this provider?",
+    "success": {
+      "created": "Provider created successfully",
+      "updated": "Provider updated successfully",
+      "deleted": "Provider deleted successfully"
+    },
+    "error": {
+      "fetch": "Failed to fetch providers",
+      "create": "Failed to create provider",
+      "update": "Failed to update provider",
+      "delete": "Failed to delete provider"
+    }
   }
 }

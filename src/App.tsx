@@ -125,11 +125,17 @@ const queryClient = new QueryClient({
 });
 
 function RequireAuth({ children }: { children: JSX.Element }) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isOffline } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
     return <Loading variant="fullscreen" text="Checking authentication..." />;
+  }
+
+  // If we're in offline mode and have a user, proceed to the app
+  if (isOffline && user) {
+    console.log("Using offline authentication mode");
+    return children;
   }
 
   if (!user) {
@@ -264,13 +270,50 @@ const App = () => {
                                     }
                                   />
                                   <Route
-                                    path="shifts"
+                                    path="shifts/*"
                                     element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
-                                          <Shifts />
-                                        </ErrorBoundary>
-                                      </Suspense>
+                                      <Routes>
+                                        <Route
+                                          index
+                                          element={
+                                            <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
+                                              <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
+                                                <Shifts />
+                                              </ErrorBoundary>
+                                            </Suspense>
+                                          }
+                                        />
+                                        <Route
+                                          path="open"
+                                          element={
+                                            <Suspense fallback={<Loading variant="fullscreen" text="Opening shift..." />}>
+                                              <ErrorBoundary fallback={<ImportErrorFallback pageName="Open Shift" />}>
+                                                <ShiftOpen />
+                                              </ErrorBoundary>
+                                            </Suspense>
+                                          }
+                                        />
+                                        <Route
+                                          path="close"
+                                          element={
+                                            <Suspense fallback={<Loading variant="fullscreen" text="Closing shift..." />}>
+                                              <ErrorBoundary fallback={<ImportErrorFallback pageName="Close Shift" />}>
+                                                <ShiftClose />
+                                              </ErrorBoundary>
+                                            </Suspense>
+                                          }
+                                        />
+                                        <Route
+                                          path=":id"
+                                          element={
+                                            <Suspense fallback={<Loading variant="fullscreen" text="Loading shift details..." />}>
+                                              <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Details" />}>
+                                                <ShiftDetails />
+                                              </ErrorBoundary>
+                                            </Suspense>
+                                          }
+                                        />
+                                      </Routes>
                                     }
                                   />
                                   <Route

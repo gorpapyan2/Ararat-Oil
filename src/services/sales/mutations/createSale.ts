@@ -9,7 +9,52 @@ export const createSale = async (data: {
   meter_end: number;
   filling_system_id: string;
   employee_id: string;
+  comments?: string;
 }) => {
+  // Check if we're offline
+  const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+  console.log(`Creating sale. Offline mode: ${isOffline}`);
+
+  if (isOffline) {
+    console.log("Using offline mode for sale creation");
+    
+    // Calculate values
+    const total_sold_liters = data.meter_end - data.meter_start;
+    const total_sales = total_sold_liters * data.unit_price;
+    
+    // Create a mock sale with a generated ID
+    const mockSale: Sale = {
+      id: `offline-sale-${Date.now()}`,
+      date: new Date().toISOString().split("T")[0],
+      fuel_type: "petrol", // Default fuel type
+      quantity: total_sold_liters,
+      price_per_unit: data.unit_price,
+      total_sales: total_sales,
+      payment_status: "pending",
+      filling_system_name: "Offline Filling System",
+      created_at: new Date().toISOString(),
+      meter_start: data.meter_start,
+      meter_end: data.meter_end,
+      filling_system_id: data.filling_system_id,
+      employee_id: data.employee_id,
+      shift_id: `offline-shift-${Date.now()}`,
+    };
+
+    console.log("Created mock sale:", mockSale);
+    
+    // Store the sale in localStorage for later syncing
+    try {
+      const storedSales = localStorage.getItem('offline_sales') || '[]';
+      const salesArray = JSON.parse(storedSales);
+      salesArray.push(mockSale);
+      localStorage.setItem('offline_sales', JSON.stringify(salesArray));
+    } catch (e) {
+      console.error("Error storing offline sale:", e);
+    }
+    
+    return mockSale;
+  }
+
   // Get the authenticated user and their active shift
   const {
     data: { user },

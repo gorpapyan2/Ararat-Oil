@@ -165,7 +165,7 @@ export default function ShiftDetails() {
         titleKey="shifts.shiftDetails"
         action={
           <ButtonLink 
-            href="/shifts"
+            href="/finance/shifts"
             variant="outline"
             startIcon={<ArrowLeft className="h-4 w-4" />}
           >
@@ -203,7 +203,7 @@ export default function ShiftDetails() {
         titleKey="shifts.shiftDetails"
         action={
           <ButtonLink 
-            href="/shifts"
+            href="/finance/shifts"
             variant="outline"
             startIcon={<ArrowLeft className="h-4 w-4" />}
           >
@@ -229,7 +229,7 @@ export default function ShiftDetails() {
         titleKey="shifts.shiftDetails"
         action={
           <ButtonLink 
-            href="/shifts"
+            href="/finance/shifts"
             variant="outline"
             startIcon={<ArrowLeft className="h-4 w-4" />}
           >
@@ -253,7 +253,7 @@ export default function ShiftDetails() {
       titleKey="shifts.shiftDetails"
       action={
         <ButtonLink 
-          href="/shifts"
+          href="/finance/shifts"
           variant="outline"
           startIcon={<ArrowLeft className="h-4 w-4" />}
         >

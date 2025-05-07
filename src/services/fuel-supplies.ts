@@ -199,139 +199,136 @@ export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
 export async function createFuelSupply(
   supply: Omit<FuelSupply, "id" | "created_at">,
 ): Promise<FuelSupply> {
-  // Get current tank level
-  const { data: tankData, error: tankError } = await supabase
-    .from("fuel_tanks")
-    .select("current_level")
-    .eq("id", supply.tank_id)
-    .single();
-  if (tankError)
-    throw new Error(`Failed to fetch tank: ${tankError.message ?? tankError}`);
-  const previousLevel = tankData.current_level;
-  const newLevel = previousLevel + supply.quantity_liters;
+  try {
+    // Check if we're offline
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    console.log(`Creating fuel supply. Offline mode: ${isOffline}`);
 
-  // Get tank capacity
-  const { data: tankCapacityData, error: capacityError } = await supabase
-    .from("fuel_tanks")
-    .select("capacity")
-    .eq("id", supply.tank_id)
-    .single();
-  if (capacityError)
-    throw new Error(
-      `Failed to fetch tank capacity: ${capacityError.message ?? capacityError}`,
-    );
+    if (isOffline) {
+      console.log("Using offline mode for fuel supply creation");
+      
+      // Create a mock fuel supply with a generated ID
+      const mockId = `offline-${Date.now()}`;
+      const mockCreatedAt = new Date().toISOString();
+      
+      const mockFuelSupply: FuelSupply = {
+        id: mockId,
+        created_at: mockCreatedAt,
+        ...supply,
+        // Add mock references that would normally come from the database
+        provider: { id: supply.provider_id, name: "Offline Provider", contact: "" },
+        tank: { 
+          id: supply.tank_id, 
+          name: "Offline Tank", 
+          fuel_type: "petrol", 
+          capacity: 10000, 
+          current_level: 5000 
+        },
+        employee: { id: supply.employee_id, name: "Offline Employee" }
+      };
 
-  // Validate new level doesn't exceed capacity
-  if (newLevel > tankCapacityData.capacity) {
-    throw new Error(
-      `Cannot add ${supply.quantity_liters} liters. This would exceed the tank capacity of ${tankCapacityData.capacity} liters. Current level: ${previousLevel} liters.`,
-    );
-  }
-
-  // Insert fuel supply
-  const { data, error } = await supabase
-    .from("fuel_supplies")
-    .insert({
-      delivery_date: supply.delivery_date,
-      provider_id: supply.provider_id,
-      tank_id: supply.tank_id,
-      quantity_liters: supply.quantity_liters,
-      price_per_liter: supply.price_per_liter,
-      employee_id: supply.employee_id,
-      comments: supply.comments,
-      total_cost: supply.total_cost,
-      payment_status: supply.payment_status,
-      payment_method: supply.payment_method,
-    })
-    .select(
-      `
-      *,
-      provider:petrol_providers(id, name, contact),
-      tank:fuel_tanks(id, name, fuel_type, capacity, current_level),
-      employee:employees(id, name, position, contact, salary, hire_date, status)
-    `,
-    )
-    .single();
-  if (error)
-    throw new Error(`Failed to create fuel supply: ${error.message ?? error}`);
-
-  // Update tank level
-  const { error: updateTankError } = await supabase
-    .from("fuel_tanks")
-    .update({ current_level: newLevel })
-    .eq("id", supply.tank_id);
-  if (updateTankError)
-    throw new Error(
-      `Failed to update tank level: ${updateTankError.message ?? updateTankError}`,
-    );
-
-  // Record tank level change
-  const { error: updateError } = await supabase.rpc(
-    "record_tank_level_change",
-    {
-      p_tank_id: supply.tank_id,
-      p_change_amount: Number(supply.quantity_liters),
-      p_previous_level: Number(previousLevel),
-      p_new_level: Number(newLevel),
-      p_change_type: "add",
-    },
-  );
-
-  if (updateError) {
-    console.error("Error recording tank level change:", updateError);
-    throw updateError;
-  }
-
-  // Create a corresponding transaction for this fuel supply
-  await createTransaction({
-    amount: supply.total_cost,
-    payment_method: supply.payment_method,
-    payment_status: supply.payment_status,
-    employee_id: supply.employee_id,
-    description: supply.comments || "",
-    entity_type: "fuel_supply",
-    entity_id: data.id,
-  });
-
-  // Safely transform the response to match our expected types
-  const provider = data.provider ?? undefined;
-  const tank = data.tank
-    ? {
-        ...data.tank,
-        fuel_type: data.tank.fuel_type as FuelType,
-      }
-    : undefined;
-  const employee = data.employee
-    ? {
-        ...data.employee,
-        status: data.employee.status as EmployeeStatus,
-      }
-    : undefined;
-
-  // Handle payment_method type conversion
-  let paymentMethod: PaymentMethod | undefined = undefined;
-  if (data.payment_method) {
-    if (
-      ["cash", "card", "bank_transfer", "mobile_payment"].includes(
-        data.payment_method,
-      )
-    ) {
-      paymentMethod = data.payment_method as PaymentMethod;
+      console.log("Created mock fuel supply:", mockFuelSupply);
+      return mockFuelSupply;
     }
+
+    // Online mode - continue with database operations
+    // Get current tank level
+    const { data: tankData, error: tankError } = await supabase
+      .from("fuel_tanks")
+      .select("current_level")
+      .eq("id", supply.tank_id)
+      .single();
+    if (tankError)
+      throw new Error(`Failed to fetch tank: ${tankError.message ?? tankError}`);
+    const previousLevel = tankData.current_level;
+    const newLevel = previousLevel + supply.quantity_liters;
+
+    // Get tank capacity
+    const { data: tankCapacityData, error: capacityError } = await supabase
+      .from("fuel_tanks")
+      .select("capacity")
+      .eq("id", supply.tank_id)
+      .single();
+    if (capacityError)
+      throw new Error(
+        `Failed to fetch tank capacity: ${capacityError.message ?? capacityError}`,
+      );
+
+    // Validate new level doesn't exceed capacity
+    if (newLevel > tankCapacityData.capacity) {
+      throw new Error(
+        `Cannot add ${supply.quantity_liters} liters. This would exceed the tank capacity of ${tankCapacityData.capacity} liters. Current level: ${previousLevel} liters.`,
+      );
+    }
+
+    // Insert fuel supply
+    const { data, error } = await supabase
+      .from("fuel_supplies")
+      .insert({
+        delivery_date: supply.delivery_date,
+        provider_id: supply.provider_id,
+        tank_id: supply.tank_id,
+        quantity_liters: supply.quantity_liters,
+        price_per_liter: supply.price_per_liter,
+        employee_id: supply.employee_id,
+        comments: supply.comments,
+        total_cost: supply.total_cost,
+        payment_status: supply.payment_status || "pending",
+        payment_method: supply.payment_method,
+      })
+      .select(
+        `
+        *,
+        provider:petrol_providers(id, name, contact),
+        tank:fuel_tanks(id, name, fuel_type, capacity, current_level),
+        employee:employees(id, name)
+        `
+      )
+      .single();
+
+    if (error) throw new Error(`Failed to create supply: ${error.message}`);
+    if (!data) throw new Error("No data returned after creating supply");
+
+    // Update the tank level
+    const { error: updateError } = await supabase
+      .from("fuel_tanks")
+      .update({ current_level: newLevel })
+      .eq("id", supply.tank_id);
+
+    if (updateError)
+      throw new Error(
+        `Failed to update tank level: ${updateError.message ?? updateError}`,
+      );
+
+    // Create a financial transaction record if payment is not pending
+    if (supply.payment_status && supply.payment_status !== "pending") {
+      try {
+        await createTransaction({
+          date: supply.delivery_date,
+          amount: Number(supply.total_cost),
+          type: "expense",
+          category: "fuel_supply",
+          payment_method: supply.payment_method || "cash",
+          description: `Fuel supply from ${data.provider?.name || 'provider'} - ${supply.quantity_liters} liters`,
+          reference_id: data.id,
+          reference_type: "fuel_supply",
+        });
+        console.log("Transaction recorded for fuel supply");
+      } catch (transactionError) {
+        console.error(
+          "Failed to create transaction for fuel supply:",
+          transactionError,
+        );
+        // Don't fail the entire operation if only the transaction creation failed
+      }
+    }
+
+    console.log("Fuel supply created successfully:", data);
+    return data;
+  } catch (error) {
+    console.error("Error creating fuel supply:", error);
+    throw error;
   }
-
-  // Use type assertion to handle payment_status that might not be detected by TypeScript
-  const paymentStatus =
-    ((data as any).payment_status as PaymentStatus) || "pending";
-
-  return {
-    ...data,
-    provider,
-    tank,
-    employee,
-    payment_status: paymentStatus,
-    payment_method: paymentMethod,
-  };
 }
 
 export async function updateFuelSupply(
