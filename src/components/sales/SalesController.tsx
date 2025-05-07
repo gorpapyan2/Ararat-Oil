@@ -2,9 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useTankDialog } from "@/hooks/useTankDialog";
-import { TankFormDialogStandardized } from "./TankFormDialogStandardized";
+import { TankFormDialogStandardized } from "../tanks/TankFormDialogStandardized";
 
-interface TankControllerProps {
+interface SalesControllerProps {
   onSuccess?: () => void;
   className?: string;
   buttonText?: string;
@@ -13,14 +13,14 @@ interface TankControllerProps {
   showIcon?: boolean;
 }
 
-export function TankController({
+export function SalesController({
   onSuccess,
   className,
-  buttonText = "Add New Tank",
+  buttonText = "Add New Sale",
   variant = "default",
   size = "default",
   showIcon = true,
-}: TankControllerProps) {
+}: SalesControllerProps) {
   const { 
     openDialog,
     isFormOpen, 

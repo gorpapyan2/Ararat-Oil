@@ -21,6 +21,15 @@ interface TodoState {
   updatePriority: (id: string, priority: TodoItem["priority"]) => void;
 }
 
+export type FilterType = 'all' | 'active' | 'completed';
+export type SortType = 'newest' | 'oldest' | 'alphabetical';
+export interface TodoItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: number;
+}
+
 export const useTodoStore = create<TodoState>()(
   persist(
     (set) => ({

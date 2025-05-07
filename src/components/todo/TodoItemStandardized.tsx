@@ -111,7 +111,11 @@ export function TodoItemStandardized({
       </Card>
 
       {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        title="Edit Todo"
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("todo.editTask")}</DialogTitle>
@@ -126,7 +130,11 @@ export function TodoItemStandardized({
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <Dialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="Delete Todo"
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("todo.confirmDelete")}</DialogTitle>
@@ -149,4 +157,4 @@ export function TodoItemStandardized({
       </Dialog>
     </>
   );
-} 
+}

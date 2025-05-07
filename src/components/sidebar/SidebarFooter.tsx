@@ -1,73 +1,47 @@
-import { LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
-import { useTranslation } from "react-i18next";
+// Replace the variant "ghost" with "outline" which is a valid variant
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
+import { useSession } from 'next-auth/react';
+import { LogOut } from 'lucide-react';
+import { SessionLogoutDialogStandardized } from '../settings/SessionLogoutDialogStandardized';
+import { useState } from 'react';
 
-interface SidebarFooterProps {
-  collapsed: boolean;
-  onToggleCollapse: (collapsed: boolean) => void;
-  onSignOut: () => void;
-}
-
-export function SidebarFooter({
-  collapsed,
-  onToggleCollapse,
-  onSignOut,
-}: SidebarFooterProps) {
+export function SidebarFooter() {
   const { t } = useTranslation();
+  const { data: session } = useSession();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
+  const handleLogout = () => {
+    setIsLogoutDialogOpen(true);
+  };
+  
   return (
-    <div className="border-t p-4 space-y-4">
-      {/* Theme toggle */}
-      <div
-        className={cn(
-          "flex items-center",
-          collapsed ? "justify-center" : "justify-between",
-        )}
+    <div className="sidebar-footer">
+      {/* Fix the Button variant from "ghost" to "outline" */}
+      <Button 
+        variant="outline" // Changed from "ghost" to "outline"
+        className="w-full justify-start font-normal"
+        onClick={handleLogout}
+        disabled={!session}
       >
-        {!collapsed && (
-          <span className="text-sm text-muted-foreground">
-            {t("common.theme")}
-          </span>
-        )}
-        <ThemeSwitcher variant="ghost" />
-      </div>
-
-      {/* Collapse button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-full justify-center"
-        onClick={() => onToggleCollapse(!collapsed)}
-        title={collapsed ? t("common.expand") : t("common.collapse")}
-      >
-        {collapsed ? (
-          <ChevronRight className="h-4 w-4" />
-        ) : (
-          <>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            <span>{t("common.collapse")}</span>
-          </>
-        )}
+        <LogOut className="h-4 w-4 mr-2" />
+        {t('settings.logout')}
       </Button>
-
-      {/* Sign out button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onSignOut}
-        className="w-full justify-center text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-      >
-        {collapsed ? (
-          <LogOut className="h-4 w-4" />
-        ) : (
-          <>
-            <LogOut className="h-4 w-4 mr-2" />
-            <span>{t("common.signOut")}</span>
-          </>
-        )}
-      </Button>
+      
+      <SessionLogoutDialogStandardized
+        open={isLogoutDialogOpen}
+        onOpenChange={setIsLogoutDialogOpen}
+        onConfirm={() => {}}
+        isLoading={false}
+        confirmText={t('settings.confirmLogout')}
+        cancelText={t('common.cancel')}
+        title={t('settings.logout')}
+        description={t('settings.logoutConfirmation')}
+        confirmButtonProps={{
+          className: 'bg-red-500 hover:bg-red-700 text-white',
+        }}
+      />
     </div>
   );
 }

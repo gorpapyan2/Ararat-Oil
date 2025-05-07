@@ -1,123 +1,152 @@
-import { StandardDialog } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { StandardDialog } from "@/components/ui/composed/dialog";
 import { Button } from "@/components/ui/button";
-import { useTankDialog, tankFormSchema, TankFormData } from "@/hooks/useTankDialog";
-import { useZodForm } from "@/hooks/use-form";
+import { useToast } from "@/hooks";
+import { createFuelTank, updateFuelTank } from "@/services/tanks";
 import { FormInput, FormSelect } from "@/components/ui/composed/form-fields";
-import { ConfirmAddTankDialogStandardized } from "./ConfirmAddTankDialogStandardized";
+import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 
 interface TankFormDialogStandardizedProps {
-  onSuccess?: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+  tank?: {
+    id?: string;
+    name?: string;
+    capacity?: number;
+    current_level?: number;
+    fuel_type?: "petrol" | "diesel" | "cng";
+  };
 }
 
-export function TankFormDialogStandardized({ 
-  onSuccess 
-}: TankFormDialogStandardizedProps) {
-  const {
-    isFormOpen,
-    setIsFormOpen,
-    isConfirmOpen,
-    setIsConfirmOpen,
-    isSubmitting,
-    pendingTankData,
-    handleFormSubmit,
-    handleConfirm,
-    handleCancel,
-    fuelTypeOptions,
-  } = useTankDialog({ 
-    onSuccess 
-  });
+// Define Zod schema for validation
+const tankSchema = z.object({
+  name: z.string({ required_error: "Name is required" })
+    .min(2, "Name must be at least 2 characters"),
+  fuel_type: z.enum(["petrol", "diesel", "cng"], {
+    required_error: "Fuel type is required",
+  }),
+  capacity: z.number({ required_error: "Capacity is required" })
+    .min(1, "Capacity must be greater than 0"),
+});
 
+// Type based on schema
+type TankFormData = z.infer<typeof tankSchema>;
+
+export function TankFormDialogStandardized({
+  open,
+  onOpenChange,
+  onSuccess,
+  tank,
+}: TankFormDialogStandardizedProps) {
+  const { toast } = useToast();
+
+  // Initialize form with Zod validation
   const form = useZodForm({
-    schema: tankFormSchema,
+    schema: tankSchema,
     defaultValues: {
-      name: "",
-      fuel_type: undefined,
-      capacity: 0,
-      current_level: 0,
+      name: tank?.name || "",
+      fuel_type: tank?.fuel_type || "petrol",
+      capacity: tank?.capacity || 0,
     },
   });
 
-  const onSubmit = (data: TankFormData) => {
-    const validationResult = handleFormSubmit(data);
-    if (validationResult) {
-      form.setError(validationResult.error as any, {
-        type: "manual",
-        message: validationResult.message,
-      });
+  // Form submission handler
+  const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<TankFormData>(
+    form,
+    async (data) => {
+      try {
+        const tankData = {
+          name: data.name,
+          fuelType: data.fuel_type, // Map fuel_type to fuelType
+          capacity: data.capacity,
+        };
+
+        if (tank?.id) {
+          await updateFuelTank(tank.id, tankData);
+          toast({
+            title: "Success",
+            description: "Tank updated successfully",
+          });
+        } else {
+          await createFuelTank(tankData);
+          toast({
+            title: "Success",
+            description: "Tank created successfully",
+          });
+        }
+        form.reset();
+        onSuccess();
+        return true;
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create/update tank",
+          variant: "destructive",
+        });
+        return false;
+      }
     }
-  };
+  );
+
+  // Create form actions
+  const formActions = (
+    <div className="flex justify-end space-x-2">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => onOpenChange(false)}
+        disabled={isSubmitting}
+      >
+        Cancel
+      </Button>
+      <Button type="submit" disabled={isSubmitting} form="tank-form">
+        {isSubmitting ? "Saving..." : "Save Tank"}
+      </Button>
+    </div>
+  );
 
   return (
-    <>
-      <StandardDialog
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        title="Add New Fuel Tank"
-        description="Enter the details of the new fuel tank"
-        maxWidth="sm:max-w-[450px]"
-      >
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormInput
-            name="name"
-            label="Tank Name"
-            form={form}
-            placeholder="Tank name"
-            autoComplete="off"
-          />
+    <StandardDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={tank?.id ? "Edit Tank" : "Add New Tank"}
+      description={tank?.id
+        ? "Update tank details"
+        : "Create a new fuel tank"}
+      maxWidth="sm:max-w-[425px]"
+      actions={formActions}
+    >
+      <form id="tank-form" onSubmit={handleSubmit} className="space-y-4">
+        <FormInput
+          name="name"
+          label="Tank Name"
+          form={form}
+          placeholder="Enter tank name"
+          autoComplete="off"
+        />
 
-          <FormSelect
-            name="fuel_type"
-            label="Fuel Type"
-            form={form}
-            options={fuelTypeOptions}
-            placeholder="Select fuel type"
-          />
+        <FormSelect
+          name="fuel_type"
+          label="Fuel Type"
+          form={form}
+          options={[
+            { value: "petrol", label: "Petrol" },
+            { value: "diesel", label: "Diesel" },
+            { value: "cng", label: "CNG" },
+          ]}
+          placeholder="Select fuel type"
+        />
 
-          <FormInput
-            name="capacity"
-            label="Tank Capacity (liters)"
-            form={form}
-            type="number"
-            placeholder="Capacity in liters"
-            inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          />
-
-          <FormInput
-            name="current_level"
-            label="Current Fuel Level (liters)"
-            form={form}
-            type="number"
-            placeholder="Current level in liters"
-            inputClassName="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          />
-
-          <div className="flex justify-end gap-2 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setIsFormOpen(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Adding..." : "Add Tank"}
-            </Button>
-          </div>
-        </form>
-      </StandardDialog>
-
-      <ConfirmAddTankDialogStandardized
-        open={isConfirmOpen}
-        onOpenChange={setIsConfirmOpen}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-        isLoading={isSubmitting}
-        data={pendingTankData}
-      />
-    </>
+        <FormInput
+          name="capacity"
+          label="Capacity (Liters)"
+          form={form}
+          placeholder="Enter capacity"
+          type="number"
+        />
+      </form>
+    </StandardDialog>
   );
-} 
+}

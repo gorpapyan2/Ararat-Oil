@@ -1,6 +1,12 @@
+import { supabase } from './supabase';
 
-import { supabase } from "@/integrations/supabase/client";
-import type { PetrolProvider } from "@/types";
+// Export the PetrolProvider type
+export interface PetrolProvider {
+  id: string;
+  name: string;
+  contact: string;
+  created_at?: string;
+}
 
 export async function fetchPetrolProviders() {
   const { data, error } = await supabase

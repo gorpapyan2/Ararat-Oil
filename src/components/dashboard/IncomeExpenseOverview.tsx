@@ -16,7 +16,6 @@ import {
   ReferenceLine,
   Cell,
   LabelList,
-  AnimationTiming,
 } from 'recharts';
 import {
   Card,
@@ -372,9 +371,6 @@ export function IncomeExpenseOverview() {
                       }
                     }}
                     className="touch-manipulation"
-                    animationBegin={0}
-                    animationDuration={800}
-                    animationEasing="ease-out"
                   >
                     <defs>
                       <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
@@ -620,4 +616,4 @@ export function IncomeExpenseOverview() {
       </CardFooter>
     </Card>
   );
-} 
+}

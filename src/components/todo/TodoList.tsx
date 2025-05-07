@@ -1,18 +1,10 @@
-import { useMemo } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from "@/components/ui/card";
+import React, { useState } from 'react';
+import { TodoItem } from '@/store/useTodoStore'; // Update import path
+import { TodoFilter } from './TodoFilter';
+import { TodoFormStandardized } from './TodoFormStandardized'; // Fix import path
+import { useTodoStore } from "@/store/useTodoStore";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useTodoStore } from "@/store/useTodoStore";
-import { TodoItem } from "./TodoItem";
-import { TodoForm } from "./TodoForm";
-import { TodoFilter } from "./TodoFilter";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +76,7 @@ export function TodoList() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        <TodoForm onAddTodo={addTodo} />
+        <TodoFormStandardized onAddTodo={addTodo} />
 
         <TodoFilter
           filter={filter}

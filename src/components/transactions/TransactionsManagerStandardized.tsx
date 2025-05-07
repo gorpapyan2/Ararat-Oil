@@ -1,103 +1,141 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchTransactions } from "@/services/transactions";
-import { TransactionsTable } from "./TransactionsTable";
-import { TransactionsHeader } from "./TransactionsHeader";
-import { TransactionsDialogsStandardized } from "./TransactionsDialogsStandardized";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchTransactions,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
+} from "@/services/transactions";
 import { Transaction } from "@/types";
+import { TransactionListStandardized } from "./TransactionListStandardized";
+import { TransactionHeader } from "./TransactionHeader";
+import { TransactionDialogStandardized } from "./TransactionDialogStandardized";
 import { useToast } from "@/hooks";
-import { useTranslation } from "react-i18next";
-import { useDialog } from "@/hooks/useDialog";
 
 export function TransactionsManagerStandardized() {
-  // State
-  const [search, setSearch] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<Date | undefined>(undefined);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-  
-  // Hooks
-  const { toast } = useToast();
-  const { t } = useTranslation();
-  const detailsDialog = useDialog();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
+    null,
+  );
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState<
+    Transaction | null
+  >(null);
 
-  // Data fetching
-  const {
-    data: transactions,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["transactions", search, paymentMethod, dateRange],
-    queryFn: async () => {
-      const allTransactions = await fetchTransactions();
-      return allTransactions.filter(
-        (transaction) =>
-          (search ? transaction.id.includes(search) : true) &&
-          (paymentMethod
-            ? transaction.payment_method === paymentMethod
-            : true) &&
-          (dateRange
-            ? new Date(transaction.created_at || "") >= dateRange
-            : true),
-      );
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data: transactions, isLoading } = useQuery({
+    queryKey: ["transactions"],
+    queryFn: fetchTransactions,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: createTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast({
+        title: "Success",
+        description: "Transaction created successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create transaction",
+        variant: "destructive",
+      });
     },
   });
 
-  // Event handlers
-  const handleViewDetails = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
-    detailsDialog.open();
-    toast({
-      title: t("transactions.detailsTitle"),
-      description: t("transactions.detailsDescription", { id: transaction.id }),
-    });
+  const updateMutation = useMutation({
+    mutationFn: updateTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast({
+        title: "Success",
+        description: "Transaction updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update transaction",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast({
+        title: "Success",
+        description: "Transaction deleted successfully",
+      });
+      setIsDeleteDialogOpen(false); // Close the dialog on success
+      setTransactionToDelete(null); // Clear the transaction to delete
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete transaction",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreate = async (transactionData: Omit<Transaction, "id">) => {
+    await createMutation.mutateAsync(transactionData);
+  };
+
+  const handleUpdate = async (
+    id: string,
+    transactionData: Omit<Transaction, "id">,
+  ) => {
+    await updateMutation.mutateAsync({ id, ...transactionData });
+  };
+
+  // Convert the transaction parameter to string ID
+  const handleDelete = (transaction: Transaction | string) => {
+    const id = typeof transaction === 'string' ? transaction : transaction.id;
+    setTransactionToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (transactionToDelete) {
+      await deleteMutation.mutateAsync(transactionToDelete);
+    }
   };
 
   const handleEdit = (transaction: Transaction) => {
-    setSelectedTransaction(transaction);
-    detailsDialog.open();
-    toast({
-      title: t("transactions.editTitle"),
-      description: t("transactions.editDescription", { id: transaction.id }),
-    });
+    setTransactionToEdit(transaction);
+    setIsEditDialogOpen(true);
   };
 
-  const handleFiltersChange = (filters: any) => {
-    if (filters.search !== undefined) setSearch(filters.search);
-    if (filters.provider !== undefined && filters.provider !== "all") {
-      setPaymentMethod(filters.provider);
-    } else if (filters.provider === "all") {
-      setPaymentMethod(null);
-    }
-    if (filters.date !== undefined) {
-      setDateRange(filters.date);
-    }
+  const closeEditDialog = () => {
+    setIsEditDialogOpen(false);
+    setTransactionToEdit(null);
   };
 
   return (
     <div className="space-y-6">
-      <TransactionsHeader
-        search={search}
-        onSearchChange={setSearch}
-        paymentMethod={paymentMethod}
-        onPaymentMethodChange={setPaymentMethod}
-        dateRange={dateRange}
-        onDateRangeChange={setDateRange}
-        onFiltersChange={handleFiltersChange}
-      />
-
-      <TransactionsTable
+      <TransactionHeader onCreate={() => {}} />
+      <TransactionListStandardized
         transactions={transactions || []}
         isLoading={isLoading}
-        onViewDetails={handleViewDetails}
         onEdit={handleEdit}
+        onDelete={handleDelete}
       />
-
-      <TransactionsDialogsStandardized
-        transaction={selectedTransaction}
-        open={detailsDialog.isOpen}
-        onOpenChange={detailsDialog.onOpenChange}
+      <TransactionDialogStandardized
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        transaction={transactionToEdit}
+        onSubmit={handleUpdate}
+        onClose={closeEditDialog}
       />
     </div>
   );
-} 
+}
