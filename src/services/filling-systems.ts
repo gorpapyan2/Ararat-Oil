@@ -1,13 +1,6 @@
-import { supabase } from "@/integrations/supabase/client";
-import { FuelTank, FuelType } from "@/types";
 
-export interface FillingSystem {
-  id: string;
-  name: string;
-  tank_id: string;
-  tank?: FuelTank;
-  created_at?: string;
-}
+import { supabase } from "@/integrations/supabase/client";
+import type { FuelTank, FillingSystem, FuelType } from "@/types";
 
 export const createFillingSystem = async (
   name: string,
