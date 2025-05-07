@@ -120,7 +120,7 @@ export function FuelSuppliesDataTable({
           </span>
         </div>
       ),
-      filterFn: "nestedStringFilter",
+      // Remove nestedStringFilter as it's not a recognized FilterFnOption
     },
     {
       id: "tank",
@@ -450,7 +450,7 @@ export function FuelSuppliesDataTable({
       <DataTable
         columns={columns}
         data={processedData}
-        isLoading={isLoading}
+        loading={isLoading} // Changed from isLoading to loading to match expected prop
         mobileCardRenderer={MobileCardRenderer}
         onRowClick={(supply) => setSelectedSupply(supply)}
         emptyMessage={t("fuelSupplies.noSuppliesFound")}

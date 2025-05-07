@@ -20,6 +20,7 @@ export {
   createFillingSystem,
   fetchFillingSystems,
   deleteFillingSystem,
+  validateTankIds,
 } from "./filling-systems";
 export {
   fetchPetrolProviders,

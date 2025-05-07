@@ -1,3 +1,4 @@
+
 import { useMemo, useEffect } from "react";
 import { z } from "zod";
 import { format } from "date-fns";
@@ -118,7 +119,18 @@ export function FuelSuppliesFormStandardized({
   const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<FuelSupplyFormValues>(
     form,
     (data) => {
-      onSubmit(data);
+      // Ensure the required fields are not optional when submitting
+      const formattedData: Omit<FuelSupply, "id" | "created_at"> = {
+        delivery_date: data.delivery_date,
+        provider_id: data.provider_id,
+        tank_id: data.tank_id,
+        quantity_liters: data.quantity_liters,
+        price_per_liter: data.price_per_liter,
+        total_cost: data.total_cost || 0,
+        employee_id: data.employee_id,
+        comments: data.comments || "",
+      };
+      onSubmit(formattedData);
       return true;
     }
   );
@@ -233,43 +245,41 @@ export function FuelSuppliesFormStandardized({
         <FormProvider {...form}>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {/* Date Picker */}
-              <FormField 
-                name="delivery_date" 
-                label="Delivery Date"
-                form={form}
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
+              {/* Date Picker - using custom implementation instead of FormField with render prop */}
+              <div className="space-y-2">
+                <FormLabel>Delivery Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
                       <Button
                         variant="outline"
                         className={cn(
                           "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
+                          !form.watch("delivery_date") && "text-muted-foreground",
                         )}
                       >
-                        {field.value ? (
-                          format(new Date(field.value), "PPP")
+                        {form.watch("delivery_date") ? (
+                          format(new Date(form.watch("delivery_date")), "PPP")
                         ) : (
                           <span>Pick a date</span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={new Date(field.value)}
-                        onSelect={(date) =>
-                          field.onChange(format(date || new Date(), "yyyy-MM-dd"))
-                        }
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={new Date(form.watch("delivery_date"))}
+                      onSelect={(date) =>
+                        form.setValue("delivery_date", format(date || new Date(), "yyyy-MM-dd"))
+                      }
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
 
               {/* Provider Select */}
               <FormSelect
@@ -375,4 +385,4 @@ export function FuelSuppliesFormStandardized({
       </DialogContent>
     </Dialog>
   );
-} 
+}

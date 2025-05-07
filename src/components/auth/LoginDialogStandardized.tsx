@@ -29,7 +29,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { 
   IconBrandGoogle, 
   IconBrandGithub, 
-  IconBrandMicrosoft, 
+  IconBrandMinecraft, // Changed from IconBrandMicrosoft to IconBrandMinecraft
   IconBrandApple 
 } from "@tabler/icons-react";
 
@@ -103,7 +103,7 @@ export function LoginDialogStandardized({
       case "github":
         return <IconBrandGithub className="h-4 w-4" />;
       case "microsoft":
-        return <IconBrandMicrosoft className="h-4 w-4" />;
+        return <IconBrandMinecraft className="h-4 w-4" />;
       case "apple":
         return <IconBrandApple className="h-4 w-4" />;
     }
@@ -239,4 +239,4 @@ export function LoginDialogStandardized({
       </div>
     </StandardDialog>
   );
-} 
+}

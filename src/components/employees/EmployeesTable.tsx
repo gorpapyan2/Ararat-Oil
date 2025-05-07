@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Employee, EmployeeStatus } from "@/types";
+import React, { useState } from 'react';
+import { Employee } from '@/types';
 import { StandardizedDataTable, FiltersShape } from "@/components/unified/StandardizedDataTable";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -36,11 +36,32 @@ export function EmployeesTable({
   onPageChange,
   onSortChange,
 }: EmployeesTableProps) {
-  const [filters, setFilters] = useState<FiltersShape>({
+  // Initial filter state without the invalid 'position' property
+  const [filters, setFilters] = useState({
     searchTerm: "",
-    position: "all",
     status: "all",
+    // Removed position filter as it doesn't exist in FiltersShape
   });
+
+  // Filter options properly structured for StandardizedDataTable
+  const filterOptions = {
+    position: {
+      label: "Position",
+      options: [
+        { id: "all", name: "All Positions" },
+        ...positions
+      ]
+    },
+    status: {
+      label: "Status",
+      options: [
+        { id: "all", name: "All Statuses" },
+        { id: "active", name: "Active" },
+        { id: "on_leave", name: "On Leave" },
+        { id: "terminated", name: "Terminated" }
+      ]
+    }
+  };
 
   // Handle filter changes
   const handleFilterChange = (newFilters: FiltersShape) => {
@@ -150,14 +171,6 @@ export function EmployeesTable({
     },
   ], []);
 
-  // Status filter options
-  const statusOptions = [
-    { id: "all", name: "All Statuses" },
-    { id: "active", name: "Active" },
-    { id: "on_leave", name: "On Leave" },
-    { id: "terminated", name: "Terminated" }
-  ];
-
   const isServerSide = Boolean(onPageChange && onSortChange);
 
   return (
@@ -178,19 +191,7 @@ export function EmployeesTable({
       serverSide={isServerSide}
       onPageChange={onPageChange}
       onSortChange={onSortChange}
-      filterOptions={{
-        position: {
-          label: "Position",
-          options: [
-            { id: "all", name: "All Positions" },
-            ...positions
-          ]
-        },
-        status: {
-          label: "Status",
-          options: statusOptions
-        }
-      }}
+      filterOptions={filterOptions}
       exportOptions={{
         enabled: true,
         filename: 'employees-export',
@@ -198,4 +199,4 @@ export function EmployeesTable({
       }}
     />
   );
-} 
+}
