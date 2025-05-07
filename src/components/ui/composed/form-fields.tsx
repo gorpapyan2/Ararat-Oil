@@ -112,30 +112,31 @@ export function FormSelect<TFieldValues extends FieldValues>({
       render={({ field }) => (
         <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <Select 
-              onValueChange={(value) => {
-                field.onChange(value);
-                onChange?.(value);
-              }} 
-              value={field.value || ""}
-            >
+          <Select 
+            onValueChange={(value) => {
+              field.onChange(value);
+              onChange?.(value);
+            }} 
+            value={field.value || ""}
+            defaultValue={field.value}
+          >
+            <FormControl>
               <SelectTrigger className={selectClassName}>
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
-              <SelectContent className={contentClassName}>
-                {options.map(option => (
-                  <SelectItem 
-                    key={option.value} 
-                    value={option.value}
-                    className={itemClassName}
-                  >
-                    {renderOption ? renderOption(option) : option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormControl>
+            </FormControl>
+            <SelectContent className={contentClassName}>
+              {options.map(option => (
+                <SelectItem 
+                  key={option.value} 
+                  value={option.value}
+                  className={itemClassName}
+                >
+                  {renderOption ? renderOption(option) : option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
         </FormItem>

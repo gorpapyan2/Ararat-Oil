@@ -1,20 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useShift } from "@/hooks/useShift";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/layouts/PageLayout";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MultiPaymentMethodFormStandardized, MultiPaymentFormData } from "@/components/shared/MultiPaymentMethodFormStandardized";
 import { formatCurrency, formatDateTime, calculateDuration } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
 // Add a safe formatting function
 const safeFormatDateTime = (dateString?: string | null): string => {
   if (!dateString) return "-";
   try {
-    // Validate the date is parseable
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
       return "-";
@@ -28,31 +27,51 @@ const safeFormatDateTime = (dateString?: string | null): string => {
 
 export default function ShiftClose() {
   const { t } = useTranslation();
-  const { activeShift, endShift, isLoading } = useShift();
+  const { activeShift, endShift, isLoading: isShiftLoading, checkActiveShift } = useShift();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  // Debug logs
-  useEffect(() => {
-    console.log("ShiftClose component mounted");
-    console.log("Active shift:", activeShift);
-  }, []);
-
-  // Create a memoized navigation handler to avoid recreating it on each render
+  // Create a memoized navigation handler
   const navigateToShifts = useCallback(() => {
-    console.log("Navigating to shifts page using React Router");
+    // Use replace to prevent back-button issues
     navigate('/shifts', { replace: true });
   }, [navigate]);
+
+  // Check for active shift on mount and periodically
+  useEffect(() => {
+    let intervalId: number;
+
+    const checkShift = async () => {
+      await checkActiveShift();
+      if (!activeShift && !isShiftLoading) {
+        // Use replace to prevent back-button issues
+        navigate('/shifts', { replace: true });
+      }
+    };
+
+    // Initial check
+    checkShift();
+
+    // Set up periodic check every 5 seconds
+    intervalId = window.setInterval(checkShift, 5000);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [activeShift, isShiftLoading, checkActiveShift, navigate]);
 
   // Set up redirection after success
   useEffect(() => {
     let redirectTimer: number;
     
     if (success) {
-      console.log("Success state detected, will redirect in 2 seconds");
       redirectTimer = window.setTimeout(() => {
-        navigateToShifts();
+        // Use replace to prevent back-button issues
+        navigate('/shifts', { replace: true });
       }, 2000);
     }
     
@@ -61,32 +80,34 @@ export default function ShiftClose() {
         clearTimeout(redirectTimer);
       }
     };
-  }, [success, navigateToShifts]);
+  }, [success, navigate]);
 
   const handleEndShift = async (data: MultiPaymentFormData) => {
+    if (!activeShift) {
+      setError(t("shifts.noActiveShift"));
+      return;
+    }
+
     try {
       setError(null);
+      setIsSubmitting(true);
       
-      // Calculate total cash amount by summing all cash payment methods
+      // Calculate total cash amount
       const cashTotal = data.paymentMethods
         .filter(method => method.payment_method === "cash")
         .reduce((sum, method) => sum + method.amount, 0);
       
-      console.log("Ending shift with cash total:", cashTotal);
-      console.log("Payment methods:", data.paymentMethods);
-      
       await endShift(cashTotal, data.paymentMethods);
       setSuccess(true);
-      
-      // Redirection is now handled by the useEffect
-      console.log("Shift closed successfully, redirection will be handled by useEffect");
-    } catch (error) {
-      console.error("Error ending shift with multiple payments:", error);
-      setError("Failed to close shift. Please try again.");
+    } catch (error: any) {
+      console.error("Error ending shift:", error);
+      setError(error.message || t("shifts.closeShiftError"));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // If the operation was successful, show success message
+  // Show success state
   if (success) {
     return (
       <PageLayout titleKey="shifts.closeShift">
@@ -114,8 +135,8 @@ export default function ShiftClose() {
     );
   }
 
-  // Show a simplified loading state if no active shift yet
-  if (!activeShift) {
+  // Show loading state
+  if (isShiftLoading) {
     return (
       <PageLayout titleKey="shifts.closeShift">
         <div className="max-w-2xl mx-auto">
@@ -126,19 +147,36 @@ export default function ShiftClose() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center py-8">
-                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             </CardContent>
-            <CardFooter>
-              <Link 
-                to="/shifts" 
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t("common.backToShifts")}
-              </Link>
-            </CardFooter>
           </Card>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  // Show error state if no active shift
+  if (!activeShift) {
+    return (
+      <PageLayout titleKey="shifts.closeShift">
+        <div className="max-w-2xl mx-auto">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>{t("common.error")}</AlertTitle>
+            <AlertDescription>
+              {error || t("shifts.noActiveShift")}
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4 text-center">
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={navigateToShifts}
+            >
+              {t("common.backToShifts")}
+            </Button>
+          </div>
         </div>
       </PageLayout>
     );
@@ -149,13 +187,13 @@ export default function ShiftClose() {
       titleKey="shifts.closeShift"
       descriptionKey="shifts.endShiftDescription"
       action={
-        <Link 
-          to="/shifts"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+        <Button 
+          variant="outline"
+          onClick={navigateToShifts}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           {t("common.backToShifts")}
-        </Link>
+        </Button>
       }
     >
       <div className="max-w-2xl mx-auto">
@@ -176,65 +214,41 @@ export default function ShiftClose() {
           </CardHeader>
           
           <CardContent>
-            {activeShift && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-md">
-                  <div>
-                    <div className="text-sm text-muted-foreground">{t("shifts.startedAt")}</div>
-                    <div className="font-medium">
-                      {safeFormatDateTime(activeShift.start_time)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">{t("shifts.duration")}</div>
-                    <div className="font-medium">
-                      {activeShift ? calculateDuration(activeShift.start_time) : "-"}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">{t("shifts.openingCash")}</div>
-                    <div className="font-medium">
-                      {formatCurrency(activeShift.opening_cash)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">{t("shifts.salesTotal")}</div>
-                    <div className="font-medium">
-                      {formatCurrency(activeShift.sales_total || 0)}
-                    </div>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-md">
+                <div>
+                  <div className="text-sm text-muted-foreground">{t("shifts.startedAt")}</div>
+                  <div className="font-medium">
+                    {safeFormatDateTime(activeShift.start_time)}
                   </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="font-medium">{t("shifts.salesTotal")}</div>
-                    <div className="text-lg font-bold">
-                      {formatCurrency(activeShift.sales_total || 0)}
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {t("shifts.multiPaymentDescription")}
+                <div>
+                  <div className="text-sm text-muted-foreground">{t("shifts.duration")}</div>
+                  <div className="font-medium">
+                    {calculateDuration(activeShift.start_time)}
                   </div>
                 </div>
-                
-                <MultiPaymentMethodFormStandardized 
-                  onSubmit={handleEndShift}
-                  isSubmitting={isLoading}
-                  totalAmount={activeShift.sales_total || 0}
-                />
+                <div>
+                  <div className="text-sm text-muted-foreground">{t("shifts.openingCash")}</div>
+                  <div className="font-medium">
+                    {formatCurrency(activeShift.opening_cash)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">{t("shifts.salesTotal")}</div>
+                  <div className="font-medium">
+                    {formatCurrency(activeShift.sales_total || 0)}
+                  </div>
+                </div>
               </div>
-            )}
+
+              <MultiPaymentMethodFormStandardized
+                onSubmit={handleEndShift}
+                isSubmitting={isSubmitting}
+                totalAmount={activeShift.sales_total || 0}
+              />
+            </div>
           </CardContent>
-          
-          <CardFooter className="flex justify-between border-t p-4">
-            <Link
-              to="/shifts"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t("common.cancel")}
-            </Link>
-          </CardFooter>
         </Card>
       </div>
     </PageLayout>

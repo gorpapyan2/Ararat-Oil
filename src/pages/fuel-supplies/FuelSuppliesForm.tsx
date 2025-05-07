@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from "react";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -27,7 +27,8 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormControl
+  FormControl,
+  FormMessage,
 } from "@/components/ui/form";
 import { 
   Dialog, 
@@ -36,6 +37,8 @@ import {
   DialogHeader, 
   DialogTitle 
 } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Form Components
 import {
@@ -103,20 +106,32 @@ export function FuelSuppliesForm({
 }: FuelSuppliesFormProps) {
   const { t } = useTranslation();
   
-  // Fetch data
-  const { data: providers } = useQuery({
+  // Fetch data with proper error handling and loading states
+  const { 
+    data: providers,
+    isLoading: isLoadingProviders,
+    error: providersError
+  } = useQuery({
     queryKey: ["petrol-providers"],
-    queryFn: fetchPetrolProviders,
+    queryFn: () => fetchPetrolProviders({ activeOnly: true }),
   });
 
-  const { data: tanks } = useQuery({
+  const { 
+    data: tanks,
+    isLoading: isLoadingTanks,
+    error: tanksError
+  } = useQuery({
     queryKey: ["fuel-tanks"],
     queryFn: fetchFuelTanks,
   });
 
-  const { data: employees } = useQuery({
+  const { 
+    data: employees,
+    isLoading: isLoadingEmployees,
+    error: employeesError
+  } = useQuery({
     queryKey: ["employees"],
-    queryFn: fetchEmployees,
+    queryFn: () => fetchEmployees({ status: "active" }),
   });
 
   // Use formatted today's date as the default
@@ -141,7 +156,7 @@ export function FuelSuppliesForm({
   const { onSubmit: handleSubmit } = useFormSubmitHandler<FuelSupplyFormValues>(
     form,
     (data) => {
-      onSubmit(data);
+      onSubmit(data as Omit<FuelSupply, "id" | "created_at">);
       return true;
     }
   );
@@ -174,6 +189,66 @@ export function FuelSuppliesForm({
 
   // Get the current total from the form for display
   const totalCost = form.watch("total_cost") || 0;
+
+  // Provider options for select
+  const providerOptions = useMemo(() => {
+    if (!providers || providers.length === 0) {
+      return [];
+    }
+    
+    return providers
+      .filter(provider => provider.is_active !== false) // Filter out inactive providers
+      .map(provider => ({
+        value: provider.id,
+        label: provider.name || "Unnamed Provider"
+      }));
+  }, [providers]);
+
+  // Show loading state
+  const isLoading = isLoadingProviders || isLoadingTanks || isLoadingEmployees;
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  // Show error states
+  const error = providersError || tanksError || employeesError;
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          {error instanceof Error ? error.message : "Failed to load form data"}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // Show warning if no providers are available
+  if (!providers || providers.length === 0) {
+    return (
+      <Alert variant="default">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          No petrol providers found. Please add providers before creating a fuel supply.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   // Compute explanatory string and visual percentage for tank
   const tankStatus = useMemo(() => {
@@ -211,14 +286,6 @@ export function FuelSuppliesForm({
       isFull: isOverCapacity,
     };
   }, [selectedTank, quantity]);
-
-  // Provider options for select
-  const providerOptions = useMemo(() => {
-    return providers?.map(provider => ({
-      value: provider.id,
-      label: provider.name
-    })) || [];
-  }, [providers]);
 
   // Tank options for select with color-coded fuel types
   const tankOptions = useMemo(() => {
@@ -364,7 +431,11 @@ export function FuelSuppliesForm({
       </FormProvider>
 
       {/* Confirmation Dialog */}
-      <Dialog open={isConfirmOpen} onOpenChange={onConfirmCancel}>
+      <Dialog 
+        open={isConfirmOpen} 
+        onOpenChange={onConfirmCancel}
+        title={t("fuelSupplies.confirmSupply", "Confirm Fuel Supply")}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("fuelSupplies.confirmSupply", "Confirm Fuel Supply")}</DialogTitle>

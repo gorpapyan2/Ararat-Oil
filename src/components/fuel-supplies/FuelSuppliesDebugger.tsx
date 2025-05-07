@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { testSupabaseConnection } from "@/utils/debug-utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export function FuelSuppliesDebugger() {

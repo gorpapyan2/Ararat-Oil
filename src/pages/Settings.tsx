@@ -45,12 +45,21 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { ActionButton } from "@/components/ui/action-button";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function Settings() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const { user, profile } = useAuth();
+
+  usePageBreadcrumbs({
+    segments: [
+      { name: "Dashboard", href: "/" },
+      { name: "Settings", href: "/settings", isCurrent: true }
+    ],
+    title: "Settings"
+  });
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({
@@ -347,6 +356,7 @@ export default function Settings() {
                   {t("settings.profile.cancel")}
                 </Button>
                 <LoadingButton 
+                  onClick={handleProfileSubmit}
                   type="submit"
                   initialLoading={profileForm.isLoading}
                   loadingText={t("settings.profile.saving")}
@@ -549,6 +559,7 @@ export default function Settings() {
                   {t("settings.notifications.reset")}
                 </Button>
                 <LoadingButton 
+                  onClick={handleNotificationSubmit}
                   type="submit"
                   initialLoading={notificationPrefs.isLoading}
                   loadingText={t("settings.notifications.saving")}
@@ -634,6 +645,7 @@ export default function Settings() {
                   {t("settings.security.cancel")}
                 </Button>
                 <LoadingButton 
+                  onClick={handlePasswordSubmit}
                   type="submit"
                   initialLoading={passwordForm.isLoading}
                   loadingText={t("settings.security.updating")}

@@ -1,6 +1,6 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { ShiftPaymentMethod, PaymentMethod } from "@/types";
-import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodForm";
+import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
 
 export async function addShiftPaymentMethods(
   shiftId: string,

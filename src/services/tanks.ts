@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { FuelTank, FuelType, TankLevelChange } from "@/types";
 
 export const fetchFuelTanks = async (): Promise<FuelTank[]> => {

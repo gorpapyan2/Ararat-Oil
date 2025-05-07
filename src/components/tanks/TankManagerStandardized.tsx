@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFuelTanks } from "@/services/tanks";
 import { TankList } from "./TankList";
@@ -29,17 +29,20 @@ export function TankManagerStandardized({ onRenderAction }: TankManagerStandardi
     refetchOnMount: "always",
   });
 
-  // Refetch on mount and on interval
-  useEffect(() => {
+  // Memoize the refetch callback
+  const handleRefetch = useCallback(() => {
     refetch();
-    const intervalId = setInterval(() => {
-      refetch();
-    }, 5000);
-    return () => clearInterval(intervalId);
   }, [refetch]);
 
+  // Refetch on mount and on interval
+  useEffect(() => {
+    handleRefetch();
+    const intervalId = setInterval(handleRefetch, 5000);
+    return () => clearInterval(intervalId);
+  }, [handleRefetch]);
+
   // Ensure we have an array even if the fetched data is undefined
-  const tanksData = Array.isArray(tanks) ? tanks : [];
+  const tanksData = useMemo(() => Array.isArray(tanks) ? tanks : [], [tanks]);
 
   // Create action buttons - memoize to prevent recreation on every render
   const actionButtons = useMemo(
@@ -55,7 +58,7 @@ export function TankManagerStandardized({ onRenderAction }: TankManagerStandardi
         </Button>
       </div>
     ),
-    [tankFormDialog.open],
+    [tankFormDialog.open, setIsEditingLevels],
   );
 
   // Use useEffect to handle action rendering to avoid state updates during render
@@ -65,24 +68,30 @@ export function TankManagerStandardized({ onRenderAction }: TankManagerStandardi
     }
   }, [onRenderAction, actionButtons]);
 
+  // Memoize the edit complete handler
+  const handleEditComplete = useCallback(() => {
+    setIsEditingLevels(false);
+    refetch();
+  }, [refetch]);
+
+  // Memoize the tank added handler
+  const handleTankAdded = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   return (
     <div className="space-y-6">
       <TankList
         tanks={tanksData}
         isLoading={isLoading}
         isEditMode={isEditingLevels}
-        onEditComplete={() => {
-          setIsEditingLevels(false);
-          refetch();
-        }}
+        onEditComplete={handleEditComplete}
       />
 
       <TankFormStandardized
         isOpen={tankFormDialog.isOpen}
         onOpenChange={tankFormDialog.onOpenChange}
-        onTankAdded={() => {
-          refetch();
-        }}
+        onTankAdded={handleTankAdded}
       />
     </div>
   );

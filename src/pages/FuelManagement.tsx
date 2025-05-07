@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/ui/page-header";
 import { IconGasStation, IconTank, IconTruck } from "@tabler/icons-react";
+import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 // Import existing managers
 import { FillingSystemManagerStandardized } from "@/components/filling-systems/FillingSystemManagerStandardized";
@@ -20,6 +21,16 @@ const TABS = {
 export default function FuelManagement() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const breadcrumbSegments = useMemo(() => [
+    { name: "Dashboard", href: "/" },
+    { name: "Fuel Management", href: "/fuel-management", isCurrent: true }
+  ], []);
+
+  usePageBreadcrumbs({
+    segments: breadcrumbSegments,
+    title: "Fuel Management"
+  });
 
   // Get active tab from URL or default to filling systems
   const activeTab = searchParams.get("tab") || TABS.FILLING_SYSTEMS;

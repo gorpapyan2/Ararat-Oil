@@ -5,7 +5,7 @@ import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks";
 import { fetchActiveShift } from "@/utils/api-helpers";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
 
 export function useShift() {
@@ -46,14 +46,22 @@ export function useShift() {
       const shift = await fetchActiveShift(user.id);
       if (shift) {
         setActiveShift(shift as Shift);
-
         // If we have an active shift, fetch the current sales total
-        updateShiftSalesTotal((shift as Shift).id);
+        await updateShiftSalesTotal((shift as Shift).id);
       } else {
-        setActiveShift(null);
+        // Only clear the state if we're not in the process of closing a shift
+        if (!success) {
+          setActiveShift(null);
+          setShiftPaymentMethods([]);
+        }
       }
     } catch (error) {
       console.error("Error checking active shift", error);
+      // Only clear the state if we're not in the process of closing a shift
+      if (!success) {
+        setActiveShift(null);
+        setShiftPaymentMethods([]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -86,9 +94,12 @@ export function useShift() {
 
       // Update the shift object with current sales total
       if (activeShift) {
-        setActiveShift({
-          ...activeShift,
-          sales_total: salesTotal,
+        setActiveShift(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            sales_total: salesTotal,
+          };
         });
       }
     } catch (error) {
@@ -128,90 +139,26 @@ export function useShift() {
       // First update the sales total one last time
       await updateShiftSalesTotal(activeShift.id);
 
+      // Close the shift
       const closedShift = await closeShift(activeShift.id, closingCash, paymentMethods);
+      
+      // Clear active shift state
       setActiveShift(null);
-      toast({
-        title: "Shift Closed",
-        description: "Your shift has been closed successfully.",
-      });
-      return closedShift;
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to close shift",
-        variant: "destructive",
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEndShift = async (cashAmount: number, paymentMethods: PaymentMethodItem[] = []) => {
-    try {
-      setIsLoading(true);
-      
-      if (!activeShift?.id) {
-        throw new Error("No active shift found");
-      }
-      
-      // First, close the shift
-      const { data: closedShift, error: shiftError } = await supabase
-        .from("shifts")
-        .update({
-          end_time: new Date().toISOString(),
-          status: "closed",
-          closing_cash: cashAmount,
-        })
-        .eq("id", activeShift.id)
-        .select()
-        .single();
-      
-      if (shiftError) {
-        throw shiftError;
-      }
-      
-      // Then store all payment methods used for closing the shift
-      if (paymentMethods.length > 0) {
-        const paymentRecords = paymentMethods.map(method => ({
-          shift_id: activeShift.id,
-          payment_method: method.payment_method,
-          amount: method.amount,
-          description: "Shift closing payment",
-          created_at: new Date().toISOString(),
-        }));
-        
-        const { error: paymentsError } = await supabase
-          .from("shift_payments")
-          .insert(paymentRecords);
-          
-        if (paymentsError) {
-          console.error("Error recording shift payments:", paymentsError);
-          // Continue anyway as the shift is already closed
-        }
-      }
-      
-      // Remove the shift from localStorage to clean up
-      localStorage.removeItem("active_shift");
-      
-      // Update local state
-      setActiveShift(null);
-      fetchShiftPaymentMethods(activeShift.id);
-      
+      setShiftPaymentMethods([]);
       setSuccess(true);
+      
+      // Show success message
       toast({
         title: "Shift Closed",
         description: "Your shift has been closed successfully.",
       });
       
-      console.log("Shift closed successfully in useShift hook");
       return closedShift;
-      
-    } catch (error) {
-      console.error("Error ending shift:", error);
+    } catch (error: any) {
+      // Show error message
       toast({
         title: "Error",
-        description: "Failed to close shift",
+        description: error.message || "Failed to close shift",
         variant: "destructive",
       });
       throw error;
@@ -228,6 +175,5 @@ export function useShift() {
     checkActiveShift,
     isLoading,
     success,
-    handleEndShift,
   };
 }

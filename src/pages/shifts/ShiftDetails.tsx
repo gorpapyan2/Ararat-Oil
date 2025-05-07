@@ -7,7 +7,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, AlertCircle, CalendarClock, DollarSign, FileCheck } from "lucide-react";
 import { formatCurrency, formatDateTime, calculateDuration } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
 import { ShiftPaymentMethod } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";

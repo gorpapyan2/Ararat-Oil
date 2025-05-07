@@ -5,7 +5,7 @@ import { FillingSystemFormStandardized } from "./FillingSystemFormStandardized";
 import { TankDiagnostics } from "./TankDiagnostics";
 import { fetchFillingSystems } from "@/services/filling-systems";
 import { useDialog } from "@/hooks/useDialog";
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 
 interface FillingSystemManagerStandardizedProps {
   onRenderAction?: (actionElement: React.ReactNode) => void;
@@ -22,32 +22,49 @@ export function FillingSystemManagerStandardized({ onRenderAction }: FillingSyst
   } = useQuery({
     queryKey: ["filling-systems"],
     queryFn: fetchFillingSystems,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 
-  // Call the onRenderAction prop with the action element if provided
+  // Memoize the action element
+  const actionElement = useMemo(() => (
+    <FillingSystemHeader onAddNew={formDialog.open} showAddButton={false} />
+  ), [formDialog.open]);
+
+  // Call the onRenderAction prop with the memoized action element if provided
   React.useEffect(() => {
     if (onRenderAction) {
-      onRenderAction(
-        <FillingSystemHeader onAddNew={formDialog.open} showAddButton={false} />
-      );
+      onRenderAction(actionElement);
     }
-  }, [onRenderAction, formDialog.open]);
+  }, [onRenderAction, actionElement]);
+
+  // Memoize the filling systems data
+  const fillingSystemsData = useMemo(() => fillingSystems || [], [fillingSystems]);
+
+  // Memoize the delete handler
+  const handleDelete = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  // Memoize the success handler
+  const handleSuccess = useCallback(() => {
+    formDialog.close();
+    refetch();
+  }, [formDialog, refetch]);
 
   return (
     <div className="space-y-6">
       <FillingSystemList
-        fillingSystems={fillingSystems || []}
+        fillingSystems={fillingSystemsData}
         isLoading={isLoading}
-        onDelete={() => refetch()}
+        onDelete={handleDelete}
       />
 
       <FillingSystemFormStandardized
         open={formDialog.isOpen}
         onOpenChange={formDialog.onOpenChange}
-        onSuccess={() => {
-          formDialog.close();
-          refetch();
-        }}
+        onSuccess={handleSuccess}
       />
 
       {/* Diagnostic tools */}

@@ -21,6 +21,7 @@ i18n
         translation: enTranslation,
       }
     },
+    lng: "hy", // Set Armenian as the default language
     fallbackLng: "hy",
     supportedLngs: ["hy", "en"],
     load: 'currentOnly',
@@ -29,13 +30,19 @@ i18n
       escapeValue: false, // not needed for react as it escapes by default
     },
     detection: {
-      order: ["localStorage", "navigator"],
+      order: ["localStorage", "htmlTag", "navigator"],
       caches: ["localStorage"],
+      lookupLocalStorage: "i18nextLng",
     },
     react: {
       useSuspense: false, // Disable suspense to prevent loading issues
     },
     returnObjects: true, // Enable accessing nested objects in translations
   });
+
+// Ensure default language is set to Armenian
+if (!localStorage.getItem("i18nextLng")) {
+  localStorage.setItem("i18nextLng", "hy");
+}
 
 export default i18n;

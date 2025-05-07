@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { TodoItem } from '@/store/useTodoStore'; // Update import path
+import React, { useState, useMemo } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { TodoItem as TodoItemType, SortType } from '@/types/todo';
+import { TodoItem } from './TodoItem';
 import { TodoFilter } from './TodoFilter';
-import { TodoFormStandardized } from './TodoFormStandardized'; // Fix import path
-import { useTodoStore } from "@/store/useTodoStore";
+import { TodoFormStandardized } from './TodoFormStandardized';
+import { useTodoStore } from '@/store/useTodoStore';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
@@ -42,17 +44,12 @@ export function TodoList() {
 
     // Finally, sort
     return [...filtered].sort((a, b) => {
-      if (sort === "date-asc") {
-        return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-      } else if (sort === "date-desc") {
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      } else if (sort === "priority") {
-        const priorityOrder = { high: 0, medium: 1, low: 2 };
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      if (sort === "newest") {
+        return b.createdAt - a.createdAt;
+      } else if (sort === "oldest") {
+        return a.createdAt - b.createdAt;
+      } else if (sort === "alphabetical") {
+        return a.text.localeCompare(b.text);
       }
       return 0;
     });
@@ -76,7 +73,9 @@ export function TodoList() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        <TodoFormStandardized onAddTodo={addTodo} />
+        <TodoFormStandardized 
+          onSubmit={(data) => addTodo(data.text, data.priority)} 
+        />
 
         <TodoFilter
           filter={filter}

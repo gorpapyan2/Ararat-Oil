@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { FuelSuppliesManagerStandardized } from "@/components/fuel-supplies/FuelSuppliesManagerStandardized";
 import { PageHeader } from "@/components/ui/page-header";
@@ -10,20 +10,28 @@ export default function FuelSuppliesPage() {
   const { t } = useTranslation();
   const [action, setAction] = useState<React.ReactNode>(null);
 
+  // Memoize breadcrumb segments to prevent unnecessary re-renders
+  const breadcrumbSegments = useMemo(() => [
+    { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
+    { name: t("common.fuelManagement"), href: "/fuel-management", icon: <Fuel className="h-4 w-4" /> },
+    { 
+      name: t("common.fuelSupplies"), 
+      href: "/fuel-management/fuel-supplies", 
+      isCurrent: true,
+      icon: <Truck className="h-4 w-4" /> 
+    }
+  ], [t]);
+
   // Configure breadcrumb navigation with icons
   usePageBreadcrumbs({
-    segments: [
-      { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
-      { name: t("common.fuelManagement"), href: "/fuel-management", icon: <Fuel className="h-4 w-4" /> },
-      { 
-        name: t("common.fuelSupplies"), 
-        href: "/fuel-management/fuel-supplies", 
-        isCurrent: true,
-        icon: <Truck className="h-4 w-4" /> 
-      }
-    ],
+    segments: breadcrumbSegments,
     title: t("common.fuelSupplies")
   });
+
+  // Memoize the action setter to prevent unnecessary re-renders
+  const handleRenderAction = useCallback((actionNode: React.ReactNode) => {
+    setAction(actionNode);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -34,7 +42,7 @@ export default function FuelSuppliesPage() {
         actions={action}
       />
       
-      <FuelSuppliesManagerStandardized onRenderAction={setAction} />
+      <FuelSuppliesManagerStandardized onRenderAction={handleRenderAction} />
     </div>
   );
 } 

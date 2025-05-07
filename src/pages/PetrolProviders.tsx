@@ -32,6 +32,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { CreateButton } from "@/components/ui/create-button";
 import { IconButton } from "@/components/ui/icon-button";
+import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function PetrolProviders() {
   const [selectedProvider, setSelectedProvider] =
@@ -94,6 +95,14 @@ export default function PetrolProviders() {
       setSelectedProvider(null);
     }
   }, [selectedProvider, deleteMutation]);
+
+  usePageBreadcrumbs({
+    segments: [
+      { name: "Dashboard", href: "/" },
+      { name: "Providers", href: "/providers", isCurrent: true }
+    ],
+    title: "Providers"
+  });
 
   return (
     <div className="container mx-auto py-6">

@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { TankManagerStandardized } from "@/components/tanks/TankManagerStandardized";
 import { PageHeader } from "@/components/ui/page-header";
-import { IconTank } from "@tabler/icons-react";
-import { Home, Fuel, Container } from "lucide-react";
+import { IconBuildingFactory } from "@tabler/icons-react";
+import { Home, Fuel, Building } from "lucide-react";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { ProviderManagerStandardized } from "@/components/petrol-providers/ProviderManagerStandardized";
 
-export default function TanksPage() {
+export default function ProvidersPage() {
   const { t } = useTranslation();
   const [action, setAction] = useState<React.ReactNode>(null);
 
@@ -15,29 +15,29 @@ export default function TanksPage() {
     { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
     { name: t("common.fuelManagement"), href: "/fuel-management", icon: <Fuel className="h-4 w-4" /> },
     { 
-      name: t("common.tanks"), 
-      href: "/fuel-management/tanks", 
+      name: t("common.providers"), 
+      href: "/fuel-management/providers", 
       isCurrent: true,
-      icon: <Container className="h-4 w-4" /> 
+      icon: <Building className="h-4 w-4" /> 
     }
   ], [t]);
 
   // Configure breadcrumb navigation with icons
   usePageBreadcrumbs({
     segments: breadcrumbSegments,
-    title: t("common.tanks")
+    title: t("common.providers")
   });
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("common.tanks")}
-        description={t("tanks.description") || "Manage your fuel storage tanks"}
-        icon={<IconTank className="h-6 w-6 mr-2" />}
+        title={t("common.providers")}
+        description={t("providers.description") || "Manage your fuel suppliers"}
+        icon={<IconBuildingFactory className="h-6 w-6 mr-2" />}
         actions={action}
       />
       
-      <TankManagerStandardized onRenderAction={setAction} />
+      <ProviderManagerStandardized onRenderAction={setAction} />
     </div>
   );
 } 

@@ -2,10 +2,19 @@ import { useState, useEffect } from "react";
 import { testSupabaseConnection } from "@/utils/debug-utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export function DebugPage() {
   const [logs, setLogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  usePageBreadcrumbs({
+    segments: [
+      { name: "Dashboard", href: "/" },
+      { name: "Debug", href: "/dev/debug", isCurrent: true }
+    ],
+    title: "Debug"
+  });
 
   // Override console.log to capture logs
   useEffect(() => {

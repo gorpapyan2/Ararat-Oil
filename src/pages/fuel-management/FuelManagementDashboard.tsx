@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IconGasStation, IconTank, IconTruck, IconArrowRight } from "@tabler/icons-react";
-import { supabase } from "@/integrations/supabase/client";
+import { IconGasStation, IconTank, IconTruck, IconArrowRight, IconBuildingFactory } from "@tabler/icons-react";
+import { supabase } from "@/services/supabase";
 
 export default function FuelManagementDashboard() {
   const { t } = useTranslation();
@@ -29,7 +29,7 @@ export default function FuelManagementDashboard() {
     queryKey: ["tanks-count"],
     queryFn: async () => {
       const { count, error } = await supabase
-        .from("tanks")
+        .from("fuel_tanks")
         .select("*", { count: "exact", head: true });
       
       if (error) throw error;
@@ -49,6 +49,18 @@ export default function FuelManagementDashboard() {
     }
   });
 
+  const { data: providers } = useQuery({
+    queryKey: ["providers-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("petrol_providers")
+        .select("*", { count: "exact", head: true });
+      
+      if (error) throw error;
+      return { count };
+    }
+  });
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -56,7 +68,7 @@ export default function FuelManagementDashboard() {
         description={t("fuelManagement.description") || "Manage your fuel systems, tanks, and supplies"}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Filling Systems Card */}
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
@@ -137,6 +149,35 @@ export default function FuelManagementDashboard() {
               variant="ghost"
               className="w-full justify-between"
               onClick={() => navigate("/fuel-management/fuel-supplies")}
+            >
+              {t("common.manage")}
+              <IconArrowRight className="h-4 w-4" />
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Providers Card */}
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center">
+              <IconBuildingFactory className="mr-2 h-5 w-5 text-primary" />
+              {t("common.providers")}
+            </CardTitle>
+            <CardDescription>
+              {t("providers.description") || "Manage your fuel suppliers"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{providers?.count || 0}</div>
+            <p className="text-sm text-muted-foreground">
+              {t("providers.totalCount", { count: providers?.count || 0 })}
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button
+              variant="ghost"
+              className="w-full justify-between"
+              onClick={() => navigate("/fuel-management/providers")}
             >
               {t("common.manage")}
               <IconArrowRight className="h-4 w-4" />

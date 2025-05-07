@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Search, ArrowUpDown, Check, ListFilter } from "lucide-react";
-import { FilterType, SortType } from "@/store/useTodoStore";
+import { FilterType, SortType } from "@/types/todo";
 import { useTranslation } from "react-i18next";
 
 interface TodoFilterProps {
@@ -52,7 +52,7 @@ export function TodoFilter({
         </div>
         <Select
           value={sort}
-          onValueChange={(value) => onSortChange(value as SortType)}
+          onValueChange={onSortChange}
           aria-label={t("todo.sortBy")}
         >
           <SelectTrigger className="w-[180px]">
@@ -60,22 +60,22 @@ export function TodoFilter({
             <SelectValue placeholder={t("todo.sortBy")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="date-desc">
+            <SelectItem value="newest">
               <div className="flex items-center">
                 <span>{t("todo.sortByDateDesc")}</span>
-                {sort === "date-desc" && <Check className="ml-auto h-4 w-4" />}
+                {sort === "newest" && <Check className="ml-auto h-4 w-4" />}
               </div>
             </SelectItem>
-            <SelectItem value="date-asc">
+            <SelectItem value="oldest">
               <div className="flex items-center">
                 <span>{t("todo.sortByDateAsc")}</span>
-                {sort === "date-asc" && <Check className="ml-auto h-4 w-4" />}
+                {sort === "oldest" && <Check className="ml-auto h-4 w-4" />}
               </div>
             </SelectItem>
-            <SelectItem value="priority">
+            <SelectItem value="alphabetical">
               <div className="flex items-center">
-                <span>{t("todo.sortByPriority")}</span>
-                {sort === "priority" && <Check className="ml-auto h-4 w-4" />}
+                <span>{t("todo.sortByAlphabetical")}</span>
+                {sort === "alphabetical" && <Check className="ml-auto h-4 w-4" />}
               </div>
             </SelectItem>
           </SelectContent>

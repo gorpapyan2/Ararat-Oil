@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { Sale, FuelType, PaymentStatus } from "@/types";
 
 export const updateSale = async (data: {

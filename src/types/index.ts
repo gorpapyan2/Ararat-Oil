@@ -37,6 +37,7 @@ export interface PetrolProvider {
   contact: string;
   created_at?: string;
   updated_at?: string;
+  is_active?: boolean;
 }
 
 // Transaction related types
@@ -133,6 +134,16 @@ export interface ProfitLoss {
   total_expenses: number;
   profit: number;
   created_at?: string;
+}
+
+export interface ProfitLossSummary {
+  id: string;
+  period: string;
+  total_sales: number;
+  total_expenses: number;
+  profit: number;
+  created_at: string;
+  updated_at: string;
 }
 
 // Shift type

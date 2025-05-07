@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   BrowserRouter,
   Routes,
@@ -109,7 +110,19 @@ const ButtonComponentsPage = lazy(() => import(/* webpackChunkName: "dev-buttons
 const ConnectionInfo = lazy(() => import(/* webpackChunkName: "dev-connection" */ "@/pages/dev/ConnectionInfo"));
 const DebugPage = lazy(() => import(/* webpackChunkName: "debug-page" */ "@/pages/DebugPage"));
 
-const queryClient = new QueryClient();
+// Import the ProvidersPage component
+import ProvidersPage from "@/pages/fuel-management/ProvidersPage";
+// Import FinancePage directly since it uses a named export
+import { FinancePage } from "@/pages/finance/FinancePage";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, isLoading } = useAuth();
@@ -126,335 +139,299 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   return children;
 }
 
-const App = () => (
-  <ThemeProvider defaultTheme="dark">
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <AdminShell>
-              <Routes>
-                <Route path="/auth" element={<Auth />} />
-                <Route
-                  path="/"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading dashboard..." />}>
-                        <DashboardNew />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
+const App = () => {
+  return (
+    <ThemeProvider defaultTheme="dark">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <BrowserRouter>
+            <ErrorBoundary>
+              <AuthProvider>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/auth" element={<Auth />} />
+                  
+                  {/* Protected routes */}
+                  <Route
+                    path="/*"
+                    element={
+                      <RequireAuth>
+                        <Routes>
+                          <Route
+                            path="/"
+                            element={
+                              <AdminShell>
+                                <Suspense fallback={<Loading variant="fullscreen" text="Loading dashboard..." />}>
+                                  <DashboardNew />
+                                </Suspense>
+                              </AdminShell>
+                            }
+                          />
+                          
+                          {/* Fuel Management Routes */}
+                          <Route
+                            path="/fuel-management/*"
+                            element={
+                              <AdminShell>
+                                <Routes>
+                                  <Route
+                                    index
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Management" />}>
+                                          <FuelManagementDashboard />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="filling-systems"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading filling systems..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Filling Systems" />}>
+                                          <FillingSystemsPage />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="tanks"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading tanks..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Tanks" />}>
+                                          <TanksPage />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="fuel-supplies"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supplies..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Supplies" />}>
+                                          <FuelSuppliesPage />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="fuel-supplies/create"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supply create form..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Create Fuel Supply" />}>
+                                          <FuelSupplyCreate />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="providers"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading providers..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Providers" />}>
+                                          <ProvidersPage />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                </Routes>
+                              </AdminShell>
+                            }
+                          />
 
-                {/* Fuel Management Routes */}
-                <Route
-                  path="/fuel-management"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Management" />}>
-                          <FuelManagementDashboard />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/fuel-management/filling-systems"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading filling systems..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Filling Systems" />}>
-                          <FillingSystemsPage />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/fuel-management/tanks"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading tanks..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Tanks" />}>
-                          <TanksPage />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/fuel-management/fuel-supplies"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supplies..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Supplies" />}>
-                          <FuelSuppliesPage />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/fuel-management-legacy"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Management" />}>
-                          <FuelManagement />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
+                          {/* Finance Routes */}
+                          <Route
+                            path="/finance/*"
+                            element={
+                              <AdminShell>
+                                <Routes>
+                                  <Route
+                                    index
+                                    element={
+                                      <ErrorBoundary fallback={<ImportErrorFallback pageName="Finance Management" />}>
+                                        <FinancePage />
+                                      </ErrorBoundary>
+                                    }
+                                  />
+                                  <Route
+                                    path="sales"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading sales..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Sales" />}>
+                                          <SalesNew />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="shifts"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
+                                          <Shifts />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="expenses"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading expenses..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Expenses" />}>
+                                          <Expenses />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                </Routes>
+                              </AdminShell>
+                            }
+                          />
 
-                {/* Legacy routes - redirect to new structure */}
-                <Route
-                  path="/filling-systems"
-                  element={
-                    <RequireAuth>
-                      <Navigate
-                        to="/fuel-management/filling-systems"
-                        replace
-                      />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/fuel-supplies"
-                  element={
-                    <RequireAuth>
-                      <Navigate
-                        to="/fuel-management/fuel-supplies"
-                        replace
-                      />
-                    </RequireAuth>
-                  }
-                />
-                
-                {/* Other routes... */}
-                <Route
-                  path="/employees"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading employees..." />}>
-                        <EmployeesNew />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/sales"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading sales..." />}>
-                        <SalesNew />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/sales/create"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading sales creation form..." />}>
-                        <SalesCreate />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/fuel-supplies/create"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supply creation form..." />}>
-                        <FuelSupplyCreate />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/shifts"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
-                          <Shifts />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/shifts/close"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shift close..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Close" />}>
-                          <ShiftClose />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/shifts/open"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shift open..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Open" />}>
-                          <ShiftOpen />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/shifts/:id"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shift details..." />}>
-                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Details" />}>
-                          <ShiftDetails />
-                        </ErrorBoundary>
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/providers"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading providers..." />}>
-                        <PetrolProviders />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/expenses"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading expenses..." />}>
-                        <Expenses />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/transactions"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading transactions..." />}>
-                        <Transactions />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/todo"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading todo..." />}>
-                        <TodoPage />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/settings"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading settings..." />}>
-                        <Settings />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                {/* Development routes */}
-                <Route
-                  path="/dev"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading dev tools..." />}>
-                        <DevTools />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/dev/responsive-test"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading responsive test..." />}>
-                        <ResponsiveTestPage />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/dev/toast-test"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading toast tester..." />}>
-                        <ToastTester />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/dev/card-components"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading card components..." />}>
-                        <CardComponentsPage />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/dev/button-components"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading button components..." />}>
-                        <ButtonComponentsPage />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/dev/connection-info"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading connection info..." />}>
-                        <ConnectionInfo />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/debug"
-                  element={
-                    <RequireAuth>
-                      <Suspense fallback={<Loading variant="fullscreen" text="Loading debug page..." />}>
-                        <DebugPage />
-                      </Suspense>
-                    </RequireAuth>
-                  }
-                />
-                {/* Catch-all route to redirect any unmatched paths */}
-                <Route path="*" element={
-                  <ErrorBoundary fallback={<ImportErrorFallback pageName="Page Not Found" />}>
-                    <Navigate to="/" replace />
-                  </ErrorBoundary>
-                } />
-              </Routes>
-            </AdminShell>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
-);
+                          {/* Legacy routes - redirect to new structure */}
+                          <Route
+                            path="/filling-systems"
+                            element={<Navigate to="/fuel-management/filling-systems" replace />}
+                          />
+                          <Route
+                            path="/fuel-supplies"
+                            element={<Navigate to="/fuel-management/fuel-supplies" replace />}
+                          />
+                          <Route
+                            path="/sales"
+                            element={<Navigate to="/finance/sales" replace />}
+                          />
+                          <Route
+                            path="/shifts"
+                            element={<Navigate to="/finance/shifts" replace />}
+                          />
+                          <Route
+                            path="/expenses"
+                            element={<Navigate to="/finance/expenses" replace />}
+                          />
+                          
+                          {/* Other protected routes */}
+                          <Route
+                            path="/employees"
+                            element={
+                              <AdminShell>
+                                <Suspense fallback={<Loading variant="fullscreen" text="Loading employees..." />}>
+                                  <EmployeesNew />
+                                </Suspense>
+                              </AdminShell>
+                            }
+                          />
+                          <Route
+                            path="/todo"
+                            element={
+                              <AdminShell>
+                                <Suspense fallback={<Loading variant="fullscreen" text="Loading todo..." />}>
+                                  <ErrorBoundary fallback={<ImportErrorFallback pageName="Todo" />}>
+                                    <TodoPage />
+                                  </ErrorBoundary>
+                                </Suspense>
+                              </AdminShell>
+                            }
+                          />
+                          <Route
+                            path="/shifts/*"
+                            element={
+                              <AdminShell>
+                                <Routes>
+                                  <Route
+                                    index
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
+                                          <Shifts />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="open"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Opening shift..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Open Shift" />}>
+                                          <ShiftOpen />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path="close"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Closing shift..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Close Shift" />}>
+                                          <ShiftClose />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                  <Route
+                                    path=":id"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shift details..." />}>
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Details" />}>
+                                          <ShiftDetails />
+                                        </ErrorBoundary>
+                                      </Suspense>
+                                    }
+                                  />
+                                </Routes>
+                              </AdminShell>
+                            }
+                          />
+                          <Route
+                            path="/sales/*"
+                            element={
+                              <AdminShell>
+                                <Routes>
+                                  <Route
+                                    path="create"
+                                    element={
+                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading sales creation form..." />}>
+                                        <SalesCreate />
+                                      </Suspense>
+                                    }
+                                  />
+                                </Routes>
+                              </AdminShell>
+                            }
+                          />
+                          
+                          {/* Development routes */}
+                          <Route
+                            path="/dev/*"
+                            element={
+                              <AdminShell>
+                                <Routes>
+                                  <Route index element={<DevTools />} />
+                                  <Route path="responsive-test" element={<ResponsiveTestPage />} />
+                                  <Route path="toast-test" element={<ToastTester />} />
+                                  <Route path="card-components" element={<CardComponentsPage />} />
+                                  <Route path="button-components" element={<ButtonComponentsPage />} />
+                                  <Route path="connection-info" element={<ConnectionInfo />} />
+                                </Routes>
+                              </AdminShell>
+                            }
+                          />
+
+                          {/* Catch-all route - redirect to shifts instead of dashboard */}
+                          <Route path="*" element={<Navigate to="/shifts" replace />} />
+                        </Routes>
+                      </RequireAuth>
+                    }
+                  />
+                </Routes>
+              </AuthProvider>
+            </ErrorBoundary>
+          </BrowserRouter>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+};
 
 export default App;

@@ -1,32 +1,44 @@
-import { supabase } from "@/integrations/supabase/client";
-import { Expense, ExpenseCategory, PaymentStatus } from "@/types";
+import { supabase } from "@/services/supabase";
+import { Expense } from "@/types";
 
-export const fetchExpenses = async (): Promise<Expense[]> => {
-  try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) {
-      throw new Error("Authentication required");
-    }
+export async function fetchExpenses(): Promise<Expense[]> {
+  const { data, error } = await supabase
+    .from("expenses")
+    .select("*")
+    .order("date", { ascending: false });
 
-    const { data, error } = await supabase
-      .from("expenses")
-      .select("*")
-      .order("date", { ascending: false });
+  if (error) throw error;
+  return data as Expense[];
+}
 
-    if (error) {
-      console.error("Error fetching expenses:", error);
-      throw error;
-    }
+export async function createExpense(expense: Omit<Expense, "id" | "created_at">) {
+  const { data, error } = await supabase
+    .from("expenses")
+    .insert(expense)
+    .select()
+    .single();
 
-    return (data || []).map((item) => ({
-      ...item,
-      category: item.category as ExpenseCategory,
-      payment_status: item.payment_status as PaymentStatus,
-    }));
-  } catch (err: any) {
-    console.error("Failed to fetch expenses:", err);
-    throw new Error(err.message || "Failed to fetch expenses data");
-  }
-};
+  if (error) throw error;
+  return data;
+}
+
+export async function updateExpense(id: string, expense: Partial<Expense>) {
+  const { data, error } = await supabase
+    .from("expenses")
+    .update(expense)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteExpense(id: string) {
+  const { error } = await supabase
+    .from("expenses")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+}

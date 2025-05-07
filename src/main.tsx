@@ -1,6 +1,3 @@
-// Import module shim for CommonJS compatibility
-import "./module-shim.js";
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./i18n/i18n"; // Import i18n configuration
@@ -18,25 +15,25 @@ initSentry();
 initPerformanceMonitoring();
 
 // Initialize theme system
-document.addEventListener("DOMContentLoaded", () => {
-  initThemeListener();
-});
+initThemeListener();
 
-// Find root element and log if not found
-const rootElement = document.getElementById("root");
-if (!rootElement) {
-  console.error("Root element not found!");
-  // Create root element if missing
-  const newRoot = document.createElement('div');
-  newRoot.id = 'root';
-  document.body.appendChild(newRoot);
-  console.log("Created a new root element");
+// Set default language to Armenian if not set
+if (!localStorage.getItem("i18nextLng")) {
+  localStorage.setItem("i18nextLng", "hy");
 }
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+// Create root element if it doesn't exist
+const rootElement = document.getElementById("root") || (() => {
+  const element = document.createElement('div');
+  element.id = 'root';
+  document.body.appendChild(element);
+  return element;
+})();
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <App />
     </ErrorBoundary>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

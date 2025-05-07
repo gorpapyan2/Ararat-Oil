@@ -1,6 +1,6 @@
 // This file contains utility functions for checking Supabase connection status
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { QueryClient } from "@tanstack/react-query";
 
 /**

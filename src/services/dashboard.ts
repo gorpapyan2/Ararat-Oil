@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 
 // Define a type for dashboard data
 export interface DashboardData {

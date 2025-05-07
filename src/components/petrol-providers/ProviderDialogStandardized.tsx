@@ -1,128 +1,185 @@
-import { useState, useEffect } from "react";
-import { z } from "zod";
-import { StandardDialog } from "@/components/ui/composed/dialog";
-import { Button } from "@/components/ui/button";
-import { PetrolProvider } from "@/services/petrol-providers";
-import { useToast } from "@/hooks";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { FormInput } from "@/components/ui/composed/form-fields";
-import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { createPetrolProvider, updatePetrolProvider } from "@/services/petrol-providers";
+import { PetrolProvider } from "@/types";
 
-// Define Zod schema for validation
+// Define the form schema
 const providerSchema = z.object({
-  name: z.string({ required_error: "Provider name is required" })
-    .min(2, "Provider name must be at least 2 characters"),
-  contact: z.string({ required_error: "Contact information is required" })
-    .min(5, "Contact information must be at least 5 characters"),
+  name: z.string().min(1, "Name is required"),
+  contact: z.string().min(1, "Contact information is required"),
+  is_active: z.boolean().default(true),
 });
 
-// Type based on schema
-type ProviderFormData = z.infer<typeof providerSchema>;
+type ProviderFormValues = z.infer<typeof providerSchema>;
 
 interface ProviderDialogStandardizedProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ProviderFormData) => Promise<any>;
-  initialData?: PetrolProvider;
-  title: string;
+  provider: PetrolProvider | null;
+  onClose: () => void;
 }
 
 export function ProviderDialogStandardized({
   open,
   onOpenChange,
-  onSubmit,
-  initialData,
-  title,
+  provider,
+  onClose,
 }: ProviderDialogStandardizedProps) {
-  const { toast } = useToast();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const isEditing = !!provider;
 
-  // Initialize form with Zod validation
-  const form = useZodForm({
-    schema: providerSchema,
+  // Initialize form
+  const form = useForm<ProviderFormValues>({
+    resolver: zodResolver(providerSchema),
     defaultValues: {
-      name: "",
-      contact: "",
+      name: provider?.name || "",
+      contact: provider?.contact || "",
+      is_active: provider?.is_active ?? true,
     },
   });
 
-  // Set form values when initialData changes
-  useEffect(() => {
-    if (initialData) {
-      form.reset({
-        name: initialData.name || "",
-        contact: initialData.contact || "",
-      });
+  // Create provider mutation
+  const createMutation = useMutation({
+    mutationFn: createPetrolProvider,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
+      toast.success(t("providers.success.created"));
+      onClose();
+    },
+    onError: (error) => {
+      toast.error(t("providers.error.create"));
+      console.error("Error creating provider:", error);
+    },
+  });
+
+  // Update provider mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<PetrolProvider> }) =>
+      updatePetrolProvider(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
+      toast.success(t("providers.success.updated"));
+      onClose();
+    },
+    onError: (error) => {
+      toast.error(t("providers.error.update"));
+      console.error("Error updating provider:", error);
+    },
+  });
+
+  // Handle form submission
+  const onSubmit = (data: ProviderFormValues) => {
+    if (isEditing && provider) {
+      updateMutation.mutate({ id: provider.id, data });
     } else {
-      form.reset({
-        name: "",
-        contact: "",
-      });
+      createMutation.mutate(data);
     }
-  }, [initialData, form]);
-
-  // Form submission handler
-  const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<ProviderFormData>(
-    form,
-    async (data) => {
-      try {
-        await onSubmit(data);
-        form.reset();
-        onOpenChange(false);
-        return true;
-      } catch (error) {
-        toast({
-          title: t("common.error"),
-          description: t("petrolProviders.saveError"),
-          variant: "destructive",
-        });
-        return false;
-      }
-    }
-  );
-
-  // Create form actions
-  const formActions = (
-    <div className="flex justify-end gap-2">
-      <Button 
-        type="button" 
-        variant="outline" 
-        onClick={() => onOpenChange(false)}
-        disabled={isSubmitting}
-      >
-        {t("common.cancel")}
-      </Button>
-      <Button type="submit" disabled={isSubmitting} form="provider-form">
-        {isSubmitting ? t("common.saving") : t("common.save")}
-      </Button>
-    </div>
-  );
+  };
 
   return (
-    <StandardDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title={title}
-      actions={formActions}
-      maxWidth="sm:max-w-[425px]"
-    >
-      <form id="provider-form" onSubmit={handleSubmit} className="space-y-4">
-        <FormInput
-          name="name"
-          label={t("petrolProviders.providerName")}
-          form={form}
-          placeholder={t("petrolProviders.providerName")}
-          autoComplete="organization"
-        />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {isEditing ? t("providers.edit") : t("providers.create")}
+          </DialogTitle>
+        </DialogHeader>
 
-        <FormInput
-          name="contact"
-          label={t("petrolProviders.contact")}
-          form={form}
-          placeholder={t("petrolProviders.contactInformation")}
-          autoComplete="tel"
-        />
-      </form>
-    </StandardDialog>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("providers.name")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="contact"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("providers.contact")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="is_active"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      {t("providers.status")}
+                    </FormLabel>
+                    <div className="text-sm text-muted-foreground">
+                      {field.value ? t("providers.active") : t("providers.inactive")}
+                    </div>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+              >
+                {t("common.cancel")}
+              </Button>
+              <Button
+                type="submit"
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                {isEditing ? t("common.save") : t("common.create")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 } 

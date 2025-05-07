@@ -8,6 +8,7 @@ import {
   CalendarClock,
   Bug,
   Fuel,
+  Wallet,
 } from "lucide-react";
 import {
   IconGasStation,
@@ -25,15 +26,28 @@ export const useSidebarNavConfig = () => {
       { to: "/todo", icon: ListChecks, label: t("common.todo") },
     ],
     fuelManagement: [
-      { to: "/fuel-management", icon: Fuel, label: t("common.fuelManagement") },
-      { to: "/fuel-management/filling-systems", icon: IconGasStation, label: t("common.fillingSystems") },
-      { to: "/fuel-management/tanks", icon: IconTank, label: t("common.tanks") },
-      { to: "/fuel-management/fuel-supplies", icon: IconTruck, label: t("common.fuelSupplies") },
+      { 
+        to: "/fuel-management", 
+        icon: Fuel, 
+        label: t("common.fuelManagement"),
+        children: [
+          { to: "/fuel-management/filling-systems", icon: IconGasStation, label: t("common.fillingSystems") },
+          { to: "/fuel-management/tanks", icon: IconTank, label: t("common.tanks") },
+          { to: "/fuel-management/fuel-supplies", icon: IconTruck, label: t("common.fuelSupplies") },
+        ]
+      },
     ],
     salesFinance: [
-      { to: "/sales", icon: BarChart, label: t("common.sales") },
-      { to: "/shifts", icon: CalendarClock, label: t("common.shifts") },
-      { to: "/expenses", icon: Receipt, label: t("common.expenses") },
+      { 
+        to: "/finance", 
+        icon: Wallet, 
+        label: t("common.finance"),
+        children: [
+          { to: "/finance/sales", icon: BarChart, label: t("common.sales") },
+          { to: "/finance/shifts", icon: CalendarClock, label: t("common.shifts") },
+          { to: "/finance/expenses", icon: Receipt, label: t("common.expenses") },
+        ]
+      },
     ],
     management: [
       { to: "/employees", icon: Users, label: t("common.employees") },

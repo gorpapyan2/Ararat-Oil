@@ -1,7 +1,7 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { Shift } from "@/types";
-import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodForm";
 import { addShiftPaymentMethods, deleteShiftPaymentMethods } from "./shiftPaymentMethods";
+import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
 
 export async function startShift(openingCash: number): Promise<Shift> {
   try {

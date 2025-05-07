@@ -3,6 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { ButtonPrimitive, AnchorButtonPrimitive } from "@/components/ui/primitives/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Link } from "react-router-dom";
 
 /**
  * Button variants with consistent styling across the application
@@ -145,10 +146,11 @@ Button.displayName = "Button";
  * Props for ButtonLink component
  */
 export interface ButtonLinkProps 
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>,
     VariantProps<typeof buttonVariants> {
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
+  href: string;
 }
 
 /**
@@ -162,10 +164,12 @@ const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
     startIcon, 
     endIcon,
     children,
+    href,
     ...props 
   }, ref) => {
     return (
-      <AnchorButtonPrimitive
+      <Link
+        to={href}
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
@@ -177,7 +181,7 @@ const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         {endIcon && (
           <span className="ml-2 flex-shrink-0">{endIcon}</span>
         )}
-      </AnchorButtonPrimitive>
+      </Link>
     );
   }
 );

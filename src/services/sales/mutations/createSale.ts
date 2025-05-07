@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { Sale, FuelType, PaymentStatus, Shift } from "@/types";
 import { useShift } from "@/hooks/useShift";
 
@@ -53,9 +53,9 @@ export const createSale = async (data: {
   if (fillingSystemError) throw fillingSystemError;
   if (!fillingSystemData?.tank)
     throw new Error("No tank found for this filling system");
-
-  const tankId = fillingSystemData.tank.id;
-  const currentLevel = fillingSystemData.tank.current_level;
+  // tank is an array, so we need to access the first element
+  const tankId = fillingSystemData.tank[0].id;
+  const currentLevel = fillingSystemData.tank[0].current_level;
   const newLevel = currentLevel - total_sold_liters;
 
   if (newLevel < 0) {
@@ -98,7 +98,7 @@ export const createSale = async (data: {
   const existingSaleData = {
     id: sale.id,
     date: sale.date,
-    fuel_type: (fillingSystemData.tank.fuel_type as FuelType) || "petrol",
+    fuel_type: (fillingSystemData.tank[0].fuel_type as FuelType) || "petrol",
     quantity: sale.total_sold_liters || 0,
     price_per_unit: sale.price_per_unit,
     total_sales: sale.total_sales,

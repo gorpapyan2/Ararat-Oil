@@ -1,5 +1,5 @@
 import { PostgrestError, PostgrestSingleResponse } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 
 /**
  * Helper function to ensure consistent error handling and response parsing

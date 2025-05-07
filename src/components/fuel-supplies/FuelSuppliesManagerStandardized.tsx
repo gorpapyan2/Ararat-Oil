@@ -65,9 +65,13 @@ export function FuelSuppliesManagerStandardized({
   const { data: tanks } = useQuery({
     queryKey: ["fuel-tanks"],
     queryFn: fetchFuelTanks,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 
-  const [summaryFilteredSupplies, setSummaryFilteredSupplies] = useState<FuelSupply[]>([]);
+  // Memoize the filtered supplies for summary
+  const summaryFilteredSupplies = useMemo(() => filteredSupplies || [], [filteredSupplies]);
 
   // Handler for updating filters in a modern, scalable way
   const handleFiltersChange = useCallback((updates: Partial<typeof filters>) => {
@@ -146,7 +150,7 @@ export function FuelSuppliesManagerStandardized({
   });
 
   const handleAdd = useCallback(() => {
-    navigate('/fuel-supplies/create');
+    navigate('/fuel-management/fuel-supplies/create');
   }, [navigate]);
 
   const handleEdit = useCallback((supply: FuelSupply) => {
@@ -199,81 +203,64 @@ export function FuelSuppliesManagerStandardized({
       await deleteFuelSupply(deletingSupply.id);
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+      confirmDeleteDialog.close();
+      setDeletingSupply(null);
       toast({
-        title: "Deleted",
+        title: "Success",
         description: "Fuel supply record deleted successfully",
-        variant: "default",
       });
     } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to delete fuel supply: " + error.message,
+        description: "Failed to delete fuel supply record: " + error.message,
         variant: "destructive",
       });
     } finally {
       setDeleteLoading(false);
-      setDeletingSupply(null);
-      confirmDeleteDialog.close();
     }
-  }, [deletingSupply, queryClient, toast, confirmDeleteDialog]);
+  }, [deletingSupply, queryClient, confirmDeleteDialog, toast]);
 
-  // Provide action buttons to parent component
+  // Memoize the action element
+  const actionElement = useMemo(() => (
+    <Button onClick={handleAdd}>
+      <Plus className="mr-2 h-4 w-4" />
+      Add New Supply
+    </Button>
+  ), [handleAdd]);
+
+  // Call the onRenderAction prop with the memoized action element if provided
   useEffect(() => {
     if (onRenderAction) {
-      onRenderAction(
-        <Button onClick={handleAdd} className="whitespace-nowrap">
-          <Plus className="mr-2 h-4 w-4" />
-          {t("fuelSupplies.addSupply", "Add Fuel Supply")}
-        </Button>
-      );
+      onRenderAction(actionElement);
     }
-  }, [onRenderAction, handleAdd, t]);
-
-  // Enhanced debug logging
-  console.log('FuelSuppliesManagerStandardized - DEBUG INFO');
-  console.log('filteredSupplies:', { 
-    isArray: Array.isArray(filteredSupplies),
-    length: filteredSupplies?.length || 0,
-    isEmpty: !filteredSupplies || filteredSupplies.length === 0,
-    isLoading
-  });
-  
-  if (filteredSupplies && filteredSupplies.length > 0) {
-    console.log('Sample item:', filteredSupplies[0]);
-  }
-
-  // Use summaryFilteredSupplies if available, otherwise default to filteredSupplies
-  const displayedSupplies = summaryFilteredSupplies.length > 0 ? summaryFilteredSupplies : filteredSupplies;
+  }, [onRenderAction, actionElement]);
 
   return (
     <div className="space-y-6">
-      <FuelSuppliesSummary 
-        supplies={filteredSupplies} 
-        loading={isLoading} 
-        onFilteredSuppliesChange={setSummaryFilteredSupplies} 
-      />
-
+      <FuelSuppliesSummary supplies={summaryFilteredSupplies} />
+      
       <FuelSuppliesTable
-        fuelSupplies={displayedSupplies}
+        fuelSupplies={filteredSupplies}
         isLoading={isLoading}
-        onEdit={(id) => handleEdit(filteredSupplies.find(s => s.id === id) as FuelSupply)}
-        onDelete={(id) => handleDelete(filteredSupplies.find(s => s.id === id) as FuelSupply)}
-        providers={providers || []}
+        onEdit={(supplyId) => {
+          const supply = filteredSupplies.find(s => s.id === supplyId);
+          if (supply) handleEdit(supply);
+        }}
+        onDelete={(supplyId) => {
+          const supply = filteredSupplies.find(s => s.id === supplyId);
+          if (supply) handleDelete(supply);
+        }}
         onFiltersChange={handleFiltersChange}
+        totalCount={filteredSupplies.length}
       />
 
-      {/* Edit form */}
       <FuelSuppliesFormStandardized
         open={formDialog.isOpen}
-        onOpenChange={(open) => {
-          formDialog.onOpenChange(open);
-          if (!open) handleDialogClose();
-        }}
-        defaultValues={editingSupply}
+        onOpenChange={formDialog.onOpenChange}
         onSubmit={handleSubmit}
+        defaultValues={editingSupply}
       />
 
-      {/* Confirm add dialog */}
       <ConfirmAddDialogStandardized
         open={confirmAddDialog.isOpen}
         onOpenChange={confirmAddDialog.onOpenChange}
@@ -283,7 +270,6 @@ export function FuelSuppliesManagerStandardized({
         data={confirmData || {}}
       />
 
-      {/* Confirm delete dialog */}
       <ConfirmDeleteDialogStandardized
         open={confirmDeleteDialog.isOpen}
         onOpenChange={confirmDeleteDialog.onOpenChange}

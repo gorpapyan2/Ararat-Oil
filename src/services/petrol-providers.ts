@@ -1,4 +1,6 @@
 import { supabase } from './supabase';
+import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
+import { Database } from '@/types/supabase';
 
 // Export the PetrolProvider type
 export interface PetrolProvider {
@@ -6,16 +8,46 @@ export interface PetrolProvider {
   name: string;
   contact: string;
   created_at?: string;
+  updated_at?: string;
+  is_active?: boolean;
 }
 
-export async function fetchPetrolProviders() {
-  const { data, error } = await supabase
-    .from("petrol_providers")
-    .select("*")
-    .order("name");
+export async function fetchPetrolProviders(options?: { activeOnly?: boolean }) {
+  try {
+    // @ts-ignore - Known issue with Supabase types
+    let query = supabase
+      .from("petrol_providers")
+      .select("*")
+      .order("name");
 
-  if (error) throw error;
-  return data as PetrolProvider[];
+    if (options?.activeOnly) {
+      query = query.eq("is_active", true);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching petrol providers:", error);
+      throw new Error(`Failed to fetch petrol providers: ${error.message}`);
+    }
+
+    if (!data || data.length === 0) {
+      console.warn("No petrol providers found in the database");
+      return [];
+    }
+
+    // Validate and transform the data
+    return data.map(provider => ({
+      id: provider.id,
+      name: provider.name || "Unnamed Provider",
+      contact: provider.contact || "",
+      created_at: provider.created_at,
+      is_active: provider.is_active ?? true // Default to true if not specified
+    }));
+  } catch (error) {
+    console.error("Exception in fetchPetrolProviders:", error);
+    throw error;
+  }
 }
 
 export async function createPetrolProvider(

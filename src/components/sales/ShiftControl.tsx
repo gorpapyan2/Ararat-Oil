@@ -1,40 +1,38 @@
-
-import { useState } from "react";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/dialog';
+import { useTranslation } from 'react-i18next';
 
 export function ShiftControl() {
+  const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const title = t('sales.shiftControl.title');
 
   return (
-    <>
-      <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
-        Open Shift Control
+    <div className="flex items-center gap-4">
+      <Button
+        variant="outline"
+        onClick={() => setIsDialogOpen(true)}
+      >
+        {title}
       </Button>
       
       <Dialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent title={title}>
           <DialogHeader>
-            <DialogTitle>Shift Control</DialogTitle>
-            <DialogDescription>
-              Manage shift start and end times here.
-            </DialogDescription>
+            <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {/* Add your shift control form or content here */}
-            <p>Shift control content goes here.</p>
-          </div>
+          {/* Add your shift control content here */}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

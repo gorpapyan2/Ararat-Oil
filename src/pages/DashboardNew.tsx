@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -12,6 +12,7 @@ import {
   CalendarRange,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 // Import our custom UI components
 import {
@@ -46,6 +47,15 @@ export default function Dashboard() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const breadcrumbSegments = useMemo(() => [
+    { name: "Dashboard", href: "/", isCurrent: true }
+  ], []);
+
+  usePageBreadcrumbs({
+    segments: breadcrumbSegments,
+    title: "Dashboard"
+  });
 
   // Fetch sales data
   const {

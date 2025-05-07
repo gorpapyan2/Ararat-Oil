@@ -1,13 +1,23 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { Employee, EmployeeStatus } from "@/types";
 
-export const fetchEmployees = async (): Promise<Employee[]> => {
-  const { data, error } = await supabase
+export const fetchEmployees = async (options?: { status?: EmployeeStatus }): Promise<Employee[]> => {
+  let query = supabase
     .from("employees")
     .select("*")
     .order("name", { ascending: true });
 
-  if (error) throw error;
+  if (options?.status) {
+    query = query.eq("status", options.status);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching employees:", error);
+    throw new Error(`Failed to fetch employees: ${error.message}`);
+  }
+
   return (data || []).map((employee) => ({
     ...employee,
     status: employee.status as EmployeeStatus,

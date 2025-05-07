@@ -30,6 +30,7 @@ import {
 import { Employee } from "@/types";
 import { EmployeeDialogStandardized } from "@/components/employees/EmployeeDialogStandardized";
 import { useToast } from "@/hooks";
+import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function EmployeesNew() {
   const { t } = useTranslation();
@@ -165,6 +166,16 @@ export default function EmployeesNew() {
     },
     [selectedEmployee, updateMutation, createMutation],
   );
+
+  const breadcrumbSegments = useMemo(() => [
+    { name: "Dashboard", href: "/" },
+    { name: "Employees", href: "/employees", isCurrent: true }
+  ], []);
+
+  usePageBreadcrumbs({
+    segments: breadcrumbSegments,
+    title: "Employees"
+  });
 
   return (
     <div className="container mx-auto p-4 space-y-6">

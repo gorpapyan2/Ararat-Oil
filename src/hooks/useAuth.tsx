@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import type { Session, User } from "@supabase/supabase-js";
-import { useNavigate } from "react-router-dom";
 
 type AuthContextProps = {
   user: User | null;
@@ -30,7 +29,6 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
@@ -69,7 +67,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setProfile(null);
         if (event === "SIGNED_OUT") {
-          navigate("/auth");
+          window.location.href = "/auth";
         }
       }
     });
@@ -77,7 +75,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
@@ -101,24 +99,6 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       error:
         "Signup is disabled. Please contact your administrator for account access.",
     };
-
-    // The code below is kept but will never be executed
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName },
-        },
-      });
-      if (error) return { error: error.message };
-      return {};
-    } catch (error: any) {
-      return { error: error.message || "An error occurred during sign up" };
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const signOut = async () => {
@@ -127,7 +107,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setSession(null);
       setProfile(null);
-      navigate("/auth");
+      window.location.href = "/auth";
     } catch (error) {
       console.error("Sign out error:", error);
     }

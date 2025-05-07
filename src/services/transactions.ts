@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/supabase";
 import { Transaction, PaymentMethod, PaymentStatus } from "@/types";
 
 export const fetchTransactions = async (): Promise<Transaction[]> => {

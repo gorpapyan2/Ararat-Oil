@@ -2,7 +2,7 @@ import React, { useState, useEffect, createContext, useContext } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronLeft, ChevronRight, CalendarClock } from "lucide-react";
+import { Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { SkipToContent } from "@/components/ui/skip-to-content";
 import { useIsMobile } from "@/hooks/useResponsive";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,20 +17,9 @@ import {
 import { useTranslation } from "react-i18next";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import {
-  IconDashboard,
-  IconGasStation,
-  IconTank,
-  IconReportAnalytics,
-  IconCurrencyDollar,
-  IconUsers,
-  IconTruck,
-  IconSettings,
-  IconLogout,
-  IconReceipt2,
-  IconChecklist,
-} from "@tabler/icons-react";
+import { IconLogout } from "@tabler/icons-react";
 import { DevMenu } from "@/components/ui/composed/dev-menu";
+import { useSidebarNavConfig } from "@/config/sidebarNav";
 
 // Define the BreadcrumbContext type
 type BreadcrumbSegment = {
@@ -59,21 +48,14 @@ export const useBreadcrumbs = () => {
 type AdminShellProps = {
   children: React.ReactNode;
 };
-interface NavItem {
-  to: string;
-  label: string;
-  icon: React.ReactNode;
-}
-interface NavSection {
-  title: string;
-  items: NavItem[];
-}
+
 export function AdminShell({ children }: AdminShellProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const isAuthPage = pathname === "/auth" || pathname === "/login";
   const isMobile = useIsMobile();
   const { signOut } = useAuth();
+  const navConfig = useSidebarNavConfig();
 
   // Mobile sidebar state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -95,82 +77,16 @@ export function AdminShell({ children }: AdminShellProps) {
       setIsMobileSidebarOpen(false);
     }
   }, [pathname, isMobile]);
+
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
+
   const isActive = (path: string) => pathname === path;
+  const isActiveChild = (path: string) => pathname.startsWith(path);
 
   // Add breadcrumb state
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbSegment[]>([]);
-
-  // Organized navigation sections
-  const navSections: NavSection[] = [
-    {
-      title: t("common.overview"),
-      items: [
-        {
-          to: "/",
-          label: t("common.dashboard"),
-          icon: <IconDashboard size={20} />,
-        },
-        {
-          to: "/todo",
-          label: "Todo List",
-          icon: <IconChecklist size={20} />,
-        },
-      ],
-    },
-    {
-      title: t("common.fuelManagement"),
-      items: [
-        {
-          to: "/fuel-management",
-          label: t("common.fuelManagement"),
-          icon: <IconGasStation size={20} />,
-        },
-      ],
-    },
-    {
-      title: t("common.salesFinance"),
-      items: [
-        {
-          to: "/sales",
-          label: t("common.sales"),
-          icon: <IconCurrencyDollar size={20} />,
-        },
-        {
-          to: "/shifts",
-          label: t("common.shifts"),
-          icon: <CalendarClock size={20} />,
-        },
-        {
-          to: "/expenses",
-          label: t("common.expenses"),
-          icon: <IconReceipt2 size={20} />,
-        },
-      ],
-    },
-    {
-      title: t("common.management"),
-      items: [
-        {
-          to: "/employees",
-          label: t("common.employees"),
-          icon: <IconUsers size={20} />,
-        },
-        {
-          to: "/reports",
-          label: t("common.reports"),
-          icon: <IconReportAnalytics size={20} />,
-        },
-        {
-          to: "/settings",
-          label: t("common.settings"),
-          icon: <IconSettings size={20} />,
-        },
-      ],
-    },
-  ];
 
   // Use a different layout for the auth page
   if (isAuthPage) {
@@ -189,8 +105,10 @@ export function AdminShell({ children }: AdminShellProps) {
   }
 
   // Render a nav item with tooltip if sidebar is collapsed
-  const renderNavItem = (item: NavItem) => {
-    const isItemActive = isActive(item.to);
+  const renderNavItem = (item: any) => {
+    const isItemActive = item.children 
+      ? isActiveChild(item.to)
+      : isActive(item.to);
 
     // Common styling for the nav item
     const navItemClasses = cn(
@@ -200,7 +118,12 @@ export function AdminShell({ children }: AdminShellProps) {
         ? "bg-primary/15 text-primary font-medium"
         : "text-foreground/80 hover:text-foreground",
     );
+
     const label = sidebarCollapsed ? null : <span>{item.label}</span>;
+    
+    // Properly render the icon component
+    const IconComponent = item.icon;
+    const renderedIcon = IconComponent ? <IconComponent size={20} /> : null;
 
     // If sidebar is collapsed, wrap in tooltip
     if (sidebarCollapsed && !isMobile) {
@@ -213,7 +136,7 @@ export function AdminShell({ children }: AdminShellProps) {
                 className={navItemClasses}
                 aria-current={isItemActive ? "page" : undefined}
               >
-                {item.icon}
+                {renderedIcon}
                 <span className="sr-only">{item.label}</span>
               </Link>
             </TooltipTrigger>
@@ -230,20 +153,44 @@ export function AdminShell({ children }: AdminShellProps) {
 
     // Regular rendering
     return (
-      <Link
-        key={item.to}
-        to={item.to}
-        className={navItemClasses}
-        aria-current={isItemActive ? "page" : undefined}
-      >
-        {item.icon}
-        {label}
-      </Link>
+      <div key={item.to} className="flex flex-col gap-1">
+        <Link
+          to={item.to}
+          className={navItemClasses}
+          aria-current={isItemActive ? "page" : undefined}
+        >
+          {renderedIcon}
+          {label}
+        </Link>
+        {item.children && !sidebarCollapsed && (
+          <div className="ml-6 flex flex-col gap-1 border-l pl-4">
+            {item.children.map((child: any) => {
+              const ChildIconComponent = child.icon;
+              const childRenderedIcon = ChildIconComponent ? <ChildIconComponent size={18} /> : null;
+              
+              return (
+                <Link
+                  key={child.to}
+                  to={child.to}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
+                    "hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    isActive(child.to)
+                      ? "bg-primary/15 text-primary font-medium"
+                      : "text-foreground/80 hover:text-foreground",
+                  )}
+                  aria-current={isActive(child.to) ? "page" : undefined}
+                >
+                  {childRenderedIcon}
+                  <span>{child.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     );
   };
-
-  // Calculate sidebar width for main content margin
-  const sidebarWidth = sidebarCollapsed ? 72 : 256;
 
   // Sidebar content rendering function used in both desktop and mobile views
   const renderSidebarContent = () => (
@@ -270,15 +217,15 @@ export function AdminShell({ children }: AdminShellProps) {
       {/* Sidebar navigation */}
       <div className="flex-1 overflow-auto">
         <nav className="flex flex-col gap-6 p-4">
-          {navSections.map((section, idx) => (
-            <div key={idx} className="flex flex-col gap-1">
+          {Object.entries(navConfig).map(([section, items]) => (
+            <div key={section} className="flex flex-col gap-1">
               {!sidebarCollapsed && (
                 <h3 className="px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  {section.title}
+                  {t(`common.${section}`)}
                 </h3>
               )}
               <div className="flex flex-col gap-1">
-                {section.items.map(renderNavItem)}
+                {items.map(renderNavItem)}
               </div>
             </div>
           ))}
