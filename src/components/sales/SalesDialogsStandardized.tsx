@@ -1,4 +1,5 @@
-import { StandardDialog, DeleteConfirmDialog } from "@/components/ui/dialog";
+
+import { StandardDialog, DeleteConfirmDialog } from "@/components/ui/composed/dialog";
 import { SalesFormStandardized } from "./SalesFormStandardized";
 import { Sale } from "@/types";
 
@@ -35,14 +36,16 @@ export function SalesDialogsStandardized({
       >
         <SalesFormStandardized
           sale={selectedSale}
-          onSubmit={(data) => {
+          onSubmit={async (data) => {
             if (selectedSale?.id) {
               // Update existing sale
               updateSale({
                 id: selectedSale.id,
                 ...data,
               });
+              return true;
             }
+            return false;
           }}
         />
       </StandardDialog>

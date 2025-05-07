@@ -232,7 +232,6 @@ export function FuelSuppliesFormStandardized({
       <Dialog
         open={open}
         onOpenChange={onOpenChange}
-        title="Add Fuel Supply"
       >
         <DialogContent className="max-w-[600px]">
           <DialogHeader>
@@ -246,6 +245,7 @@ export function FuelSuppliesFormStandardized({
             </DialogDescription>
           </DialogHeader>
           
+          {/* Form content */}
           <FormProvider {...form}>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">

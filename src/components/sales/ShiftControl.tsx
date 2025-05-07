@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Dialog,
@@ -5,7 +6,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -14,14 +14,13 @@ export function ShiftControl() {
 
   return (
     <>
-      <DialogTrigger asChild>
-        <Button variant="outline">Open Shift Control</Button>
-      </DialogTrigger>
+      <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
+        Open Shift Control
+      </Button>
       
       <Dialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title="Shift Control" // Add missing title prop
       >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>

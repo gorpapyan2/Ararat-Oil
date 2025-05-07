@@ -1,14 +1,4 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog, ConfirmDialogProps } from "@/components/ui/composed/dialog";
 
@@ -37,7 +27,6 @@ export function SessionLogoutDialogStandardized({
 }: SessionLogoutDialogStandardizedProps) {
   return (
     <ConfirmDialog
-      // Remove the children prop, as it's not expected
       open={open}
       onOpenChange={onOpenChange}
       title={title}

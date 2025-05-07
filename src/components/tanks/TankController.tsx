@@ -1,7 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useTankDialog } from "@/hooks/useTankDialog";
 import { TankFormDialogStandardized } from "./TankFormDialogStandardized";
+import { useState } from "react";
 
 interface TankControllerProps {
   onSuccess?: () => void;
@@ -20,6 +22,7 @@ export function TankController({
   size = "default",
   showIcon = true,
 }: TankControllerProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { 
     openDialog,
     isFormOpen, 
@@ -46,7 +49,13 @@ export function TankController({
         {buttonText}
       </Button>
 
-      <TankFormDialogStandardized onSuccess={onSuccess} />
+      {isFormOpen && (
+        <TankFormDialogStandardized
+          open={isFormOpen}
+          onOpenChange={setIsFormOpen}
+          onSuccess={onSuccess || (() => {})}
+        />
+      )}
     </>
   );
-} 
+}

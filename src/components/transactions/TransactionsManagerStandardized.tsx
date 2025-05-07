@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -49,7 +50,8 @@ export function TransactionsManagerStandardized() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: updateTransaction,
+    mutationFn: ({ id, ...data }: { id: string; [key: string]: any }) => 
+      updateTransaction(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast({
@@ -92,14 +94,13 @@ export function TransactionsManagerStandardized() {
 
   const handleUpdate = async (
     id: string,
-    transactionData: Omit<Transaction, "id">,
+    transactionData: Partial<Omit<Transaction, "id">>,
   ) => {
     await updateMutation.mutateAsync({ id, ...transactionData });
   };
 
-  // Convert the transaction parameter to string ID
-  const handleDelete = (transaction: Transaction | string) => {
-    const id = typeof transaction === 'string' ? transaction : transaction.id;
+  // Handle the transaction ID directly
+  const handleDelete = (id: string) => {
     setTransactionToDelete(id);
     setIsDeleteDialogOpen(true);
   };
@@ -110,7 +111,8 @@ export function TransactionsManagerStandardized() {
     }
   };
 
-  const handleEdit = (transaction: Transaction) => {
+  const handleEdit = (id: string) => {
+    const transaction = transactions?.find(t => t.id === id) || null;
     setTransactionToEdit(transaction);
     setIsEditDialogOpen(true);
   };

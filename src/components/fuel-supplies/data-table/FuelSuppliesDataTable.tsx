@@ -309,137 +309,9 @@ export function FuelSuppliesDataTable({
     },
   ];
 
-  // Custom mobile card renderer
-  const MobileCardRenderer = (supply: FuelSupply, index: number) => {
-    const { t } = useTranslation();
+  // Custom mobile card renderer - removed as it's not supported
 
-    const deliveryDate = format(new Date(supply.delivery_date), "dd/MM/yyyy");
-    const quantity = formatNumber(supply.quantity_liters);
-    const pricePerLiter = formatCurrency(supply.price_per_liter);
-    const totalCost = formatCurrency(supply.total_cost);
-
-    return (
-      <Card className="overflow-hidden shadow-sm border-muted hover:border-primary/20 transition-colors">
-        <CardContent className="p-0">
-          <div className="p-4 border-b bg-accent/50">
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="font-medium">{deliveryDate}</span>
-              </div>
-              <Badge className="font-medium bg-primary/10 text-primary hover:bg-primary/20 border-0">
-                {supply.tank?.fuel_type || "N/A"}
-              </Badge>
-            </div>
-          </div>
-
-          <div>
-            <div className="flex p-3 items-center">
-              <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
-                <Building className="h-3.5 w-3.5" />
-                {t("fuelSupplies.provider")}
-              </span>
-              <span className="w-2/3 font-medium">
-                {supply.provider?.name || "N/A"}
-              </span>
-            </div>
-
-            <div className="flex p-3 items-center bg-muted/30">
-              <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
-                <Droplet className="h-3.5 w-3.5" />
-                {t("fuelSupplies.tank")}
-              </span>
-              <span className="w-2/3 font-medium">
-                {supply.tank?.name || "N/A"}
-              </span>
-            </div>
-
-            <div className="flex p-3 items-center">
-              <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
-                <Tag className="h-3.5 w-3.5" />
-                {t("fuelSupplies.quantity")}
-              </span>
-              <span className="w-2/3 font-medium tabular-nums">
-                <span className="rounded bg-primary/10 px-2 py-0.5 text-primary">
-                  {quantity} L
-                </span>
-              </span>
-            </div>
-
-            <div className="flex p-3 items-center bg-muted/30">
-              <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
-                <Banknote className="h-3.5 w-3.5" />
-                {t("fuelSupplies.pricePerLiter")}
-              </span>
-              <span className="w-2/3 font-medium tabular-nums">
-                {pricePerLiter} ֏
-              </span>
-            </div>
-
-            <div className="flex p-3 items-center">
-              <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
-                <Banknote className="h-3.5 w-3.5" />
-                {t("fuelSupplies.totalCost")}
-              </span>
-              <span className="w-2/3 font-semibold text-primary tabular-nums">
-                {totalCost} ֏
-              </span>
-            </div>
-
-            {supply.comments && (
-              <div className="flex p-3 items-start bg-muted/30">
-                <span className="w-1/3 text-muted-foreground text-sm font-medium flex items-center gap-2">
-                  <MessageSquare className="h-3.5 w-3.5" />
-                  {t("fuelSupplies.comments")}
-                </span>
-                <span
-                  className="w-2/3 text-sm truncate"
-                  title={supply.comments}
-                >
-                  {supply.comments}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="p-3 bg-accent/20 flex justify-between items-center border-t">
-            <div className="flex items-center gap-1.5">
-              <UserCircle2 className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">
-                {supply.employee?.name || "N/A"}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(supply);
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(supply);
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  // Use the new DataTable component
+  // Use the DataTable component with adjusted props
   return (
     <div
       className="rounded-lg bg-card text-card-foreground shadow-sm overflow-hidden border border-border/40 
@@ -450,9 +322,7 @@ export function FuelSuppliesDataTable({
       <DataTable
         columns={columns}
         data={processedData}
-        loading={isLoading} // Changed from isLoading to loading to match expected prop
-        mobileCardRenderer={MobileCardRenderer}
-        onRowClick={(supply) => setSelectedSupply(supply)}
+        loading={isLoading}
         emptyMessage={t("fuelSupplies.noSuppliesFound")}
         title={t("fuelSupplies.supplies")}
         subtitle={t("fuelSupplies.manageSupplies")}
@@ -467,6 +337,7 @@ export function FuelSuppliesDataTable({
         enableSorting={true}
         defaultPageSize={10}
         className="w-full"
+        onRowClick={(row) => setSelectedSupply(row as FuelSupply)}
       />
     </div>
   );

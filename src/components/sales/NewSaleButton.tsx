@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { StandardDialog } from "@/components/ui/composed/dialog";
 import { DialogContent } from "@/components/ui/styled/dialog";
@@ -20,7 +21,7 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
   const queryClient = useQueryClient();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: any): Promise<boolean> => {
     try {
       await createSale(data);
       queryClient.invalidateQueries({ queryKey: ["sales"] });
@@ -33,6 +34,7 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
       });
 
       setIsOpen(false);
+      return true;
     } catch (error: any) {
       toast({
         title: "Error",
@@ -40,6 +42,7 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
         variant: "destructive",
       });
       console.error("Error creating sale:", error);
+      return false;
     }
   };
 

@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,7 +9,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SalesController } from "./SalesController";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,8 +25,14 @@ import {
 import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
 import { FillingSystemSelect } from "./form/FillingSystemSelect";
 
+// Extend the Sale type to include the properties we need
+interface ExtendedSale extends Sale {
+  unit_price?: number;
+  comments?: string;
+}
+
 interface SalesFormStandardizedProps {
-  sale?: Sale;
+  sale?: ExtendedSale;
   onSubmit: (data: any) => Promise<boolean>;
   employees?: Employee[];
 }
@@ -88,13 +87,13 @@ export function SalesFormStandardized({
   useEffect(() => {
     if (sale) {
       setValue("quantity", sale.quantity);
-      setValue("unit_price", sale.unit_price);
+      setValue("unit_price", sale.price_per_unit || 0); // Map price_per_unit to unit_price
       setValue("total_sales", sale.total_sales);
       setValue("employee_id", sale.employee_id);
       setValue("filling_system_id", sale.filling_system_id);
       setValue("date", sale.date);
-      if ('comments' in sale) {
-        setValue('comments', sale.comments as string);
+      if (sale.comments) {
+        setValue('comments', sale.comments);
       }
     }
   }, [sale, setValue]);
@@ -131,6 +130,8 @@ export function SalesFormStandardized({
                     step="0.01"
                     placeholder="0"
                     {...field}
+                    value={field.value}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -150,7 +151,7 @@ export function SalesFormStandardized({
             <FormItem>
               <FormLabel>Comments</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Comments" {...field} />
+                <Input type="text" placeholder="Comments" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>

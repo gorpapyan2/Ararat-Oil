@@ -11,6 +11,6 @@ export { ConfirmAddTankDialogStandardized } from '../tanks/ConfirmAddTankDialogS
 export { ProfileDialogStandardized } from '../settings/ProfileDialogStandardized';
 
 // Controller components
-// Note: SalesController is removed as it's not exported from that file
 export { TankController } from '../tanks/TankController';
 export { ProfileController } from '../settings/ProfileController';
+// Note: SalesController is imported directly where needed
