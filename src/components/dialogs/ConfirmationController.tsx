@@ -1,3 +1,4 @@
+
 import { ReactNode, useCallback } from "react";
 import { useConfirmationDialog } from "@/hooks";
 import { ConfirmationOptions } from "@/hooks/useConfirmationDialog";
@@ -41,7 +42,12 @@ export function ConfirmationController({
       <ConfirmationDialogStandardized
         open={isOpen}
         onOpenChange={setIsOpen}
-        defaultOptions={options}
+        title={options.title || "Confirm Action"}
+        description={options.message}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        confirmText={options.confirmLabel || "Confirm"}
+        cancelText={options.cancelLabel || "Cancel"}
       />
     </>
   );
@@ -60,4 +66,4 @@ export function ConfirmationController({
 //       Delete
 //     </Button>
 //   )}
-// </ConfirmationController> 
+// </ConfirmationController>

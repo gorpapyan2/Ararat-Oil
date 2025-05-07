@@ -9,6 +9,7 @@ export * from "./financials";
 export * from "./employees";
 export * from "./tanks";
 export * from "./transactions";
+
 // We'll be more specific with these exports to avoid ambiguity
 export {
   fetchFuelSupplies,
@@ -16,12 +17,14 @@ export {
   updateFuelSupply,
   deleteFuelSupply,
 } from "./fuel-supplies";
+
 export {
   createFillingSystem,
   fetchFillingSystems,
   deleteFillingSystem,
   validateTankIds,
 } from "./filling-systems";
+
 export {
   fetchPetrolProviders,
   createPetrolProvider,

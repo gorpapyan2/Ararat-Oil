@@ -10,13 +10,12 @@ interface ConfirmationDialogStandardizedProps {
   onOpenChange: Dispatch<SetStateAction<boolean>>;
   title: string;
   description?: string;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   onCancel?: () => void;
   confirmText?: string;
   cancelText?: string;
   children?: React.ReactNode;
   maxWidth?: string;
-  // Remove preventOutsideClose as it doesn't exist on StandardDialog
 }
 
 export function ConfirmationDialogStandardized({
@@ -38,12 +37,19 @@ export function ConfirmationDialogStandardized({
     onOpenChange(false);
   };
 
+  const handleConfirm = () => {
+    if (onConfirm) {
+      onConfirm();
+    }
+    onOpenChange(false);
+  };
+
   const actions = (
     <div className="flex justify-end gap-2">
       <Button variant="outline" onClick={handleCancel}>
         {cancelText}
       </Button>
-      <Button onClick={onConfirm}>
+      <Button onClick={handleConfirm}>
         {confirmText}
       </Button>
     </div>

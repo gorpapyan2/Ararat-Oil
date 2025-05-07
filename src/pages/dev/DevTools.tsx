@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +8,8 @@ import {
   Database, 
   Bell, 
   Layout, 
-  Layers, 
-  Buttons
+  Layers,
+  PanelTop 
 } from 'lucide-react';
 
 export default function DevTools() {
@@ -40,7 +41,7 @@ export default function DevTools() {
     { 
       name: 'Button Components', 
       path: '/dev/button-components', 
-      icon: <Buttons className="h-5 w-5" />,
+      icon: <PanelTop className="h-5 w-5" />,
       description: 'Explore button component variations and styles'
     },
   ];
@@ -76,4 +77,4 @@ export default function DevTools() {
       </div>
     </div>
   );
-} 
+}

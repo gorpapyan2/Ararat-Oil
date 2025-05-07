@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { Employee } from '@/types';
 import { StandardizedDataTable, FiltersShape } from "@/components/unified/StandardizedDataTable";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,9 @@ import {
   Wallet,
   CircleUser
 } from "lucide-react";
+
+// Define employee status type
+type EmployeeStatus = 'active' | 'on_leave' | 'terminated' | string;
 
 interface EmployeesTableProps {
   employees: Employee[];
@@ -36,11 +40,13 @@ export function EmployeesTable({
   onPageChange,
   onSortChange,
 }: EmployeesTableProps) {
-  // Initial filter state without the invalid 'position' property
-  const [filters, setFilters] = useState({
+  // Initial filter state
+  const [filters, setFilters] = useState<{
+    searchTerm: string;
+    status: string;
+  }>({
     searchTerm: "",
     status: "all",
-    // Removed position filter as it doesn't exist in FiltersShape
   });
 
   // Filter options properly structured for StandardizedDataTable
@@ -65,7 +71,10 @@ export function EmployeesTable({
 
   // Handle filter changes
   const handleFilterChange = (newFilters: FiltersShape) => {
-    setFilters(newFilters);
+    setFilters({
+      searchTerm: newFilters.searchTerm || "",
+      status: newFilters.status || "all"
+    });
     onFiltersChange(newFilters);
   };
 
@@ -191,7 +200,6 @@ export function EmployeesTable({
       serverSide={isServerSide}
       onPageChange={onPageChange}
       onSortChange={onSortChange}
-      filterOptions={filterOptions}
       exportOptions={{
         enabled: true,
         filename: 'employees-export',
