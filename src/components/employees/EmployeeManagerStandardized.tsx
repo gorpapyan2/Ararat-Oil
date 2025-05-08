@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchEmployees,
@@ -33,10 +34,10 @@ export function EmployeeManagerStandardized() {
     },
   });
 
-  // Data fetching
+  // Data fetching - fixed to use proper queryFn format
   const { data: employees, isLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: fetchEmployees,
+    queryFn: () => fetchEmployees(),
   });
 
   // Mutations
@@ -80,4 +81,4 @@ export function EmployeeManagerStandardized() {
       />
     </div>
   );
-} 
+}

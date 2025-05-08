@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,8 +19,11 @@ export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen }: ShiftCon
           {isShiftOpen ? "Close Shift" : "Open Shift"}
         </Button>
       </DialogTrigger>
-      <DialogContent title="Open Shift" className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]">
         <div className="flex flex-col space-y-4">
+          <h2 className="text-lg font-semibold">
+            {isShiftOpen ? "Close Shift" : "Open Shift"}
+          </h2>
           <p>Are you sure you want to {isShiftOpen ? "close" : "open"} the shift?</p>
           <div className="flex justify-end space-x-2">
             <Button variant="secondary" onClick={() => setIsOpen(false)}>

@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { StandardDialog } from "@/components/ui/composed/dialog";
@@ -10,7 +11,7 @@ import {
 import { fetchPetrolProviders } from "@/services/petrol-providers";
 import { fetchFuelTanks } from "@/services/tanks";
 import { useQuery } from "@tanstack/react-query";
-import { FormInput, FormSelect, FormTextArea } from "@/components/ui/composed/form-fields";
+import { FormInput, FormSelect, FormTextarea } from "@/components/ui/composed/form-fields";
 import { FuelSupply } from "@/types";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 
@@ -68,14 +69,16 @@ export function FuelSuppliesFormStandardized({
     },
   });
 
-  const { data: providers } = useQuery({
+  // Fix the query implementation for providers
+  const { data: providers = [] } = useQuery({
     queryKey: ["petrol-providers"],
-    queryFn: fetchPetrolProviders,
+    queryFn: () => fetchPetrolProviders(),
   });
 
-  const { data: tanks } = useQuery({
+  // Fix the query implementation for tanks
+  const { data: tanks = [] } = useQuery({
     queryKey: ["fuel-tanks"],
-    queryFn: fetchFuelTanks,
+    queryFn: () => fetchFuelTanks(),
   });
 
   const providerOptions = providers?.map(provider => ({
@@ -179,7 +182,7 @@ export function FuelSuppliesFormStandardized({
           form={form}
           placeholder="Enter total cost"
         />
-        <FormTextArea
+        <FormTextarea
           name="comments"
           label="Comments"
           form={form}
