@@ -72,7 +72,7 @@ const PetrolProviders = lazy(() =>
   import(/* webpackChunkName: "petrol-providers" */ "@/pages/PetrolProviders")
 );
 const Expenses = lazy(() => 
-  import(/* webpackChunkName: "expenses" */ "@/pages/Expenses")
+  import(/* webpackChunkName: "expenses" */ "@/pages/finance/ExpensesPage")
 );
 const Transactions = lazy(() => 
   import(/* webpackChunkName: "transactions" */ "@/pages/Transactions")
@@ -373,55 +373,6 @@ const App = () => {
                                     <TodoPage />
                                   </ErrorBoundary>
                                 </Suspense>
-                              </AdminShell>
-                            }
-                          />
-                          <Route
-                            path="/shifts/*"
-                            element={
-                              <AdminShell>
-                                <Routes>
-                                  <Route
-                                    index
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
-                                          <Shifts />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path="open"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Opening shift..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Open Shift" />}>
-                                          <ShiftOpen />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path="close"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Closing shift..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Close Shift" />}>
-                                          <ShiftClose />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path=":id"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading shift details..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Details" />}>
-                                          <ShiftDetails />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                </Routes>
                               </AdminShell>
                             }
                           />

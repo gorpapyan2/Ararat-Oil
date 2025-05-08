@@ -56,6 +56,17 @@ export async function fetchActiveShift(employeeId: string) {
   if (!employeeId) return null;
 
   try {
+    // Check for network connectivity first
+    if (!navigator.onLine) {
+      console.warn("No internet connection. Using offline mode for active shift.");
+      // Try to get shift from localStorage if offline
+      const cachedShift = localStorage.getItem(`activeShift_${employeeId}`);
+      if (cachedShift) {
+        return JSON.parse(cachedShift);
+      }
+      return null;
+    }
+
     const { data, error } = await supabase
       .from("shifts")
       .select()
@@ -65,12 +76,40 @@ export async function fetchActiveShift(employeeId: string) {
 
     if (error) {
       console.error("Error fetching active shift:", error);
+      
+      // Try to get shift from localStorage if there's an error
+      const cachedShift = localStorage.getItem(`activeShift_${employeeId}`);
+      if (cachedShift) {
+        console.log("Using cached shift data during API error");
+        return JSON.parse(cachedShift);
+      }
+      
       return null;
+    }
+
+    // Cache the shift data in localStorage
+    if (data) {
+      localStorage.setItem(`activeShift_${employeeId}`, JSON.stringify(data));
+    } else {
+      // Clear the cache if no active shift
+      localStorage.removeItem(`activeShift_${employeeId}`);
     }
 
     return data;
   } catch (error) {
-    console.error("Exception in fetching active shift:", error);
+    console.error("Error fetching active shift:", error);
+    
+    // Try to use cached data in case of network failure
+    try {
+      const cachedShift = localStorage.getItem(`activeShift_${employeeId}`);
+      if (cachedShift) {
+        console.log("Using cached shift data during network error");
+        return JSON.parse(cachedShift);
+      }
+    } catch (cacheError) {
+      console.error("Error retrieving cached shift:", cacheError);
+    }
+    
     return null;
   }
 }

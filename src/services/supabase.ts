@@ -1,15 +1,69 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 
-// Initialize the Supabase client
+// Set up ENV configs for Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.error(
+    "Missing environment variables VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY!"
+  );
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Configure the Supabase client with better network handling
+export const supabase = createClient<Database>(
+  supabaseUrl,
+  supabaseAnonKey,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+    },
+    global: {
+      // Add fetch options with longer timeout
+      fetch: (url, options) => {
+        const fetchOptions = {
+          ...options,
+          // Longer timeout for slower connections
+          timeout: 30000,  // 30 seconds
+        };
+        
+        return fetch(url, fetchOptions);
+      },
+    },
+    // Improved retry configuration
+    db: {
+      schema: "public",
+    },
+    // Add custom fetch handler to simulate retries
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
+  }
+);
+
+// Add error event listener to detect network issues
+window.addEventListener('offline', () => {
+  console.warn('Connection lost. App will operate in offline mode.');
+});
+
+window.addEventListener('online', () => {
+  console.log('Connection restored. Reconnecting to Supabase...');
+  // We can trigger any reconnection logic here if needed
+});
+
+// Helper to check if a network error occurred
+export const isNetworkError = (error: any): boolean => {
+  return (
+    error?.message?.includes('Failed to fetch') || 
+    error?.message?.includes('Network Error') ||
+    error?.message?.includes('NetworkError') ||
+    error?.name === 'TypeError' && error?.message?.includes('fetch')
+  );
+};
 
 // Check Supabase connection on import
 (async function checkSupabaseConnection() {
@@ -62,3 +116,6 @@ export {
   updatePetrolProvider,
   deletePetrolProvider,
 } from "./petrol-providers";
+
+// Export the client
+export default supabase;

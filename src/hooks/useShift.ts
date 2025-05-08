@@ -39,24 +39,103 @@ export function useShift() {
     }
   }, [activeShift]);
 
+  // Flag to prevent concurrent requests
+  let isCheckingShift = false;
+
   const checkActiveShift = async () => {
     if (!user) return;
+    if (isCheckingShift) {
+      console.log("Shift check already in progress, skipping duplicate request");
+      return;
+    }
+    // Skip checking if we're in the process of closing a shift or already succeeded
+    if (success) {
+      console.log("Shift already closed successfully, skipping check");
+      return;
+    }
+    
+    isCheckingShift = true;
     setIsLoading(true);
+    
+    // Track retry attempts
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    const attemptFetch = async (): Promise<Shift | null> => {
+      try {
+        // Check if online before making the request
+        if (!navigator.onLine) {
+          console.warn("No internet connection detected while checking for active shift");
+          toast({
+            title: "Offline Mode",
+            description: "Working in offline mode. Some features may be limited.",
+            variant: "warning",
+            duration: 5000,
+          });
+          // Try to use cached data in localStorage
+          const cachedShift = localStorage.getItem(`activeShift_${user.id}`);
+          if (cachedShift) {
+            return JSON.parse(cachedShift);
+          }
+          return null;
+        }
+        
+        console.log("Fetching active shift for user:", user.id);
+        const shift = await fetchActiveShift(user.id);
+        if (shift) {
+          console.log("Active shift found:", shift.id);
+        } else {
+          console.log("No active shift found for user:", user.id);
+        }
+        return shift as Shift;
+      } catch (error: any) {
+        if (retryCount < maxRetries) {
+          // Wait a moment before retrying (increasing delay)
+          await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+          retryCount++;
+          console.log(`Retrying fetch attempt ${retryCount}/${maxRetries}`);
+          return attemptFetch();
+        }
+        
+        // Show a network error toast if we've exhausted our retries
+        toast({
+          title: "Connection Issue",
+          description: "Could not connect to the server. Please check your connection.",
+          variant: "destructive",
+          duration: 5000,
+        });
+        throw error;
+      }
+    };
+    
     try {
-      const shift = await fetchActiveShift(user.id);
+      const shift = await attemptFetch();
+      
       if (shift) {
-        setActiveShift(shift as Shift);
+        setActiveShift(shift);
+        // Cache the active shift for offline mode
+        try {
+          localStorage.setItem(`activeShift_${user.id}`, JSON.stringify(shift));
+        } catch (e) {
+          console.warn("Failed to cache active shift data", e);
+        }
         // If we have an active shift, fetch the current sales total
-        await updateShiftSalesTotal((shift as Shift).id);
+        await updateShiftSalesTotal(shift.id);
       } else {
         // Only clear the state if we're not in the process of closing a shift
         if (!success) {
           setActiveShift(null);
           setShiftPaymentMethods([]);
+          // Clear any cached shift data
+          try {
+            localStorage.removeItem(`activeShift_${user.id}`);
+          } catch (e) {
+            console.warn("Failed to clear cached shift data", e);
+          }
         }
       }
     } catch (error) {
-      console.error("Error checking active shift", error);
+      console.error("Error checking active shift:", error);
       // Only clear the state if we're not in the process of closing a shift
       if (!success) {
         setActiveShift(null);
@@ -64,6 +143,7 @@ export function useShift() {
       }
     } finally {
       setIsLoading(false);
+      isCheckingShift = false;
     }
   };
 
@@ -136,8 +216,19 @@ export function useShift() {
 
     try {
       setIsLoading(true);
+      
+      // Check network connectivity first
+      if (!navigator.onLine) {
+        throw new Error("Cannot close shift while offline. Please check your internet connection.");
+      }
+      
       // First update the sales total one last time
-      await updateShiftSalesTotal(activeShift.id);
+      try {
+        await updateShiftSalesTotal(activeShift.id);
+      } catch (salesError) {
+        console.error("Error updating sales total before closing shift:", salesError);
+        // Continue anyway - we'll use the last known total
+      }
 
       // Close the shift
       const closedShift = await closeShift(activeShift.id, closingCash, paymentMethods);
@@ -147,6 +238,14 @@ export function useShift() {
       setShiftPaymentMethods([]);
       setSuccess(true);
       
+      // Clear the local storage cache for this shift
+      try {
+        localStorage.removeItem(`activeShift_${user?.id}`);
+      } catch (cacheError) {
+        console.error("Error clearing shift cache:", cacheError);
+        // Non-critical error, continue
+      }
+      
       // Show success message
       toast({
         title: "Shift Closed",
@@ -155,12 +254,25 @@ export function useShift() {
       
       return closedShift;
     } catch (error: any) {
-      // Show error message
-      toast({
-        title: "Error",
-        description: error.message || "Failed to close shift",
-        variant: "destructive",
-      });
+      console.error("Error ending shift:", error);
+      
+      // Check if it's a network error
+      if (error.message?.includes("Failed to fetch") || !navigator.onLine) {
+        toast({
+          title: "Network Error",
+          description: "Cannot close shift due to network issues. Please check your connection and try again.",
+          variant: "destructive",
+          duration: 8000,
+        });
+      } else {
+        // Show other error message
+        toast({
+          title: "Error",
+          description: error.message || "Failed to close shift",
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
       throw error;
     } finally {
       setIsLoading(false);

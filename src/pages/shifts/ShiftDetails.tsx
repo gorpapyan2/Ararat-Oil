@@ -96,21 +96,30 @@ export default function ShiftDetails() {
         // Safely cast to our expected type
         const typedShiftData = shiftResponse.data as RawShiftData;
         
+        // Log data for debugging
+        console.log("Fetched shift data:", typedShiftData);
+        console.log("User ID from shift:", typedShiftData.user_id);
+        
         // Fetch the employee name - use fetch API instead of supabase client to avoid type issues
         let employeeName = "Unknown";
         try {
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/employees?user_id=eq.${typedShiftData.user_id}&select=name`, {
-            headers: {
-              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+          // Only make the API call if user_id exists
+          if (typedShiftData.user_id) {
+            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/employees?user_id=eq.${typedShiftData.user_id}&select=name`, {
+              headers: {
+                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data && data.length > 0) {
+                employeeName = data[0].name;
+              }
             }
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data && data.length > 0) {
-              employeeName = data[0].name;
-            }
+          } else {
+            console.log("No user_id available for employee lookup");
           }
         } catch (err) {
           console.error("Error fetching employee name:", err);
@@ -140,12 +149,12 @@ export default function ShiftDetails() {
           status: typedShiftData.status as "OPEN" | "CLOSED",
           opening_cash: typedShiftData.opening_cash,
           closing_cash: typedShiftData.closing_cash,
-          sales_total: salesTotal || typedShiftData.sales_total,
+          sales_total: salesTotal || typedShiftData.sales_total || 0,
           start_time: typedShiftData.start_time,
           end_time: typedShiftData.end_time,
-          employee_name: employeeName,
+          employee_name: employeeName || "Unknown Employee",
           payment_methods: paymentMethods,
-          user_id: typedShiftData.user_id
+          user_id: typedShiftData.user_id || undefined
         });
       } catch (error: any) {
         console.error("Error loading shift details:", error);

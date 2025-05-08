@@ -28,6 +28,24 @@ import { useShift } from "@/hooks/useShift";
 import { useNavigate } from "react-router-dom";
 import { formatDateTime, calculateDuration } from "@/lib/utils";
 import { ArrowRight, DollarSign } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// Local InputWithIcon implementation
+const InputWithIcon = ({ icon, className, ...props }) => {
+  return (
+    <div className="relative">
+      {icon && (
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          {icon}
+        </div>
+      )}
+      <Input
+        className={cn(icon && "pl-10", className)}
+        {...props}
+      />
+    </div>
+  );
+};
 
 interface ShiftHistoryItem extends Omit<Shift, "sales_total" | "status"> {
   sales_total: number | null;
@@ -227,14 +245,14 @@ const Shifts = () => {
       descriptionKey="shifts.description"
       action={
         activeShift ? (
-          <ButtonLink 
-            href="/finance/shifts/close"
+          <Button 
             variant="default"
             className="bg-amber-600 hover:bg-amber-700"
+            onClick={() => navigate('/finance/shifts/close')}
           >
             <DollarSign className="h-4 w-4 mr-2" />
             {t("shifts.closeShift")}
-          </ButtonLink>
+          </Button>
         ) : (
           <ButtonLink 
             href="/finance/shifts/open"
@@ -346,7 +364,7 @@ const Shifts = () => {
             {/* Filter Controls */}
             <div className="flex flex-wrap gap-3 mb-4">
               <div className="flex-1 min-w-[180px]">
-                <Input
+                <InputWithIcon
                   placeholder={t("common.search")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -371,8 +389,8 @@ const Shifts = () => {
               </div>
               <div className="w-full sm:w-auto flex-1 sm:flex-none min-w-[250px]">
                 <DatePickerWithRange
-                  dateRange={dateRange}
-                  onDateRangeChange={handleDateRangeChange}
+                  value={dateRange}
+                  onChange={handleDateRangeChange}
                 />
               </div>
               <Button

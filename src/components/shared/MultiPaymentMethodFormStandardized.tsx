@@ -12,7 +12,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { CurrencyInput } from "@/components/ui/currency-input";
-import { Plus, X, AlertTriangle, Info } from "lucide-react";
+import { Plus, X, AlertTriangle, Info, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 import { formatCurrency } from "@/lib/utils";
@@ -83,10 +83,18 @@ export function MultiPaymentMethodFormStandardized({
   const { t } = useTranslation();
   const isZeroTotal = Math.abs(totalAmount) < 0.01;
   
+  // Reset form when total amount changes
   const [formPaymentMethods, setFormPaymentMethods] = useState<PaymentMethodItem[]>([
     { payment_method: "cash", amount: isZeroTotal ? 0 : totalAmount, reference: "" }
   ]);
   const [formError, setFormError] = useState<string | null>(null);
+  
+  // Use useEffect to reset form payment methods when totalAmount changes
+  useEffect(() => {
+    setFormPaymentMethods([
+      { payment_method: "cash", amount: isZeroTotal ? 0 : totalAmount, reference: "" }
+    ]);
+  }, [totalAmount, isZeroTotal]);
   
   // Use the appropriate schema based on whether totalAmount is zero
   const form = useZodForm({
@@ -95,6 +103,11 @@ export function MultiPaymentMethodFormStandardized({
       paymentMethods: formPaymentMethods,
     },
   });
+
+  // Update form values when formPaymentMethods changes
+  useEffect(() => {
+    form.setValue("paymentMethods", formPaymentMethods);
+  }, [formPaymentMethods, form]);
 
   // Calculate the current total from all payment methods
   const currentTotal = formPaymentMethods.reduce((sum, method) => sum + (method.amount || 0), 0);
@@ -141,34 +154,45 @@ export function MultiPaymentMethodFormStandardized({
   const { isSubmitting: formSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler(
     form,
     (data) => {
-      // Skip validation for zero total amounts
-      if (isZeroTotal) {
+      try {
+        // Skip validation for zero total amounts
+        if (isZeroTotal) {
+          console.log("Zero total amount, submitting without validation:", data);
+          onSubmit(data);
+          return true;
+        }
+        
+        // Additional validation before submission
+        const total = data.paymentMethods.reduce((sum, method) => sum + (method.amount || 0), 0);
+        console.log("Form validation - form total:", total, "expected total:", totalAmount);
+        
+        // Check if total matches expected amount
+        if (Math.abs(total - totalAmount) >= 0.01) {
+          console.log("Total mismatch:", total, "vs", totalAmount);
+          setFormError(t("paymentMethods.totalMismatch", "Total amount must match the required total"));
+          return false;
+        }
+        
+        // Check if all payment methods have a valid payment_method and amount
+        const invalidMethods = data.paymentMethods.filter(
+          method => !method.payment_method || method.amount <= 0
+        );
+        
+        if (invalidMethods.length > 0) {
+          console.log("Invalid payment methods:", invalidMethods);
+          setFormError(t("paymentMethods.invalidMethods", "All payment methods must have a valid payment type and amount"));
+          return false;
+        }
+        
+        // If all validation passes, submit the form
+        console.log("Form validation passed, submitting:", data);
         onSubmit(data);
         return true;
-      }
-      
-      // Additional validation before submission
-      const total = data.paymentMethods.reduce((sum, method) => sum + (method.amount || 0), 0);
-      
-      // Check if total matches expected amount
-      if (Math.abs(total - totalAmount) >= 0.01) {
-        setFormError(t("paymentMethods.totalMismatch", "Total amount must match the required total"));
+      } catch (err) {
+        console.error("Error during form validation:", err);
+        setFormError(t("common.unexpectedError", "An unexpected error occurred"));
         return false;
       }
-      
-      // Check if all payment methods have a valid payment_method and amount
-      const invalidMethods = data.paymentMethods.filter(
-        method => !method.payment_method || method.amount <= 0
-      );
-      
-      if (invalidMethods.length > 0) {
-        setFormError(t("paymentMethods.invalidMethods", "All payment methods must have a valid payment type and amount"));
-        return false;
-      }
-      
-      // If all validation passes, submit the form
-      onSubmit(data);
-      return true;
     }
   );
 
@@ -311,9 +335,16 @@ export function MultiPaymentMethodFormStandardized({
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={isSubmitting || (!isZeroTotal && !isBalanced)}
+                disabled={isSubmitting || formSubmitting || (!isZeroTotal && !isBalanced)}
               >
-                {isSubmitting ? t("common.saving") : t("common.confirm")}
+                {isSubmitting || formSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t("common.saving")}
+                  </>
+                ) : (
+                  t("common.confirm")
+                )}
               </Button>
               
               {!isBalanced && !isZeroTotal && (

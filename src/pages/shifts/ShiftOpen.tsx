@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShift } from "@/hooks/useShift";
 import { useTranslation } from "react-i18next";
@@ -41,11 +41,20 @@ export default function ShiftOpen() {
     },
   });
 
-  // Redirect to shifts page if already has an active shift
-  if (activeShift && !success) {
-    navigate("/finance/shifts");
-    return null;
-  }
+  // Redirect to shifts page if already has an active shift (moved to useEffect)
+  useEffect(() => {
+    console.log("ShiftOpen: Checking for active shift, state:", { 
+      activeShift: activeShift ? "exists" : "not found", 
+      success, 
+      isLoading 
+    });
+    
+    // Only redirect if we have an active shift, are not in success state, and not in loading state
+    if (activeShift && !success && !isLoading) {
+      console.log("ShiftOpen: Active shift found, redirecting to shifts page");
+      navigate("/finance/shifts", { replace: true });
+    }
+  }, [activeShift, success, navigate, isLoading]);
 
   // Handle form submission
   const onSubmit = async (data: OpenShiftFormValues) => {
