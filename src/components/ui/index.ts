@@ -1,6 +1,7 @@
+
 // Core UI components
 export { Button } from './button';
-export { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './dialog-primitives';
+export { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@radix-ui/react-dialog';
 export { StandardDialog } from './dialog';
 export { Input } from './input';
 export { Label } from './label';

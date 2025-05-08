@@ -8,7 +8,7 @@ import { VariantProps } from "class-variance-authority";
 /**
  * Props for the ToggleButton component
  */
-export interface ToggleButtonProps extends Omit<ButtonProps, 'onClick'> {
+export interface ToggleButtonProps extends ButtonProps {
   /**
    * Whether the toggle is active (pressed)
    * @default false
@@ -47,6 +47,7 @@ export const ToggleButton = React.forwardRef<HTMLButtonElement, ToggleButtonProp
     inactiveVariant = "outline",
     variant: _variant, // Ignore passed variant as we use active/inactive variants
     children,
+    onClick,
     ...props 
   }, ref) => {
     // Use internal state if no external control is provided
@@ -58,10 +59,16 @@ export const ToggleButton = React.forwardRef<HTMLButtonElement, ToggleButtonProp
     const variant = isActive ? activeVariant : inactiveVariant;
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (isControlled && onToggle) {
-        onToggle(!isActive);
-      } else {
-        setInternalIsActive(!internalIsActive);
+      if (onClick) {
+        onClick(e);
+      }
+      
+      if (!e.defaultPrevented) {
+        if (isControlled && onToggle) {
+          onToggle(!isActive);
+        } else {
+          setInternalIsActive(!internalIsActive);
+        }
       }
     };
     

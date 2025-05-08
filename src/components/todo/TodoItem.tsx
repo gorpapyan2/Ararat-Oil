@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { TodoItem as TodoItemType } from "@/store/useTodoStore";
+import { TodoItem as TodoItemType } from "@/types/todo";
 import { Check, Pencil, Trash2, MoreVertical, Flag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";

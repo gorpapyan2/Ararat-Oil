@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { DataTable } from "@/components/ui/composed/data-table";
 import { Card, CardContent } from "@/components/ui/card";
@@ -322,7 +323,6 @@ export function FuelSuppliesDataTable({
         loading={isLoading}
         title={t("fuelSupplies.supplies")}
         className="w-full"
-        onRowClick={(row) => setSelectedSupply(row as FuelSupply)}
         enableSorting={true}
         enableFiltering={true}
         enablePagination={true}

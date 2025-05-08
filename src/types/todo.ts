@@ -9,4 +9,4 @@ export interface TodoItem {
 }
 
 export type FilterType = "all" | "active" | "completed";
-export type SortType = "newest" | "oldest" | "alphabetical" | "date-asc" | "date-desc" | "priority"; 
+export type SortType = "newest" | "oldest" | "alphabetical" | "date-asc" | "date-desc" | "priority";

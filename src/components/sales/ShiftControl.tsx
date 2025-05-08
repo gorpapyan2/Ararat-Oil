@@ -13,7 +13,7 @@ export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen = false }: 
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen} title="Shift Control">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <Button variant="outline" onClick={() => setIsOpen(true)}>
         {isShiftOpen ? "Close Shift" : "Open Shift"}
       </Button>

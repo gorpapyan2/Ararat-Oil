@@ -109,24 +109,20 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
       if (!React.isValidElement(child)) return child;
       
       // Only process ToggleButton children
-      if (child.type === ToggleButton || (child.props && 'isActive' in child.props)) {
-        const childValue = child.props.value;
-        if (!childValue) {
-          console.warn("ToggleButton within ToggleButtonGroup must have a 'value' prop");
-          return child;
-        }
-        
-        const isActive = selectedValues.includes(childValue);
-        
-        return React.cloneElement(child, {
-          isActive,
-          onToggle: (active: boolean) => handleToggle(childValue, active),
-          activeVariant: child.props.activeVariant || activeVariant,
-          inactiveVariant: child.props.inactiveVariant || inactiveVariant,
-        });
+      const childValue = child.props?.value;
+      if (!childValue) {
+        console.warn("Button within ToggleButtonGroup must have a 'value' prop");
+        return child;
       }
       
-      return child;
+      const isActive = selectedValues.includes(childValue);
+      
+      return React.cloneElement(child, {
+        isActive,
+        onToggle: (active: boolean) => handleToggle(childValue, active),
+        activeVariant: child.props.activeVariant || activeVariant,
+        inactiveVariant: child.props.inactiveVariant || inactiveVariant,
+      });
     });
     
     return (
@@ -147,4 +143,4 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
   }
 );
 
-ToggleButtonGroup.displayName = "ToggleButtonGroup"; 
+ToggleButtonGroup.displayName = "ToggleButtonGroup";

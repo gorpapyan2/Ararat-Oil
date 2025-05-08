@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { FilterX, Download, Filter, Pencil as PencilIcon, Trash2 as TrashIcon } from 'lucide-react';
 import { 
@@ -47,7 +46,6 @@ export interface StandardizedDataTableProps<TData extends object> {
   }[];
   data: TData[];
   loading?: boolean;
-  onRowClick?: (row: TData) => void;
   onEdit?: (id: string | number) => void;
   onDelete?: (id: string | number) => void;
   filters?: FiltersShape;
@@ -69,7 +67,6 @@ export function StandardizedDataTable<TData extends object>({
   columns,
   data,
   loading = false,
-  onRowClick,
   onEdit,
   onDelete,
   filters,
@@ -203,13 +200,6 @@ export function StandardizedDataTable<TData extends object>({
       }
     : undefined;
 
-  // Create event handlers for row clicks
-  const handleRowClick = onRowClick 
-    ? (row: TData) => {
-        if (onRowClick) onRowClick(row);
-      }
-    : undefined;
-
   return (
     <DataTable
       title={title}
@@ -223,7 +213,6 @@ export function StandardizedDataTable<TData extends object>({
       noResultsMessage="No results found"
       serverSide={serverSideOptions}
       export={dataTableExportOptions}
-      onRowClick={handleRowClick}
       className={className}
     />
   );
@@ -287,4 +276,4 @@ export const createActionsColumn = <TData extends { id: string | number }>(
     },
     enableSorting: false
   };
-}; 
+};
