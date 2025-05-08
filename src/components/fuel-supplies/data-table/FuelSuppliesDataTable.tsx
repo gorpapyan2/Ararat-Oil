@@ -324,7 +324,6 @@ export function FuelSuppliesDataTable({
         data={processedData}
         loading={isLoading}
         title={t("fuelSupplies.supplies")}
-        subtitle={t("fuelSupplies.manageSupplies")}
         initialSorting={[{ id: "delivery_date", desc: true }]}
         initialColumnVisibility={{
           comments: false,

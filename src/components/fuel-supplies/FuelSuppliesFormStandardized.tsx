@@ -98,7 +98,18 @@ export function FuelSuppliesFormStandardized({
         if (initialData) {
           await updateFuelSupply(initialData.id, data);
         } else {
-          await createFuelSupply(data);
+          // Make sure all required fields are present to satisfy TypeScript
+          const newFuelSupply = {
+            delivery_date: data.delivery_date,
+            provider_id: data.provider_id,
+            tank_id: data.tank_id,
+            quantity_liters: data.quantity_liters,
+            price_per_liter: data.price_per_liter,
+            total_cost: data.total_cost,
+            employee_id: data.employee_id || "",
+            comments: data.comments || ""
+          };
+          await createFuelSupply(newFuelSupply);
         }
         toast({
           title: "Success",

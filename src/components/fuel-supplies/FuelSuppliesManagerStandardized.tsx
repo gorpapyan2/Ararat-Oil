@@ -257,8 +257,8 @@ export function FuelSuppliesManagerStandardized({
       <FuelSuppliesFormStandardized
         open={formDialog.isOpen}
         onOpenChange={formDialog.onOpenChange}
-        onSubmit={handleSubmit}
-        defaultValues={editingSupply}
+        onSuccess={onSuccess}
+        initialData={editingSupply}
       />
 
       <ConfirmAddDialogStandardized
@@ -279,4 +279,4 @@ export function FuelSuppliesManagerStandardized({
       />
     </div>
   );
-} 
+}

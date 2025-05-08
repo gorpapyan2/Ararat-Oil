@@ -1,3 +1,4 @@
+
 import {
   FormCurrencyInput,
   FormSelect
@@ -21,18 +22,22 @@ export function PriceAndEmployeeInputs({
 }: PriceAndEmployeeInputsProps) {
   const { t } = useTranslation();
 
-  // Fetch employees if not provided as props
-  const { data: fetchedEmployees, isLoading, isError } = useQuery({
+  // Fetch employees if not provided as props - fix useQuery implementation
+  const { data: fetchedEmployees, isLoading, error } = useQuery({
     queryKey: ["employees"],
     queryFn: () => fetchEmployees({ status: "active" }),
     enabled: !propEmployees, // Only fetch if employees are not provided as props
-    onError: (error) => {
+  });
+  
+  // Handle errors manually since onError is not supported in the options
+  useEffect(() => {
+    if (error) {
       console.error("Error fetching employees:", error);
       toast.error(t("common.error"), {
         description: t("common.errorMessage", { message: String(error) }),
       });
     }
-  });
+  }, [error, t]);
 
   // Use employees from props if provided, otherwise use fetched employees
   const employees = propEmployees || fetchedEmployees || [];
@@ -70,7 +75,6 @@ export function PriceAndEmployeeInputs({
         form={{ control } as any}
         options={employeeOptions}
         placeholder={t("common.selectAnOption")}
-        loading={isLoading}
         disabled={isLoading || employeeOptions.length === 0}
       />
     </div>
