@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -61,11 +62,6 @@ export const ToggleButton = React.forwardRef<HTMLButtonElement, ToggleButtonProp
         onToggle(!isActive);
       } else {
         setInternalIsActive(!internalIsActive);
-      }
-      
-      // Call original onClick if provided
-      if (props.onClick) {
-        props.onClick(e);
       }
     };
     

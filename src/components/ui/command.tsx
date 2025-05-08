@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { type DialogProps } from "@radix-ui/react-dialog";
 import { Search, Loader2 } from "lucide-react";
@@ -37,10 +38,12 @@ interface CommandDialogProps extends DialogProps {
 const CommandDialog = ({
   children,
   commandDialogTitle = "Search",
+  open = false,
+  onOpenChange,
   ...props
 }: CommandDialogProps) => {
   return (
-    <Dialog {...props} title={props.title || commandDialogTitle}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={props.title || commandDialogTitle}>
       <DialogContent className="overflow-hidden p-0">
         <DialogHeader className="sr-only">
           <DialogTitle>{commandDialogTitle}</DialogTitle>

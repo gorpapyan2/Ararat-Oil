@@ -1,24 +1,22 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface ShiftControlProps {
-  onShiftStart: () => void;
-  onShiftEnd: () => void;
-  isShiftOpen: boolean;
+  onShiftStart?: () => void;
+  onShiftEnd?: () => void;
+  isShiftOpen?: boolean;
 }
 
-export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen }: ShiftControlProps) {
+export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen = false }: ShiftControlProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          {isShiftOpen ? "Close Shift" : "Open Shift"}
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen} title="Shift Control">
+      <Button variant="outline" onClick={() => setIsOpen(true)}>
+        {isShiftOpen ? "Close Shift" : "Open Shift"}
+      </Button>
       <DialogContent className="sm:max-w-[425px]">
         <div className="flex flex-col space-y-4">
           <h2 className="text-lg font-semibold">
@@ -32,9 +30,9 @@ export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen }: ShiftCon
             <Button onClick={() => {
               setIsOpen(false);
               if (isShiftOpen) {
-                onShiftEnd();
+                onShiftEnd?.();
               } else {
-                onShiftStart();
+                onShiftStart?.();
               }
             }}>
               {isShiftOpen ? "Close Shift" : "Open Shift"}

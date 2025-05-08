@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ToggleButton, ToggleButtonProps } from "@/components/ui/toggle-button";
@@ -97,7 +98,7 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
       
       // Update internal state or call onChange
       if (isControlled) {
-        onChange!(multiple ? newValue : newValue as string);
+        onChange!(multiple ? newValue as string[] : newValue as string);
       } else {
         setInternalValue(multiple ? newValue as string[] : [newValue as string]);
       }
@@ -108,7 +109,7 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
       if (!React.isValidElement(child)) return child;
       
       // Only process ToggleButton children
-      if (child.type === ToggleButton || (child.props && child.props.isActive !== undefined)) {
+      if (child.type === ToggleButton || (child.props && 'isActive' in child.props)) {
         const childValue = child.props.value;
         if (!childValue) {
           console.warn("ToggleButton within ToggleButtonGroup must have a 'value' prop");

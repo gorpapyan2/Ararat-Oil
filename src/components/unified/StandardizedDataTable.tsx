@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { FilterX, Download, Filter, Pencil as PencilIcon, Trash2 as TrashIcon } from 'lucide-react';
 import { 
@@ -10,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatDate, formatCurrency, formatNumber } from '@/lib/formatters';
+import type { ColumnDef } from '@tanstack/react-table';
 
 export interface FiltersShape {
   // Common filters
@@ -106,7 +108,7 @@ export function StandardizedDataTable<TData extends object>({
       enableSorting: column.enableSorting ?? true,
       footer: column.footer,
       meta: column.meta
-    }));
+    })) as ColumnDef<TData, unknown>[];
     
     // Add actions column if onEdit or onDelete are provided
     if (onEdit || onDelete) {
@@ -149,7 +151,7 @@ export function StandardizedDataTable<TData extends object>({
           );
         },
         enableSorting: false
-      });
+      } as ColumnDef<TData, unknown>);
     }
     
     return cols;
@@ -169,7 +171,7 @@ export function StandardizedDataTable<TData extends object>({
       const direction = sorting[0].desc ? 'desc' : 'asc';
       onSortChange(column, direction);
     } else if (serverSide && onSortChange && sorting.length === 0) {
-      onSortChange(null, false);
+      onSortChange(null, 'asc');
     }
   }, [sorting, serverSide, onSortChange]);
 
@@ -201,6 +203,13 @@ export function StandardizedDataTable<TData extends object>({
       }
     : undefined;
 
+  // Create event handlers for row clicks
+  const handleRowClick = onRowClick 
+    ? (row: TData) => {
+        if (onRowClick) onRowClick(row);
+      }
+    : undefined;
+
   return (
     <DataTable
       title={title}
@@ -214,6 +223,7 @@ export function StandardizedDataTable<TData extends object>({
       noResultsMessage="No results found"
       serverSide={serverSideOptions}
       export={dataTableExportOptions}
+      onRowClick={handleRowClick}
       className={className}
     />
   );
