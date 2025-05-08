@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { ConfirmDeleteDialogStandardized } from "./ConfirmDeleteDialogStandardized";
@@ -234,6 +235,12 @@ export function FuelSuppliesManagerStandardized({
       onRenderAction(actionElement);
     }
   }, [onRenderAction, actionElement]);
+  
+  // Define the handleFormSuccess function
+  const handleFormSuccess = useCallback(() => {
+    refetchSupplies();
+    formDialog.close();
+  }, [refetchSupplies, formDialog]);
 
   return (
     <div className="space-y-6">
@@ -257,7 +264,7 @@ export function FuelSuppliesManagerStandardized({
       <FuelSuppliesFormStandardized
         open={formDialog.isOpen}
         onOpenChange={formDialog.onOpenChange}
-        onSuccess={onSuccess}
+        onSuccess={handleFormSuccess}
         initialData={editingSupply}
       />
 

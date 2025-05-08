@@ -120,7 +120,6 @@ export function FuelSuppliesDataTable({
           </span>
         </div>
       ),
-      // Remove nestedStringFilter as it's not a recognized FilterFnOption
     },
     {
       id: "tank",
@@ -309,9 +308,7 @@ export function FuelSuppliesDataTable({
     },
   ];
 
-  // Custom mobile card renderer - removed as it's not supported
-
-  // Use the DataTable component with adjusted props
+  // Use the DataTable component with adjusted props - remove problematic props
   return (
     <div
       className="rounded-lg bg-card text-card-foreground shadow-sm overflow-hidden border border-border/40 
@@ -324,18 +321,11 @@ export function FuelSuppliesDataTable({
         data={processedData}
         loading={isLoading}
         title={t("fuelSupplies.supplies")}
-        initialSorting={[{ id: "delivery_date", desc: true }]}
-        initialColumnVisibility={{
-          comments: false,
-        }}
-        enableColumnVisibility={true}
-        enableFilters={true}
-        enableGlobalFilter={true}
-        enablePagination={true}
-        enableSorting={true}
-        defaultPageSize={10}
         className="w-full"
         onRowClick={(row) => setSelectedSupply(row as FuelSupply)}
+        enableSorting={true}
+        enableFiltering={true}
+        enablePagination={true}
       />
     </div>
   );

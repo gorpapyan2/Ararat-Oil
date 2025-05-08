@@ -1,3 +1,4 @@
+
 export interface TodoItem {
   id: string;
   text: string;
@@ -8,4 +9,4 @@ export interface TodoItem {
 }
 
 export type FilterType = "all" | "active" | "completed";
-export type SortType = "newest" | "oldest" | "alphabetical"; 
+export type SortType = "newest" | "oldest" | "alphabetical" | "date-asc" | "date-desc" | "priority"; 

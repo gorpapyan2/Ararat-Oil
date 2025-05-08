@@ -40,7 +40,7 @@ const CommandDialog = ({
   ...props
 }: CommandDialogProps) => {
   return (
-    <Dialog {...props}>
+    <Dialog {...props} title={props.title || commandDialogTitle}>
       <DialogContent className="overflow-hidden p-0">
         <DialogHeader className="sr-only">
           <DialogTitle>{commandDialogTitle}</DialogTitle>

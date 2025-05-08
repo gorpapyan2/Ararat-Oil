@@ -22,7 +22,7 @@ export function PriceAndEmployeeInputs({
 }: PriceAndEmployeeInputsProps) {
   const { t } = useTranslation();
 
-  // Fetch employees if not provided as props - fix useQuery implementation
+  // Fetch employees if not provided as props
   const { data: fetchedEmployees, isLoading, error } = useQuery({
     queryKey: ["employees"],
     queryFn: () => fetchEmployees({ status: "active" }),
@@ -75,7 +75,6 @@ export function PriceAndEmployeeInputs({
         form={{ control } as any}
         options={employeeOptions}
         placeholder={t("common.selectAnOption")}
-        disabled={isLoading || employeeOptions.length === 0}
       />
     </div>
   );

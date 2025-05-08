@@ -140,7 +140,7 @@ export function FuelSuppliesFormStandardized({
         Cancel
       </Button>
       <Button type="submit" disabled={isSubmitting} form="fuel-supply-form">
-        {isSubmitting ? "Creating..." : "Create Supply"}
+        {isSubmitting ? "Creating..." : initialData ? "Update Supply" : "Create Supply"}
       </Button>
     </div>
   );
@@ -149,8 +149,8 @@ export function FuelSuppliesFormStandardized({
     <StandardDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Add New Fuel Supply"
-      description="Create a new fuel supply record"
+      title={initialData ? "Edit Fuel Supply" : "Add New Fuel Supply"}
+      description={initialData ? "Edit an existing fuel supply record" : "Create a new fuel supply record"}
       maxWidth="sm:max-w-[600px]"
       actions={formActions}
     >
