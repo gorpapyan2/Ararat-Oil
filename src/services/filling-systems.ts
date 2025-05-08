@@ -1,3 +1,4 @@
+
 import { supabase } from './supabase';
 import { FuelTank, FuelType } from '@/types';
 import { useAuth } from '@/hooks/useAuth';

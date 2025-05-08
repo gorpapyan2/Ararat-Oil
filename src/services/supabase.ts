@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 
@@ -12,7 +13,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Configure the Supabase client with better network handling
-export const supabase = createClient<Database>(
+const supabaseClient = createClient<Database>(
   supabaseUrl,
   supabaseAnonKey,
   {
@@ -69,7 +70,7 @@ export const isNetworkError = (error: any): boolean => {
 (async function checkSupabaseConnection() {
   try {
     console.log("Checking Supabase connection...");
-    const { data, error } = await supabase.from('petrol_providers').select('count').limit(1);
+    const { data, error } = await supabaseClient.from('petrol_providers').select('count').limit(1);
     
     if (error) {
       console.error("Supabase connection error:", error);
@@ -117,5 +118,6 @@ export {
   deletePetrolProvider,
 } from "./petrol-providers";
 
-// Export the client
-export default supabase;
+// Export the client with both named export and as default
+export const supabase = supabaseClient;
+export default supabaseClient;

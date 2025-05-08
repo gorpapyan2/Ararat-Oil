@@ -224,6 +224,7 @@ export type Database = {
           contact: string
           created_at: string
           id: string
+          is_active: boolean | null
           name: string
           updated_at: string
         }
@@ -231,6 +232,7 @@ export type Database = {
           contact: string
           created_at?: string
           id?: string
+          is_active?: boolean | null
           name: string
           updated_at?: string
         }
@@ -238,6 +240,7 @@ export type Database = {
           contact?: string
           created_at?: string
           id?: string
+          is_active?: boolean | null
           name?: string
           updated_at?: string
         }

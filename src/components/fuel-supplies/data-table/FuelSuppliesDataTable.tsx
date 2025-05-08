@@ -323,7 +323,6 @@ export function FuelSuppliesDataTable({
         columns={columns}
         data={processedData}
         loading={isLoading}
-        emptyMessage={t("fuelSupplies.noSuppliesFound")}
         title={t("fuelSupplies.supplies")}
         subtitle={t("fuelSupplies.manageSupplies")}
         initialSorting={[{ id: "delivery_date", desc: true }]}

@@ -1,2 +1,3 @@
+
 // Re-export supabase client for backward compatibility
-export { supabase } from "@/integrations/supabase/client"; 
+export { supabase, default as client } from "@/services/supabase";
