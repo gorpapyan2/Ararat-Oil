@@ -1,7 +1,9 @@
 import {
   FormCurrencyInput,
-  FormSelect
+  FormSelect,
+  CustomFormField
 } from "@/components/ui/composed/form-fields";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Employee } from "@/types";
 import type { Control } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -26,12 +28,8 @@ export function PriceAndEmployeeInputs({
     queryKey: ["employees"],
     queryFn: () => fetchEmployees({ status: "active" }),
     enabled: !propEmployees, // Only fetch if employees are not provided as props
-    onError: (error) => {
-      console.error("Error fetching employees:", error);
-      toast.error(t("common.error"), {
-        description: t("common.errorMessage", { message: String(error) }),
-      });
-    }
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
   });
 
   // Use employees from props if provided, otherwise use fetched employees
@@ -70,8 +68,6 @@ export function PriceAndEmployeeInputs({
         form={{ control } as any}
         options={employeeOptions}
         placeholder={t("common.selectAnOption")}
-        loading={isLoading}
-        disabled={isLoading || employeeOptions.length === 0}
       />
     </div>
   );

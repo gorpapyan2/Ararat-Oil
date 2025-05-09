@@ -1,77 +1,92 @@
-import type { Config } from "tailwindcss";
+/** @type {import('tailwindcss').Config} */
+import { type Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
+import plugin from "tailwindcss/plugin";
+import animatePlugin from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-  ],
-  prefix: "",
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
     extend: {
       colors: {
-        background: {
-          light: "#F7F9F8",
-          dark: "#1A1A1A",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        
+        surface: {
+          1: "hsl(var(--surface-1))",
+          2: "hsl(var(--surface-2))",
         },
+        
         primary: {
-          DEFAULT: "#3AA655",
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
+        
         accent: {
-          DEFAULT: "#F6C90E",
-          foreground: "#1A1A1A",
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
-        text: {
-          light: "#333333",
-          dark: "#E0E0E0",
-        },
+        
         card: {
-          light: "#FFFFFF",
-          dark: "#262626",
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
-        border: "#1E293B",             // Border Color
+        
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        
         muted: {
-          DEFAULT: "#334155",          // Muted Background
-          foreground: "#3CCF4E"        // Muted with Green accent
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
-      },
-      boxShadow: {
-        neumorphic: "8px 8px 16px #060D14, -8px -8px 16px #0E253E",
+        
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
+
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
       },
       borderRadius: {
-        lg: "1.2rem",
-        md: "0.9rem",
-        sm: "0.6rem"
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
-      fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui"],
-        heading: ["Poppins", "ui-sans-serif", "system-ui"],
-      },
-      keyframes: {
-        'accordion-down': {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        'accordion-up': {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        }
-      },
-      animation: {
-        'accordion-down': "accordion-down 0.2s ease-out",
-        'accordion-up': "accordion-up 0.2s ease-out"
-      }
-    }
+    },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    animatePlugin,
+    require("tailwind-scrollbar")({ nocompatible: true }),
+    plugin(({ addUtilities }) => {
+      addUtilities({
+        ".no-scrollbar::-webkit-scrollbar": {
+          display: "none",
+        },
+        ".no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+        },
+      });
+    }),
+  ],
 } satisfies Config;

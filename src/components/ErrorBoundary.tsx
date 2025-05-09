@@ -1,92 +1,113 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
-import logger from "@/services/logger";
+import { logger } from "@/utils/errorHandling";
 import { Button } from "@/components/ui/button";
 
-interface Props {
+interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  resetOnRouteChange?: boolean;
 }
 
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-    errorInfo: null,
-  };
-
-  public static getDerivedStateFromError(error: Error): Partial<State> {
-    return {
-      hasError: true,
-      error,
+/**
+ * Enhanced ErrorBoundary component that provides better error handling
+ * and user-friendly fallback UI for React errors
+ */
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null
     };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log the error to our logger service which sends it to Sentry
-    logger.error(error, { errorInfo });
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    // Update state so the next render will show the fallback UI
+    return {
+      hasError: true,
+      error,
+      errorInfo: null
+    };
+  }
 
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    // Log the error to our error handling system
+    logger.error('React Error Boundary caught an error', {
+      error,
+      errorInfo
+    });
+    
+    // Call the onError callback if provided
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo);
+    }
+    
     this.setState({
-      errorInfo,
+      errorInfo
     });
   }
 
-  private handleReload = () => {
-    window.location.reload();
+  // Reset the error state to allow recovering
+  resetErrorBoundary = () => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null
+    });
   };
 
-  private handleGoHome = () => {
-    window.location.href = "/";
-  };
-
-  public render() {
-    if (this.state.hasError) {
-      // If a custom fallback is provided, use it
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
-      // Default error UI
-      return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background text-foreground">
-          <div className="max-w-md w-full bg-card p-6 rounded-lg shadow-lg space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
-              <p className="text-muted-foreground mb-4">
-                An unexpected error occurred. Our team has been notified.
+  // Default fallback UI if none is provided
+  renderDefaultFallback() {
+    return (
+      <div className="p-6 bg-destructive/10 rounded-lg border border-destructive/30 shadow-sm">
+        <h2 className="text-xl font-semibold mb-4 text-destructive">Something went wrong</h2>
+        
+        <div className="mb-4">
+          <p className="mb-2 text-muted-foreground">
+            An error occurred in the application. This is usually a temporary issue.
+          </p>
+          
+          {process.env.NODE_ENV === 'development' && this.state.error && (
+            <div className="p-4 bg-card rounded-md mb-4 overflow-auto max-h-40">
+              <p className="font-mono text-sm text-destructive">
+                {this.state.error.toString()}
               </p>
+              {this.state.errorInfo && (
+                <pre className="mt-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                  {this.state.errorInfo.componentStack}
+                </pre>
+              )}
             </div>
-
-            {process.env.NODE_ENV === "development" && (
-              <details className="mb-4 bg-secondary/20 p-3 rounded-md open:pb-3">
-                <summary className="cursor-pointer text-sm text-muted-foreground mb-2">
-                  Error details (for developers)
-                </summary>
-                <div className="text-xs overflow-auto max-h-[300px] bg-muted p-3 rounded-md font-mono">
-                  <p className="mb-2 text-destructive">
-                    {this.state.error?.toString()}
-                  </p>
-                  <pre>{this.state.errorInfo?.componentStack}</pre>
-                </div>
-              </details>
-            )}
-
-            <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={this.handleGoHome}>
-                Go Home
-              </Button>
-              <Button onClick={this.handleReload}>Try Again</Button>
-            </div>
-          </div>
+          )}
         </div>
-      );
+        
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button onClick={this.resetErrorBoundary} variant="outline">
+            Try Again
+          </Button>
+          <Button onClick={() => window.location.reload()} variant="default">
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // Render the fallback UI
+      return this.props.fallback || this.renderDefaultFallback();
     }
 
+    // When there's no error, render children normally
     return this.props.children;
   }
 }

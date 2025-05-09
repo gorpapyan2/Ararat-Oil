@@ -7,7 +7,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { ThemeProvider } from "./components/theme-provider";
 import { AdminShell } from "@/layouts/AdminShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +16,9 @@ import { Loading } from "@/components/ui/loading";
 import ErrorBoundary from "@/components/ErrorBoundary";
 // Import Auth directly since it's needed for initial load
 import Auth from "@/pages/Auth";
+import { Toaster } from "./components/ui/toaster";
+import { useClearConsoleOnNavigation } from "./utils/errorHandling";
+import { logger } from './utils/errorHandling';
 
 // Create a fallback component for failed imports
 const ImportErrorFallback = ({ pageName }: { pageName: string }) => (
@@ -68,6 +71,9 @@ const SalesCreate = lazy(() =>
 const FuelSupplyCreate = lazy(() => 
   import(/* webpackChunkName: "fuel-supply-create" */ "@/pages/fuel-supplies/FuelSupplyCreate")
 );
+const ExpenseCreate = lazy(() => 
+  import(/* webpackChunkName: "expense-create" */ "@/pages/finance/ExpenseCreate")
+);
 const PetrolProviders = lazy(() => 
   import(/* webpackChunkName: "petrol-providers" */ "@/pages/PetrolProviders")
 );
@@ -114,7 +120,10 @@ const DebugPage = lazy(() => import(/* webpackChunkName: "debug-page" */ "@/page
 import ProvidersPage from "@/pages/fuel-management/ProvidersPage";
 // Import FinancePage directly since it uses a named export
 import { FinancePage } from "@/pages/finance/FinancePage";
+// Import the FinanceDashboard
+import FinanceDashboard from "@/pages/finance/FinanceDashboard";
 
+// Configure the query client with error handling
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -124,9 +133,35 @@ const queryClient = new QueryClient({
   },
 });
 
+// Filter out noisy React warnings in development if desired
+if (process.env.NODE_ENV === 'development') {
+  logger.filterReactWarnings(true);
+}
+
+// Error boundary wrapper for routes
+function RouteErrorBoundary({ children }: { children: React.ReactNode }) {
+  // Location is used to reset the error boundary when routes change
+  const location = useLocation();
+  
+  return (
+    <ErrorBoundary 
+      key={location.pathname}
+      onError={(error, errorInfo) => {
+        // You could send this to an error reporting service
+        console.error(`Route error at ${location.pathname}:`, error, errorInfo);
+      }}
+    >
+      {children}
+    </ErrorBoundary>
+  );
+}
+
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, isLoading, isOffline } = useAuth();
   const location = useLocation();
+  
+  // Clear console on navigation to reduce clutter
+  useClearConsoleOnNavigation();
 
   if (isLoading) {
     return <Loading variant="fullscreen" text="Checking authentication..." />;
@@ -145,7 +180,30 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   return children;
 }
 
+// Main App component with enhanced error handling
 const App = () => {
+  // Add a global error handler for uncaught exceptions
+  useEffect(() => {
+    // Set up the global error handler for uncaught errors
+    const handleGlobalError = (event: ErrorEvent) => {
+      logger.error('Uncaught global error:', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error
+      });
+    };
+
+    // Listen for unhandled errors
+    window.addEventListener('error', handleGlobalError);
+    
+    // Clean up the listener when the component unmounts
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+    };
+  }, []);
+
   return (
     <ThemeProvider defaultTheme="dark">
       <QueryClientProvider client={queryClient}>
@@ -166,11 +224,13 @@ const App = () => {
                           <Route
                             path="/"
                             element={
-                              <AdminShell>
-                                <Suspense fallback={<Loading variant="fullscreen" text="Loading dashboard..." />}>
-                                  <DashboardNew />
-                                </Suspense>
-                              </AdminShell>
+                              <RouteErrorBoundary>
+                                <AdminShell>
+                                  <Suspense fallback={<Loading variant="fullscreen" text="Loading dashboard..." />}>
+                                    <DashboardNew />
+                                  </Suspense>
+                                </AdminShell>
+                              </RouteErrorBoundary>
                             }
                           />
                           
@@ -178,70 +238,72 @@ const App = () => {
                           <Route
                             path="/fuel-management/*"
                             element={
-                              <AdminShell>
-                                <Routes>
-                                  <Route
-                                    index
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Management" />}>
-                                          <FuelManagementDashboard />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path="filling-systems"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading filling systems..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Filling Systems" />}>
-                                          <FillingSystemsPage />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path="tanks"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading tanks..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Tanks" />}>
-                                          <TanksPage />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path="fuel-supplies"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supplies..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Supplies" />}>
-                                          <FuelSuppliesPage />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path="fuel-supplies/create"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supply create form..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Create Fuel Supply" />}>
-                                          <FuelSupplyCreate />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path="providers"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading providers..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Providers" />}>
-                                          <ProvidersPage />
-                                        </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                </Routes>
-                              </AdminShell>
+                              <RouteErrorBoundary>
+                                <AdminShell>
+                                  <Routes>
+                                    <Route
+                                      index
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel management..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Management" />}>
+                                            <FuelManagementDashboard />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                    <Route
+                                      path="filling-systems"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading filling systems..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Filling Systems" />}>
+                                            <FillingSystemsPage />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                    <Route
+                                      path="tanks"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading tanks..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Tanks" />}>
+                                            <TanksPage />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                    <Route
+                                      path="fuel-supplies"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supplies..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Supplies" />}>
+                                            <FuelSuppliesPage />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                    <Route
+                                      path="fuel-supplies/create"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel supply create form..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Create Fuel Supply" />}>
+                                            <FuelSupplyCreate />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                    <Route
+                                      path="providers"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading providers..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Providers" />}>
+                                            <ProvidersPage />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                  </Routes>
+                                </AdminShell>
+                              </RouteErrorBoundary>
                             }
                           />
 
@@ -249,85 +311,115 @@ const App = () => {
                           <Route
                             path="/finance/*"
                             element={
-                              <AdminShell>
-                                <Routes>
-                                  <Route
-                                    index
-                                    element={
-                                      <ErrorBoundary fallback={<ImportErrorFallback pageName="Finance Management" />}>
-                                        <FinancePage />
-                                      </ErrorBoundary>
-                                    }
-                                  />
-                                  <Route
-                                    path="sales"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading sales..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Sales" />}>
-                                          <SalesNew />
+                              <RouteErrorBoundary>
+                                <AdminShell>
+                                  <Routes>
+                                    <Route
+                                      index
+                                      element={
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Finance Management" />}>
+                                          <FinanceDashboard />
                                         </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                  <Route
-                                    path="shifts/*"
-                                    element={
-                                      <Routes>
-                                        <Route
-                                          index
-                                          element={
-                                            <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
-                                              <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
-                                                <Shifts />
-                                              </ErrorBoundary>
-                                            </Suspense>
-                                          }
-                                        />
-                                        <Route
-                                          path="open"
-                                          element={
-                                            <Suspense fallback={<Loading variant="fullscreen" text="Opening shift..." />}>
-                                              <ErrorBoundary fallback={<ImportErrorFallback pageName="Open Shift" />}>
-                                                <ShiftOpen />
-                                              </ErrorBoundary>
-                                            </Suspense>
-                                          }
-                                        />
-                                        <Route
-                                          path="close"
-                                          element={
-                                            <Suspense fallback={<Loading variant="fullscreen" text="Closing shift..." />}>
-                                              <ErrorBoundary fallback={<ImportErrorFallback pageName="Close Shift" />}>
-                                                <ShiftClose />
-                                              </ErrorBoundary>
-                                            </Suspense>
-                                          }
-                                        />
-                                        <Route
-                                          path=":id"
-                                          element={
-                                            <Suspense fallback={<Loading variant="fullscreen" text="Loading shift details..." />}>
-                                              <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Details" />}>
-                                                <ShiftDetails />
-                                              </ErrorBoundary>
-                                            </Suspense>
-                                          }
-                                        />
-                                      </Routes>
-                                    }
-                                  />
-                                  <Route
-                                    path="expenses"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading expenses..." />}>
-                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Expenses" />}>
-                                          <Expenses />
+                                      }
+                                    />
+                                    <Route
+                                      path="details"
+                                      element={
+                                        <ErrorBoundary fallback={<ImportErrorFallback pageName="Finance Details" />}>
+                                          <FinancePage />
                                         </ErrorBoundary>
-                                      </Suspense>
-                                    }
-                                  />
-                                </Routes>
-                              </AdminShell>
+                                      }
+                                    />
+                                    <Route
+                                      path="sales"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading sales..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Sales" />}>
+                                            <SalesNew />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                    <Route
+                                      path="shifts/*"
+                                      element={
+                                        <Routes>
+                                          <Route
+                                            index
+                                            element={
+                                              <Suspense fallback={<Loading variant="fullscreen" text="Loading shifts..." />}>
+                                                <ErrorBoundary fallback={<ImportErrorFallback pageName="Shifts" />}>
+                                                  <Shifts />
+                                                </ErrorBoundary>
+                                              </Suspense>
+                                            }
+                                          />
+                                          <Route
+                                            path="open"
+                                            element={
+                                              <Suspense fallback={<Loading variant="fullscreen" text="Opening shift..." />}>
+                                                <ErrorBoundary fallback={<ImportErrorFallback pageName="Open Shift" />}>
+                                                  <ShiftOpen />
+                                                </ErrorBoundary>
+                                              </Suspense>
+                                            }
+                                          />
+                                          <Route
+                                            path="close"
+                                            element={
+                                              <Suspense fallback={<Loading variant="fullscreen" text="Closing shift..." />}>
+                                                <ErrorBoundary fallback={<ImportErrorFallback pageName="Close Shift" />}>
+                                                  <ShiftClose />
+                                                </ErrorBoundary>
+                                              </Suspense>
+                                            }
+                                          />
+                                          <Route
+                                            path=":id"
+                                            element={
+                                              <Suspense fallback={<Loading variant="fullscreen" text="Loading shift details..." />}>
+                                                <ErrorBoundary fallback={<ImportErrorFallback pageName="Shift Details" />}>
+                                                  <ShiftDetails />
+                                                </ErrorBoundary>
+                                              </Suspense>
+                                            }
+                                          />
+                                        </Routes>
+                                      }
+                                    />
+                                    <Route
+                                      path="expenses"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading expenses..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Expenses" />}>
+                                            <Expenses />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                    <Route
+                                      path="expenses/create"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading expense create form..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Create Expense" />}>
+                                            <ExpenseCreate />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                    <Route
+                                      path="transactions"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading transactions..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Transactions" />}>
+                                            <Transactions />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
+                                  </Routes>
+                                </AdminShell>
+                              </RouteErrorBoundary>
                             }
                           />
 
@@ -357,40 +449,46 @@ const App = () => {
                           <Route
                             path="/employees"
                             element={
-                              <AdminShell>
-                                <Suspense fallback={<Loading variant="fullscreen" text="Loading employees..." />}>
-                                  <EmployeesNew />
-                                </Suspense>
-                              </AdminShell>
+                              <RouteErrorBoundary>
+                                <AdminShell>
+                                  <Suspense fallback={<Loading variant="fullscreen" text="Loading employees..." />}>
+                                    <EmployeesNew />
+                                  </Suspense>
+                                </AdminShell>
+                              </RouteErrorBoundary>
                             }
                           />
                           <Route
                             path="/todo"
                             element={
-                              <AdminShell>
-                                <Suspense fallback={<Loading variant="fullscreen" text="Loading todo..." />}>
-                                  <ErrorBoundary fallback={<ImportErrorFallback pageName="Todo" />}>
-                                    <TodoPage />
-                                  </ErrorBoundary>
-                                </Suspense>
-                              </AdminShell>
+                              <RouteErrorBoundary>
+                                <AdminShell>
+                                  <Suspense fallback={<Loading variant="fullscreen" text="Loading todo..." />}>
+                                    <ErrorBoundary fallback={<ImportErrorFallback pageName="Todo" />}>
+                                      <TodoPage />
+                                    </ErrorBoundary>
+                                  </Suspense>
+                                </AdminShell>
+                              </RouteErrorBoundary>
                             }
                           />
                           <Route
                             path="/sales/*"
                             element={
-                              <AdminShell>
-                                <Routes>
-                                  <Route
-                                    path="create"
-                                    element={
-                                      <Suspense fallback={<Loading variant="fullscreen" text="Loading sales creation form..." />}>
-                                        <SalesCreate />
-                                      </Suspense>
-                                    }
-                                  />
-                                </Routes>
-                              </AdminShell>
+                              <RouteErrorBoundary>
+                                <AdminShell>
+                                  <Routes>
+                                    <Route
+                                      path="create"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading sales creation form..." />}>
+                                          <SalesCreate />
+                                        </Suspense>
+                                      }
+                                    />
+                                  </Routes>
+                                </AdminShell>
+                              </RouteErrorBoundary>
                             }
                           />
                           
@@ -398,16 +496,18 @@ const App = () => {
                           <Route
                             path="/dev/*"
                             element={
-                              <AdminShell>
-                                <Routes>
-                                  <Route index element={<DevTools />} />
-                                  <Route path="responsive-test" element={<ResponsiveTestPage />} />
-                                  <Route path="toast-test" element={<ToastTester />} />
-                                  <Route path="card-components" element={<CardComponentsPage />} />
-                                  <Route path="button-components" element={<ButtonComponentsPage />} />
-                                  <Route path="connection-info" element={<ConnectionInfo />} />
-                                </Routes>
-                              </AdminShell>
+                              <RouteErrorBoundary>
+                                <AdminShell>
+                                  <Routes>
+                                    <Route index element={<DevTools />} />
+                                    <Route path="responsive-test" element={<ResponsiveTestPage />} />
+                                    <Route path="toast-test" element={<ToastTester />} />
+                                    <Route path="card-components" element={<CardComponentsPage />} />
+                                    <Route path="button-components" element={<ButtonComponentsPage />} />
+                                    <Route path="connection-info" element={<ConnectionInfo />} />
+                                  </Routes>
+                                </AdminShell>
+                              </RouteErrorBoundary>
                             }
                           />
 
@@ -422,10 +522,18 @@ const App = () => {
             </ErrorBoundary>
           </BrowserRouter>
           <ReactQueryDevtools initialIsOpen={false} />
+          <Toaster />
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
 };
+
+// Add TypeScript interface to window for our error tracking
+declare global {
+  interface Window {
+    __errorsSeen?: Set<string>;
+  }
+}
 
 export default App;

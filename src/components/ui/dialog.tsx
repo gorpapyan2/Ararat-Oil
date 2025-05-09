@@ -12,7 +12,24 @@ const DialogTrigger = DialogPrimitive.Trigger;
 
 const DialogPortal = DialogPrimitive.Portal;
 
-const DialogClose = DialogPrimitive.Close;
+const DialogClose = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Close>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close>
+>(({ className, children, ...props }, ref) => (
+  <DialogPrimitive.Close
+    ref={ref}
+    className={cn(
+      "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+      className
+    )}
+    aria-label={props["aria-label"] || "Close dialog"}
+    {...props}
+  >
+    {children || <X className="h-4 w-4" />}
+    {!children && <span className="sr-only">Close</span>}
+  </DialogPrimitive.Close>
+));
+DialogClose.displayName = "DialogClose";
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
@@ -37,6 +54,11 @@ const DialogContent = React.forwardRef<
      * Optional description for screenreaders if no DialogDescription is provided
      */
     screenReaderDescription?: string;
+    /**
+     * Controls if the close button should be shown
+     * @default true
+     */
+    showCloseButton?: boolean;
   }
 >(
   (
@@ -45,6 +67,7 @@ const DialogContent = React.forwardRef<
       children,
       title = "Dialog",
       screenReaderDescription,
+      showCloseButton = true,
       ...props
     },
     ref,
@@ -61,9 +84,29 @@ const DialogContent = React.forwardRef<
     React.useEffect(() => {
       previousFocusRef.current = document.activeElement as HTMLElement;
 
+      // Set focus to the dialog content when it opens
+      if (contentRef.current) {
+        // Small delay to ensure the dialog is fully rendered
+        setTimeout(() => {
+          // Find the first focusable element in the dialog
+          const focusableElements = contentRef.current?.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          
+          if (focusableElements && focusableElements.length > 0) {
+            (focusableElements[0] as HTMLElement).focus();
+          } else {
+            // If no focusable elements, focus the content itself
+            contentRef.current?.focus();
+          }
+        }, 50);
+      }
+
       return () => {
-        // Return focus on unmount
-        previousFocusRef.current?.focus();
+        // Return focus on unmount with a small delay to prevent focus issues
+        setTimeout(() => {
+          previousFocusRef.current?.focus();
+        }, 10);
       };
     }, []);
 
@@ -97,6 +140,8 @@ const DialogContent = React.forwardRef<
           aria-describedby={
             screenReaderDescription ? `${hiddenTitleId}-desc` : undefined
           }
+          // Allow the dialog content to receive focus
+          tabIndex={-1}
           {...props}
         >
           {/* Always render a visually hidden title for screen readers */}
@@ -108,14 +153,10 @@ const DialogContent = React.forwardRef<
           </VisuallyHidden>
           
           {children}
-          <DialogPrimitive.Close
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-            // Improved keyboard handling
-            aria-label="Close dialog"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
+          
+          {showCloseButton && (
+            <DialogClose />
+          )}
         </DialogPrimitive.Content>
       </DialogPortal>
     );

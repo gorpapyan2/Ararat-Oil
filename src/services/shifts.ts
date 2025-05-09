@@ -33,6 +33,26 @@ export async function startShift(openingCash: number): Promise<Shift> {
     } = await supabase.auth.getUser();
     if (!user) throw new Error("User must be logged in to start a shift");
 
+    // First check if there are any active shifts in the system
+    const { data: existingShifts, error: shiftCheckError } = await supabase
+      .from("shifts")
+      .select("id, employee_id")
+      .eq("status", "OPEN");
+
+    if (shiftCheckError) {
+      console.error("Error checking for existing shifts:", shiftCheckError);
+      // We'll proceed with caution, but log this error
+    } else if (existingShifts && existingShifts.length > 0) {
+      // There's at least one active shift
+      const userShift = existingShifts.find(shift => shift.employee_id === user.id);
+      
+      if (userShift) {
+        throw new Error("You already have an active shift open. Please close it before starting a new one.");
+      } else {
+        throw new Error("Another employee has an active shift open. Only one shift can be active at a time.");
+      }
+    }
+
     // Check if user exists in employees table
     const { data: existingEmployee, error: employeeCheckError } = await supabase
       .from("employees")

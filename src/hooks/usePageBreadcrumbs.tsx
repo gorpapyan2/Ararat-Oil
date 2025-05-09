@@ -1,9 +1,7 @@
-import { useContext, useEffect, useMemo, useRef } from "react";
-import { useBreadcrumbs } from "@/layouts/AdminShell";
+import { useEffect } from "react";
 import { ReactNode } from "react";
-import { Home } from "lucide-react";
 
-type BreadcrumbSegment = {
+export type BreadcrumbSegment = {
   name: string;
   href: string;
   isCurrent?: boolean;
@@ -11,59 +9,35 @@ type BreadcrumbSegment = {
 };
 
 interface UsePageBreadcrumbsOptions {
-  segments: BreadcrumbSegment[];
-  title: string;
+  segments?: BreadcrumbSegment[];
+  title?: string;
   appName?: string;
 }
 
 /**
- * Hook to easily set up breadcrumbs for any page
- *
- * @example
- * // Basic usage
- * usePageBreadcrumbs({
- *   segments: [
- *     { name: t("common.dashboard"), href: "/" },
- *     { name: t("common.settings"), href: "/settings", isCurrent: true },
- *   ],
- *   title: "Settings"
- * });
- * 
- * @example
- * // With custom icons
- * usePageBreadcrumbs({
- *   segments: [
- *     { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
- *     { name: t("common.settings"), href: "/settings", icon: <Settings className="h-4 w-4" />, isCurrent: true },
- *   ],
- *   title: "Settings"
- * });
+ * Simple implementation of usePageBreadcrumbs that only handles document title
+ * and doesn't depend on BreadcrumbProvider
  */
 export function usePageBreadcrumbs({ segments, title, appName = "Ararat Oil" }: UsePageBreadcrumbsOptions) {
-  const { setBreadcrumbs } = useBreadcrumbs();
-  const isUnmounting = useRef(false);
-  
-  // Memoize the enhanced segments to prevent unnecessary re-renders
-  const enhancedSegments = useMemo(() => {
-    return segments.map((segment, index) => {
-      if (index === 0 && !segment.icon) {
-        return { ...segment, icon: <Home className="h-4 w-4" /> };
-      }
-      return segment;
-    });
-  }, [segments]);
-  
-  // Set breadcrumbs in context and document title
+  // Set page title based on the current breadcrumb (if provided)
   useEffect(() => {
-    if (!isUnmounting.current) {
-      setBreadcrumbs(enhancedSegments);
+    if (title) {
       document.title = `${title} | ${appName}`;
+    } else if (segments?.length > 0) {
+      // Use the last (current) breadcrumb for the title
+      const currentSegment = segments.find(segment => segment.isCurrent) || segments[segments.length - 1];
+      document.title = `${currentSegment.name} | ${appName}`;
     }
     
-    // Clean up breadcrumbs when component unmounts
+    // Reset title on unmount
     return () => {
-      isUnmounting.current = true;
-      setBreadcrumbs([]);
+      document.title = appName;
     };
-  }, [enhancedSegments, title, appName, setBreadcrumbs]);
+  }, [title, segments, appName]);
+
+  // Return empty data - no functional breadcrumb implementation
+  return {
+    breadcrumbs: segments || [],
+    setBreadcrumbs: () => {},
+  };
 } 

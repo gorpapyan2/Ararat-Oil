@@ -246,7 +246,7 @@ export function formatDateTime(dateString: string): string {
 }
 
 /**
- * Calculates the duration between a start time and the current time
+ * Calculate the duration between a start time and the current time
  * @param startTimeString Start time as a date string
  * @returns Formatted duration string (e.g. "2h 15m" or "45m")
  */
@@ -273,6 +273,45 @@ export function calculateDuration(startTimeString: string): string {
     return `${minutes}m`;
   } catch (error) {
     console.error("Error calculating duration:", error);
+    return "-";
+  }
+}
+
+/**
+ * Calculate the duration between a start time and end time (or current time if end time not provided)
+ * @param startTimeString Start time as a date string
+ * @param endTimeString Optional end time as a date string, defaults to current time if not provided
+ * @returns Formatted duration string (e.g. "2h 15m" or "45m")
+ */
+export function calculateShiftDuration(startTimeString: string, endTimeString?: string): string {
+  if (!startTimeString) return "-";
+  
+  try {
+    const startTime = new Date(startTimeString);
+    
+    // Check if start date is valid
+    if (isNaN(startTime.getTime())) {
+      return "-";
+    }
+    
+    // Use end time if provided, otherwise use current time
+    const endTime = endTimeString ? new Date(endTimeString) : new Date();
+    
+    // Check if end date is valid
+    if (endTimeString && isNaN(endTime.getTime())) {
+      return "-";
+    }
+    
+    const durationMs = endTime.getTime() - startTime.getTime();
+    const hours = Math.floor(durationMs / (1000 * 60 * 60));
+    const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  } catch (error) {
+    console.error("Error calculating shift duration:", error);
     return "-";
   }
 }

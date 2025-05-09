@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { MultiPaymentMethodFormStandardized, MultiPaymentFormData } from "@/components/shared/MultiPaymentMethodFormStandardized";
 import { formatCurrency, formatDateTime, calculateDuration } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, ClockIcon, DollarSign, Receipt, Calendar } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 // Add a safe formatting function
 const safeFormatDateTime = (dateString?: string | null): string => {
@@ -43,11 +44,29 @@ export default function ShiftClose() {
     navigate('/finance/shifts', { replace: true });
   }, [navigate]);
 
+  // Run the initial check once when the component mounts
+  useEffect(() => {
+    if (user) {
+      console.log("Running initial active shift check from ShiftClose component");
+      checkActiveShift(user.id);
+    }
+  }, [user, checkActiveShift]);
+
   // Initial check for active shift - runs only once
   useEffect(() => {
     let isMounted = true;
     let retryAttempt = 0;
     const maxRetries = 3;
+    
+    // Set a maximum loading time to prevent endless loading
+    const loadingTimeout = setTimeout(() => {
+      if (isMounted && isInitialLoading) {
+        console.warn("Shift loading timed out after 15 seconds");
+        setIsInitialLoading(false);
+        setInitialCheckDone(true);
+        setError("Loading timed out. Please try again or check your connection.");
+      }
+    }, 15000); // 15 second maximum loading time
     
     const initialCheck = async () => {
       setIsInitialLoading(true);
@@ -76,17 +95,15 @@ export default function ShiftClose() {
         if (isMounted) {
           console.log("Initial check complete, activeShift state:", activeShift ? "Active shift exists" : "No active shift");
           setInitialCheckDone(true);
+          setIsInitialLoading(false);
           
-          // Only redirect if both these conditions are true:
-          // 1. We've confirmed there's no active shift after the check
-          // 2. We're not in a loading state anymore
-          // This avoids premature redirect before the shift data is loaded
-          if (!activeShift && !isShiftLoading && !isInitialLoading) {
-            console.log("No active shift found after initial check, will redirect");
-            setTimeout(() => {
+          // Add a small delay before checking for redirect
+          setTimeout(() => {
+            if (isMounted && !activeShift && !isShiftLoading) {
+              console.log("No active shift found after initial check, will redirect");
               navigate('/finance/shifts', { replace: true });
-            }, 500); // Short delay to ensure state has settled
-          }
+            }
+          }, 500);
         }
       } catch (error: any) {
         console.error("Error during initial shift check:", error);
@@ -101,11 +118,8 @@ export default function ShiftClose() {
         
         if (isMounted) {
           setInitialCheckDone(true);
-          setError("Network error checking for active shift. Please try again.");
-        }
-      } finally {
-        if (isMounted) {
           setIsInitialLoading(false);
+          setError("Network error checking for active shift. Please try again.");
         }
       }
     };
@@ -114,8 +128,9 @@ export default function ShiftClose() {
     
     return () => {
       isMounted = false;
+      clearTimeout(loadingTimeout);
     };
-  }, [activeShift, isShiftLoading, navigate, checkActiveShift, user?.id]);
+  }, []);  // Remove the dependencies to ensure this only runs once
 
   // Periodic check for active shift - runs after initial check is done
   useEffect(() => {
@@ -235,9 +250,9 @@ export default function ShiftClose() {
     return (
       <PageLayout titleKey="shifts.closeShift">
         <div className="max-w-2xl mx-auto">
-          <Alert className="bg-green-50 border-green-200">
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
-            <AlertTitle className="text-green-800">
+          <Alert className="bg-blue-50 border-blue-200">
+            <CheckCircle2 className="h-5 w-5 text-blue-600" />
+            <AlertTitle className="text-blue-800">
               {t("shifts.shiftClosedSuccessfully")}
             </AlertTitle>
             <AlertDescription>
@@ -263,17 +278,22 @@ export default function ShiftClose() {
     return (
       <PageLayout titleKey="shifts.closeShift">
         <div className="max-w-2xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("shifts.closeShift")}</CardTitle>
+          <Card className="border border-muted">
+            <CardHeader className="space-y-1">
+              <CardTitle className="flex items-center">
+                <Loader2 className="h-5 w-5 mr-2 animate-spin text-primary" />
+                {t("shifts.closeShift")}
+              </CardTitle>
               <CardDescription>
                 {isInitialLoading ? t("shifts.checkingForActiveShift", "Checking for active shift...") : t("common.loading")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground text-center max-w-md">
                   {isInitialLoading 
                     ? t("shifts.pleaseWaitWhileChecking", "Please wait while we check for your active shift...") 
                     : t("shifts.loadingShiftData", "Loading shift data...")}
@@ -335,7 +355,57 @@ export default function ShiftClose() {
           </Alert>
         )}
         
-        <Card>
+        <Card className="mb-6 border border-muted">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center">
+              <div className="h-2 w-2 rounded-full bg-blue-500 mr-2"></div>
+              {t("shifts.shiftSummary")}
+            </CardTitle>
+            <CardDescription>
+              {t("shifts.activeShiftDescription")}
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="pb-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-start space-x-3">
+                <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <div className="text-sm font-medium">{t("shifts.startedAt")}</div>
+                  <div className="text-base">{safeFormatDateTime(activeShift.start_time)}</div>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <ClockIcon className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <div className="text-sm font-medium">{t("shifts.duration")}</div>
+                  <div className="text-base">{calculateDuration(activeShift.start_time)}</div>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <DollarSign className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <div className="text-sm font-medium">{t("shifts.openingCash")}</div>
+                  <div className="text-base">{formatCurrency(activeShift.opening_cash)}</div>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <Receipt className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <div className="text-sm font-medium">{t("shifts.salesTotal")}</div>
+                  <div className="text-base font-semibold text-blue-600 dark:text-blue-400">
+                    {formatCurrency(activeShift.sales_total || 0)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-muted">
           <CardHeader>
             <CardTitle>{t("shifts.closeShift")}</CardTitle>
             <CardDescription>
@@ -345,40 +415,22 @@ export default function ShiftClose() {
           
           <CardContent>
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-md">
-                <div>
-                  <div className="text-sm text-muted-foreground">{t("shifts.startedAt")}</div>
-                  <div className="font-medium">
-                    {safeFormatDateTime(activeShift.start_time)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">{t("shifts.duration")}</div>
-                  <div className="font-medium">
-                    {calculateDuration(activeShift.start_time)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">{t("shifts.openingCash")}</div>
-                  <div className="font-medium">
-                    {formatCurrency(activeShift.opening_cash)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">{t("shifts.salesTotal")}</div>
-                  <div className="font-medium">
-                    {formatCurrency(activeShift.sales_total || 0)}
-                  </div>
-                </div>
-              </div>
+              <div className="bg-accent/30 border border-accent rounded-md p-4">
+                <h3 className="text-sm font-medium mb-2">{t("shifts.confirmClosure")}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("shifts.closureWarning", "Please record how the money was received during this shift. The system will calculate the expected values based on sales.")}
+                </p>
 
-              {/* Safe check for activeShift.sales_total being a valid value */}
-              <MultiPaymentMethodFormStandardized
-                onSubmit={handleEndShift}
-                isSubmitting={isSubmitting}
-                totalAmount={activeShift.sales_total || 0}
-                key={`payment-form-${activeShift.id}-${activeShift.sales_total || 0}`} // Add key to force re-render when data changes
-              />
+                <Separator className="my-4" />
+
+                {/* Safe check for activeShift.sales_total being a valid value */}
+                <MultiPaymentMethodFormStandardized
+                  onSubmit={handleEndShift}
+                  isSubmitting={isSubmitting}
+                  totalAmount={activeShift.sales_total || 0}
+                  key={`payment-form-${activeShift.id}-${activeShift.sales_total || 0}`} // Add key to force re-render when data changes
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

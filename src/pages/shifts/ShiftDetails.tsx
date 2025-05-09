@@ -5,12 +5,14 @@ import { PageLayout } from "@/layouts/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, AlertCircle, CalendarClock, DollarSign, FileCheck } from "lucide-react";
-import { formatCurrency, formatDateTime, calculateDuration } from "@/lib/utils";
+import { ArrowLeft, AlertCircle, CalendarClock, DollarSign, FileCheck, Clock, Receipt, Users, CreditCard } from "lucide-react";
+import { formatCurrency, formatDateTime, calculateDuration, calculateShiftDuration } from "@/lib/utils";
 import { supabase } from "@/services/supabase";
 import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
 import { ShiftPaymentMethod } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 // Define the shift structure based on what's used in this component
 interface DetailShift {
@@ -183,20 +185,24 @@ export default function ShiftDetails() {
         }
       >
         <div className="max-w-3xl mx-auto">
-          <Card>
+          <Card className="border border-muted">
             <CardHeader>
-              <Skeleton className="h-8 w-48 mb-2" />
-              <Skeleton className="h-4 w-full max-w-[250px]" />
+              <div className="flex items-center space-x-3">
+                <Skeleton className="h-6 w-6 rounded-full" />
+                <Skeleton className="h-8 w-48" />
+              </div>
+              <Skeleton className="h-4 w-full max-w-[250px] mt-2" />
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-md">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-5 w-16" />
                     <Skeleton className="h-6 w-32" />
                   </div>
                 ))}
               </div>
+              <div className="h-[1px] w-full bg-muted my-4" />
               <Skeleton className="h-28 w-full" />
             </CardContent>
           </Card>
@@ -271,128 +277,224 @@ export default function ShiftDetails() {
       }
     >
       <div className="max-w-3xl mx-auto">
-        <Card>
+        <Card className="border border-muted mb-6">
           <CardHeader>
-            <div className="flex items-center space-x-2">
-              <div className={`h-3 w-3 rounded-full ${shift.status === 'OPEN' ? 'bg-green-500' : 'bg-blue-500'}`}></div>
-              <CardTitle>
-                {shift.status === 'OPEN' ? t("shifts.activeShift") : t("shifts.completedShift")} - {shift.employee_name}
+            <div className="flex items-center space-x-3">
+              <div className={`h-3 w-3 rounded-full ${shift.status === 'OPEN' ? 'bg-blue-500' : 'bg-slate-500'}`}></div>
+              <CardTitle className="flex items-center space-x-2">
+                <span>{shift.status === 'OPEN' ? t("shifts.activeShift") : t("shifts.completedShift")}</span>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-base font-medium">{shift.employee_name}</span>
               </CardTitle>
             </div>
-            <CardDescription>
+            <CardDescription className="flex items-center mt-1.5">
+              <Clock className="h-4 w-4 mr-1.5 text-muted-foreground" />
               {shift.status === 'OPEN' 
                 ? t("shifts.activeShiftDescription") 
                 : t("shifts.completedShiftDescription")}
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-md">
-              <div>
-                <div className="text-sm text-muted-foreground flex items-center gap-1">
-                  <CalendarClock className="h-3.5 w-3.5" />
-                  {t("shifts.startedAt")}
-                </div>
-                <div className="font-medium">
-                  {safeFormatDateTime(shift.start_time)}
-                </div>
-              </div>
+          <CardContent>
+            <Tabs defaultValue="details" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="details">
+                  <FileCheck className="h-4 w-4 mr-2" />
+                  {t("shifts.details")}
+                </TabsTrigger>
+                <TabsTrigger value="payment" disabled={shift.status !== 'CLOSED' || !shift.payment_methods?.length}>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  {t("shifts.payment")}
+                </TabsTrigger>
+              </TabsList>
               
-              {shift.status === 'CLOSED' && shift.end_time && (
-                <div>
-                  <div className="text-sm text-muted-foreground flex items-center gap-1">
-                    <CalendarClock className="h-3.5 w-3.5" />
-                    {t("shifts.endedAt")}
-                  </div>
-                  <div className="font-medium">
-                    {safeFormatDateTime(shift.end_time)}
-                  </div>
-                </div>
-              )}
-              
-              <div>
-                <div className="text-sm text-muted-foreground flex items-center gap-1">
-                  <DollarSign className="h-3.5 w-3.5" />
-                  {t("shifts.openingCash")}
-                </div>
-                <div className="font-medium">
-                  {formatCurrency(shift.opening_cash)}
-                </div>
-              </div>
-              
-              {shift.status === 'CLOSED' && shift.closing_cash !== undefined && (
-                <div>
-                  <div className="text-sm text-muted-foreground flex items-center gap-1">
-                    <DollarSign className="h-3.5 w-3.5" />
-                    {t("shifts.closingCash")}
-                  </div>
-                  <div className="font-medium">
-                    {formatCurrency(shift.closing_cash)}
-                  </div>
-                </div>
-              )}
-              
-              <div>
-                <div className="text-sm text-muted-foreground flex items-center gap-1">
-                  <FileCheck className="h-3.5 w-3.5" />
-                  {t("shifts.salesTotal")}
-                </div>
-                <div className="font-medium">
-                  {formatCurrency(shift.sales_total || 0)}
-                </div>
-              </div>
-              
-              <div>
-                <div className="text-sm text-muted-foreground">{t("shifts.duration")}</div>
-                <div className="font-medium">
-                  {shift.status === 'OPEN' 
-                    ? calculateDuration(shift.start_time) 
-                    : shift.end_time 
-                      ? `${safeFormatDateTime(shift.end_time)} (${calculateDuration(shift.start_time)})`
-                      : calculateDuration(shift.start_time)}
-                </div>
-              </div>
-            </div>
-            
-            {/* Payment Methods */}
-            {shift.status === 'CLOSED' && shift.payment_methods && shift.payment_methods.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium mb-2">{t("shifts.paymentMethods")}</h3>
-                <div className="border rounded-md divide-y">
-                  {shift.payment_methods.map((method, index) => (
-                    <div key={index} className="p-3 flex justify-between items-center">
-                      <div className="font-medium capitalize">
-                        {method.payment_method}
-                      </div>
+              <TabsContent value="details" className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  <div className="p-4 bg-muted/20 rounded-lg border border-muted">
+                    <div className="flex items-center mb-2 text-blue-600">
+                      <CalendarClock className="h-4 w-4 mr-2" />
+                      <h3 className="font-medium text-sm">{t("shifts.timeDetails")}</h3>
+                    </div>
+                    <div className="space-y-3">
                       <div>
-                        {formatCurrency(method.amount)}
+                        <div className="text-xs text-muted-foreground">{t("shifts.startedAt")}</div>
+                        <div className="font-medium text-sm">
+                          {safeFormatDateTime(shift.start_time)}
+                        </div>
+                      </div>
+                      
+                      {shift.status === 'CLOSED' && shift.end_time && (
+                        <div>
+                          <div className="text-xs text-muted-foreground">{t("shifts.endedAt")}</div>
+                          <div className="font-medium text-sm">
+                            {safeFormatDateTime(shift.end_time)}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t("shifts.duration")}</div>
+                        <div className="font-medium text-sm">
+                          {shift.status === 'OPEN' 
+                            ? calculateDuration(shift.start_time) 
+                            : shift.end_time 
+                              ? calculateShiftDuration(shift.start_time, shift.end_time)
+                              : calculateDuration(shift.start_time)}
+                        </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                  
+                  <div className="p-4 bg-muted/20 rounded-lg border border-muted">
+                    <div className="flex items-center mb-2 text-blue-600">
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      <h3 className="font-medium text-sm">{t("shifts.cashDetails")}</h3>
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t("shifts.openingCash")}</div>
+                        <div className="font-medium text-sm">
+                          {formatCurrency(shift.opening_cash)}
+                        </div>
+                      </div>
+                      
+                      {shift.status === 'CLOSED' && shift.closing_cash !== undefined && (
+                        <div>
+                          <div className="text-xs text-muted-foreground">{t("shifts.closingCash")}</div>
+                          <div className="font-medium text-sm">
+                            {formatCurrency(shift.closing_cash)}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {shift.status === 'CLOSED' && shift.closing_cash !== undefined && (
+                        <div>
+                          <div className="text-xs text-muted-foreground">{t("shifts.cashDifference")}</div>
+                          <div className={`font-medium text-sm ${
+                            shift.closing_cash - shift.opening_cash >= 0
+                              ? "text-blue-600"
+                              : "text-red-600"
+                          }`}>
+                            {formatCurrency(shift.closing_cash - shift.opening_cash)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-muted/20 rounded-lg border border-muted">
+                    <div className="flex items-center mb-2 text-blue-600">
+                      <Receipt className="h-4 w-4 mr-2" />
+                      <h3 className="font-medium text-sm">{t("shifts.salesDetails")}</h3>
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t("shifts.salesTotal")}</div>
+                        <div className="font-medium text-sm">
+                          {formatCurrency(shift.sales_total || 0)}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t("shifts.employee")}</div>
+                        <div className="font-medium text-sm flex items-center">
+                          <Users className="h-3 w-3 mr-1.5 text-muted-foreground" />
+                          {shift.employee_name}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
-            
-            {/* Cash Difference */}
-            {shift.status === 'CLOSED' && shift.opening_cash !== undefined && shift.closing_cash !== undefined && (
-              <div className="p-4 border rounded-md">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium">{t("shifts.cashDifference")}</h3>
-                    <p className="text-sm text-muted-foreground">
+                
+                {/* Cash Difference Explanation */}
+                {shift.status === 'CLOSED' && shift.opening_cash !== undefined && shift.closing_cash !== undefined && (
+                  <div className="bg-accent/20 p-4 rounded-lg border border-accent">
+                    <h3 className="font-medium text-sm mb-2">{t("shifts.cashReconciliation")}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
                       {t("shifts.cashDifferenceDescription")}
                     </p>
+                    
+                    <div className="grid grid-cols-2 gap-4 mt-3">
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t("shifts.expectedCash")}</div>
+                        <div className="font-medium">
+                          {formatCurrency(shift.opening_cash)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t("shifts.actualCash")}</div>
+                        <div className="font-medium">
+                          {formatCurrency(shift.closing_cash)}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Separator className="my-3" />
+                    
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm font-medium">{t("shifts.cashDifference")}</div>
+                      <div className={`text-lg font-bold ${
+                        shift.closing_cash - shift.opening_cash >= 0
+                          ? "text-blue-600"
+                          : "text-red-600"
+                      }`}>
+                        {formatCurrency(shift.closing_cash - shift.opening_cash)}
+                      </div>
+                    </div>
                   </div>
-                  <div className={`text-xl font-bold ${
-                    shift.closing_cash - shift.opening_cash >= 0
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}>
-                    {formatCurrency(shift.closing_cash - shift.opening_cash)}
+                )}
+              </TabsContent>
+              
+              <TabsContent value="payment" className="space-y-4">
+                {shift.status === 'CLOSED' && shift.payment_methods && shift.payment_methods.length > 0 && (
+                  <div>
+                    <div className="flex items-center mb-3">
+                      <CreditCard className="h-5 w-5 mr-2 text-blue-600" />
+                      <h3 className="font-medium">{t("shifts.paymentMethodsDetails")}</h3>
+                    </div>
+                    
+                    <div className="rounded-lg border overflow-hidden">
+                      <div className="bg-muted/30 px-4 py-2.5 border-b">
+                        <div className="grid grid-cols-5 gap-4">
+                          <div className="col-span-3 text-sm font-medium">{t("common.paymentMethod")}</div>
+                          <div className="col-span-2 text-sm font-medium text-right">{t("common.amount")}</div>
+                        </div>
+                      </div>
+                      
+                      {shift.payment_methods.map((method, index) => (
+                        <div key={index} className="px-4 py-3 border-b last:border-b-0">
+                          <div className="grid grid-cols-5 gap-4">
+                            <div className="col-span-3 font-medium capitalize flex items-center">
+                              {method.payment_method === 'cash' && <DollarSign className="h-4 w-4 mr-2 text-blue-500" />}
+                              {method.payment_method === 'card' && <CreditCard className="h-4 w-4 mr-2 text-blue-500" />}
+                              {method.payment_method === 'bank_transfer' && <Receipt className="h-4 w-4 mr-2 text-blue-500" />}
+                              {method.payment_method}
+                              {method.reference && (
+                                <span className="ml-2 text-xs text-muted-foreground">
+                                  ({method.reference})
+                                </span>
+                              )}
+                            </div>
+                            <div className="col-span-2 text-right font-semibold">
+                              {formatCurrency(method.amount)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <div className="px-4 py-3 bg-muted/20 border-t">
+                        <div className="grid grid-cols-5 gap-4">
+                          <div className="col-span-3 font-medium">{t("common.total")}</div>
+                          <div className="col-span-2 text-right font-bold text-blue-600">
+                            {formatCurrency(shift.payment_methods.reduce((sum, method) => sum + method.amount, 0))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>

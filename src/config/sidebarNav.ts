@@ -20,6 +20,12 @@ import { useTranslation } from "react-i18next";
 export const useSidebarNavConfig = () => {
   const { t } = useTranslation();
 
+  // Add sidebar UI translation keys
+  t("sidebar.expandSidebar", "Expand sidebar");
+  t("sidebar.collapseSidebar", "Collapse sidebar");
+  t("sidebar.collapse", "Collapse");
+  t("sidebar.hasSubmenu", "Has submenu");
+
   return {
     overview: [
       { to: "/", icon: Home, label: t("common.dashboard") },

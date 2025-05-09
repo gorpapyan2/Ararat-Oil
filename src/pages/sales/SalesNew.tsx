@@ -30,6 +30,7 @@ import { SalesTable } from "@/components/sales/SalesTable";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createSale } from "@/services/sales";
 import { useToast } from "@/hooks";
+import { useShift } from "@/hooks/useShift";
 import { Sale } from "@/types";
 
 export default function SalesNew() {
@@ -37,6 +38,7 @@ export default function SalesNew() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { activeShift, beginShift, endShift } = useShift();
 
   // Get sales data and filters from existing hooks
   const { systems, filteredSales, isLoading, refetchSales } = useSalesFilters();
@@ -55,6 +57,15 @@ export default function SalesNew() {
     updateMutation,
     deleteMutation,
   } = useSalesMutations();
+
+  // Define handlers for shift operations
+  const handleShiftStart = () => {
+    navigate('/finance/shifts/open');
+  };
+
+  const handleShiftEnd = () => {
+    navigate('/finance/shifts/close');
+  };
 
   // Remove create sale mutation and use navigation instead
   const handleCreateSale = () => {
@@ -146,7 +157,11 @@ export default function SalesNew() {
         />
       </div>
 
-      <ShiftControl />
+      <ShiftControl 
+        onShiftStart={handleShiftStart}
+        onShiftEnd={handleShiftEnd}
+        isShiftOpen={!!activeShift}
+      />
 
       <Card>
         <CardHeader>

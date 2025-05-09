@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   IconSettings,
@@ -13,6 +13,8 @@ import {
   IconX,
   IconDeviceLaptop,
 } from "@tabler/icons-react";
+import { useBreadcrumbs } from "@/components/BreadcrumbProvider";
+import { Settings as SettingsIcon } from "lucide-react";
 
 // Import our custom UI components
 import { PageHeader } from "@/components/ui/page-header";
@@ -48,6 +50,7 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function Settings() {
+  const { setBreadcrumbs } = useBreadcrumbs();
   const { t } = useTranslation();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
@@ -60,6 +63,27 @@ export default function Settings() {
     ],
     title: "Settings"
   });
+
+  // Set custom breadcrumbs for this page
+  useEffect(() => {
+    setBreadcrumbs([
+      {
+        name: t("common.dashboard"),
+        href: "/",
+      },
+      {
+        name: t("common.settings"),
+        href: "/settings",
+        isCurrent: true,
+        icon: <SettingsIcon size={16} />
+      }
+    ]);
+    
+    // Clean up the breadcrumbs when component unmounts
+    return () => {
+      setBreadcrumbs([]);
+    };
+  }, [setBreadcrumbs, t]);
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({

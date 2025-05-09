@@ -81,24 +81,22 @@ export function StandardDialog({
   maxWidth = "sm:max-w-md",
 }: StandardDialogProps) {
   return (
-    <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
-      triggerRef={triggerRef}
-      title={title}
-      description={description}
-      className={cn(maxWidth, className)}
-    >
-      {showCloseButton && <DialogClose />}
-      
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
-        {description && <DialogDescription>{description}</DialogDescription>}
-      </DialogHeader>
-      
-      <DialogContent>{children}</DialogContent>
-      
-      {actions && <DialogFooter>{actions}</DialogFooter>}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        showCloseButton={showCloseButton}
+        className={cn(maxWidth, className)}
+        title={title}
+        screenReaderDescription={description}
+      >
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          {description && <DialogDescription>{description}</DialogDescription>}
+        </DialogHeader>
+        
+        <div className="py-4">{children}</div>
+        
+        {actions && <DialogFooter>{actions}</DialogFooter>}
+      </DialogContent>
     </Dialog>
   );
 }

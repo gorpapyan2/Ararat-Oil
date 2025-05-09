@@ -101,7 +101,14 @@
     "customRange": "Custom Range",
     "clear": "Clear",
     "today": "Today",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "backToDashboard": "Back to dashboard",
+    "mainNavigation": "Main navigation",
+    "signOut": "Sign out",
+    "searchPlaceholder": "Search...",
+    "noResults": "No results found.",
+    "navigateBetweenItems": "Navigate between items",
+    "closeMenu": "Close menu"
   },
   "auth": {
     "signIn": "Sign In",
@@ -422,7 +429,13 @@
     "errorClosingShift": "There was a problem closing the shift",
     "startedAt": "Started At",
     "endedAt": "Ended At",
-    "salesTotal": "Sales Total"
+    "salesTotal": "Sales Total",
+    "onlyOneShiftAllowed": "Only one shift can be active at a time",
+    "alreadyHaveActiveShift": "You already have an active shift open. Please close it before starting a new one.",
+    "anotherEmployeeShiftActive": "Another employee has an active shift. Only one shift can be active at a time.",
+    "closeShiftFirst": "Please close the active shift before starting a new one",
+    "checkingForActiveShift": "Checking for active shift...",
+    "pleaseWaitWhileChecking": "Please wait while we check for your active shift..."
   },
   "todo": {
     "title": "Todo Application",
@@ -621,5 +634,21 @@
       "update": "Failed to update provider",
       "delete": "Failed to delete provider"
     }
+  },
+  "sidebar": {
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "collapse": "Collapse",
+    "hasSubmenu": "Has submenu",
+    "toggleSection": "Toggle section",
+    "keyboardShortcuts": "Keyboard shortcuts",
+    "openMenu": "Open menu (Alt + S)",
+    "expandSection": "Expand section (Enter)",
+    "toggleTheme": "Toggle theme",
+    "navigation": "Navigation",
+    "shortcuts": "Shortcuts",
+    "accessibilityTips": "Accessibility tips",
+    "useKeyboard": "Use keyboard for faster navigation",
+    "mobileGestures": "Swipe right to open menu on mobile"
   }
 }

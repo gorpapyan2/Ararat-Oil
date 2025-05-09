@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { StandardDialog } from "@/components/ui/composed/dialog";
 import { Button } from "@/components/ui/button";
 
 interface ShiftControlProps {
@@ -10,17 +10,23 @@ interface ShiftControlProps {
 
 export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen }: ShiftControlProps) {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Add console log to debug component props
+  useEffect(() => {
+    console.log("ShiftControl component props:", { isShiftOpen, dialogOpen: isOpen });
+  }, [isShiftOpen, isOpen]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          {isShiftOpen ? "Close Shift" : "Open Shift"}
-        </Button>
-      </DialogTrigger>
-      <DialogContent title="Open Shift" className="sm:max-w-[425px]">
-        <div className="flex flex-col space-y-4">
-          <p>Are you sure you want to {isShiftOpen ? "close" : "open"} the shift?</p>
+    <div>
+      <Button variant="outline" onClick={() => setIsOpen(true)}>
+        {isShiftOpen ? "Close Shift" : "Open Shift"}
+      </Button>
+      
+      <StandardDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title={isShiftOpen ? "Close Shift" : "Open Shift"}
+        actions={
           <div className="flex justify-end space-x-2">
             <Button variant="secondary" onClick={() => setIsOpen(false)}>
               Cancel
@@ -36,8 +42,12 @@ export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen }: ShiftCon
               {isShiftOpen ? "Close Shift" : "Open Shift"}
             </Button>
           </div>
+        }
+      >
+        <div className="flex flex-col space-y-4">
+          <p>Are you sure you want to {isShiftOpen ? "close" : "open"} the shift?</p>
         </div>
-      </DialogContent>
-    </Dialog>
+      </StandardDialog>
+    </div>
   );
 }

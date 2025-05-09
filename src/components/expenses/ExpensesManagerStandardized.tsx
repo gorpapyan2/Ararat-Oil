@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { MetricCard } from "@/components/ui/composed/cards";
 import { useDialog } from "@/hooks/useDialog";
+import { useNavigate } from "react-router-dom";
 
 const DEFAULT_CATEGORIES = [
   "Rent",
@@ -44,6 +45,7 @@ const DEFAULT_PAYMENT_METHODS = [
 ];
 
 export function ExpensesManagerStandardized() {
+  const navigate = useNavigate();
   // State for add/edit form and category manager
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   
@@ -79,9 +81,9 @@ export function ExpensesManagerStandardized() {
   // TODO: Add create/update/deleteExpense mutations here
 
   const handleAdd = useCallback(() => {
-    setSelectedExpense(null);
-    expenseDialog.open();
-  }, [expenseDialog]);
+    // Navigate to the dedicated expense create page instead of opening a dialog
+    navigate("/finance/expenses/create");
+  }, [navigate]);
 
   const handleEdit = useCallback((id: string) => {
     const expense = expenses.find(e => e.id === id);

@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { FuelSuppliesFormStandardized } from "./FuelSuppliesFormStandardized";
 import { useNavigate } from "react-router-dom";
 
+
 interface FuelSuppliesManagerStandardizedProps {
   onRenderAction?: (actionNode: React.ReactNode) => void;
 }
@@ -257,8 +258,17 @@ export function FuelSuppliesManagerStandardized({
       <FuelSuppliesFormStandardized
         open={formDialog.isOpen}
         onOpenChange={formDialog.onOpenChange}
-        onSubmit={handleSubmit}
-        defaultValues={editingSupply}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
+          queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+          formDialog.close();
+          setEditingSupply(null);
+          toast({
+            title: "Success",
+            description: "Fuel supply record updated successfully",
+          });
+        }}
+        initialData={editingSupply}
       />
 
       <ConfirmAddDialogStandardized

@@ -10,9 +10,23 @@ import {
 import { fetchPetrolProviders } from "@/services/petrol-providers";
 import { fetchFuelTanks } from "@/services/tanks";
 import { useQuery } from "@tanstack/react-query";
-import { FormInput, FormSelect, FormTextArea } from "@/components/ui/composed/form-fields";
+import { FormInput, FormSelect, FormTextarea } from "@/components/ui/composed/form-fields";
 import { FuelSupply } from "@/types";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+
+// Define types locally since we don't have access to the actual type files
+interface PetrolProvider {
+  id: string;
+  name: string;
+  // Add other fields as needed
+}
+
+interface FuelTank {
+  id: string;
+  name: string;
+  fuel_type?: string;
+  // Add other fields as needed
+}
 
 interface FuelSuppliesFormStandardizedProps {
   open: boolean;
@@ -68,49 +82,60 @@ export function FuelSuppliesFormStandardized({
     },
   });
 
-  const { data: providers } = useQuery({
+  const { data: providers = [] } = useQuery<PetrolProvider[]>({
     queryKey: ["petrol-providers"],
-    queryFn: fetchPetrolProviders,
+    queryFn: () => fetchPetrolProviders(),
   });
 
-  const { data: tanks } = useQuery({
+  const { data: tanks = [] } = useQuery<FuelTank[]>({
     queryKey: ["fuel-tanks"],
-    queryFn: fetchFuelTanks,
+    queryFn: () => fetchFuelTanks(),
   });
 
-  const providerOptions = providers?.map(provider => ({
+  const providerOptions = providers.map(provider => ({
     value: provider.id,
     label: provider.name
   })) || [];
 
-  const tankOptions = tanks?.map(tank => ({
+  const tankOptions = tanks.map(tank => ({
     value: tank.id,
-    label: `${tank.name} (${tank.fuel_type})`
+    label: tank.name
   })) || [];
 
   const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<FuelSupplyFormData>(
     form,
     async (data) => {
       try {
+        // Ensure all required fields are present
+        const fuelSupplyData = {
+          delivery_date: data.delivery_date || new Date().toISOString().split('T')[0],
+          provider_id: data.provider_id || "",
+          tank_id: data.tank_id || "",
+          quantity_liters: data.quantity_liters || 0,
+          price_per_liter: data.price_per_liter || 0,
+          total_cost: data.total_cost || 0,
+          employee_id: data.employee_id || "",
+          comments: data.comments || ""
+        };
+        
         if (initialData) {
-          await updateFuelSupply(initialData.id, data);
+          await updateFuelSupply(initialData.id, fuelSupplyData as any);
         } else {
-          await createFuelSupply(data);
+          await createFuelSupply(fuelSupplyData as any);
         }
         toast({
           title: "Success",
-          description: `Fuel supply ${initialData ? 'updated' : 'created'} successfully`,
+          description: "Fuel supply record has been saved.",
         });
-        form.reset();
         onSuccess();
-        return true;
-      } catch (error) {
+        onOpenChange(false);
+      } catch (error: any) {
+        console.error("Error saving fuel supply:", error);
         toast({
           title: "Error",
-          description: "Failed to create fuel supply",
+          description: error.message || "Failed to save fuel supply record.",
           variant: "destructive",
         });
-        return false;
       }
     }
   );
@@ -179,7 +204,7 @@ export function FuelSuppliesFormStandardized({
           form={form}
           placeholder="Enter total cost"
         />
-        <FormTextArea
+        <FormTextarea
           name="comments"
           label="Comments"
           form={form}

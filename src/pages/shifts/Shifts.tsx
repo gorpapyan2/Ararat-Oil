@@ -99,6 +99,11 @@ const Shifts = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   
+  // Add console log to debug activeShift state
+  useEffect(() => {
+    console.log("Shifts page - activeShift state:", activeShift);
+  }, [activeShift]);
+  
   // Search and filter state
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -253,6 +258,24 @@ const Shifts = () => {
             <DollarSign className="h-4 w-4 mr-2" />
             {t("shifts.closeShift")}
           </Button>
+        ) : metrics.activeShifts > 0 ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="default"
+                  disabled
+                  className="cursor-not-allowed opacity-60"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("shifts.startShift")}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t("shifts.onlyOneShiftAllowed", "Only one shift can be active at a time")}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ) : (
           <ButtonLink 
             href="/finance/shifts/open"
@@ -267,39 +290,39 @@ const Shifts = () => {
       <div className="space-y-6">
         {/* Active Shift Card - only show if there's an active shift */}
         {activeShift && (
-          <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-green-800 dark:text-green-400">
+              <CardTitle className="flex items-center text-blue-800 dark:text-blue-400">
                 <CalendarClock className="h-5 w-5 mr-2" />
                 {t("shifts.activeShift")}
               </CardTitle>
-              <CardDescription className="text-green-700 dark:text-green-500">
+              <CardDescription className="text-blue-700 dark:text-blue-500">
                 {t("shifts.activeShiftDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                 <div className="space-y-1">
-                  <div className="text-sm text-green-700 dark:text-green-500 font-medium">{t("shifts.startedAt")}</div>
-                  <div className="text-green-900 dark:text-green-300">
+                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">{t("shifts.startedAt")}</div>
+                  <div className="text-blue-900 dark:text-blue-300">
                     {activeShift && activeShift.start_time ? safeFormatDateTime(activeShift.start_time) : "-"}
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-sm text-green-700 dark:text-green-500 font-medium">{t("shifts.duration")}</div>
-                  <div className="text-green-900 dark:text-green-300">
+                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">{t("shifts.duration")}</div>
+                  <div className="text-blue-900 dark:text-blue-300">
                     {activeShift && activeShift.start_time ? calculateDuration(activeShift.start_time) : "-"}
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-sm text-green-700 dark:text-green-500 font-medium">{t("shifts.openingCash")}</div>
-                  <div className="text-green-900 dark:text-green-300">
+                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">{t("shifts.openingCash")}</div>
+                  <div className="text-blue-900 dark:text-blue-300">
                     {formatCurrency(activeShift.opening_cash)}
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-sm text-green-700 dark:text-green-500 font-medium">{t("shifts.salesTotal")}</div>
-                  <div className="text-green-900 dark:text-green-300 font-bold">
+                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">{t("shifts.salesTotal")}</div>
+                  <div className="text-blue-900 dark:text-blue-300 font-bold">
                     {formatCurrency(activeShift.sales_total || 0)}
                   </div>
                 </div>
@@ -308,7 +331,7 @@ const Shifts = () => {
               <div className="mt-4 flex justify-end">
                 <Button
                   variant="outline"
-                  className="text-green-700 border-green-300 hover:bg-green-100 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/30"
+                  className="text-blue-700 border-blue-300 hover:bg-blue-100 dark:text-blue-400 dark:border-blue-700 dark:hover:bg-blue-900/30"
                   onClick={() => viewShiftDetails(activeShift as ShiftHistoryItem)}
                 >
                   <Eye className="h-4 w-4 mr-1" />
