@@ -3,7 +3,7 @@ import { Shift } from "@/types";
 import { addShiftPaymentMethods, deleteShiftPaymentMethods } from "./shiftPaymentMethods";
 import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
 
-export async function startShift(openingCash: number): Promise<Shift> {
+export async function startShift(openingCash: number, employeeIds: string[] = []): Promise<Shift> {
   try {
     // Check if we're offline
     const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
@@ -91,6 +91,7 @@ export async function startShift(openingCash: number): Promise<Shift> {
       }
     }
 
+    // Create the shift with the main user as the primary employee
     const { data, error } = await supabase
       .from("shifts")
       .insert({
@@ -105,7 +106,26 @@ export async function startShift(openingCash: number): Promise<Shift> {
 
     if (error) throw error;
     if (!data) throw new Error("Failed to create shift");
-    return data as Shift;
+    
+    // Instead of using a separate shift_employees table, store the associated employees
+    // in a metadata field in localStorage for client-side use
+    try {
+      // Store the list of associated employees in localStorage
+      const allEmployeeIds = [...new Set([user.id, ...employeeIds])]; // Use Set to remove duplicates
+      localStorage.setItem(`shift_${data.id}_employees`, JSON.stringify(allEmployeeIds));
+      
+      // Also store this data in a shiftEmployees object in the shift for use in the application
+      const shiftWithEmployees = {
+        ...data,
+        associatedEmployees: allEmployeeIds
+      };
+      
+      return shiftWithEmployees as Shift;
+    } catch (error) {
+      console.error("Error storing associated employees:", error);
+      // Continue even if this fails - the main shift record was created successfully
+      return data as Shift;
+    }
   } catch (error) {
     console.error("Error in startShift:", error);
     throw error;
@@ -261,5 +281,33 @@ export async function getActiveShift(
   } catch (error) {
     console.error("Exception in getActiveShift:", error);
     return null;
+  }
+}
+
+// Add a function to get the employees associated with a shift
+export async function getShiftEmployees(shiftId: string): Promise<string[]> {
+  try {
+    // Try to get from localStorage first
+    const storedEmployees = localStorage.getItem(`shift_${shiftId}_employees`);
+    if (storedEmployees) {
+      return JSON.parse(storedEmployees);
+    }
+    
+    // If not in localStorage (or parse failed), return just the primary employee
+    const { data, error } = await supabase
+      .from("shifts")
+      .select("employee_id")
+      .eq("id", shiftId)
+      .single();
+      
+    if (error || !data) {
+      console.error("Error fetching shift for employees:", error);
+      return [];
+    }
+    
+    return [data.employee_id];
+  } catch (error) {
+    console.error("Error getting shift employees:", error);
+    return [];
   }
 }

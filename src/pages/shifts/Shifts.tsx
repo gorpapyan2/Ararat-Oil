@@ -249,33 +249,15 @@ const Shifts = () => {
       titleKey="shifts.title"
       descriptionKey="shifts.description"
       action={
-        activeShift ? (
-          <Button 
+        activeShift || metrics.activeShifts > 0 ? (
+          <ButtonLink 
+            href="/finance/shifts/close"
             variant="default"
             className="bg-amber-600 hover:bg-amber-700"
-            onClick={() => navigate('/finance/shifts/close')}
           >
             <DollarSign className="h-4 w-4 mr-2" />
             {t("shifts.closeShift")}
-          </Button>
-        ) : metrics.activeShifts > 0 ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="default"
-                  disabled
-                  className="cursor-not-allowed opacity-60"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t("shifts.startShift")}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{t("shifts.onlyOneShiftAllowed", "Only one shift can be active at a time")}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          </ButtonLink>
         ) : (
           <ButtonLink 
             href="/finance/shifts/open"

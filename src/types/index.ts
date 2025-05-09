@@ -12,7 +12,19 @@ export interface Employee {
   created_at?: string;
 }
 
-export type FuelType = "petrol" | "diesel" | "gas" | "kerosene" | "cng";
+export type FuelTypeCode = "diesel" | "gas" | "petrol_regular" | "petrol_premium";
+
+// Legacy type definition, maintained for backward compatibility
+export type FuelType = FuelTypeCode;
+
+export interface FuelTypeModel {
+  id: string;
+  code: FuelTypeCode | string;
+  name: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export interface FuelTank {
   id: string;
@@ -20,6 +32,7 @@ export interface FuelTank {
   capacity: number;
   current_level: number;
   fuel_type: FuelType;
+  fuel_type_id?: string; // New field for the foreign key
   created_at?: string;
 }
 

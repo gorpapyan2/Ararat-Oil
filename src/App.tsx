@@ -19,6 +19,7 @@ import Auth from "@/pages/Auth";
 import { Toaster } from "./components/ui/toaster";
 import { useClearConsoleOnNavigation } from "./utils/errorHandling";
 import { logger } from './utils/errorHandling';
+import SyncUpPage from "./pages/SyncUpPage";
 
 // Create a fallback component for failed imports
 const ImportErrorFallback = ({ pageName }: { pageName: string }) => (
@@ -53,6 +54,8 @@ const TanksPage = lazy(() =>
 const FuelSuppliesPage = lazy(() => 
   import(/* webpackChunkName: "fuel-supplies" */ "@/pages/fuel-management/FuelSuppliesPage")
 );
+const ProvidersPage = lazy(() => import("@/pages/fuel-management/ProvidersPage"));
+const FuelPricesPage = lazy(() => import("@/pages/fuel-management/FuelPricesPage"));
 
 // Legacy fuel management page (will be removed later)
 const FuelManagement = lazy(() => 
@@ -116,8 +119,6 @@ const ButtonComponentsPage = lazy(() => import(/* webpackChunkName: "dev-buttons
 const ConnectionInfo = lazy(() => import(/* webpackChunkName: "dev-connection" */ "@/pages/dev/ConnectionInfo"));
 const DebugPage = lazy(() => import(/* webpackChunkName: "debug-page" */ "@/pages/DebugPage"));
 
-// Import the ProvidersPage component
-import ProvidersPage from "@/pages/fuel-management/ProvidersPage";
 // Import FinancePage directly since it uses a named export
 import { FinancePage } from "@/pages/finance/FinancePage";
 // Import the FinanceDashboard
@@ -301,6 +302,16 @@ const App = () => {
                                         </Suspense>
                                       }
                                     />
+                                    <Route
+                                      path="fuel-prices"
+                                      element={
+                                        <Suspense fallback={<Loading variant="fullscreen" text="Loading fuel prices..." />}>
+                                          <ErrorBoundary fallback={<ImportErrorFallback pageName="Fuel Prices" />}>
+                                            <FuelPricesPage />
+                                          </ErrorBoundary>
+                                        </Suspense>
+                                      }
+                                    />
                                   </Routes>
                                 </AdminShell>
                               </RouteErrorBoundary>
@@ -453,6 +464,20 @@ const App = () => {
                                 <AdminShell>
                                   <Suspense fallback={<Loading variant="fullscreen" text="Loading employees..." />}>
                                     <EmployeesNew />
+                                  </Suspense>
+                                </AdminShell>
+                              </RouteErrorBoundary>
+                            }
+                          />
+                          <Route
+                            path="/syncup"
+                            element={
+                              <RouteErrorBoundary>
+                                <AdminShell>
+                                  <Suspense fallback={<Loading variant="fullscreen" text="Loading Supabase sync..." />}>
+                                    <ErrorBoundary fallback={<ImportErrorFallback pageName="Supabase Sync" />}>
+                                      <SyncUpPage />
+                                    </ErrorBoundary>
                                   </Suspense>
                                 </AdminShell>
                               </RouteErrorBoundary>

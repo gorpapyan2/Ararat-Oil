@@ -68,7 +68,9 @@ const fuelTypeColors: Record<FuelType, string> = {
   diesel: "text-green-400",
   gas: "text-blue-400",
   kerosene: "text-amber-400",
-  cng: "text-purple-400"
+  cng: "text-purple-400",
+  petrol_regular: "text-rose-400",
+  petrol_premium: "text-red-500"
 };
 
 // Define the Zod schema for form validation

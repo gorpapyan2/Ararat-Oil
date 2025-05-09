@@ -11,6 +11,7 @@
     "expenses": "Expenses",
     "reports": "Reports",
     "settings": "Settings",
+    "supabaseSync": "Database Sync",
     "unifiedData": "Unified Data",
     "logout": "Logout",
     "loading": "Loading...",
@@ -59,7 +60,6 @@
     "of": "of",
     "rowsPerPage": "Rows per page",
     "columns": "Columns",
-    "noResults": "No results found",
     "previousPage": "Previous page",
     "nextPage": "Next page",
     "dataTable": "Data Table",
@@ -323,7 +323,9 @@
     "saleDeleted": "Sale deleted successfully",
     "errorCreatingSale": "Failed to create sale",
     "errorUpdatingSale": "Failed to update sale",
-    "errorDeletingSale": "Failed to delete sale"
+    "errorDeletingSale": "Failed to delete sale",
+    "usingActiveShiftEmployee": "Using employee from active shift",
+    "noActiveShift": "No active shift found. Please start a shift first"
   },
   "expenses": {
     "title": "Expenses",
@@ -435,7 +437,17 @@
     "anotherEmployeeShiftActive": "Another employee has an active shift. Only one shift can be active at a time.",
     "closeShiftFirst": "Please close the active shift before starting a new one",
     "checkingForActiveShift": "Checking for active shift...",
-    "pleaseWaitWhileChecking": "Please wait while we check for your active shift..."
+    "pleaseWaitWhileChecking": "Please wait while we check for your active shift...",
+    "employeesForShift": "Employees for this Shift",
+    "selectEmployeesHint": "Select employees who will be working during this shift",
+    "basicInfo": "Basic Info",
+    "fuelPrices": "Fuel Prices",
+    "updateTodayFuelPrices": "Update Today's Fuel Prices",
+    "setDefaultPrices": "Set default fuel prices for today when starting the shift",
+    "setTodayFuelPrices": "Set Today's Fuel Prices",
+    "otherEmployeeShift": "This shift belongs to another employee",
+    "canStillClose": "You can still close this shift as an administrator",
+    "activeShiftRunning": "Active shift is running"
   },
   "todo": {
     "title": "Todo Application",
@@ -587,9 +599,15 @@
   },
   "fuelManagement": {
     "title": "Fuel Management",
-    "description": "Manage your fuel systems, tanks, and supplies",
+    "description": "Manage your fuel systems, tanks, supplies, and prices",
     "overview": "Fuel Management Overview",
-    "metrics": "Key Metrics"
+    "metrics": "Key Metrics",
+    "totalFillingSystems": "Total filling systems",
+    "totalTanks": "Total tanks",
+    "totalFuelSupplies": "Total fuel supply records",
+    "totalProviders": "Total providers",
+    "priceManagement": "Price Management",
+    "updateFuelPrices": "Update fuel prices"
   },
   "tableColumns": {
     "date": "Date",
@@ -650,5 +668,62 @@
     "accessibilityTips": "Accessibility tips",
     "useKeyboard": "Use keyboard for faster navigation",
     "mobileGestures": "Swipe right to open menu on mobile"
+  },
+  "fuelPrices": {
+    "description": "Manage fuel types and prices",
+    "currentPrices": "Current Fuel Prices",
+    "currentPricesDescription": "View and update the current prices for each fuel type",
+    "newPrice": "New Price",
+    "updatePrices": "Update Prices",
+    "priceHistory": "Price History",
+    "fuelTypes": "Fuel Types",
+    "fuelTypesDescription": "Manage your fuel types",
+    "addFuelType": "Add Fuel Type",
+    "editFuelType": "Edit Fuel Type",
+    "addFuelTypeDescription": "Create a new fuel type for your station",
+    "noFuelTypes": "No fuel types found",
+    "code": "Code",
+    "name": "Name",
+    "prices": "Fuel Prices"
+  },
+  "success": {
+    "fuelPricesUpdated": "Fuel prices updated",
+    "fuelPricesUpdatedDescription": "The fuel prices have been successfully updated",
+    "fuelTypeAdded": "Fuel type added",
+    "fuelTypeAddedDescription": "The fuel type has been successfully added",
+    "fuelTypeUpdated": "Fuel type updated",
+    "fuelTypeUpdatedDescription": "The fuel type has been successfully updated",
+    "fuelTypeDeleted": "Fuel type deleted",
+    "fuelTypeDeletedDescription": "The fuel type has been successfully deleted"
+  },
+  "errors": {
+    "loadFuelPricesFailed": "Failed to load fuel prices",
+    "updateFuelPricesFailed": "Failed to update fuel prices",
+    "loadFuelTypesFailed": "Failed to load fuel types",
+    "updateFuelTypeFailed": "Failed to update fuel type",
+    "deleteFuelTypeFailed": "Failed to delete fuel type",
+    "invalidFuelType": "Invalid fuel type",
+    "fuelTypeRequiredFields": "Code and name are required fields"
+  },
+  "syncUp": {
+    "title": "Database Synchronization",
+    "manualSync": "Manual Sync",
+    "manualSyncDescription": "Sync all resources or select specific ones to update",
+    "syncing": "Syncing...",
+    "syncAllResources": "Sync All Resources",
+    "syncSpecificResources": "Sync Specific Resources",
+    "syncSuccessful": "Sync Successful",
+    "syncFailed": "Sync Failed",
+    "syncError": "Sync Error",
+    "unexpectedError": "An unexpected error occurred during synchronization.",
+    "failedToConnect": "Failed to connect to Supabase",
+    "resourceSyncSuccess": "Successfully synced \"{{resource}}\" resource.",
+    "resourceSynced": "Resource Synced",
+    "resourceRefreshed": "The {{resource}} resource has been refreshed.",
+    "errorSyncingResource": "Error syncing {{resource}}",
+    "unknownError": "Unknown error",
+    "resourceSyncFailed": "Resource Sync Failed",
+    "unableToSyncResource": "Unable to sync the {{resource}} resource.",
+    "syncedResources": "Synced Resources"
   }
 }

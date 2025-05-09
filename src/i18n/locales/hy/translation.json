@@ -127,7 +127,10 @@
     "totalAmount": "Ընդհանուր գումար",
     "currentTotal": "Ընթացիկ ընդհանուր",
     "noFilterResults": "Զտիչին համապատասխան արդյունքներ չկան",
-    "all": "Բոլորը"
+    "all": "Բոլորը",
+    "supabaseSync": "Տվյալների բազայի համաժամացում",
+    "fuelPrices": "Վառելիքի գիներ",
+    "updateFuelPrices": "Թարմացնել վառելիքի գիները"
   },
   "auth": {
     "signIn": {
@@ -403,6 +406,7 @@
     "cashDifference": "Կանխիկի տարբերություն",
     "startShift": "Սկսել հերթափոխը",
     "endShift": "Ավարտել հերթափոխը",
+    "openShift": "Բացել հերթափոխը",
     "startShiftDescription": "Մուտքագրեք սկսնական դրամարկղի գումարը ձեր հերթափոխը սկսելու համար",
     "endShiftDescription": "Նշեք վճարման եղանակները և գումարները ձեր հերթափոխը փակելու համար",
     "open": "Բաց",
@@ -413,9 +417,10 @@
     "viewPaymentMethods": "Դիտել մանրամասները",
     "paymentMethodsDetails": "Վճարման եղանակների բաշխում",
     "paymentMethodsDetailsDescription": "Հերթափոխի ընթացքում օգտագործված վճարման եղանակների մանրամասները",
-    "closeShift": "Փակել Հերթափոխը",
-    "shiftClosedSuccessfully": "Հերթափոխը Հաջողությամբ Փակվեց",
-    "redirectingToShifts": "Վերահղում դեպի Հերթափոխեր էջ...",
+    "closeShift": "Փակել հերթափոխը",
+    "shiftClosedSuccessfully": "Հերթափոխը հաջողությամբ փակվեց",
+    "shiftOpenedSuccessfully": "Հերթափոխը հաջողությամբ բացվեց",
+    "redirectingToShifts": "Վերահղում դեպի հերթափոխերի էջ...",
     "startedAt": "Սկսվել է",
     "errorClosingShift": "Հերթափոխը փակելու ժամանակ խնդիր առաջացավ",
     "noActiveShift": "Ակտիվ հերթափոխ չի գտնվել: Խնդրում ենք սկսել հերթափոխ վաճառքներ գրանցելու համար:",
@@ -427,7 +432,28 @@
     "anotherEmployeeShiftActive": "Այլ աշխատակից ունի ակտիվ հերթափոխ: Միայն մեկ հերթափոխ կարող է լինել ակտիվ:",
     "closeShiftFirst": "Խնդրում ենք փակել ակտիվ հերթափոխը նախքան նորը սկսելը",
     "checkingForActiveShift": "Ստուգում ենք ակտիվ հերթափոխի առկայությունը...",
-    "pleaseWaitWhileChecking": "Խնդրում ենք սպասել մինչ ստուգում ենք ակտիվ հերթափոխի առկայությունը..."
+    "pleaseWaitWhileChecking": "Խնդրում ենք սպասել մինչ ստուգում ենք ակտիվ հերթափոխի առկայությունը...",
+    "shiftOverview": "Հերթափոխի ակնարկ",
+    "shiftOverviewDescription": "Ինչ է նշանակում բացել հերթափոխը ձեր բիզնեսի համար",
+    "trackingTime": "Ժամանակի հետևում",
+    "trackingTimeDescription": "Գրանցում է, երբ է սկսվում ձեր բիզնեսի գործունեությունը",
+    "trackingCash": "Կանխիկի հաշվառում",
+    "trackingCashDescription": "Գրանցում է սկզբնական կանխիկի գումարը համաձայնեցման համար",
+    "salesTracking": "Վաճառքի հետևում",
+    "salesTrackingDescription": "Այս ժամանակահատվածում բոլոր վաճառքները կկապվեն այս հերթափոխին",
+    "onlyOneShiftNote": "Նշում. Համակարգում միաժամանակ կարող է ակտիվ լինել միայն մեկ հերթափոխ:",
+    "openingCashHint": "Մուտքագրեք այն կանխիկի գումարը, որը ունեք այս հերթափոխի սկզբում",
+    "processing": "Մշակվում է...",
+    "employeesForShift": "Աշխատակիցներ այս հերթափոխի համար",
+    "selectEmployeesHint": "Ընտրեք աշխատակիցներին, ովքեր կաշխատեն այս հերթափոխի ընթացքում",
+    "basicInfo": "Հիմնական տվյալներ",
+    "fuelPrices": "Վառելիքի գներ",
+    "updateTodayFuelPrices": "Թարմացնել այսօրվա վառելիքի գները",
+    "setDefaultPrices": "Սահմանել այսօրվա վառելիքի լռելյայն գները հերթափոխը սկսելիս",
+    "setTodayFuelPrices": "Սահմանել այսօրվա վառելիքի գները",
+    "otherEmployeeShift": "Այս հերթափոխը պատկանում է մեկ այլ աշխատողի",
+    "canStillClose": "Դուք դեռ կարող եք փակել այս հերթափոխը որպես ադմինիստրատոր",
+    "activeShiftRunning": "Ակտիվ հերթափոխն ընթացքի մեջ է"
   },
   "unifiedData": {
     "title": "Միասնական տվյալներ",
@@ -489,9 +515,13 @@
   },
   "fuelManagement": {
     "title": "Վառելիքի կառավարում",
-    "description": "Կառավարեք ձեր վառելիքի համակարգերը, ամպոկները և պաշարները",
-    "overview": "Վառելիքի կառավարման ակնարկ",
-    "metrics": "Հիմնական ցուցանիշներ"
+    "description": "Կառավարեք ձեր վառելիքի համակարգերը, բաքերը, մատակարարումները և գները",
+    "totalFillingSystems": "Ընդհանուր լիցքավորման համակարգեր",
+    "totalTanks": "Ընդհանուր բաքեր",
+    "totalFuelSupplies": "Ընդհանուր վառելիքի մատակարարումներ",
+    "totalProviders": "Ընդհանուր մատակարարներ",
+    "priceManagement": "Գների կառավարում",
+    "updateFuelPrices": "Թարմացնել վառելիքի գները"
   },
   "index": {
     "welcome": "Բարի գալուստ Ձեր հավելված",
@@ -776,5 +806,60 @@
       "update": "Չհաջողվեց թարմացնել մատակարարին",
       "delete": "Չհաջողվեց ջնջել մատակարարին"
     }
+  },
+  "fuelPrices": {
+    "description": "Կառավարել վառելիքի տեսակները և գները",
+    "currentPrices": "Ընթացիկ վառելիքի գներ",
+    "currentPricesDescription": "Դիտեք և թարմացրեք յուրաքանչյուր վառելիքի տեսակի ընթացիկ գները",
+    "newPrice": "Նոր գին",
+    "updatePrices": "Թարմացնել գները",
+    "priceHistory": "Գների պատմություն",
+    "fuelTypes": "Վառելիքի տեսակներ",
+    "fuelTypesDescription": "Կառավարեք ձեր վառելիքի տեսակները",
+    "addFuelType": "Ավելացնել վառելիքի տեսակ",
+    "editFuelType": "Խմբագրել վառելիքի տեսակը",
+    "addFuelTypeDescription": "Ստեղծեք նոր վառելիքի տեսակ ձեր կայանի համար",
+    "noFuelTypes": "Վառելիքի տեսակներ չեն գտնվել",
+    "code": "Կոդ",
+    "name": "Անվանում",
+    "prices": "Վառելիքի գներ"
+  },
+  "success": {
+    "fuelPricesUpdated": "Վառելիքի գները թարմացվել են",
+    "fuelPricesUpdatedDescription": "Վառելիքի գները հաջողությամբ թարմացվել են",
+    "fuelTypeAdded": "Վառելիքի տեսակն ավելացված է",
+    "fuelTypeAddedDescription": "Վառելիքի տեսակը հաջողությամբ ավելացվել է",
+    "fuelTypeUpdated": "Վառելիքի տեսակը թարմացվել է",
+    "fuelTypeUpdatedDescription": "Վառելիքի տեսակը հաջողությամբ թարմացվել է",
+    "fuelTypeDeleted": "Վառելիքի տեսակը ջնջվել է",
+    "fuelTypeDeletedDescription": "Վառելիքի տեսակը հաջողությամբ ջնջվել է"
+  },
+  "errors": {
+    "loadFuelPricesFailed": "Չհաջողվեց բեռնել վառելիքի գները",
+    "updateFuelPricesFailed": "Չհաջողվեց թարմացնել վառելիքի գները",
+    "loadFuelTypesFailed": "Չհաջողվեց բեռնել վառելիքի տեսակները",
+    "invalidFuelType": "Անվավեր վառելիքի տեսակ",
+    "fuelTypeRequiredFields": "Կոդը և անվանումը պարտադիր դաշտեր են"
+  },
+  "syncUp": {
+    "title": "Տվյալների համաժամացում",
+    "manualSync": "Ձեռքով համաժամացում",
+    "manualSyncDescription": "Համաժամացնել բոլոր ռեսուրսները կամ ընտրել կոնկրետ ռեսուրսներ",
+    "syncing": "Համաժամացվում է...",
+    "syncAllResources": "Համաժամացնել բոլորը",
+    "syncSpecificResources": "Համաժամացնել կոնկրետ ռեսուրսները",
+    "syncSuccessful": "Համաժամացումը հաջող էր",
+    "syncFailed": "Համաժամացումը ձախողվեց",
+    "syncError": "Համաժամացման սխալ",
+    "unexpectedError": "Համաժամացման ընթացքում տեղի է ունեցել անսպասելի սխալ։",
+    "failedToConnect": "Չհաջողվեց միանալ Supabase-ին",
+    "resourceSyncSuccess": "\"{{resource}}\" ռեսուրսը հաջողությամբ համաժամացվել է։",
+    "resourceSynced": "Ռեսուրսը համաժամացված է",
+    "resourceRefreshed": "{{resource}} ռեսուրսը թարմացվել է։",
+    "errorSyncingResource": "{{resource}} համաժամացման սխալ",
+    "unknownError": "Անհայտ սխալ",
+    "resourceSyncFailed": "Ռեսուրսի համաժամացումը ձախողվեց",
+    "unableToSyncResource": "Չհաջողվեց համաժամացնել {{resource}} ռեսուրսը։",
+    "syncedResources": "Համաժամացված ռեսուրսներ"
   }
 }

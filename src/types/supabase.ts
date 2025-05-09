@@ -562,6 +562,71 @@ export type Database = {
           },
         ]
       }
+      fuel_prices: {
+        Row: {
+          id: string
+          fuel_type: string
+          fuel_type_id: string
+          price_per_liter: number
+          effective_date: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          fuel_type: string
+          fuel_type_id: string
+          price_per_liter: number
+          effective_date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          fuel_type?: string
+          fuel_type_id?: string
+          price_per_liter?: number
+          effective_date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fuel_prices_fuel_type_id_fkey"
+            columns: ["fuel_type_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_types"
+            referencedColumns: ["id"]
+          }
+        ]
+      },
+      fuel_types: {
+        Row: {
+          id: string
+          code: string
+          name: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          code: string
+          name: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          name?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      },
     }
     Views: {
       [_ in never]: never

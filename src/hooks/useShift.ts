@@ -68,6 +68,33 @@ export function useShift() {
         return activeShift;
       }
       
+      // Check for ANY active shift in the system
+      const { data: anyActiveShift, error: anyActiveError } = await supabase
+        .from("shifts")
+        .select()
+        .eq("status", "OPEN")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!anyActiveError && anyActiveShift) {
+        console.log("Found an active shift in the system:", anyActiveShift);
+        
+        // Always update the activeShift state with any active shift
+        // This ensures we know a shift is active even if it's not for the current user
+        setActiveShift(anyActiveShift as Shift);
+        
+        // Cache this for the user too, for reference
+        localStorage.setItem(`activeShift_system`, JSON.stringify(anyActiveShift));
+        
+        // If it belongs to the current user, cache it specifically for them
+        if (anyActiveShift.employee_id === (userId || user?.id)) {
+          localStorage.setItem(`activeShift_${userId || user?.id}`, JSON.stringify(anyActiveShift));
+        }
+        
+        return anyActiveShift as Shift;
+      }
+      
       // Implement retry logic with backoff
       let retryCount = 0;
       const maxRetries = 3;
@@ -176,7 +203,7 @@ export function useShift() {
     }
   };
 
-  const beginShift = async (openingCash: number) => {
+  const beginShift = async (openingCash: number, employeeIds: string[] = []) => {
     try {
       setIsLoading(true);
       
@@ -186,6 +213,15 @@ export function useShift() {
         const cachedShift = localStorage.getItem(`activeShift_${user?.id}`);
         if (cachedShift) {
           throw new Error("You already have an active shift open. Please close it before starting a new one.");
+        }
+        
+        // Also check for system-wide active shift
+        const systemShift = localStorage.getItem(`activeShift_system`);
+        if (systemShift) {
+          const parsedShift = JSON.parse(systemShift);
+          if (parsedShift && parsedShift.employee_id !== user?.id) {
+            throw new Error("Another employee has an active shift open. Only one shift can be active at a time.");
+          }
         }
       } else {
         // For online mode, check with the server - this requires a modification to fetch ANY active shift
@@ -218,12 +254,24 @@ export function useShift() {
             }
             // For other errors, proceed with caution - might be a network issue
             console.warn("Warning: Could not verify if an active shift exists");
+            
+            // Do a double-check with our utility function
+            const anyActiveShift = await checkActiveShift(user?.id, true);
+            if (anyActiveShift) {
+              const isCurrentUserShift = anyActiveShift.employee_id === user?.id;
+              
+              if (isCurrentUserShift) {
+                throw new Error("You already have an active shift open. Please close it before starting a new one.");
+              } else {
+                throw new Error("Another employee has an active shift open. Only one shift can be active at a time.");
+              }
+            }
           }
         }
       }
       
       // If we get here, no active shift was found, so we can proceed
-      const newShift = await startShift(openingCash);
+      const newShift = await startShift(openingCash, employeeIds);
       setActiveShift(newShift);
       toast({
         title: "Shift Started",

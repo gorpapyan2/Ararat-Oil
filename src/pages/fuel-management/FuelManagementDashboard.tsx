@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IconGasStation, IconTank, IconTruck, IconArrowRight, IconBuildingFactory } from "@tabler/icons-react";
+import { IconGasStation, IconTank, IconTruck, IconArrowRight, IconBuildingFactory, IconTag } from "@tabler/icons-react";
 import { supabase } from "@/services/supabase";
 
 export default function FuelManagementDashboard() {
@@ -65,122 +65,106 @@ export default function FuelManagementDashboard() {
     <div className="space-y-6">
       <PageHeader
         title={t("common.fuelManagement")}
-        description={t("fuelManagement.description") || "Manage your fuel systems, tanks, and supplies"}
+        description={t("fuelManagement.description") || "Manage your fuel systems, tanks, supplies, and prices"}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Filling Systems Card */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+        <Card className="relative overflow-hidden">
+          <CardHeader>
             <CardTitle className="flex items-center">
-              <IconGasStation className="mr-2 h-5 w-5 text-primary" />
+              <IconGasStation className="h-5 w-5 mr-2 text-primary" />
               {t("common.fillingSystems")}
             </CardTitle>
-            <CardDescription>
-              {t("fillingSystems.description") || "Manage your fuel dispensers and pumps"}
-            </CardDescription>
+            <CardDescription>{t("fillingSystems.description") || "Manage your fuel dispensers"}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{fillingSystems?.count || 0}</div>
-            <p className="text-sm text-muted-foreground">
-              {t("fillingSystems.totalCount", { count: fillingSystems?.count || 0 })}
-            </p>
+            <div className="text-2xl font-bold">{fillingSystems?.count || 0}</div>
+            <p className="text-sm text-muted-foreground">{t("fuelManagement.totalFillingSystems")}</p>
           </CardContent>
           <CardFooter>
-            <Button
-              variant="ghost"
-              className="w-full justify-between"
-              onClick={() => navigate("/fuel-management/filling-systems")}
-            >
-              {t("common.manage")}
-              <IconArrowRight className="h-4 w-4" />
+            <Button variant="outline" className="w-full" onClick={() => navigate("filling-systems")}>
+              {t("common.manage")} <IconArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </CardFooter>
         </Card>
 
         {/* Tanks Card */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+        <Card className="relative overflow-hidden">
+          <CardHeader>
             <CardTitle className="flex items-center">
-              <IconTank className="mr-2 h-5 w-5 text-primary" />
+              <IconTank className="h-5 w-5 mr-2 text-primary" />
               {t("common.tanks")}
             </CardTitle>
-            <CardDescription>
-              {t("tanks.description") || "Manage your fuel storage tanks"}
-            </CardDescription>
+            <CardDescription>{t("tanks.description") || "Manage your fuel storage tanks"}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{tanks?.count || 0}</div>
-            <p className="text-sm text-muted-foreground">
-              {t("tanks.totalCount", { count: tanks?.count || 0 })}
-            </p>
+            <div className="text-2xl font-bold">{tanks?.count || 0}</div>
+            <p className="text-sm text-muted-foreground">{t("fuelManagement.totalTanks")}</p>
           </CardContent>
           <CardFooter>
-            <Button
-              variant="ghost"
-              className="w-full justify-between"
-              onClick={() => navigate("/fuel-management/tanks")}
-            >
-              {t("common.manage")}
-              <IconArrowRight className="h-4 w-4" />
+            <Button variant="outline" className="w-full" onClick={() => navigate("tanks")}>
+              {t("common.manage")} <IconArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </CardFooter>
         </Card>
 
         {/* Fuel Supplies Card */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+        <Card className="relative overflow-hidden">
+          <CardHeader>
             <CardTitle className="flex items-center">
-              <IconTruck className="mr-2 h-5 w-5 text-primary" />
+              <IconTruck className="h-5 w-5 mr-2 text-primary" />
               {t("common.fuelSupplies")}
             </CardTitle>
-            <CardDescription>
-              {t("fuelSupplies.description") || "Track your fuel supply deliveries"}
-            </CardDescription>
+            <CardDescription>{t("fuelSupplies.description") || "Track your fuel supply deliveries"}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{fuelSupplies?.count || 0}</div>
-            <p className="text-sm text-muted-foreground">
-              {t("fuelSupplies.totalCount", { count: fuelSupplies?.count || 0 })}
-            </p>
+            <div className="text-2xl font-bold">{fuelSupplies?.count || 0}</div>
+            <p className="text-sm text-muted-foreground">{t("fuelManagement.totalFuelSupplies")}</p>
           </CardContent>
           <CardFooter>
-            <Button
-              variant="ghost"
-              className="w-full justify-between"
-              onClick={() => navigate("/fuel-management/fuel-supplies")}
-            >
-              {t("common.manage")}
-              <IconArrowRight className="h-4 w-4" />
+            <Button variant="outline" className="w-full" onClick={() => navigate("fuel-supplies")}>
+              {t("common.manage")} <IconArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </CardFooter>
         </Card>
 
         {/* Providers Card */}
-        <Card className="hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
+        <Card className="relative overflow-hidden">
+          <CardHeader>
             <CardTitle className="flex items-center">
-              <IconBuildingFactory className="mr-2 h-5 w-5 text-primary" />
+              <IconBuildingFactory className="h-5 w-5 mr-2 text-primary" />
               {t("common.providers")}
             </CardTitle>
-            <CardDescription>
-              {t("providers.description") || "Manage your fuel suppliers"}
-            </CardDescription>
+            <CardDescription>{t("providers.description") || "Manage your fuel suppliers"}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{providers?.count || 0}</div>
-            <p className="text-sm text-muted-foreground">
-              {t("providers.totalCount", { count: providers?.count || 0 })}
-            </p>
+            <div className="text-2xl font-bold">{providers?.count || 0}</div>
+            <p className="text-sm text-muted-foreground">{t("fuelManagement.totalProviders")}</p>
           </CardContent>
           <CardFooter>
-            <Button
-              variant="ghost"
-              className="w-full justify-between"
-              onClick={() => navigate("/fuel-management/providers")}
-            >
-              {t("common.manage")}
-              <IconArrowRight className="h-4 w-4" />
+            <Button variant="outline" className="w-full" onClick={() => navigate("providers")}>
+              {t("common.manage")} <IconArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Fuel Prices Card */}
+        <Card className="relative overflow-hidden">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <IconTag className="h-5 w-5 mr-2 text-primary" />
+              {t("common.fuelPrices")}
+            </CardTitle>
+            <CardDescription>{t("fuelPrices.description") || "Manage your fuel prices"}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{t("fuelManagement.priceManagement")}</div>
+            <p className="text-sm text-muted-foreground">{t("fuelManagement.updateFuelPrices")}</p>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" onClick={() => navigate("fuel-prices")}>
+              {t("common.manage")} <IconArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </CardFooter>
         </Card>

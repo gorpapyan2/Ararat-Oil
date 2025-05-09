@@ -67,6 +67,29 @@ export async function fetchActiveShift(employeeId: string) {
       return null;
     }
 
+    // First, check for ANY active shift in the system
+    const { data: anyActiveShift, error: anyShiftError } = await supabase
+      .from("shifts")
+      .select()
+      .eq("status", "OPEN")
+      .maybeSingle();
+
+    if (anyShiftError) {
+      console.error("Error checking for any active shifts:", anyShiftError);
+    } else if (anyActiveShift) {
+      console.log("Found an active shift in the system:", anyActiveShift);
+      
+      // If this shift belongs to the current employee, use it
+      if (anyActiveShift.employee_id === employeeId) {
+        localStorage.setItem(`activeShift_${employeeId}`, JSON.stringify(anyActiveShift));
+        return anyActiveShift;
+      } else {
+        // Otherwise, indicate there's an active shift for someone else
+        console.log("Active shift belongs to another employee:", anyActiveShift.employee_id);
+      }
+    }
+    
+    // Then check specifically for this employee's active shift
     const { data, error } = await supabase
       .from("shifts")
       .select()

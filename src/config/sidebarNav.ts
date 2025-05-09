@@ -9,6 +9,7 @@ import {
   Bug,
   Fuel,
   Wallet,
+  Database,
 } from "lucide-react";
 import {
   IconGasStation,
@@ -57,6 +58,7 @@ export const useSidebarNavConfig = () => {
     ],
     management: [
       { to: "/employees", icon: Users, label: t("common.employees") },
+      { to: "/syncup", icon: Database, label: t("common.supabaseSync") },
       { to: "/settings", icon: Settings, label: t("common.settings") },
     ],
     development: [

@@ -90,20 +90,30 @@ export default function ShiftClose() {
         }
         
         console.log("Performing initial check for active shift...");
-        await checkActiveShift();
+        const currentShift = await checkActiveShift(user?.id, true);
         
         if (isMounted) {
-          console.log("Initial check complete, activeShift state:", activeShift ? "Active shift exists" : "No active shift");
+          console.log("Initial check complete, activeShift state:", currentShift ? "Active shift exists" : "No active shift");
           setInitialCheckDone(true);
           setIsInitialLoading(false);
           
-          // Add a small delay before checking for redirect
+          // Wait longer (3 seconds) before deciding to redirect
+          // This gives more time for the activeShift state to be populated
           setTimeout(() => {
-            if (isMounted && !activeShift && !isShiftLoading) {
+            if (!isMounted) return;
+            
+            console.log("Delayed check for active shift:", {
+              activeShift: activeShift ? "exists" : "null",
+              currentShift: currentShift ? "exists" : "null",
+              isLoading: isShiftLoading
+            });
+            
+            // Only redirect if there's no active shift found in direct check AND in state
+            if (!currentShift && !activeShift && !isShiftLoading) {
               console.log("No active shift found after initial check, will redirect");
               navigate('/finance/shifts', { replace: true });
             }
-          }, 500);
+          }, 3000);
         }
       } catch (error: any) {
         console.error("Error during initial shift check:", error);
@@ -143,25 +153,26 @@ export default function ShiftClose() {
       // Skip if we're in a loading or success state
       if (isShiftLoading || success || isSubmitting) return;
       
-      await checkActiveShift();
+      const currentShift = await checkActiveShift(user?.id, false);
       
       // Only redirect if we've confirmed there's no active shift and haven't already redirected
-      if (!activeShift && !redirected) {
+      // AND we're not currently submitting a form
+      if (!currentShift && !activeShift && !redirected && !isSubmitting) {
         redirected = true;
         console.log("No active shift found, redirecting to shifts page");
         navigate('/finance/shifts', { replace: true });
       }
     };
 
-    // Set up periodic check
-    intervalId = window.setInterval(checkShift, 5000);
+    // Set up periodic check - make it less frequent (20 seconds)
+    intervalId = window.setInterval(checkShift, 20000);
 
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
       }
     };
-  }, [initialCheckDone, activeShift, isShiftLoading, checkActiveShift, navigate, success, isSubmitting]);
+  }, [initialCheckDone, activeShift, isShiftLoading, checkActiveShift, navigate, success, isSubmitting, user]);
 
   // Set up redirection after success
   useEffect(() => {
@@ -332,6 +343,11 @@ export default function ShiftClose() {
     );
   }
 
+  // Special check to see if the active shift belongs to another user
+  // In this case, we still allow closing the shift, but show a warning
+  const isCurrentUserShift = activeShift.employee_id === user?.id;
+  const showOtherUserWarning = !isCurrentUserShift && user?.id;
+
   return (
     <PageLayout 
       titleKey="shifts.closeShift"
@@ -352,6 +368,18 @@ export default function ShiftClose() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>{t("common.error")}</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
+        {showOtherUserWarning && (
+          <Alert className="mb-4 bg-amber-50 border-amber-200">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-amber-800">
+              {t("shifts.otherEmployeeShift", "This shift belongs to another employee")}
+            </AlertTitle>
+            <AlertDescription className="text-amber-700">
+              {t("shifts.canStillClose", "You can still close this shift as an administrator.")}
+            </AlertDescription>
           </Alert>
         )}
         
