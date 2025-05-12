@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { fetchEmployees } from "@/services/employees";
 import { Employee, FuelType } from "@/types";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { getCurrentFuelPrices, updateAllFuelPrices } from "@/services/fuel-prices";
+import { getFuelPrices, updateAllFuelPrices } from "@/services/fuel-prices";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -65,11 +65,10 @@ export default function ShiftOpen() {
   const [success, setSuccess] = useState(false);
   const [activeEmployees, setActiveEmployees] = useState<Employee[]>([]);
   const [currentFuelPrices, setCurrentFuelPrices] = useState<Record<FuelType, number>>({
-    petrol: 0,
     diesel: 0,
     gas: 0,
-    kerosene: 0,
-    cng: 0,
+    petrol_regular: 0,
+    petrol_premium: 0,
   });
   const navigate = useNavigate();
 
@@ -108,11 +107,17 @@ export default function ShiftOpen() {
   useEffect(() => {
     const loadFuelPrices = async () => {
       try {
-        const prices = await getCurrentFuelPrices();
-        setCurrentFuelPrices(prices);
+        const prices = await getFuelPrices();
+        setCurrentFuelPrices(prices.reduce((acc, price) => {
+          acc[price.fuel_type as FuelType] = price.price_per_liter;
+          return acc;
+        }, {} as Record<FuelType, number>));
         
         // Update form values with current fuel prices
-        form.setValue("fuelPrices", prices);
+        form.setValue("fuelPrices", prices.reduce((acc, price) => {
+          acc[price.fuel_type as FuelType] = price.price_per_liter;
+          return acc;
+        }, {} as Record<FuelType, number>));
       } catch (error) {
         console.error("Failed to load fuel prices:", error);
       }

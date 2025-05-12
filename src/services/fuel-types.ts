@@ -1,4 +1,4 @@
-import { supabase } from "@/services/supabase";
+import { fuelTypesApi } from "@/services/api";
 
 export interface FuelType {
   id: string;
@@ -19,6 +19,7 @@ export interface CreateFuelTypeRequest {
 // Type definition for updating a fuel type
 export interface UpdateFuelTypeRequest {
   name?: string;
+  code?: string;
   is_active?: boolean;
 }
 
@@ -28,14 +29,11 @@ export interface UpdateFuelTypeRequest {
  */
 export async function fetchFuelTypes(): Promise<FuelType[]> {
   try {
-    const { data, error } = await supabase
-      .from("fuel_types")
-      .select("*")
-      .order("name");
+    const { data, error } = await fuelTypesApi.getAll();
 
     if (error) {
       console.error("Error fetching fuel types:", error);
-      throw error;
+      throw new Error(error);
     }
 
     return data || [];
@@ -51,15 +49,11 @@ export async function fetchFuelTypes(): Promise<FuelType[]> {
  */
 export async function fetchActiveFuelTypes(): Promise<FuelType[]> {
   try {
-    const { data, error } = await supabase
-      .from("fuel_types")
-      .select("*")
-      .eq("is_active", true)
-      .order("name");
+    const { data, error } = await fuelTypesApi.getActive();
 
     if (error) {
       console.error("Error fetching active fuel types:", error);
-      throw error;
+      throw new Error(error);
     }
 
     return data || [];
@@ -76,18 +70,14 @@ export async function fetchActiveFuelTypes(): Promise<FuelType[]> {
  */
 export async function fetchFuelTypeById(id: string): Promise<FuelType | null> {
   try {
-    const { data, error } = await supabase
-      .from("fuel_types")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+    const { data, error } = await fuelTypesApi.getById(id);
 
     if (error) {
       console.error(`Error fetching fuel type with ID ${id}:`, error);
-      throw error;
+      throw new Error(error);
     }
 
-    return data;
+    return data || null;
   } catch (err) {
     console.error(`Failed to fetch fuel type with ID ${id}:`, err);
     throw err;
@@ -101,15 +91,11 @@ export async function fetchFuelTypeById(id: string): Promise<FuelType | null> {
  */
 export async function createFuelType(fuelType: CreateFuelTypeRequest): Promise<FuelType> {
   try {
-    const { data, error } = await supabase
-      .from("fuel_types")
-      .insert([fuelType])
-      .select()
-      .single();
+    const { data, error } = await fuelTypesApi.create(fuelType);
 
     if (error) {
       console.error("Error creating fuel type:", error);
-      throw error;
+      throw new Error(error);
     }
 
     return data;
@@ -127,16 +113,11 @@ export async function createFuelType(fuelType: CreateFuelTypeRequest): Promise<F
  */
 export async function updateFuelType(id: string, updates: UpdateFuelTypeRequest): Promise<FuelType> {
   try {
-    const { data, error } = await supabase
-      .from("fuel_types")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
+    const { data, error } = await fuelTypesApi.update(id, updates);
 
     if (error) {
       console.error(`Error updating fuel type with ID ${id}:`, error);
-      throw error;
+      throw new Error(error);
     }
 
     return data;
@@ -153,14 +134,11 @@ export async function updateFuelType(id: string, updates: UpdateFuelTypeRequest)
  */
 export async function deleteFuelType(id: string): Promise<void> {
   try {
-    const { error } = await supabase
-      .from("fuel_types")
-      .delete()
-      .eq("id", id);
+    const { error } = await fuelTypesApi.delete(id);
 
     if (error) {
       console.error(`Error deleting fuel type with ID ${id}:`, error);
-      throw error;
+      throw new Error(error);
     }
   } catch (err) {
     console.error(`Failed to delete fuel type with ID ${id}:`, err);
@@ -173,26 +151,21 @@ export async function deleteFuelType(id: string): Promise<void> {
  * @param code The code to check
  * @param excludeId Optional ID to exclude from the check (for updates)
  * @returns True if the code is unique
+ * 
+ * Note: This function now relies on the server-side validation in our Edge Function.
+ * If a fuel type with the same code exists, the create or update operation will fail
+ * with an appropriate error message.
  */
 export async function isFuelTypeCodeUnique(code: string, excludeId?: string): Promise<boolean> {
   try {
-    let query = supabase
-      .from("fuel_types")
-      .select("id")
-      .eq("code", code);
+    const { data: fuelTypes } = await fuelTypesApi.getAll();
     
-    if (excludeId) {
-      query = query.neq("id", excludeId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error(`Error checking if fuel type code ${code} is unique:`, error);
-      throw error;
-    }
-
-    return data.length === 0;
+    if (!fuelTypes) return true;
+    
+    // Check if any fuel type (except the one being excluded) has this code
+    return !fuelTypes.some(ft => 
+      ft.code === code && (!excludeId || ft.id !== excludeId)
+    );
   } catch (err) {
     console.error(`Failed to check if fuel type code ${code} is unique:`, err);
     throw err;

@@ -1,116 +1,119 @@
-import { supabase } from "@/services/supabase";
+import { employeesApi } from "@/services/api";
 import { Employee, EmployeeStatus } from "@/types";
 
-// Mock data for offline mode
-const MOCK_EMPLOYEES: Employee[] = [
-  {
-    id: "offline-emp-1",
-    name: "John Doe",
-    position: "Manager",
-    contact: "+374 11 123456",
-    salary: 150000,
-    hire_date: "2022-01-15",
-    status: "active",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "offline-emp-2",
-    name: "Jane Smith",
-    position: "Operator",
-    contact: "+374 11 654321",
-    salary: 120000,
-    hire_date: "2022-03-10",
-    status: "active",
-    created_at: new Date().toISOString()
-  }
-];
+export interface CreateEmployeeRequest {
+  name: string;
+  position: string;
+  contact: string;
+  salary: number;
+  hire_date: string;
+  status: EmployeeStatus;
+}
+
+export interface UpdateEmployeeRequest {
+  name?: string;
+  position?: string;
+  contact?: string;
+  salary?: number;
+  hire_date?: string;
+  status?: EmployeeStatus;
+}
 
 export const fetchEmployees = async (options?: { status?: EmployeeStatus }): Promise<Employee[]> => {
   try {
-    // Check for offline status
-    if (!navigator.onLine) {
-      console.log("Using offline mode for employees");
-      return options?.status 
-        ? MOCK_EMPLOYEES.filter(emp => emp.status === options.status)
-        : MOCK_EMPLOYEES;
-    }
-
-    // Verify authentication
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      console.log("No session, using offline mode for employees");
-      return options?.status 
-        ? MOCK_EMPLOYEES.filter(emp => emp.status === options.status)
-        : MOCK_EMPLOYEES;
-    }
-
-    let query = supabase
-      .from("employees")
-      .select("*")
-      .order("name", { ascending: true });
-
-    if (options?.status) {
-      query = query.eq("status", options.status);
-    }
-
-    const { data, error } = await query;
+    const { data, error } = await employeesApi.getAll(options);
 
     if (error) {
       console.error("Error fetching employees:", error);
-      return options?.status 
-        ? MOCK_EMPLOYEES.filter(emp => emp.status === options.status)
-        : MOCK_EMPLOYEES;
+      throw new Error(error);
     }
 
-    return (data || []).map((employee) => ({
-      ...employee,
-      status: employee.status as EmployeeStatus,
-    }));
+    return data || [];
   } catch (err) {
     console.error("Failed to fetch employees:", err);
-    console.log("Using offline mode as fallback for employees");
-    return options?.status 
-      ? MOCK_EMPLOYEES.filter(emp => emp.status === options.status)
-      : MOCK_EMPLOYEES;
+    throw err;
+  }
+};
+
+export const fetchActiveEmployees = async (): Promise<Employee[]> => {
+  try {
+    const { data, error } = await employeesApi.getActive();
+
+    if (error) {
+      console.error("Error fetching active employees:", error);
+      throw new Error(error);
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error("Failed to fetch active employees:", err);
+    throw err;
+  }
+};
+
+export const fetchEmployeeById = async (id: string): Promise<Employee | null> => {
+  try {
+    const { data, error } = await employeesApi.getById(id);
+
+    if (error) {
+      console.error(`Error fetching employee with ID ${id}:`, error);
+      throw new Error(error);
+    }
+
+    return data || null;
+  } catch (err) {
+    console.error(`Failed to fetch employee with ID ${id}:`, err);
+    throw err;
   }
 };
 
 export const createEmployee = async (
-  employee: Omit<Employee, "id" | "created_at">,
+  employee: CreateEmployeeRequest
 ): Promise<Employee> => {
-  const { data, error } = await supabase
-    .from("employees")
-    .insert([employee])
-    .select()
-    .single();
+  try {
+    const { data, error } = await employeesApi.create(employee);
 
-  if (error) throw error;
-  return {
-    ...data,
-    status: data.status as EmployeeStatus,
-  };
+    if (error) {
+      console.error("Error creating employee:", error);
+      throw new Error(error);
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Failed to create employee:", err);
+    throw err;
+  }
 };
 
 export const updateEmployee = async (
   id: string,
-  employee: Partial<Employee>,
+  employee: UpdateEmployeeRequest
 ): Promise<Employee> => {
-  const { data, error } = await supabase
-    .from("employees")
-    .update(employee)
-    .eq("id", id)
-    .select()
-    .single();
+  try {
+    const { data, error } = await employeesApi.update(id, employee);
 
-  if (error) throw error;
-  return {
-    ...data,
-    status: data.status as EmployeeStatus,
-  };
+    if (error) {
+      console.error(`Error updating employee with ID ${id}:`, error);
+      throw new Error(error);
+    }
+
+    return data;
+  } catch (err) {
+    console.error(`Failed to update employee with ID ${id}:`, err);
+    throw err;
+  }
 };
 
 export const deleteEmployee = async (id: string): Promise<void> => {
-  const { error } = await supabase.from("employees").delete().eq("id", id);
+  try {
+    const { error } = await employeesApi.delete(id);
 
-  if (error) throw error;
+    if (error) {
+      console.error(`Error deleting employee with ID ${id}:`, error);
+      throw new Error(error);
+    }
+  } catch (err) {
+    console.error(`Failed to delete employee with ID ${id}:`, err);
+    throw err;
+  }
 };

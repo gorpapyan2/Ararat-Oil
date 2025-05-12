@@ -31,7 +31,7 @@ export interface FuelTank {
   name: string;
   capacity: number;
   current_level: number;
-  fuel_type: FuelType;
+  fuel_type: FuelType | FuelTypeModel;
   fuel_type_id?: string; // New field for the foreign key
   created_at?: string;
 }

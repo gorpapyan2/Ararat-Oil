@@ -12,7 +12,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import {
   Plus,
@@ -75,7 +74,7 @@ export function ExpensesManagerStandardized() {
   // Fetch expenses data
   const { data: expenses = [], isLoading } = useQuery({
     queryKey: ["expenses"],
-    queryFn: fetchExpenses,
+    queryFn: () => fetchExpenses(filters),
   });
 
   // TODO: Add create/update/deleteExpense mutations here
@@ -97,7 +96,6 @@ export function ExpensesManagerStandardized() {
     // TODO: Implement delete functionality
     console.log("Delete expense with ID:", id);
   }, []);
-
   const handleFiltersChange = useCallback((updates: any) => {
     setFilters((prev) => ({ ...prev, ...updates }));
   }, []);

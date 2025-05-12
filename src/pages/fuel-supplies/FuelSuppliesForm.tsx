@@ -16,7 +16,7 @@ import { fetchFuelTanks } from "@/services/tanks";
 import { fetchEmployees } from "@/services/employees";
 
 // Types
-import { FuelSupply, FuelType } from "@/types";
+import { FuelSupply, FuelType, FuelTypeCode } from "@/types";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -63,12 +63,9 @@ const tankSelectStyles = {
 const selectItemStyle = "text-white hover:bg-slate-700 hover:text-white data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground";
 
 // Define fuel type color indicators for the tank options
-const fuelTypeColors: Record<FuelType, string> = {
-  petrol: "text-red-400",
+const fuelTypeColors: Record<FuelTypeCode, string> = {
   diesel: "text-green-400",
   gas: "text-blue-400",
-  kerosene: "text-amber-400",
-  cng: "text-purple-400",
   petrol_regular: "text-rose-400",
   petrol_premium: "text-red-500"
 };
@@ -240,11 +237,24 @@ export function FuelSuppliesForm({
   // Tank options for select with color-coded fuel types - ALWAYS call this hook
   const tankOptions = useMemo(() => {
     return tanks?.map(tank => {
-      const fuelTypeColor = fuelTypeColors[tank.fuel_type];
-      
+      // Safely extract fuel type label
+      let fuelTypeLabel = "";
+      if (typeof tank.fuel_type === "object" && tank.fuel_type !== null) {
+        fuelTypeLabel = tank.fuel_type.name || tank.fuel_type.code || "";
+      } else if (typeof tank.fuel_type === "string") {
+        fuelTypeLabel = tank.fuel_type;
+      } else {
+        fuelTypeLabel = "";
+      }
+      const fuelTypeCode =
+      typeof tank.fuel_type === "object" && tank.fuel_type !== null
+        ? tank.fuel_type.code
+        : tank.fuel_type;
+    
+    const fuelTypeColor = fuelTypeColors[fuelTypeCode as FuelTypeCode];
       return {
         value: tank.id,
-        label: `${tank.name} (${tank.fuel_type})`,
+        label: `${tank.name} (${fuelTypeLabel})`,
         colorClass: fuelTypeColor
       };
     }) || [];

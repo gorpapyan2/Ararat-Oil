@@ -40,6 +40,31 @@ import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip as TooltipUI, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
+// Types
+interface Sale {
+  id: string;
+  date?: string;
+  created_at?: string;
+  total_sales: number;
+}
+
+interface Expense {
+  id: string;
+  date?: string;
+  created_at?: string;
+  amount: number;
+}
+
+interface ChartDataItem {
+  month: string;
+  fullMonth: string;
+  income: number;
+  expense: number;
+  profit: number;
+  isPositive: boolean;
+  index: number;
+}
+
 // Professional color palette
 const COLORS = {
   income: {
@@ -80,7 +105,6 @@ export function IncomeExpenseOverview() {
   const safeT = (key: string, fallback: string) => {
     try {
       const translation = t(key);
-      // If the translation key returns the key itself, use the fallback
       return translation === key ? fallback : translation;
     } catch (error) {
       return fallback;
@@ -90,21 +114,31 @@ export function IncomeExpenseOverview() {
   // Fetch sales data
   const { data: sales = [], isLoading: isSalesLoading } = useQuery({
     queryKey: ['sales'],
-    queryFn: fetchSales,
+    queryFn: async () => {
+      const data = await fetchSales();
+      return data as Sale[];
+    },
     retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (replaces cacheTime)
   });
   
   // Fetch expenses data
   const { data: expenses = [], isLoading: isExpensesLoading } = useQuery({
     queryKey: ['expenses'],
-    queryFn: fetchExpenses,
+    queryFn: async () => {
+      const data = await fetchExpenses();
+      return data as Expense[];
+    },
     retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (replaces cacheTime)
   });
   
   const isLoading = isSalesLoading || isExpensesLoading;
   
   // Process data for the chart
-  const chartData = useMemo(() => {
+  const chartData = useMemo<ChartDataItem[]>(() => {
     // Get the last 6 months
     const months = Array.from({ length: 6 }).map((_, idx) => {
       const date = subMonths(new Date(), 5 - idx);
@@ -120,7 +154,7 @@ export function IncomeExpenseOverview() {
     // Group sales by month
     const salesByMonth = months.map(({ month, monthLabel, startOfMonth, endOfMonth }) => {
       const monthSales = sales.filter(sale => {
-        const saleDate = new Date(sale.date || sale.created_at);
+        const saleDate = new Date(sale.date || sale.created_at || '');
         return saleDate >= startOfMonth && saleDate <= endOfMonth;
       });
       
@@ -131,7 +165,7 @@ export function IncomeExpenseOverview() {
     // Group expenses by month
     const expensesByMonth = months.map(({ month, monthLabel, startOfMonth, endOfMonth }) => {
       const monthExpenses = expenses.filter(expense => {
-        const expenseDate = new Date(expense.date || expense.created_at);
+        const expenseDate = new Date(expense.date || expense.created_at || '');
         return expenseDate >= startOfMonth && expenseDate <= endOfMonth;
       });
       
@@ -308,7 +342,11 @@ export function IncomeExpenseOverview() {
           <CardTitle className="text-xl md:text-2xl font-bold">
             {t("dashboard.incomeExpenseOverview")}
           </CardTitle>
-          <Tabs defaultValue="monthly" className="w-full sm:w-auto" onValueChange={(val) => setChartType(val as "monthly" | "total")}>
+          <Tabs 
+            value={chartType} 
+            className="w-full sm:w-auto" 
+            onValueChange={(val) => setChartType(val as "monthly" | "total")}
+          >
             <TabsList className="grid grid-cols-2 w-full sm:w-[240px]">
               <TabsTrigger value="monthly" className="text-xs sm:text-sm">
                 {safeT("common.monthlyView", "Monthly View")}
@@ -317,6 +355,163 @@ export function IncomeExpenseOverview() {
                 {safeT("common.summaryView", "Summary View")}
               </TabsTrigger>
             </TabsList>
+            <TabsContent value="monthly" className="mt-0">
+              <div className="h-[300px] md:h-[350px] w-full">
+                {isLoading ? (
+                  <div className="h-full w-full flex items-center justify-center bg-muted/20 rounded-md">
+                    <p>{t("common.loading")}</p>
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData}
+                      margin={{
+                        top: 20,
+                        right: isMobile ? 10 : 20,
+                        left: isMobile ? 0 : 20,
+                        bottom: 20,
+                      }}
+                      barGap={isMobile ? 2 : 4}
+                      barSize={isMobile ? 12 : 20}
+                      onMouseMove={(data: any) => {
+                        if (data.activeTooltipIndex !== undefined) {
+                          handleMouseEnter(data, data.activeTooltipIndex);
+                        }
+                      }}
+                      onMouseLeave={handleMouseLeave}
+                      onClick={(data: any) => {
+                        if (data.activeTooltipIndex !== undefined) {
+                          setActiveIndex(activeIndex === data.activeTooltipIndex ? null : data.activeTooltipIndex);
+                        }
+                      }}
+                      className="touch-manipulation"
+                    >
+                      <defs>
+                        <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={COLORS.income.main} stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor={COLORS.income.main} stopOpacity={0.4}/>
+                        </linearGradient>
+                        <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={COLORS.expense.main} stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor={COLORS.expense.main} stopOpacity={0.4}/>
+                        </linearGradient>
+                        <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={COLORS.profit.main} stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor={COLORS.profit.main} stopOpacity={0.4}/>
+                        </linearGradient>
+                        <linearGradient id="lossGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={COLORS.loss.main} stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor={COLORS.loss.main} stopOpacity={0.4}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid 
+                        strokeDasharray="3 3" 
+                        vertical={!isMobile}
+                        horizontal={true}
+                        stroke={COLORS.neutral.grid} 
+                      />
+                      <XAxis 
+                        dataKey="month" 
+                        tick={{ fontSize: isMobile ? 9 : 12, fill: '#64748b' }} 
+                        tickMargin={6}
+                        axisLine={{ stroke: COLORS.neutral.line }}
+                        tickLine={{ stroke: COLORS.neutral.line }}
+                        dy={5}
+                      />
+                      <YAxis 
+                        tickFormatter={(value) => isMobile ? 
+                          `${(value / 1000000).toFixed(0)}M` : 
+                          `${(value / 1000000).toFixed(1)}M`
+                        }
+                        tick={{ fontSize: isMobile ? 9 : 11, fill: '#64748b' }}
+                        width={isMobile ? 35 : 50}
+                        axisLine={{ stroke: COLORS.neutral.line }}
+                        tickLine={{ stroke: COLORS.neutral.line }}
+                        dx={isMobile ? -5 : 0}
+                      />
+                      <Tooltip 
+                        content={<CustomTooltip />}
+                        cursor={{ fill: 'rgba(236, 240, 243, 0.4)' }}
+                        wrapperStyle={{ outline: 'none' }}
+                      />
+                      <Legend 
+                        iconSize={isMobile ? 8 : 10} 
+                        iconType="circle"
+                        verticalAlign="top"
+                        wrapperStyle={{ paddingBottom: '10px' }}
+                        formatter={(value, entry, index) => (
+                          <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+                            {value}
+                          </span>
+                        )}
+                      />
+                      <ReferenceLine 
+                        y={0} 
+                        stroke={COLORS.neutral.reference} 
+                        strokeDasharray="3 3" 
+                        ifOverflow="extendDomain"
+                      />
+                      <Bar 
+                        name={t("dashboard.income")} 
+                        dataKey="income" 
+                        fill="url(#incomeGradient)" 
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={60}
+                        isAnimationActive={true}
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell 
+                            key={`income-${index}`}
+                            fill={activeIndex === index ? COLORS.income.dark : "url(#incomeGradient)"}
+                            strokeWidth={activeIndex === index ? 2 : 0}
+                            className="transition-all duration-300 ease-in-out"
+                          />
+                        ))}
+                      </Bar>
+                      <Bar 
+                        name={t("dashboard.expense")} 
+                        dataKey="expense" 
+                        fill="url(#expenseGradient)" 
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={60}
+                        isAnimationActive={true}
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell 
+                            key={`expense-${index}`}
+                            fill={activeIndex === index ? COLORS.expense.dark : "url(#expenseGradient)"}
+                            strokeWidth={activeIndex === index ? 2 : 0}
+                          />
+                        ))}
+                      </Bar>
+                      <Bar 
+                        name={t("dashboard.profit")} 
+                        dataKey="profit" 
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={60}
+                        isAnimationActive={true}
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell 
+                            key={`profit-${index}`}
+                            fill={activeIndex === index 
+                              ? (entry.profit >= 0 ? COLORS.profit.dark : COLORS.loss.dark)
+                              : (entry.profit >= 0 ? "url(#profitGradient)" : "url(#lossGradient)")
+                            }
+                            strokeWidth={activeIndex === index ? 2 : 0}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </TabsContent>
+            <TabsContent value="total" className="mt-0">
+              <div className="h-[300px] md:h-[350px] w-full">
+                {/* Add your summary view content here */}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
         <CardDescription className="flex flex-col sm:flex-row justify-between gap-2 items-start sm:items-center">
@@ -340,225 +535,7 @@ export function IncomeExpenseOverview() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] md:h-[350px] w-full">
-          {isLoading ? (
-            <div className="h-full w-full flex items-center justify-center bg-muted/20 rounded-md">
-              <p>{t("common.loading")}</p>
-            </div>
-          ) : (
-            <Tabs defaultValue="monthly" value={chartType} onValueChange={(val) => setChartType(val as "monthly" | "total")}>
-              <TabsContent value="monthly" className="mt-0 h-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    margin={{
-                      top: 20,
-                      right: isMobile ? 10 : 20,
-                      left: isMobile ? 0 : 20,
-                      bottom: 20,
-                    }}
-                    barGap={isMobile ? 2 : 4}
-                    barSize={isMobile ? 12 : 20}
-                    onMouseMove={(data: any) => {
-                      if (data.activeTooltipIndex !== undefined) {
-                        handleMouseEnter(data, data.activeTooltipIndex);
-                      }
-                    }}
-                    onMouseLeave={handleMouseLeave}
-                    onClick={(data: any) => {
-                      if (data.activeTooltipIndex !== undefined) {
-                        setActiveIndex(activeIndex === data.activeTooltipIndex ? null : data.activeTooltipIndex);
-                      }
-                    }}
-                    className="touch-manipulation"
-                  >
-                    <defs>
-                      <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={COLORS.income.main} stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor={COLORS.income.main} stopOpacity={0.4}/>
-                      </linearGradient>
-                      <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={COLORS.expense.main} stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor={COLORS.expense.main} stopOpacity={0.4}/>
-                      </linearGradient>
-                      <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={COLORS.profit.main} stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor={COLORS.profit.main} stopOpacity={0.4}/>
-                      </linearGradient>
-                      <linearGradient id="lossGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={COLORS.loss.main} stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor={COLORS.loss.main} stopOpacity={0.4}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid 
-                      strokeDasharray="3 3" 
-                      vertical={!isMobile}
-                      horizontal={true}
-                      stroke={COLORS.neutral.grid} 
-                    />
-                    <XAxis 
-                      dataKey="month" 
-                      tick={{ fontSize: isMobile ? 9 : 12, fill: '#64748b' }} 
-                      tickMargin={6}
-                      axisLine={{ stroke: COLORS.neutral.line }}
-                      tickLine={{ stroke: COLORS.neutral.line }}
-                      dy={5}
-                    />
-                    <YAxis 
-                      tickFormatter={(value) => isMobile ? 
-                        `${(value / 1000000).toFixed(0)}M` : 
-                        `${(value / 1000000).toFixed(1)}M`
-                      }
-                      tick={{ fontSize: isMobile ? 9 : 11, fill: '#64748b' }}
-                      width={isMobile ? 35 : 50}
-                      axisLine={{ stroke: COLORS.neutral.line }}
-                      tickLine={{ stroke: COLORS.neutral.line }}
-                      dx={isMobile ? -5 : 0}
-                    />
-                    <Tooltip 
-                      content={<CustomTooltip />}
-                      cursor={{ fill: 'rgba(236, 240, 243, 0.4)' }}
-                      wrapperStyle={{ outline: 'none' }}
-                    />
-                    <Legend 
-                      iconSize={isMobile ? 8 : 10} 
-                      iconType="circle"
-                      verticalAlign="top"
-                      wrapperStyle={{ paddingBottom: '10px' }}
-                      formatter={(value, entry, index) => (
-                        <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-200">
-                          {value}
-                        </span>
-                      )}
-                    />
-                    <ReferenceLine 
-                      y={0} 
-                      stroke={COLORS.neutral.reference} 
-                      strokeDasharray="3 3" 
-                      ifOverflow="extendDomain"
-                    />
-                    <Bar 
-                      name={t("dashboard.income")} 
-                      dataKey="income" 
-                      fill="url(#incomeGradient)" 
-                      radius={[4, 4, 0, 0]}
-                      maxBarSize={60}
-                      isAnimationActive={true}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell 
-                          key={`income-${index}`}
-                          fill={activeIndex === index ? COLORS.income.dark : "url(#incomeGradient)"}
-                          strokeWidth={activeIndex === index ? 2 : 0}
-                          className="transition-all duration-300 ease-in-out"
-                        />
-                      ))}
-                    </Bar>
-                    <Bar 
-                      name={t("dashboard.expense")} 
-                      dataKey="expense" 
-                      fill="url(#expenseGradient)" 
-                      radius={[4, 4, 0, 0]}
-                      maxBarSize={60}
-                      isAnimationActive={true}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell 
-                          key={`expense-${index}`}
-                          fill={activeIndex === index ? COLORS.expense.dark : "url(#expenseGradient)"}
-                          strokeWidth={activeIndex === index ? 2 : 0}
-                        />
-                      ))}
-                    </Bar>
-                    <Bar 
-                      name={t("dashboard.profit")} 
-                      dataKey="profit" 
-                      radius={[4, 4, 0, 0]}
-                      maxBarSize={60}
-                      isAnimationActive={true}
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell 
-                          key={`profit-${index}`}
-                          fill={activeIndex === index 
-                            ? (entry.profit >= 0 ? COLORS.profit.dark : COLORS.loss.dark)
-                            : (entry.profit >= 0 ? "url(#profitGradient)" : "url(#lossGradient)")
-                          }
-                          strokeWidth={activeIndex === index ? 2 : 0}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </TabsContent>
-            
-              <TabsContent value="total" className="mt-0 h-full">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full md:items-center">
-                  <SummaryItem 
-                    title={safeT("dashboard.income", "Income")}
-                    value={totals.income}
-                    change={totals.incomeChange}
-                    icon={<DollarSign className="h-4 w-4 text-sky-500" />}
-                    color="text-sky-500"
-                  />
-                  <SummaryItem 
-                    title={safeT("dashboard.expenses", "Expenses")}
-                    value={totals.expense}
-                    change={totals.expenseChange}
-                    icon={<TrendingUp className="h-4 w-4 text-rose-500" />}
-                    color="text-rose-500"
-                  />
-                  <SummaryItem 
-                    title={safeT("dashboard.netProfit", "Net Profit")}
-                    value={totals.profit}
-                    change={totals.profitGrowth}
-                    icon={totals.profit >= 0 ? <TrendingUp className="h-4 w-4 text-emerald-500" /> : <TrendingDown className="h-4 w-4 text-rose-500" />}
-                    color={totals.profit >= 0 ? "text-emerald-500" : "text-rose-500"}
-                  />
-                  
-                  {/* Additional metrics in the total view */}
-                  <div className="md:col-span-3 mt-2 md:mt-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <SummaryItem 
-                        title={safeT("dashboard.profitMargin", "Profit Margin")}
-                        value={Math.abs(totals.profitRatio)}
-                        icon={<PieChart className="h-4 w-4 text-purple-500" />}
-                        color="text-purple-500"
-                        prefix=""
-                        suffix="%"
-                        compact
-                      />
-                      
-                      <SummaryItem 
-                        title={safeT("dashboard.lastMonth", "Last Month")}
-                        value={chartData[chartData.length - 1]?.profit || 0}
-                        icon={<ArrowUpRight className="h-4 w-4 text-blue-500" />}
-                        color="text-blue-500"
-                        compact
-                      />
-                      
-                      <SummaryItem 
-                        title={safeT("dashboard.bestMonth", "Best Month")}
-                        value={Math.max(...chartData.map(d => d.profit))}
-                        icon={<TrendingUp className="h-4 w-4 text-emerald-500" />}
-                        color="text-emerald-500"
-                        compact
-                      />
-                      
-                      <SummaryItem 
-                        title={safeT("dashboard.worstMonth", "Worst Month")}
-                        value={Math.min(...chartData.map(d => d.profit))}
-                        icon={<TrendingDown className="h-4 w-4 text-orange-500" />}
-                        color="text-orange-500"
-                        compact
-                      />
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          )}
-        </div>
+        {/* Remove the old TabsContent here since it's now properly nested */}
       </CardContent>
       <CardFooter className="border-t px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
         <div className="flex items-center gap-1 text-xs text-muted-foreground">

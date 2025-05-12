@@ -1,0 +1,38 @@
+# This file is used for configuring Edge Functions in the Supabase platform
+# Learn more: https://supabase.com/docs/guides/functions
+
+[functions.fuel-supplies]
+verify_jwt = true
+
+[functions.shifts]
+verify_jwt = true
+
+[functions.petrol-providers]
+verify_jwt = true
+
+[functions.fuel-types]
+verify_jwt = true
+
+[functions.tanks]
+verify_jwt = true
+
+[functions.filling-systems]
+verify_jwt = true
+
+[functions.transactions]
+verify_jwt = true
+
+[functions.sales]
+verify_jwt = true
+
+[functions.expenses]
+verify_jwt = true
+
+[functions.reports]
+verify_jwt = true
+
+[functions.profit-loss]
+verify_jwt = true
+
+[functions.fuel-prices]
+verify_jwt = true 

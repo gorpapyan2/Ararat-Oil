@@ -1,8 +1,7 @@
 import * as React from "react"
+import { CalendarIcon } from "@radix-ui/react-icons"
 import { addDays, format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
-
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -11,21 +10,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useTranslation } from "react-i18next"
 
-interface DatePickerWithRangeProps {
-  value: DateRange | undefined
-  onChange: (value: DateRange) => void
+interface DateRangePickerProps {
+  value?: DateRange
+  onChange?: (date: DateRange | undefined) => void
   className?: string
 }
 
-export function DatePickerWithRange({
+export function DateRangePicker({
   value,
   onChange,
   className,
-}: DatePickerWithRangeProps) {
-  const { t } = useTranslation()
-  
+}: DateRangePickerProps) {
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -34,7 +30,7 @@ export function DatePickerWithRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[240px] justify-start text-left font-normal",
+              "w-[300px] justify-start text-left font-normal",
               !value && "text-muted-foreground"
             )}
           >
@@ -49,7 +45,7 @@ export function DatePickerWithRange({
                 format(value.from, "LLL dd, y")
               )
             ) : (
-              <span>{t("common.dateRange")}</span>
+              <span>Pick a date range</span>
             )}
           </Button>
         </PopoverTrigger>

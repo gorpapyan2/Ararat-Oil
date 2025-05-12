@@ -15,7 +15,7 @@ import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
 import { Input } from "@/components/ui/input";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DatePickerWithRange } from "@/components/ui/date-range-picker";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -393,7 +393,7 @@ const Shifts = () => {
                 </Select>
               </div>
               <div className="w-full sm:w-auto flex-1 sm:flex-none min-w-[250px]">
-                <DatePickerWithRange
+                <DateRangePicker
                   value={dateRange}
                   onChange={handleDateRangeChange}
                 />

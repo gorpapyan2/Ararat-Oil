@@ -1,4 +1,4 @@
-import { supabase } from "@/services/supabase";
+import { shiftPaymentMethodsApi } from "@/services/api";
 import { ShiftPaymentMethod, PaymentMethod } from "@/types";
 import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
 
@@ -17,27 +17,6 @@ export async function addShiftPaymentMethods(
       throw new Error("No payment methods provided");
     }
 
-    // Check if we're offline
-    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
-    console.log(`Adding shift payment methods. Offline mode: ${isOffline}`);
-
-    if (isOffline) {
-      console.log("Using offline mode for adding shift payment methods");
-      
-      // Create mock payment methods
-      const mockPaymentMethods: ShiftPaymentMethod[] = paymentMethods.map((method, index) => ({
-        id: `offline-payment-${shiftId}-${index}`,
-        shift_id: shiftId,
-        payment_method: method.payment_method,
-        amount: method.amount,
-        reference: method.reference || null,
-        created_at: new Date().toISOString()
-      }));
-
-      console.log("Created mock payment methods:", mockPaymentMethods);
-      return mockPaymentMethods;
-    }
-
     // Validate each payment method
     const validatedPayments = paymentMethods.map(method => {
       // Validate payment_method
@@ -52,48 +31,39 @@ export async function addShiftPaymentMethods(
       }
       
       return {
-        shift_id: shiftId,
         payment_method: method.payment_method,
         amount: method.amount,
         reference: method.reference || null
       };
     });
 
-    // Insert all payment methods in a single call
-    const { data, error } = await supabase
-      .from("shift_payment_methods")
-      .insert(validatedPayments)
-      .select();
+    const { data, error } = await shiftPaymentMethodsApi.add(shiftId, validatedPayments);
 
     if (error) {
-      console.error("Supabase error adding shift payment methods:", error);
-      throw new Error(`Failed to add shift payment methods: ${error.message}`);
+      console.error("Error adding shift payment methods:", error);
+      throw new Error(error);
     }
     
-    if (!data || data.length === 0) {
-      throw new Error("Failed to add shift payment methods: No data returned");
-    }
-
-    return data as ShiftPaymentMethod[];
-  } catch (error) {
-    console.error("Error in addShiftPaymentMethods:", error);
-    throw error;
+    return data || [];
+  } catch (err: any) {
+    console.error("Error in addShiftPaymentMethods:", err);
+    throw new Error(err.message || "Failed to add shift payment methods");
   }
 }
 
 export async function getShiftPaymentMethods(shiftId: string): Promise<ShiftPaymentMethod[]> {
   try {
-    const { data, error } = await supabase
-      .from("shift_payment_methods")
-      .select("*")
-      .eq("shift_id", shiftId)
-      .order("created_at", { ascending: true });
+    const { data, error } = await shiftPaymentMethodsApi.getAll(shiftId);
 
-    if (error) throw error;
-    return data as ShiftPaymentMethod[];
-  } catch (error) {
-    console.error("Error fetching shift payment methods:", error);
-    return [];
+    if (error) {
+      console.error("Error fetching shift payment methods:", error);
+      throw new Error(error);
+    }
+    
+    return data || [];
+  } catch (err: any) {
+    console.error("Error fetching shift payment methods:", err);
+    throw new Error(err.message || "Failed to fetch shift payment methods");
   }
 }
 
@@ -104,31 +74,17 @@ export async function deleteShiftPaymentMethods(shiftId: string): Promise<void> 
       throw new Error("Invalid shift ID provided for deletion");
     }
     
-    // Check if we're offline
-    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
-    console.log(`Deleting shift payment methods. Offline mode: ${isOffline}`);
-
-    if (isOffline) {
-      console.log("Using offline mode for deleting shift payment methods");
-      // In offline mode, we don't need to actually delete anything from the database
-      return;
-    }
-
-    // Delete existing payment methods for this shift
-    const { error } = await supabase
-      .from("shift_payment_methods")
-      .delete()
-      .eq("shift_id", shiftId);
+    const { error } = await shiftPaymentMethodsApi.delete(shiftId);
 
     if (error) {
-      console.error("Supabase error deleting shift payment methods:", error);
-      throw new Error(`Failed to delete shift payment methods: ${error.message}`);
+      console.error("Error deleting shift payment methods:", error);
+      throw new Error(error);
     }
     
     console.log(`Successfully deleted payment methods for shift: ${shiftId}`);
-  } catch (error) {
-    console.error("Error deleting shift payment methods:", error);
-    throw error;
+  } catch (err: any) {
+    console.error("Error deleting shift payment methods:", err);
+    throw new Error(err.message || "Failed to delete shift payment methods");
   }
 }
 

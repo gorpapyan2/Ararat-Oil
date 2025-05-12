@@ -4,10 +4,11 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Home, Fuel, Tag, AlertCircle, Plus, Pencil, Trash2, MoreHorizontal, History, ArrowUpDown } from "lucide-react";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 import { 
-  getCurrentFuelPrices, 
-  setFuelPrice, 
-  updateAllFuelPrices,
-  getFuelPriceHistory, 
+  getFuelPrices, 
+  getFuelPriceById, 
+  createFuelPrice, 
+  updateFuelPrice, 
+  deleteFuelPrice, 
   FuelPrice 
 } from "@/services/fuel-prices";
 import { FuelType } from "@/types";
@@ -53,18 +54,8 @@ export default function FuelPricesPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [fuelPrices, setFuelPrices] = useState<Record<FuelType, number>>({
-    diesel: 0,
-    gas: 0,
-    petrol_regular: 0,
-    petrol_premium: 0,
-  });
-  const [editPrices, setEditPrices] = useState<Record<FuelType, number>>({
-    diesel: 0,
-    gas: 0,
-    petrol_regular: 0,
-    petrol_premium: 0,
-  });
+  const [fuelPrices, setFuelPrices] = useState<FuelPrice[]>([]);
+  const [editPrices, setEditPrices] = useState<FuelPrice[]>([]);
   const [editing, setEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [priceHistory, setPriceHistory] = useState<FuelPrice[]>([]);
@@ -104,9 +95,9 @@ export default function FuelPricesPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const prices = await getCurrentFuelPrices();
+        const prices = await getFuelPrices();
         setFuelPrices(prices);
-        setEditPrices({ ...prices });
+        setEditPrices(prices);
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to load fuel prices:", err);
@@ -143,7 +134,7 @@ export default function FuelPricesPage() {
   const loadPriceHistory = async (fuelType?: FuelType) => {
     setHistoryLoading(true);
     try {
-      const history = await getFuelPriceHistory(fuelType);
+      const history = await getFuelPrices(fuelType);
       setPriceHistory(history);
     } catch (err) {
       console.error("Failed to load price history:", err);
@@ -166,37 +157,46 @@ export default function FuelPricesPage() {
 
   // Handle start editing
   const handleStartEditing = () => {
-    setEditPrices({ ...fuelPrices });
+    setEditPrices(fuelPrices);
     setEditing(true);
   };
 
   // Handle cancel editing
   const handleCancelEditing = () => {
-    setEditPrices({ ...fuelPrices });
+    setEditPrices(fuelPrices);
     setEditing(false);
   };
 
   // Handle price change
   const handlePriceChange = (fuelType: FuelType, value: string) => {
     const price = parseFloat(value);
-    setEditPrices(prev => ({
-      ...prev,
-      [fuelType]: isNaN(price) ? 0 : price
-    }));
+    setEditPrices(prev => prev.map(p => 
+      p.fuel_type === fuelType ? { ...p, price_per_liter: isNaN(price) ? 0 : price } : p
+    ));
   };
 
-  // Handle save prices - update to use updateAllFuelPrices
+  // Handle save prices - update to use create/update/delete logic per price
   const handleSavePrices = async () => {
     try {
       setSubmitting(true);
       setError(null);
 
-      // Update all prices at once
-      await updateAllFuelPrices(editPrices);
+      // Update prices
+      const updatedPrices = await Promise.all(editPrices.map(async (price) => {
+        if (price.id) {
+          return updateFuelPrice(price.id, { price_per_liter: price.price_per_liter });
+        } else {
+          return createFuelPrice({
+            fuel_type: price.fuel_type as FuelType,
+            price_per_liter: price.price_per_liter,
+            effective_date: new Date().toISOString(),
+          });
+        }
+      }));
       
       // Refresh prices
-      const updatedPrices = await getCurrentFuelPrices();
-      setFuelPrices(updatedPrices);
+      const refreshedPrices = await getFuelPrices();
+      setFuelPrices(refreshedPrices);
       setEditing(false);
       setSubmitting(false);
       
@@ -454,23 +454,23 @@ export default function FuelPricesPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {!isLoading && Object.entries(fuelPrices).map(([fuelType, price]) => (
-                        <TableRow key={fuelType}>
+                      {!isLoading && fuelPrices.map((price) => (
+                        <TableRow key={price.id}>
                           <TableCell className="font-medium">
-                            {t(`common.${fuelType}`) || fuelType}
+                            {t(`common.${price.fuel_type}`) || price.fuel_type}
                           </TableCell>
                           <TableCell className="text-right">
                             {editing ? (
                               <Input
                                 type="number"
-                                value={editPrices[fuelType as FuelType]}
-                                onChange={(e) => handlePriceChange(fuelType as FuelType, e.target.value)}
+                                value={editPrices.find(p => p.id === price.id)?.price_per_liter.toString() || ''}
+                                onChange={(e) => handlePriceChange(price.fuel_type as FuelType, e.target.value)}
                                 min={0}
                                 step={1}
                                 className="w-24 ml-auto"
                               />
                             ) : (
-                              <span>{price.toLocaleString()}</span>
+                              <span>{price.price_per_liter.toLocaleString()}</span>
                             )}
                           </TableCell>
                         </TableRow>

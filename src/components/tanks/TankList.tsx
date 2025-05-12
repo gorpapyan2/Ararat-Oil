@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FuelTank } from "@/services/supabase";
+import { FuelTank } from "@/types";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TankLevelEditor } from "./TankLevelEditor";
@@ -96,7 +96,7 @@ export function TankList({
                 <CardTitle className="flex justify-between items-center">
                   <span>{tank.name}</span>
                   <span className="text-sm font-normal text-muted-foreground bg-muted px-2 py-1 rounded">
-                    {tank.fuel_type}
+                    {typeof tank.fuel_type === 'object' ? tank.fuel_type.name : tank.fuel_type}
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -163,7 +163,9 @@ export function TankList({
             <div>
               <div className="mb-2 font-medium text-muted-foreground">
                 {t("common.fuelType")}:{" "}
-                <span className="font-semibold">{selectedTank.fuel_type}</span>
+                <span className="font-semibold">
+                  {typeof selectedTank.fuel_type === 'object' ? selectedTank.fuel_type.name : selectedTank.fuel_type}
+                </span>
               </div>
               <TankHistory tankId={selectedTank.id} />
             </div>

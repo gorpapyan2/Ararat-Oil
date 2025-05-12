@@ -1,131 +1,23 @@
-import { supabase } from "@/services/supabase";
 import { Shift } from "@/types";
-import { addShiftPaymentMethods, deleteShiftPaymentMethods } from "./shiftPaymentMethods";
+import { shiftsApi } from "@/services/api";
 import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
 
 export async function startShift(openingCash: number, employeeIds: string[] = []): Promise<Shift> {
   try {
-    // Check if we're offline
-    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
-    console.log(`Starting shift. Offline mode: ${isOffline}`);
-
-    if (isOffline) {
-      console.log("Using offline mode for shift creation");
-      
-      // Create a mock shift
-      const mockShift: Shift = {
-        id: `offline-shift-${Date.now()}`,
-        employee_id: "offline-user",
-        opening_cash: openingCash,
-        status: "OPEN",
-        start_time: new Date().toISOString(),
-        sales_total: 0,
-        created_at: new Date().toISOString()
-      };
-
-      console.log("Created mock shift:", mockShift);
-      return mockShift;
-    }
-
-    // Get the authenticated user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw new Error("User must be logged in to start a shift");
-
-    // First check if there are any active shifts in the system
-    const { data: existingShifts, error: shiftCheckError } = await supabase
-      .from("shifts")
-      .select("id, employee_id")
-      .eq("status", "OPEN");
-
-    if (shiftCheckError) {
-      console.error("Error checking for existing shifts:", shiftCheckError);
-      // We'll proceed with caution, but log this error
-    } else if (existingShifts && existingShifts.length > 0) {
-      // There's at least one active shift
-      const userShift = existingShifts.find(shift => shift.employee_id === user.id);
-      
-      if (userShift) {
-        throw new Error("You already have an active shift open. Please close it before starting a new one.");
-      } else {
-        throw new Error("Another employee has an active shift open. Only one shift can be active at a time.");
-      }
-    }
-
-    // Check if user exists in employees table
-    const { data: existingEmployee, error: employeeCheckError } = await supabase
-      .from("employees")
-      .select("id")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    // If user doesn't exist in employees table, create a new employee record
-    if (employeeCheckError || !existingEmployee) {
-      const { data: userProfile, error: profileError } = await supabase
-        .from("profiles")
-        .select("full_name, email")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error("Error fetching user profile:", profileError);
-      } else {
-        // Create an employee record for this user
-        const { error: createError } = await supabase.from("employees").insert({
-          id: user.id,
-          name: userProfile?.full_name || user.email || "Unknown User",
-          position: "Staff",
-          contact: userProfile?.email || user.email || "",
-          salary: 0,
-          hire_date: new Date().toISOString().split("T")[0],
-          status: "active",
-        });
-
-        if (createError) {
-          console.error("Error creating employee record:", createError);
-          throw new Error(
-            "Could not create employee record required for shift",
-          );
-        }
-      }
-    }
-
-    // Create the shift with the main user as the primary employee
-    const { data, error } = await supabase
-      .from("shifts")
-      .insert({
-        employee_id: user.id,
-        opening_cash: openingCash,
-        status: "OPEN",
-        start_time: new Date().toISOString(),
-        sales_total: 0,
-      })
-      .select()
-      .maybeSingle();
-
-    if (error) throw error;
-    if (!data) throw new Error("Failed to create shift");
+    console.log("Starting shift using Edge Function...");
     
-    // Instead of using a separate shift_employees table, store the associated employees
-    // in a metadata field in localStorage for client-side use
-    try {
-      // Store the list of associated employees in localStorage
-      const allEmployeeIds = [...new Set([user.id, ...employeeIds])]; // Use Set to remove duplicates
-      localStorage.setItem(`shift_${data.id}_employees`, JSON.stringify(allEmployeeIds));
-      
-      // Also store this data in a shiftEmployees object in the shift for use in the application
-      const shiftWithEmployees = {
-        ...data,
-        associatedEmployees: allEmployeeIds
-      };
-      
-      return shiftWithEmployees as Shift;
-    } catch (error) {
-      console.error("Error storing associated employees:", error);
-      // Continue even if this fails - the main shift record was created successfully
-      return data as Shift;
+    const { data, error } = await shiftsApi.start(openingCash, employeeIds);
+    
+    if (error) {
+      throw new Error(`Failed to start shift: ${error}`);
     }
+    
+    if (!data) {
+      throw new Error("No data returned after starting shift");
+    }
+    
+    console.log("Started shift:", data);
+    return data as Shift;
   } catch (error) {
     console.error("Error in startShift:", error);
     throw error;
@@ -138,66 +30,20 @@ export async function closeShift(
   paymentMethods?: PaymentMethodItem[]
 ): Promise<Shift> {
   try {
-    // Check network connectivity
-    if (!navigator.onLine) {
-      throw new Error("Cannot close shift while offline");
-    }
-
-    // First update the shift status
-    const { data: updatedShift, error: updateError } = await supabase
-      .from("shifts")
-      .update({
-        status: "CLOSED",
-        end_time: new Date().toISOString(),
-        closing_cash: closingCash,
-      })
-      .eq("id", shiftId)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error("Error closing shift:", updateError);
-      throw new Error(updateError.message || "Failed to close shift");
-    }
-
-    if (!updatedShift) {
-      throw new Error("No shift data returned after update");
+    console.log("Closing shift using Edge Function...");
+    
+    const { data, error } = await shiftsApi.close(shiftId, closingCash, paymentMethods);
+    
+    if (error) {
+      throw new Error(`Failed to close shift: ${error}`);
     }
     
-    // Then add payment methods if provided
-    if (paymentMethods && paymentMethods.length > 0) {
-      const paymentData = paymentMethods.map((method) => ({
-        shift_id: shiftId,
-        payment_method: method.payment_method,
-        amount: method.amount,
-        reference: method.reference || "",
-      }));
-
-      // Insert payment methods
-      const { error: paymentError } = await supabase
-        .from("shift_payment_methods")
-        .insert(paymentData);
-
-      if (paymentError) {
-        console.error("Error adding payment methods:", paymentError);
-        // Don't fail the entire operation if payment methods fail
-        // Just log the error and continue
-      }
+    if (!data) {
+      throw new Error("No data returned after closing shift");
     }
-
-    // Clear the cached active shift to avoid conflicts
-    try {
-      // Get the user ID in a type-safe way
-      const userId = (updatedShift as any).user_id;
-      if (userId) {
-        localStorage.removeItem(`activeShift_${userId}`);
-      }
-    } catch (e) {
-      console.warn("Error clearing shift cache:", e);
-      // Non-critical error, continue
-    }
-
-    return updatedShift as Shift;
+    
+    console.log("Closed shift:", data);
+    return data as Shift;
   } catch (error: any) {
     console.error("Error in closeShift service:", error);
     
@@ -212,102 +58,157 @@ export async function closeShift(
   }
 }
 
-export async function getActiveShift(
-  employeeId: string,
-): Promise<Shift | null> {
+export async function getActiveShift(): Promise<Shift | null> {
   try {
-    if (!employeeId) {
-      console.warn("getActiveShift called with no employeeId");
-      return null;
-    }
-
-    // Check if we're offline
-    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
-    console.log(`Getting active shift for ${employeeId}. Offline mode: ${isOffline}`);
-
-    // If we're in offline mode and have an active shift in localStorage, use that
-    if (isOffline) {
-      console.log("Using offline mode for getting active shift");
-      const storedShift = localStorage.getItem('active_shift');
-      
-      if (storedShift) {
-        try {
-          const parsedShift = JSON.parse(storedShift);
-          console.log("Found stored active shift:", parsedShift);
-          return parsedShift;
-        } catch (e) {
-          console.error("Error parsing stored shift:", e);
-        }
-      }
-      
-      // We don't have a stored shift, create a mock one
-      const mockShift: Shift = {
-        id: `offline-shift-${Date.now()}`,
-        employee_id: employeeId,
-        opening_cash: 0,
-        status: "OPEN",
-        start_time: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-        sales_total: 0,
-        created_at: new Date(Date.now() - 3600000).toISOString()
-      };
-      
-      // Store this shift for future offline use
-      localStorage.setItem('active_shift', JSON.stringify(mockShift));
-      console.log("Created mock active shift:", mockShift);
-      return mockShift;
-    }
-
-    const { data, error } = await supabase
-      .from("shifts")
-      .select()
-      .eq("employee_id", employeeId)
-      .eq("status", "OPEN")
-      .maybeSingle();
-
+    console.log("Getting active shift using Edge Function...");
+    
+    const { data, error } = await shiftsApi.getActive();
+    
     if (error) {
       console.error("Error fetching active shift:", error);
       return null;
     }
-
-    // If we found an active shift and we're online, store it for offline use
-    if (data) {
-      localStorage.setItem('active_shift', JSON.stringify(data));
-    } else {
-      // If there's no active shift, clear any stored shift
-      localStorage.removeItem('active_shift');
+    
+    if (!data) {
+      console.log("No active shift found");
+      return null;
     }
-
+    
+    console.log("Found active shift:", data);
     return data as Shift;
-  } catch (error) {
-    console.error("Exception in getActiveShift:", error);
+  } catch (e) {
+    console.error("Exception fetching active shift:", e);
     return null;
   }
 }
 
-// Add a function to get the employees associated with a shift
+export async function addShiftPaymentMethods(
+  shiftId: string,
+  methods: PaymentMethodItem[]
+): Promise<void> {
+  try {
+    console.log("Adding payment methods to shift using Edge Function...");
+    
+    // Transform PaymentMethodItem to the format expected by the API
+    const paymentData = methods.map((method) => ({
+      payment_method: method.payment_method,
+      amount: method.amount,
+      reference: method.reference || "",
+    }));
+    
+    const { error } = await shiftsApi.addPaymentMethods(shiftId, paymentData);
+    
+    if (error) {
+      throw new Error(`Failed to add payment methods: ${error}`);
+    }
+    
+    console.log("Added payment methods to shift:", shiftId);
+  } catch (error) {
+    console.error("Error adding payment methods:", error);
+    throw error;
+  }
+}
+
+export async function deleteShiftPaymentMethods(shiftId: string): Promise<void> {
+  try {
+    console.log("Deleting payment methods from shift using Edge Function...");
+    
+    const { error } = await shiftsApi.deletePaymentMethods(shiftId);
+    
+    if (error) {
+      throw new Error(`Failed to delete payment methods: ${error}`);
+    }
+    
+    console.log("Deleted payment methods from shift:", shiftId);
+  } catch (error) {
+    console.error("Error deleting payment methods:", error);
+    throw error;
+  }
+}
+
+// Function to get the employees associated with a shift
 export async function getShiftEmployees(shiftId: string): Promise<string[]> {
   try {
-    // Try to get from localStorage first
-    const storedEmployees = localStorage.getItem(`shift_${shiftId}_employees`);
-    if (storedEmployees) {
-      return JSON.parse(storedEmployees);
+    // This could be implemented by retrieving from an API or local storage
+    const storedData = localStorage.getItem(`shift_${shiftId}_employees`);
+    if (storedData) {
+      return JSON.parse(storedData);
     }
-    
-    // If not in localStorage (or parse failed), return just the primary employee
-    const { data, error } = await supabase
-      .from("shifts")
-      .select("employee_id")
-      .eq("id", shiftId)
-      .single();
-      
-    if (error || !data) {
-      console.error("Error fetching shift for employees:", error);
-      return [];
-    }
-    
-    return [data.employee_id];
-  } catch (error) {
-    console.error("Error getting shift employees:", error);
     return [];
+  } catch (error) {
+    console.error("Error retrieving shift employees:", error);
+    return [];
+  }
+}
+
+export async function getSystemActiveShift(): Promise<Shift | null> {
+  try {
+    console.log("Getting system-wide active shift using Edge Function...");
+    
+    const { data, error } = await shiftsApi.getSystemActive();
+    
+    if (error) {
+      console.error("Error fetching system active shift:", error);
+      return null;
+    }
+    
+    if (!data) {
+      console.log("No system-wide active shift found");
+      return null;
+    }
+    
+    console.log("Found system-wide active shift:", data);
+    return data as Shift;
+  } catch (e) {
+    console.error("Exception fetching system-wide active shift:", e);
+    return null;
+  }
+}
+
+export async function getActiveShiftForUser(userId: string): Promise<Shift | null> {
+  try {
+    console.log(`Getting active shift for user ${userId} using Edge Function...`);
+    
+    const { data, error } = await shiftsApi.getActiveForUser(userId);
+    
+    if (error) {
+      console.error(`Error fetching active shift for user ${userId}:`, error);
+      return null;
+    }
+    
+    if (!data) {
+      console.log(`No active shift found for user ${userId}`);
+      return null;
+    }
+    
+    console.log(`Found active shift for user ${userId}:`, data);
+    return data as Shift;
+  } catch (e) {
+    console.error(`Exception fetching active shift for user ${userId}:`, e);
+    return null;
+  }
+}
+
+export async function getShiftSalesTotal(shiftId: string): Promise<{ total: number }> {
+  try {
+    console.log(`Getting sales total for shift ${shiftId} using Edge Function...`);
+    
+    const { data, error } = await shiftsApi.getSalesTotal(shiftId);
+    
+    if (error) {
+      console.error(`Error fetching sales total for shift ${shiftId}:`, error);
+      return { total: 0 };
+    }
+    
+    if (!data) {
+      console.log(`No sales total found for shift ${shiftId}`);
+      return { total: 0 };
+    }
+    
+    console.log(`Found sales total for shift ${shiftId}:`, data);
+    return data as { total: number };
+  } catch (e) {
+    console.error(`Exception fetching sales total for shift ${shiftId}:`, e);
+    return { total: 0 };
   }
 }

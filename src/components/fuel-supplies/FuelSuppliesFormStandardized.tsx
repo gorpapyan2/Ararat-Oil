@@ -24,7 +24,7 @@ interface PetrolProvider {
 interface FuelTank {
   id: string;
   name: string;
-  fuel_type?: string;
+  fuel_type?: string | { code?: string; name?: string }; // Accept both string and object
   // Add other fields as needed
 }
 

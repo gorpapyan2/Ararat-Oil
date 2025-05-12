@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FuelTank } from "@/services/supabase";
+import { FuelTank } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: updateTankLevel,
+    mutationFn: (tankId: string) => updateTankLevel(tankId, tank.current_level + amount, operation),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       queryClient.invalidateQueries({
@@ -74,13 +74,7 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
       return;
     }
 
-    mutation.mutate({
-      tankId: tank.id,
-      changeAmount: finalAmount,
-      previousLevel: tank.current_level,
-      newLevel: newLevel,
-      changeType: operation,
-    });
+    mutation.mutate(tank.id);
   };
 
   return (

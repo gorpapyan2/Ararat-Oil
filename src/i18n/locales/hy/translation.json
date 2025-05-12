@@ -1,5 +1,11 @@
 {
   "common": {
+    "signOut": "Դուրս գալ",
+    "addFuelEntry": "Ավելացնել վառելիքի մուտք",
+    "startInventory": "Սկսել գույքագրում",
+    "generateReport": "Ստեղծել հաշվետվություն",
+    "generate": "Ստեղծել",
+    "start": "Սկսել",
     "dashboard": "Կառավարման վահանակ",
     "tanks": "Բաքեր",
     "fillingSystems": "Լցման համակարգեր",
@@ -13,7 +19,7 @@
     "settings": "Կարգավորումներ",
     "finance": "Ֆինանսներ",
     "logout": "Ելք",
-    "loading": "Բեռնում...",
+    "loading": "Բեռնվում է...",
     "search": "Որոնում",
     "filter": "Զտիչ",
     "filters": "Ֆիլտրեր",
@@ -44,7 +50,8 @@
     "cng": "ԲՍԳ",
     "gas": "Գազ",
     "kerosene": "Կերոսին",
-    "noData": "Տվյալներ չեն գտնվել",
+    "noData": "Տվյալներ չկան",
+    "noDataAvailable": "Տվյալներ հասանելի չեն",
     "selectAnOption": "Ընտրեք տարբերակ",
     "overview": "Ակնարկ",
     "operations": "Գործառնություններ",
@@ -121,7 +128,7 @@
     "history": "Պատմություն",
     "groupBy": "Խմբավորել ըստ",
     "dateRange": "Ամսաթվի միջակայք",
-    "refresh": "Թարմացնել",
+    "refresh": "Թարմացնել էջը",
     "backToShifts": "Վերադառնալ հերթափոխերին",
     "details": "Մանրամասներ",
     "totalAmount": "Ընդհանուր գումար",
@@ -129,8 +136,8 @@
     "noFilterResults": "Զտիչին համապատասխան արդյունքներ չկան",
     "all": "Բոլորը",
     "supabaseSync": "Տվյալների բազայի համաժամացում",
-    "fuelPrices": "Վառելիքի գիներ",
-    "updateFuelPrices": "Թարմացնել վառելիքի գիները"
+    "fuelPrices": "Վառելիքի գներ",
+    "updateFuelPrices": "Թարմացնել վառելիքի գները"
   },
   "auth": {
     "signIn": {
@@ -521,7 +528,24 @@
     "totalFuelSupplies": "Ընդհանուր վառելիքի մատակարարումներ",
     "totalProviders": "Ընդհանուր մատակարարներ",
     "priceManagement": "Գների կառավարում",
-    "updateFuelPrices": "Թարմացնել վառելիքի գները"
+    "updateFuelPrices": "Թարմացնել վառելիքի գները",
+    "selectTank": "Ընտրել բաքը",
+    "selectFuelType": "Ընտրել վառելիքի տեսակը",
+    "totalSupplies": "Ընդհանուր մատակարարումներ",
+    "totalCost": "Ընդհանուր արժեք",
+    "activeSystems": "Ակտիվ լցման համակարգեր",
+    "recentActivity": "Վերջին ակտիվություն",
+    "tankLevels": "Բաքերի մակարդակներ",
+    "recentSupplies": "Վերջին մատակարարումներ",
+    "levelChanges": "Մակարդակի փոփոխություններ",
+    "utilizationRate": "Օգտագործման մակարդակ՝ {{rate}}%",
+    "totalQuantity": "Ընդհանուր քանակ՝ {{quantity}} լիտր",
+    "averagePrice": "Միջին գին՝ {{price}}",
+    "totalSystems": "Ընդհանուր համակարգեր՝ {{total}}",
+    "dailyConsumption": "Օրվա սպառում",
+    "tankUtilization": "Բաքերի օգտագործում",
+    "fuelTypeDistribution": "Վառելիքի տեսակների բաշխում",
+    "systemDistribution": "Համակարգերի բաշխում"
   },
   "index": {
     "welcome": "Բարի գալուստ Ձեր հավելված",
@@ -578,6 +602,9 @@
     }
   },
   "settings": {
+    "light": "Լուսավոր",
+    "dark": "Մութ",
+    "system": "Համակարգ",
     "title": "Կարգավորումներ",
     "description": "Կառավարեք ձեր հաշվի կարգավորումները և նախընտրությունները",
     "tabs": {
@@ -861,5 +888,12 @@
     "resourceSyncFailed": "Ռեսուրսի համաժամացումը ձախողվեց",
     "unableToSyncResource": "Չհաջողվեց համաժամացնել {{resource}} ռեսուրսը։",
     "syncedResources": "Համաժամացված ռեսուրսներ"
+  },
+  "sidebar": {
+    "expandSidebar": "Բացել կողային վահանակը",
+    "collapseSidebar": "Փակել կողային վահանակը",
+    "collapse": "Փակել",
+    "hasSubmenu": "Ունի ենթամենյու",
+    "toggleTheme": "Փոխել թեման"
   }
 }

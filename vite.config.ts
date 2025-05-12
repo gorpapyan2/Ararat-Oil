@@ -47,28 +47,6 @@ export default defineConfig(({ command, mode }) => ({
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
   optimizeDeps: {
-    exclude: [
-      '@radix-ui/react-scroll-area',
-      '@tanstack/react-query',
-      'next-themes',
-      '@tabler/icons-react',
-      'react-router-dom',
-      'react-i18next',
-      'i18next'
-    ],
-    // Increase the timeout for dependency optimization
-    force: true,
-    esbuildOptions: {
-      // Improve ESBuild performance
-      target: 'es2020',
-      // Handle CommonJS modules better
-      format: 'esm',
-      resolveExtensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
-      define: {
-        global: 'window'
-      },
-    },
-    // Improve handling of dynamic imports
     include: [
       'react',
       'react-dom',
@@ -77,8 +55,7 @@ export default defineConfig(({ command, mode }) => ({
       '@tanstack/react-query',
       '@tanstack/react-query-devtools',
       'lucide-react',
-      'void-elements',
-      'html-parse-stringify',
+      '@tabler/icons-react',
       '@radix-ui/react-icons',
       '@radix-ui/react-slot',
       '@radix-ui/react-dialog',
@@ -92,8 +69,17 @@ export default defineConfig(({ command, mode }) => ({
       'class-variance-authority',
       'clsx',
       'tailwind-merge',
-      'tailwindcss-animate'
+      'tailwindcss-animate',
+      'recharts'
     ],
+    esbuildOptions: {
+      target: 'es2020',
+      format: 'esm',
+      resolveExtensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
+      define: {
+        global: 'window'
+      },
+    },
   },
   build: {
     outDir: 'dist',
@@ -115,8 +101,15 @@ export default defineConfig(({ command, mode }) => ({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
-          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-select'],
+          'ui-vendor': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast'
+          ],
           'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
+          'chart-vendor': ['recharts'],
+          'icon-vendor': ['@tabler/icons-react', 'lucide-react'],
         },
       },
     },

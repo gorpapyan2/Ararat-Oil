@@ -145,7 +145,6 @@ export function MultiSelect({
                       "cursor-pointer",
                       option.disabled && "cursor-not-allowed opacity-50"
                     )}
-                    disabled={option.disabled}
                   >
                     {option.label}
                   </CommandItem>

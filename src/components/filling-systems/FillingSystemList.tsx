@@ -82,7 +82,11 @@ export function FillingSystemList({
           <span className="flex items-center">
             {row.tank.name}
             <span className="ml-2 text-xs text-muted-foreground">
-              ({row.tank.fuel_type})
+              (
+                {typeof row.tank.fuel_type === "object"
+                  ? row.tank.fuel_type.name || row.tank.fuel_type.code
+                  : row.tank.fuel_type}
+              )
             </span>
           </span>
         ) : (
@@ -112,7 +116,11 @@ export function FillingSystemList({
                     <span className="flex items-center">
                       {system.tank.name}
                       <span className="ml-2 text-xs text-muted-foreground">
-                        ({system.tank.fuel_type})
+                        (
+                          {typeof system.tank.fuel_type === "object"
+                            ? system.tank.fuel_type.name || system.tank.fuel_type.code
+                            : system.tank.fuel_type}
+                        )
                       </span>
                     </span>
                   ) : (
