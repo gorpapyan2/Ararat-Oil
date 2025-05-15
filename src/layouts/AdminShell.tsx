@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import { SkipToContent } from "@/components/ui/skip-to-content";
 import { useIsMobile } from "@/hooks/useResponsive";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/features/auth';
 import { Toaster } from "@/components/ui/toaster";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTranslation } from "react-i18next";
@@ -23,8 +23,18 @@ export function AdminShell({ children }: AdminShellProps) {
   const { pathname } = useLocation();
   const isAuthPage = pathname === "/auth" || pathname === "/login";
   const isMobile = useIsMobile();
-  const { signOut } = useAuth();
+  const { user, logout } = useAuth();
   const navConfig = useSidebarNavConfig();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   // Mobile sidebar state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -165,7 +175,7 @@ export function AdminShell({ children }: AdminShellProps) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={signOut}
+          onClick={handleLogout}
           className={cn(
             "w-full",
             sidebarCollapsed ? "justify-center" : "justify-start",

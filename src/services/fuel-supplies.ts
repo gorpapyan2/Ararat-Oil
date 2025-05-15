@@ -1,94 +1,88 @@
-import { FuelSupply } from "@/types";
-import { fuelSuppliesApi } from "@/services/api";
+import { FuelSupply, SuppliesFilters } from '@/features/supplies/types';
+import { supabase } from '@/lib/supabase';
+
+const FUEL_SUPPLIES_FUNCTION = 'fuel-supplies';
 
 /**
  * Fetch all fuel supply records with related provider, tank, and employee details.
+ * Uses Edge Function for complex filtering and data aggregation.
  * @returns {Promise<FuelSupply[]>}
  * @throws {Error} If fetching data fails
  */
-export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
+export async function fetchFuelSupplies(filters?: SuppliesFilters): Promise<FuelSupply[]> {
   try {
-    console.log("Fetching fuel supplies from Edge Function...");
-    
-    const { data, error } = await fuelSuppliesApi.getAll();
-    
+    const { data, error } = await supabase.functions.invoke(FUEL_SUPPLIES_FUNCTION, {
+      body: { action: 'getAll', filters }
+    });
+
     if (error) {
-      console.error("Error fetching fuel supplies:", error);
-      return [];
+      throw error;
     }
-    
-    if (!data || data.length === 0) {
-      console.log("No fuel supplies found");
-      return [];
-    }
-    
-    console.log(`Successfully fetched ${data.length} fuel supplies`);
+
     return data as FuelSupply[];
-  } catch (e) {
-    console.error("Exception fetching fuel supplies:", e);
-    return []; // Return empty array instead of throwing
-  }
-}
-
-export async function createFuelSupply(
-  supply: Omit<FuelSupply, "id" | "created_at">,
-): Promise<FuelSupply> {
-  try {
-    // Use Edge Function to create the fuel supply
-    const { data, error } = await fuelSuppliesApi.create(supply);
-    
-    if (error) {
-      throw new Error(`Failed to create fuel supply: ${error}`);
-    }
-    
-    if (!data) {
-      throw new Error("No data returned after creating fuel supply");
-    }
-    
-    console.log("Created fuel supply:", data);
-    return data as FuelSupply;
   } catch (error) {
-    console.error("Error creating fuel supply:", error);
+    console.error('Error fetching fuel supplies:', error);
     throw error;
   }
 }
 
-export async function updateFuelSupply(
-  id: string,
-  updates: Partial<Omit<FuelSupply, "id" | "created_at">>,
-): Promise<FuelSupply> {
+/**
+ * Create a new fuel supply record.
+ * Uses Edge Function to handle business logic and related updates.
+ */
+export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_at'>): Promise<FuelSupply> {
   try {
-    // Use Edge Function to update the fuel supply
-    const { data, error } = await fuelSuppliesApi.update(id, updates);
-    
+    const { data, error } = await supabase.functions.invoke(FUEL_SUPPLIES_FUNCTION, {
+      body: { action: 'create', supply }
+    });
+
     if (error) {
-      throw new Error(`Failed to update fuel supply: ${error}`);
+      throw error;
     }
-    
-    if (!data) {
-      throw new Error("No data returned after updating fuel supply");
-    }
-    
-    console.log("Updated fuel supply:", data);
+
     return data as FuelSupply;
   } catch (error) {
-    console.error("Error updating fuel supply:", error);
+    console.error('Error creating fuel supply:', error);
     throw error;
   }
 }
 
+/**
+ * Update an existing fuel supply record.
+ * Uses Edge Function to handle business logic and related updates.
+ */
+export async function updateFuelSupply(id: string, supply: Partial<FuelSupply>): Promise<FuelSupply> {
+  try {
+    const { data, error } = await supabase.functions.invoke(FUEL_SUPPLIES_FUNCTION, {
+      body: { action: 'update', id, supply }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data as FuelSupply;
+  } catch (error) {
+    console.error('Error updating fuel supply:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a fuel supply record.
+ * Uses Edge Function to handle cleanup and related updates.
+ */
 export async function deleteFuelSupply(id: string): Promise<void> {
   try {
-    // Use Edge Function to delete the fuel supply
-    const { error } = await fuelSuppliesApi.delete(id);
-    
+    const { error } = await supabase.functions.invoke(FUEL_SUPPLIES_FUNCTION, {
+      body: { action: 'delete', id }
+    });
+
     if (error) {
-      throw new Error(`Failed to delete fuel supply: ${error}`);
+      throw error;
     }
-    
-    console.log("Deleted fuel supply with ID:", id);
   } catch (error) {
-    console.error("Error deleting fuel supply:", error);
+    console.error('Error deleting fuel supply:', error);
     throw error;
   }
 }

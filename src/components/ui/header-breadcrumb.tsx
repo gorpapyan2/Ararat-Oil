@@ -1,6 +1,6 @@
 import React from 'react';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
-import { useBreadcrumbs } from '@/components/BreadcrumbProvider';
+import { useBreadcrumbs } from '@/core/providers/BreadcrumbProvider';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 

@@ -1,5 +1,11 @@
 {
   "common": {
+    "totalCost": "Ընդհանուր արժեք",
+    "allFuelTypes": "Բոլոր վառելիքի տեսակները",
+    "week": "Շաբաթ",
+    "month": "Ամիս",
+    "year": "Տարի",
+    "clearAll": "Մաքրել բոլորը",
     "signOut": "Դուրս գալ",
     "addFuelEntry": "Ավելացնել վառելիքի մուտք",
     "startInventory": "Սկսել գույքագրում",
@@ -521,6 +527,17 @@
     "oldest": "Հներն առաջինը"
   },
   "fuelManagement": {
+    "addFuelEntryDesc": "Ավելացնել վառելիքի մուտքագրում",
+    "startInventoryDesc": "Սկսել գույքագրում",
+    "generateReportDesc": "Ստեղծել հաշվետվություն",
+    "totalVolume": "Ընդհանուր ծավալ",
+    "availableVolume": "Հասանելի ծավալ",
+    "ofTotal": "Ընդամենը {total}-ից",
+    "consumptionTrend": "Սպառման միտում",
+    "consumptionTrendDesc": "Վառելիքի սպառման միտումների վերլուծություն",
+    "supplies": "Մատակարարումներ",
+    "currentLevel": "Ընթացիկ մակարդակ",
+    "capacity": "Տարողություն",
     "title": "Վառելիքի կառավարում",
     "description": "Կառավարեք ձեր վառելիքի համակարգերը, բաքերը, մատակարարումները և գները",
     "totalFillingSystems": "Ընդհանուր լիցքավորման համակարգեր",
@@ -895,5 +912,8 @@
     "collapse": "Փակել",
     "hasSubmenu": "Ունի ենթամենյու",
     "toggleTheme": "Փոխել թեման"
+  },
+  "status": {
+    "unknown": "Անհայտ"
   }
 }

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -12,6 +11,7 @@ import { TransactionListStandardized } from "./TransactionListStandardized";
 import { TransactionHeader } from "./TransactionHeader";
 import { TransactionDialogStandardized } from "./TransactionDialogStandardized";
 import { useToast } from "@/hooks";
+import { useShift } from "@/hooks/useShift";
 
 export function TransactionsManagerStandardized() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -25,10 +25,11 @@ export function TransactionsManagerStandardized() {
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { activeShift } = useShift();
 
-  const { data: transactions, isLoading } = useQuery({
+  const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ["transactions"],
-    queryFn: fetchTransactions,
+    queryFn: () => fetchTransactions(),
   });
 
   const createMutation = useMutation({
@@ -126,7 +127,7 @@ export function TransactionsManagerStandardized() {
     <div className="space-y-6">
       <TransactionHeader onCreate={() => {}} />
       <TransactionListStandardized
-        transactions={transactions || []}
+        transactions={transactions as Transaction[]}
         isLoading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -137,6 +138,7 @@ export function TransactionsManagerStandardized() {
         transaction={transactionToEdit}
         onSubmit={handleUpdate}
         onClose={closeEditDialog}
+        currentShiftId={activeShift?.id || ""}
       />
     </div>
   );

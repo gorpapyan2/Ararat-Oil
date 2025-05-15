@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/ui/page-header";
 import { Home } from "lucide-react";
-import { BreadcrumbPageWrapper } from "@/components/common/BreadcrumbPageWrapper";
+import { BreadcrumbPageWrapper } from "@/core/providers/BreadcrumbPageWrapper";
 
 export default function IndexPage() {
   const { t } = useTranslation();
@@ -16,7 +16,10 @@ export default function IndexPage() {
           icon: <Home className="h-4 w-4" />,
           isCurrent: true
         }
-      ]}
+      ].map(crumb => ({
+        ...crumb,
+        label: crumb.name
+      }))}
       title={t("common.dashboard")}
     >
       <div className="space-y-6">

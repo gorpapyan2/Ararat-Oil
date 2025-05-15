@@ -11,7 +11,7 @@ import { fetchPetrolProviders } from "@/services/petrol-providers";
 import { fetchFuelTanks } from "@/services/tanks";
 import { useQuery } from "@tanstack/react-query";
 import { FormInput, FormSelect, FormTextarea } from "@/components/ui/composed/form-fields";
-import { FuelSupply } from "@/types";
+import { FuelSupply } from "@/features/supplies/types";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 
 // Define types locally since we don't have access to the actual type files
@@ -54,7 +54,6 @@ const fuelSupplySchema = z.object({
     z.number({ required_error: "Total cost must be a number" })
       .gt(0, "Total cost must be greater than 0")
   ),
-  employee_id: z.string().optional(),
   comments: z.string().optional(),
 });
 
@@ -77,7 +76,6 @@ export function FuelSuppliesFormStandardized({
       quantity_liters: initialData?.quantity_liters || 0,
       price_per_liter: initialData?.price_per_liter || 0,
       total_cost: initialData?.total_cost || 0,
-      employee_id: initialData?.employee_id || "",
       comments: initialData?.comments || "",
     },
   });
@@ -114,7 +112,6 @@ export function FuelSuppliesFormStandardized({
           quantity_liters: data.quantity_liters || 0,
           price_per_liter: data.price_per_liter || 0,
           total_cost: data.total_cost || 0,
-          employee_id: data.employee_id || "",
           comments: data.comments || ""
         };
         

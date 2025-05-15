@@ -13,7 +13,7 @@ import {
   IconX,
   IconDeviceLaptop,
 } from "@tabler/icons-react";
-import { useBreadcrumbs } from "@/components/BreadcrumbProvider";
+import { useBreadcrumbs } from "@/core/providers/BreadcrumbProvider";
 import { Settings as SettingsIcon } from "lucide-react";
 
 // Import our custom UI components
@@ -43,8 +43,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks";
-import { useTheme } from "@/components/theme-provider";
-import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/core/providers/theme-provider";
+import { useAuth } from '@/features/auth';
 import { ActionButton } from "@/components/ui/action-button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";

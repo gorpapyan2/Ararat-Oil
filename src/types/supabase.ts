@@ -131,7 +131,7 @@ export type Database = {
           comments: string | null
           created_at: string | null
           delivery_date: string
-          employee_id: string
+          shift_id: string
           id: string
           payment_method: string | null
           payment_status: string
@@ -145,7 +145,7 @@ export type Database = {
           comments?: string | null
           created_at?: string | null
           delivery_date: string
-          employee_id: string
+          shift_id: string
           id?: string
           payment_method?: string | null
           payment_status?: string
@@ -159,7 +159,7 @@ export type Database = {
           comments?: string | null
           created_at?: string | null
           delivery_date?: string
-          employee_id?: string
+          shift_id?: string
           id?: string
           payment_method?: string | null
           payment_status?: string
@@ -171,10 +171,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fuel_supplies_employee_id_fkey"
-            columns: ["employee_id"]
+            foreignKeyName: "fuel_supplies_shift_id_fkey"
+            columns: ["shift_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
           {

@@ -14,12 +14,13 @@ import { createFuelSupply } from "@/services/fuel-supplies";
 import { useToast } from "@/hooks";
 import { format } from "date-fns";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { useShift } from "@/hooks/useShift";
 
 // Import our standalone fuel supplies form
 import { FuelSuppliesForm } from "./FuelSuppliesForm";
 
 // Types
-import { FuelSupply } from "@/types";
+import { FuelSupply } from "@/features/supplies/types";
 
 export default function FuelSupplyCreate() {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ export default function FuelSupplyCreate() {
   const { toast } = useToast();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingData, setPendingData] = useState<Partial<FuelSupply> | null>(null);
+  const { activeShift } = useShift();
 
   // Memoize breadcrumb segments to prevent unnecessary re-renders
   const breadcrumbSegments = useMemo(() => [
@@ -77,12 +79,21 @@ export default function FuelSupplyCreate() {
   });
 
   const handleSubmit = (data: Omit<FuelSupply, "id" | "created_at">) => {
-    setPendingData(data);
+    if (!activeShift?.id) {
+      toast({
+        title: t("common.error"),
+        description: t("fuelSupplies.noActiveShift", "No active shift found. Please open a shift first."),
+        variant: "destructive",
+      });
+      return;
+    }
+    // Ensure all required fields are present
+    setPendingData({ ...data, shift_id: activeShift.id } as Omit<FuelSupply, "id" | "created_at">);
     setIsConfirmOpen(true);
   };
 
   const handleConfirm = () => {
-    if (pendingData) {
+    if (pendingData && activeShift?.id) {
       createFuelSupplyMutation.mutate(pendingData as Omit<FuelSupply, "id" | "created_at">);
     }
   };
@@ -130,9 +141,9 @@ export default function FuelSupplyCreate() {
       <Card className="max-w-4xl mx-auto">
         <CardContent className="pt-6">
           <FuelSuppliesForm 
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit as any}
             isSubmitting={createFuelSupplyMutation.isPending}
-            defaultValues={defaultValues}
+            defaultValues={{ ...defaultValues, shift_id: activeShift?.id || "" }}
             onConfirm={handleConfirm}
             onConfirmCancel={handleConfirmCancel}
             isConfirmOpen={isConfirmOpen}

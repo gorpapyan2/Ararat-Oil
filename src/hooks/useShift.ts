@@ -8,7 +8,7 @@ import {
   getShiftSalesTotal
 } from "@/services/shifts";
 import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/features/auth';
 import { useToast } from "@/hooks/useToast";
 import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
 

@@ -8,7 +8,7 @@ import {
 } from "@tabler/icons-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Home, Settings } from "lucide-react";
-import { BreadcrumbPageWrapper } from "@/components/common/BreadcrumbPageWrapper";
+import { BreadcrumbPageWrapper } from "@/core/providers/BreadcrumbPageWrapper";
 
 // Lazy load settings sections
 const ProfileSettings = lazy(() => import("./ProfileSettings"));

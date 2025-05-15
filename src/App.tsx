@@ -8,12 +8,12 @@ import {
   useLocation,
 } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
-import { ThemeProvider } from "./components/theme-provider";
+import { ThemeProvider } from "@/core/providers/theme-provider";
 import { AdminShell } from "@/layouts/AdminShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from '@/features/auth';
 import { Loading } from "@/components/ui/loading";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary from "@/core/providers/ErrorBoundary";
 // Import Auth directly since it's needed for initial load
 import Auth from "@/pages/Auth";
 import { Toaster } from "./components/ui/toaster";
@@ -158,7 +158,7 @@ function RouteErrorBoundary({ children }: { children: React.ReactNode }) {
 }
 
 function RequireAuth({ children }: { children: JSX.Element }) {
-  const { user, isLoading, isOffline } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
   
   // Clear console on navigation to reduce clutter
@@ -169,7 +169,7 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   }
 
   // If we're in offline mode and have a user, proceed to the app
-  if (isOffline && user) {
+  if (user) {
     console.log("Using offline authentication mode");
     return children;
   }

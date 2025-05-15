@@ -10,7 +10,7 @@ import {
 } from "@/services/fuel-supplies";
 import { useToast } from "@/hooks";
 import { useDialog } from "@/hooks/useDialog";
-import { FuelSupply } from "@/types";
+import { FuelSupply } from "@/features/supplies/types";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { fetchFuelTanks } from "@/services/tanks";
@@ -130,7 +130,7 @@ export function FuelSuppliesManagerStandardized({
     }: {
       id: string;
       updates: Partial<FuelSupply>;
-    }) => updateFuelSupply(id, updates),
+    }) => updateFuelSupply(id, updates as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
@@ -241,7 +241,7 @@ export function FuelSuppliesManagerStandardized({
       <FuelSuppliesSummary supplies={summaryFilteredSupplies} />
       
       <FuelSuppliesTable
-        fuelSupplies={filteredSupplies}
+        fuelSupplies={filteredSupplies as FuelSupply[]}
         isLoading={isLoading}
         onEdit={(supplyId) => {
           const supply = filteredSupplies.find(s => s.id === supplyId);
@@ -268,7 +268,7 @@ export function FuelSuppliesManagerStandardized({
             description: "Fuel supply record updated successfully",
           });
         }}
-        initialData={editingSupply}
+        initialData={editingSupply as FuelSupply}
       />
 
       <ConfirmAddDialogStandardized

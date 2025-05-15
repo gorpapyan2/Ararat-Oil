@@ -1,207 +1,182 @@
-import { createServiceClient, getUserFromRequest } from '../_shared/database.ts';
-import { 
-  handleCors, 
-  successResponse, 
-  errorResponse, 
-  methodNotAllowed,
-  unauthorized,
-  notFound,
-  parseRequestBody
-} from '../_shared/api.ts';
-import { PetrolProvider } from '../_shared/types.ts';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { corsHeaders } from '../_shared/cors.ts'
+import { Database } from '../_shared/database.types.ts'
 
-// Handle petrol provider operations
-Deno.serve(async (req: Request) => {
+interface PetrolProvider {
+  id: string
+  name: string
+  contact_person: string
+  phone: string
+  email: string
+  address: string
+  tax_id: string
+  bank_account: string
+  notes: string
+  created_at: string
+  updated_at: string
+}
+
+interface PetrolProviderFilters {
+  searchQuery?: string
+}
+
+serve(async (req) => {
   // Handle CORS
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
-
-  // Get URL path
-  const url = new URL(req.url);
-  const path = url.pathname.replace('/petrol-providers', '');
-
-  // Authentication check
-  const user = await getUserFromRequest(req);
-  if (!user) {
-    return unauthorized();
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // Route handling
-    if (req.method === 'GET') {
-      if (path === '' || path === '/') {
-        return await getPetrolProviders();
-      } else if (path.match(/^\/[a-zA-Z0-9-]+$/)) {
-        const id = path.split('/')[1];
-        return await getPetrolProviderById(id);
+    const supabaseClient = createClient<Database>(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
       }
-    } else if (req.method === 'POST' && (path === '' || path === '/')) {
-      const data = await parseRequestBody<Omit<PetrolProvider, 'id' | 'created_at' | 'updated_at'>>(req);
-      return await createPetrolProvider(data);
-    } else if (req.method === 'PUT' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
-      const id = path.split('/')[1];
-      const data = await parseRequestBody<Partial<Omit<PetrolProvider, 'id' | 'created_at' | 'updated_at'>>>(req);
-      return await updatePetrolProvider(id, data);
-    } else if (req.method === 'DELETE' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
-      const id = path.split('/')[1];
-      return await deletePetrolProvider(id);
-    }
-  } catch (error) {
-    return errorResponse(error);
-  }
+    )
 
-  return methodNotAllowed();
-});
+    // Get the user from the session
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser()
 
-/**
- * Get all petrol providers
- */
-async function getPetrolProviders(): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("petrol_providers")
-      .select("*")
-      .order("name", { ascending: true });
+    if (userError) throw userError
 
-    if (error) throw error;
+    const url = new URL(req.url)
+    const path = url.pathname.split('/').pop()
 
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
+    switch (path) {
+      case 'providers': {
+        if (!user) throw new Error('Unauthorized')
 
-/**
- * Get a petrol provider by ID
- */
-async function getPetrolProviderById(id: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("petrol_providers")
-      .select("*")
-      .eq("id", id)
-      .single();
+        if (req.method === 'GET') {
+          const filters: PetrolProviderFilters = {}
+          const searchParams = new URLSearchParams(url.search)
+          const searchQuery = searchParams.get('searchQuery')
+          if (searchQuery) filters.searchQuery = searchQuery
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return notFound('Petrol provider');
+          let query = supabaseClient
+            .from('petrol_providers')
+            .select('*')
+            .order('name')
+
+          if (filters.searchQuery) {
+            query = query.or(
+              `name.ilike.%${filters.searchQuery}%,contact_person.ilike.%${filters.searchQuery}%`
+            )
+          }
+
+          const { data, error } = await query
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ providers: data }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        if (req.method === 'POST') {
+          const provider = await req.json()
+          const { data, error } = await supabaseClient
+            .from('petrol_providers')
+            .insert(provider)
+            .select()
+            .single()
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ provider: data }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 201,
+          })
+        }
+
+        if (req.method === 'PUT') {
+          const { id, ...updates } = await req.json()
+          const { data, error } = await supabaseClient
+            .from('petrol_providers')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single()
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ provider: data }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        if (req.method === 'DELETE') {
+          const { id } = await req.json()
+          const { error } = await supabaseClient
+            .from('petrol_providers')
+            .delete()
+            .eq('id', id)
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ success: true }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        throw new Error('Method not allowed')
       }
-      throw error;
-    }
 
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
+      case 'summary': {
+        if (!user) throw new Error('Unauthorized')
 
-/**
- * Create a new petrol provider
- */
-async function createPetrolProvider(
-  provider: Omit<PetrolProvider, 'id' | 'created_at' | 'updated_at'>
-): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("petrol_providers")
-      .insert({
-        ...provider,
-        is_active: provider.is_active !== undefined ? provider.is_active : true
-      })
-      .select()
-      .single();
+        if (req.method === 'GET') {
+          const { data: providers, error } = await supabaseClient
+            .from('petrol_providers')
+            .select('*')
 
-    if (error) throw error;
+          if (error) throw error
 
-    return successResponse(data, 201);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
+          const totalProviders = providers.length
+          const activeProviders = providers.filter(p => p.notes?.includes('active')).length
+          const recentProviders = providers.filter(
+            p => new Date(p.created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          ).length
 
-/**
- * Update an existing petrol provider
- */
-async function updatePetrolProvider(
-  id: string,
-  updates: Partial<Omit<PetrolProvider, 'id' | 'created_at' | 'updated_at'>>
-): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Check if the provider exists
-    const { data: existingProvider, error: checkError } = await supabase
-      .from("petrol_providers")
-      .select("id")
-      .eq("id", id)
-      .single();
+          return new Response(
+            JSON.stringify({
+              summary: {
+                totalProviders,
+                activeProviders,
+                recentProviders,
+              },
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 200,
+            }
+          )
+        }
 
-    if (checkError) {
-      if (checkError.code === 'PGRST116') {
-        return notFound('Petrol provider');
+        throw new Error('Method not allowed')
       }
-      throw checkError;
+
+      default:
+        throw new Error('Not found')
     }
-    
-    // Set updated_at timestamp
-    const updatedFields = {
-      ...updates,
-      updated_at: new Date().toISOString()
-    };
-
-    // Update the petrol provider
-    const { data, error } = await supabase
-      .from("petrol_providers")
-      .update(updatedFields)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    return successResponse(data);
   } catch (error) {
-    return errorResponse(error);
+    return new Response(
+      JSON.stringify({
+        error: error.message,
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      }
+    )
   }
-}
-
-/**
- * Delete a petrol provider
- */
-async function deletePetrolProvider(id: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Check if there are related fuel supplies
-    const { count, error: checkError } = await supabase
-      .from("fuel_supplies")
-      .select("*", { count: "exact", head: true })
-      .eq("provider_id", id);
-
-    if (checkError) throw checkError;
-    
-    if (count && count > 0) {
-      return errorResponse({
-        message: `Cannot delete this provider as it has ${count} related fuel supply records. Consider marking it as inactive instead.`
-      }, 409); // Conflict status code
-    }
-
-    // Delete the petrol provider
-    const { error } = await supabase
-      .from("petrol_providers")
-      .delete()
-      .eq("id", id);
-
-    if (error) throw error;
-
-    return successResponse({ success: true });
-  } catch (error) {
-    return errorResponse(error);
-  }
-} 
+}) 

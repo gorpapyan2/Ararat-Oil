@@ -1,508 +1,277 @@
-import { createServiceClient, getUserFromRequest } from '../_shared/database.ts';
-import { 
-  handleCors, 
-  successResponse, 
-  errorResponse, 
-  methodNotAllowed,
-  unauthorized,
-  notFound,
-  parseRequestBody
-} from '../_shared/api.ts';
-import { FuelTank, TankLevelChange } from '../_shared/types.ts';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { corsHeaders } from '../_shared/cors.ts'
+import { Database } from '../_shared/database.types.ts'
 
-// Handle tanks operations
-Deno.serve(async (req: Request) => {
-  // Handle CORS
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
-
-  // Get URL path
-  const url = new URL(req.url);
-  const path = url.pathname.replace('/tanks', '');
-
-  // Authentication check
-  const user = await getUserFromRequest(req);
-  if (!user) {
-    return unauthorized();
+interface FuelTank {
+  id: string
+  name: string
+  fuel_type_id: string
+  fuel_type?: {
+    id: string
+    name: string
   }
-
-  try {
-    // Route handling
-    if (req.method === 'GET') {
-      if (path === '' || path === '/') {
-        return await getTanks();
-      } else if (path.match(/^\/[a-zA-Z0-9-]+$/)) {
-        const id = path.split('/')[1];
-        return await getTankById(id);
-      } else if (path.match(/^\/[a-zA-Z0-9-]+\/level-changes$/)) {
-        const id = path.split('/')[1];
-        return await getTankLevelChanges(id);
-      }
-    } else if (req.method === 'POST') {
-      if (path === '' || path === '/') {
-        const data = await parseRequestBody<Omit<FuelTank, 'id' | 'created_at'>>(req);
-        return await createTank(data);
-      } else if (path.match(/^\/[a-zA-Z0-9-]+\/adjust-level$/)) {
-        const id = path.split('/')[1];
-        const data = await parseRequestBody<{ change_amount: number; change_type: 'add' | 'subtract'; reason?: string }>(req);
-        return await adjustTankLevel(id, data.change_amount, data.change_type, data.reason);
-      }
-    } else if (req.method === 'PUT' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
-      const id = path.split('/')[1];
-      const data = await parseRequestBody<Partial<Omit<FuelTank, 'id' | 'created_at'>>>(req);
-      return await updateTank(id, data);
-    } else if (req.method === 'DELETE' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
-      const id = path.split('/')[1];
-      return await deleteTank(id);
-    }
-  } catch (error) {
-    return errorResponse(error);
-  }
-
-  return methodNotAllowed();
-});
-
-/**
- * Get all tanks
- */
-async function getTanks(): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("fuel_tanks")
-      .select(`
-        *,
-        fuel_type:fuel_types!fuel_type_id(id, name, code)
-      `)
-      .order("name", { ascending: true });
-
-    if (error) throw error;
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
+  capacity: number
+  current_level: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
-/**
- * Get a tank by ID
- */
-async function getTankById(id: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("fuel_tanks")
-      .select(`
-        *,
-        fuel_type:fuel_types!fuel_type_id(id, name, code)
-      `)
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return notFound('Tank');
-      }
-      throw error;
-    }
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Get level changes for a tank
- */
-async function getTankLevelChanges(tankId: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Check if tank exists
-    const { data: tank, error: tankError } = await supabase
-      .from("fuel_tanks")
-      .select("id")
-      .eq("id", tankId)
-      .single();
-      
-    if (tankError) {
-      if (tankError.code === 'PGRST116') {
-        return notFound('Tank');
-      }
-      throw tankError;
-    }
-    
-    const { data, error } = await supabase
-      .from("tank_level_changes")
-      .select("*")
-      .eq("tank_id", tankId)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Create a new tank
- */
-async function createTank(
-  tank: Omit<FuelTank, 'id' | 'created_at'>
-): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Validate fuel type exists
-    if (tank.fuel_type_id) {
-      const { data: fuelType, error: fuelTypeError } = await supabase
-        .from("fuel_types")
-        .select("id")
-        .eq("id", tank.fuel_type_id)
-        .single();
-        
-      if (fuelTypeError) {
-        if (fuelTypeError.code === 'PGRST116') {
-          return errorResponse({
-            message: `Fuel type with ID ${tank.fuel_type_id} not found`
-          }, 400);
-        }
-        throw fuelTypeError;
-      }
-    }
-    
-    // Validate capacity and current level
-    if (tank.capacity <= 0) {
-      return errorResponse({
-        message: "Tank capacity must be greater than zero"
-      }, 400);
-    }
-    
-    if (tank.current_level < 0) {
-      return errorResponse({
-        message: "Tank current level cannot be negative"
-      }, 400);
-    }
-    
-    if (tank.current_level > tank.capacity) {
-      return errorResponse({
-        message: "Tank current level cannot exceed capacity"
-      }, 400);
-    }
-    
-    const { data, error } = await supabase
-      .from("fuel_tanks")
-      .insert(tank)
-      .select(`
-        *,
-        fuel_type:fuel_types!fuel_type_id(id, name, code)
-      `)
-      .single();
-
-    if (error) throw error;
-    
-    // Record initial tank level if greater than zero
-    if (tank.current_level > 0) {
-      const levelChange: Omit<TankLevelChange, 'id' | 'created_at'> = {
-        tank_id: data.id,
-        change_amount: tank.current_level,
-        previous_level: 0,
-        new_level: tank.current_level,
-        change_type: "add"
-      };
-      
-      const { error: levelError } = await supabase
-        .from("tank_level_changes")
-        .insert(levelChange);
-        
-      if (levelError) {
-        console.error("Failed to record initial tank level change:", levelError);
-        // Don't fail the whole operation
-      }
-    }
-
-    return successResponse(data, 201);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Update an existing tank
- */
-async function updateTank(
-  id: string,
-  updates: Partial<Omit<FuelTank, 'id' | 'created_at'>>
-): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Check if the tank exists
-    const { data: existingTank, error: checkError } = await supabase
-      .from("fuel_tanks")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (checkError) {
-      if (checkError.code === 'PGRST116') {
-        return notFound('Tank');
-      }
-      throw checkError;
-    }
-    
-    // If fuel type is being updated, validate it exists
-    if (updates.fuel_type_id) {
-      const { data: fuelType, error: fuelTypeError } = await supabase
-        .from("fuel_types")
-        .select("id")
-        .eq("id", updates.fuel_type_id)
-        .single();
-        
-      if (fuelTypeError) {
-        if (fuelTypeError.code === 'PGRST116') {
-          return errorResponse({
-            message: `Fuel type with ID ${updates.fuel_type_id} not found`
-          }, 400);
-        }
-        throw fuelTypeError;
-      }
-    }
-    
-    // Validate capacity
-    if (updates.capacity !== undefined) {
-      if (updates.capacity <= 0) {
-        return errorResponse({
-          message: "Tank capacity must be greater than zero"
-        }, 400);
-      }
-      
-      // If capacity is being reduced, check that current level doesn't exceed new capacity
-      const currentLevel = updates.current_level !== undefined 
-        ? updates.current_level 
-        : existingTank.current_level;
-        
-      if (currentLevel > updates.capacity) {
-        return errorResponse({
-          message: `Cannot reduce capacity below current level (${currentLevel})`
-        }, 400);
-      }
-    }
-    
-    // Validate current level
-    if (updates.current_level !== undefined) {
-      if (updates.current_level < 0) {
-        return errorResponse({
-          message: "Tank current level cannot be negative"
-        }, 400);
-      }
-      
-      const capacity = updates.capacity !== undefined
-        ? updates.capacity
-        : existingTank.capacity;
-        
-      if (updates.current_level > capacity) {
-        return errorResponse({
-          message: `Tank current level (${updates.current_level}) cannot exceed capacity (${capacity})`
-        }, 400);
-      }
-      
-      // Record level change if current_level is being updated
-      if (updates.current_level !== existingTank.current_level) {
-        const change_amount = Math.abs(updates.current_level - existingTank.current_level);
-        const change_type = updates.current_level > existingTank.current_level ? "add" : "subtract";
-        
-        const levelChange: Omit<TankLevelChange, 'id' | 'created_at'> = {
-          tank_id: id,
-          change_amount,
-          previous_level: existingTank.current_level,
-          new_level: updates.current_level,
-          change_type
-        };
-        
-        const { error: levelError } = await supabase
-          .from("tank_level_changes")
-          .insert(levelChange);
-          
-        if (levelError) {
-          console.error("Failed to record tank level change:", levelError);
-          // Don't fail the whole operation
-        }
-      }
-    }
-
-    // Update the tank
-    const { data, error } = await supabase
-      .from("fuel_tanks")
-      .update(updates)
-      .eq("id", id)
-      .select(`
-        *,
-        fuel_type:fuel_types!fuel_type_id(id, name, code)
-      `)
-      .single();
-
-    if (error) throw error;
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Delete a tank
- */
-async function deleteTank(id: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Check if there are related filling systems
-    const { count: fillingSystemCount, error: fillingError } = await supabase
-      .from("filling_systems")
-      .select("*", { count: "exact", head: true })
-      .eq("tank_id", id);
-
-    if (fillingError) throw fillingError;
-    
-    if (fillingSystemCount && fillingSystemCount > 0) {
-      return errorResponse({
-        message: `Cannot delete this tank as it is connected to ${fillingSystemCount} filling systems. Remove those connections first.`
-      }, 409); // Conflict status code
-    }
-    
-    // Check if there are related fuel supplies
-    const { count: supplyCount, error: supplyError } = await supabase
-      .from("fuel_supplies")
-      .select("*", { count: "exact", head: true })
-      .eq("tank_id", id);
-      
-    if (supplyError) throw supplyError;
-    
-    if (supplyCount && supplyCount > 0) {
-      return errorResponse({
-        message: `Cannot delete this tank as it has ${supplyCount} fuel supply records.`
-      }, 409); // Conflict status code
-    }
-    
-    // Delete tank level changes first
-    const { error: levelChangeError } = await supabase
-      .from("tank_level_changes")
-      .delete()
-      .eq("tank_id", id);
-      
-    if (levelChangeError) throw levelChangeError;
-
-    // Delete the tank
-    const { error } = await supabase
-      .from("fuel_tanks")
-      .delete()
-      .eq("id", id);
-
-    if (error) throw error;
-
-    return successResponse({ success: true });
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Adjust tank level
- */
-async function adjustTankLevel(
-  tankId: string, 
-  changeAmount: number, 
-  changeType: 'add' | 'subtract',
+interface TankLevelChange {
+  id: string
+  tank_id: string
+  previous_level: number
+  new_level: number
+  change_amount: number
+  change_type: 'add' | 'subtract'
   reason?: string
-): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Check if tank exists and get current level
-    const { data: tank, error: tankError } = await supabase
-      .from("fuel_tanks")
-      .select("*")
-      .eq("id", tankId)
-      .single();
-      
-    if (tankError) {
-      if (tankError.code === 'PGRST116') {
-        return notFound('Tank');
-      }
-      throw tankError;
-    }
-    
-    // Validate change amount
-    if (changeAmount <= 0) {
-      return errorResponse({
-        message: "Change amount must be greater than zero"
-      }, 400);
-    }
-    
-    // Calculate new level
-    let newLevel: number;
-    if (changeType === 'add') {
-      newLevel = tank.current_level + changeAmount;
-      
-      // Check if new level exceeds capacity
-      if (newLevel > tank.capacity) {
-        return errorResponse({
-          message: `Adding ${changeAmount} would exceed tank capacity of ${tank.capacity}. Current level: ${tank.current_level}`
-        }, 400);
-      }
-    } else {
-      newLevel = tank.current_level - changeAmount;
-      
-      // Check if new level would be negative
-      if (newLevel < 0) {
-        return errorResponse({
-          message: `Cannot remove ${changeAmount} as it would result in negative tank level. Current level: ${tank.current_level}`
-        }, 400);
-      }
-    }
-    
-    // Record the tank level change
-    const levelChange: Omit<TankLevelChange, 'id' | 'created_at'> = {
-      tank_id: tankId,
-      change_amount: changeAmount,
-      previous_level: tank.current_level,
-      new_level: newLevel,
-      change_type: changeType
-    };
-    
-    const { error: levelChangeError } = await supabase
-      .from("tank_level_changes")
-      .insert(levelChange);
-      
-    if (levelChangeError) throw levelChangeError;
-    
-    // Update the tank's current level
-    const { data, error: updateError } = await supabase
-      .from("fuel_tanks")
-      .update({ current_level: newLevel })
-      .eq("id", tankId)
-      .select()
-      .single();
-      
-    if (updateError) throw updateError;
-    
-    return successResponse({
-      ...data,
-      adjustment: {
-        change_amount: changeAmount,
-        change_type: changeType,
-        previous_level: tank.current_level,
-        new_level: newLevel,
-        reason: reason || null
-      }
-    });
-  } catch (error) {
-    return errorResponse(error);
+  created_at: string
+  created_by: string
+}
+
+serve(async (req) => {
+  // Handle CORS
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
   }
-} 
+
+  try {
+    const supabaseClient = createClient<Database>(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    )
+
+    // Get the user from the session
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser()
+
+    if (userError) throw userError
+
+    const url = new URL(req.url)
+    const path = url.pathname.split('/').pop()
+
+    switch (path) {
+      case 'tanks': {
+        if (!user) throw new Error('Unauthorized')
+
+        if (req.method === 'GET') {
+          const { data, error } = await supabaseClient
+            .from('fuel_tanks')
+            .select('*, fuel_type:fuel_types(id, name)')
+            .order('name')
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ tanks: data }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        if (req.method === 'POST') {
+          const tank = await req.json()
+          const { data, error } = await supabaseClient
+            .from('fuel_tanks')
+            .insert(tank)
+            .select('*, fuel_type:fuel_types(id, name)')
+            .single()
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ tank: data }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 201,
+          })
+        }
+
+        throw new Error('Method not allowed')
+      }
+
+      case 'tank': {
+        if (!user) throw new Error('Unauthorized')
+
+        const tankId = url.searchParams.get('id')
+        if (!tankId) throw new Error('Tank ID is required')
+
+        if (req.method === 'GET') {
+          const { data, error } = await supabaseClient
+            .from('fuel_tanks')
+            .select('*, fuel_type:fuel_types(id, name)')
+            .eq('id', tankId)
+            .single()
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ tank: data }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        if (req.method === 'PUT') {
+          const updates = await req.json()
+          const { data, error } = await supabaseClient
+            .from('fuel_tanks')
+            .update(updates)
+            .eq('id', tankId)
+            .select('*, fuel_type:fuel_types(id, name)')
+            .single()
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ tank: data }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        if (req.method === 'DELETE') {
+          const { error } = await supabaseClient
+            .from('fuel_tanks')
+            .delete()
+            .eq('id', tankId)
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ success: true }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        throw new Error('Method not allowed')
+      }
+
+      case 'level-changes': {
+        if (!user) throw new Error('Unauthorized')
+
+        const tankId = url.searchParams.get('tankId')
+        if (!tankId) throw new Error('Tank ID is required')
+
+        if (req.method === 'GET') {
+          const { data, error } = await supabaseClient
+            .from('tank_level_changes')
+            .select('*')
+            .eq('tank_id', tankId)
+            .order('created_at', { ascending: false })
+
+          if (error) throw error
+
+          return new Response(JSON.stringify({ levelChanges: data }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        if (req.method === 'POST') {
+          const { change_amount, change_type, reason } = await req.json()
+
+          // Get current tank level
+          const { data: tank, error: tankError } = await supabaseClient
+            .from('fuel_tanks')
+            .select('current_level')
+            .eq('id', tankId)
+            .single()
+
+          if (tankError) throw tankError
+
+          const previous_level = tank.current_level
+          const new_level = change_type === 'add'
+            ? previous_level + change_amount
+            : previous_level - change_amount
+
+          // Update tank level
+          const { error: updateError } = await supabaseClient
+            .from('fuel_tanks')
+            .update({ current_level: new_level })
+            .eq('id', tankId)
+
+          if (updateError) throw updateError
+
+          // Record level change
+          const { data: levelChange, error: changeError } = await supabaseClient
+            .from('tank_level_changes')
+            .insert({
+              tank_id: tankId,
+              previous_level,
+              new_level,
+              change_amount,
+              change_type,
+              reason,
+              created_by: user.id,
+            })
+            .select()
+            .single()
+
+          if (changeError) throw changeError
+
+          return new Response(JSON.stringify({ levelChange }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 201,
+          })
+        }
+
+        throw new Error('Method not allowed')
+      }
+
+      case 'summary': {
+        if (!user) throw new Error('Unauthorized')
+
+        if (req.method === 'GET') {
+          const { data: tanks, error } = await supabaseClient
+            .from('fuel_tanks')
+            .select('*')
+
+          if (error) throw error
+
+          const totalTanks = tanks.length
+          const activeTanks = tanks.filter(t => t.is_active).length
+          const totalCapacity = tanks.reduce((sum, t) => sum + t.capacity, 0)
+          const totalCurrentLevel = tanks.reduce((sum, t) => sum + t.current_level, 0)
+          const lowLevelTanks = tanks.filter(t => t.current_level < t.capacity * 0.2).length
+          const criticalLevelTanks = tanks.filter(t => t.current_level < t.capacity * 0.1).length
+
+          return new Response(
+            JSON.stringify({
+              summary: {
+                totalTanks,
+                activeTanks,
+                totalCapacity,
+                totalCurrentLevel,
+                lowLevelTanks,
+                criticalLevelTanks,
+              },
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 200,
+            }
+          )
+        }
+
+        throw new Error('Method not allowed')
+      }
+
+      default:
+        throw new Error('Not found')
+    }
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: error.message,
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      }
+    )
+  }
+}) 

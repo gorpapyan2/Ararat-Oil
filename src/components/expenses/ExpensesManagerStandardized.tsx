@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchExpenses } from "@/services/expenses";
-import { Expense } from "@/types";
+import { fetchExpenses, createExpense, updateExpense, deleteExpense } from "@/services/expenses";
+import { Expense, ExpenseCategory } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks";
 import { StandardDialog } from "@/components/ui/dialog";
@@ -77,10 +77,65 @@ export function ExpensesManagerStandardized() {
     queryFn: () => fetchExpenses(filters),
   });
 
-  // TODO: Add create/update/deleteExpense mutations here
+  // Add mutations
+  const createMutation = useMutation({
+    mutationFn: createExpense,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      toast({
+        title: "Success",
+        description: "Expense created successfully",
+      });
+      expenseDialog.close();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create expense",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string; [key: string]: any }) => 
+      updateExpense(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      toast({
+        title: "Success",
+        description: "Expense updated successfully",
+      });
+      expenseDialog.close();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update expense",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteExpense,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      toast({
+        title: "Success",
+        description: "Expense deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete expense",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleAdd = useCallback(() => {
-    // Navigate to the dedicated expense create page instead of opening a dialog
     navigate("/finance/expenses/create");
   }, [navigate]);
 
@@ -93,9 +148,9 @@ export function ExpensesManagerStandardized() {
   }, [expenses, expenseDialog]);
 
   const handleDelete = useCallback((id: string) => {
-    // TODO: Implement delete functionality
-    console.log("Delete expense with ID:", id);
-  }, []);
+    deleteMutation.mutate(id);
+  }, [deleteMutation]);
+
   const handleFiltersChange = useCallback((updates: any) => {
     setFilters((prev) => ({ ...prev, ...updates }));
   }, []);
@@ -203,9 +258,9 @@ export function ExpensesManagerStandardized() {
             Add Expense
           </Button>
           <Button
+            onClick={categoryDialog.open}
             variant="outline"
             size="sm"
-            onClick={categoryDialog.open}
           >
             Manage Categories
           </Button>
@@ -227,23 +282,30 @@ export function ExpensesManagerStandardized() {
         onFiltersChange={handleFiltersChange}
       />
 
-      {/* Add/Edit Expense Dialog - Standardized */}
+      {/* Expense Dialog */}
       <StandardDialog
         open={expenseDialog.isOpen}
         onOpenChange={expenseDialog.onOpenChange}
-        title={selectedExpense ? "Edit Expense" : "Add New Expense"}
-        description={selectedExpense 
-          ? "Update the details of this expense record."
-          : "Enter details to add a new expense record."}
-        maxWidth="sm:max-w-[600px]"
+        title={selectedExpense ? "Edit Expense" : "Add Expense"}
       >
         <ExpensesFormStandardized
           expense={selectedExpense}
           onCancel={expenseDialog.close}
           onSubmit={(formData) => {
-            console.log("Form submitted:", formData);
-            // TODO: Submit to API
-            expenseDialog.close();
+            if (selectedExpense) {
+              updateMutation.mutate({ id: selectedExpense.id, ...formData });
+            } else {
+              createMutation.mutate({
+                date: formData.date.toISOString(),
+                amount: formData.amount,
+                category: formData.category as ExpenseCategory,
+                description: formData.description,
+                payment_method: formData.payment_method,
+                invoice_number: formData.invoice_number,
+                notes: formData.notes,
+                payment_status: "pending",
+              });
+            }
           }}
           categories={categories}
         />

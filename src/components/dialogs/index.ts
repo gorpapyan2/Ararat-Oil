@@ -1,4 +1,3 @@
-
 // Standardized dialog components
 export { ConfirmationDialogStandardized } from './ConfirmationDialogStandardized';
 export { ConfirmationController } from './ConfirmationController';
@@ -6,7 +5,7 @@ export { ConfirmationController } from './ConfirmationController';
 // Entity-specific dialog components
 export { EmployeeDialogStandardized } from '../employees/EmployeeDialogStandardized';
 export { SalesDialogsStandardized } from '../sales/SalesDialogsStandardized';
-export { TankFormDialogStandardized } from '../tanks/TankFormDialogStandardized';
+export { TankFormDialog } from '@/features/tanks/components/TankFormDialog';
 export { ConfirmAddTankDialogStandardized } from '../tanks/ConfirmAddTankDialogStandardized';
 export { ProfileDialogStandardized } from '../settings/ProfileDialogStandardized';
 

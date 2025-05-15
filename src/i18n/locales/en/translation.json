@@ -1,5 +1,9 @@
 {
   "common": {
+    "week": "Շաբաթ",
+    "month": "Ամիս",
+    "year": "Տարի",
+    "clearAll": "Մաքրել բոլորը",
     "dashboard": "Dashboard",
     "tanks": "Tanks",
     "fillingSystems": "Filling Systems",
@@ -211,6 +215,9 @@
       "statusCompleted": "Completed",
       "statusWarning": "Warning",
       "statusPending": "Pending"
+    },
+    "status": {
+      "unknown": "Անհայտ"
     },
     "navItems": {
       "dashboard": "Dashboard",
@@ -598,6 +605,17 @@
     "date": "Date"
   },
   "fuelManagement": {
+    "addFuelEntryDesc": "Ավելացնել վառելիքի մուտքագրում",
+    "startInventoryDesc": "Սկսել գույքագրում",
+    "generateReportDesc": "Ստեղծել հաշվետվություն",
+    "totalVolume": "Ընդհանուր ծավալ",
+    "availableVolume": "Հասանելի ծավալ",
+    "ofTotal": "Ընդամենը {total}-ից",
+    "consumptionTrend": "Սպառման միտում",
+    "consumptionTrendDesc": "Վառելիքի սպառման միտումների վերլուծություն",
+    "supplies": "Մատակարարումներ",
+    "currentLevel": "Ընթացիկ մակարդակ",
+    "capacity": "Տարողություն",
     "title": "Fuel Management",
     "description": "Manage your fuel systems, tanks, supplies, and prices",
     "overview": "Fuel Management Overview",

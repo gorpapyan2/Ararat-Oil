@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { createFocusTrap } from "focus-trap";
 import { motion } from "framer-motion";
 
-interface NavItemConfig {
+export interface NavItemConfig {
   to: string;
-  icon: LucideIcon;
+  icon: React.ElementType;
   label: string;
   children?: NavItemConfig[];
 }

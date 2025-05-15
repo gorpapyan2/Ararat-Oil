@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { Sale } from "@/types";
-import { createSale, updateSale, deleteSale } from "@/services/sales";
+import { createSale, updateSale, deleteSale } from '@/features/sales/services';
 
 interface UseSalesDialogOptions {
   onCreateSuccess?: (sale: Sale) => void;

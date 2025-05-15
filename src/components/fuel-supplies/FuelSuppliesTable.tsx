@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FuelSupply } from "@/types";
+import { FuelSupply } from "@/features/supplies/types";
 import { format } from "date-fns";
 import { StandardizedDataTable, createBadgeCell, createCurrencyCell, FiltersShape } from "@/components/unified/StandardizedDataTable";
 import { Badge } from "@/components/ui/badge";

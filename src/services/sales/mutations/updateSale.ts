@@ -6,7 +6,6 @@ export interface UpdateSaleRequest {
   payment_status?: string;
   meter_start?: number;
   meter_end?: number;
-  employee_id?: string;
   shift_id?: string;
   comments?: string;
 }

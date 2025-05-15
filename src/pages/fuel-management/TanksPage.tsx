@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { TankManagerStandardized } from "@/components/tanks/TankManagerStandardized";
+import { TankManager } from "@/features/tanks/components/TankManager";
 import { PageHeader } from "@/components/ui/page-header";
 import { IconTank } from "@tabler/icons-react";
 import { Home, Fuel, Container } from "lucide-react";
@@ -37,7 +37,7 @@ export default function TanksPage() {
         actions={action}
       />
       
-      <TankManagerStandardized onRenderAction={setAction} />
+      <TankManager onRenderAction={setAction} />
     </div>
   );
 } 

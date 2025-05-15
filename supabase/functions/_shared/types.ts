@@ -108,6 +108,12 @@ export interface Expense {
 }
 
 // Fuel supply related
+export interface SuppliesFilters {
+  searchTerm?: string;
+  selectedProvider?: string;
+  selectedFuelType?: string;
+}
+
 export interface FuelSupply {
   id: string;
   delivery_date: string;
@@ -116,16 +122,20 @@ export interface FuelSupply {
   quantity_liters: number;
   price_per_liter: number;
   total_cost: number;
-  employee_id: string;
   comments?: string;
-  payment_method?: PaymentMethod;
-  payment_status?: PaymentStatus;
-  created_at?: string;
-
-  // Join fields
-  provider?: PetrolProvider;
-  tank?: FuelTank;
-  employee?: Employee;
+  provider?: {
+    id: string;
+    name: string;
+  };
+  tank?: {
+    id: string;
+    name: string;
+    fuel_type: string;
+  };
+  employee?: {
+    id: string;
+    name: string;
+  };
 }
 
 // Financial reports
@@ -187,5 +197,4 @@ export interface TankLevelChange {
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
-  details?: unknown;
 } 

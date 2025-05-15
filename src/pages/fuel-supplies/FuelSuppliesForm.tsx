@@ -82,7 +82,7 @@ const fuelSupplySchema = z.object({
     .number({ required_error: "Price per liter is required" })
     .nonnegative("Price must be a positive number or zero"),
   total_cost: z.coerce.number().optional(),
-  employee_id: z.string({ required_error: "Employee is required" }),
+  shift_id: z.string({ required_error: "Shift is required" }),
   comments: z.string().optional(),
 });
 
@@ -152,7 +152,7 @@ export function FuelSuppliesForm({
       quantity_liters: defaultValues?.quantity_liters || 0,
       price_per_liter: defaultValues?.price_per_liter || 0,
       total_cost: defaultValues?.total_cost || 0,
-      employee_id: defaultValues?.employee_id || "",
+      shift_id: defaultValues?.shift_id || "",
       comments: defaultValues?.comments || "",
     },
   });
@@ -162,7 +162,7 @@ export function FuelSuppliesForm({
     form,
     (data) => {
       // Additional validation to prevent empty UUIDs
-      const requiredUuidFields = ['provider_id', 'tank_id', 'employee_id'] as const;
+      const requiredUuidFields = ['provider_id', 'tank_id'] as const;
       const emptyFields = requiredUuidFields.filter(field => !data[field] || data[field] === '');
       
       if (emptyFields.length > 0) {
@@ -170,7 +170,6 @@ export function FuelSuppliesForm({
           switch(field) {
             case 'provider_id': return t("fuelSupplies.provider", "Provider");
             case 'tank_id': return t("fuelSupplies.tank", "Fuel Tank");
-            case 'employee_id': return t("fuelSupplies.employee", "Employee");
             default: return field;
           }
         });
@@ -480,14 +479,6 @@ export function FuelSuppliesForm({
               {totalCost.toFixed(2)} ֏
             </div>
           </div>
-
-          <FormSelect
-            name="employee_id"
-            label={t("fuelSupplies.employee", "Employee")}
-            form={form}
-            options={employeeOptions}
-            placeholder={t("fuelSupplies.selectEmployee", "Select employee")}
-          />
 
           <FormTextarea
             name="comments"

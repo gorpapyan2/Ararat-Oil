@@ -1,40 +1,41 @@
-import { useAuth } from "@/hooks/useAuth";
-import { LoginFormStandardized } from "@/components/auth/LoginFormStandardized";
+import { useAuth } from '@/features/auth';
+import { LoginForm } from '@/features/auth';
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { WifiOff } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import type { LoginCredentials } from '@/features/auth';
 
-const AuthForm = () => {
-  const { signIn, user, isLoading: authLoading, isOffline } = useAuth();
+export default function Auth() {
+  const { user, login, isLoading, error } = useAuth();
+  const navigate = useNavigate();
 
-  // If we're offline, show a special login form with an option to continue in offline mode
-  if (isOffline) {
+  const handleLogin = async (credentials: LoginCredentials) => {
+    await login(credentials);
+    if (!error) {
+      navigate('/dashboard');
+    }
+  };
+
+  if (user) {
     return (
-      <div className="flex justify-center items-center min-h-screen p-4 flex-col">
-        <Alert variant="default" className="w-full max-w-md mb-4">
-          <WifiOff className="h-4 w-4 mr-2" />
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <Alert>
           <AlertDescription>
-            Network connection unavailable. You can continue in offline mode with limited functionality.
+            You are already logged in. Redirecting to dashboard...
           </AlertDescription>
         </Alert>
-        
-        <Button 
-          className="w-full max-w-md"
-          onClick={() => signIn("offline@example.com", "offline")}
-        >
-          Continue in Offline Mode
+        <Button onClick={() => navigate('/dashboard')} className="mt-4">
+          Go to Dashboard
         </Button>
       </div>
     );
   }
 
   return (
-    <LoginFormStandardized 
-      onLogin={signIn}
-      user={user}
-      isLoading={authLoading}
-    />
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-md">
+        <LoginForm />
+      </div>
+    </div>
   );
-};
-
-export default AuthForm;
+}

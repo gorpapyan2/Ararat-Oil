@@ -64,7 +64,7 @@ export interface FuelManagementSummary {
       tank_id: string;
       quantity_liters: number;
       price_per_liter: number;
-      employee_id: string;
+      shift_id: string;
       comments: string;
       total_cost: number;
       created_at: string;

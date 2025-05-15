@@ -8,10 +8,9 @@ import { IconSend, IconArrowLeft } from "@tabler/icons-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { SalesFormStandardized } from "@/components/sales/SalesFormStandardized";
-import { createSale } from "@/services/sales";
+import { SalesFormStandardized, ShiftControl } from "@/features/sales";
+import { createSale } from '@/features/sales/services';
 import { useToast } from "@/hooks";
-import { ShiftControl } from "@/components/sales/ShiftControl";
 
 export default function SalesCreate() {
   const { t } = useTranslation();

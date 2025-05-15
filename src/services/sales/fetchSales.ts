@@ -5,7 +5,6 @@ export interface FetchSalesOptions {
   shift_id?: string;
   start_date?: string;
   end_date?: string;
-  employee?: string;
 }
 
 export const fetchSales = async (options?: FetchSalesOptions): Promise<Sale[]> => {

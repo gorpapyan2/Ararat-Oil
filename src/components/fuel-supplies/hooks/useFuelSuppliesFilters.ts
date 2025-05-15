@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchFuelSupplies } from "@/services/fuel-supplies";
 import { fetchPetrolProviders } from "@/services/petrol-providers";
 import { format } from "date-fns";
+import { FuelSupply } from "@/features/supplies/types";
 
 export function useFuelSuppliesFilters() {
   const [search, setSearch] = useState("");
@@ -21,9 +22,9 @@ export function useFuelSuppliesFilters() {
     isLoading: suppliesLoading,
     refetch: refetchSupplies,
     error: suppliesError
-  } = useQuery({
+  } = useQuery<FuelSupply[]>({
     queryKey: ["fuel-supplies"],
-    queryFn: fetchFuelSupplies,
+    queryFn: () => fetchFuelSupplies(),
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -73,7 +74,7 @@ export function useFuelSuppliesFilters() {
     return Array.isArray(providersData) ? providersData : [];
   }, [providersData, providersLoading]);
 
-  const filteredSupplies = useMemo(() => {
+  const filteredSupplies = useMemo<FuelSupply[]>(() => {
     console.log("Starting filtering with", supplies.length, "records");
     let filtered = supplies;
 
@@ -83,7 +84,6 @@ export function useFuelSuppliesFilters() {
         (supply) =>
           supply.provider?.name?.toLowerCase().includes(lower) ||
           supply.tank?.name?.toLowerCase().includes(lower) ||
-          supply.employee?.name?.toLowerCase().includes(lower) ||
           supply.delivery_date?.toString().includes(lower),
       );
     }

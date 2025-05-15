@@ -1,9 +1,10 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useTankDialog } from "@/hooks/useTankDialog";
-import { TankFormDialogStandardized } from "./TankFormDialogStandardized";
+import { TankFormDialog } from "@/features/tanks/components/TankFormDialog";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { tanksService } from "@/features/tanks/services/tanksService";
 
 interface TankControllerProps {
   onSuccess?: () => void;
@@ -23,24 +24,17 @@ export function TankController({
   showIcon = true,
 }: TankControllerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { 
-    openDialog,
-    isFormOpen, 
-    setIsFormOpen,
-    isConfirmOpen,
-    setIsConfirmOpen,
-    isSubmitting,
-    pendingTankData,
-    handleConfirm,
-    handleCancel,
-  } = useTankDialog({
-    onSuccess
+  
+  // Fetch fuel types
+  const { data: fuelTypes = [] } = useQuery({
+    queryKey: ["fuel-types"],
+    queryFn: tanksService.getFuelTypes,
   });
 
   return (
     <>
       <Button
-        onClick={openDialog}
+        onClick={() => setIsDialogOpen(true)}
         className={className}
         variant={variant}
         size={size}
@@ -49,13 +43,11 @@ export function TankController({
         {buttonText}
       </Button>
 
-      {isFormOpen && (
-        <TankFormDialogStandardized
-          open={isFormOpen}
-          onOpenChange={setIsFormOpen}
-          onSuccess={onSuccess || (() => {})}
-        />
-      )}
+      <TankFormDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        fuelTypes={fuelTypes}
+      />
     </>
   );
 }

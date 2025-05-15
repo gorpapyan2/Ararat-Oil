@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/features/auth';
 import { SidebarLogo } from "@/components/sidebar/SidebarLogo";
-import { SidebarNavSection } from "@/components/sidebar/SidebarNavSection";
+import { SidebarNavSection, type NavItemConfig } from "@/components/sidebar/SidebarNavSection";
 import { SidebarFooter } from "@/components/sidebar/SidebarFooter";
 import { useSidebarNavConfig } from "@/config/sidebarNav";
 import { useTranslation } from "react-i18next";
@@ -26,7 +26,7 @@ export function Sidebar({
   onToggle,
 }: SidebarProps) {
   const { t } = useTranslation();
-  const { signOut } = useAuth();
+  const { logout } = useAuth();
   const navConfig = useSidebarNavConfig();
 
   const collapsed = externalCollapsed !== undefined ? externalCollapsed : false;
@@ -95,7 +95,7 @@ export function Sidebar({
             >
               <SidebarNavSection
                 title={t(`common.${section}`)}
-                items={items}
+                items={items as NavItemConfig[]}
                 collapsed={collapsed}
                 expandedSections={expandedSections}
                 onToggleSection={handleToggleSection}
@@ -123,7 +123,7 @@ export function Sidebar({
       <SidebarFooter
         collapsed={collapsed}
         onToggleCollapse={onToggleCollapse ?? (() => {})}
-        onSignOut={signOut}
+        onSignOut={logout}
       />
     </motion.aside>
   );

@@ -7,9 +7,8 @@ export interface CreateSaleRequest {
   meter_start: number;
   meter_end: number;
   filling_system_id: string;
-  employee_id: string;
+  shift_id: string;
   comments?: string;
-  shift_id?: string;
 }
 
 export const createSale = async (data: CreateSaleRequest): Promise<Sale> => {

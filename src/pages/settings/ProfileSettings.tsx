@@ -1,5 +1,5 @@
 import { useState, memo } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/features/auth";
 import { useRenderCount } from "@/utils/performance";
 import ProfileFormStandardized from "@/components/settings/ProfileFormStandardized";
 

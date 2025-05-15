@@ -67,7 +67,7 @@ export interface Transaction {
   payment_method: PaymentMethod;
   payment_status: PaymentStatus;
   payment_reference?: string;
-  employee_id: string;
+  shift_id: string;
   sale_id?: string;
   entity_id?: string;
   entity_type?: "sale" | "expense" | "fuel_supply";
@@ -90,8 +90,7 @@ export interface Sale {
   meter_start: number;
   meter_end: number;
   filling_system_id: string;
-  employee_id: string;
-  shift_id?: string;
+  shift_id: string;
 }
 
 // Expense related
@@ -127,7 +126,7 @@ export interface FuelSupply {
   quantity_liters: number;
   price_per_liter: number;
   total_cost: number;
-  employee_id: string;
+  shift_id: string;
   comments?: string;
   payment_method?: PaymentMethod;
   payment_status?: PaymentStatus;

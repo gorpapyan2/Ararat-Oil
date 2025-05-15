@@ -8,7 +8,8 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { CardGrid, MetricCardProps } from "@/components/ui/composed/cards";
-import { FuelSupply, FuelType } from "@/types";
+import { FuelSupply } from "@/features/supplies/types";
+import { FuelType } from "@/types";
 import { 
   format, 
   subDays, 

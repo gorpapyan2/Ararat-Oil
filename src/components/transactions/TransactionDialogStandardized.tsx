@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -33,7 +32,7 @@ const transactionSchema = z.object({
   payment_status: z.enum(["pending", "completed", "failed", "refunded"], {
     required_error: "Payment status is required"
   }),
-  employee_id: z.string().optional(),
+  shift_id: z.string().min(1, "Shift is required"),
   description: z.string().optional(),
   payment_reference: z.string().optional(),
 });
@@ -46,6 +45,7 @@ interface TransactionDialogStandardizedProps {
   transaction: Transaction | null;
   onSubmit: (id: string, data: Partial<Omit<Transaction, "id">>) => void;
   onClose: () => void;
+  currentShiftId: string;
 }
 
 export function TransactionDialogStandardized({
@@ -54,6 +54,7 @@ export function TransactionDialogStandardized({
   transaction,
   onSubmit,
   onClose,
+  currentShiftId,
 }: TransactionDialogStandardizedProps) {
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -63,7 +64,7 @@ export function TransactionDialogStandardized({
       payment_status: "pending" as PaymentStatus,
       description: "",
       payment_reference: "",
-      employee_id: "",
+      shift_id: currentShiftId,
     },
   });
 
@@ -76,7 +77,7 @@ export function TransactionDialogStandardized({
         payment_status: transaction.payment_status,
         description: transaction.description || "",
         payment_reference: transaction.payment_reference || "",
-        employee_id: transaction.employee_id,
+        shift_id: transaction.shift_id,
       });
     }
   }, [transaction, form]);

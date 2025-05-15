@@ -18,17 +18,17 @@ import {
 import { MetricCard } from "@/components/ui/composed/cards";
 
 // Import existing sales hooks and components
-import { useSalesFilters } from "@/components/sales/hooks/useSalesFilters";
-import { useSalesMutations } from "@/components/sales/hooks/useSalesMutations";
-import { SalesDialogsStandardized } from "@/components/sales/SalesDialogsStandardized";
-import { ShiftControl } from "@/components/sales/ShiftControl";
-
-// Import our standardized table component
-import { SalesTable } from "@/components/sales/SalesTable";
+import {
+  useSalesFilters,
+  useSalesMutations,
+  SalesDialogsStandardized,
+  ShiftControl,
+  SalesTable
+} from "@/features/sales";
 
 // Import necessary services
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createSale } from "@/services/sales";
+import { createSale } from '@/features/sales/services';
 import { useToast } from "@/hooks";
 import { useShift } from "@/hooks/useShift";
 import { Sale } from "@/types";

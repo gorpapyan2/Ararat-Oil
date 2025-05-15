@@ -1,4 +1,4 @@
-import { ShiftControl } from "@/components/sales/ShiftControl";
+import { ShiftControl } from "@/features/sales";
 import { PageLayout } from "@/layouts/PageLayout";
 import { CalendarClock, ChartBar, Search, Filter, RefreshCw, Eye, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
