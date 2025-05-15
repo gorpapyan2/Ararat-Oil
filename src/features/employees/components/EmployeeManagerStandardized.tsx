@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/useToast';
 import { useEmployees } from '../hooks/useEmployees';
 import { EmployeeDialogStandardized } from './EmployeeDialogStandardized';
 import { DeleteConfirmDialogStandardized } from './DeleteConfirmDialogStandardized';
@@ -8,7 +8,8 @@ import { EmployeesTable } from './EmployeesTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search } from 'lucide-react';
+import { AlertCircle, Plus, Search } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { Employee, EmployeeFormData } from '../types/employees.types';
 
 interface EmployeeManagerStandardizedProps {
@@ -31,6 +32,8 @@ export function EmployeeManagerStandardized({ onRenderAction }: EmployeeManagerS
     createEmployee,
     updateEmployee,
     deleteEmployee,
+    refetchEmployees,
+    employeesQuery
   } = useEmployees({
     searchQuery,
     department: department || undefined,
@@ -46,6 +49,7 @@ export function EmployeeManagerStandardized({ onRenderAction }: EmployeeManagerS
         description: t('employees.employee_added'),
       });
     } catch (error) {
+      console.error('Error adding employee:', error);
       toast({
         title: t('common.error'),
         description: t('employees.error_adding_employee'),
@@ -66,6 +70,7 @@ export function EmployeeManagerStandardized({ onRenderAction }: EmployeeManagerS
         description: t('employees.employee_updated'),
       });
     } catch (error) {
+      console.error('Error updating employee:', error);
       toast({
         title: t('common.error'),
         description: t('employees.error_updating_employee'),
@@ -86,6 +91,7 @@ export function EmployeeManagerStandardized({ onRenderAction }: EmployeeManagerS
         description: t('employees.employee_deleted'),
       });
     } catch (error) {
+      console.error('Error deleting employee:', error);
       toast({
         title: t('common.error'),
         description: t('employees.error_deleting_employee'),
@@ -103,6 +109,10 @@ export function EmployeeManagerStandardized({ onRenderAction }: EmployeeManagerS
     setSelectedEmployee(employee);
     setIsDeleteDialogOpen(true);
   }, []);
+
+  const handleRetry = useCallback(() => {
+    refetchEmployees();
+  }, [refetchEmployees]);
 
   const actionElement = (
     <Button onClick={() => setIsAddDialogOpen(true)}>
@@ -154,6 +164,19 @@ export function EmployeeManagerStandardized({ onRenderAction }: EmployeeManagerS
         </div>
         {!onRenderAction && actionElement}
       </div>
+
+      {employeesQuery.isError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t('common.error')}</AlertTitle>
+          <AlertDescription>
+            {t('employees.error_loading')}
+            <Button variant="link" onClick={handleRetry}>
+              {t('common.retry')}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <EmployeesTable
         employees={employees}

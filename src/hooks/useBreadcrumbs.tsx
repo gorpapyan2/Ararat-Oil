@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useCallback, createElement } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useSidebarNavConfig } from '@/config/sidebarNav';
+import { useSidebarNavConfig } from '@/core/config';
 import { useTranslation } from 'react-i18next';
 
 type BreadcrumbSegment = {

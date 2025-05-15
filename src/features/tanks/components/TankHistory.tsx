@@ -63,19 +63,19 @@ export function TankHistory({ tankId }: TankHistoryProps) {
               <TableCell>
                 <span
                   className={`inline-block px-2 py-1 rounded text-sm ${
-                    change.type === "add"
+                    change.change_type === "add"
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {change.type === "add" ? t("tanks.add") : t("tanks.subtract")}
+                  {change.change_type === "add" ? t("tanks.add") : t("tanks.subtract")}
                 </span>
               </TableCell>
               <TableCell>{change.change_amount} {t("common.liters")}</TableCell>
               <TableCell>{change.previous_level} {t("common.liters")}</TableCell>
               <TableCell>{change.new_level} {t("common.liters")}</TableCell>
               <TableCell className="max-w-[200px] truncate">
-                {change.notes || "-"}
+                {change.reason || "-"}
               </TableCell>
             </TableRow>
           ))}

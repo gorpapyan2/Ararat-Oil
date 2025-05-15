@@ -10,7 +10,7 @@ This document tracks the identification and migration of shared components.
 - [ ] Button
 - [ ] Input
 - [ ] Form
-- [ ] Dialog
+- [x] Dialog
 - [ ] Table
 - [ ] Card
 - [ ] Modal
@@ -71,6 +71,12 @@ This document tracks the identification and migration of shared components.
   - [ ] Layout
   - [ ] States
   - [ ] Navigation
+
+## Migrated Components
+- **Dialog**: StandardDialog and DeleteConfirmDialog
+  - Location: `src/shared/components/common/dialog`
+  - Import: `import { StandardDialog, DeleteConfirmDialog } from '@/shared/components/common';`
+  - Migration Guide: `docs/refactoring/shared/DIALOG_MIGRATION.md`
 
 ## Next Steps
 1. Review each component for dependencies

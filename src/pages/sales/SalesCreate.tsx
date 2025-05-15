@@ -44,8 +44,14 @@ export default function SalesCreate() {
     },
   });
 
-  const handleSubmit = (data: any) => {
-    createSaleMutation.mutate(data);
+  const handleSubmit = async (data: any): Promise<boolean> => {
+    try {
+      await createSaleMutation.mutateAsync(data);
+      return true; // Indicate submission was successful
+    } catch (error) {
+      // Error is already handled by createSaleMutation.onError
+      return false; // Indicate submission failed
+    }
   };
 
   const handleCancel = () => {
@@ -56,7 +62,6 @@ export default function SalesCreate() {
     <div className="container mx-auto p-4 space-y-6">
       <PageHeader
         title={t("sales.newSale")}
-        subtitle={t("sales.createNewSale")}
         actions={
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleCancel}>
@@ -67,8 +72,7 @@ export default function SalesCreate() {
         }
       />
 
-      {/* Shift control indicator */}
-      <ShiftControl />
+      <ShiftControl onShiftStart={() => {}} onShiftEnd={() => {}} isShiftOpen={false} />
 
       <Card className="max-w-3xl mx-auto">
         <CardContent className="pt-6">

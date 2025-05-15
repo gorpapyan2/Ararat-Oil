@@ -3,8 +3,7 @@ import { z } from "zod";
 import { StandardDialog } from "@/components/ui/composed/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks";
-import { createFillingSystem } from "@/services/filling-systems";
-import { fetchFuelTanks } from "@/services/tanks";
+import { fillingSystemsApi, tanksApi } from "@/core/api";
 import { useQuery } from "@tanstack/react-query";
 import { FormInput, FormSelect } from "@/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
@@ -43,13 +42,13 @@ export function FillingSystemFormStandardized({
 
   const { data: tanks } = useQuery({
     queryKey: ["fuel-tanks"],
-    queryFn: fetchFuelTanks,
+    queryFn: tanksApi.getAll,
   });
 
   // Format tanks as options for select
-  const tankOptions = tanks?.map(tank => ({
+  const tankOptions = tanks?.data?.map(tank => ({
     value: tank.id,
-    label: `${tank.name} (${tank.fuel_type})`
+    label: `${tank.name} (${tank.fuel_type_id})`
   })) || [];
 
   // Form submission handler
@@ -57,7 +56,12 @@ export function FillingSystemFormStandardized({
     form,
     async (data) => {
       try {
-        await createFillingSystem(data.name, data.tank_id);
+        await fillingSystemsApi.create({
+          name: data.name,
+          tank_ids: [data.tank_id],
+          location: "Default Location",
+          status: "active"
+        });
         toast({
           title: "Success",
           description: "Filling system created successfully",

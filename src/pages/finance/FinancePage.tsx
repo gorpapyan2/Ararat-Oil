@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FinanceManagerStandardized } from "../../components/finance/FinanceManagerStandardized";
-import { ExpenseManagerStandardized } from "../../components/finance/ExpenseManagerStandardized";
-import { ProfitLossManagerStandardized } from "../../components/finance/ProfitLossManagerStandardized";
+import { FinanceManagerStandardized } from "@/features/finance/components/FinanceManagerStandardized";
+import { ExpenseManagerStandardized } from "@/features/finance/components/ExpenseManagerStandardized";
+import { ProfitLossManagerStandardized } from "@/features/finance/components/ProfitLossManagerStandardized";
 
 export function FinancePage() {
   const { t } = useTranslation();
@@ -48,7 +48,7 @@ export function FinancePage() {
               <CardTitle>{t("finance.expenses.title", "Expense Management")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ExpenseManagerStandardized />
+              <ExpenseManagerStandardized expenses={[]} isLoading={false} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -59,7 +59,7 @@ export function FinancePage() {
               <CardTitle>{t("finance.profitLoss.title", "Profit & Loss Analysis")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ProfitLossManagerStandardized />
+              <ProfitLossManagerStandardized profitLoss={[]} isLoading={false} />
             </CardContent>
           </Card>
         </TabsContent>

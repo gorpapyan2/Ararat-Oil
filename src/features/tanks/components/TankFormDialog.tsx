@@ -121,7 +121,7 @@ export function TankFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={tank ? t("tanks.editTank") : t("tanks.createTank")}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

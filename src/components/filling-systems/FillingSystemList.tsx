@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { FillingSystem, deleteFillingSystem } from "@/services/filling-systems";
+import { FillingSystem, fillingSystemsApi, Tank, tanksApi } from "@/core/api";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { ConfirmDeleteDialogStandardized } from "./ConfirmDeleteDialogStandardized";
 import { StandardizedDataTable } from "@/components/unified/StandardizedDataTable";
 
@@ -26,6 +27,17 @@ export function FillingSystemList({
     null,
   );
 
+  // Fetch tanks to associate with filling systems
+  const { data: tanks } = useQuery({
+    queryKey: ["tanks"],
+    queryFn: tanksApi.getAll,
+  });
+
+  // Get tank details for a given tank ID
+  const getTankDetails = (tankId: string): Tank | undefined => {
+    return tanks?.data?.find((tank) => tank.id === tankId);
+  };
+
   const openDeleteConfirm = (system: FillingSystem) => {
     setSystemToDelete(system);
     setIsConfirmOpen(true);
@@ -42,7 +54,7 @@ export function FillingSystemList({
 
     setIsDeleting(true);
     try {
-      await deleteFillingSystem(systemToDelete.id);
+      await fillingSystemsApi.delete(systemToDelete.id);
       toast({
         title: t("common.success"),
         message: t("fillingSystems.systemAdded"),
@@ -76,17 +88,17 @@ export function FillingSystemList({
     },
     {
       header: t("fillingSystems.connectedTank"),
-      accessorKey: "tank" as keyof FillingSystem,
+      accessorKey: "tank_ids" as keyof FillingSystem,
       cell: (value: any, row: FillingSystem) => {
-        return row.tank ? (
+        const tankId = row.tank_ids?.[0];
+        if (!tankId) return t("common.unknown");
+        
+        const tank = getTankDetails(tankId);
+        return tank ? (
           <span className="flex items-center">
-            {row.tank.name}
+            {tank.name}
             <span className="ml-2 text-xs text-muted-foreground">
-              (
-                {typeof row.tank.fuel_type === "object"
-                  ? row.tank.fuel_type.name || row.tank.fuel_type.code
-                  : row.tank.fuel_type}
-              )
+              ({tank.fuel_type_id})
             </span>
           </span>
         ) : (
@@ -112,17 +124,19 @@ export function FillingSystemList({
               <tr key={system.id} className="border-t">
                 <td className="p-3">{system.name}</td>
                 <td className="p-3">
-                  {system.tank ? (
-                    <span className="flex items-center">
-                      {system.tank.name}
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        (
-                          {typeof system.tank.fuel_type === "object"
-                            ? system.tank.fuel_type.name || system.tank.fuel_type.code
-                            : system.tank.fuel_type}
-                        )
-                      </span>
-                    </span>
+                  {system.tank_ids?.[0] ? (
+                    (() => {
+                      const tank = getTankDetails(system.tank_ids[0]);
+                      if (!tank) return t("common.unknown");
+                      return (
+                        <span className="flex items-center">
+                          {tank.name}
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({tank.fuel_type_id})
+                          </span>
+                        </span>
+                      );
+                    })()
                   ) : (
                     t("common.unknown")
                   )}

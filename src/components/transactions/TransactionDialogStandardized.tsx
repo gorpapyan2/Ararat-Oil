@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Transaction, PaymentMethod, PaymentStatus } from "@/types";
+import { Transaction, PaymentMethod, PaymentStatus } from "@/core/api";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -73,8 +73,8 @@ export function TransactionDialogStandardized({
     if (transaction) {
       form.reset({
         amount: transaction.amount,
-        payment_method: transaction.payment_method,
-        payment_status: transaction.payment_status,
+        payment_method: transaction.payment_method as PaymentMethod,
+        payment_status: transaction.payment_status as PaymentStatus,
         description: transaction.description || "",
         payment_reference: transaction.payment_reference || "",
         shift_id: transaction.shift_id,

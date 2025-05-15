@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchFuelTanks } from "@/services/tanks";
-import { validateTankIds } from "@/services/filling-systems";
+import { tanksApi, fillingSystemsApi } from "@/core/api";
 import { supabase } from "@/integrations/supabase/client";
 
 export function TankDiagnostics() {
@@ -18,8 +17,8 @@ export function TankDiagnostics() {
     setLoading(true);
     try {
       // Fetch tanks directly
-      const tanksData = await fetchFuelTanks();
-      setTanks(tanksData);
+      const tanksData = await tanksApi.getAll();
+      setTanks(tanksData.data || []);
 
       // Fetch filling systems with raw query
       const { data: systems, error } = await supabase
@@ -39,8 +38,13 @@ export function TankDiagnostics() {
           .map((system: any) => system.tank_id)
           .filter((id: string) => id != null && id !== "");
 
-        const validations = await validateTankIds(tankIds);
-        setValidationResults(validations);
+        const validations = await fillingSystemsApi.validateTankIds(tankIds);
+        setValidationResults(validations.data?.valid ? {} : 
+          tankIds.reduce((acc: Record<string, boolean>, id: string) => {
+            acc[id] = !validations.data?.invalidIds?.includes(id);
+            return acc;
+          }, {})
+        );
       }
     } catch (err) {
       console.error("Diagnostics error:", err);

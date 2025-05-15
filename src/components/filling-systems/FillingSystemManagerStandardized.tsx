@@ -3,7 +3,7 @@ import { FillingSystemHeader } from "./FillingSystemHeader";
 import { FillingSystemList } from "./FillingSystemList";
 import { FillingSystemFormStandardized } from "./FillingSystemFormStandardized";
 import { TankDiagnostics } from "./TankDiagnostics";
-import { fetchFillingSystems } from "@/services/filling-systems";
+import { FillingSystem, fillingSystemsApi } from "@/core/api";
 import { useDialog } from "@/hooks/useDialog";
 import React, { useMemo, useCallback } from "react";
 
@@ -21,7 +21,7 @@ export function FillingSystemManagerStandardized({ onRenderAction }: FillingSyst
     refetch,
   } = useQuery({
     queryKey: ["filling-systems"],
-    queryFn: fetchFillingSystems,
+    queryFn: fillingSystemsApi.getAll,
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
@@ -56,7 +56,7 @@ export function FillingSystemManagerStandardized({ onRenderAction }: FillingSyst
   return (
     <div className="space-y-6">
       <FillingSystemList
-        fillingSystems={fillingSystemsData}
+        fillingSystems={fillingSystemsData as FillingSystem[]}
         isLoading={isLoading}
         onDelete={handleDelete}
       />

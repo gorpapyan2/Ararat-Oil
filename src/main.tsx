@@ -3,9 +3,9 @@ import ReactDOM from "react-dom/client";
 import "./i18n/i18n"; // Import i18n configuration
 import App from "./App";
 import "./index.css";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorBoundary from "./core/providers/ErrorBoundary";
 import { initSentry } from "./services/logger";
-import { initThemeListener } from "./store/useAppStore";
+import { initThemeListener } from "@/core/store";
 import { initPerformanceMonitoring } from "./utils/performance";
 
 // Initialize Sentry for error monitoring

@@ -1,26 +1,29 @@
-import { fillingSystemsApi } from "@/services/api";
-import { FillingSystem } from "@/types";
+import { fillingSystemsApi, FillingSystem } from "@/core/api";
 
 export interface CreateFillingSystemRequest {
   name: string;
-  tank_id: string;
+  location: string;
+  tank_ids: string[];
+  status: 'active' | 'inactive' | 'maintenance';
 }
 
 export interface UpdateFillingSystemRequest {
   name?: string;
-  tank_id?: string;
+  location?: string;
+  tank_ids?: string[];
+  status?: 'active' | 'inactive' | 'maintenance';
 }
 
 export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
   try {
-    const { data, error } = await fillingSystemsApi.getAll();
+    const response = await fillingSystemsApi.getAll();
 
-    if (error) {
-      console.error("Error fetching filling systems:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching filling systems:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch filling systems:", err);
     throw err;
@@ -29,14 +32,14 @@ export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
 
 export const fetchFillingSystemById = async (id: string): Promise<FillingSystem | null> => {
   try {
-    const { data, error } = await fillingSystemsApi.getById(id);
+    const response = await fillingSystemsApi.getById(id);
 
-    if (error) {
-      console.error(`Error fetching filling system with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error fetching filling system with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || null;
+    return response.data || null;
   } catch (err) {
     console.error(`Failed to fetch filling system with ID ${id}:`, err);
     throw err;
@@ -45,14 +48,14 @@ export const fetchFillingSystemById = async (id: string): Promise<FillingSystem 
 
 export const createFillingSystem = async (system: CreateFillingSystemRequest): Promise<FillingSystem> => {
   try {
-    const { data, error } = await fillingSystemsApi.create(system);
+    const response = await fillingSystemsApi.create(system);
 
-    if (error) {
-      console.error("Error creating filling system:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error creating filling system:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error("Failed to create filling system:", err);
     throw err;
@@ -61,14 +64,14 @@ export const createFillingSystem = async (system: CreateFillingSystemRequest): P
 
 export const updateFillingSystem = async (id: string, updates: UpdateFillingSystemRequest): Promise<FillingSystem> => {
   try {
-    const { data, error } = await fillingSystemsApi.update(id, updates);
+    const response = await fillingSystemsApi.update(id, updates);
 
-    if (error) {
-      console.error(`Error updating filling system with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error updating filling system with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error(`Failed to update filling system with ID ${id}:`, err);
     throw err;
@@ -77,11 +80,11 @@ export const updateFillingSystem = async (id: string, updates: UpdateFillingSyst
 
 export const deleteFillingSystem = async (id: string): Promise<void> => {
   try {
-    const { error } = await fillingSystemsApi.delete(id);
+    const response = await fillingSystemsApi.delete(id);
 
-    if (error) {
-      console.error(`Error deleting filling system with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error deleting filling system with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
   } catch (err) {
     console.error(`Failed to delete filling system with ID ${id}:`, err);
@@ -91,18 +94,16 @@ export const deleteFillingSystem = async (id: string): Promise<void> => {
 
 export const validateTankIds = async (tankIds: string[]): Promise<boolean> => {
   try {
-    const { data, error } = await fillingSystemsApi.validateTankIds(tankIds);
+    const response = await fillingSystemsApi.validateTankIds(tankIds);
 
-    if (error) {
-      console.error("Error validating tank IDs:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error validating tank IDs:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data.valid;
+    return response.data!.valid;
   } catch (err) {
     console.error("Failed to validate tank IDs:", err);
     throw err;
   }
 };
-
-export type { FillingSystem };

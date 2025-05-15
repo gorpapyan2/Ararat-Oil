@@ -22,8 +22,7 @@ import { format } from "date-fns";
 import { MoreHorizontal, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { ProviderDialogStandardized } from "./ProviderDialogStandardized";
-import { fetchPetrolProviders, deletePetrolProvider } from "@/services/petrol-providers";
-import { PetrolProvider } from "@/types";
+import { petrolProvidersApi, PetrolProvider } from "@/core/api";
 
 interface ProviderManagerStandardizedProps {
   onRenderAction?: (action: React.ReactNode) => void;
@@ -42,7 +41,7 @@ export function ProviderManagerStandardized({ onRenderAction }: ProviderManagerS
     queryFn: async () => {
       console.log("Fetching petrol providers from ProviderManagerStandardized");
       try {
-        const result = await fetchPetrolProviders({ activeOnly: false });
+        const result = await petrolProvidersApi.fetchPetrolProviders({ activeOnly: false });
         console.log("Provider fetch result:", result);
         return result as PetrolProvider[];
       } catch (error) {
@@ -55,7 +54,7 @@ export function ProviderManagerStandardized({ onRenderAction }: ProviderManagerS
 
   // Delete provider mutation
   const deleteMutation = useMutation({
-    mutationFn: deletePetrolProvider,
+    mutationFn: petrolProvidersApi.deletePetrolProvider,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast.success(t("providers.success.deleted"));

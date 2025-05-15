@@ -6,11 +6,10 @@ import { SuppliesTable } from './SuppliesTable';
 import { useSuppliesFilters } from '../store/useSuppliesFilters';
 import { fetchFuelSupplies } from '@/services/fuel-supplies';
 import { fetchFuelTanks } from '@/services/tanks';
-import { fetchPetrolProviders } from '@/services/providers';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import { FuelSupplyFormStandardized } from './FuelSuppliesFormStandardized';
+import { FuelSuppliesManagerStandardized } from '@/features/fuel-supplies/components/FuelSuppliesManagerStandardized';
 import { motion } from 'framer-motion';
 
 export function SuppliesDashboard() {
@@ -27,11 +26,6 @@ export function SuppliesDashboard() {
   const { data: tanks = [] } = useQuery({
     queryKey: ['fuel-tanks'],
     queryFn: fetchFuelTanks,
-  });
-
-  const { data: providers = [] } = useQuery({
-    queryKey: ['petrol-providers'],
-    queryFn: fetchPetrolProviders,
   });
 
   // Calculate summary data
@@ -83,11 +77,10 @@ export function SuppliesDashboard() {
             supplies={supplies || []}
             isLoading={isLoadingSupplies}
             tanks={tanks}
-            providers={providers}
           />
         </motion.div>
 
-        <FuelSupplyFormStandardized
+        <FuelSuppliesManagerStandardized
           open={isFormOpen}
           onOpenChange={setIsFormOpen}
           onSuccess={() => {

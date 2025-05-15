@@ -7,7 +7,7 @@ import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 // Import existing managers
 import { FillingSystemManagerStandardized } from "@/components/filling-systems/FillingSystemManagerStandardized";
-import { TankManagerStandardized } from "@/components/tanks/TankManagerStandardized";
+import { TankManager } from "@/features/tanks/components/TankManager";
 import { FuelSuppliesManagerStandardized } from "@/components/fuel-supplies/FuelSuppliesManagerStandardized";
 import { useTranslation } from "react-i18next";
 
@@ -116,7 +116,7 @@ export default function FuelManagement() {
           </TabsContent>
 
           <TabsContent value={TABS.TANKS} className="m-0">
-            <TankManagerStandardized onRenderAction={setTanksAction} />
+            <TankManager onRenderAction={setTanksAction} />
           </TabsContent>
 
           <TabsContent value={TABS.FUEL_SUPPLIES} className="m-0">

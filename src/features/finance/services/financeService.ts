@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/services/supabase';
 import type { Transaction, Expense, ProfitLoss } from '../types/finance.types';
 
 const EDGE_FUNCTION_URL = '/functions/finance';

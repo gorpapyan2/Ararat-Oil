@@ -3,7 +3,7 @@ import { useAuth } from '@/features/auth';
 import { SidebarLogo } from "@/components/sidebar/SidebarLogo";
 import { SidebarNavSection, type NavItemConfig } from "@/components/sidebar/SidebarNavSection";
 import { SidebarFooter } from "@/components/sidebar/SidebarFooter";
-import { useSidebarNavConfig } from "@/config/sidebarNav";
+import { useSidebarNavConfig } from "@/core/config";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";

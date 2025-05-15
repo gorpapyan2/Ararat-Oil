@@ -7,8 +7,7 @@ import {
   createFuelSupply,
   updateFuelSupply,
 } from "@/services/fuel-supplies";
-import { fetchPetrolProviders } from "@/services/petrol-providers";
-import { fetchFuelTanks } from "@/services/tanks";
+import { tanksApi, petrolProvidersApi } from "@/core/api";
 import { useQuery } from "@tanstack/react-query";
 import { FormInput, FormSelect, FormTextarea } from "@/components/ui/composed/form-fields";
 import { FuelSupply } from "@/features/supplies/types";
@@ -82,12 +81,12 @@ export function FuelSuppliesFormStandardized({
 
   const { data: providers = [] } = useQuery<PetrolProvider[]>({
     queryKey: ["petrol-providers"],
-    queryFn: () => fetchPetrolProviders(),
+    queryFn: () => petrolProvidersApi.getAll(),
   });
 
   const { data: tanks = [] } = useQuery<FuelTank[]>({
     queryKey: ["fuel-tanks"],
-    queryFn: () => fetchFuelTanks(),
+    queryFn: () => tanksApi.getAll(),
   });
 
   const providerOptions = providers.map(provider => ({

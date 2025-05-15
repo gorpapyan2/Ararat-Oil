@@ -7,24 +7,21 @@ This document tracks the migration of core application functionality.
 **Target Location**: `src/core/config/`
 
 ### Files to Migrate
-- [ ] Environment configuration
-- [ ] API configuration
-- [ ] Feature flags
-- [ ] Constants
-- [ ] Theme configuration
-- [ ] Route configuration
+- [x] Environment configuration
+- [x] API configuration
+- [x] Feature flags
+- [x] Constants
+- [x] Theme configuration
+- [x] Route configuration
 
 ## State Management
 **Current Location**: `src/store/`
 **Target Location**: `src/core/store/`
 
 ### Files to Migrate
-- [ ] Store setup
-- [ ] Root reducer
-- [ ] Middleware configuration
-- [ ] Action creators
-- [ ] Selectors
-- [ ] State types
+- [x] App store (useAppStore.ts)
+- [x] Todo store (useTodoStore.ts)
+- [ ] Additional stores
 
 ## API Client
 **Current Location**: `src/services/`
@@ -59,21 +56,74 @@ This document tracks the migration of core application functionality.
 7. Consider performance implications
 
 ## Progress Tracking
-- [ ] Configuration Migration
-  - [ ] Environment setup
-  - [ ] API configuration
-  - [ ] Feature flags
-  - [ ] Constants
-- [ ] State Management Migration
-  - [ ] Store setup
-  - [ ] Reducers
-  - [ ] Actions
-  - [ ] Selectors
-- [ ] API Client Migration
-  - [ ] Client setup
-  - [ ] Interceptors
-  - [ ] Error handling
-  - [ ] Utilities
+- [x] Configuration Migration
+  - [x] Environment setup
+  - [x] API configuration
+  - [x] Feature flags
+  - [x] Constants
+  - [x] Theme configuration
+  - [x] Route configuration
+- [x] State Management Migration
+  - [x] App store
+  - [x] Todo store
+  - [ ] Additional stores
+- [x] API Client Migration
+  - [x] Client setup
+  - [x] Core functionality
+  - [x] Type definitions
+  - [x] Migrated endpoints (16/16 completed):
+    - [x] Fuel Supplies API
+    - [x] Shifts API
+    - [x] Tanks API
+    - [x] Fuel Types API
+    - [x] Filling Systems API
+    - [x] Petrol Providers API
+    - [x] Expenses API
+    - [x] Transactions API
+    - [x] Dashboard API
+    - [x] Profit Loss API
+    - [x] Sales API
+    - [x] Employees API
+    - [x] Fuel Prices API
+    - [x] Shift Payment Methods API (integrated in Shifts API)
+    - [x] Fuel Management API (consolidated with relevant fuel endpoints)
+    - [x] Financials API
+  - [x] Update imports in key files
+    - [x] Supabase client imports
+    - [x] API service imports
+    - [x] Hooks using API services
+    - [x] Service components updated:
+      - [x] src/services/transactions.ts
+      - [x] src/services/petrol-providers.ts
+      - [x] src/services/fuel-prices.ts
+      - [x] src/services/tanks.ts
+      - [x] src/services/shifts.ts
+      - [x] src/services/filling-systems.ts
+      - [x] src/services/fuel-types.ts
+      - [x] src/services/shiftPaymentMethods.ts
+    - [x] Components updated:
+      - [x] src/components/petrol-providers/ProviderManagerStandardized.tsx
+      - [x] src/components/petrol-providers/ProviderDialogStandardized.tsx
+      - [x] src/components/transactions/TransactionsManagerStandardized.tsx
+      - [x] src/components/transactions/TransactionDialogStandardized.tsx
+      - [x] src/components/transactions/TransactionListStandardized.tsx
+      - [x] src/components/transactions/TransactionHeader.tsx
+      - [x] src/components/fuel-supplies/FuelSuppliesManagerStandardized.tsx
+      - [x] src/components/fuel-supplies/FuelSuppliesFormStandardized.tsx
+      - [x] src/components/expenses/ExpensesManagerStandardized.tsx
+      - [x] src/components/filling-systems/TankDiagnostics.tsx
+      - [x] src/components/filling-systems/FillingSystemFormStandardized.tsx
+      - [x] src/components/filling-systems/FillingSystemManagerStandardized.tsx
+      - [x] src/components/filling-systems/FillingSystemList.tsx
+      - [x] src/features/dashboard/services/dashboard.ts
+      - [x] src/hooks/useAuth.tsx
+      - [x] src/hooks/useShift.ts
+      - [x] src/pages/shifts/ShiftOpen.tsx
+      - [x] src/pages/finance/ExpenseCreate.tsx
+      - [x] src/pages/fuel-supplies/FuelSuppliesForm.tsx
+      - [x] src/pages/fuel-management/FuelPricesPage.tsx
+    - [ ] Remaining component imports
+  - [ ] Test & validate
 - [ ] i18n Migration
   - [ ] Setup
   - [ ] Translations
@@ -81,11 +131,15 @@ This document tracks the migration of core application functionality.
   - [ ] Configuration
 
 ## Next Steps
-1. Review current implementation
-2. Create migration plan for each area
-3. Update imports in existing code
-4. Test functionality after migration
-5. Update documentation
+1. ~~Begin migrating state management~~ (Completed)
+2. ~~Update imports in application to use the new state management~~ (Completed)
+3. ~~Implement API client in core module~~ (Completed)
+4. ~~Complete migration of remaining API endpoints~~ (Completed)
+5. Begin updating imports to use new API client (In Progress - ~97% completed)
+6. Complete updating all imports to use new API client
+7. Migrate i18n configuration
+8. Test functionality after migration
+9. Update documentation
 
 ## Notes
 - Core functionality should be minimal and essential

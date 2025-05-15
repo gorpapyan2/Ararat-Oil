@@ -10,15 +10,12 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createExpense } from "@/services/expenses";
+import { expensesApi, Expense, PaymentStatus, ExpenseCategory, PaymentMethod } from "@/core/api";
 import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 // Import our standalone expense form
 import { ExpenseForm, ExpenseFormValues } from "./ExpenseForm";
-
-// Types
-import { Expense, PaymentStatus, ExpenseCategory, PaymentMethod } from "@/types";
 
 export default function ExpenseCreate() {
   const { t } = useTranslation();
@@ -49,7 +46,7 @@ export default function ExpenseCreate() {
 
   // Add create expense mutation with proper error handling
   const createExpenseMutation = useMutation({
-    mutationFn: createExpense,
+    mutationFn: expensesApi.createExpense,
     onSuccess: () => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ["expenses"] });

@@ -14,10 +14,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, AlertCircle, CheckCircle2, CalendarClock, DollarSign, Clock, Receipt, Users } from "lucide-react";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { fetchEmployees } from "@/services/employees";
-import { Employee, FuelType } from "@/types";
+import { employeesApi, Employee } from "@/core/api";
+import { FuelType } from "@/types";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { getFuelPrices, updateAllFuelPrices } from "@/services/fuel-prices";
+import { fuelPricesApi } from "@/core/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -93,8 +93,11 @@ export default function ShiftOpen() {
   useEffect(() => {
     const loadActiveEmployees = async () => {
       try {
-        const employees = await fetchEmployees({ status: "active" });
-        setActiveEmployees(employees);
+        const response = await employeesApi.getAll({ status: "active" });
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+        setActiveEmployees(response.data || []);
       } catch (error) {
         console.error("Failed to load active employees:", error);
       }
@@ -107,7 +110,12 @@ export default function ShiftOpen() {
   useEffect(() => {
     const loadFuelPrices = async () => {
       try {
-        const prices = await getFuelPrices();
+        const response = await fuelPricesApi.getAll();
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+        const prices = response.data || [];
+        
         setCurrentFuelPrices(prices.reduce((acc, price) => {
           acc[price.fuel_type as FuelType] = price.price_per_liter;
           return acc;
@@ -149,7 +157,14 @@ export default function ShiftOpen() {
       // If updating fuel prices is checked, update them before starting shift
       if (data.updateFuelPrices) {
         try {
-          await updateAllFuelPrices(data.fuelPrices as any);
+          const updates: Record<string, number> = data.fuelPrices as any;
+          
+          for (const [type, price] of Object.entries(updates)) {
+            await fuelPricesApi.update(type, {
+              price_per_liter: price,
+              effective_date: new Date().toISOString()
+            });
+          }
         } catch (priceError: any) {
           console.error("Error updating fuel prices:", priceError);
           // Continue with shift creation even if fuel price update fails

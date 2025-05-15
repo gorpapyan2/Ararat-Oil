@@ -1,5 +1,5 @@
 import { FuelSupply, SuppliesFilters } from '@/features/supplies/types';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/services/supabase';
 
 const FUEL_SUPPLIES_FUNCTION = 'fuel-supplies';
 

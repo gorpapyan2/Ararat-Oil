@@ -1,10 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { TodoItem as TodoItemType, SortType } from '@/types/todo';
 import { TodoItem } from './TodoItem';
 import { TodoFilter } from './TodoFilter';
 import { TodoFormStandardized } from './TodoFormStandardized';
-import { useTodoStore } from '@/store/useTodoStore';
+import { 
+  useTodoStore, 
+  getFilteredTodos, 
+  selectTotalTodos,
+  selectActiveTodos,
+  selectCompletedTodos,
+  selectHasCompletedTodos
+} from '@/core/store';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
@@ -12,8 +18,8 @@ import { cn } from "@/lib/utils";
 
 export function TodoList() {
   const { t } = useTranslation();
+  const todoState = useTodoStore();
   const {
-    todos,
     filter,
     sort,
     search,
@@ -26,42 +32,14 @@ export function TodoList() {
     setSort,
     setSearch,
     updatePriority,
-  } = useTodoStore();
+  } = todoState;
 
-  // Filter and sort todos
-  const filteredAndSortedTodos = useMemo(() => {
-    // First, filter by search term
-    let filtered = todos.filter((todo) =>
-      todo.text.toLowerCase().includes(search.toLowerCase()),
-    );
-
-    // Then filter by status
-    if (filter === "active") {
-      filtered = filtered.filter((todo) => !todo.completed);
-    } else if (filter === "completed") {
-      filtered = filtered.filter((todo) => todo.completed);
-    }
-
-    // Finally, sort
-    return [...filtered].sort((a, b) => {
-      if (sort === "newest") {
-        return b.createdAt - a.createdAt;
-      } else if (sort === "oldest") {
-        return a.createdAt - b.createdAt;
-      } else if (sort === "alphabetical") {
-        return a.text.localeCompare(b.text);
-      }
-      return 0;
-    });
-  }, [todos, filter, sort, search]);
-
-  // Count todos by status for the filter UI
-  const totalTodos = todos.length;
-  const activeTodos = todos.filter((todo) => !todo.completed).length;
-  const completedTodos = todos.filter((todo) => todo.completed).length;
-
-  // Check if there are any completed todos
-  const hasCompletedTodos = completedTodos > 0;
+  // Use the selectors for derived state
+  const filteredAndSortedTodos = getFilteredTodos(todoState);
+  const totalTodos = selectTotalTodos(todoState);
+  const activeTodos = selectActiveTodos(todoState);
+  const completedTodos = selectCompletedTodos(todoState);
+  const hasCompletedTodos = selectHasCompletedTodos(todoState);
 
   return (
     <Card className="w-full max-w-2xl mx-auto">

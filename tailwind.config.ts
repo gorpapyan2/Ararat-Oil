@@ -1,13 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 import { type Config } from "tailwindcss";
-import { fontFamily } from "tailwindcss/defaultTheme";
 import plugin from "tailwindcss/plugin";
 import animatePlugin from "tailwindcss-animate";
 
 export default {
-  darkMode: ["class"],
+  darkMode: ["class", "media"],
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
+    fontFamily: {
+      sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+      serif: ['Georgia', 'Cambria', "Times New Roman", 'Times', 'serif'],
+      mono: ['Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+    },
     extend: {
       colors: {
         background: "hsl(var(--background))",
@@ -76,7 +80,6 @@ export default {
   },
   plugins: [
     animatePlugin,
-    require("tailwind-scrollbar")({ nocompatible: true }),
     plugin(({ addUtilities }) => {
       addUtilities({
         ".no-scrollbar::-webkit-scrollbar": {

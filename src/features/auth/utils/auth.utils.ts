@@ -1,4 +1,4 @@
-import type { AuthUser, AuthRole } from '../types/auth.types';
+import type { AuthUser, AuthRole, AuthError } from '../types/auth.types';
 
 export function isAuthenticated(user: AuthUser | null): boolean {
   return !!user;
@@ -25,7 +25,7 @@ export function hasPermission(user: AuthUser | null, permission: string): boolea
   return user.permissions.includes(permission);
 }
 
-export function formatAuthError(error: Error): string {
+export function formatAuthError(error: AuthError): string {
   if (error.message.includes('Invalid login credentials')) {
     return 'Invalid email or password';
   }

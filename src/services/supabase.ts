@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
 
@@ -85,17 +84,46 @@ export const isNetworkError = (error: any): boolean => {
 // Re-export all types from types directory
 export * from "@/types";
 
-// Re-export all service functions
-export * from "./sales";
-export * from "./expenses";
-export * from "./financials";
-export * from "./employees";
-export * from "./tanks";
-export * from "./transactions";
+// Re-export service functions with more specific exports to avoid naming conflicts
+export {
+  fetchExpenseById,
+  fetchExpenseCategories,
+  createExpense,
+  updateExpense,
+  deleteExpense
+} from "./expenses";
 
-// Don't re-export petrol-providers to avoid circular dependency
-// export * from "./petrol-providers";
+// Explicitly rename the fetchExpenses export from expenses.ts to avoid naming conflicts
+import { fetchExpenses as fetchExpensesList } from "./expenses";
+export { fetchExpensesList };
 
+export {
+  fetchProfitLoss,
+  fetchRevenue,
+  fetchExpenses as fetchFinancialExpenses,
+  fetchFinancialDashboard
+} from "./financials";
+
+// Export sales functions from the sales modules
+export {
+  fetchSales,
+  fetchLatestSale
+} from "./sales";
+
+export {
+  fetchActiveTanks,
+  fetchTankById,
+  fetchTankLevelChanges,
+  createTank,
+  updateTank,
+  deleteTank,
+  adjustTankLevel,
+  fetchFuelTanks,
+  createFuelTank,
+  updateTankLevel
+} from "./tanks";
+
+// Specify the exports for the remaining modules
 // We'll be more specific with these exports to avoid ambiguity
 export {
   fetchFuelSupplies,

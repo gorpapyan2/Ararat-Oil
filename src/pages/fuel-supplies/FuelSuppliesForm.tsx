@@ -11,11 +11,7 @@ import { useToast } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 
 // Services
-import { fetchPetrolProviders, createSampleProvider } from "@/services/petrol-providers";
-import { fetchFuelTanks } from "@/services/tanks";
-import { fetchEmployees } from "@/services/employees";
-
-// Types
+import { petrolProvidersApi, Tank, tanksApi, employeesApi } from "@/core/api";
 import { FuelSupply, FuelType, FuelTypeCode } from "@/types";
 
 // UI Components
@@ -118,7 +114,7 @@ export function FuelSuppliesForm({
     error: providersError
   } = useQuery({
     queryKey: ["petrol-providers"],
-    queryFn: () => fetchPetrolProviders({ activeOnly: true }),
+    queryFn: () => petrolProvidersApi.getAll(),
   });
 
   const { 
@@ -127,7 +123,7 @@ export function FuelSuppliesForm({
     error: tanksError
   } = useQuery({
     queryKey: ["fuel-tanks"],
-    queryFn: fetchFuelTanks,
+    queryFn: tanksApi.getAll,
   });
 
   const { 
@@ -136,7 +132,7 @@ export function FuelSuppliesForm({
     error: employeesError
   } = useQuery({
     queryKey: ["employees"],
-    queryFn: () => fetchEmployees({ status: "active" }),
+    queryFn: () => employeesApi.getAll({ status: "active" }),
   });
 
   // Use formatted today's date as the default
@@ -198,7 +194,7 @@ export function FuelSuppliesForm({
   // Get selected tank
   const selectedTank = useMemo(() => {
     if (!tanks || !selectedTankId) return null;
-    return tanks.find((t) => t.id === selectedTankId);
+    return tanks.data?.find((t: Tank) => t.id === selectedTankId);
   }, [tanks, selectedTankId]);
 
   // Calculate max quantity available for selected tank
@@ -221,12 +217,12 @@ export function FuelSuppliesForm({
 
   // Provider options for select - ALWAYS call this hook, but its content may be empty
   const providerOptions = useMemo(() => {
-    if (!providers || providers.length === 0) {
+    if (!providers || !providers.data || providers.data.length === 0) {
       return [];
     }
     
-    return providers
-      .filter(provider => provider.is_active !== false) // Filter out inactive providers
+    return providers.data
+      .filter(provider => provider.status === 'active') // Filter out inactive providers
       .map(provider => ({
         value: provider.id,
         label: provider.name || "Unnamed Provider"
@@ -235,22 +231,13 @@ export function FuelSuppliesForm({
 
   // Tank options for select with color-coded fuel types - ALWAYS call this hook
   const tankOptions = useMemo(() => {
-    return tanks?.map(tank => {
+    return tanks?.data?.map(tank => {
       // Safely extract fuel type label
-      let fuelTypeLabel = "";
-      if (typeof tank.fuel_type === "object" && tank.fuel_type !== null) {
-        fuelTypeLabel = tank.fuel_type.name || tank.fuel_type.code || "";
-      } else if (typeof tank.fuel_type === "string") {
-        fuelTypeLabel = tank.fuel_type;
-      } else {
-        fuelTypeLabel = "";
-      }
-      const fuelTypeCode =
-      typeof tank.fuel_type === "object" && tank.fuel_type !== null
-        ? tank.fuel_type.code
-        : tank.fuel_type;
-    
-    const fuelTypeColor = fuelTypeColors[fuelTypeCode as FuelTypeCode];
+      let fuelTypeLabel = tank.fuel_type_id || "";
+      
+      const fuelTypeCode = tank.fuel_type_id;
+      const fuelTypeColor = fuelTypeColors[fuelTypeCode as FuelTypeCode];
+      
       return {
         value: tank.id,
         label: `${tank.name} (${fuelTypeLabel})`,
@@ -261,7 +248,7 @@ export function FuelSuppliesForm({
 
   // Employee options for select - ALWAYS call this hook
   const employeeOptions = useMemo(() => {
-    return employees?.map(employee => ({
+    return employees?.data?.map(employee => ({
       value: employee.id,
       label: employee.name,
     })) || [];
@@ -352,7 +339,7 @@ export function FuelSuppliesForm({
     }
 
     // Show warning if no providers are available
-    if (!providers || providers.length === 0) {
+    if (!providers || !providers.data || providers.data.length === 0) {
       return (
         <div className="space-y-6">
           <Alert variant="default" className="border-amber-500 bg-amber-500/10">
@@ -365,7 +352,14 @@ export function FuelSuppliesForm({
                   size="sm"
                   onClick={async () => {
                     try {
-                      await createSampleProvider();
+                      await petrolProvidersApi.create({
+                        name: "Sample Provider",
+                        contact_person: "Sample Contact",
+                        email: "sample@example.com",
+                        phone: "123-456-7890",
+                        address: "123 Main St",
+                        status: "active"
+                      });
                       await queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
                       toast({
                         title: t("common.success"),

@@ -57,10 +57,7 @@ export function useSalesDialog({
     try {
       if (selectedSale?.id) {
         // Update existing sale
-        const updatedSale = await updateSale({
-          id: selectedSale.id,
-          ...data,
-        });
+        const updatedSale = await updateSale(selectedSale.id, data);
         
         queryClient.invalidateQueries({ queryKey: ["sales"] });
         queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });

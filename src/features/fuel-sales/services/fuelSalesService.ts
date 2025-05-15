@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/services/supabase';
 import type { FuelSale, FuelSaleFormData, FuelSaleFilters } from '../types/fuel-sales.types';
 
 const EDGE_FUNCTION_URL = '/functions/sales';

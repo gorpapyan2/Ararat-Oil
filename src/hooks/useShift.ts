@@ -1,13 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Shift, ShiftPaymentMethod, PaymentMethod } from "@/types";
-import { 
-  startShift, 
-  closeShift, 
-  getSystemActiveShift,
-  getActiveShiftForUser,
-  getShiftSalesTotal
-} from "@/services/shifts";
-import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
+import { shiftsApi } from "@/core/api";
 import { useAuth } from '@/features/auth';
 import { useToast } from "@/hooks/useToast";
 import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
@@ -74,8 +67,12 @@ export function useShift() {
       
       // Check for ANY active shift in the system
       try {
-        const systemActiveShift = await getSystemActiveShift();
+        const response = await shiftsApi.getSystemActive();
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
         
+        const systemActiveShift = response.data?.[0] || null;
         if (systemActiveShift) {
           console.log("Found an active shift in the system:", systemActiveShift);
           
@@ -105,7 +102,12 @@ export function useShift() {
       while (retryCount < maxRetries) {
         try {
           // Use the API to get user's active shift
-          const fetchedShift = await getActiveShiftForUser(userId || user?.id || '');
+          const response = await shiftsApi.getActiveForUser(userId || user?.id || '');
+          if (response.error) {
+            throw new Error(response.error.message);
+          }
+          
+          const fetchedShift = response.data || null;
           
           // Only update state if the component is still mounted and checking hasn't been canceled
           if (isCheckingShift) {
@@ -168,8 +170,11 @@ export function useShift() {
 
   const fetchShiftPaymentMethods = async (shiftId: string) => {
     try {
-      const methods = await getShiftPaymentMethods(shiftId);
-      setShiftPaymentMethods(methods);
+      const response = await shiftsApi.getPaymentMethods(shiftId);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      setShiftPaymentMethods(response.data || []);
     } catch (error) {
       console.error("Error fetching shift payment methods", error);
     }
@@ -178,8 +183,12 @@ export function useShift() {
   const updateShiftSalesTotal = async (shiftId: string) => {
     try {
       // Get sum of total_sales for this shift using API
-      const salesData = await getShiftSalesTotal(shiftId);
-      const salesTotal = salesData.total || 0;
+      const response = await shiftsApi.getSalesTotal(shiftId);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      
+      const salesTotal = response.data?.total || 0;
 
       // Update the shift object with current sales total
       if (activeShift) {
@@ -220,7 +229,12 @@ export function useShift() {
         // For online mode, check with the server 
         try {
           // Query for ANY active shift in the system using the API
-          const systemActiveShift = await getSystemActiveShift();
+          const response = await shiftsApi.getSystemActive();
+          if (response.error) {
+            throw new Error(response.error.message);
+          }
+          
+          const systemActiveShift = response.data?.[0] || null;
           
           if (systemActiveShift) {
             // There's an active shift already
@@ -242,7 +256,12 @@ export function useShift() {
       }
       
       // Start new shift
-      const newShift = await startShift(openingCash, employeeIds);
+      const response = await shiftsApi.start(openingCash, employeeIds);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      
+      const newShift = response.data!;
       
       // Update state with new shift
       setActiveShift(newShift);
@@ -281,7 +300,12 @@ export function useShift() {
       }
   
       // Close the shift
-      const closedShift = await closeShift(activeShift.id, closingCash, paymentMethods);
+      const response = await shiftsApi.close(activeShift.id, closingCash, paymentMethods);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      
+      const closedShift = response.data!;
   
       // Remove cached shift data since it's now closed
       localStorage.removeItem(`activeShift_${user?.id}`);

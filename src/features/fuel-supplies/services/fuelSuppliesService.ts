@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/services/supabase';
 import type { FuelSupply, FuelSupplyFormData, FuelSupplyFilters } from '../types/fuel-supplies.types';
 
 export const fuelSuppliesService = {

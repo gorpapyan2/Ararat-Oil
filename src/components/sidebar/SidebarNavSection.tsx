@@ -113,7 +113,10 @@ export function SidebarNavSection({
               expandedSections[item.to] || parentActive : false;
             
             return (
-              <motion.div key={item.to} variants={item}>
+              <motion.div key={item.to} variants={{
+                hidden: { opacity: 0, x: -5 },
+                show: { opacity: 1, x: 0 }
+              }}>
                 <NavItem
                   to={item.to}
                   icon={<item.icon size={20} />}

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface TankLevelEditorProps {
@@ -36,8 +36,9 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
     setIsSubmitting(true);
     try {
       const adjustment: TankLevelAdjustment = {
-        amount: Number(amount),
-        type,
+        change_amount: Number(amount),
+        change_type: type,
+        reason: "Tank level editor",
       };
 
       await tanksService.adjustTankLevel(tank.id, adjustment);

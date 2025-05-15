@@ -1,5 +1,4 @@
-import { petrolProvidersApi } from "@/services/api";
-import { PetrolProvider } from "@/types";
+import { petrolProvidersApi, PetrolProvider } from "@/core/api";
 
 export interface CreateProviderRequest {
   name: string;
@@ -20,19 +19,19 @@ export interface UpdateProviderRequest {
  */
 export async function fetchPetrolProviders(options: { activeOnly?: boolean } = {}): Promise<PetrolProvider[]> {
   try {
-    const { data, error } = await petrolProvidersApi.getAll();
+    const response = await petrolProvidersApi.getAll();
 
-    if (error) {
-      console.error("Error fetching petrol providers:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching petrol providers:", response.error);
+      throw new Error(response.error.message);
     }
 
     // Filter active providers only if requested
     if (options.activeOnly) {
-      return (data || []).filter(provider => provider.is_active);
+      return (response.data || []).filter(provider => provider.is_active);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch petrol providers:", err);
     throw err;
@@ -41,14 +40,14 @@ export async function fetchPetrolProviders(options: { activeOnly?: boolean } = {
 
 export async function fetchPetrolProviderById(id: string): Promise<PetrolProvider | null> {
   try {
-    const { data, error } = await petrolProvidersApi.getById(id);
+    const response = await petrolProvidersApi.getById(id);
 
-    if (error) {
-      console.error(`Error fetching petrol provider with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error fetching petrol provider with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || null;
+    return response.data || null;
   } catch (err) {
     console.error(`Failed to fetch petrol provider with ID ${id}:`, err);
     throw err;
@@ -59,14 +58,14 @@ export async function createPetrolProvider(
   provider: CreateProviderRequest
 ): Promise<PetrolProvider> {
   try {
-    const { data, error } = await petrolProvidersApi.create(provider);
+    const response = await petrolProvidersApi.create(provider);
 
-    if (error) {
-      console.error("Error creating petrol provider:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error creating petrol provider:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error("Failed to create petrol provider:", err);
     throw err;
@@ -78,14 +77,14 @@ export async function updatePetrolProvider(
   provider: UpdateProviderRequest
 ): Promise<PetrolProvider> {
   try {
-    const { data, error } = await petrolProvidersApi.update(id, provider);
+    const response = await petrolProvidersApi.update(id, provider);
 
-    if (error) {
-      console.error(`Error updating petrol provider with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error updating petrol provider with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error(`Failed to update petrol provider with ID ${id}:`, err);
     throw err;
@@ -94,11 +93,11 @@ export async function updatePetrolProvider(
 
 export async function deletePetrolProvider(id: string): Promise<void> {
   try {
-    const { error } = await petrolProvidersApi.delete(id);
+    const response = await petrolProvidersApi.delete(id);
 
-    if (error) {
-      console.error(`Error deleting petrol provider with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error deleting petrol provider with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
   } catch (err) {
     console.error(`Failed to delete petrol provider with ID ${id}:`, err);

@@ -1,6 +1,13 @@
 import { z } from "zod";
 
 export interface FuelSupply {
+  supplier_id: string;
+  fuel_type_id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  invoice_number: string | undefined;
+  notes: string | undefined;
   id: string;
   delivery_date: string;
   provider_id: string;

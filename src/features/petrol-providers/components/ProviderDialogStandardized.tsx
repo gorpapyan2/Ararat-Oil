@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { StandardDialog } from '@/components/common/StandardDialog';
+import { StandardDialog } from '@/shared/components/common/dialog/StandardDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -81,16 +81,28 @@ export function ProviderDialogStandardized({
             <Input
               id="name"
               {...form.register('name')}
-              error={form.formState.errors.name?.message}
+              aria-invalid={!!form.formState.errors.name}
+              aria-describedby={form.formState.errors.name ? "name-error" : undefined}
             />
+            {form.formState.errors.name && (
+              <p id="name-error" className="text-sm text-red-500">
+                {form.formState.errors.name.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <label htmlFor="contact_person">{t('petrol-providers.contact_person')}</label>
             <Input
               id="contact_person"
               {...form.register('contact_person')}
-              error={form.formState.errors.contact_person?.message}
+              aria-invalid={!!form.formState.errors.contact_person}
+              aria-describedby={form.formState.errors.contact_person ? "contact_person-error" : undefined}
             />
+            {form.formState.errors.contact_person && (
+              <p id="contact_person-error" className="text-sm text-red-500">
+                {form.formState.errors.contact_person.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -100,8 +112,14 @@ export function ProviderDialogStandardized({
             <Input
               id="phone"
               {...form.register('phone')}
-              error={form.formState.errors.phone?.message}
+              aria-invalid={!!form.formState.errors.phone}
+              aria-describedby={form.formState.errors.phone ? "phone-error" : undefined}
             />
+            {form.formState.errors.phone && (
+              <p id="phone-error" className="text-sm text-red-500">
+                {form.formState.errors.phone.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <label htmlFor="email">{t('petrol-providers.email')}</label>
@@ -109,8 +127,14 @@ export function ProviderDialogStandardized({
               id="email"
               type="email"
               {...form.register('email')}
-              error={form.formState.errors.email?.message}
+              aria-invalid={!!form.formState.errors.email}
+              aria-describedby={form.formState.errors.email ? "email-error" : undefined}
             />
+            {form.formState.errors.email && (
+              <p id="email-error" className="text-sm text-red-500">
+                {form.formState.errors.email.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -119,8 +143,14 @@ export function ProviderDialogStandardized({
           <Input
             id="address"
             {...form.register('address')}
-            error={form.formState.errors.address?.message}
+            aria-invalid={!!form.formState.errors.address}
+            aria-describedby={form.formState.errors.address ? "address-error" : undefined}
           />
+          {form.formState.errors.address && (
+            <p id="address-error" className="text-sm text-red-500">
+              {form.formState.errors.address.message}
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -129,16 +159,28 @@ export function ProviderDialogStandardized({
             <Input
               id="tax_id"
               {...form.register('tax_id')}
-              error={form.formState.errors.tax_id?.message}
+              aria-invalid={!!form.formState.errors.tax_id}
+              aria-describedby={form.formState.errors.tax_id ? "tax_id-error" : undefined}
             />
+            {form.formState.errors.tax_id && (
+              <p id="tax_id-error" className="text-sm text-red-500">
+                {form.formState.errors.tax_id.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <label htmlFor="bank_account">{t('petrol-providers.bank_account')}</label>
             <Input
               id="bank_account"
               {...form.register('bank_account')}
-              error={form.formState.errors.bank_account?.message}
+              aria-invalid={!!form.formState.errors.bank_account}
+              aria-describedby={form.formState.errors.bank_account ? "bank_account-error" : undefined}
             />
+            {form.formState.errors.bank_account && (
+              <p id="bank_account-error" className="text-sm text-red-500">
+                {form.formState.errors.bank_account.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -147,8 +189,14 @@ export function ProviderDialogStandardized({
           <Textarea
             id="notes"
             {...form.register('notes')}
-            error={form.formState.errors.notes?.message}
+            aria-invalid={!!form.formState.errors.notes}
+            aria-describedby={form.formState.errors.notes ? "notes-error" : undefined}
           />
+          {form.formState.errors.notes && (
+            <p id="notes-error" className="text-sm text-red-500">
+              {form.formState.errors.notes.message}
+            </p>
+          )}
         </div>
       </form>
     </StandardDialog>

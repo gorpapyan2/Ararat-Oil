@@ -1,26 +1,33 @@
-import { useMemo } from "react";
+import React from "react";
 import {
   Card,
-  CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
+  CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { TodoItemStandardized } from "./TodoItemStandardized";
+import { TodoFilterStandardized } from "./TodoFilterStandardized";
+import { TodoFormStandardized } from "./TodoFormStandardized";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useTodoStore } from "@/store/useTodoStore";
+import { 
+  useTodoStore, 
+  getFilteredTodos,
+  selectTotalTodos,
+  selectActiveTodos,
+  selectCompletedTodos,
+  selectHasCompletedTodos
+} from "@/core/store";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-
-import { TodoItemStandardized } from "./TodoItemStandardized";
-import { TodoFormStandardized } from "./TodoFormStandardized";
-import { TodoFilterStandardized } from "./TodoFilterStandardized";
+import { PriorityType } from "@/types/todo";
 
 export function TodoListStandardized() {
   const { t } = useTranslation();
+  const todoState = useTodoStore();
   const {
-    todos,
     filter,
     sort,
     search,
@@ -33,50 +40,17 @@ export function TodoListStandardized() {
     setSort,
     setSearch,
     updatePriority,
-  } = useTodoStore();
+  } = todoState;
 
-  // Filter and sort todos
-  const filteredAndSortedTodos = useMemo(() => {
-    // First, filter by search term
-    let filtered = todos.filter((todo) =>
-      todo.text.toLowerCase().includes(search.toLowerCase()),
-    );
-
-    // Then filter by status
-    if (filter === "active") {
-      filtered = filtered.filter((todo) => !todo.completed);
-    } else if (filter === "completed") {
-      filtered = filtered.filter((todo) => todo.completed);
-    }
-
-    // Finally, sort
-    return [...filtered].sort((a, b) => {
-      if (sort === "date-asc") {
-        return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-      } else if (sort === "date-desc") {
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      } else if (sort === "priority") {
-        const priorityOrder = { high: 0, medium: 1, low: 2 };
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-      }
-      return 0;
-    });
-  }, [todos, filter, sort, search]);
-
-  // Count todos by status for the filter UI
-  const totalTodos = todos.length;
-  const activeTodos = todos.filter((todo) => !todo.completed).length;
-  const completedTodos = todos.filter((todo) => todo.completed).length;
-
-  // Check if there are any completed todos
-  const hasCompletedTodos = completedTodos > 0;
+  // Use the selectors for derived state
+  const filteredAndSortedTodos = getFilteredTodos(todoState);
+  const totalTodos = selectTotalTodos(todoState);
+  const activeTodos = selectActiveTodos(todoState);
+  const completedTodos = selectCompletedTodos(todoState);
+  const hasCompletedTodos = selectHasCompletedTodos(todoState);
 
   // Handle form submission for adding a new todo
-  const handleAddTodo = (values: { text: string; priority: "low" | "medium" | "high" }) => {
+  const handleAddTodo = (values: { text: string; priority: PriorityType }) => {
     addTodo(values.text, values.priority);
   };
 

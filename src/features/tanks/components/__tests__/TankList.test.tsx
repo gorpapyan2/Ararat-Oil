@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TankList } from "../TankList";
 import { vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Mock the useTranslation hook
 vi.mock("react-i18next", () => ({
@@ -9,23 +10,36 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
+// Create a new QueryClient for each test
+const createTestQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
 describe("TankList", () => {
   const mockTanks = [
     {
       id: "1",
       name: "Tank 1",
+      fuel_type_id: "1",
       fuel_type: { id: "1", name: "Diesel" },
       capacity: 1000,
       current_level: 500,
+      is_active: true,
       created_at: "2024-01-01",
       updated_at: "2024-01-01",
     },
     {
       id: "2",
       name: "Tank 2",
+      fuel_type_id: "2",
       fuel_type: { id: "2", name: "Petrol" },
       capacity: 2000,
       current_level: 100,
+      is_active: true,
       created_at: "2024-01-01",
       updated_at: "2024-01-01",
     },
@@ -39,7 +53,12 @@ describe("TankList", () => {
   };
 
   const renderComponent = (props = {}) => {
-    return render(<TankList {...defaultProps} {...props} />);
+    const testQueryClient = createTestQueryClient();
+    return render(
+      <QueryClientProvider client={testQueryClient}>
+        <TankList {...defaultProps} {...props} />
+      </QueryClientProvider>
+    );
   };
 
   it("renders loading state", () => {
@@ -64,8 +83,9 @@ describe("TankList", () => {
 
   it("displays correct tank levels and percentages", () => {
     renderComponent();
-    expect(screen.getByText("500 liters")).toBeInTheDocument();
-    expect(screen.getByText("100 liters")).toBeInTheDocument();
+    expect(screen.getByText("500")).toBeInTheDocument();
+    expect(screen.getByText("100")).toBeInTheDocument();
+    expect(screen.getByText("common.liters", { exact: false })).toBeInTheDocument();
     expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByText("5%")).toBeInTheDocument();
   });

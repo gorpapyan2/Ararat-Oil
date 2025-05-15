@@ -23,8 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { createPetrolProvider, updatePetrolProvider } from "@/services/petrol-providers";
-import { PetrolProvider } from "@/types";
+import { petrolProvidersApi, PetrolProvider } from "@/core/api";
 
 // Define the form schema
 const providerSchema = z.object({
@@ -64,7 +63,7 @@ export function ProviderDialogStandardized({
 
   // Create provider mutation
   const createMutation = useMutation({
-    mutationFn: createPetrolProvider,
+    mutationFn: petrolProvidersApi.createPetrolProvider,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast.success(t("providers.success.created"));
@@ -79,7 +78,7 @@ export function ProviderDialogStandardized({
   // Update provider mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<PetrolProvider> }) =>
-      updatePetrolProvider(id, data),
+      petrolProvidersApi.updatePetrolProvider(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast.success(t("providers.success.updated"));

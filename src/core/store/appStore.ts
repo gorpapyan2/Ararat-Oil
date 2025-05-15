@@ -2,15 +2,25 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import logger from "@/services/logger";
 import { Toast, ToastType } from "@/types/toast";
+import { Theme, THEME_CONFIG } from "@/core/config";
 
-// Define the maximum number of toasts to display at once
+/**
+ * Maximum number of toasts to display at once
+ */
 const TOAST_LIMIT = 5;
 
-// Define the shape of our store
-interface AppState {
+/**
+ * Storage key for persisting app state
+ */
+const STORAGE_KEY = "ararat-oil-app-storage";
+
+/**
+ * Application state interface
+ */
+export interface AppState {
   // Theme state
-  theme: "light" | "dark" | "system";
-  setTheme: (theme: "light" | "dark" | "system") => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 
   // Toast notifications state
   toasts: Toast[];
@@ -32,21 +42,29 @@ interface AppState {
   setLoadingText: (text: string | null) => void;
 }
 
-// Create the store
+/**
+ * Application state store
+ * 
+ * Manages global application state including:
+ * - Theme preferences
+ * - Toast notifications
+ * - Sidebar state
+ * - Loading states
+ */
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       // Theme state
-      theme: "system",
+      theme: THEME_CONFIG.DEFAULT_THEME,
       setTheme: (theme) => {
         set({ theme });
 
         // Apply the theme to the document
         if (theme === "system") {
-          const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          const systemTheme = window.matchMedia(THEME_CONFIG.SYSTEM_DARK_MODE_QUERY)
             .matches
-            ? "dark"
-            : "light";
+            ? THEME_CONFIG.THEME_CLASSES.DARK
+            : THEME_CONFIG.THEME_CLASSES.LIGHT;
           document.documentElement.className = systemTheme;
         } else {
           document.documentElement.className = theme;
@@ -88,7 +106,7 @@ export const useAppStore = create<AppState>()(
       setLoadingText: (text) => set({ loadingText: text }),
     }),
     {
-      name: "ararat-oil-app-storage",
+      name: STORAGE_KEY,
       partialize: (state) => ({
         theme: state.theme,
         sidebarCollapsed: state.sidebarCollapsed,
@@ -97,17 +115,59 @@ export const useAppStore = create<AppState>()(
   ),
 );
 
-// Create a hook to listen for system theme changes
+/**
+ * Type-safe selectors for app state
+ */
+
+/**
+ * Select current theme
+ */
+export const selectTheme = (state: AppState): Theme => state.theme;
+
+/**
+ * Select current toasts
+ */
+export const selectToasts = (state: AppState): Toast[] => state.toasts;
+
+/**
+ * Select sidebar collapsed state
+ */
+export const selectSidebarCollapsed = (state: AppState): boolean => 
+  state.sidebarCollapsed;
+
+/**
+ * Select mobile sidebar open state
+ */
+export const selectMobileSidebarOpen = (state: AppState): boolean => 
+  state.mobileSidebarOpen;
+
+/**
+ * Select loading state
+ */
+export const selectIsLoading = (state: AppState): boolean => 
+  state.isLoading;
+
+/**
+ * Select loading text
+ */
+export const selectLoadingText = (state: AppState): string | null => 
+  state.loadingText;
+
+/**
+ * Initialize theme listener to respond to system theme changes
+ * 
+ * @returns Cleanup function to remove event listeners
+ */
 export const initThemeListener = () => {
   // Get the current theme from storage or use system default
-  const storedTheme = localStorage.getItem("ararat-oil-app-storage");
-  let initialTheme: "light" | "dark" | "system" = "system";
+  const storedTheme = localStorage.getItem(STORAGE_KEY);
+  let initialTheme: Theme = THEME_CONFIG.DEFAULT_THEME;
 
   if (storedTheme) {
     try {
       const parsedState = JSON.parse(storedTheme);
       if (parsedState.state && parsedState.state.theme) {
-        initialTheme = parsedState.state.theme;
+        initialTheme = parsedState.state.theme as Theme;
       }
     } catch (e) {
       console.error("Failed to parse stored theme", e);
@@ -116,17 +176,19 @@ export const initThemeListener = () => {
 
   // Apply the initial theme
   if (initialTheme === "system") {
-    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+    const systemTheme = window.matchMedia(THEME_CONFIG.SYSTEM_DARK_MODE_QUERY)
       .matches
-      ? "dark"
-      : "light";
+      ? THEME_CONFIG.THEME_CLASSES.DARK
+      : THEME_CONFIG.THEME_CLASSES.LIGHT;
     document.documentElement.className = systemTheme;
 
     // Set up listener for system theme changes
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const mediaQuery = window.matchMedia(THEME_CONFIG.SYSTEM_DARK_MODE_QUERY);
 
     const handleChange = (e: MediaQueryListEvent) => {
-      const newTheme = e.matches ? "dark" : "light";
+      const newTheme = e.matches 
+        ? THEME_CONFIG.THEME_CLASSES.DARK 
+        : THEME_CONFIG.THEME_CLASSES.LIGHT;
       document.documentElement.className = newTheme;
     };
 
@@ -140,6 +202,4 @@ export const initThemeListener = () => {
   }
 
   return () => {}; // No cleanup needed for non-system themes
-};
-
-export default useAppStore;
+}; 

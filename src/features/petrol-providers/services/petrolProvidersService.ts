@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/services/supabase';
 import { PetrolProvider, PetrolProviderFormData, PetrolProviderFilters, PetrolProviderSummary } from '../types/petrol-providers.types';
 
 const EDGE_FUNCTION_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/petrol-providers`;

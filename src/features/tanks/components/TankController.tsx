@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useTankDialog } from "@/hooks/useTankDialog";
-import { TankFormDialog } from "@/features/tanks/components/TankFormDialog";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { tanksService } from "@/features/tanks/services/tanksService";
+import { TankFormDialog } from "./TankFormDialog";
+import { tanksService } from "../services/tanksService";
 
 interface TankControllerProps {
   onSuccess?: () => void;
@@ -15,6 +14,12 @@ interface TankControllerProps {
   showIcon?: boolean;
 }
 
+/**
+ * TankController - Component for managing tank creation and editing
+ * 
+ * This component provides a button to trigger the tank creation dialog
+ * and handles the display of the TankFormDialog.
+ */
 export function TankController({
   onSuccess,
   className,
@@ -47,7 +52,8 @@ export function TankController({
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         fuelTypes={fuelTypes}
+        onSuccess={onSuccess}
       />
     </>
   );
-}
+} 

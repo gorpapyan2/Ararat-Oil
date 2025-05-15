@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Check, AlertCircle, Info } from "lucide-react";
-import { useAppStore } from "@/store/useAppStore";
+import { useAppStore, selectToasts } from "@/core/store";
 import { useToast } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { Toast as ToastType } from "@/types/toast";
@@ -16,7 +16,10 @@ export function ToastContainer({
   position = "bottom-right" 
 }: ToastContainerProps) {
   // Use our consolidated hook to access toasts
-  const { toasts, dismiss } = useToast();
+  const { dismiss } = useToast();
+  
+  // Use selector to access toasts from store
+  const toasts = useAppStore(selectToasts);
 
   // Position classes
   const positionClasses = {
@@ -24,7 +27,7 @@ export function ToastContainer({
     "top-left": "top-0 left-0",
     "bottom-right": "bottom-0 right-0",
     "bottom-left": "bottom-0 left-0",
-  };
+  } as const;
 
   // Handle keyboard navigation and accessibility
   useEffect(() => {

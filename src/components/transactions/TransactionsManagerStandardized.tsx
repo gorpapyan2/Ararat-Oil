@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchTransactions,
-  createTransaction,
-  updateTransaction,
-  deleteTransaction,
-} from "@/services/transactions";
-import { Transaction } from "@/types";
+import { transactionsApi, Transaction } from "@/core/api";
 import { TransactionListStandardized } from "./TransactionListStandardized";
 import { TransactionHeader } from "./TransactionHeader";
 import { TransactionDialogStandardized } from "./TransactionDialogStandardized";
@@ -29,11 +23,11 @@ export function TransactionsManagerStandardized() {
 
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ["transactions"],
-    queryFn: () => fetchTransactions(),
+    queryFn: () => transactionsApi.fetchTransactions(),
   });
 
   const createMutation = useMutation({
-    mutationFn: createTransaction,
+    mutationFn: transactionsApi.createTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast({
@@ -52,7 +46,7 @@ export function TransactionsManagerStandardized() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, ...data }: { id: string; [key: string]: any }) => 
-      updateTransaction(id, data),
+      transactionsApi.updateTransaction(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast({
@@ -70,7 +64,7 @@ export function TransactionsManagerStandardized() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteTransaction,
+    mutationFn: transactionsApi.deleteTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast({

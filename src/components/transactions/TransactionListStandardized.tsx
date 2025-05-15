@@ -1,5 +1,4 @@
-
-import { Transaction } from "@/types";
+import { Transaction } from "@/core/api";
 import { StandardizedDataTable } from "@/components/unified/StandardizedDataTable";
 import { formatDate, formatCurrency } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";

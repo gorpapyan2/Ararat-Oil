@@ -4,13 +4,11 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Home, Fuel, Tag, AlertCircle, Plus, Pencil, Trash2, MoreHorizontal, History, ArrowUpDown } from "lucide-react";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 import { 
-  getFuelPrices, 
-  getFuelPriceById, 
-  createFuelPrice, 
-  updateFuelPrice, 
-  deleteFuelPrice, 
-  FuelPrice 
-} from "@/services/fuel-prices";
+  fuelPricesApi, 
+  FuelPrice, 
+  fuelTypesApi,
+  FuelType as FuelTypeModel
+} from "@/core/api";
 import { FuelType } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,13 +27,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  fetchFuelTypes, 
-  createFuelType, 
-  updateFuelType, 
-  deleteFuelType, 
-  FuelType as FuelTypeModel 
-} from "@/services/fuel-types";
 import { format } from "date-fns";
 
 // New type for the fuel type management
@@ -68,7 +59,7 @@ export default function FuelPricesPage() {
   const [isTypesLoading, setIsTypesLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [newFuelType, setNewFuelType] = useState({ code: "", name: "" });
+  const [newFuelType, setNewFuelType] = useState({ name: "" });
   const [editingFuelType, setEditingFuelType] = useState<FuelTypeDetails | null>(null);
 
   // Memoize breadcrumb segments to prevent unnecessary re-renders
@@ -95,9 +86,9 @@ export default function FuelPricesPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const prices = await getFuelPrices();
-        setFuelPrices(prices);
-        setEditPrices(prices);
+        const response = await fuelPricesApi.getAll();
+        setFuelPrices(response.data || []);
+        setEditPrices(response.data || []);
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to load fuel prices:", err);
@@ -115,8 +106,8 @@ export default function FuelPricesPage() {
       try {
         setIsTypesLoading(true);
         setError(null);
-        const data = await fetchFuelTypes();
-        setFuelTypes(data);
+        const response = await fuelTypesApi.getAll();
+        setFuelTypes(response.data || []);
         setIsTypesLoading(false);
       } catch (err) {
         console.error("Failed to load fuel types:", err);
@@ -134,8 +125,9 @@ export default function FuelPricesPage() {
   const loadPriceHistory = async (fuelType?: FuelType) => {
     setHistoryLoading(true);
     try {
-      const history = await getFuelPrices(fuelType);
-      setPriceHistory(history);
+      const params = fuelType ? { fuel_type: fuelType } : undefined;
+      const response = await fuelPricesApi.getAll(params as any);
+      setPriceHistory(response.data || []);
     } catch (err) {
       console.error("Failed to load price history:", err);
       toast({
@@ -182,11 +174,11 @@ export default function FuelPricesPage() {
       setError(null);
 
       // Update prices
-      const updatedPrices = await Promise.all(editPrices.map(async (price) => {
+      await Promise.all(editPrices.map(async (price) => {
         if (price.id) {
-          return updateFuelPrice(price.id, { price_per_liter: price.price_per_liter });
+          return fuelPricesApi.update(price.id, { price_per_liter: price.price_per_liter });
         } else {
-          return createFuelPrice({
+          return fuelPricesApi.create({
             fuel_type: price.fuel_type as FuelType,
             price_per_liter: price.price_per_liter,
             effective_date: new Date().toISOString(),
@@ -195,8 +187,8 @@ export default function FuelPricesPage() {
       }));
       
       // Refresh prices
-      const refreshedPrices = await getFuelPrices();
-      setFuelPrices(refreshedPrices);
+      const refreshedPrices = await fuelPricesApi.getAll();
+      setFuelPrices(refreshedPrices.data || []);
       setEditing(false);
       setSubmitting(false);
       
@@ -218,7 +210,7 @@ export default function FuelPricesPage() {
 
   // Handle add new fuel type
   const handleAddFuelType = async () => {
-    if (!newFuelType.code || !newFuelType.name) {
+    if (!newFuelType.name) {
       toast({
         title: t("errors.invalidFuelType"),
         description: t("errors.fuelTypeRequiredFields"),
@@ -229,26 +221,29 @@ export default function FuelPricesPage() {
 
     try {
       setSubmitting(true);
-      const createdFuelType = await createFuelType({
-        code: newFuelType.code.toLowerCase(),
+      const response = await fuelTypesApi.create({
         name: newFuelType.name,
-        is_active: true
+        color: "#000000", // Default color
+        price_per_liter: 0,
+        status: 'active'
       });
 
-      setFuelTypes([...fuelTypes, createdFuelType]);
-      setIsAddDialogOpen(false);
-      setNewFuelType({ code: "", name: "" });
-      
-      toast({
-        title: t("success.fuelTypeAdded"),
-        description: t("success.fuelTypeAddedDescription"),
-        type: "success"
-      });
+      if (response.data) {
+        setFuelTypes([...fuelTypes, response.data]);
+        setIsAddDialogOpen(false);
+        setNewFuelType({ name: "" });
+        
+        toast({
+          title: t("success.fuelTypeAdded"),
+          description: t("success.fuelTypeAddedDescription"),
+          type: "success"
+        });
+      }
     } catch (err) {
       console.error("Failed to create fuel type:", err);
       toast({
         title: t("errors.invalidFuelType"),
-        description: err instanceof Error ? err.message : "An unknown error occurred",
+        description: err instanceof Error ? err.message : t("errors.createFuelTypeFailed"),
         type: "error"
       });
     } finally {
@@ -258,33 +253,33 @@ export default function FuelPricesPage() {
 
   // Handle edit fuel type
   const handleEditFuelType = async () => {
-    if (!editingFuelType) return;
-    
+    if (!editingFuelType || !editingFuelType.id) return;
+
     try {
       setSubmitting(true);
-      const updatedFuelType = await updateFuelType(editingFuelType.id, {
+      const response = await fuelTypesApi.update(editingFuelType.id, {
         name: editingFuelType.name,
-        is_active: editingFuelType.is_active
+        status: editingFuelType.status as 'active' | 'inactive'
       });
-      
-      const updatedFuelTypes = fuelTypes.map(type => 
-        type.id === updatedFuelType.id ? updatedFuelType : type
-      );
-      
-      setFuelTypes(updatedFuelTypes);
-      setEditingFuelType(null);
-      setIsEditDialogOpen(false);
-      
-      toast({
-        title: t("success.fuelTypeUpdated"),
-        description: t("success.fuelTypeUpdatedDescription"),
-        type: "success"
-      });
+
+      if (response.data) {
+        setFuelTypes(fuelTypes.map(ft => 
+          ft.id === editingFuelType.id ? response.data! : ft
+        ));
+        setIsEditDialogOpen(false);
+        setEditingFuelType(null);
+        
+        toast({
+          title: t("success.fuelTypeUpdated"),
+          description: t("success.fuelTypeUpdatedDescription"),
+          type: "success"
+        });
+      }
     } catch (err) {
       console.error("Failed to update fuel type:", err);
       toast({
-        title: t("errors.updateFuelTypeFailed") || "Failed to update fuel type",
-        description: err instanceof Error ? err.message : "An unknown error occurred",
+        title: t("errors.updateFuelTypeFailed"),
+        description: err instanceof Error ? err.message : t("errors.genericError"),
         type: "error"
       });
     } finally {
@@ -295,10 +290,8 @@ export default function FuelPricesPage() {
   // Handle delete fuel type
   const handleDeleteFuelType = async (id: string) => {
     try {
-      setSubmitting(true);
-      await deleteFuelType(id);
-      const updatedFuelTypes = fuelTypes.filter(type => type.id !== id);
-      setFuelTypes(updatedFuelTypes);
+      await fuelTypesApi.delete(id);
+      setFuelTypes(fuelTypes.filter(ft => ft.id !== id));
       
       toast({
         title: t("success.fuelTypeDeleted"),
@@ -308,12 +301,10 @@ export default function FuelPricesPage() {
     } catch (err) {
       console.error("Failed to delete fuel type:", err);
       toast({
-        title: t("errors.deleteFuelTypeFailed") || "Failed to delete fuel type",
-        description: err instanceof Error ? err.message : "An unknown error occurred",
+        title: t("errors.deleteFuelTypeFailed"),
+        description: err instanceof Error ? err.message : t("errors.genericError"),
         type: "error"
       });
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -341,24 +332,13 @@ export default function FuelPricesPage() {
     >
       <div className="grid gap-4">
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="code" className="text-right">
-            {t("fuelPrices.code") || "Code"}
-          </Label>
-          <Input
-            id="code"
-            value={newFuelType.code}
-            onChange={(e) => setNewFuelType({ ...newFuelType, code: e.target.value })}
-            className="col-span-3"
-          />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="name" className="text-right">
             {t("fuelPrices.name") || "Name"}
           </Label>
           <Input
             id="name"
             value={newFuelType.name}
-            onChange={(e) => setNewFuelType({ ...newFuelType, name: e.target.value })}
+            onChange={(e) => setNewFuelType({ name: e.target.value })}
             className="col-span-3"
           />
         </div>
@@ -383,24 +363,24 @@ export default function FuelPricesPage() {
       {editingFuelType && (
         <div className="grid gap-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-code" className="text-right">
-              {t("fuelPrices.code") || "Code"}
-            </Label>
-            <Input
-              id="edit-code"
-              value={editingFuelType.code}
-              onChange={(e) => setEditingFuelType({ ...editingFuelType, code: e.target.value })}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-name" className="text-right">
               {t("fuelPrices.name") || "Name"}
             </Label>
             <Input
               id="edit-name"
-              value={editingFuelType.name}
+              value={editingFuelType?.name || ""}
               onChange={(e) => setEditingFuelType({ ...editingFuelType, name: e.target.value })}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-status" className="text-right">
+              {t("common.status") || "Status"}
+            </Label>
+            <Input
+              id="edit-status"
+              value={editingFuelType?.status || "active"}
+              onChange={(e) => setEditingFuelType({ ...editingFuelType, status: e.target.value as 'active' | 'inactive' })}
               className="col-span-3"
             />
           </div>
@@ -651,13 +631,13 @@ export default function FuelPricesPage() {
                       fuelTypes.length > 0 ? (
                         fuelTypes.map((fuelType) => (
                           <TableRow key={fuelType.id}>
-                            <TableCell className="font-medium">{fuelType.code}</TableCell>
+                            <TableCell className="font-medium">{fuelType.id.substring(0, 8)}</TableCell>
                             <TableCell>{fuelType.name}</TableCell>
                             <TableCell>
                               <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                fuelType.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                                fuelType.status === 'active' ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
                               }`}>
-                                {fuelType.is_active ? t("common.active") : t("common.inactive")}
+                                {fuelType.status === 'active' ? t("common.active") : t("common.inactive")}
                               </span>
                             </TableCell>
                             <TableCell className="text-right">

@@ -13,7 +13,7 @@ import { useDialog } from "@/hooks/useDialog";
 import { FuelSupply } from "@/features/supplies/types";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { fetchFuelTanks } from "@/services/tanks";
+import { tanksApi } from "@/core/api";
 import { FuelSuppliesTable } from "./FuelSuppliesTable";
 import { FuelSuppliesSummary } from "./summary/FuelSuppliesSummary";
 import { useTranslation } from "react-i18next";
@@ -65,7 +65,13 @@ export function FuelSuppliesManagerStandardized({
 
   const { data: tanks } = useQuery({
     queryKey: ["fuel-tanks"],
-    queryFn: fetchFuelTanks,
+    queryFn: async () => {
+      const response = await tanksApi.getAll();
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      return response.data || [];
+    },
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
@@ -85,16 +91,16 @@ export function FuelSuppliesManagerStandardized({
     if ("provider" in updates && setProvider) setProvider(updates.provider!);
     if ("fuelType" in updates && setType) setType(updates.fuelType! as string);
     if ("quantityRange" in updates) {
-      setMinQuantity(updates.quantityRange![0]);
-      setMaxQuantity(updates.quantityRange![1]);
+      setMinQuantity(updates.quantityRange![0] as number);
+      setMaxQuantity(updates.quantityRange![1] as number);
     }
     if ("priceRange" in updates) {
-      setMinPrice(updates.priceRange![0]);
-      setMaxPrice(updates.priceRange![1]);
+      setMinPrice(updates.priceRange![0] as number);
+      setMaxPrice(updates.priceRange![1] as number);
     }
     if ("totalRange" in updates) {
-      setMinTotal(updates.totalRange![0]);
-      setMaxTotal(updates.totalRange![1]);
+      setMinTotal(updates.totalRange![0] as number);
+      setMaxTotal(updates.totalRange![1] as number);
     }
   }, [setSearch, setDate, setProvider, setType, setMinQuantity, setMaxQuantity, setMinPrice, setMaxPrice, setMinTotal, setMaxTotal]);
 

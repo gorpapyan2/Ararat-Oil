@@ -3,16 +3,36 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
+import fs from 'fs';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file if exists
+const envFile = fs.existsSync('.env') ? '.env' : '.env.local';
+if (fs.existsSync(envFile)) {
+  dotenv.config({ path: envFile });
+}
+
+// Get port from environment or use a fallback
+function getServerPort() {
+  const envPort = process.env.VITE_PORT || process.env.PORT;
+  if (envPort) {
+    return parseInt(envPort, 10);
+  }
+  
+  // Default port if not specified in env
+  return 3001;
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
   server: {
-    port: 3000,
+    port: getServerPort(),
+    strictPort: false, // Allow Vite to try other ports if the specified one is in use
     host: true,
-    strictPort: true,
     watch: {
       usePolling: true,
     },
+    open: true,
   },
   // Add base configuration to ensure proper path resolution
   base: '/',

@@ -1,5 +1,5 @@
-import { transactionsApi } from "@/services/api";
-import { Transaction, PaymentMethod, PaymentStatus } from "@/types";
+import { transactionsApi, Transaction } from "@/core/api";
+import { PaymentMethod, PaymentStatus } from "@/types";
 
 export const fetchTransactions = async (
   filters?: { 
@@ -10,14 +10,14 @@ export const fetchTransactions = async (
   }
 ): Promise<Transaction[]> => {
   try {
-    const { data, error } = await transactionsApi.getAll(filters);
+    const response = await transactionsApi.getAll(filters);
 
-    if (error) {
-      console.error("Error fetching transactions:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching transactions:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch transactions:", err);
     throw err;
@@ -26,14 +26,14 @@ export const fetchTransactions = async (
 
 export const fetchTransactionById = async (id: string): Promise<Transaction | null> => {
   try {
-    const { data, error } = await transactionsApi.getById(id);
+    const response = await transactionsApi.getById(id);
 
-    if (error) {
-      console.error(`Error fetching transaction with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error fetching transaction with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || null;
+    return response.data || null;
   } catch (err) {
     console.error(`Failed to fetch transaction with ID ${id}:`, err);
     throw err;
@@ -60,14 +60,14 @@ export const createTransaction = async (
       payment_method: paymentMethod
     };
 
-    const { data, error } = await transactionsApi.create(transactionData);
+    const response = await transactionsApi.create(transactionData);
 
-    if (error) {
-      console.error("Error creating transaction:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error creating transaction:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error("Failed to create transaction:", err);
     throw err;
@@ -92,14 +92,14 @@ export const updateTransaction = async (
       }
     }
 
-    const { data, error } = await transactionsApi.update(id, updates);
+    const response = await transactionsApi.update(id, updates);
 
-    if (error) {
-      console.error(`Error updating transaction with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error updating transaction with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error(`Failed to update transaction with ID ${id}:`, err);
     throw err;
@@ -108,11 +108,11 @@ export const updateTransaction = async (
 
 export const deleteTransaction = async (id: string): Promise<void> => {
   try {
-    const { error } = await transactionsApi.delete(id);
+    const response = await transactionsApi.delete(id);
 
-    if (error) {
-      console.error(`Error deleting transaction with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error deleting transaction with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
   } catch (err) {
     console.error(`Failed to delete transaction with ID ${id}:`, err);

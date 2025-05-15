@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import { IconLogout } from "@tabler/icons-react";
 import { DevMenu } from "@/components/ui/composed/dev-menu";
-import { useSidebarNavConfig } from "@/config/sidebarNav";
+import { useSidebarNavConfig } from "@/core/config";
 
 type AdminShellProps = {
   children: React.ReactNode;

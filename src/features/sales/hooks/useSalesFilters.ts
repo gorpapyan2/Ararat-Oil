@@ -22,7 +22,9 @@ export function useSalesFilters() {
     refetch: refetchSales,
   } = useQuery({
     queryKey: ["sales"],
-    queryFn: fetchSales,
+    queryFn: async () => {
+      return fetchSales();
+    },
   });
 
   // Query filling systems data with proper error handling
@@ -66,7 +68,7 @@ export function useSalesFilters() {
           sale?.filling_system_name?.toLowerCase().includes(lower) ||
           sale?.fuel_type?.toLowerCase().includes(lower) ||
           sale?.date?.toString().includes(lower)
-      );
+      ) : [];
     }
     if (date && Array.isArray(filtered)) {
       const filterDate = format(date, "yyyy-MM-dd");

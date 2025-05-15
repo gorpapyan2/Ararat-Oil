@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { StandardDialog } from '@/components/common/StandardDialog';
+import { StandardDialog } from '@/components/dialogs/StandardDialog';
 import { Button } from '@/components/ui/button';
 import type { PetrolProvider } from '../types/petrol-providers.types';
 

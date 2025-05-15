@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createFuelSupply } from "@/services/fuel-supplies";
+import { createFuelSupply, API_ERROR_TYPE, type FuelSupplyCreate } from "@/core/api";
 import { useToast } from "@/hooks";
 import { format } from "date-fns";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
@@ -52,7 +52,36 @@ export default function FuelSupplyCreate() {
 
   // Add create fuel supply mutation with proper error handling
   const createFuelSupplyMutation = useMutation({
-    mutationFn: createFuelSupply,
+    mutationFn: async (data: FuelSupply) => {
+      // Extract the fields required by the API
+      const fuelSupplyData: FuelSupplyCreate = {
+        supplier_id: data.supplier_id,
+        fuel_type_id: data.fuel_type_id,
+        quantity: data.quantity,
+        unit_price: data.unit_price,
+        total_price: data.total_price,
+        delivery_date: data.delivery_date,
+        invoice_number: data.invoice_number,
+        notes: data.notes
+      };
+      
+      const response = await createFuelSupply(fuelSupplyData);
+      
+      if (response.error) {
+        // Enhanced error handling with typed errors
+        switch(response.error.type) {
+          case API_ERROR_TYPE.VALIDATION:
+            throw new Error(response.error.message || t("fuelSupplies.validationError", "Invalid input data"));
+          case API_ERROR_TYPE.AUTH:
+            throw new Error(t("common.authError", "Authentication error. Please log in again."));
+          case API_ERROR_TYPE.NETWORK:
+            throw new Error(t("common.networkError", "Network error. Please check your connection."));
+          default:
+            throw new Error(response.error.message || t("fuelSupplies.createError", "Failed to create fuel supply record"));
+        }
+      }
+      return response.data;
+    },
     onSuccess: () => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
@@ -94,7 +123,7 @@ export default function FuelSupplyCreate() {
 
   const handleConfirm = () => {
     if (pendingData && activeShift?.id) {
-      createFuelSupplyMutation.mutate(pendingData as Omit<FuelSupply, "id" | "created_at">);
+      createFuelSupplyMutation.mutate(pendingData as unknown as FuelSupply);
     }
   };
 

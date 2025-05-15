@@ -33,9 +33,9 @@ export function RegisterForm() {
     const credentials: RegisterCredentials = {
       email: data.email,
       password: data.password,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      confirmPassword: data.confirmPassword,
+      first_name: data.firstName,
+      last_name: data.lastName,
+      confirm_password: data.confirmPassword,
     };
     await registerUser(credentials);
   };

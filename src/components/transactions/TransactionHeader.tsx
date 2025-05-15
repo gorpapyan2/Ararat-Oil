@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { StandardDialog } from "@/components/ui/composed/dialog";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
-import { Transaction } from "@/types";
+import { Transaction } from "@/core/api";
 
 interface TransactionHeaderProps {
   onCreate: () => void;

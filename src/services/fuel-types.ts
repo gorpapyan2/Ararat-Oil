@@ -1,27 +1,4 @@
-import { fuelTypesApi } from "@/services/api";
-
-export interface FuelType {
-  id: string;
-  code: string;
-  name: string;
-  is_active: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
-
-// Type definition for creating a new fuel type
-export interface CreateFuelTypeRequest {
-  code: string;
-  name: string;
-  is_active?: boolean;
-}
-
-// Type definition for updating a fuel type
-export interface UpdateFuelTypeRequest {
-  name?: string;
-  code?: string;
-  is_active?: boolean;
-}
+import { fuelTypesApi, FuelType, FuelTypeCreate, FuelTypeUpdate } from "@/core/api";
 
 /**
  * Fetch all fuel types
@@ -29,14 +6,14 @@ export interface UpdateFuelTypeRequest {
  */
 export async function fetchFuelTypes(): Promise<FuelType[]> {
   try {
-    const { data, error } = await fuelTypesApi.getAll();
+    const response = await fuelTypesApi.getAll();
 
-    if (error) {
-      console.error("Error fetching fuel types:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching fuel types:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch fuel types:", err);
     throw err;
@@ -49,14 +26,15 @@ export async function fetchFuelTypes(): Promise<FuelType[]> {
  */
 export async function fetchActiveFuelTypes(): Promise<FuelType[]> {
   try {
-    const { data, error } = await fuelTypesApi.getActive();
+    const response = await fuelTypesApi.getAll();
 
-    if (error) {
-      console.error("Error fetching active fuel types:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching active fuel types:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    // Filter active fuel types
+    return (response.data || []).filter(type => type.status === 'active');
   } catch (err) {
     console.error("Failed to fetch active fuel types:", err);
     throw err;
@@ -70,14 +48,14 @@ export async function fetchActiveFuelTypes(): Promise<FuelType[]> {
  */
 export async function fetchFuelTypeById(id: string): Promise<FuelType | null> {
   try {
-    const { data, error } = await fuelTypesApi.getById(id);
+    const response = await fuelTypesApi.getById(id);
 
-    if (error) {
-      console.error(`Error fetching fuel type with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error fetching fuel type with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || null;
+    return response.data || null;
   } catch (err) {
     console.error(`Failed to fetch fuel type with ID ${id}:`, err);
     throw err;
@@ -89,16 +67,16 @@ export async function fetchFuelTypeById(id: string): Promise<FuelType | null> {
  * @param fuelType Fuel type data to create
  * @returns Created fuel type
  */
-export async function createFuelType(fuelType: CreateFuelTypeRequest): Promise<FuelType> {
+export async function createFuelType(fuelType: FuelTypeCreate): Promise<FuelType> {
   try {
-    const { data, error } = await fuelTypesApi.create(fuelType);
+    const response = await fuelTypesApi.create(fuelType);
 
-    if (error) {
-      console.error("Error creating fuel type:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error creating fuel type:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error("Failed to create fuel type:", err);
     throw err;
@@ -111,16 +89,16 @@ export async function createFuelType(fuelType: CreateFuelTypeRequest): Promise<F
  * @param updates Updates to apply
  * @returns Updated fuel type
  */
-export async function updateFuelType(id: string, updates: UpdateFuelTypeRequest): Promise<FuelType> {
+export async function updateFuelType(id: string, updates: FuelTypeUpdate): Promise<FuelType> {
   try {
-    const { data, error } = await fuelTypesApi.update(id, updates);
+    const response = await fuelTypesApi.update(id, updates);
 
-    if (error) {
-      console.error(`Error updating fuel type with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error updating fuel type with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error(`Failed to update fuel type with ID ${id}:`, err);
     throw err;
@@ -134,14 +112,40 @@ export async function updateFuelType(id: string, updates: UpdateFuelTypeRequest)
  */
 export async function deleteFuelType(id: string): Promise<void> {
   try {
-    const { error } = await fuelTypesApi.delete(id);
+    const response = await fuelTypesApi.delete(id);
 
-    if (error) {
-      console.error(`Error deleting fuel type with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error deleting fuel type with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
   } catch (err) {
     console.error(`Failed to delete fuel type with ID ${id}:`, err);
+    throw err;
+  }
+}
+
+/**
+ * Check if a fuel type ID is unique
+ * @param id The ID to check
+ * @param excludeId Optional ID to exclude from the check (for updates)
+ * @returns True if the ID is unique
+ * 
+ * Note: This function now relies on the server-side validation in our Edge Function.
+ * If a fuel type with the same ID exists, the create or update operation will fail
+ * with an appropriate error message.
+ */
+export async function isFuelTypeIdUnique(id: string, excludeId?: string): Promise<boolean> {
+  try {
+    const response = await fuelTypesApi.getAll();
+    
+    if (!response.data) return true;
+    
+    // Check if any fuel type (except the one being excluded) has this id
+    return !response.data.some(ft => 
+      ft.id === id && (!excludeId || ft.id !== excludeId)
+    );
+  } catch (err) {
+    console.error(`Failed to check if fuel type ID ${id} is unique:`, err);
     throw err;
   }
 }
@@ -158,13 +162,13 @@ export async function deleteFuelType(id: string): Promise<void> {
  */
 export async function isFuelTypeCodeUnique(code: string, excludeId?: string): Promise<boolean> {
   try {
-    const { data: fuelTypes } = await fuelTypesApi.getAll();
+    const response = await fuelTypesApi.getAll();
     
-    if (!fuelTypes) return true;
+    if (!response.data) return true;
     
-    // Check if any fuel type (except the one being excluded) has this code
-    return !fuelTypes.some(ft => 
-      ft.code === code && (!excludeId || ft.id !== excludeId)
+    // Check if any fuel type (except the one being excluded) has this id
+    return !response.data.some(ft => 
+      ft.id === code && (!excludeId || ft.id !== excludeId)
     );
   } catch (err) {
     console.error(`Failed to check if fuel type code ${code} is unique:`, err);

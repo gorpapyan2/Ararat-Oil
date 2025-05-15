@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchExpenses, createExpense, updateExpense, deleteExpense } from "@/services/expenses";
-import { Expense, ExpenseCategory } from "@/types";
+import { expensesApi, Expense, ExpenseCategory } from "@/core/api";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks";
 import { StandardDialog } from "@/components/ui/dialog";
@@ -74,12 +73,12 @@ export function ExpensesManagerStandardized() {
   // Fetch expenses data
   const { data: expenses = [], isLoading } = useQuery({
     queryKey: ["expenses"],
-    queryFn: () => fetchExpenses(filters),
+    queryFn: () => expensesApi.fetchExpenses(filters),
   });
 
   // Add mutations
   const createMutation = useMutation({
-    mutationFn: createExpense,
+    mutationFn: expensesApi.createExpense,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       toast({
@@ -99,7 +98,7 @@ export function ExpensesManagerStandardized() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, ...data }: { id: string; [key: string]: any }) => 
-      updateExpense(id, data),
+      expensesApi.updateExpense(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       toast({
@@ -118,7 +117,7 @@ export function ExpensesManagerStandardized() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteExpense,
+    mutationFn: expensesApi.deleteExpense,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       toast({

@@ -1,5 +1,5 @@
-import { shiftPaymentMethodsApi } from "@/services/api";
-import { ShiftPaymentMethod, PaymentMethod } from "@/types";
+import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
+import { PaymentMethod } from "@/types";
 import { PaymentMethodItem } from "@/components/shared/MultiPaymentMethodFormStandardized";
 
 export async function addShiftPaymentMethods(
@@ -37,14 +37,14 @@ export async function addShiftPaymentMethods(
       };
     });
 
-    const { data, error } = await shiftPaymentMethodsApi.add(shiftId, validatedPayments);
+    const response = await shiftsApi.addPaymentMethods(shiftId, validatedPayments as any);
 
-    if (error) {
-      console.error("Error adding shift payment methods:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error adding shift payment methods:", response.error);
+      throw new Error(response.error.message);
     }
     
-    return data || [];
+    return response.data || [];
   } catch (err: any) {
     console.error("Error in addShiftPaymentMethods:", err);
     throw new Error(err.message || "Failed to add shift payment methods");
@@ -53,14 +53,14 @@ export async function addShiftPaymentMethods(
 
 export async function getShiftPaymentMethods(shiftId: string): Promise<ShiftPaymentMethod[]> {
   try {
-    const { data, error } = await shiftPaymentMethodsApi.getAll(shiftId);
+    const response = await shiftsApi.getPaymentMethods(shiftId);
 
-    if (error) {
-      console.error("Error fetching shift payment methods:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching shift payment methods:", response.error);
+      throw new Error(response.error.message);
     }
     
-    return data || [];
+    return response.data || [];
   } catch (err: any) {
     console.error("Error fetching shift payment methods:", err);
     throw new Error(err.message || "Failed to fetch shift payment methods");
@@ -74,11 +74,11 @@ export async function deleteShiftPaymentMethods(shiftId: string): Promise<void> 
       throw new Error("Invalid shift ID provided for deletion");
     }
     
-    const { error } = await shiftPaymentMethodsApi.delete(shiftId);
+    const response = await shiftsApi.deletePaymentMethods(shiftId);
 
-    if (error) {
-      console.error("Error deleting shift payment methods:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error deleting shift payment methods:", response.error);
+      throw new Error(response.error.message);
     }
     
     console.log(`Successfully deleted payment methods for shift: ${shiftId}`);

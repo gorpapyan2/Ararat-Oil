@@ -1,7 +1,6 @@
 // Components
 export { LoginForm } from './components/LoginForm';
 export { RegisterForm } from './components/RegisterForm';
-export { PasswordReset } from './components/PasswordReset';
 export { AuthGuard } from './components/AuthGuard';
 export { AuthProvider } from './components/AuthProvider';
 
