@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { fetchProfitLoss } from "@/services/financials";
+import { getProfitLossSummary } from "@/core/api";
 import {
   Area,
   AreaChart,
@@ -15,7 +15,10 @@ export function ProfitLossChart() {
   const { t } = useTranslation();
   const { data: profitLossData, isLoading } = useQuery({
     queryKey: ["profit-loss"],
-    queryFn: fetchProfitLoss,
+    queryFn: async () => {
+      const response = await getProfitLossSummary("month");
+      return response.data || [];
+    },
   });
 
   if (isLoading) return <div>{t("common.loading")}</div>;
@@ -28,7 +31,7 @@ export function ProfitLossChart() {
       <CardContent className="pl-2">
         <ResponsiveContainer width="100%" height={350}>
           <AreaChart
-            data={profitLossData}
+            data={profitLossData as any}
             margin={{
               top: 5,
               right: 10,

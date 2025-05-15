@@ -1,11 +1,13 @@
-import { salesApi } from "@/services/api";
-import { Sale } from "@/types";
+import { salesApi, Sale } from "@/core/api";
 
 export interface UpdateSaleRequest {
-  price_per_unit?: number;
-  payment_status?: string;
-  meter_start?: number;
-  meter_end?: number;
+  filling_system_id?: string;
+  fuel_type_id?: string;
+  quantity?: number;
+  price_per_liter?: number;
+  total_price?: number;
+  payment_method?: string;
+  employee_id?: string;
   shift_id?: string;
   comments?: string;
 }
@@ -15,14 +17,14 @@ export const updateSale = async (
   updates: UpdateSaleRequest
 ): Promise<Sale> => {
   try {
-    const { data, error } = await salesApi.update(id, updates);
+    const response = await salesApi.update(id, updates);
 
-    if (error) {
-      console.error(`Error updating sale with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error updating sale with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err: any) {
     console.error(`Failed to update sale with ID ${id}:`, err);
     throw new Error(err.message || "Failed to update sale");

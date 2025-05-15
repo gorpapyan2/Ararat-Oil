@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/core/api/supabase";
 import { CalendarClock, Receipt, CircleDollarSign, ArrowRight, BarChart3, ChevronRight, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 

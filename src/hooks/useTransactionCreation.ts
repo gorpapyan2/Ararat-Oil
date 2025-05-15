@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTransaction } from "@/services/transactions";
-import { PaymentMethod, PaymentStatus } from "@/types";
+import { transactionsApi, Transaction } from "@/core/api";
+import { PaymentMethod } from "@/types";
 import { useToast } from "@/hooks";
 
 interface CreateTransactionParams {
@@ -9,9 +9,11 @@ interface CreateTransactionParams {
   payment_reference?: string;
   sale_id?: string;
   employee_id: string;
-  description?: string; // Added for better invoice details
-  entity_type?: "sale" | "expense" | "fuel_supply"; // To track transaction source
-  entity_id?: string; // Generic ID for the source entity
+  description: string; // Required for transaction details
+  entity_type: "sale" | "expense" | "fuel_supply"; // Required to track transaction source
+  entity_id: string; // Required ID for the source entity
+  type: "expense" | "income"; // Must match the expected transaction types
+  created_by: string; // Required for audit trail
 }
 
 export function useTransactionCreation() {
@@ -20,9 +22,8 @@ export function useTransactionCreation() {
 
   return useMutation({
     mutationFn: async (params: CreateTransactionParams) => {
-      return await createTransaction({
+      return await transactionsApi.create({
         ...params,
-        payment_status: "completed" as PaymentStatus,
       });
     },
     onSuccess: () => {

@@ -1,12 +1,12 @@
-import { salesApi } from "@/services/api";
+import { salesApi } from "@/core/api";
 
 export const deleteSale = async (id: string): Promise<void> => {
   try {
-    const { error } = await salesApi.delete(id);
+    const response = await salesApi.delete(id);
 
-    if (error) {
-      console.error(`Error deleting sale with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error deleting sale with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
   } catch (err: any) {
     console.error(`Failed to delete sale with ID ${id}:`, err);

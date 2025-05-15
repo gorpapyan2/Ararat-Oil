@@ -3,7 +3,7 @@ import { StandardDialog } from "@/components/ui/composed/dialog";
 import { DialogContent } from "@/components/ui/styled/dialog";
 import { SalesFormStandardized } from "./SalesFormStandardized";
 import { useState, useRef } from "react";
-import { createSale } from "@/services/sales";
+import { salesApi } from "@/core/api";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
@@ -22,7 +22,7 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
 
   const handleSubmit = async (data: any): Promise<boolean> => {
     try {
-      await createSale(data);
+      await salesApi.create(data);
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       queryClient.invalidateQueries({ queryKey: ["latest-sale"] });

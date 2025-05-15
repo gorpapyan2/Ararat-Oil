@@ -1,26 +1,19 @@
-import { dashboardApi } from "@/services/api";
+import { dashboardApi, DashboardData } from "@/core/api";
 
-// Define a type for dashboard data
-export interface DashboardData {
-  recentSales: any[];
-  recentExpenses: any[];
-  recentSupplies: any[];
-  metrics: {
-    salesCount: number;
-    expensesCount: number;
-    suppliesCount: number;
-  };
-}
-
+// Define a fallback type for dashboard data 
 const DEFAULT_DASHBOARD_DATA: DashboardData = {
-  recentSales: [],
-  recentExpenses: [],
-  recentSupplies: [],
-  metrics: {
-    salesCount: 0,
-    expensesCount: 0,
-    suppliesCount: 0,
+  fuel_levels: {},
+  recent_sales: [],
+  revenue_summary: {
+    daily: 0,
+    weekly: 0,
+    monthly: 0,
   },
+  inventory_status: {
+    total_capacity: 0,
+    current_level: 0,
+    percentage: 0,
+  }
 };
 
 /**
@@ -28,14 +21,14 @@ const DEFAULT_DASHBOARD_DATA: DashboardData = {
  */
 export const fetchDashboardData = async (): Promise<DashboardData> => {
   try {
-    const { data, error } = await dashboardApi.getData();
+    const response = await dashboardApi.getData();
 
-    if (error) {
-      console.error("Error fetching dashboard data:", error);
+    if (response.error) {
+      console.error("Error fetching dashboard data:", response.error);
       return DEFAULT_DASHBOARD_DATA;
     }
 
-    return data || DEFAULT_DASHBOARD_DATA;
+    return response.data || DEFAULT_DASHBOARD_DATA;
   } catch (err: any) {
     console.error("Failed to fetch dashboard data:", err);
     return DEFAULT_DASHBOARD_DATA;

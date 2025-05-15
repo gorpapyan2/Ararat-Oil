@@ -9,7 +9,7 @@ import {
   fuelTypesApi,
   FuelType as FuelTypeModel
 } from "@/core/api";
-import { FuelType } from "@/types";
+import { FuelTypeCode } from "@/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,15 +30,10 @@ import {
 import { format } from "date-fns";
 
 // New type for the fuel type management
-interface FuelTypeDetails extends FuelTypeModel {}
+type FuelTypeDetails = FuelTypeModel;
 
 // Specific fuel type codes array to avoid deep instantiation error
-const FUEL_TYPE_CODES: FuelType[] = [
-  "diesel", 
-  "gas", 
-  "petrol_regular", 
-  "petrol_premium"
-];
+const FUEL_TYPE_CODES = ["diesel", "gas", "petrol_regular", "petrol_premium"] as const;
 
 export default function FuelPricesPage() {
   const { t } = useTranslation();
@@ -52,7 +47,7 @@ export default function FuelPricesPage() {
   const [priceHistory, setPriceHistory] = useState<FuelPrice[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [selectedFuelType, setSelectedFuelType] = useState<FuelType | undefined>(undefined);
+  const [selectedFuelType, setSelectedFuelType] = useState<FuelTypeCode | undefined>(undefined);
   // State for fuel types management
   const [activeTab, setActiveTab] = useState("prices");
   const [fuelTypes, setFuelTypes] = useState<FuelTypeDetails[]>([]);
@@ -122,7 +117,7 @@ export default function FuelPricesPage() {
   }, [activeTab, t]);
 
   // Load price history
-  const loadPriceHistory = async (fuelType?: FuelType) => {
+  const loadPriceHistory = async (fuelType?: FuelTypeCode) => {
     setHistoryLoading(true);
     try {
       const params = fuelType ? { fuel_type: fuelType } : undefined;
@@ -160,7 +155,7 @@ export default function FuelPricesPage() {
   };
 
   // Handle price change
-  const handlePriceChange = (fuelType: FuelType, value: string) => {
+  const handlePriceChange = (fuelType: FuelTypeCode, value: string) => {
     const price = parseFloat(value);
     setEditPrices(prev => prev.map(p => 
       p.fuel_type === fuelType ? { ...p, price_per_liter: isNaN(price) ? 0 : price } : p
@@ -179,7 +174,7 @@ export default function FuelPricesPage() {
           return fuelPricesApi.update(price.id, { price_per_liter: price.price_per_liter });
         } else {
           return fuelPricesApi.create({
-            fuel_type: price.fuel_type as FuelType,
+            fuel_type: price.fuel_type as FuelTypeCode,
             price_per_liter: price.price_per_liter,
             effective_date: new Date().toISOString(),
           });
@@ -444,7 +439,7 @@ export default function FuelPricesPage() {
                               <Input
                                 type="number"
                                 value={editPrices.find(p => p.id === price.id)?.price_per_liter.toString() || ''}
-                                onChange={(e) => handlePriceChange(price.fuel_type as FuelType, e.target.value)}
+                                onChange={(e) => handlePriceChange(price.fuel_type as FuelTypeCode, e.target.value)}
                                 min={0}
                                 step={1}
                                 className="w-24 ml-auto"
@@ -522,7 +517,7 @@ export default function FuelPricesPage() {
                     {FUEL_TYPE_CODES.map(fuelType => (
                       <DropdownMenuItem 
                         key={fuelType}
-                        onClick={() => setSelectedFuelType(fuelType)}
+                        onClick={() => setSelectedFuelType(fuelType as FuelTypeCode)}
                       >
                         {t(`common.${fuelType}`) || fuelType}
                       </DropdownMenuItem>

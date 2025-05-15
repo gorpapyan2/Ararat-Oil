@@ -57,7 +57,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/useResponsive";
-import logger from "@/services/logger";
+import { logger } from '@/core/api';
 
 export interface DataTableProps<TData, TValue> {
   // Core props

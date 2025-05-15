@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Employee } from "@/services/supabase";
+import { Employee } from "@/core/api";
 
 interface EmployeeListProps {
   employees: Employee[];

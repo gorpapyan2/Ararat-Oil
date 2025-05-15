@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchFuelSupplies } from "@/services/fuel-supplies";
-import { fetchPetrolProviders } from "@/services/petrol-providers";
+import { fuelSuppliesApi, petrolProvidersApi } from "@/core/api";
 import { format } from "date-fns";
 import { FuelSupply } from "@/features/supplies/types";
 
@@ -18,13 +17,53 @@ export function useFuelSuppliesFilters() {
 
   // Query fuel supplies data
   const {
-    data: supplies = [],
+    data: fuelSupplies = [],
     isLoading: suppliesLoading,
     refetch: refetchSupplies,
     error: suppliesError
-  } = useQuery<FuelSupply[]>({
+  } = useQuery({
     queryKey: ["fuel-supplies"],
-    queryFn: () => fetchFuelSupplies(),
+    queryFn: async () => {
+      const response = await fuelSuppliesApi.getAll();
+      
+      // Create a properly typed array from the API response
+      return (response.data || []).map(apiSupply => {
+        // Create a base supply object with known properties
+        const supply: FuelSupply = {
+          id: apiSupply.id,
+          supplier_id: apiSupply.supplier_id || "",
+          fuel_type_id: apiSupply.fuel_type_id || "",
+          quantity: apiSupply.quantity || 0,
+          unit_price: apiSupply.unit_price || 0,
+          total_price: apiSupply.total_price || 0,
+          invoice_number: apiSupply.invoice_number,
+          notes: apiSupply.notes,
+          delivery_date: apiSupply.delivery_date || new Date().toISOString(),
+          // Map to properties expected by the component
+          provider_id: apiSupply.supplier_id || "",
+          tank_id: "", // Will be provided separately if available
+          quantity_liters: apiSupply.quantity || 0,
+          price_per_liter: apiSupply.unit_price || 0,
+          total_cost: apiSupply.total_price || 0,
+          shift_id: "",
+          // Add minimal mock objects that the component expects
+          provider: {
+            id: apiSupply.supplier_id || "",
+            name: "Provider" // Default name
+          },
+          tank: {
+            id: "",
+            name: "Tank",
+            fuel_type: apiSupply.fuel_type_id || "",
+            capacity: 0,
+            current_level: 0
+          }
+        };
+        
+        // Return the appropriately shaped object
+        return supply;
+      });
+    },
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -33,27 +72,25 @@ export function useFuelSuppliesFilters() {
   useEffect(() => {
     if (suppliesError) {
       console.error("Fuel supplies query error:", suppliesError);
-    } else if (supplies.length === 0) {
+    } else if (fuelSupplies.length === 0) {
       console.log("No fuel supplies data available");
     } else {
-      console.log(`Loaded ${supplies.length} fuel supplies for filtering`);
+      console.log(`Loaded ${fuelSupplies.length} fuel supplies for filtering`);
     }
-  }, [supplies, suppliesError]);
+  }, [fuelSupplies, suppliesError]);
 
   // Query provider data with proper error handling
   const { data: providersData, isLoading: providersLoading } = useQuery({
     queryKey: ["petrol-providers"],
     queryFn: async () => {
       try {
-        const data = await fetchPetrolProviders();
+        const response = await petrolProvidersApi.getAll();
         // Map the data to the expected format and ensure it's an array
-        if (!data || !Array.isArray(data)) return [];
+        if (!response.data || !Array.isArray(response.data)) return [];
 
-        return data.map((provider) => ({
+        return response.data.map((provider) => ({
           id: provider.id || "",
-          name:
-            provider.name ||
-            `Provider ${provider.id?.slice(0, 4) || "Unknown"}`,
+          name: provider.name || `Provider ${provider.id?.slice(0, 4) || "Unknown"}`,
         }));
       } catch (error) {
         console.error("Error fetching petrol providers:", error);
@@ -75,13 +112,13 @@ export function useFuelSuppliesFilters() {
   }, [providersData, providersLoading]);
 
   const filteredSupplies = useMemo<FuelSupply[]>(() => {
-    console.log("Starting filtering with", supplies.length, "records");
-    let filtered = supplies;
+    console.log("Starting filtering with", fuelSupplies.length, "records");
+    let filtered = fuelSupplies;
 
     if (search) {
       const lower = search.toLowerCase();
       filtered = filtered.filter(
-        (supply) =>
+        (supply: FuelSupply) =>
           supply.provider?.name?.toLowerCase().includes(lower) ||
           supply.tank?.name?.toLowerCase().includes(lower) ||
           supply.delivery_date?.toString().includes(lower),
@@ -90,19 +127,19 @@ export function useFuelSuppliesFilters() {
 
     if (date) {
       const filterDate = format(date, "yyyy-MM-dd");
-      filtered = filtered.filter((supply) => {
+      filtered = filtered.filter((supply: FuelSupply) => {
         const supplyDate = supply.delivery_date?.slice(0, 10);
         return supplyDate === filterDate;
       });
     }
 
     if (providerId && providerId !== "all") {
-      filtered = filtered.filter((supply) => supply.provider_id === providerId);
+      filtered = filtered.filter((supply: FuelSupply) => supply.provider_id === providerId);
     }
 
     const [qtyMin, qtyMax] = quantityRange;
     if (qtyMin > 0 || qtyMax > 0) {
-      filtered = filtered.filter((supply) => {
+      filtered = filtered.filter((supply: FuelSupply) => {
         const q = supply.quantity_liters;
         return (qtyMin === 0 || q >= qtyMin) && (qtyMax === 0 || q <= qtyMax);
       });
@@ -110,7 +147,7 @@ export function useFuelSuppliesFilters() {
 
     const [priceMin, priceMax] = priceRange;
     if (priceMin > 0 || priceMax > 0) {
-      filtered = filtered.filter((supply) => {
+      filtered = filtered.filter((supply: FuelSupply) => {
         const p = supply.price_per_liter;
         return (
           (priceMin === 0 || p >= priceMin) && (priceMax === 0 || p <= priceMax)
@@ -120,7 +157,7 @@ export function useFuelSuppliesFilters() {
 
     const [costMin, costMax] = totalCostRange;
     if (costMin > 0 || costMax > 0) {
-      filtered = filtered.filter((supply) => {
+      filtered = filtered.filter((supply: FuelSupply) => {
         const c = supply.total_cost;
         return (
           (costMin === 0 || c >= costMin) && (costMax === 0 || c <= costMax)
@@ -131,7 +168,7 @@ export function useFuelSuppliesFilters() {
     console.log("Final filtered supplies count:", filtered.length);
     return filtered;
   }, [
-    supplies,
+    fuelSupplies,
     search,
     date,
     providerId,

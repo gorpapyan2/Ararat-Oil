@@ -1,5 +1,5 @@
-import { employeesApi } from "@/services/api";
-import { Employee, EmployeeStatus } from "@/types";
+import { employeesApi, Employee } from "@/core/api";
+import { EmployeeStatus } from "@/types";
 
 export interface CreateEmployeeRequest {
   name: string;
@@ -8,6 +8,7 @@ export interface CreateEmployeeRequest {
   salary: number;
   hire_date: string;
   status: EmployeeStatus;
+  department?: string;
 }
 
 export interface UpdateEmployeeRequest {
@@ -17,18 +18,19 @@ export interface UpdateEmployeeRequest {
   salary?: number;
   hire_date?: string;
   status?: EmployeeStatus;
+  department?: string;
 }
 
 export const fetchEmployees = async (options?: { status?: EmployeeStatus }): Promise<Employee[]> => {
   try {
-    const { data, error } = await employeesApi.getAll(options);
+    const response = await employeesApi.getAll(options);
 
-    if (error) {
-      console.error("Error fetching employees:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching employees:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch employees:", err);
     throw err;
@@ -37,14 +39,14 @@ export const fetchEmployees = async (options?: { status?: EmployeeStatus }): Pro
 
 export const fetchActiveEmployees = async (): Promise<Employee[]> => {
   try {
-    const { data, error } = await employeesApi.getActive();
+    const response = await employeesApi.getActive();
 
-    if (error) {
-      console.error("Error fetching active employees:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching active employees:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch active employees:", err);
     throw err;
@@ -53,14 +55,14 @@ export const fetchActiveEmployees = async (): Promise<Employee[]> => {
 
 export const fetchEmployeeById = async (id: string): Promise<Employee | null> => {
   try {
-    const { data, error } = await employeesApi.getById(id);
+    const response = await employeesApi.getById(id);
 
-    if (error) {
-      console.error(`Error fetching employee with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error fetching employee with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || null;
+    return response.data || null;
   } catch (err) {
     console.error(`Failed to fetch employee with ID ${id}:`, err);
     throw err;
@@ -71,14 +73,14 @@ export const createEmployee = async (
   employee: CreateEmployeeRequest
 ): Promise<Employee> => {
   try {
-    const { data, error } = await employeesApi.create(employee);
+    const response = await employeesApi.create(employee);
 
-    if (error) {
-      console.error("Error creating employee:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error creating employee:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error("Failed to create employee:", err);
     throw err;
@@ -90,14 +92,14 @@ export const updateEmployee = async (
   employee: UpdateEmployeeRequest
 ): Promise<Employee> => {
   try {
-    const { data, error } = await employeesApi.update(id, employee);
+    const response = await employeesApi.update(id, employee);
 
-    if (error) {
-      console.error(`Error updating employee with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error updating employee with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error(`Failed to update employee with ID ${id}:`, err);
     throw err;
@@ -106,11 +108,11 @@ export const updateEmployee = async (
 
 export const deleteEmployee = async (id: string): Promise<void> => {
   try {
-    const { error } = await employeesApi.delete(id);
+    const response = await employeesApi.delete(id);
 
-    if (error) {
-      console.error(`Error deleting employee with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error deleting employee with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
   } catch (err) {
     console.error(`Failed to delete employee with ID ${id}:`, err);

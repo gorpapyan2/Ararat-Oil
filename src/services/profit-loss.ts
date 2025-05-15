@@ -1,4 +1,4 @@
-import { profitLossApi } from "@/services/api";
+import { profitLossApi, ProfitLoss } from "@/core/api";
 import { ProfitLossSummary } from "@/types";
 
 export type PeriodType = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
@@ -36,19 +36,19 @@ export const calculateProfitLoss = async (
   includeDetails = false
 ): Promise<ProfitLossDetails> => {
   try {
-    const { data, error } = await profitLossApi.calculate(
+    const response = await profitLossApi.calculate(
       period, 
       startDate, 
       endDate, 
       includeDetails
     );
 
-    if (error) {
-      console.error("Error calculating profit and loss:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error calculating profit and loss:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error("Failed to calculate profit and loss:", err);
     throw err;
@@ -61,14 +61,14 @@ export const getProfitLossSummary = async (
   endDate?: string
 ): Promise<ProfitLossSummary[]> => {
   try {
-    const { data, error } = await profitLossApi.getSummary(period, startDate, endDate);
+    const response = await profitLossApi.getSummary(period, startDate, endDate);
 
-    if (error) {
-      console.error("Error fetching profit-loss summary:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching profit-loss summary:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch profit-loss summary:", err);
     throw err;
@@ -79,14 +79,14 @@ export const fetchProfitLossSummary = getProfitLossSummary;
 
 export const getProfitLossById = async (id: string): Promise<ProfitLossSummary | null> => {
   try {
-    const { data, error } = await profitLossApi.getById(id);
+    const response = await profitLossApi.getById(id);
 
-    if (error) {
-      console.error(`Error fetching profit-loss record with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error fetching profit-loss record with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || null;
+    return response.data || null;
   } catch (err) {
     console.error(`Failed to fetch profit-loss record with ID ${id}:`, err);
     throw err;
@@ -97,14 +97,14 @@ export const generateAndSaveProfitLoss = async (
   params: GenerateProfitLossRequest
 ): Promise<ProfitLossSummary> => {
   try {
-    const { data, error } = await profitLossApi.generate(params);
+    const response = await profitLossApi.calculate(params.period_type, params.start_date, params.end_date, true);
 
-    if (error) {
-      console.error("Error generating profit-loss record:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error generating profit-loss record:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error("Failed to generate profit-loss record:", err);
     throw err;

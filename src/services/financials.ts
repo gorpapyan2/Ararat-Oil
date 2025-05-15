@@ -1,64 +1,63 @@
-import { financialsApi } from "@/services/api";
-import { ProfitLoss } from "@/types";
+import { financialsApi, ProfitLoss, RevenueData, ExpensesData, FinancialDashboard } from "@/core/api";
 
 export const fetchProfitLoss = async (): Promise<ProfitLoss[]> => {
   try {
-    const { data, error } = await financialsApi.getProfitLoss();
+    const response = await financialsApi.getProfitLoss();
 
-    if (error) {
-      console.error("Error fetching profit/loss summary:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching profit/loss summary:", response.error);
+      throw new Error(response.error.message);
     }
     
-    return data || [];
+    return response.data || [];
   } catch (err: any) {
     console.error("Failed to fetch profit/loss summary:", err);
     throw new Error(err.message || "Failed to fetch financial data");
   }
 };
 
-export const fetchRevenue = async (period?: string): Promise<any> => {
+export const fetchRevenue = async (period?: string): Promise<RevenueData> => {
   try {
-    const { data, error } = await financialsApi.getRevenue(period);
+    const response = await financialsApi.getRevenue(period);
 
-    if (error) {
-      console.error("Error fetching revenue data:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching revenue data:", response.error);
+      throw new Error(response.error.message);
     }
     
-    return data || { total: 0, breakdown: {} };
+    return response.data || { total: 0, breakdown: {} };
   } catch (err: any) {
     console.error("Failed to fetch revenue data:", err);
     throw new Error(err.message || "Failed to fetch revenue data");
   }
 };
 
-export const fetchExpenses = async (period?: string): Promise<any> => {
+export const fetchExpenses = async (period?: string): Promise<ExpensesData> => {
   try {
-    const { data, error } = await financialsApi.getExpenses(period);
+    const response = await financialsApi.getExpenses(period);
 
-    if (error) {
-      console.error("Error fetching expenses data:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching expenses data:", response.error);
+      throw new Error(response.error.message);
     }
     
-    return data || { total: 0, breakdown: {} };
+    return response.data || { total: 0, breakdown: {} };
   } catch (err: any) {
     console.error("Failed to fetch expenses data:", err);
     throw new Error(err.message || "Failed to fetch expenses data");
   }
 };
 
-export const fetchFinancialDashboard = async (): Promise<any> => {
+export const fetchFinancialDashboard = async (): Promise<FinancialDashboard> => {
   try {
-    const { data, error } = await financialsApi.getDashboard();
+    const response = await financialsApi.getDashboard();
 
-    if (error) {
-      console.error("Error fetching financial dashboard:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching financial dashboard:", response.error);
+      throw new Error(response.error.message);
     }
     
-    return data || { 
+    return response.data || { 
       revenue: { total: 0, trend: [] },
       expenses: { total: 0, trend: [] },
       profit: { total: 0, trend: [] }

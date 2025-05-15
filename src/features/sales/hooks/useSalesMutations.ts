@@ -1,8 +1,20 @@
 import { useState, useCallback, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteSale, updateSale, UpdateSaleRequest } from "@/services/sales";
+import { salesApi, Sale } from "@/core/api";
 import { useToast } from "@/hooks";
-import { Sale } from "@/types";
+
+// Define the update request interface based on the Sale type
+interface UpdateSaleRequest {
+  filling_system_id?: string;
+  fuel_type_id?: string;
+  quantity?: number;
+  price_per_liter?: number;
+  total_price?: number;
+  payment_method?: string;
+  employee_id?: string;
+  shift_id?: string;
+  comments?: string;
+}
 
 export function useSalesMutations() {
   // State declarations
@@ -16,7 +28,7 @@ export function useSalesMutations() {
 
   // Define mutations
   const deleteMutation = useMutation({
-    mutationFn: deleteSale,
+    mutationFn: salesApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
@@ -39,7 +51,7 @@ export function useSalesMutations() {
   });
   const updateMutation = useMutation({
     mutationFn: (params: { id: string; updates: UpdateSaleRequest }) => 
-      updateSale(params.id, params.updates),
+      salesApi.update(params.id, params.updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });

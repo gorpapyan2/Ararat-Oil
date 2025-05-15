@@ -7,9 +7,8 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, AlertCircle, CalendarClock, DollarSign, FileCheck, Clock, Receipt, Users, CreditCard } from "lucide-react";
 import { formatCurrency, formatDateTime, calculateDuration, calculateShiftDuration } from "@/lib/utils";
-import { supabase } from "@/services/supabase";
-import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
-import { ShiftPaymentMethod } from "@/types";
+import { supabase } from "@/core/api/supabase";
+import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -24,7 +23,7 @@ interface DetailShift {
   start_time: string;
   end_time?: string;
   employee_name?: string;
-  payment_methods?: ShiftPaymentMethod[];
+  payment_methods?: ExtendedShiftPaymentMethod[];
   user_id?: string;
 }
 
@@ -41,6 +40,12 @@ interface RawShiftData {
   employee_id?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+// Add this just after the other interfaces
+// Extended interface to handle legacy references
+interface ExtendedShiftPaymentMethod extends ShiftPaymentMethod {
+  reference?: string; // For backwards compatibility
 }
 
 // Add a safe formatting function
@@ -84,7 +89,7 @@ export default function ShiftDetails() {
         const shiftResponse = await supabase
           .from("shifts")
           .select("*")
-          .eq("id", id)
+          .eq("id", id || '')
           .single();
           
         if (shiftResponse.error) {
@@ -128,16 +133,21 @@ export default function ShiftDetails() {
         }
         
         // Fetch payment methods if the shift is closed
-        let paymentMethods: ShiftPaymentMethod[] = [];
-        if (typedShiftData.status === "CLOSED") {
-          paymentMethods = await getShiftPaymentMethods(id);
+        let paymentMethods: ExtendedShiftPaymentMethod[] = [];
+        if (typedShiftData.status === "CLOSED" && id) {
+          // Correctly handle the API response
+          const paymentMethodsResponse = await shiftsApi.getPaymentMethods(id);
+          if (paymentMethodsResponse.data) {
+            // Cast the response data to our extended type to handle reference field
+            paymentMethods = paymentMethodsResponse.data as unknown as ExtendedShiftPaymentMethod[];
+          }
         }
         
         // Calculate sales total
         const salesResponse = await supabase
           .from("sales")
           .select("total_sales")
-          .eq("shift_id", id);
+          .eq("shift_id", id || '');
           
         if (salesResponse.error) {
           console.error("Error fetching sales data:", salesResponse.error);
@@ -469,9 +479,9 @@ export default function ShiftDetails() {
                               {method.payment_method === 'card' && <CreditCard className="h-4 w-4 mr-2 text-blue-500" />}
                               {method.payment_method === 'bank_transfer' && <Receipt className="h-4 w-4 mr-2 text-blue-500" />}
                               {method.payment_method}
-                              {method.reference && (
+                              {(method.reference || method.notes) && (
                                 <span className="ml-2 text-xs text-muted-foreground">
-                                  ({method.reference})
+                                  ({method.reference || method.notes})
                                 </span>
                               )}
                             </div>

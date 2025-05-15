@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchFillingSystems, FillingSystem } from "@/services/filling-systems";
+import { getFilingSystems } from "@/core/api";
+import { FillingSystem } from "@/core/api";
 import { FormSelect } from "@/components/ui/composed/form-fields";
 import type { Control } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -27,17 +28,20 @@ export function FillingSystemSelect({
   const [retryCount, setRetryCount] = useState(0);
 
   const { 
-    data: fillingSystems = [] as FillingSystem[], 
+    data: response, 
     isLoading, 
     isError,
     error,
     refetch 
   } = useQuery({
     queryKey: ["filling-systems", retryCount],
-    queryFn: fetchFillingSystems,
+    queryFn: getFilingSystems,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2
   });
+
+  // Extract the filling systems from the API response
+  const fillingSystems = (response?.data || []) as FillingSystem[];
 
   // Log errors to console and show toast notification
   useEffect(() => {
@@ -79,18 +83,14 @@ export function FillingSystemSelect({
   }, [selectedValue, onChange, onSelect]);
 
   // Create options array for the FormSelect component (outside conditions)
-  const options = fillingSystems.map(system => {
-    // Get the fuel type from the tank if available
-    const fuelType = system.tank?.fuel_type ? ` (${system.tank.fuel_type})` : "";
-    
-    // Get the current level and capacity if available
-    const level = system.tank?.current_level !== undefined 
-      ? ` - ${Math.round(system.tank.current_level)}L` 
-      : "";
+  const options = fillingSystems.map((system: FillingSystem) => {
+    // Construct a label based on available properties
+    const name = system.name || `System ${system.id.substring(0, 8)}`;
+    const status = system.status ? ` (${system.status})` : '';
     
     return {
       value: system.id,
-      label: `${system.name}${fuelType}${level}`
+      label: `${name}${status}`
     };
   });
 

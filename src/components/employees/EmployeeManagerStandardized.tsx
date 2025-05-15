@@ -4,11 +4,11 @@ import {
   createEmployee,
   updateEmployee,
   deleteEmployee,
-} from "@/services/supabase";
+} from "@/services/employees";
 import { EmployeeList } from "./EmployeeList";
 import { EmployeeHeader } from "./EmployeeHeader";
 import { EmployeeDialogStandardized } from "./EmployeeDialogStandardized";
-import { Employee } from "@/services/supabase";
+import { Employee } from "@/core/api";
 import { useToast } from "@/hooks";
 import { useEmployeeDialog } from "@/hooks/useEmployeeDialog";
 
@@ -36,7 +36,7 @@ export function EmployeeManagerStandardized() {
   // Data fetching
   const { data: employees, isLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: fetchEmployees,
+    queryFn: fetchEmployees as any,
   });
 
   // Mutations

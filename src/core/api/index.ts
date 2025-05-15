@@ -40,6 +40,9 @@ export { employeesApi } from './endpoints/employees';
 export { fuelPricesApi } from './endpoints/fuel-prices';
 export { financialsApi } from './endpoints/financials';
 
+// Export logger service
+export { default as logger, initSentry } from '@/services/logger';
+
 // Export individual endpoint functions for Fuel Supplies
 export { 
   getFuelSupplies,

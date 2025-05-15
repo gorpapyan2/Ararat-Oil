@@ -1,26 +1,27 @@
-import { salesApi } from "@/services/api";
-import { Sale } from "@/types";
+import { salesApi, Sale } from "@/core/api";
 
 export interface CreateSaleRequest {
-  quantity?: number;
-  unit_price: number;
-  meter_start: number;
-  meter_end: number;
   filling_system_id: string;
-  shift_id: string;
+  fuel_type_id: string;
+  quantity: number;
+  price_per_liter: number;
+  total_price: number;
+  payment_method: string;
+  employee_id: string;
+  shift_id?: string;
   comments?: string;
 }
 
 export const createSale = async (data: CreateSaleRequest): Promise<Sale> => {
   try {
-    const { data: sale, error } = await salesApi.create(data);
+    const response = await salesApi.create(data);
 
-    if (error) {
-      console.error("Error creating sale:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error creating sale:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return sale;
+    return response.data!;
   } catch (err: any) {
     console.error("Failed to create sale:", err);
     throw new Error(err.message || "Failed to create sale");

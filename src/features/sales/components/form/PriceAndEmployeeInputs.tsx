@@ -4,16 +4,24 @@ import {
   CustomFormField
 } from "@/components/ui/composed/form-fields";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Employee } from "@/types";
+import type { Employee } from "@/core/api";
 import type { Control, UseFormSetValue } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { fetchEmployees } from "@/services/employees";
-import { useEffect } from "react";
+import { employeesApi } from "@/core/api";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useShift } from "@/hooks/useShift";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import { useFormContext, useWatch } from "react-hook-form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { InfoIcon } from "lucide-react";
 
 interface PriceAndEmployeeInputsProps {
   control: Control<any>;
@@ -27,29 +35,19 @@ export function PriceAndEmployeeInputs({
   const { t } = useTranslation();
   const { activeShift } = useShift();
 
-  // Fetch employees if not provided as props
-  const { data: fetchedEmployees, isLoading, isError } = useQuery({
+  const { data: employees, isLoading: employeesLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: () => fetchEmployees({ status: "active" }),
-    enabled: !propEmployees, // Only fetch if employees are not provided as props
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 1,
+    queryFn: async () => {
+      const response = await employeesApi.getAll({ status: "active" });
+      if (response.error) {
+        toast.error("Failed to fetch employees");
+        return [];
+      }
+      return response.data || [];
+    },
   });
 
   // Use employees from props if provided, otherwise use fetched employees
-  const employees = propEmployees || fetchedEmployees || [];
-
-  // Show notification for offline mode
-  useEffect(() => {
-    if (!navigator.onLine && Array.isArray(employees) && employees.length > 0 && !propEmployees) {
-      toast.warning(t("common.warning"), {
-        description: "Using offline mode with sample employee data",
-        duration: 5000,
-      });
-    }
-  }, [employees, propEmployees, t]);
-
-  // Create employee options for the select dropdown
   const employeeOptions = Array.isArray(employees) 
     ? employees.map(employee => ({
         value: employee.id,

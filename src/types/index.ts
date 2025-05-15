@@ -192,3 +192,42 @@ export interface TankLevelChange {
   change_type: "add" | "subtract";
   created_at?: string;
 }
+
+// Add this to the file, preserving existing exports
+export interface FuelManagementSummary {
+  tanks: {
+    totalVolume: number;
+    availableVolume: number;
+    utilizationRate: number;
+    list: Array<{
+      id: string;
+      name: string;
+      capacity: number;
+      current_level: number;
+      fuel_type?: string;
+      status?: 'active' | 'inactive' | 'maintenance' | string;
+    }>;
+    byType: Record<string, number>;
+  };
+  supplies: {
+    total: number;
+    totalCost: number;
+    list: Array<{
+      id: string;
+      fuel_type: string;
+      quantity: number;
+      cost: number;
+      date: string;
+    }>;
+  };
+  systems: {
+    active: number;
+    total: number;
+  };
+  trends: {
+    dailyConsumption: Array<{
+      date: string;
+      value: number;
+    }>;
+  };
+}

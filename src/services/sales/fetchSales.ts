@@ -1,5 +1,4 @@
-import { salesApi } from "@/services/api";
-import { Sale } from "@/types";
+import { salesApi, Sale } from "@/core/api";
 
 export interface FetchSalesOptions {
   shift_id?: string;
@@ -9,14 +8,14 @@ export interface FetchSalesOptions {
 
 export const fetchSales = async (options?: FetchSalesOptions): Promise<Sale[]> => {
   try {
-    const { data, error } = await salesApi.getAll(options);
+    const response = await salesApi.getAll(options);
 
-    if (error) {
-      console.error("Error fetching sales:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching sales:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err: any) {
     console.error("Failed to fetch sales:", err);
     throw new Error(err.message || "Failed to fetch sales data");
@@ -27,14 +26,14 @@ export const fetchLatestSale = async (
   fillingSystemId: string,
 ): Promise<Sale | null> => {
   try {
-    const { data, error } = await salesApi.getLatest(fillingSystemId);
+    const response = await salesApi.getLatest(fillingSystemId);
 
-    if (error) {
-      console.error(`Error fetching latest sale for filling system ${fillingSystemId}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error fetching latest sale for filling system ${fillingSystemId}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || null;
+    return response.data || null;
   } catch (err: any) {
     console.error(`Failed to fetch latest sale for filling system ${fillingSystemId}:`, err);
     throw new Error(err.message || "Failed to fetch latest sale");

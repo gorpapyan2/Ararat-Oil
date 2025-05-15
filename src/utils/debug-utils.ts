@@ -1,4 +1,4 @@
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/core/api/supabase";
 
 /**
  * Tests the Supabase connection and fetches basic information about the fuel_supplies table

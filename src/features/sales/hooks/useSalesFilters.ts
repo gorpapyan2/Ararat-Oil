@@ -1,9 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchSales } from "@/services/sales";
-import { fetchFillingSystems } from "@/services/filling-systems";
+import { salesApi, fillingSystemsApi, Sale } from "@/core/api";
 import { format } from "date-fns";
-import { Sale } from "@/types";
 
 export function useSalesFilters() {
   const [search, setSearch] = useState("");
@@ -17,47 +15,41 @@ export function useSalesFilters() {
 
   // Query sales data
   const {
-    data: sales = [],
+    data: salesResponse,
     isLoading: salesLoading,
     refetch: refetchSales,
   } = useQuery({
     queryKey: ["sales"],
     queryFn: async () => {
-      return fetchSales();
+      return salesApi.getAll();
     },
   });
 
+  // Extract sales data from response
+  const sales = useMemo(() => {
+    return salesResponse?.data || [];
+  }, [salesResponse]);
+
   // Query filling systems data with proper error handling
-  const { data: systemsData, isLoading: systemsLoading } = useQuery({
+  const { data: systemsResponse, isLoading: systemsLoading } = useQuery({
     queryKey: ["filling-systems"],
     queryFn: async () => {
-      try {
-        const data = await fetchFillingSystems();
-        // Map the data to the expected format and ensure it's an array
-        if (!data || !Array.isArray(data)) return [];
-
-        return data.map((sys) => ({
-          id: sys.id || "",
-          name: sys.name || `System ${sys.id?.slice(0, 4) || "Unknown"}`,
-        }));
-      } catch (error) {
-        console.error("Error fetching filling systems:", error);
-        return [];
-      }
+      return fillingSystemsApi.getAll();
     },
-    // Initialize with empty array to prevent undefined
-    initialData: [],
   });
 
   // Ensure systems is always an array and handle loading state
   const systems = useMemo(() => {
     // Return an empty array explicitly if loading or data is invalid
     if (systemsLoading) return [];
-    if (!systemsData) return [];
+    if (!systemsResponse?.data) return [];
 
-    // Ensure we're working with an array
-    return Array.isArray(systemsData) ? systemsData : [];
-  }, [systemsData, systemsLoading]);
+    // Map the data to the expected format
+    return systemsResponse.data.map((sys: { id: string; name?: string }) => ({
+      id: sys.id || "",
+      name: sys.name || `System ${sys.id?.slice(0, 4) || "Unknown"}`,
+    }));
+  }, [systemsResponse, systemsLoading]);
 
   const filteredSales = useMemo(() => {
     let filtered = sales || [];
@@ -65,15 +57,15 @@ export function useSalesFilters() {
       const lower = search.toLowerCase();
       filtered = Array.isArray(filtered) ? filtered.filter(
         (sale) =>
-          sale?.filling_system_name?.toLowerCase().includes(lower) ||
-          sale?.fuel_type?.toLowerCase().includes(lower) ||
-          sale?.date?.toString().includes(lower)
+          sale?.filling_system_id?.toLowerCase().includes(lower) ||
+          sale?.fuel_type_id?.toLowerCase().includes(lower) ||
+          sale?.created_at?.toString().includes(lower)
       ) : [];
     }
     if (date && Array.isArray(filtered)) {
       const filterDate = format(date, "yyyy-MM-dd");
       filtered = filtered.filter((sale) => {
-        const saleDate = sale?.date?.slice(0, 10);
+        const saleDate = sale?.created_at?.slice(0, 10);
         return saleDate === filterDate;
       });
     }
@@ -90,7 +82,7 @@ export function useSalesFilters() {
     const [priceMin, priceMax] = priceRange;
     if ((priceMin > 0 || priceMax > 0) && Array.isArray(filtered)) {
       filtered = filtered.filter((sale) => {
-        const p = sale?.price_per_unit;
+        const p = sale?.price_per_liter;
         return (
           (priceMin === 0 || p >= priceMin) && (priceMax === 0 || p <= priceMax)
         );
@@ -99,7 +91,7 @@ export function useSalesFilters() {
     const [tsMin, tsMax] = totalSalesRange;
     if ((tsMin > 0 || tsMax > 0) && Array.isArray(filtered)) {
       filtered = filtered.filter((sale) => {
-        const t = sale?.total_sales;
+        const t = sale?.total_price;
         return (tsMin === 0 || t >= tsMin) && (tsMax === 0 || t <= tsMax);
       });
     }

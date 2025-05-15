@@ -1,5 +1,5 @@
-import { expensesApi } from "@/services/api";
-import { Expense, ExpenseCategory } from "@/types";
+import { expensesApi, Expense } from "@/core/api";
+import { ExpenseCategory } from "@/types";
 
 export interface CreateExpenseRequest {
   date: string;
@@ -32,14 +32,14 @@ export async function fetchExpenses(
   }
 ): Promise<Expense[]> {
   try {
-    const { data, error } = await expensesApi.getAll(filters);
+    const response = await expensesApi.getAll(filters);
 
-    if (error) {
-      console.error("Error fetching expenses:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching expenses:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch expenses:", err);
     throw err;
@@ -48,14 +48,14 @@ export async function fetchExpenses(
 
 export async function fetchExpenseById(id: string): Promise<Expense | null> {
   try {
-    const { data, error } = await expensesApi.getById(id);
+    const response = await expensesApi.getById(id);
 
-    if (error) {
-      console.error(`Error fetching expense with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error fetching expense with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || null;
+    return response.data || null;
   } catch (err) {
     console.error(`Failed to fetch expense with ID ${id}:`, err);
     throw err;
@@ -64,14 +64,14 @@ export async function fetchExpenseById(id: string): Promise<Expense | null> {
 
 export async function fetchExpenseCategories(): Promise<string[]> {
   try {
-    const { data, error } = await expensesApi.getCategories();
+    const response = await expensesApi.getCategories();
 
-    if (error) {
-      console.error("Error fetching expense categories:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error fetching expense categories:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data || [];
+    return response.data || [];
   } catch (err) {
     console.error("Failed to fetch expense categories:", err);
     throw err;
@@ -80,14 +80,14 @@ export async function fetchExpenseCategories(): Promise<string[]> {
 
 export async function createExpense(expense: CreateExpenseRequest): Promise<Expense> {
   try {
-    const { data, error } = await expensesApi.create(expense);
+    const response = await expensesApi.create(expense as any);
 
-    if (error) {
-      console.error("Error creating expense:", error);
-      throw new Error(error);
+    if (response.error) {
+      console.error("Error creating expense:", response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error("Failed to create expense:", err);
     throw err;
@@ -96,14 +96,14 @@ export async function createExpense(expense: CreateExpenseRequest): Promise<Expe
 
 export async function updateExpense(id: string, expense: UpdateExpenseRequest): Promise<Expense> {
   try {
-    const { data, error } = await expensesApi.update(id, expense);
+    const response = await expensesApi.update(id, expense as any);
 
-    if (error) {
-      console.error(`Error updating expense with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error updating expense with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
 
-    return data;
+    return response.data!;
   } catch (err) {
     console.error(`Failed to update expense with ID ${id}:`, err);
     throw err;
@@ -112,11 +112,11 @@ export async function updateExpense(id: string, expense: UpdateExpenseRequest): 
 
 export async function deleteExpense(id: string): Promise<void> {
   try {
-    const { error } = await expensesApi.delete(id);
+    const response = await expensesApi.delete(id);
 
-    if (error) {
-      console.error(`Error deleting expense with ID ${id}:`, error);
-      throw new Error(error);
+    if (response.error) {
+      console.error(`Error deleting expense with ID ${id}:`, response.error);
+      throw new Error(response.error.message);
     }
   } catch (err) {
     console.error(`Failed to delete expense with ID ${id}:`, err);

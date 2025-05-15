@@ -7,11 +7,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Shift, ShiftPaymentMethod } from "@/types";
+import { Shift } from "@/types";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { fetchEmployeeByUserId, fetchShiftHistory } from "@/utils/api-helpers";
-import { getShiftPaymentMethods } from "@/services/shiftPaymentMethods";
+import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
 import { Input } from "@/components/ui/input";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -31,7 +31,15 @@ import { ArrowRight, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Local InputWithIcon implementation
-const InputWithIcon = ({ icon, className, ...props }) => {
+const InputWithIcon = ({ 
+  icon, 
+  className, 
+  ...props 
+}: { 
+  icon?: React.ReactNode; 
+  className?: string; 
+  [key: string]: any 
+}) => {
   return (
     <div className="relative">
       {icon && (
@@ -175,8 +183,12 @@ const Shifts = () => {
       const closedShifts = shifts.filter(shift => shift.status === "CLOSED");
       
       for (const shift of closedShifts) {
-        const paymentMethods = await getShiftPaymentMethods(shift.id);
-        shift.payment_methods = paymentMethods;
+        const response = await shiftsApi.getPaymentMethods(shift.id);
+        if (response.error) {
+          console.error(`Error fetching payment methods for shift ${shift.id}:`, response.error);
+        } else {
+          shift.payment_methods = response.data || [];
+        }
       }
       
       // Update state with payment methods information
@@ -372,7 +384,7 @@ const Shifts = () => {
                 <InputWithIcon
                   placeholder={t("common.search")}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="w-full"
                   icon={<Search className="h-4 w-4" />}
                 />

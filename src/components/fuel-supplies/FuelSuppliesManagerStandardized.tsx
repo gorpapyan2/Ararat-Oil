@@ -3,18 +3,14 @@ import { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
 import { ConfirmDeleteDialogStandardized } from "./ConfirmDeleteDialogStandardized";
 import { ConfirmAddDialogStandardized } from "./ConfirmAddDialogStandardized";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import {
-  createFuelSupply,
-  updateFuelSupply,
-  deleteFuelSupply,
-} from "@/services/fuel-supplies";
+import { fuelSuppliesApi } from "@/core/api";
 import { useToast } from "@/hooks";
 import { useDialog } from "@/hooks/useDialog";
 import { FuelSupply } from "@/features/supplies/types";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { tanksApi } from "@/core/api";
-import { FuelSuppliesTable } from "./FuelSuppliesTable";
+import { FuelSuppliesTable } from "@/components/fuel-supplies/FuelSuppliesTable";
 import { FuelSuppliesSummary } from "./summary/FuelSuppliesSummary";
 import { useTranslation } from "react-i18next";
 import { FuelSuppliesFormStandardized } from "./FuelSuppliesFormStandardized";
@@ -90,22 +86,32 @@ export function FuelSuppliesManagerStandardized({
     if ("date" in updates && setDate) setDate(updates.date!);
     if ("provider" in updates && setProvider) setProvider(updates.provider!);
     if ("fuelType" in updates && setType) setType(updates.fuelType! as string);
-    if ("quantityRange" in updates) {
-      setMinQuantity(updates.quantityRange![0] as number);
-      setMaxQuantity(updates.quantityRange![1] as number);
+    if ("quantityRange" in updates && updates.quantityRange) {
+      // Safely handle array properties by checking if they exist and have indices
+      const qtyRange = updates.quantityRange as number[];
+      if (qtyRange.length >= 2) {
+        setMinQuantity(qtyRange[0]);
+        setMaxQuantity(qtyRange[1]);
+      }
     }
-    if ("priceRange" in updates) {
-      setMinPrice(updates.priceRange![0] as number);
-      setMaxPrice(updates.priceRange![1] as number);
+    if ("priceRange" in updates && updates.priceRange) {
+      const priceRange = updates.priceRange as number[];
+      if (priceRange.length >= 2) {
+        setMinPrice(priceRange[0]);
+        setMaxPrice(priceRange[1]);
+      }
     }
-    if ("totalRange" in updates) {
-      setMinTotal(updates.totalRange![0] as number);
-      setMaxTotal(updates.totalRange![1] as number);
+    if ("totalRange" in updates && updates.totalRange) {
+      const totalRange = updates.totalRange as number[];
+      if (totalRange.length >= 2) {
+        setMinTotal(totalRange[0]);
+        setMaxTotal(totalRange[1]);
+      }
     }
   }, [setSearch, setDate, setProvider, setType, setMinQuantity, setMaxQuantity, setMinPrice, setMaxPrice, setMinTotal, setMaxTotal]);
 
   const createMutation = useMutation({
-    mutationFn: createFuelSupply,
+    mutationFn: fuelSuppliesApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
@@ -136,7 +142,7 @@ export function FuelSuppliesManagerStandardized({
     }: {
       id: string;
       updates: Partial<FuelSupply>;
-    }) => updateFuelSupply(id, updates as any),
+    }) => fuelSuppliesApi.update(id, updates as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
@@ -207,7 +213,7 @@ export function FuelSuppliesManagerStandardized({
     if (!deletingSupply) return;
     setDeleteLoading(true);
     try {
-      await deleteFuelSupply(deletingSupply.id);
+      await fuelSuppliesApi.delete(deletingSupply.id);
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       confirmDeleteDialog.close();
