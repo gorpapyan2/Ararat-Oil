@@ -22,7 +22,7 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
 
   const handleSubmit = async (data: any): Promise<boolean> => {
     try {
-      await salesApi.create(data);
+      await salesApi.createSale(data);
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       queryClient.invalidateQueries({ queryKey: ["latest-sale"] });

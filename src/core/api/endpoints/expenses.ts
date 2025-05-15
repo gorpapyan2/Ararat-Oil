@@ -71,13 +71,21 @@ export async function deleteExpense(id: string): Promise<ApiResponse<{ success: 
 }
 
 /**
+ * Fetches expenses count
+ */
+export async function getExpensesCount(): Promise<ApiResponse<{ count: number }>> {
+  return fetchFromFunction<{ count: number }>(`${ENDPOINT}/count`);
+}
+
+/**
  * Expenses API object with all methods
  */
 export const expensesApi = {
-  getAll: getExpenses,
-  getById: getExpenseById,
-  getCategories: getExpenseCategories,
-  create: createExpense,
-  update: updateExpense,
-  delete: deleteExpense
+  getExpenses,
+  getExpenseById,
+  getExpenseCategories,
+  createExpense,
+  updateExpense,
+  deleteExpense,
+  getExpensesCount
 }; 

@@ -62,7 +62,7 @@ export function FuelSuppliesManagerStandardized({
   const { data: tanks } = useQuery({
     queryKey: ["fuel-tanks"],
     queryFn: async () => {
-      const response = await tanksApi.getAll();
+      const response = await tanksApi.getTanks();
       if (response.error) {
         throw new Error(response.error.message);
       }
@@ -111,7 +111,7 @@ export function FuelSuppliesManagerStandardized({
   }, [setSearch, setDate, setProvider, setType, setMinQuantity, setMaxQuantity, setMinPrice, setMaxPrice, setMinTotal, setMaxTotal]);
 
   const createMutation = useMutation({
-    mutationFn: fuelSuppliesApi.create,
+    mutationFn: fuelSuppliesApi.createFuelSupply,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
@@ -142,7 +142,7 @@ export function FuelSuppliesManagerStandardized({
     }: {
       id: string;
       updates: Partial<FuelSupply>;
-    }) => fuelSuppliesApi.update(id, updates as any),
+    }) => fuelSuppliesApi.updateFuelSupply(id, updates as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
@@ -213,7 +213,7 @@ export function FuelSuppliesManagerStandardized({
     if (!deletingSupply) return;
     setDeleteLoading(true);
     try {
-      await fuelSuppliesApi.delete(deletingSupply.id);
+      await fuelSuppliesApi.deleteFuelSupply(deletingSupply.id);
       queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       confirmDeleteDialog.close();
@@ -250,18 +250,18 @@ export function FuelSuppliesManagerStandardized({
 
   return (
     <div className="space-y-6">
-      <FuelSuppliesSummary supplies={summaryFilteredSupplies} />
+      <FuelSuppliesSummary supplies={summaryFilteredSupplies as unknown as FuelSupply[]} />
       
       <FuelSuppliesTable
-        fuelSupplies={filteredSupplies as FuelSupply[]}
+        fuelSupplies={filteredSupplies as unknown as FuelSupply[]}
         isLoading={isLoading}
         onEdit={(supplyId) => {
           const supply = filteredSupplies.find(s => s.id === supplyId);
-          if (supply) handleEdit(supply);
+          if (supply) handleEdit(supply as unknown as FuelSupply);
         }}
         onDelete={(supplyId) => {
           const supply = filteredSupplies.find(s => s.id === supplyId);
-          if (supply) handleDelete(supply);
+          if (supply) handleDelete(supply as unknown as FuelSupply);
         }}
         onFiltersChange={handleFiltersChange}
         totalCount={filteredSupplies.length}

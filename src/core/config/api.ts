@@ -64,6 +64,8 @@ export const API_ENDPOINTS = {
     PROFIT_LOSS: 'profit-loss',
     DASHBOARD: 'dashboard',
     FUEL_PRICES: 'fuel-prices',
+    FINANCIALS: 'financials',
+    EMPLOYEES: 'employees',
   },
   
   // Direct Supabase table endpoints (for reference)

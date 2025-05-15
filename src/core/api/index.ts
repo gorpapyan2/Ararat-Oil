@@ -18,127 +18,55 @@ export type {
   ApiRequestOptions 
 } from './client';
 
-// Export Supabase client
-export { supabase } from './supabase';
-
 // Export API types
 export * from './types';
 
-// Export service APIs
-export { fuelSuppliesApi } from './endpoints/fuel-supplies';
-export { shiftsApi } from './endpoints/shifts';
-export { tanksApi } from './endpoints/tanks';
-export { fuelTypesApi } from './endpoints/fuel-types';
-export { fillingSystemsApi } from './endpoints/filling-systems';
-export { petrolProvidersApi } from './endpoints/petrol-providers';
-export { expensesApi } from './endpoints/expenses';
-export { transactionsApi } from './endpoints/transactions';
-export { dashboardApi } from './endpoints/dashboard';
-export { profitLossApi } from './endpoints/profit-loss';
-export { salesApi } from './endpoints/sales';
-export { employeesApi } from './endpoints/employees';
-export { fuelPricesApi } from './endpoints/fuel-prices';
-export { financialsApi } from './endpoints/financials';
+// Export type adapters
+export * as adapters from './adapters';
+
+// Import and export all endpoints as API services
+import * as tanksApi from './endpoints/tanks';
+import * as shiftsApi from './endpoints/shifts';
+import * as fillingSystemsApi from './endpoints/filling-systems';
+import * as salesApi from './endpoints/sales';
+import * as employeesApi from './endpoints/employees';
+import * as petrolProvidersApi from './endpoints/petrol-providers';
+import * as fuelPricesApi from './endpoints/fuel-prices';
+import * as fuelTypesApi from './endpoints/fuel-types';
+import * as fuelSuppliesApi from './endpoints/fuel-supplies';
+import * as expensesApi from './endpoints/expenses';
+import * as transactionsApi from './endpoints/transactions';
+import * as dashboardApi from './endpoints/dashboard';
+import * as profitLossApi from './endpoints/profit-loss';
+import * as financialsApi from './endpoints/financials';
+
+// Add the new fuel management API
+import * as fuelManagementApi from './services/fuel-management';
+
+// Export Supabase client
+export { supabase } from './supabase';
 
 // Export logger service
 export { default as logger, initSentry } from '@/services/logger';
 
-// Export individual endpoint functions for Fuel Supplies
-export { 
-  getFuelSupplies,
-  getFuelSupplyById,
-  createFuelSupply,
-  updateFuelSupply,
-  deleteFuelSupply
-} from './endpoints/fuel-supplies';
-
-// Export individual endpoint functions for Shifts
+// Export all API services
 export {
-  getShifts,
-  getShiftById,
-  getActiveShift,
-  getActiveShiftForUser,
-  getSystemActiveShift,
-  getShiftSalesTotal,
-  startShift,
-  closeShift,
-  getShiftPaymentMethods,
-  addShiftPaymentMethods,
-  deleteShiftPaymentMethods
-} from './endpoints/shifts';
-
-// Export individual endpoint functions for Tanks
-export {
-  getTanks,
-  getTankById,
-  getTankLevelChanges,
-  createTank,
-  updateTank,
-  deleteTank,
-  adjustTankLevel
-} from './endpoints/tanks';
-
-// Export individual endpoint functions for Fuel Types
-export {
-  getFuelTypes,
-  getActiveFuelTypes,
-  getFuelTypeById,
-  createFuelType,
-  updateFuelType,
-  deleteFuelType
-} from './endpoints/fuel-types';
-
-// Export individual endpoint functions for Filling Systems
-export {
-  getFilingSystems,
-  getFilingSystemById,
-  createFilingSystem,
-  updateFilingSystem,
-  deleteFilingSystem,
-  validateTankIds
-} from './endpoints/filling-systems';
-
-// Export individual endpoint functions for Petrol Providers
-export {
-  getPetrolProviders,
-  getPetrolProviderById,
-  createPetrolProvider,
-  updatePetrolProvider,
-  deletePetrolProvider
-} from './endpoints/petrol-providers';
-
-// Export individual endpoint functions for Expenses
-export {
-  getExpenses,
-  getExpenseById,
-  getExpenseCategories,
-  createExpense,
-  updateExpense,
-  deleteExpense
-} from './endpoints/expenses';
-
-// Export individual endpoint functions for Transactions
-export {
-  getTransactions,
-  getTransactionById,
-  createTransaction,
-  updateTransaction,
-  deleteTransaction
-} from './endpoints/transactions';
-
-// Export individual endpoint functions for Dashboard
-export {
-  getDashboardData,
-  getFuelLevels,
-  getSalesSummary
-} from './endpoints/dashboard';
-
-// Export individual endpoint functions for Profit Loss
-export {
-  calculateProfitLoss,
-  getProfitLossSummary,
-  getProfitLossById
-} from './endpoints/profit-loss';
+  tanksApi,
+  shiftsApi,
+  fillingSystemsApi,
+  salesApi,
+  employeesApi,
+  petrolProvidersApi,
+  fuelPricesApi,
+  fuelTypesApi,
+  fuelManagementApi,
+  fuelSuppliesApi,
+  expensesApi,
+  transactionsApi,
+  dashboardApi,
+  profitLossApi,
+  financialsApi
+};
 
 // Re-export API configurations
 export {
@@ -147,4 +75,7 @@ export {
   API_ERROR_TYPE,
   POLLING_CONFIG,
   getErrorTypeFromStatus
-} from '@/core/config/api'; 
+} from '@/core/config/api';
+
+// Export types from @/types that are used in the API
+export type { FuelManagementSummary } from '@/types'; 

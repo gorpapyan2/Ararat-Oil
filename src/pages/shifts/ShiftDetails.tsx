@@ -136,7 +136,7 @@ export default function ShiftDetails() {
         let paymentMethods: ExtendedShiftPaymentMethod[] = [];
         if (typedShiftData.status === "CLOSED" && id) {
           // Correctly handle the API response
-          const paymentMethodsResponse = await shiftsApi.getPaymentMethods(id);
+          const paymentMethodsResponse = await shiftsApi.getShiftPaymentMethods(id);
           if (paymentMethodsResponse.data) {
             // Cast the response data to our extended type to handle reference field
             paymentMethods = paymentMethodsResponse.data as unknown as ExtendedShiftPaymentMethod[];

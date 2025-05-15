@@ -67,12 +67,12 @@ export function useShift() {
       
       // Check for ANY active shift in the system
       try {
-        const response = await shiftsApi.getSystemActive();
+        const response = await shiftsApi.getSystemActiveShift();
         if (response.error) {
           throw new Error(response.error.message);
         }
         
-        const systemActiveShift = response.data?.[0] || null;
+        const systemActiveShift = response.data || null;
         if (systemActiveShift) {
           console.log("Found an active shift in the system:", systemActiveShift);
           
@@ -102,7 +102,7 @@ export function useShift() {
       while (retryCount < maxRetries) {
         try {
           // Use the API to get user's active shift
-          const response = await shiftsApi.getActiveForUser(userId || user?.id || '');
+          const response = await shiftsApi.getActiveShiftForUser(userId || user?.id || '');
           if (response.error) {
             throw new Error(response.error.message);
           }
@@ -170,7 +170,7 @@ export function useShift() {
 
   const fetchShiftPaymentMethods = async (shiftId: string) => {
     try {
-      const response = await shiftsApi.getPaymentMethods(shiftId);
+      const response = await shiftsApi.getShiftPaymentMethods(shiftId);
       if (response.error) {
         throw new Error(response.error.message);
       }
@@ -183,7 +183,7 @@ export function useShift() {
   const updateShiftSalesTotal = async (shiftId: string) => {
     try {
       // Get sum of total_sales for this shift using API
-      const response = await shiftsApi.getSalesTotal(shiftId);
+      const response = await shiftsApi.getShiftSalesTotal(shiftId);
       if (response.error) {
         throw new Error(response.error.message);
       }
@@ -229,12 +229,12 @@ export function useShift() {
         // For online mode, check with the server 
         try {
           // Query for ANY active shift in the system using the API
-          const response = await shiftsApi.getSystemActive();
+          const response = await shiftsApi.getSystemActiveShift();
           if (response.error) {
             throw new Error(response.error.message);
           }
           
-          const systemActiveShift = response.data?.[0] || null;
+          const systemActiveShift = response.data || null;
           
           if (systemActiveShift) {
             // There's an active shift already
@@ -256,7 +256,7 @@ export function useShift() {
       }
       
       // Start new shift
-      const response = await shiftsApi.start(openingCash, employeeIds);
+      const response = await shiftsApi.startShift(openingCash, employeeIds);
       if (response.error) {
         throw new Error(response.error.message);
       }
@@ -300,7 +300,7 @@ export function useShift() {
       }
   
       // Close the shift
-      const response = await shiftsApi.close(activeShift.id, closingCash, paymentMethods);
+      const response = await shiftsApi.closeShift(activeShift.id, closingCash, paymentMethods);
       if (response.error) {
         throw new Error(response.error.message);
       }

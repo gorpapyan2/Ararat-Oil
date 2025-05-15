@@ -20,14 +20,14 @@ export async function getFilingSystems(): Promise<ApiResponse<FillingSystem[]>> 
 /**
  * Fetches a filling system by ID
  */
-export async function getFilingSystemById(id: string): Promise<ApiResponse<FillingSystem>> {
+export async function getFillingSystemById(id: string): Promise<ApiResponse<FillingSystem>> {
   return fetchFromFunction<FillingSystem>(`${ENDPOINT}/${id}`);
 }
 
 /**
  * Creates a new filling system
  */
-export async function createFilingSystem(data: FillingSystemCreate): Promise<ApiResponse<FillingSystem>> {
+export async function createFillingSystem(data: FillingSystemCreate): Promise<ApiResponse<FillingSystem>> {
   return fetchFromFunction<FillingSystem>(ENDPOINT, {
     method: 'POST',
     body: data
@@ -37,7 +37,7 @@ export async function createFilingSystem(data: FillingSystemCreate): Promise<Api
 /**
  * Updates a filling system by ID
  */
-export async function updateFilingSystem(
+export async function updateFillingSystem(
   id: string, 
   data: FillingSystemUpdate
 ): Promise<ApiResponse<FillingSystem>> {
@@ -50,7 +50,7 @@ export async function updateFilingSystem(
 /**
  * Deletes a filling system by ID
  */
-export async function deleteFilingSystem(id: string): Promise<ApiResponse<{ success: boolean }>> {
+export async function deleteFillingSystem(id: string): Promise<ApiResponse<{ success: boolean }>> {
   return fetchFromFunction<{ success: boolean }>(`${ENDPOINT}/${id}`, {
     method: 'DELETE'
   });
@@ -69,10 +69,10 @@ export async function validateTankIds(tankIds: string[]): Promise<ApiResponse<{ 
  * Filling systems API object with all methods
  */
 export const fillingSystemsApi = {
-  getAll: getFilingSystems,
-  getById: getFilingSystemById,
-  create: createFilingSystem,
-  update: updateFilingSystem,
-  delete: deleteFilingSystem,
-  validateTankIds: validateTankIds
+  getFilingSystems,
+  getFillingSystemById,
+  createFillingSystem,
+  updateFillingSystem,
+  deleteFillingSystem,
+  validateTankIds
 }; 

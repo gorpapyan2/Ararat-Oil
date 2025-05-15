@@ -57,7 +57,7 @@ export async function getProfitLossById(id: string): Promise<ApiResponse<ProfitL
  * Profit Loss API object with all methods
  */
 export const profitLossApi = {
-  calculate: calculateProfitLoss,
-  getSummary: getProfitLossSummary,
-  getById: getProfitLossById
+  calculateProfitLoss,
+  getProfitLossSummary,
+  getProfitLossById
 }; 

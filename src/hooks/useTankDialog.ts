@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
-import { createTank } from "@/core/api";
+import { tanksApi } from "@/core/api";
 import { z } from "zod";
 
 // Define the schema for the tank form
@@ -76,7 +76,7 @@ export function useTankDialog({ onSuccess }: UseTankDialogOptions = {}) {
     setIsSubmitting(true);
     
     try {
-      await createTank(pendingTankData as any);
+      await tanksApi.createTank(pendingTankData as any);
       
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       

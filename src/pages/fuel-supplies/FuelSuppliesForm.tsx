@@ -9,26 +9,14 @@ import { FormProvider } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks";
 import { useNavigate } from "react-router-dom";
+import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage } from "@/i18n/i18n";
 
 // Services
-import { petrolProvidersApi, Tank, tanksApi, employeesApi } from "@/core/api";
+import { petrolProvidersApi, Tank, tanksApi, employeesApi, Employee, ApiResponse } from "@/core/api";
 import { FuelSupply, FuelType, FuelTypeCode } from "@/types";
 
 // UI Components
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
 import { 
   Dialog, 
   DialogContent, 
@@ -114,7 +102,7 @@ export function FuelSuppliesForm({
     error: providersError
   } = useQuery({
     queryKey: ["petrol-providers"],
-    queryFn: () => petrolProvidersApi.getAll(),
+    queryFn: petrolProvidersApi.getPetrolProviders,
   });
 
   const { 
@@ -123,16 +111,18 @@ export function FuelSuppliesForm({
     error: tanksError
   } = useQuery({
     queryKey: ["fuel-tanks"],
-    queryFn: tanksApi.getAll,
+    queryFn: tanksApi.getTanks,
   });
 
   const { 
     data: employees,
     isLoading: isLoadingEmployees,
     error: employeesError
-  } = useQuery({
+  } = useQuery<ApiResponse<Employee[]>, Error>({
     queryKey: ["employees"],
-    queryFn: () => employeesApi.getAll({ status: "active" }),
+    queryFn: async () => {
+      return await employeesApi.getEmployees();
+    }
   });
 
   // Use formatted today's date as the default
@@ -248,10 +238,12 @@ export function FuelSuppliesForm({
 
   // Employee options for select - ALWAYS call this hook
   const employeeOptions = useMemo(() => {
-    return employees?.data?.map(employee => ({
+    if (!employees || !employees.data) return [];
+    
+    return employees.data.map((employee: Employee) => ({
       value: employee.id,
       label: employee.name,
-    })) || [];
+    }));
   }, [employees]);
 
   // Custom render function for tank options
@@ -332,7 +324,7 @@ export function FuelSuppliesForm({
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {error instanceof Error ? error.message : "Failed to load form data"}
+            {error instanceof Error ? error.message : getApiErrorMessage(apiNamespaces.fuelSupplies, 'fetch')}
           </AlertDescription>
         </Alert>
       );
@@ -352,7 +344,7 @@ export function FuelSuppliesForm({
                   size="sm"
                   onClick={async () => {
                     try {
-                      await petrolProvidersApi.create({
+                      await petrolProvidersApi.createPetrolProvider({
                         name: "Sample Provider",
                         contact_person: "Sample Contact",
                         email: "sample@example.com",
@@ -363,14 +355,14 @@ export function FuelSuppliesForm({
                       await queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
                       toast({
                         title: t("common.success"),
-                        description: t("fuelSupplies.sampleProviderCreated", "Sample provider created successfully"),
+                        description: getApiSuccessMessage(apiNamespaces.petrolProviders, 'create', 'sample provider'),
                       });
                     } catch (error) {
                       toast({
                         title: t("common.error"),
                         description: error instanceof Error 
                           ? error.message 
-                          : t("fuelSupplies.providerCreateError", "Failed to create sample provider"),
+                          : getApiErrorMessage(apiNamespaces.petrolProviders, 'create'),
                         variant: "destructive",
                       });
                     }

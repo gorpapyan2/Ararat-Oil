@@ -67,10 +67,10 @@ export async function deleteFuelType(id: string): Promise<ApiResponse<{ success:
  * Fuel types API object with all methods
  */
 export const fuelTypesApi = {
-  getAll: getFuelTypes,
-  getActive: getActiveFuelTypes,
-  getById: getFuelTypeById,
-  create: createFuelType,
-  update: updateFuelType,
-  delete: deleteFuelType
+  getFuelTypes,
+  getActiveFuelTypes,
+  getFuelTypeById,
+  createFuelType,
+  updateFuelType,
+  deleteFuelType
 }; 

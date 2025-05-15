@@ -1,27 +1,16 @@
 import {
   FormCurrencyInput,
   FormSelect,
-  CustomFormField
 } from "@/components/ui/composed/form-fields";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Employee } from "@/core/api";
-import type { Control, UseFormSetValue } from "react-hook-form";
+import type { Control } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { employeesApi } from "@/core/api";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useShift } from "@/hooks/useShift";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
-import { useFormContext, useWatch } from "react-hook-form";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { InfoIcon } from "lucide-react";
 
 interface PriceAndEmployeeInputsProps {
   control: Control<any>;
@@ -38,7 +27,7 @@ export function PriceAndEmployeeInputs({
   const { data: employees, isLoading: employeesLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
-      const response = await employeesApi.getAll({ status: "active" });
+      const response = await employeesApi.getEmployees({ status: "active" });
       if (response.error) {
         toast.error("Failed to fetch employees");
         return [];

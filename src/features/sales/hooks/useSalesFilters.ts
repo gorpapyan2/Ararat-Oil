@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { salesApi, fillingSystemsApi, Sale } from "@/core/api";
+import { salesApi, fillingSystemsApi, Sale, FillingSystem, ApiResponse } from "@/core/api";
 import { format } from "date-fns";
 
 export function useSalesFilters() {
@@ -18,10 +18,10 @@ export function useSalesFilters() {
     data: salesResponse,
     isLoading: salesLoading,
     refetch: refetchSales,
-  } = useQuery({
+  } = useQuery<ApiResponse<Sale[]>, Error>({
     queryKey: ["sales"],
     queryFn: async () => {
-      return salesApi.getAll();
+      return salesApi.getSales();
     },
   });
 
@@ -31,10 +31,10 @@ export function useSalesFilters() {
   }, [salesResponse]);
 
   // Query filling systems data with proper error handling
-  const { data: systemsResponse, isLoading: systemsLoading } = useQuery({
+  const { data: systemsResponse, isLoading: systemsLoading } = useQuery<ApiResponse<FillingSystem[]>, Error>({
     queryKey: ["filling-systems"],
     queryFn: async () => {
-      return fillingSystemsApi.getAll();
+      return fillingSystemsApi.getFillingSystems();
     },
   });
 
@@ -45,7 +45,7 @@ export function useSalesFilters() {
     if (!systemsResponse?.data) return [];
 
     // Map the data to the expected format
-    return systemsResponse.data.map((sys: { id: string; name?: string }) => ({
+    return systemsResponse.data.map((sys: FillingSystem) => ({
       id: sys.id || "",
       name: sys.name || `System ${sys.id?.slice(0, 4) || "Unknown"}`,
     }));

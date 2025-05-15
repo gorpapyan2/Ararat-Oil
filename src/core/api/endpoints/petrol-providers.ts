@@ -60,9 +60,9 @@ export async function deletePetrolProvider(id: string): Promise<ApiResponse<{ su
  * Petrol providers API object with all methods
  */
 export const petrolProvidersApi = {
-  getAll: getPetrolProviders,
-  getById: getPetrolProviderById,
-  create: createPetrolProvider,
-  update: updatePetrolProvider,
-  delete: deletePetrolProvider
+  getPetrolProviders,
+  getPetrolProviderById,
+  createPetrolProvider,
+  updatePetrolProvider,
+  deletePetrolProvider
 }; 

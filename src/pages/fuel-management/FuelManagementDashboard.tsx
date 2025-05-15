@@ -6,8 +6,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { IconGasStation, IconTank, IconTruck, IconArrowRight, IconFilter, IconRefresh, IconDroplet, IconFileText, IconAlertCircle } from "@tabler/icons-react";
-import { FuelType, fuelTypesApi } from '@/core/api';
-import type { FuelManagementSummary } from '@/types';
+import { Tank as TankType, fuelManagementApi } from '@/core/api';
 import { formatCurrency, formatNumber } from '@/utils/format';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,6 +20,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+// Define a custom type for the fuel type selection
+type FuelTypeSelection = 'all' | string;
+
 // Lazy load chart components
 const ConsumptionChart = lazy(() => import('./components/ConsumptionChart'));
 
@@ -29,34 +31,39 @@ export default function FuelManagementDashboard() {
   const navigate = useNavigate();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedTank, setSelectedTank] = useState<string>('all');
-  const [selectedFuelType, setSelectedFuelType] = useState<FuelType | 'all'>('all');
+  const [selectedFuelType, setSelectedFuelType] = useState<FuelTypeSelection>('all');
 
   const { data: summary, isLoading, error } = useQuery({
     queryKey: ['fuel-management', dateRange, selectedTank, selectedFuelType],
     queryFn: async () => {
-      // For now, let's use a mock implementation that matches the component's expectations
-      // In a real implementation, you would call the appropriate API endpoint
-      return {
-        tanks: {
-          totalVolume: 15000,
-          availableVolume: 8500,
-          utilizationRate: 56,
-          list: [],
-          byType: {}
-        },
-        supplies: {
-          total: 0,
-          totalCost: 0,
-          list: []
-        },
-        systems: {
-          active: 0,
-          total: 0
-        },
-        trends: {
-          dailyConsumption: []
-        }
-      };
+      // Call the fuel management API service to get the dashboard summary
+      const filters: any = {};
+      
+      // Only add date range if both from and to are defined
+      if (dateRange?.from && dateRange?.to) {
+        filters.dateRange = {
+          from: dateRange.from,
+          to: dateRange.to
+        };
+      }
+      
+      // Add tank ID if selected
+      if (selectedTank !== 'all') {
+        filters.tankId = selectedTank;
+      }
+      
+      // Add fuel type if selected
+      if (selectedFuelType !== 'all') {
+        filters.fuelType = selectedFuelType;
+      }
+      
+      const response = await fuelManagementApi.getFuelManagementSummary(filters);
+      
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      
+      return response.data;
     }
   });
 
@@ -312,9 +319,9 @@ export default function FuelManagementDashboard() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t('common.all')}</SelectItem>
-                      {summary.tanks.list.map(tank => (
+                      {summary.tanks.list.map((tank) => (
                         <SelectItem key={tank.id} value={tank.id}>
-                          {tank.name} ({tank.fuel_type})
+                          {tank.name} ({tank.fuel_type_id})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -324,15 +331,15 @@ export default function FuelManagementDashboard() {
                   <label className="text-sm font-medium">{t('fuelManagement.selectFuelType')}</label>
                   <Select
                     value={selectedFuelType}
-                    onValueChange={value => setSelectedFuelType(value as FuelType | 'all')}
+                    onValueChange={value => setSelectedFuelType(value as FuelTypeSelection)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={t('fuelManagement.selectFuelType')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t('common.all')}</SelectItem>
-                      {Object.entries(summary.tanks.byType).map(([type, count]) => (
-                        <SelectItem key={type} value={type}>
+                      {Object.entries(summary.tanks.byType).map(([type, count]: [string, number]) => (
+                        <SelectItem key={type} value={type as string}>
                           {type} ({count})
                         </SelectItem>
                       ))}
@@ -357,7 +364,13 @@ export default function FuelManagementDashboard() {
                 <TabsContent value="supplies">
                   <ScrollArea className="h-[300px]">
                     <div className="space-y-4">
-                      {(summary.supplies.list || []).map((supply) => (
+                      {(summary.supplies.list || []).map((supply: {
+                        id: string;
+                        fuel_type: string;
+                        quantity: number;
+                        cost: number;
+                        date: string;
+                      }) => (
                         <div key={supply.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                           <div>
                             <div className="font-medium">{supply.fuel_type}</div>
@@ -379,7 +392,13 @@ export default function FuelManagementDashboard() {
                 <TabsContent value="levels">
                   <ScrollArea className="h-[300px]">
                     <div className="space-y-4">
-                      {summary.tanks.list.map((tank) => (
+                      {summary.tanks.list.map((tank: {
+                        id: string;
+                        name: string;
+                        status?: string;
+                        capacity: number;
+                        current_level: number;
+                      }) => (
                         <div key={tank.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                           <div className="flex items-center justify-between mb-2">
                             <div className="font-medium">{tank.name}</div>

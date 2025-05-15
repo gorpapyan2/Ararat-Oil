@@ -183,7 +183,7 @@ const Shifts = () => {
       const closedShifts = shifts.filter(shift => shift.status === "CLOSED");
       
       for (const shift of closedShifts) {
-        const response = await shiftsApi.getPaymentMethods(shift.id);
+        const response = await shiftsApi.getShiftPaymentMethods(shift.id);
         if (response.error) {
           console.error(`Error fetching payment methods for shift ${shift.id}:`, response.error);
         } else {

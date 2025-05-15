@@ -6,6 +6,9 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import hyTranslation from "./locales/hy/translation.json";
 import enTranslation from "./locales/en/translation.json";
 
+// Export API translation helpers
+export * from "./api-translations";
+
 i18n
   // detect user language
   .use(LanguageDetector)

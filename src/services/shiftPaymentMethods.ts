@@ -37,7 +37,7 @@ export async function addShiftPaymentMethods(
       };
     });
 
-    const response = await shiftsApi.addPaymentMethods(shiftId, validatedPayments as any);
+    const response = await shiftsApi.addShiftPaymentMethods(shiftId, validatedPayments as any);
 
     if (response.error) {
       console.error("Error adding shift payment methods:", response.error);
@@ -53,7 +53,7 @@ export async function addShiftPaymentMethods(
 
 export async function getShiftPaymentMethods(shiftId: string): Promise<ShiftPaymentMethod[]> {
   try {
-    const response = await shiftsApi.getPaymentMethods(shiftId);
+    const response = await shiftsApi.getShiftPaymentMethods(shiftId);
 
     if (response.error) {
       console.error("Error fetching shift payment methods:", response.error);
@@ -74,7 +74,7 @@ export async function deleteShiftPaymentMethods(shiftId: string): Promise<void> 
       throw new Error("Invalid shift ID provided for deletion");
     }
     
-    const response = await shiftsApi.deletePaymentMethods(shiftId);
+    const response = await shiftsApi.deleteShiftPaymentMethods(shiftId);
 
     if (response.error) {
       console.error("Error deleting shift payment methods:", response.error);

@@ -10,7 +10,7 @@ export const fetchTransactions = async (
   }
 ): Promise<Transaction[]> => {
   try {
-    const response = await transactionsApi.getAll(filters);
+    const response = await transactionsApi.getTransactions(filters);
 
     if (response.error) {
       console.error("Error fetching transactions:", response.error);
@@ -26,7 +26,7 @@ export const fetchTransactions = async (
 
 export const fetchTransactionById = async (id: string): Promise<Transaction | null> => {
   try {
-    const response = await transactionsApi.getById(id);
+    const response = await transactionsApi.getTransactionById(id);
 
     if (response.error) {
       console.error(`Error fetching transaction with ID ${id}:`, response.error);
@@ -60,7 +60,7 @@ export const createTransaction = async (
       payment_method: paymentMethod
     };
 
-    const response = await transactionsApi.create(transactionData);
+    const response = await transactionsApi.createTransaction(transactionData);
 
     if (response.error) {
       console.error("Error creating transaction:", response.error);
@@ -92,7 +92,7 @@ export const updateTransaction = async (
       }
     }
 
-    const response = await transactionsApi.update(id, updates);
+    const response = await transactionsApi.updateTransaction(id, updates);
 
     if (response.error) {
       console.error(`Error updating transaction with ID ${id}:`, response.error);
@@ -108,7 +108,7 @@ export const updateTransaction = async (
 
 export const deleteTransaction = async (id: string): Promise<void> => {
   try {
-    const response = await transactionsApi.delete(id);
+    const response = await transactionsApi.deleteTransaction(id);
 
     if (response.error) {
       console.error(`Error deleting transaction with ID ${id}:`, response.error);

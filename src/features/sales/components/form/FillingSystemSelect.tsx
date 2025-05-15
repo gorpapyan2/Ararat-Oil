@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getFilingSystems } from "@/core/api";
+import { fillingSystemsApi } from "@/core/api";
 import { FillingSystem } from "@/core/api";
 import { FormSelect } from "@/components/ui/composed/form-fields";
 import type { Control } from "react-hook-form";
@@ -35,7 +35,7 @@ export function FillingSystemSelect({
     refetch 
   } = useQuery({
     queryKey: ["filling-systems", retryCount],
-    queryFn: getFilingSystems,
+    queryFn: fillingSystemsApi.getFilingSystems,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2
   });

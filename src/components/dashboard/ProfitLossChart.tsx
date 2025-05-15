@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { getProfitLossSummary } from "@/core/api";
+import { profitLossApi, adapters } from "@/core/api";
 import {
   Area,
   AreaChart,
@@ -16,8 +16,15 @@ export function ProfitLossChart() {
   const { data: profitLossData, isLoading } = useQuery({
     queryKey: ["profit-loss"],
     queryFn: async () => {
-      const response = await getProfitLossSummary("month");
-      return response.data || [];
+      const response = await profitLossApi.getProfitLossSummary("month");
+      
+      // Convert to array if it's not already an array
+      const dataArray = Array.isArray(response.data) 
+        ? response.data 
+        : response.data ? [response.data] : [];
+        
+      // Use the adapter to convert the API response to the expected type
+      return adapters.adaptApiProfitLossToSummaryArray(dataArray);
     },
   });
 

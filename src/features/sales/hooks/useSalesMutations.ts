@@ -28,7 +28,7 @@ export function useSalesMutations() {
 
   // Define mutations
   const deleteMutation = useMutation({
-    mutationFn: salesApi.delete,
+    mutationFn: salesApi.deleteSale,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
@@ -51,7 +51,7 @@ export function useSalesMutations() {
   });
   const updateMutation = useMutation({
     mutationFn: (params: { id: string; updates: UpdateSaleRequest }) => 
-      salesApi.update(params.id, params.updates),
+      salesApi.updateSale(params.id, params.updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });

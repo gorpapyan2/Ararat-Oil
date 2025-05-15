@@ -86,11 +86,11 @@ export async function adjustTankLevel(
  * Tanks API object with all methods
  */
 export const tanksApi = {
-  getAll: getTanks,
-  getById: getTankById,
-  getLevelChanges: getTankLevelChanges,
-  create: createTank,
-  update: updateTank,
-  delete: deleteTank,
-  adjustLevel: adjustTankLevel
+  getTanks,
+  getTankById,
+  getTankLevelChanges,
+  createTank,
+  updateTank,
+  deleteTank,
+  adjustTankLevel
 }; 

@@ -4,8 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 interface ConsumptionChartProps {
   data: Array<{
     date: string;
-    quantity: number;
-    cost: number;
+    value: number;
   }>;
 }
 
@@ -17,8 +16,7 @@ export default function ConsumptionChart({ data }: ConsumptionChartProps) {
         <XAxis dataKey="date" />
         <YAxis />
         <Tooltip />
-        <Line type="monotone" dataKey="quantity" stroke="#8884d8" />
-        <Line type="monotone" dataKey="cost" stroke="#82ca9d" />
+        <Line type="monotone" dataKey="value" stroke="#8884d8" />
       </LineChart>
     </ResponsiveContainer>
   );

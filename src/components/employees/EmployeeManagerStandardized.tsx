@@ -1,16 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchEmployees,
-  createEmployee,
-  updateEmployee,
-  deleteEmployee,
-} from "@/services/employees";
+import { employeesApi, adapters, Employee as ApiEmployee } from "@/core/api";
 import { EmployeeList } from "./EmployeeList";
 import { EmployeeHeader } from "./EmployeeHeader";
 import { EmployeeDialogStandardized } from "./EmployeeDialogStandardized";
-import { Employee } from "@/core/api";
 import { useToast } from "@/hooks";
 import { useEmployeeDialog } from "@/hooks/useEmployeeDialog";
+import { Employee } from "@/types";
 
 export function EmployeeManagerStandardized() {
   // Hooks
@@ -33,15 +28,19 @@ export function EmployeeManagerStandardized() {
     },
   });
 
-  // Data fetching
+  // Data fetching with type adapter
   const { data: employees, isLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: fetchEmployees as any,
+    queryFn: async () => {
+      const response = await employeesApi.getEmployees();
+      // Use adapter to convert API response to application type
+      return adapters.adaptApiEmployeesToAppEmployees(response.data || []);
+    },
   });
 
-  // Mutations
+  // Mutations with type adapter
   const deleteMutation = useMutation({
-    mutationFn: deleteEmployee,
+    mutationFn: (id: string) => employeesApi.deleteEmployee(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       toast({

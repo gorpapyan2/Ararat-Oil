@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
+import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
 
 // New type for the fuel type management
 type FuelTypeDetails = FuelTypeModel;
@@ -81,13 +82,13 @@ export default function FuelPricesPage() {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await fuelPricesApi.getAll();
+        const response = await fuelPricesApi.getFuelPrices();
         setFuelPrices(response.data || []);
         setEditPrices(response.data || []);
         setIsLoading(false);
       } catch (err) {
         console.error("Failed to load fuel prices:", err);
-        setError(t("errors.loadFuelPricesFailed") || "Failed to load fuel prices. Please try again.");
+        setError(getApiErrorMessage(apiNamespaces.fuelPrices, 'fetch'));
         setIsLoading(false);
       }
     };
@@ -101,12 +102,12 @@ export default function FuelPricesPage() {
       try {
         setIsTypesLoading(true);
         setError(null);
-        const response = await fuelTypesApi.getAll();
+        const response = await fuelTypesApi.getFuelTypes();
         setFuelTypes(response.data || []);
         setIsTypesLoading(false);
       } catch (err) {
         console.error("Failed to load fuel types:", err);
-        setError(t("errors.loadFuelTypesFailed") || "Failed to load fuel types. Please try again.");
+        setError(getApiErrorMessage(apiNamespaces.fuelPrices, 'fetch', 'fuel types'));
         setIsTypesLoading(false);
       }
     };
@@ -121,13 +122,13 @@ export default function FuelPricesPage() {
     setHistoryLoading(true);
     try {
       const params = fuelType ? { fuel_type: fuelType } : undefined;
-      const response = await fuelPricesApi.getAll(params as any);
+      const response = await fuelPricesApi.getFuelPrices(params);
       setPriceHistory(response.data || []);
     } catch (err) {
       console.error("Failed to load price history:", err);
       toast({
-        title: t("errors.loadPriceHistoryFailed") || "Failed to load price history",
-        description: err instanceof Error ? err.message : "An unknown error occurred",
+        title: t("common.error"),
+        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'fetch', 'price history'),
         type: "error",
       });
     } finally {
@@ -171,9 +172,9 @@ export default function FuelPricesPage() {
       // Update prices
       await Promise.all(editPrices.map(async (price) => {
         if (price.id) {
-          return fuelPricesApi.update(price.id, { price_per_liter: price.price_per_liter });
+          return fuelPricesApi.updateFuelPrice(price.id, { price_per_liter: price.price_per_liter });
         } else {
-          return fuelPricesApi.create({
+          return fuelPricesApi.createFuelPrice({
             fuel_type: price.fuel_type as FuelTypeCode,
             price_per_liter: price.price_per_liter,
             effective_date: new Date().toISOString(),
@@ -182,7 +183,7 @@ export default function FuelPricesPage() {
       }));
       
       // Refresh prices
-      const refreshedPrices = await fuelPricesApi.getAll();
+      const refreshedPrices = await fuelPricesApi.getFuelPrices();
       setFuelPrices(refreshedPrices.data || []);
       setEditing(false);
       setSubmitting(false);
@@ -193,12 +194,12 @@ export default function FuelPricesPage() {
       }
       
       toast({
-        title: t("success.fuelPricesUpdated"),
-        description: t("success.fuelPricesUpdatedDescription"),
+        title: t("common.success"),
+        description: getApiSuccessMessage(apiNamespaces.fuelPrices, 'update', 'prices'),
       });
     } catch (err) {
       console.error("Failed to update fuel prices:", err);
-      setError(err instanceof Error ? err.message : t("errors.updateFuelPricesFailed") || "Failed to update fuel prices. Please try again.");
+      setError(getApiErrorMessage(apiNamespaces.fuelPrices, 'update', 'prices'));
       setSubmitting(false);
     }
   };
@@ -207,8 +208,8 @@ export default function FuelPricesPage() {
   const handleAddFuelType = async () => {
     if (!newFuelType.name) {
       toast({
-        title: t("errors.invalidFuelType"),
-        description: t("errors.fuelTypeRequiredFields"),
+        title: t("common.error"),
+        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'create', 'fuel type'),
         type: "error"
       });
       return;
@@ -216,7 +217,7 @@ export default function FuelPricesPage() {
 
     try {
       setSubmitting(true);
-      const response = await fuelTypesApi.create({
+      const response = await fuelTypesApi.createFuelType({
         name: newFuelType.name,
         color: "#000000", // Default color
         price_per_liter: 0,
@@ -229,16 +230,16 @@ export default function FuelPricesPage() {
         setNewFuelType({ name: "" });
         
         toast({
-          title: t("success.fuelTypeAdded"),
-          description: t("success.fuelTypeAddedDescription"),
+          title: t("common.success"),
+          description: getApiSuccessMessage(apiNamespaces.fuelPrices, 'create', 'fuel type'),
           type: "success"
         });
       }
     } catch (err) {
       console.error("Failed to create fuel type:", err);
       toast({
-        title: t("errors.invalidFuelType"),
-        description: err instanceof Error ? err.message : t("errors.createFuelTypeFailed"),
+        title: t("common.error"),
+        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'create', 'fuel type'),
         type: "error"
       });
     } finally {
@@ -252,7 +253,7 @@ export default function FuelPricesPage() {
 
     try {
       setSubmitting(true);
-      const response = await fuelTypesApi.update(editingFuelType.id, {
+      const response = await fuelTypesApi.updateFuelType(editingFuelType.id, {
         name: editingFuelType.name,
         status: editingFuelType.status as 'active' | 'inactive'
       });
@@ -265,16 +266,16 @@ export default function FuelPricesPage() {
         setEditingFuelType(null);
         
         toast({
-          title: t("success.fuelTypeUpdated"),
-          description: t("success.fuelTypeUpdatedDescription"),
+          title: t("common.success"),
+          description: getApiSuccessMessage(apiNamespaces.fuelPrices, 'update', 'fuel type'),
           type: "success"
         });
       }
     } catch (err) {
       console.error("Failed to update fuel type:", err);
       toast({
-        title: t("errors.updateFuelTypeFailed"),
-        description: err instanceof Error ? err.message : t("errors.genericError"),
+        title: t("common.error"),
+        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'update', 'fuel type'),
         type: "error"
       });
     } finally {
@@ -285,19 +286,19 @@ export default function FuelPricesPage() {
   // Handle delete fuel type
   const handleDeleteFuelType = async (id: string) => {
     try {
-      await fuelTypesApi.delete(id);
+      await fuelTypesApi.deleteFuelType(id);
       setFuelTypes(fuelTypes.filter(ft => ft.id !== id));
       
       toast({
-        title: t("success.fuelTypeDeleted"),
-        description: t("success.fuelTypeDeletedDescription"),
+        title: t("common.success"),
+        description: getApiSuccessMessage(apiNamespaces.fuelPrices, 'delete', 'fuel type'),
         type: "success"
       });
     } catch (err) {
       console.error("Failed to delete fuel type:", err);
       toast({
-        title: t("errors.deleteFuelTypeFailed"),
-        description: err instanceof Error ? err.message : t("errors.genericError"),
+        title: t("common.error"),
+        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'delete', 'fuel type'),
         type: "error"
       });
     }
@@ -317,7 +318,7 @@ export default function FuelPricesPage() {
     <StandardDialog
       open={isAddDialogOpen}
       onOpenChange={setIsAddDialogOpen}
-      title={t("fuelPrices.addFuelType") || "Add Fuel Type"}
+      title={t("fuelPrices.addFuelType") || getApiActionLabel(apiNamespaces.fuelPrices, 'create', 'fuel type')}
       description={t("fuelPrices.addFuelTypeDescription") || "Create a new fuel type for your station"}
       actions={
         <Button type="submit" onClick={handleAddFuelType}>
@@ -348,7 +349,7 @@ export default function FuelPricesPage() {
         setIsEditDialogOpen(open);
         if (!open) setEditingFuelType(null);
       }}
-      title={t("fuelPrices.editFuelType") || "Edit Fuel Type"}
+      title={t("fuelPrices.editFuelType") || getApiActionLabel(apiNamespaces.fuelPrices, 'update', 'fuel type')}
       actions={
         <Button type="submit" onClick={handleEditFuelType}>
           {t("common.save") || "Save"}
@@ -384,11 +385,15 @@ export default function FuelPricesPage() {
     </StandardDialog>
   );
 
+  // Get translated page title and description using the API translation helpers
+  const pageTitle = t("common.fuelPrices") || getApiActionLabel(apiNamespaces.fuelPrices, 'list');
+  const pageDescription = t("fuelPrices.description") || "Manage your fuel types and prices";
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("common.fuelPrices") || "Fuel Prices"}
-        description={t("fuelPrices.description") || "Manage your fuel types and prices"}
+        title={pageTitle}
+        description={pageDescription}
         icon={<Tag className="h-6 w-6 mr-2" />}
       />
       
@@ -485,7 +490,7 @@ export default function FuelPricesPage() {
                   </>
                 ) : (
                   <Button onClick={handleStartEditing}>
-                    {t("fuelPrices.updatePrices") || "Update Prices"}
+                    {t("fuelPrices.updatePrices") || getApiActionLabel(apiNamespaces.fuelPrices, 'update', 'prices')}
                   </Button>
                 )}
               </CardFooter>
@@ -607,7 +612,7 @@ export default function FuelPricesPage() {
               </div>
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                {t("fuelPrices.addFuelType") || "Add Fuel Type"}
+                {t("fuelPrices.addFuelType") || getApiActionLabel(apiNamespaces.fuelPrices, 'create', 'fuel type')}
               </Button>
             </CardHeader>
             <CardContent>

@@ -204,7 +204,7 @@ export interface FuelManagementSummary {
       name: string;
       capacity: number;
       current_level: number;
-      fuel_type?: string;
+      fuel_type_id?: string;
       status?: 'active' | 'inactive' | 'maintenance' | string;
     }>;
     byType: Record<string, number>;

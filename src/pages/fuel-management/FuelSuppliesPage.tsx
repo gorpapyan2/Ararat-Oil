@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { IconTruck } from "@tabler/icons-react";
 import { Home, Fuel, Truck } from "lucide-react";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { apiNamespaces, getApiActionLabel } from "@/i18n/i18n";
 
 export default function FuelSuppliesPage() {
   const { t } = useTranslation();
@@ -33,11 +34,16 @@ export default function FuelSuppliesPage() {
     setAction(actionNode);
   }, []);
 
+  // Use the API translation helpers to get translated content
+  const pageTitle = t("common.fuelSupplies");
+  const pageDescription = t("fuelSupplies.description") || 
+    getApiActionLabel(apiNamespaces.fuelSupplies, "list");
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("common.fuelSupplies")}
-        description={t("fuelSupplies.description") || "Track your fuel supply deliveries"}
+        title={pageTitle}
+        description={pageDescription}
         icon={<IconTruck className="h-6 w-6 mr-2" />}
         actions={action}
       />

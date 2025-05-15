@@ -22,7 +22,7 @@ export function useTransactionCreation() {
 
   return useMutation({
     mutationFn: async (params: CreateTransactionParams) => {
-      return await transactionsApi.create({
+      return await transactionsApi.createTransaction({
         ...params,
       });
     },

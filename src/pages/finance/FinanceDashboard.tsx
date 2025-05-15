@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/core/api/supabase";
+import { shiftsApi, salesApi, expensesApi, financialsApi } from "@/core/api";
 import { CalendarClock, Receipt, CircleDollarSign, ArrowRight, BarChart3, ChevronRight, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -16,51 +16,22 @@ export default function FinanceDashboard() {
   // Fetch summary data for each section
   const { data: shiftsData } = useQuery({
     queryKey: ["shifts-count"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("shifts")
-        .select("*", { count: "exact", head: true });
-      
-      if (error) throw error;
-      return { count };
-    }
+    queryFn: shiftsApi.getShiftsCount
   });
 
   const { data: salesData } = useQuery({
     queryKey: ["sales-count"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("sales")
-        .select("*", { count: "exact", head: true });
-      
-      if (error) throw error;
-      return { count };
-    }
+    queryFn: salesApi.getSalesCount
   });
 
   const { data: expensesData } = useQuery({
     queryKey: ["expenses-count"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("expenses")
-        .select("*", { count: "exact", head: true });
-      
-      if (error) throw error;
-      return { count };
-    }
+    queryFn: expensesApi.getExpensesCount
   });
 
   const { data: financeOverview } = useQuery({
     queryKey: ["finance-overview"],
-    queryFn: async () => {
-      // In a real app, you would fetch this data from your API
-      // For now, returning sample data
-      return {
-        total_sales: 1250000,
-        total_expenses: 450000,
-        net_profit: 800000,
-      };
-    }
+    queryFn: financialsApi.getFinanceOverview
   });
 
   // Format number as currency
@@ -92,9 +63,9 @@ export default function FinanceDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{shiftsData?.count || 0}</div>
+            <div className="text-3xl font-bold">{shiftsData?.data?.count || 0}</div>
             <p className="text-sm text-muted-foreground">
-              {t("shifts.totalCount", { count: shiftsData?.count || 0 })}
+              {t("shifts.totalCount", { count: shiftsData?.data?.count || 0 })}
             </p>
           </CardContent>
           <CardFooter>
@@ -121,9 +92,9 @@ export default function FinanceDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{salesData?.count || 0}</div>
+            <div className="text-3xl font-bold">{salesData?.data?.count || 0}</div>
             <p className="text-sm text-muted-foreground">
-              {t("sales.totalRevenue", { amount: formatCurrency(financeOverview?.total_sales || 0) })}
+              {t("sales.totalRevenue", { amount: formatCurrency(financeOverview?.data?.total_sales || 0) })}
             </p>
           </CardContent>
           <CardFooter>
@@ -148,7 +119,7 @@ export default function FinanceDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(expensesData?.count || 0).toString()}
+              {(expensesData?.data?.count || 0).toString()}
             </div>
             <p className="text-xs text-muted-foreground">
               {t('finance.expenses.description', 'Track and manage business expenses')}
@@ -191,7 +162,7 @@ export default function FinanceDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-              {formatCurrency(financeOverview?.net_profit || 0)}
+              {formatCurrency(financeOverview?.data?.net_profit || 0)}
             </div>
             <p className="text-sm text-muted-foreground">
               {t("finance.netProfit")}

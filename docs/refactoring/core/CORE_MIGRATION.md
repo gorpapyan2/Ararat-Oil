@@ -28,12 +28,12 @@ This document tracks the migration of core application functionality.
 **Target Location**: `src/core/api/`
 
 ### Files to Migrate
-- [ ] API client setup
-- [ ] Request interceptors
-- [ ] Response interceptors
-- [ ] Error handling
-- [ ] API types
-- [ ] API utilities
+- [x] API client setup
+- [x] Request interceptors
+- [x] Response interceptors
+- [x] Error handling
+- [x] API types
+- [x] API utilities
 
 ## Internationalization
 **Current Location**: `src/i18n/`
@@ -88,6 +88,17 @@ This document tracks the migration of core application functionality.
     - [x] Shift Payment Methods API (integrated in Shifts API)
     - [x] Fuel Management API (consolidated with relevant fuel endpoints)
     - [x] Financials API
+  - [x] Method Naming Standardization
+    - [x] Created API method naming conventions (docs/refactoring/core/API_METHOD_STANDARDIZATION.md)
+    - [x] Updated fuel prices API methods
+    - [x] Updated fuel types API methods
+    - [x] Updated petrol providers API methods
+    - [x] Updated fuel supplies API methods
+    - [x] Updated tanks API methods
+    - [x] Updated employees API methods
+    - [x] Updated filling systems API methods
+    - [x] Updated sales API methods
+    - [ ] Remaining API modules
   - [x] Update imports in key files
     - [x] Supabase client imports
     - [x] API service imports
@@ -110,6 +121,7 @@ This document tracks the migration of core application functionality.
       - [x] src/components/transactions/TransactionHeader.tsx
       - [x] src/components/fuel-supplies/FuelSuppliesManagerStandardized.tsx
       - [x] src/components/fuel-supplies/FuelSuppliesFormStandardized.tsx
+      - [x] src/pages/fuel-management/FuelPricesPage.tsx
       - [x] src/components/expenses/ExpensesManagerStandardized.tsx
       - [x] src/components/filling-systems/TankDiagnostics.tsx
       - [x] src/components/filling-systems/FillingSystemFormStandardized.tsx
@@ -121,7 +133,6 @@ This document tracks the migration of core application functionality.
       - [x] src/pages/shifts/ShiftOpen.tsx
       - [x] src/pages/finance/ExpenseCreate.tsx
       - [x] src/pages/fuel-supplies/FuelSuppliesForm.tsx
-      - [x] src/pages/fuel-management/FuelPricesPage.tsx
     - [ ] Remaining component imports
   - [ ] Test & validate
 - [ ] i18n Migration
@@ -135,11 +146,12 @@ This document tracks the migration of core application functionality.
 2. ~~Update imports in application to use the new state management~~ (Completed)
 3. ~~Implement API client in core module~~ (Completed)
 4. ~~Complete migration of remaining API endpoints~~ (Completed)
-5. Begin updating imports to use new API client (In Progress - ~97% completed)
-6. Complete updating all imports to use new API client
-7. Migrate i18n configuration
-8. Test functionality after migration
-9. Update documentation
+5. ~~Begin updating imports to use new API client~~ (Completed)
+6. ~~Standardize API method naming~~ (In Progress - ~50% completed)
+7. Complete updating all imports to use new API method names
+8. Migrate i18n configuration
+9. Test functionality after migration
+10. Update documentation
 
 ## Notes
 - Core functionality should be minimal and essential
@@ -149,3 +161,17 @@ This document tracks the migration of core application functionality.
 - Keep documentation up to date
 - Follow consistent patterns
 - Implement proper testing 
+
+## Recent Updates
+- Created API method naming standardization document
+- Updated fuel prices API to use standardized method names
+- Updated fuel types API to use standardized method names
+- Updated petrol providers API to use standardized method names
+- Updated fuel supplies API to use standardized method names
+- Updated tanks API to use standardized method names
+- Updated employees API to use standardized method names (fixed types and function calls)
+- Updated filling systems API to use standardized method names
+- Updated sales API to use standardized method names
+- Updated FuelPricesPage.tsx to use new API method names
+- Updated useFuelSuppliesFilters.ts to use new API method names
+- Fixed FuelSuppliesForm.tsx to use correct API method names 

@@ -22,13 +22,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { ProviderDialogStandardized } from "@/components/petrol-providers/ProviderDialogStandardized";
-import {
-  fetchPetrolProviders,
-  createPetrolProvider,
-  updatePetrolProvider,
-  deletePetrolProvider,
-  type PetrolProvider,
-} from "@/services/petrol-providers";
+import { petrolProvidersApi, type PetrolProvider } from "@/core/api";
 import { useTranslation } from "react-i18next";
 import { CreateButton } from "@/components/ui/create-button";
 import { IconButton } from "@/components/ui/icon-button";
@@ -47,11 +41,11 @@ export default function PetrolProviders() {
 
   const { data: providers = [] } = useQuery({
     queryKey: ["petrol-providers"],
-    queryFn: fetchPetrolProviders,
+    queryFn: petrolProvidersApi.getPetrolProviders,
   });
 
   const createMutation = useMutation({
-    mutationFn: createPetrolProvider,
+    mutationFn: petrolProvidersApi.createPetrolProvider,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast({ title: t("common.success"), description: t("petrolProviders.providerCreated") });
@@ -60,7 +54,7 @@ export default function PetrolProviders() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<PetrolProvider> }) =>
-      updatePetrolProvider(id, data),
+      petrolProvidersApi.updatePetrolProvider(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast({ title: t("common.success"), description: t("petrolProviders.providerUpdated") });
@@ -68,7 +62,7 @@ export default function PetrolProviders() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deletePetrolProvider,
+    mutationFn: petrolProvidersApi.deletePetrolProvider,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
       toast({ title: t("common.success"), description: t("petrolProviders.providerDeleted") });

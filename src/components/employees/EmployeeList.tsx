@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Employee } from "@/core/api";
+import { Employee } from "@/types";
 
 interface EmployeeListProps {
   employees: Employee[];

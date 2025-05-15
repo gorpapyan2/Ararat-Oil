@@ -67,9 +67,9 @@ export async function deleteTransaction(id: string): Promise<ApiResponse<{ succe
  * Transactions API object with all methods
  */
 export const transactionsApi = {
-  getAll: getTransactions,
-  getById: getTransactionById,
-  create: createTransaction,
-  update: updateTransaction,
-  delete: deleteTransaction
+  getTransactions,
+  getTransactionById,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction
 }; 
