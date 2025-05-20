@@ -6,9 +6,10 @@ import {
   IconBell,
   IconLock,
 } from "@tabler/icons-react";
-import { PageHeader } from "@/components/ui/page-header";
+import { PageHeader } from '@/core/components/ui/page-header';
 import { Home, Settings } from "lucide-react";
 import { BreadcrumbPageWrapper } from "@/core/providers/BreadcrumbPageWrapper";
+import { apiNamespaces, getApiActionLabel } from "@/i18n/i18n";
 
 // Lazy load settings sections
 const ProfileSettings = lazy(() => import("./ProfileSettings"));
@@ -55,41 +56,45 @@ export default function SettingsPage() {
     return () => clearTimeout(timeoutId);
   }, [prefetchNextTab]);
 
+  // Get translated page title and description using the API translation helpers
+  const pageTitle = t("common.settings") || getApiActionLabel(apiNamespaces.settings, 'list');
+  const pageDescription = t("settings.description") || "Configure your application settings";
+
   return (
     <BreadcrumbPageWrapper
       breadcrumbs={[
         { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
         { 
-          name: t("common.settings"), 
+          name: pageTitle, 
           href: "/settings", 
           icon: <Settings className="h-4 w-4" />,
           isCurrent: true
         }
       ]}
-      title={t("common.settings")}
+      title={pageTitle}
     >
       <div className="space-y-6">
         <PageHeader
-          title={t("common.settings")}
-          description={t("settings.description") || "Configure your application settings"}
+          title={pageTitle}
+          description={pageDescription}
           icon={<Settings className="h-6 w-6 mr-2" />}
         />
         
         <div className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border rounded-lg p-6 shadow-sm">
-              <h3 className="font-medium mb-4">User Preferences</h3>
+              <h3 className="font-medium mb-4">{t("settings.userPreferences", "User Preferences")}</h3>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Language</label>
-                  <select className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm">
+                  <label className="text-sm font-medium">{t("settings.language", "Language")}</label>
+                  <select className="w-full rounded-md border border-input bg-gray-50 px-3 py-1.5 text-sm shadow-sm">
                     <option>English</option>
                     <option>Armenian</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Theme</label>
-                  <select className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm">
+                  <label className="text-sm font-medium">{t("settings.theme", "Theme")}</label>
+                  <select className="w-full rounded-md border border-input bg-gray-50 px-3 py-1.5 text-sm shadow-sm">
                     <option>Light</option>
                     <option>Dark</option>
                     <option>System</option>
@@ -99,12 +104,12 @@ export default function SettingsPage() {
             </div>
             
             <div className="border rounded-lg p-6 shadow-sm">
-              <h3 className="font-medium mb-4">Notification Settings</h3>
+              <h3 className="font-medium mb-4">{t("settings.notificationSettings", "Notification Settings")}</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Email Notifications</p>
-                    <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                    <p className="font-medium">{t("settings.emailNotifications", "Email Notifications")}</p>
+                    <p className="text-sm text-muted-foreground">{t("settings.emailNotificationsDesc", "Receive notifications via email")}</p>
                   </div>
                   <div>
                     <input type="checkbox" className="rounded border-gray-300" defaultChecked />
@@ -112,8 +117,8 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Push Notifications</p>
-                    <p className="text-sm text-muted-foreground">Receive push notifications</p>
+                    <p className="font-medium">{t("settings.pushNotifications", "Push Notifications")}</p>
+                    <p className="text-sm text-muted-foreground">{t("settings.pushNotificationsDesc", "Receive push notifications")}</p>
                   </div>
                   <div>
                     <input type="checkbox" className="rounded border-gray-300" />

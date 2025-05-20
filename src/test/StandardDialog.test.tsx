@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { StandardDialog } from '@/components/ui/composed/dialog';
-import { Button } from '@/components/ui/button';
+import { StandardDialog } from "@/core/components/ui/primitives/dialog";
+import { Button } from "@/core/components/ui/button";
 
 // Mock useMediaQuery hook
 vi.mock('@/hooks/use-media-query', () => ({

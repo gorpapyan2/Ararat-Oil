@@ -11,8 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/core/components/ui/dialog";
+import { Button } from "@/core/components/ui/button";
 import {
   Form,
   FormControl,
@@ -20,15 +20,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/core/components/ui/form";
+import { Input } from "@/core/components/ui/primitives/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/core/components/ui/primitives/select";
 import { tanksService } from "../services/tanksService";
 import { FuelTank, CreateTankRequest, UpdateTankRequest } from "../types/tanks.types";
 
@@ -121,7 +121,7 @@ export function TankFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={tank ? t("tanks.editTank") : t("tanks.createTank")}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

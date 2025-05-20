@@ -1,35 +1,36 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { Home, Fuel, Truck, Plus, AlertCircle } from "lucide-react";
 
 // Import components
-import { PageHeader } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createFuelSupply, API_ERROR_TYPE, type FuelSupplyCreate } from "@/core/api";
+import { PageHeader } from '@/core/components/ui/page-header';
+import { Button } from "@/core/components/ui/button";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { Alert, AlertDescription } from '@/core/components/ui/alert';
 import { useToast } from "@/hooks";
 import { format } from "date-fns";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 import { useShift } from "@/hooks/useShift";
 
-// Import our standalone fuel supplies form
-import { FuelSuppliesForm } from "./FuelSuppliesForm";
-
-// Types
-import { FuelSupply } from "@/features/supplies/types";
+// Import features
+import { 
+  useFuelSupplies, 
+  FuelSuppliesFormStandardized 
+} from "@/features/fuel-supplies";
+import type { FuelSupply, CreateFuelSupplyRequest } from "@/features/fuel-supplies";
 
 export default function FuelSupplyCreate() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { toast } = useToast();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [pendingData, setPendingData] = useState<Partial<FuelSupply> | null>(null);
+  const [pendingData, setPendingData] = useState<CreateFuelSupplyRequest | null>(null);
   const { activeShift } = useShift();
+  
+  // Use the feature hook
+  const { createSupply } = useFuelSupplies();
 
   // Memoize breadcrumb segments to prevent unnecessary re-renders
   const breadcrumbSegments = useMemo(() => [
@@ -50,63 +51,6 @@ export default function FuelSupplyCreate() {
     title: t("fuelSupplies.newSupply", "Add Fuel Supply")
   });
 
-  // Add create fuel supply mutation with proper error handling
-  const createFuelSupplyMutation = useMutation({
-    mutationFn: async (data: FuelSupply) => {
-      // Extract the fields required by the API
-      const fuelSupplyData: FuelSupplyCreate = {
-        supplier_id: data.supplier_id,
-        fuel_type_id: data.fuel_type_id,
-        quantity: data.quantity,
-        unit_price: data.unit_price,
-        total_price: data.total_price,
-        delivery_date: data.delivery_date,
-        invoice_number: data.invoice_number,
-        notes: data.notes
-      };
-      
-      const response = await createFuelSupply(fuelSupplyData);
-      
-      if (response.error) {
-        // Enhanced error handling with typed errors
-        switch(response.error.type) {
-          case API_ERROR_TYPE.VALIDATION:
-            throw new Error(response.error.message || t("fuelSupplies.validationError", "Invalid input data"));
-          case API_ERROR_TYPE.AUTH:
-            throw new Error(t("common.authError", "Authentication error. Please log in again."));
-          case API_ERROR_TYPE.NETWORK:
-            throw new Error(t("common.networkError", "Network error. Please check your connection."));
-          default:
-            throw new Error(response.error.message || t("fuelSupplies.createError", "Failed to create fuel supply record"));
-        }
-      }
-      return response.data;
-    },
-    onSuccess: () => {
-      // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ["fuel-supplies"] });
-      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
-      
-      // Show success message
-      toast({
-        title: t("common.success"),
-        description: t("fuelSupplies.createSuccess", "Fuel supply record created successfully and tank level updated"),
-      });
-      
-      // Navigate back to the fuel management page
-      navigate("/fuel-management?tab=fuel-supplies");
-    },
-    onError: (error: any) => {
-      console.error("Create error:", error);
-      toast({
-        title: t("common.error"),
-        description: error.message || t("fuelSupplies.createError", "Failed to create fuel supply record"),
-        variant: "destructive",
-      });
-      setIsConfirmOpen(false);
-    },
-  });
-
   const handleSubmit = (data: Omit<FuelSupply, "id" | "created_at">) => {
     if (!activeShift?.id) {
       toast({
@@ -116,14 +60,37 @@ export default function FuelSupplyCreate() {
       });
       return;
     }
-    // Ensure all required fields are present
-    setPendingData({ ...data, shift_id: activeShift.id } as Omit<FuelSupply, "id" | "created_at">);
+    
+    // Prepare data with shift ID
+    setPendingData({ 
+      ...data, 
+      shift_id: activeShift.id 
+    } as CreateFuelSupplyRequest);
+    
     setIsConfirmOpen(true);
   };
 
   const handleConfirm = () => {
     if (pendingData && activeShift?.id) {
-      createFuelSupplyMutation.mutate(pendingData as unknown as FuelSupply);
+      createSupply.mutate(pendingData, {
+        onSuccess: () => {
+          toast({
+            title: t("common.success"),
+            description: t("fuelSupplies.createSuccess", "Fuel supply record created successfully and tank level updated"),
+          });
+          
+          navigate("/fuel-management?tab=fuel-supplies");
+        },
+        onError: (error: any) => {
+          console.error("Create error:", error);
+          toast({
+            title: t("common.error"),
+            description: error.message || t("fuelSupplies.createError", "Failed to create fuel supply record"),
+            variant: "destructive",
+          });
+          setIsConfirmOpen(false);
+        }
+      });
     }
   };
 
@@ -156,12 +123,12 @@ export default function FuelSupplyCreate() {
         }
       />
 
-      {createFuelSupplyMutation.isError && (
+      {createSupply.isError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {createFuelSupplyMutation.error instanceof Error 
-              ? createFuelSupplyMutation.error.message 
+            {createSupply.error instanceof Error 
+              ? createSupply.error.message 
               : t("fuelSupplies.createError", "Failed to create fuel supply record")}
           </AlertDescription>
         </Alert>
@@ -169,9 +136,9 @@ export default function FuelSupplyCreate() {
 
       <Card className="max-w-4xl mx-auto">
         <CardContent className="pt-6">
-          <FuelSuppliesForm 
-            onSubmit={handleSubmit as any}
-            isSubmitting={createFuelSupplyMutation.isPending}
+          <FuelSuppliesFormStandardized 
+            onSubmit={handleSubmit}
+            isSubmitting={createSupply.isPending}
             defaultValues={{ ...defaultValues, shift_id: activeShift?.id || "" }}
             onConfirm={handleConfirm}
             onConfirmCancel={handleConfirmCancel}

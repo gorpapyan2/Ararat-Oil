@@ -1,0 +1,30 @@
+/**
+ * @deprecated This component is deprecated and will be removed in the next major version.
+ * Please use the standardized version from the feature directory instead:
+ * {@link import('@/features/auth/components/ProfileFormStandardized')}
+ * 
+ * Deprecation Date: 2023-06-22
+ * Planned Removal Date: 2023-12-22
+ * Migration Guide: See docs/refactoring/component-deprecation-schedule.md
+ */
+import React, { useEffect } from "react";
+import { ProfileFormStandardized as FeatureProfileFormStandardized } from "@/features/auth/components/ProfileFormStandardized";
+
+/**
+ * @deprecated This component is a bridge to the standardized version.
+ * Please update imports to use the standardized component directly:
+ * {@link import('@/features/auth/components/ProfileFormStandardized')}
+ */
+export default function ProfileFormStandardized() {
+  // Issue a deprecation warning
+  useEffect(() => {
+    console.warn(
+      '[Deprecation Warning] ProfileFormStandardized in src/components/settings/ProfileFormStandardized.tsx is deprecated. ' +
+      'Use ProfileFormStandardized from @/features/auth/components/ProfileFormStandardized instead. ' +
+      'This component will be removed on 2023-12-22.'
+    );
+  }, []);
+  
+  // Re-export the feature component
+  return <FeatureProfileFormStandardized />;
+}

@@ -1,13 +1,13 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { StandardDialog } from "@/components/ui/composed/dialog";
-import { Button } from "@/components/ui/button";
+import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
-import { FormInput, FormSelect, FormTextarea } from "@/components/ui/composed/form-fields";
+import { FormInput, FormSelect, FormTextarea } from '@/core/components/ui/composed/form-fields';
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 import { useFuelSales } from "../hooks/useFuelSales";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/core/api/supabase";
 import type { FuelSale, FuelSaleFormData } from "../types/fuel-sales.types";
 
 interface FuelTank {

@@ -1,5 +1,5 @@
-import { StandardDialog } from "@/components/ui/composed/dialog";
-import { Button } from "@/components/ui/button";
+import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { Button } from "@/core/components/ui/button";
 import { useTranslation } from "react-i18next";
 
 interface ConfirmDeleteDialogStandardizedProps {

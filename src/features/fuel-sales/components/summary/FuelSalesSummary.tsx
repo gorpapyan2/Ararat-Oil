@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { useTranslation } from "react-i18next";
 import type { FuelSale } from "../../types/fuel-sales.types";
 

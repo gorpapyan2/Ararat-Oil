@@ -1,6 +1,12 @@
-import { StandardDialog, DeleteConfirmDialog } from "@/components/ui/composed/dialog";
+import { StandardDialog, DeleteConfirmDialog } from "@/core/components/ui/dialog";
 import { SalesFormStandardized } from "./SalesFormStandardized";
 import { Sale } from "@/types";
+
+// Extend the Sale type to include the properties needed by SalesFormStandardized
+interface ExtendedSale extends Sale {
+  unit_price?: number;
+  comments?: string;
+}
 
 interface SalesDialogsProps {
   isEditDialogOpen: boolean;
@@ -27,14 +33,14 @@ export function SalesDialogsStandardized({
   return (
     <>
       <StandardDialog
-        open={isEditDialogOpen}
+        isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         title="Edit Sale"
         description="Update the details of this sale."
-        maxWidth="sm:max-w-lg"
+        width="lg"
       >
         <SalesFormStandardized
-          sale={selectedSale}
+          sale={selectedSale as ExtendedSale}
           onSubmit={async (data) => {
             if (selectedSale?.id) {
               // Update existing sale

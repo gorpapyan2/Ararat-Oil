@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import {
   Table,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from "@/components/ui/table";
+} from '@/core/components/ui/table';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -20,12 +20,12 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import { ProviderDialogStandardized } from "@/components/petrol-providers/ProviderDialogStandardized";
+} from '@/core/components/ui/alert-dialog';
+import { ProviderDialogStandardized } from "@/features/petrol-providers/components/ProviderDialogStandardized";
 import { petrolProvidersApi, type PetrolProvider } from "@/core/api";
 import { useTranslation } from "react-i18next";
-import { CreateButton } from "@/components/ui/create-button";
-import { IconButton } from "@/components/ui/icon-button";
+import { CreateButton } from '@/core/components/ui/create-button';
+import { IconButton } from '@/core/components/ui/icon-button';
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function PetrolProviders() {

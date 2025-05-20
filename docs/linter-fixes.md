@@ -1,45 +1,86 @@
-# TypeScript Linter Fixes
+# TypeScript Configuration and Linter Guidelines
 
-## Recent Fixes (Updated)
+## Current TypeScript Configuration (Updated 2024)
 
-### Database Schema Alignment (2023-06-14)
+Our project uses a strict TypeScript configuration to ensure type safety and code quality:
 
-1. Fixed mismatches between TypeScript interfaces and actual database schema:
-   - Updated `fuelService.ts` to use the correct `sales` table instead of non-existent `fuel_sales` table
-   - Added mapping functions to transform between API types and database schema types
-   - Created proper data transformation for `employeesService.ts` to handle differences between our frontend model and database structure
+```json
+// tsconfig.json highlights
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+```
 
-2. Enhanced type safety:
-   - Added explicit type casting with proper transformations
-   - Implemented null checks where appropriate
-   - Used proper TypeScript utility types like `Partial<T>` and `Omit<T, K>`
+## ESLint Configuration
 
-3. Configuration updates:
-   - Enabled `noImplicitAny` in tsconfig to catch implicit any types
-   - Enabled `strictNullChecks` to catch potential null/undefined errors
-   - Updated Vite configuration to use port 3001 to avoid port conflicts
+We use ESLint with TypeScript-specific rules to enforce best practices:
 
-## Approach to TypeScript Strictness
+```json
+// .eslintrc highlights
+{
+  "root": true,
+  "env": { "browser": true, "es2020": true },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:react/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "ignorePatterns": ["dist", ".eslintrc.cjs"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["react-refresh", "@typescript-eslint"],
+  "rules": {
+    "react-refresh/only-export-components": ["warn", { "allowConstantExport": true }],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "import/order": ["error", { "groups": ["builtin", "external", "internal", "parent", "sibling", "index"] }]
+  }
+}
+```
 
-We are gradually introducing stricter TypeScript settings to improve code quality:
+## Type Mapping Best Practices
 
-1. **Current phase**: Enabled `noImplicitAny` and `strictNullChecks` while fixing specific service modules
-2. **Next phase**: Will enable full `strict` mode after addressing existing issues
-3. **Final phase**: Will enforce complete type coverage across the codebase
+When working with Supabase and our domain models, follow these patterns:
 
-## Common Issues and Solutions
-
-When working with Supabase and our data model, follow these patterns:
-
-### Type Mapping Pattern
+### Database to Domain Mapping
 
 ```typescript
-// Define a mapping function between DB and domain types
+// Define the mapper function
 function mapDbToDomain(dbRecord: DatabaseType): DomainType {
   return {
     // Transform properties as needed
     id: dbRecord.id,
-    // ... other mappings
+    // Handle nullable values with nullish coalescing
+    name: dbRecord.name ?? '',
+    // Transform dates or complex types
+    createdAt: new Date(dbRecord.created_at),
   };
 }
 
@@ -47,23 +88,93 @@ function mapDbToDomain(dbRecord: DatabaseType): DomainType {
 async function fetchData() {
   const { data, error } = await supabase.from('table').select('*');
   if (error) throw error;
-  return data.map(mapDbToDomain);
+  return (data || []).map(mapDbToDomain);
 }
 ```
 
-### Handling Optional/Nullable Values
+### Domain to Database Mapping
 
 ```typescript
-// Use nullish coalescing for potential null/undefined values
-const value = record.field ?? defaultValue;
+// Define the mapper function for saving data
+function mapDomainToDb(domain: DomainType): DatabaseType {
+  return {
+    // Transform properties for database storage
+    id: domain.id,
+    name: domain.name,
+    created_at: domain.createdAt.toISOString(),
+  };
+}
 
-// Use optional chaining when accessing nested properties
+// Use with insert/update operations
+async function saveData(domain: DomainType) {
+  const dbData = mapDomainToDb(domain);
+  const { data, error } = await supabase
+    .from('table')
+    .upsert(dbData)
+    .select();
+  
+  if (error) throw error;
+  return data ? mapDbToDomain(data[0]) : null;
+}
+```
+
+## Common Issues and Solutions
+
+### Handling Nullable Fields
+
+Use nullish coalescing and optional chaining:
+
+```typescript
+// For potentially undefined/null values
+const value = record?.field ?? defaultValue;
+
+// For nested properties
 const nestedValue = record?.nested?.property;
 ```
 
-## Ongoing Improvements
+### Using Utility Types
 
-1. Gradually fix remaining `any` types across the codebase
-2. Update model interfaces to better match database schema
-3. Implement complete data validation for all API responses
-4. Add runtime type checking with Zod for external data
+Leverage TypeScript utility types for derived types:
+
+```typescript
+// For partial updates
+type PartialDomain = Partial<DomainType>;
+
+// For picking specific properties
+type DomainSummary = Pick<DomainType, 'id' | 'name'>;
+
+// For omitting properties
+type DomainWithoutId = Omit<DomainType, 'id'>;
+
+// For required fields
+type RequiredDomain = Required<DomainType>;
+```
+
+### Type Guards
+
+Implement type guards for runtime type safety:
+
+```typescript
+function isEmployee(obj: any): obj is Employee {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    'id' in obj &&
+    'name' in obj &&
+    'position' in obj
+  );
+}
+
+// Usage
+if (isEmployee(data)) {
+  // TypeScript knows 'data' is Employee here
+  console.log(data.position);
+}
+```
+
+## Resources
+
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
+- [ESLint TypeScript Plugin](https://github.com/typescript-eslint/typescript-eslint)
+- [Utility Types Documentation](https://www.typescriptlang.org/docs/handbook/utility-types.html)
+- [Type Guards and Type Assertions](https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-guards-and-differentiating-types)

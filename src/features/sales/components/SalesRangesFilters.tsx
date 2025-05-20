@@ -39,7 +39,7 @@ export function SalesRangesFilters({
 
   return (
     <section
-      className="rounded-xl shadow-lg border border-border bg-background/70 p-6 mt-2
+      className="rounded-xl shadow-lg border border-border bg-gray-50 bg-opacity-70 p-6 mt-2
         flex flex-col gap-6
         md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6"
       aria-label="Sales Range Filters"
@@ -54,7 +54,7 @@ export function SalesRangesFilters({
             type="number"
             inputMode="numeric"
             placeholder="Min"
-            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
+            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-gray-50 text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(litersRange[0])}
             min={0}
             onChange={(e) =>
@@ -73,7 +73,7 @@ export function SalesRangesFilters({
             type="number"
             inputMode="numeric"
             placeholder="Max"
-            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
+            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-gray-50 text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(litersRange[1])}
             min={0}
             onChange={(e) =>
@@ -97,7 +97,7 @@ export function SalesRangesFilters({
             type="number"
             inputMode="numeric"
             placeholder="Min"
-            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
+            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-gray-50 text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(priceRange[0])}
             min={0}
             onChange={(e) =>
@@ -116,7 +116,7 @@ export function SalesRangesFilters({
             type="number"
             inputMode="numeric"
             placeholder="Max"
-            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
+            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-gray-50 text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(priceRange[1])}
             min={0}
             onChange={(e) =>
@@ -140,7 +140,7 @@ export function SalesRangesFilters({
             type="number"
             inputMode="numeric"
             placeholder="Min"
-            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
+            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-gray-50 text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(totalSalesRange[0])}
             min={0}
             onChange={(e) =>
@@ -159,7 +159,7 @@ export function SalesRangesFilters({
             type="number"
             inputMode="numeric"
             placeholder="Max"
-            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-background text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
+            className="w-full md:w-24 flex-1 h-11 px-3 py-2 rounded-lg border border-input bg-gray-50 text-base focus:ring-2 focus:ring-primary/20 outline-none shadow-sm transition disabled:opacity-50"
             value={fieldValue(totalSalesRange[1])}
             min={0}
             onChange={(e) =>

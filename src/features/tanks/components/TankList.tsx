@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { FuelTank } from "../types/tanks.types";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/core/components/ui/primitives/progress";
+import { Skeleton } from '@/core/components/ui/skeleton';
 import { TankLevelEditor } from "./TankLevelEditor";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/core/components/ui/button";
 import { TankHistory } from "./TankHistory";
 import { useTranslation } from "react-i18next";
 import {
@@ -12,7 +12,7 @@ import {
   DialogContent,
   DialogTitle,
   DialogHeader,
-} from "@/components/ui/dialog";
+} from "@/core/components/ui/dialog";
 
 interface TankListProps {
   tanks: FuelTank[];
@@ -153,8 +153,7 @@ export function TankList({
       {/* Dialog for tank history */}
       <Dialog 
         open={dialogOpen} 
-        onOpenChange={setDialogOpen} 
-        title={selectedTank?.name ? `${selectedTank.name} ${t("common.history")}` : t("common.history")}>
+        onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{selectedTank?.name} {t("common.history")}</DialogTitle>

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/core/components/ui/button";
 import { ExpenseDialogStandardized } from "./ExpenseDialogStandardized";
 import { useFinance } from "../hooks/useFinance";
 import type { Expense } from "../types/finance.types";

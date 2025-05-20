@@ -1,160 +1,87 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useTranslation } from 'react-i18next';
-import { StandardDialog } from '@/shared/components/common/dialog/StandardDialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Employee, EmployeeFormData } from '../types/employees.types';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/core/components/ui/dialog";
+import { Button } from "@/core/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/core/components/ui/form";
+import { Input } from "@/core/components/ui/primitives/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useToast } from "@/hooks";
+import { useTranslation } from "react-i18next";
 
-// Define the Zod schema that validates our form inputs
 const employeeSchema = z.object({
-  first_name: z.string().min(1, { message: 'First name is required' }),
-  last_name: z.string().min(1, { message: 'Last name is required' }),
-  email: z.string().email({ message: 'Invalid email address' }),
-  phone: z.string().min(1, { message: 'Phone number is required' }),
-  position: z.string().min(1, { message: 'Position is required' }),
-  department: z.string().min(1, { message: 'Department is required' }),
-  hire_date: z.string().min(1, { message: 'Hire date is required' }),
-  salary: z.coerce.number().min(0, { message: 'Salary must be a positive number' }),
-  status: z.enum(['active', 'inactive', 'on_leave'], {
-    required_error: 'Status is required',
-    invalid_type_error: 'Status must be one of the available options',
-  }),
-  notes: z.string().optional().default(''),
+  name: z.string().min(1, "Name is required"),
+  position: z.string().min(1, "Position is required"),
+  hire_date: z.string().optional(),
+  contact: z.string().optional(),
 });
 
-// Infer the TS type from the schema
-type EmployeeFormSchema = z.infer<typeof employeeSchema>;
-
-// Available departments - could move to a configuration file or fetch from API
-const DEPARTMENTS = [
-  'Sales',
-  'Operations',
-  'Marketing',
-  'Finance',
-  'HR',
-  'IT',
-  'Engineering',
-  'general',
-];
+type EmployeeFormValues = z.infer<typeof employeeSchema>;
 
 interface EmployeeDialogStandardizedProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: EmployeeFormData) => void;
-  employee?: Employee;
+  employee?: any; // Replace with proper type
+  onSubmit: (data: EmployeeFormValues) => Promise<void>;
   isLoading?: boolean;
 }
 
-export function EmployeeDialogStandardized({
+function EmployeeDialogStandardized({
   open,
   onOpenChange,
-  onSubmit,
   employee,
-  isLoading,
+  onSubmit,
+  isLoading = false,
 }: EmployeeDialogStandardizedProps) {
   const { t } = useTranslation();
-  const isEditing = !!employee;
+  const { toast } = useToast();
+  const isEditing = Boolean(employee);
 
-  // Initialize the form with default values or employee data for editing
-  const form = useForm<EmployeeFormSchema>({
+  const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeSchema),
-    defaultValues: employee || {
-      first_name: '',
-      last_name: '',
-      email: '',
-      phone: '',
-      position: '',
-      department: 'general',
-      hire_date: '',
-      salary: 0,
-      status: 'active',
-      notes: '',
+    defaultValues: {
+      name: employee?.name || "",
+      position: employee?.position || "",
+      hire_date: employee?.hire_date ? new Date(employee.hire_date).toISOString().split('T')[0] : "",
+      contact: employee?.contact || "",
     },
   });
 
-  const handleSubmit = (data: EmployeeFormSchema) => {
-    onSubmit(data);
+  const handleSubmit = async (data: EmployeeFormValues) => {
+    try {
+      await onSubmit(data);
+      toast({
+        title: "Success",
+        description: isEditing ? "Employee updated successfully" : "Employee created successfully",
+      });
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save employee",
+        variant: "destructive",
+      });
+    }
   };
 
-  const dialogActions = (
-    <>
-      <Button variant="outline" onClick={() => onOpenChange(false)} type="button">
-        {t('common.cancel')}
-      </Button>
-      <Button 
-        onClick={form.handleSubmit(handleSubmit)} 
-        disabled={isLoading}
-        type="button"
-      >
-        {isLoading ? t('common.saving') : isEditing ? t('common.save') : t('common.create')}
-      </Button>
-    </>
-  );
-
   return (
-    <StandardDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title={isEditing ? t('employees.edit_employee') : t('employees.add_employee')}
-      description={isEditing ? t('employees.edit_employee_description') : t('employees.add_employee_description')}
-      actions={dialogActions}
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="first_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('employees.first_name')}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="last_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('employees.last_name')}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {isEditing ? t("employees.editEmployee", "Edit Employee") : t("employees.addEmployee", "Add Employee")}
+          </DialogTitle>
+        </DialogHeader>
 
-          <div className="grid grid-cols-2 gap-4">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('employees.email')}</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="email" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('employees.phone')}</FormLabel>
+                  <FormLabel>{t("common.name", "Name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -162,15 +89,13 @@ export function EmployeeDialogStandardized({
                 </FormItem>
               )}
             />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="position"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('employees.position')}</FormLabel>
+                  <FormLabel>{t("employees.position", "Position")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -178,105 +103,58 @@ export function EmployeeDialogStandardized({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="department"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('employees.department')}</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t('employees.select_department')} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {DEPARTMENTS.map((dept) => (
-                        <SelectItem key={dept} value={dept}>
-                          {t(`employees.department_${dept.toLowerCase()}`, dept)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="hire_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('employees.hire_date')}</FormLabel>
+                  <FormLabel>{t("employees.hireDate", "Hire Date")}</FormLabel>
                   <FormControl>
-                    <Input {...field} type="date" />
+                    <Input type="date" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
-              name="salary"
+              name="contact"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('employees.salary')}</FormLabel>
+                  <FormLabel>{t("common.contact", "Contact")}</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
 
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('employees.status')}</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('employees.select_status')} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="active">{t('employees.status_active')}</SelectItem>
-                    <SelectItem value="inactive">{t('employees.status_inactive')}</SelectItem>
-                    <SelectItem value="on_leave">{t('employees.status_on_leave')}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('employees.notes')}</FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </form>
-      </Form>
-    </StandardDialog>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading}
+              >
+                {t("common.cancel", "Cancel")}
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading
+                  ? t("common.saving", "Saving...")
+                  : isEditing
+                  ? t("common.save", "Save")
+                  : t("common.create", "Create")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
-} 
+}
+
+export { EmployeeDialogStandardized };
+export default EmployeeDialogStandardized; 

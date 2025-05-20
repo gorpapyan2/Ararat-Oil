@@ -11,11 +11,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { Switch } from '@/core/components/ui/switch';
+import { Label } from '@/core/components/ui/label';
+import { Separator } from '@/core/components/ui/separator';
 
 // Icons
 import { 

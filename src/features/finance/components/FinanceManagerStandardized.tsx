@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
 import { TransactionDialogStandardized } from "./TransactionDialogStandardized";
 import { ExpenseManagerStandardized } from "./ExpenseManagerStandardized";
 import { ProfitLossManagerStandardized } from "./ProfitLossManagerStandardized";
@@ -57,7 +57,7 @@ export function FinanceManagerStandardized() {
             </h2>
             <button
               onClick={handleCreateTransaction}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary bg-opacity-90"
             >
               {t("finance.transactions.create", "Create New")}
             </button>

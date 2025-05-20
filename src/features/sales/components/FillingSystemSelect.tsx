@@ -5,7 +5,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/core/components/ui/primitives/select";
 
 interface FillingSystemSelectProps {
   value: string;
@@ -32,7 +32,7 @@ export function FillingSystemSelect({
       </label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
-          className={`h-9 px-3 py-2 w-full rounded-md border border-input bg-background text-sm ${className}`}
+          className={`h-9 px-3 py-2 w-full rounded-md border border-input bg-gray-50 text-sm ${className}`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { SupabaseConnectionStatus } from '@/components/ui/composed/supabase-connection-status';
-import { ConnectivityDebugger } from '@/components/ui/composed/connectivity-debugger';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SupabaseConnectionStatus } from '@/core/components/ui/composed/supabase-connection-status';
+import { ConnectivityDebugger } from '@/core/components/ui/composed/connectivity-debugger';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/primitives/tabs";
 import { checkSupabaseConnection, syncWithSupabase } from '@/utils/supabase-helpers';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/core/components/ui/button";
 import { useToast } from '@/hooks';
 import { Database, RefreshCcw, Microscope } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -60,13 +60,13 @@ export default function ConnectionInfo() {
             <SupabaseConnectionStatus />
           </div>
           
-          <div className="bg-accent/50 rounded-lg p-4">
+          <div className="bg-accent bg-opacity-50 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2">Developer Information</h3>
             <p className="text-sm text-muted-foreground mb-2">
-              Connection URL: <code className="bg-background px-1 py-0.5 rounded">https://qnghvjeunmicykrzpeog.supabase.co</code>
+              Connection URL: <code className="bg-gray-50 px-1 py-0.5 rounded">https://qnghvjeunmicykrzpeog.supabase.co</code>
             </p>
             <p className="text-sm text-muted-foreground">
-              Project ID: <code className="bg-background px-1 py-0.5 rounded">qnghvjeunmicykrzpeog</code>
+              Project ID: <code className="bg-gray-50 px-1 py-0.5 rounded">qnghvjeunmicykrzpeog</code>
             </p>
           </div>
         </TabsContent>

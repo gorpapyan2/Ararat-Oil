@@ -1,141 +1,188 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/core/components/ui/dialog";
+import { Button } from "@/core/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/core/components/ui/form";
+import { Input } from "@/core/components/ui/primitives/input";
+import { useToast } from "@/hooks";
+import { Textarea } from '@/core/components/ui/textarea';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/core/components/ui/primitives/select";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { useFinance } from "../hooks/useFinance";
-import type { Transaction, PaymentMethod, PaymentStatus } from "../types/finance.types";
-
+// Schema for transaction form
 const transactionSchema = z.object({
-  amount: z.coerce.number().positive("Amount must be positive"),
-  description: z.string().min(1, "Description is required"),
-  payment_method: z.string().min(1, "Payment method is required"),
-  payment_status: z.string().min(1, "Payment status is required"),
-  employee_id: z.string().min(1, "Employee is required"),
+  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+  type: z.enum(["income", "expense", "transfer"]),
+  category: z.string().min(1, "Category is required"),
+  description: z.string().optional(),
+  date: z.string().min(1, "Date is required"),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
 
+// Component props
 interface TransactionDialogStandardizedProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  transaction: Transaction | null;
+  transaction?: any; // Would be better typed in a real app
+  onSubmit: (data: TransactionFormValues) => Promise<void>;
+  categories?: { id: string; name: string; type: string }[];
+  isLoading?: boolean;
 }
 
-export function TransactionDialogStandardized({
+function TransactionDialogStandardized({
   open,
   onOpenChange,
   transaction,
+  onSubmit,
+  categories = [],
+  isLoading = false,
 }: TransactionDialogStandardizedProps) {
   const { t } = useTranslation();
-  const { createTransaction, updateTransaction } = useFinance();
-  const isEditing = !!transaction;
+  const { toast } = useToast();
+  const isEditing = Boolean(transaction);
 
+  // Form setup with default values
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       amount: transaction?.amount || 0,
+      type: transaction?.type || "income",
+      category: transaction?.category || "",
       description: transaction?.description || "",
-      payment_method: transaction?.payment_method || "",
-      payment_status: transaction?.payment_status || "pending",
-      employee_id: transaction?.employee_id || "",
+      date: transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     },
   });
 
-  const onSubmit = (data: TransactionFormValues) => {
-    if (isEditing && transaction) {
-      updateTransaction.mutate(
-        { 
-          id: transaction.id, 
-          data: {
-            ...data,
-            payment_method: data.payment_method as PaymentMethod,
-          } as Partial<Transaction> 
-        },
-        {
-          onSuccess: () => {
-            toast.success(t("finance.transactions.updateSuccess", "Transaction updated successfully"));
-            onOpenChange(false);
-          },
-          onError: (error) => {
-            toast.error(t("finance.transactions.updateError", "Failed to update transaction"));
-            console.error("Error updating transaction:", error);
-          },
-        }
-      );
-    } else {
-      createTransaction.mutate(
-        {
-          amount: data.amount,
-          description: data.description,
-          payment_method: data.payment_method as PaymentMethod,
-          payment_status: data.payment_status as PaymentStatus,
-          employee_id: data.employee_id,
-        },
-        {
-          onSuccess: () => {
-            toast.success(t("finance.transactions.createSuccess", "Transaction created successfully"));
-            onOpenChange(false);
-          },
-          onError: (error) => {
-            toast.error(t("finance.transactions.createError", "Failed to create transaction"));
-            console.error("Error creating transaction:", error);
-          },
-        }
-      );
+  // Get the current transaction type from form
+  const transactionType = form.watch("type");
+  
+  // Filter categories based on transaction type
+  const filteredCategories = categories.filter(
+    (category) => category.type === transactionType || category.type === "all"
+  );
+
+  // Form submission handler
+  const handleSubmit = async (data: TransactionFormValues) => {
+    try {
+      await onSubmit(data);
+      toast({
+        title: "Success",
+        description: isEditing ? "Transaction updated successfully" : "Transaction created successfully",
+      });
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save transaction",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={isEditing
-      ? t("finance.transactions.edit", "Edit Transaction")
-      : t("finance.transactions.create", "Create Transaction")}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
             {isEditing
-              ? t("finance.transactions.edit", "Edit Transaction")
-              : t("finance.transactions.create", "Create Transaction")}
+              ? t("finance.editTransaction", "Edit Transaction")
+              : t("finance.newTransaction", "New Transaction")}
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("finance.transactionType", "Transaction Type")}</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("finance.selectType", "Select type")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="income">{t("finance.income", "Income")}</SelectItem>
+                      <SelectItem value="expense">{t("finance.expense", "Expense")}</SelectItem>
+                      <SelectItem value="transfer">{t("finance.transfer", "Transfer")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("finance.transactions.amount", "Amount")}</FormLabel>
+                  <FormLabel>{t("finance.amount", "Amount")}</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("finance.category", "Category")}</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("finance.selectCategory", "Select category")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {filteredCategories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("common.date", "Date")}</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -147,58 +194,14 @@ export function TransactionDialogStandardized({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("finance.transactions.description", "Description")}</FormLabel>
+                  <FormLabel>{t("common.description", "Description")}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Textarea
+                      placeholder={t("finance.transactionDescription", "Enter description...")}
+                      className="resize-none"
+                      {...field}
+                    />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="payment_method"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("finance.transactions.paymentMethod", "Payment Method")}</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("finance.transactions.selectPaymentMethod", "Select payment method")} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="cash">{t("finance.paymentMethods.cash", "Cash")}</SelectItem>
-                      <SelectItem value="card">{t("finance.paymentMethods.card", "Card")}</SelectItem>
-                      <SelectItem value="bank_transfer">{t("finance.paymentMethods.bankTransfer", "Bank Transfer")}</SelectItem>
-                      <SelectItem value="mobile_payment">{t("finance.paymentMethods.mobilePayment", "Mobile Payment")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="payment_status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("finance.transactions.paymentStatus", "Payment Status")}</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("finance.transactions.selectPaymentStatus", "Select payment status")} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="pending">{t("finance.paymentStatus.pending", "Pending")}</SelectItem>
-                      <SelectItem value="completed">{t("finance.paymentStatus.completed", "Completed")}</SelectItem>
-                      <SelectItem value="failed">{t("finance.paymentStatus.failed", "Failed")}</SelectItem>
-                      <SelectItem value="refunded">{t("finance.paymentStatus.refunded", "Refunded")}</SelectItem>
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -209,11 +212,14 @@ export function TransactionDialogStandardized({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
+                disabled={isLoading}
               >
                 {t("common.cancel", "Cancel")}
               </Button>
-              <Button type="submit" disabled={createTransaction.isPending || updateTransaction.isPending}>
-                {isEditing
+              <Button type="submit" disabled={isLoading}>
+                {isLoading
+                  ? t("common.saving", "Saving...")
+                  : isEditing
                   ? t("common.save", "Save")
                   : t("common.create", "Create")}
               </Button>
@@ -223,4 +229,7 @@ export function TransactionDialogStandardized({
       </DialogContent>
     </Dialog>
   );
-} 
+}
+
+export { TransactionDialogStandardized };
+export default TransactionDialogStandardized; 

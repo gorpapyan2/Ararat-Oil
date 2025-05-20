@@ -11,18 +11,18 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/core/components/ui/primitives/radio-group";
+import { Label } from '@/core/components/ui/label';
+import { Separator } from '@/core/components/ui/separator';
 import { 
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from "@/components/ui/select";
+} from "@/core/components/ui/primitives/select";
 
 // Icons
 import { 

@@ -1,132 +1,172 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap");
+/* Import preflight styles first */
+@import url('./styles/preflight.css');
+/* Import custom utility classes */
+@import url('./styles/custom-tailwind.css');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  /* Light mode variables */
-  :root {
-    /* Core palette */
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11.2%;
-    
-    /* Surfaces */
-    --surface-1: 0 0% 100%;
-    --surface-2: 210 40% 96.1%;
-    
-    /* Brand */
-    --primary: 142 48% 44%; /* #3AA655 */
-    --primary-foreground: 0 0% 100%;
-    --accent: 45 93% 51%; /* #F6C90E */
-    --accent-foreground: 222 47% 11.2%;
-    
-    /* Interface */
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11.2%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 222 47% 11.2%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 142 48% 44%;
-    
-    /* States */
-    --success: 142 72% 36%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --info: 221 83% 53%;
-    --info-foreground: 0 0% 100%;
-    
-    --radius: 0.5rem;
-  }
-
-  /* Dark mode variables */
-  .dark {
-    /* Core palette */
-    --background: 222 47% 9.2%;
-    --foreground: 210 40% 98%;
-    
-    /* Surfaces */
-    --surface-1: 222 47% 11.2%;
-    --surface-2: 222 47% 14.2%;
-    
-    /* Brand */
-    --primary: 142 48% 52%;
-    --primary-foreground: 0 0% 100%;
-    --accent: 45 93% 55%;
-    --accent-foreground: 222 47% 11.2%;
-    
-    /* Interface */
-    --card: 222 47% 11.2%;
-    --card-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 223 47% 16%;
-    --muted-foreground: 215.4 16.3% 66.9%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 142 48% 52%;
-    
-    /* States */
-    --success: 142 72% 46%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 60%;
-    --warning-foreground: 0 0% 100%;
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --info: 221 83% 65%;
-    --info-foreground: 0 0% 100%;
-  }
-
-  body {
-    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] font-sans antialiased;
-  }
+@theme {
+  /* Light mode */
+  --color-background: rgb(255 255 255);
+  --color-foreground: rgb(17 24 39);
+  
+  /* Surfaces */
+  --color-surface-1: rgb(255 255 255);
+  --color-surface-2: rgb(243 244 246);
+  
+  /* Brand */
+  --color-primary: rgb(58 166 85);
+  --color-primary-foreground: rgb(255 255 255);
+  --color-accent: rgb(246 201 14);
+  --color-accent-foreground: rgb(17 24 39);
+  
+  /* Interface */
+  --color-card: rgb(255 255 255);
+  --color-card-foreground: rgb(17 24 39);
+  --color-secondary: rgb(241 245 249);
+  --color-secondary-foreground: rgb(17 24 39);
+  --color-muted: rgb(241 245 249);
+  --color-muted-foreground: rgb(107 114 128);
+  --color-border: rgb(226 232 240);
+  --color-input: rgb(226 232 240);
+  --color-ring: rgb(58 166 85);
+  
+  /* States */
+  --color-success: rgb(22 163 74);
+  --color-success-foreground: rgb(255 255 255);
+  --color-warning: rgb(234 179 8);
+  --color-warning-foreground: rgb(255 255 255);
+  --color-destructive: rgb(239 68 68);
+  --color-destructive-foreground: rgb(255 255 255);
+  --color-info: rgb(59 130 246);
+  --color-info-foreground: rgb(255 255 255);
+  
+  --radius: 0.5rem;
 }
 
-@layer utilities {
-  .glass {
-    @apply backdrop-blur-lg bg-white/5 border border-white/10 shadow-md rounded-lg;
-  }
-  
-  .btn-accent {
-    @apply bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))] hover:bg-[hsl(var(--accent))]/90 transition;
-  }
-  
-  .card-modern {
-    @apply bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] shadow-sm rounded-lg border border-[hsl(var(--border))]/50 transition-shadow hover:shadow-md;
-  }
-  
-  .surface-secondary {
-    @apply bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] border border-[hsl(var(--border))]/50;
-  }
-  
-  /* Financial utilities */
-  .stat-positive {
-    @apply text-[hsl(var(--success))] font-medium;
-  }
-  
-  .stat-negative {
-    @apply text-[hsl(var(--destructive))] font-medium;
-  }
-  
-  .theme-transition {
-    transition-property: color, background-color, border-color;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms;
-  }
-  
-  /* Hide scrollbar but keep functionality */
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+:root {
+  color-scheme: light;
+}
 
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+.dark {
+  color-scheme: dark;
+  
+  /* Dark mode custom properties */
+  --color-background: rgb(17 24 39);
+  --color-foreground: rgb(243 244 246);
+  
+  /* Surfaces */
+  --color-surface-1: rgb(31 41 55);
+  --color-surface-2: rgb(55 65 81);
+  
+  /* Brand */
+  --color-primary: rgb(74 222 128);
+  --color-primary-foreground: rgb(255 255 255);
+  --color-accent: rgb(250 204 21);
+  --color-accent-foreground: rgb(17 24 39);
+  
+  /* Interface */
+  --color-card: rgb(31 41 55);
+  --color-card-foreground: rgb(243 244 246);
+  --color-secondary: rgb(55 65 81);
+  --color-secondary-foreground: rgb(243 244 246);
+  --color-muted: rgb(55 65 81);
+  --color-muted-foreground: rgb(156 163 175);
+  --color-border: rgb(55 65 81);
+  --color-input: rgb(55 65 81);
+  --color-ring: rgb(74 222 128);
+  
+  /* States */
+  --color-success: rgb(22 163 74);
+  --color-success-foreground: rgb(255 255 255);
+  --color-warning: rgb(234 179 8);
+  --color-warning-foreground: rgb(255 255 255);
+  --color-destructive: rgb(239 68 68);
+  --color-destructive-foreground: rgb(255 255 255);
+  --color-info: rgb(59 130 246);
+  --color-info-foreground: rgb(255 255 255);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+/* Utility classes for emergency fallbacks - renamed to avoid conflicts */
+.tw-bg-white { background-color: rgb(255 255 255) !important; }
+.tw-bg-black { background-color: rgb(0 0 0) !important; }
+.tw-text-white { color: rgb(255 255 255) !important; }
+.tw-text-black { color: rgb(0 0 0) !important; }
+.tw-bg-gray-50 { background-color: rgb(249 250 251) !important; }
+.tw-bg-gray-800 { background-color: rgb(31 41 55) !important; }
+.tw-bg-gray-900 { background-color: rgb(17 24 39) !important; }
+.tw-text-gray-50 { color: rgb(249 250 251) !important; }
+.tw-text-gray-900 { color: rgb(17 24 39) !important; }
+.tw-border-gray-200 { border-color: rgb(229 231 235) !important; }
+.tw-bg-background { background-color: var(--color-background) !important; }
+
+/* Glass effect */
+.glass {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(16px);
+}
+
+/* Modern button styles */
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-accent-foreground);
+  transition: background-color 0.2s;
+}
+.btn-accent:hover {
+  opacity: 0.9;
+}
+
+/* Card styling */
+.card-modern {
+  background-color: var(--color-card);
+  color: var(--color-card-foreground);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  transition: box-shadow 0.2s;
+}
+.card-modern:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Secondary surface styling */
+.surface-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+  border: 1px solid var(--color-border);
+}
+
+/* Financial stats */
+.stat-positive { color: var(--color-success); font-weight: 500; }
+.stat-negative { color: var(--color-destructive); font-weight: 500; }
+
+/* Theme transition */
+.theme-transition {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

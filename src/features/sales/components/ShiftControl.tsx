@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { StandardDialog } from "@/components/ui/composed/dialog";
-import { Button } from "@/components/ui/button";
+import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { Button } from "@/core/components/ui/button";
 
 interface ShiftControlProps {
   onShiftStart: () => void;

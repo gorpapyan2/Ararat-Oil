@@ -10,13 +10,13 @@ import {
 import { lazy, Suspense, useEffect } from "react";
 import { ThemeProvider } from "@/core/providers/theme-provider";
 import { AdminShell } from "@/layouts/AdminShell";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from '@/core/components/ui/tooltip';
 import { AuthProvider, useAuth } from '@/features/auth';
-import { Loading } from "@/components/ui/loading";
+import { Loading } from '@/core/components/ui/loading';
 import ErrorBoundary from "@/core/providers/ErrorBoundary";
 // Import Auth directly since it's needed for initial load
 import Auth from "@/pages/Auth";
-import { Toaster } from "./components/ui/toaster";
+import { Toaster } from "@/core/components/ui/toast";
 import { useClearConsoleOnNavigation } from "./utils/errorHandling";
 import { logger } from './utils/errorHandling';
 import SyncUpPage from "./pages/SyncUpPage";
@@ -87,7 +87,7 @@ const Transactions = lazy(() =>
   import(/* webpackChunkName: "transactions" */ "@/pages/Transactions")
 );
 const TodoPage = lazy(() => 
-  import(/* webpackChunkName: "todo" */ "@/components/todo")
+  import(/* webpackChunkName: "todo" */ "@/features/todo/components/TodoPage")
 );
 
 // Use simple imports for the Shifts components
@@ -113,6 +113,8 @@ const ToastTester = lazy(() => import(/* webpackChunkName: "dev-toast" */ "@/pag
 const DevTools = lazy(() => import(/* webpackChunkName: "dev-tools" */ "@/pages/dev/DevTools"));
 const CardComponentsPage = lazy(() => import(/* webpackChunkName: "dev-cards" */ "@/pages/dev/CardComponentsPage"));
 const ButtonComponentsPage = lazy(() => import(/* webpackChunkName: "dev-buttons" */ "@/pages/dev/ButtonComponentsPage"));
+// Import the ComponentShowcase page
+const ComponentShowcase = lazy(() => import(/* webpackChunkName: "component-showcase" */ "@/pages/ComponentShowcase"));
 // Fix for named export
 
 // Add new import for ConnectionInfo
@@ -530,6 +532,7 @@ const App = () => {
                                     <Route path="card-components" element={<CardComponentsPage />} />
                                     <Route path="button-components" element={<ButtonComponentsPage />} />
                                     <Route path="connection-info" element={<ConnectionInfo />} />
+                                    <Route path="component-showcase" element={<ComponentShowcase />} />
                                   </Routes>
                                 </AdminShell>
                               </RouteErrorBoundary>

@@ -1,7 +1,7 @@
 import { useAuth } from '@/features/auth';
 import { LoginForm } from '@/features/auth';
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/core/components/ui/button";
+import { Alert, AlertDescription } from '@/core/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
 import type { LoginCredentials } from '@/features/auth';
 

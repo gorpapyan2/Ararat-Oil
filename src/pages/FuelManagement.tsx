@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "@/components/ui/page-header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
+import { PageHeader } from '@/core/components/ui/page-header';
 import { IconGasStation, IconTank, IconTruck } from "@tabler/icons-react";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
-// Import existing managers
-import { FillingSystemManagerStandardized } from "@/components/filling-systems/FillingSystemManagerStandardized";
-import { TankManager } from "@/features/tanks/components/TankManager";
-import { FuelSuppliesManagerStandardized } from "@/components/fuel-supplies/FuelSuppliesManagerStandardized";
+// Import from feature modules
+import { FillingSystemManagerStandardized } from "@/features/filling-systems";
+import { TankManager } from "@/features/tanks";
+import { FuelSuppliesManagerStandardized } from "@/features/fuel-supplies";
 import { useTranslation } from "react-i18next";
 
 // Tab values
@@ -85,7 +85,7 @@ export default function FuelManagement() {
           <TabsList className="bg-transparent h-12 p-0 w-full justify-start space-x-2">
             <TabsTrigger
               value={TABS.FILLING_SYSTEMS}
-              className="data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:rounded-none data-[state=active]:shadow-none px-4 h-12"
+              className="data-[state=active]:bg-gray-50 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:rounded-none data-[state=active]:shadow-none px-4 h-12"
             >
               <IconGasStation className="h-4 w-4 mr-2" />
               {t("common.fillingSystems")}
@@ -93,7 +93,7 @@ export default function FuelManagement() {
 
             <TabsTrigger
               value={TABS.TANKS}
-              className="data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:rounded-none data-[state=active]:shadow-none px-4 h-12"
+              className="data-[state=active]:bg-gray-50 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:rounded-none data-[state=active]:shadow-none px-4 h-12"
             >
               <IconTank className="h-4 w-4 mr-2" />
               {t("common.tanks")}
@@ -101,7 +101,7 @@ export default function FuelManagement() {
 
             <TabsTrigger
               value={TABS.FUEL_SUPPLIES}
-              className="data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:rounded-none data-[state=active]:shadow-none px-4 h-12"
+              className="data-[state=active]:bg-gray-50 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:rounded-none data-[state=active]:shadow-none px-4 h-12"
             >
               <IconTruck className="h-4 w-4 mr-2" />
               {t("common.fuelSupplies")}
@@ -112,7 +112,7 @@ export default function FuelManagement() {
         {/* Tab Content */}
         <div className="mt-6">
           <TabsContent value={TABS.FILLING_SYSTEMS} className="m-0">
-            <FillingSystemManagerStandardized />
+            <FillingSystemManagerStandardized onRenderAction={setFillingSystemsAction} />
           </TabsContent>
 
           <TabsContent value={TABS.TANKS} className="m-0">

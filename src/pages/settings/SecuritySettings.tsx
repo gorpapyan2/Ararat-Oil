@@ -11,7 +11,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/core/components/ui/card";
 import {
   Form,
   FormControl,
@@ -20,25 +20,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@/core/components/ui/form";
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Switch } from '@/core/components/ui/switch';
+import { Label } from '@/core/components/ui/label';
+import { Separator } from '@/core/components/ui/separator';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/core/components/ui/primitives/select";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from '@/core/components/ui/accordion';
 import {
   Dialog,
   DialogContent,
@@ -46,12 +46,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { ActionButton } from "@/components/ui/action-button";
-import { IconButton } from "@/components/ui/icon-button";
-import { Badge } from "@/components/ui/badge";
-import { SessionLogoutDialogStandardized } from "@/components/settings/SessionLogoutDialogStandardized";
+} from "@/core/components/ui/primitives/dialog";
+import { LoadingButton } from '@/core/components/ui/loading-button';
+import { ActionButton } from '@/core/components/ui/action-button';
+import { IconButton } from '@/core/components/ui/icon-button';
+import { Badge } from '@/core/components/ui/badge';
+import { SessionLogoutDialogStandardized } from "@/features/auth/components/SessionLogoutDialogStandardized";
 
 // Icons
 import {
@@ -436,7 +436,7 @@ function SecuritySettings() {
               </div>
               
               {security.twoFactorMethod === "app" && (
-                <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
+                <div className="rounded-lg border bg-muted bg-opacity-50 p-4 space-y-3">
                   <div className="text-sm font-medium">
                     {t("settings.security.setupAuthenticator")}
                   </div>

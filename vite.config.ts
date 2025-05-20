@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
@@ -44,6 +45,7 @@ export default defineConfig(({ command, mode }) => ({
     'require': 'window.require'
   },
   plugins: [
+    tailwindcss(),
     react({
       jsxImportSource: 'react'
     }),

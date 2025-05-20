@@ -5,9 +5,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+} from '@/core/components/ui/dropdown-menu';
+import { Button } from "@/core/components/ui/button";
+import { Badge } from '@/core/components/ui/badge';
 import { Check, ChevronDown } from "lucide-react";
 import { useFuelSales } from "../hooks/useFuelSales";
 import type { FuelSale } from "../types/fuel-sales.types";

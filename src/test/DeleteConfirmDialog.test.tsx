@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { DeleteConfirmDialog } from '@/components/ui/composed/dialog';
+import { DeleteConfirmDialog } from "@/core/components/ui/primitives/dialog";
 
 // Mock useMediaQuery hook
 vi.mock('@/hooks/use-media-query', () => ({

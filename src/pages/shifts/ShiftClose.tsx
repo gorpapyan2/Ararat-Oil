@@ -4,13 +4,13 @@ import { useShift } from "@/hooks/useShift";
 import { useAuth } from "@/features/auth";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/layouts/PageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MultiPaymentMethodFormStandardized, MultiPaymentFormData } from "@/components/shared/MultiPaymentMethodFormStandardized";
-import { formatCurrency, formatDateTime, calculateDuration } from "@/lib/utils";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { MultiPaymentMethodFormStandardized, MultiPaymentFormData } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
+import { formatCurrency, formatDateTime, calculateDuration } from "@/shared/utils";
+import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
 import { ArrowLeft, AlertCircle, CheckCircle2, Loader2, ClockIcon, DollarSign, Receipt, Calendar } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from '@/core/components/ui/separator';
 
 // Add a safe formatting function
 const safeFormatDateTime = (dateString?: string | null): string => {
@@ -301,7 +301,7 @@ export default function ShiftClose() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
                 <p className="text-sm text-muted-foreground text-center max-w-md">
@@ -443,7 +443,7 @@ export default function ShiftClose() {
           
           <CardContent>
             <div className="space-y-6">
-              <div className="bg-accent/30 border border-accent rounded-md p-4">
+              <div className="bg-accent bg-opacity-30 border border-accent rounded-md p-4">
                 <h3 className="text-sm font-medium mb-2">{t("shifts.confirmClosure")}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   {t("shifts.closureWarning", "Please record how the money was received during this shift. The system will calculate the expected values based on sales.")}

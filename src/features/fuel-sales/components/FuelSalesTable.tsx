@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { Button } from "@/core/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { FuelSalesStatusUpdate } from "./FuelSalesStatusUpdate";
 import type { FuelSale } from "../types/fuel-sales.types";

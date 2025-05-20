@@ -7,15 +7,15 @@ import {
 } from "@tabler/icons-react";
 
 // Import our custom UI components
-import { PageHeader } from "@/components/ui/page-header";
-import { CreateButton } from "@/components/ui/create-button";
+import { PageHeader } from '@/core/components/ui/page-header';
+import { CreateButton } from '@/core/components/ui/create-button';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { MetricCard } from "@/components/ui/composed/cards";
+} from "@/core/components/ui/card";
+import { MetricCard } from "@/core/components/ui/composed/card";
 
 // Import existing sales hooks and components
 import {
@@ -141,19 +141,19 @@ export default function SalesNew() {
           title="Total Sales"
           value={formatCurrency(totalSalesAmount)}
           icon={<IconCurrencyDollar className="h-6 w-6" />}
-          className="bg-primary/10"
+          className="bg-primary bg-opacity-10"
         />
         <MetricCard
           title="Total Liters"
           value={`${Math.round(totalLiters).toLocaleString()} L`}
           icon={<IconCurrencyDollar className="h-6 w-6" />}
-          className="bg-success/10"
+          className="bg-success bg-opacity-10"
         />
         <MetricCard
           title="Average Price"
           value={formatCurrency(averagePrice)}
           icon={<IconCurrencyDollar className="h-6 w-6" />}
-          className="bg-warning/10"
+          className="bg-warning bg-opacity-10"
         />
       </div>
 

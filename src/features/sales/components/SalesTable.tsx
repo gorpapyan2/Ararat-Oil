@@ -1,27 +1,35 @@
-import { useMemo, useState } from "react";
-import { Sale } from "@/types";
-import { format } from "date-fns";
-import { StandardizedDataTable, FiltersShape } from "@/components/unified/StandardizedDataTable";
-import { Badge } from "@/components/ui/badge";
+import { useState, useMemo } from 'react';
+import { format } from 'date-fns';
 import {
-  Calendar,
-  Fuel,
-  Droplet,
-  Banknote,
-} from "lucide-react";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/core/components/ui/primitives/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/core/components/ui/primitives/dropdown-menu";
+import { Button } from "@/core/components/ui/button";
+import { MoreHorizontal, Edit, Trash, FileText, Eye } from 'lucide-react';
+import { Badge } from "@/core/components/ui/primitives/badge";
+import { Skeleton } from "@/core/components/ui/primitives/skeleton";
+import { useTranslation } from 'react-i18next';
+import { Sale } from '../types';
 
 interface SalesTableProps {
   sales: Sale[];
   isLoading: boolean;
-  onEdit?: (id: string) => void;
+  onEdit?: (sale: Sale) => void;
   onDelete?: (id: string) => void;
   onView?: (sale: Sale) => void;
-  systems?: { id: string; name: string }[];
-  fuelTypes?: { id: string; name: string }[];
-  onFiltersChange?: (filters: any) => void;
-  totalCount?: number;
-  onPageChange?: (page: number, pageSize: number) => void;
-  onSortChange?: (column: string | null, direction: 'asc' | 'desc') => void;
+  onGenerateReceipt?: (sale: Sale) => void;
 }
 
 export function SalesTable({
@@ -30,124 +38,206 @@ export function SalesTable({
   onEdit,
   onDelete,
   onView,
-  systems = [],
-  fuelTypes = [],
-  onFiltersChange = () => {},
-  totalCount = 0,
-  onPageChange,
-  onSortChange,
+  onGenerateReceipt,
 }: SalesTableProps) {
-  const [filters, setFilters] = useState<FiltersShape>({
-    searchTerm: "",
-    product: "all",
-    fuelType: "all",
-  });
+  const { t } = useTranslation(['sales', 'common']);
+  const [sortColumn, setSortColumn] = useState<keyof Sale>('saleDate');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  // Handle filter changes
-  const handleFilterChange = (newFilters: FiltersShape) => {
-    setFilters(newFilters);
-    onFiltersChange(newFilters);
+  const handleSort = (column: keyof Sale) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
   };
 
-  // Define columns for the StandardizedDataTable
-  const columns = useMemo(() => [
-    {
-      accessorKey: "date" as keyof Sale,
-      header: "Date",
-      cell: (value: any, row: Sale) => (
-        <div className="flex items-center gap-2 py-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">
-            {value && typeof value === "string"
-              ? format(new Date(value), "PP")
-              : "N/A"}
-          </span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "filling_system_name" as keyof Sale,
-      header: "Filling System",
-      cell: (value: any, row: Sale) => (
-        <div className="flex items-center gap-2 py-2">
-          <Fuel className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{value || "N/A"}</span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "quantity" as keyof Sale,
-      header: "Total Liters",
-      cell: (value: any, row: Sale) => {
-        const quantity = value !== undefined && value !== null
-          ? Number(value).toFixed(2)
-          : "0";
+  const sortedSales = useMemo(() => {
+    if (!sales) return [];
+    
+    return [...sales].sort((a, b) => {
+      let aValue = a[sortColumn];
+      let bValue = b[sortColumn];
+      
+      // Handle dates
+      if (sortColumn === 'saleDate' || sortColumn === 'createdAt' || sortColumn === 'updatedAt') {
+        aValue = aValue ? new Date(aValue).getTime() : 0;
+        bValue = bValue ? new Date(bValue).getTime() : 0;
+      }
+      
+      if (aValue === bValue) return 0;
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+      
+      const result = aValue < bValue ? -1 : 1;
+      return sortDirection === 'asc' ? result : -result;
+    });
+  }, [sales, sortColumn, sortDirection]);
 
-        return (
-          <div className="text-right font-medium tabular-nums">
-            <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
-              {quantity} L
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "price_per_unit" as keyof Sale,
-      header: "Price/Unit",
-      cell: (value: any, row: Sale) => {
-        const price = value !== undefined && value !== null
-          ? Number(value).toLocaleString()
-          : "0";
+  const renderPaymentStatusBadge = (status: string) => {
+    let variant:
+      | 'default'
+      | 'secondary'
+      | 'destructive'
+      | 'outline'
+      | null
+      | undefined = 'default';
 
-        return (
-          <div className="text-right font-medium tabular-nums">
-            {price} ֏
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "total_sales" as keyof Sale,
-      header: "Total Sales",
-      cell: (value: any, row: Sale) => {
-        const formattedValue = value !== undefined && value !== null
-          ? Number(value).toLocaleString()
-          : "0";
+    switch (status) {
+      case 'paid':
+        variant = 'default';
+        break;
+      case 'pending':
+        variant = 'secondary';
+        break;
+      case 'cancelled':
+        variant = 'destructive';
+        break;
+      default:
+        variant = 'outline';
+    }
 
-        return (
-          <div className="text-right font-medium tabular-nums">
-            <span className="font-semibold text-primary">
-              {formattedValue} ֏
-            </span>
-          </div>
-        );
-      },
-    },
-  ], []);
+    return (
+      <Badge variant={variant}>
+        {t(`sales:paymentStatuses.${status}`)}
+      </Badge>
+    );
+  };
 
-  const isServerSide = Boolean(onPageChange && onSortChange);
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full" />
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <StandardizedDataTable
-      title="Sales"
-      columns={columns}
-      data={sales}
-      loading={isLoading}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onRowClick={onView}
-      filters={filters}
-      onFilterChange={handleFilterChange}
-      totalRows={totalCount}
-      serverSide={isServerSide}
-      onPageChange={onPageChange}
-      onSortChange={onSortChange}
-      exportOptions={{
-        enabled: true,
-        filename: 'sales-export',
-        exportAll: true
-      }}
-    />
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead
+              className="cursor-pointer"
+              onClick={() => handleSort('saleDate')}
+            >
+              {t('sales:fields.saleDate')}
+              {sortColumn === 'saleDate' && (
+                <span className="ml-2">
+                  {sortDirection === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </TableHead>
+            <TableHead className="cursor-pointer" onClick={() => handleSort('fuelType')}>
+              {t('sales:fields.fuelType')}
+              {sortColumn === 'fuelType' && (
+                <span className="ml-2">
+                  {sortDirection === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </TableHead>
+            <TableHead className="cursor-pointer" onClick={() => handleSort('quantityLiters')}>
+              {t('sales:fields.quantityLiters')}
+              {sortColumn === 'quantityLiters' && (
+                <span className="ml-2">
+                  {sortDirection === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </TableHead>
+            <TableHead className="cursor-pointer" onClick={() => handleSort('unitPrice')}>
+              {t('sales:fields.unitPrice')}
+              {sortColumn === 'unitPrice' && (
+                <span className="ml-2">
+                  {sortDirection === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </TableHead>
+            <TableHead className="cursor-pointer" onClick={() => handleSort('amount')}>
+              {t('sales:fields.amount')}
+              {sortColumn === 'amount' && (
+                <span className="ml-2">
+                  {sortDirection === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </TableHead>
+            <TableHead className="cursor-pointer" onClick={() => handleSort('paymentStatus')}>
+              {t('sales:fields.paymentStatus')}
+              {sortColumn === 'paymentStatus' && (
+                <span className="ml-2">
+                  {sortDirection === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </TableHead>
+            <TableHead className="text-right">{t('common:actions')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedSales.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="h-24 text-center">
+                {t('common:noDataAvailable')}
+              </TableCell>
+            </TableRow>
+          ) : (
+            sortedSales.map((sale) => (
+              <TableRow key={sale.id}>
+                <TableCell>
+                  {sale.saleDate ? format(new Date(sale.saleDate), 'PPP') : '-'}
+                </TableCell>
+                <TableCell>{t(`sales:fuelTypes.${sale.fuelType}`)}</TableCell>
+                <TableCell>{sale.quantityLiters?.toFixed(2)}</TableCell>
+                <TableCell>{sale.unitPrice?.toFixed(2)}</TableCell>
+                <TableCell>{sale.amount?.toFixed(2)}</TableCell>
+                <TableCell>
+                  {renderPaymentStatusBadge(sale.paymentStatus)}
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">{t('common:openMenu')}</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>{t('common:actions')}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {onView && (
+                        <DropdownMenuItem onClick={() => onView(sale)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          <span>{t('common:view')}</span>
+                        </DropdownMenuItem>
+                      )}
+                      {onEdit && (
+                        <DropdownMenuItem onClick={() => onEdit(sale)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          <span>{t('common:edit')}</span>
+                        </DropdownMenuItem>
+                      )}
+                      {onDelete && (
+                        <DropdownMenuItem onClick={() => onDelete(sale.id)}>
+                          <Trash className="mr-2 h-4 w-4" />
+                          <span>{t('common:delete')}</span>
+                        </DropdownMenuItem>
+                      )}
+                      {onGenerateReceipt && (
+                        <DropdownMenuItem onClick={() => onGenerateReceipt(sale)}>
+                          <FileText className="mr-2 h-4 w-4" />
+                          <span>{t('sales:generateReceipt')}</span>
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 } 

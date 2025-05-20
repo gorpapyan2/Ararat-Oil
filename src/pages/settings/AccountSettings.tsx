@@ -11,14 +11,14 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "@/core/components/ui/card";
+import { Separator } from '@/core/components/ui/separator';
+import { Input } from "@/core/components/ui/primitives/input";
+import { Button } from "@/core/components/ui/button";
+import { Label } from '@/core/components/ui/label';
 
 // Icons
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
 import { 
   Upload,
   UserRound, 

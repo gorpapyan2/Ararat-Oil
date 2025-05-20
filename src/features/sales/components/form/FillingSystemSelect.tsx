@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { fillingSystemsApi } from "@/core/api";
 import { FillingSystem } from "@/core/api";
-import { FormSelect } from "@/components/ui/composed/form-fields";
+import { FormSelect } from '@/core/components/ui/composed/form-fields';
 import type { Control } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription } from '@/core/components/ui/alert';
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/core/components/ui/button";
 
 interface FillingSystemSelectProps {
   control: Control<any>;

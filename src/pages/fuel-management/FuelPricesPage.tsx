@@ -1,32 +1,37 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { PageHeader } from "@/components/ui/page-header";
+import { PageHeader } from '@/core/components/ui/page-header';
 import { Home, Fuel, Tag, AlertCircle, Plus, Pencil, Trash2, MoreHorizontal, History, ArrowUpDown } from "lucide-react";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 import { 
-  fuelPricesApi, 
-  FuelPrice, 
   fuelTypesApi,
   FuelType as FuelTypeModel
 } from "@/core/api";
+import { 
+  useFuelPrices, 
+  useUpdateFuelPrice, 
+  useCreateFuelPrice,
+  getFuelPrices
+} from "@/features/fuel-prices";
+import type { FuelPrice } from "@/features/fuel-prices";
 import { FuelTypeCode } from "@/types";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Label } from '@/core/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
 import { useToast } from "@/hooks/useToast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StandardDialog } from "@/components/ui/composed/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
+import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { Badge } from '@/core/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/core/components/ui/dropdown-menu';
 import { format } from "date-fns";
 import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
 
@@ -39,7 +44,12 @@ const FUEL_TYPE_CODES = ["diesel", "gas", "petrol_regular", "petrol_premium"] as
 export default function FuelPricesPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
+  
+  // Use the new React Query hooks
+  const { data: fuelPricesData, isLoading, error: fuelPricesError } = useFuelPrices();
+  const updateFuelPriceMutation = useUpdateFuelPrice();
+  const createFuelPriceMutation = useCreateFuelPrice();
+  
   const [error, setError] = useState<string | null>(null);
   const [fuelPrices, setFuelPrices] = useState<FuelPrice[]>([]);
   const [editPrices, setEditPrices] = useState<FuelPrice[]>([]);
@@ -76,25 +86,24 @@ export default function FuelPricesPage() {
     title: t("common.fuelPrices")
   });
 
-  // Load current fuel prices
+  // Update local state when React Query data is loaded
   useEffect(() => {
-    const loadFuelPrices = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await fuelPricesApi.getFuelPrices();
-        setFuelPrices(response.data || []);
-        setEditPrices(response.data || []);
-        setIsLoading(false);
-      } catch (err) {
-        console.error("Failed to load fuel prices:", err);
-        setError(getApiErrorMessage(apiNamespaces.fuelPrices, 'fetch'));
-        setIsLoading(false);
-      }
-    };
+    if (fuelPricesData) {
+      setFuelPrices(fuelPricesData);
+      if (!editing) setEditPrices(fuelPricesData);
+    }
+  }, [fuelPricesData, editing]);
 
-    loadFuelPrices();
-  }, [t]);
+  // Update error state when React Query error occurs
+  useEffect(() => {
+    if (fuelPricesError) {
+      setError(fuelPricesError instanceof Error 
+        ? fuelPricesError.message 
+        : getApiErrorMessage(apiNamespaces.fuelPrices, 'fetch'));
+    } else {
+      setError(null);
+    }
+  }, [fuelPricesError]);
 
   // Load fuel types
   useEffect(() => {
@@ -121,9 +130,9 @@ export default function FuelPricesPage() {
   const loadPriceHistory = async (fuelType?: FuelTypeCode) => {
     setHistoryLoading(true);
     try {
-      const params = fuelType ? { fuel_type: fuelType } : undefined;
-      const response = await fuelPricesApi.getFuelPrices(params);
-      setPriceHistory(response.data || []);
+      const filters = fuelType ? { fuel_type: fuelType } : undefined;
+      const prices = await getFuelPrices(filters);
+      setPriceHistory(prices);
     } catch (err) {
       console.error("Failed to load price history:", err);
       toast({
@@ -169,12 +178,15 @@ export default function FuelPricesPage() {
       setSubmitting(true);
       setError(null);
 
-      // Update prices
+      // Update prices using mutations
       await Promise.all(editPrices.map(async (price) => {
         if (price.id) {
-          return fuelPricesApi.updateFuelPrice(price.id, { price_per_liter: price.price_per_liter });
+          return updateFuelPriceMutation.mutateAsync({
+            id: price.id, 
+            data: { price_per_liter: price.price_per_liter }
+          });
         } else {
-          return fuelPricesApi.createFuelPrice({
+          return createFuelPriceMutation.mutateAsync({
             fuel_type: price.fuel_type as FuelTypeCode,
             price_per_liter: price.price_per_liter,
             effective_date: new Date().toISOString(),
@@ -182,9 +194,6 @@ export default function FuelPricesPage() {
         }
       }));
       
-      // Refresh prices
-      const refreshedPrices = await fuelPricesApi.getFuelPrices();
-      setFuelPrices(refreshedPrices.data || []);
       setEditing(false);
       setSubmitting(false);
       

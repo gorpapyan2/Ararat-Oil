@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { tanksService } from "../services/tanksService";
+import { getTanks, getFuelTypes } from "../services";
 import { TankList } from "./TankList";
 import { TankFormDialog } from "./TankFormDialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/core/components/ui/button";
 import { Plus, Gauge } from "lucide-react";
 import { useDialog } from "@/hooks/useDialog";
 import { useTranslation } from "react-i18next";
@@ -24,7 +24,7 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
     refetch,
   } = useQuery({
     queryKey: ["tanks"],
-    queryFn: tanksService.getTanks,
+    queryFn: getTanks,
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
@@ -33,7 +33,7 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
   // Fetch fuel types
   const { data: fuelTypes = [] } = useQuery({
     queryKey: ["fuel-types"],
-    queryFn: tanksService.getFuelTypes,
+    queryFn: getFuelTypes,
   });
 
   // Memoize the refetch callback

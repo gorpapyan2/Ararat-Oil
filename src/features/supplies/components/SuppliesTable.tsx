@@ -20,18 +20,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from "@/core/components/ui/primitives/table";
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/primitives/input";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
+} from "@/core/components/ui/primitives/dropdown-menu";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { Calendar, ChevronDown, Download, Filter } from 'lucide-react';
-import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { DateRangePicker } from '@/core/components/ui/composed/date-range-picker';
 import { useSuppliesFilters } from '../store/useSuppliesFilters';
 import { FuelSupply } from '../types';
 import { exportToCsv, exportToPdf } from '../utils/export';

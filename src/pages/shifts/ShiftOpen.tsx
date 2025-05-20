@@ -3,24 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { useShift } from "@/hooks/useShift";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/layouts/PageLayout";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Button, ButtonLink } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Label } from '@/core/components/ui/label';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
 import { ArrowLeft, AlertCircle, CheckCircle2, CalendarClock, DollarSign, Clock, Receipt, Users } from "lucide-react";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/core/components/ui/form";
+import { Separator } from '@/core/components/ui/separator';
 import { employeesApi, Employee } from "@/core/api";
 import { FuelType } from "@/types";
-import { MultiSelect } from "@/components/ui/multi-select";
+import { MultiSelect } from '@/core/components/ui/multi-select';
 import { fuelPricesApi } from "@/core/api";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
+import { Checkbox } from '@/core/components/ui/checkbox';
 
 // Define form schema with Zod
 const openShiftSchema = z.object({

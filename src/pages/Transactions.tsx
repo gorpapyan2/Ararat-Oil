@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { TransactionsManagerStandardized } from "@/components/transactions/TransactionsManagerStandardized";
+import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Breadcrumb } from '@/core/components/ui/breadcrumb';
+import { TransactionsManagerStandardized } from "@/features/finance/components/TransactionsManagerStandardized";
 import { useTranslation } from "react-i18next";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 

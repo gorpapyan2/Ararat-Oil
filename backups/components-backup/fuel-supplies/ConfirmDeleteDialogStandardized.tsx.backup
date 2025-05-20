@@ -1,0 +1,54 @@
+/**
+ * @deprecated This component is deprecated and will be removed in the next major version.
+ * Please use the standardized version from the feature directory instead:
+ * {@link import('@/features/fuel-supplies/components/ConfirmDeleteDialogStandardized')}
+ * 
+ * Deprecation Date: 2023-06-17
+ * Planned Removal Date: 2023-12-17
+ * Migration Guide: See docs/refactoring/component-deprecation-schedule.md
+ */
+import {
+  // Issue a deprecation warning
+  useEffect(() => {
+    console.warn(
+      '[Deprecation Warning] ConfirmDeleteDialogStandardized in src/components/fuel-supplies/ConfirmDeleteDialogStandardized.tsx is deprecated. ' +
+      'Use ConfirmDeleteDialogStandardized from @/features/fuel-supplies/components/ConfirmDeleteDialogStandardized instead. ' +
+      'This component will be removed on 2023-12-17.'
+    );
+  }, []);
+ useEffect } from 'react';
+import { DeleteConfirmDialog } from "@/components/ui/composed/dialog";
+
+interface ConfirmDeleteDialogStandardizedProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  isLoading?: boolean;
+  recordInfo?: string;
+}
+
+
+/**
+ * @deprecated This component is deprecated. Use ConfirmDeleteDialogStandardized from @/features/fuel-supplies/components instead.
+ * See the feature components for the replacement.
+ */
+export function ConfirmDeleteDialogStandardized({
+  open,
+  onOpenChange,
+  onConfirm,
+  isLoading,
+  recordInfo,
+}: ConfirmDeleteDialogStandardizedProps) {
+  return (
+    <DeleteConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      onConfirm={onConfirm}
+      title="Delete Fuel Supply"
+      description={`Are you sure you want to delete this fuel supply${
+        recordInfo ? ` – ${recordInfo}` : ""
+      }? This action cannot be undone.`}
+      isLoading={isLoading}
+    />
+  );
+} 

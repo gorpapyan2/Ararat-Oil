@@ -2,7 +2,7 @@ import { useMemo, useEffect } from "react";
 import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { FormProvider } from "react-hook-form";
@@ -16,16 +16,16 @@ import { petrolProvidersApi, Tank, tanksApi, employeesApi, Employee, ApiResponse
 import { FuelSupply, FuelType, FuelTypeCode } from "@/types";
 
 // UI Components
-import { Button } from "@/components/ui/button";
+import { Button } from "@/core/components/ui/button";
 import { 
   Dialog, 
   DialogContent, 
   DialogFooter, 
   DialogHeader, 
   DialogTitle 
-} from "@/components/ui/dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/core/components/ui/primitives/dialog";
+import { Alert, AlertDescription } from '@/core/components/ui/alert';
+import { Skeleton } from '@/core/components/ui/skeleton';
 
 // Form Components
 import {
@@ -34,7 +34,7 @@ import {
   FormTextarea,
   FormCurrencyInput,
   FormDatePicker
-} from "@/components/ui/composed/form-fields";
+} from '@/core/components/ui/composed/form-fields';
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 
 // Define custom styles for the tank select dropdown
@@ -223,7 +223,7 @@ export function FuelSuppliesForm({
   const tankOptions = useMemo(() => {
     return tanks?.data?.map(tank => {
       // Safely extract fuel type label
-      let fuelTypeLabel = tank.fuel_type_id || "";
+      const fuelTypeLabel = tank.fuel_type_id || "";
       
       const fuelTypeCode = tank.fuel_type_id;
       const fuelTypeColor = fuelTypeColors[fuelTypeCode as FuelTypeCode];

@@ -17,7 +17,7 @@ import { useBreadcrumbs } from "@/core/providers/BreadcrumbProvider";
 import { Settings as SettingsIcon } from "lucide-react";
 
 // Import our custom UI components
-import { PageHeader } from "@/components/ui/page-header";
+import { PageHeader } from '@/core/components/ui/page-header';
 import {
   Card,
   CardContent,
@@ -25,28 +25,28 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
-} from "@/components/ui/card";
+} from "@/core/components/ui/card";
 
 // Import UI components
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Label } from '@/core/components/ui/label';
+import { Separator } from '@/core/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
+import { Avatar, AvatarImage, AvatarFallback } from '@/core/components/ui/avatar';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+} from "@/core/components/ui/primitives/select";
+import { Switch } from '@/core/components/ui/switch';
 import { useToast } from "@/hooks";
 import { useTheme } from "@/core/providers/theme-provider";
 import { useAuth } from '@/features/auth';
-import { ActionButton } from "@/components/ui/action-button";
-import { LoadingButton } from "@/components/ui/loading-button";
+import { ActionButton } from '@/core/components/ui/action-button';
+import { LoadingButton } from '@/core/components/ui/loading-button';
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function Settings() {
@@ -407,30 +407,30 @@ export default function Settings() {
                 <h3 className="text-sm font-medium">{t("settings.appearance.theme")}</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div
-                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "light" ? "border-primary bg-primary/5" : ""}`}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "light" ? "border-primary bg-primary bg-opacity-5" : ""}`}
                     onClick={() => setTheme("light")}
                   >
-                    <div className="rounded-full bg-primary/10 p-2">
+                    <div className="rounded-full bg-primary bg-opacity-10 p-2">
                       <IconSun className="h-5 w-5 text-primary" />
                     </div>
                     <span className="text-sm font-medium">{t("settings.appearance.light")}</span>
                   </div>
 
                   <div
-                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "dark" ? "border-primary bg-primary/5" : ""}`}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "dark" ? "border-primary bg-primary bg-opacity-5" : ""}`}
                     onClick={() => setTheme("dark")}
                   >
-                    <div className="rounded-full bg-primary/10 p-2">
+                    <div className="rounded-full bg-primary bg-opacity-10 p-2">
                       <IconMoon className="h-5 w-5 text-primary" />
                     </div>
                     <span className="text-sm font-medium">{t("settings.appearance.dark")}</span>
                   </div>
 
                   <div
-                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "system" ? "border-primary bg-primary/5" : ""}`}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "system" ? "border-primary bg-primary bg-opacity-5" : ""}`}
                     onClick={() => setTheme("system")}
                   >
-                    <div className="rounded-full bg-primary/10 p-2">
+                    <div className="rounded-full bg-primary bg-opacity-10 p-2">
                       <IconDeviceLaptop className="h-5 w-5 text-primary" />
                     </div>
                     <span className="text-sm font-medium">{t("settings.appearance.system")}</span>

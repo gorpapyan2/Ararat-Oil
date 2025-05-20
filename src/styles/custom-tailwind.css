@@ -1,0 +1,100 @@
+/* This file contains explicit utility classes that might be purged by Tailwind */
+
+.bg-gray-50 {
+  background-color: #ffffff;
+}
+
+.bg-black {
+  background-color: #000000;
+}
+
+.text-white {
+  color: #ffffff;
+}
+
+.text-black {
+  color: #000000;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+.bg-gray-800 {
+  background-color: #1f2937;
+}
+
+.bg-gray-900 {
+  background-color: #111827;
+}
+
+.text-gray-50 {
+  color: #f9fafb;
+}
+
+.text-gray-900 {
+  color: #111827;
+}
+
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+/* 
+ * Legacy compatibility classes for Tailwind CSS v4
+ * These classes use the tw- prefix to avoid conflicts
+ */
+
+.tw-bg-white {
+  background-color: rgb(255 255 255);
+}
+
+.tw-bg-black {
+  background-color: rgb(0 0 0);
+}
+
+.tw-text-white {
+  color: rgb(255 255 255);
+}
+
+.tw-text-black {
+  color: rgb(0 0 0);
+}
+
+.tw-bg-gray-50 {
+  background-color: rgb(249 250 251);
+}
+
+.tw-bg-gray-800 {
+  background-color: rgb(31 41 55);
+}
+
+.tw-bg-gray-900 {
+  background-color: rgb(17 24 39);
+}
+
+.tw-text-gray-50 {
+  color: rgb(249 250 251);
+}
+
+.tw-text-gray-900 {
+  color: rgb(17 24 39);
+}
+
+.tw-border-gray-200 {
+  border-color: rgb(229 231 235);
+}
+
+/* Legacy class for background color */
+.bg-background {
+  background-color: var(--color-background);
+}
+
+/* Legacy text colors */
+.text-gray-500 {
+  color: rgb(107 114 128);
+}
+
+.text-gray-700 {
+  color: rgb(55 65 81);
+} 

@@ -6,10 +6,10 @@ import { IconArrowLeft } from "@tabler/icons-react";
 import { Home, CircleDollarSign, Plus, AlertCircle } from "lucide-react";
 
 // Import components
-import { PageHeader } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PageHeader } from '@/core/components/ui/page-header';
+import { Button } from "@/core/components/ui/button";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { Alert, AlertDescription } from '@/core/components/ui/alert';
 import { expensesApi, Expense, PaymentStatus, ExpenseCategory, PaymentMethod } from "@/core/api";
 import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";

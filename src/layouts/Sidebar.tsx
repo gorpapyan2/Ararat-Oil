@@ -1,13 +1,13 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils";
 import { useAuth } from '@/features/auth';
-import { SidebarLogo } from "@/components/sidebar/SidebarLogo";
-import { SidebarNavSection, type NavItemConfig } from "@/components/sidebar/SidebarNavSection";
-import { SidebarFooter } from "@/components/sidebar/SidebarFooter";
+import { SidebarLogo } from "@/shared/components/sidebar/SidebarLogo";
+import { SidebarNavSection, type NavItemConfig } from "@/shared/components/sidebar/SidebarNavSection";
+import { SidebarFooter } from "@/shared/components/sidebar/SidebarFooter";
 import { useSidebarNavConfig } from "@/core/config";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
+import { ThemeSwitcher } from '@/core/components/ui/ThemeSwitcher';
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 interface SidebarProps {
@@ -65,7 +65,7 @@ export function Sidebar({
   return (
     <motion.aside
       className={cn(
-        "flex flex-col border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "flex flex-col border-r bg-card bg-opacity-50  bg-gray-50 bg-opacity-60",
         "fixed top-0 left-0 h-screen z-30 transition-colors duration-300",
         isMobile && "z-50 shadow-lg",
         isMobile && !isOpen && "transform -translate-x-full",
@@ -105,7 +105,7 @@ export function Sidebar({
         </AnimatePresence>
       </div>
 
-      <div className="bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
+      <div className="bg-card bg-opacity-50  bg-gray-50 bg-opacity-60 border-t">
         {/* Theme switcher */}
         <div className={cn(
           "flex items-center p-3", 

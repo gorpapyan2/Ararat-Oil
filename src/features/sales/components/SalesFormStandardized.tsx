@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/core/components/ui/button";
 import {
   Form,
   FormControl,
@@ -6,8 +6,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/core/components/ui/form";
+import { Input } from "@/core/components/ui/primitives/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,7 @@ import {
 import {
   FormCurrencyInput,
   FormSelect,
-} from "@/components/ui/composed/form-fields";
+} from '@/core/components/ui/composed/form-fields';
 import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
 import { FillingSystemSelect } from "./form/FillingSystemSelect";
 import { useTranslation } from "react-i18next";
@@ -229,7 +229,7 @@ export function SalesFormStandardized({
         </div>
 
         {/* Display calculated total sales */}
-        <div className="bg-muted/30 p-3 rounded-md text-sm">
+        <div className="bg-muted bg-opacity-30 p-3 rounded-md text-sm">
           <div className="font-medium">Total Sales: {totalSales.toFixed(2)} ֏</div>
           <div className="text-muted-foreground text-xs">
             Calculated as Quantity ({(meterEnd - meterStart).toFixed(2)}) × Unit Price ({unitPrice.toFixed(2)})

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   Dialog,
@@ -11,8 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/core/components/ui/dialog";
+import { Button } from "@/core/components/ui/button";
 import {
   Form,
   FormControl,
@@ -20,9 +21,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/core/components/ui/form";
+import { Input } from "@/core/components/ui/primitives/input";
 import { useFinance } from "../hooks/useFinance";
+import { calculateProfitLoss } from "../services";
 import type { ProfitLoss } from "../types/finance.types";
 
 const profitLossSchema = z.object({
@@ -43,9 +45,31 @@ export function ProfitLossManagerStandardized({
   isLoading,
 }: ProfitLossManagerStandardizedProps) {
   const { t } = useTranslation();
-  const { createProfitLoss, updateProfitLoss } = useFinance();
+  const queryClient = useQueryClient();
+  const { refetchAll } = useFinance();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProfitLoss, setSelectedProfitLoss] = useState<ProfitLoss | null>(null);
+
+  // Create the mutations directly with the calculateProfitLoss function
+  const createProfitLoss = useMutation({
+    mutationFn: (data: { period: string; total_sales: number; total_expenses: number; profit: number }) => 
+      calculateProfitLoss(data.period),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profit-loss'] });
+      toast.success(t("finance.profitLoss.createSuccess", "Profit & Loss created successfully"));
+      refetchAll();
+    },
+  });
+
+  const updateProfitLoss = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { period: string; total_sales: number; total_expenses: number; profit: number }}) => 
+      calculateProfitLoss(data.period),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profit-loss'] });
+      toast.success(t("finance.profitLoss.updateSuccess", "Profit & Loss updated successfully"));
+      refetchAll();
+    },
+  });
 
   const form = useForm<ProfitLossFormValues>({
     resolver: zodResolver(profitLossSchema),
@@ -72,7 +96,6 @@ export function ProfitLossManagerStandardized({
         },
         {
           onSuccess: () => {
-            toast.success(t("finance.profitLoss.updateSuccess", "Profit & Loss updated successfully"));
             setIsDialogOpen(false);
             setSelectedProfitLoss(null);
           },
@@ -92,7 +115,6 @@ export function ProfitLossManagerStandardized({
         },
         {
           onSuccess: () => {
-            toast.success(t("finance.profitLoss.createSuccess", "Profit & Loss created successfully"));
             setIsDialogOpen(false);
           },
           onError: (error) => {
@@ -170,11 +192,7 @@ export function ProfitLossManagerStandardized({
 
       <Dialog 
         open={isDialogOpen} 
-        onOpenChange={setIsDialogOpen}
-        title={selectedProfitLoss
-          ? t("finance.profitLoss.edit", "Edit Profit & Loss")
-          : t("finance.profitLoss.create", "Create Profit & Loss")}
-      >
+        onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>

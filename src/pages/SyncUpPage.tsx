@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from "@/core/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/primitives/alert";
 import { CheckCircle, XCircle, RefreshCw, Database, ArrowDownUp } from 'lucide-react';
 import { checkSupabaseConnection, syncWithSupabase, QUERY_KEYS } from '@/utils/supabase-helpers';
 import { useToast } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
-import { SupabaseConnectionStatus } from '@/components/ui/composed/supabase-connection-status';
-import { Separator } from '@/components/ui/separator';
+import { SupabaseConnectionStatus } from '@/core/components/ui/composed/supabase-connection-status';
+import { Separator } from '@/core/components/ui/composed/separator';
 import { useTranslation } from 'react-i18next';
+import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage } from '@/i18n/i18n';
 
 export default function SyncUpPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +36,9 @@ export default function SyncUpPage() {
       
       toast({
         title: result.success ? t('syncUp.syncSuccessful') : t('syncUp.syncFailed'),
-        description: result.message,
+        description: result.success 
+          ? getApiSuccessMessage(apiNamespaces.dashboard, 'update', 'data sync')
+          : getApiErrorMessage(apiNamespaces.dashboard, 'update', 'data sync'),
         variant: result.success ? 'default' : 'destructive',
       });
     } catch (error) {
@@ -48,7 +51,7 @@ export default function SyncUpPage() {
       
       toast({
         title: t('syncUp.syncError'),
-        description: t('syncUp.unexpectedError'),
+        description: getApiErrorMessage(apiNamespaces.dashboard, 'update', 'data sync'),
         variant: 'destructive',
       });
     } finally {
@@ -77,7 +80,7 @@ export default function SyncUpPage() {
       
       toast({
         title: t('syncUp.resourceSynced'),
-        description: t('syncUp.resourceRefreshed', { resource }),
+        description: getApiSuccessMessage(apiNamespaces.dashboard, 'update', resource),
       });
     } catch (error) {
       console.error(`Error syncing ${resource}:`, error);
@@ -89,7 +92,7 @@ export default function SyncUpPage() {
       
       toast({
         title: t('syncUp.resourceSyncFailed'),
-        description: t('syncUp.unableToSyncResource', { resource }),
+        description: getApiErrorMessage(apiNamespaces.dashboard, 'update', resource),
         variant: 'destructive',
       });
     } finally {
@@ -97,11 +100,15 @@ export default function SyncUpPage() {
     }
   };
   
+  // Get page title and description from translations or use API translation helpers
+  const pageTitle = t('syncUp.title') || "Data Synchronization";
+  const pageDescription = t('syncUp.description') || "Synchronize data with the server";
+  
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold mb-6 flex items-center">
         <Database className="mr-2 h-6 w-6" />
-        {t('syncUp.title')}
+        {pageTitle}
       </h1>
       
       <div className="grid gap-6 md:grid-cols-2">
@@ -113,7 +120,7 @@ export default function SyncUpPage() {
           <CardHeader>
             <CardTitle>{t('syncUp.manualSync')}</CardTitle>
             <CardDescription>
-              {t('syncUp.manualSyncDescription')}
+              {t('syncUp.manualSyncDescription') || pageDescription}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -190,7 +197,7 @@ export default function SyncUpPage() {
                     <p className="font-medium mb-1">{t('syncUp.syncedResources')}:</p>
                     <div className="flex flex-wrap gap-1">
                       {syncResult.refreshedResources.map(resource => (
-                        <span key={resource} className="px-2 py-0.5 bg-primary/10 rounded-full text-xs">
+                        <span key={resource} className="px-2 py-0.5 bg-primary bg-opacity-10 rounded-full text-xs">
                           {resource}
                         </span>
                       ))}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { testSupabaseConnection } from "@/utils/debug-utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export function DebugPage() {
@@ -68,7 +68,7 @@ export function DebugPage() {
           
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-2">Debug Logs</h3>
-            <div className="bg-black/10 p-4 rounded-md max-h-[500px] overflow-auto">
+            <div className="bg-black bg-opacity-10 p-4 rounded-md max-h-[500px] overflow-auto">
               {logs.length === 0 ? (
                 <p className="text-muted-foreground italic">Run the test to see logs here</p>
               ) : (

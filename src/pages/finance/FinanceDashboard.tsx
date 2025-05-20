@@ -2,12 +2,12 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { PageHeader } from "@/components/ui/page-header";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { PageHeader } from '@/core/components/ui/page-header';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
 import { shiftsApi, salesApi, expensesApi, financialsApi } from "@/core/api";
 import { CalendarClock, Receipt, CircleDollarSign, ArrowRight, BarChart3, ChevronRight, Plus } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from '@/core/components/ui/skeleton';
 
 export default function FinanceDashboard() {
   const { t } = useTranslation();

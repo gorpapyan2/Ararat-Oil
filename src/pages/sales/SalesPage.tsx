@@ -1,24 +1,25 @@
 import { useState, useMemo } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { FilterIcon, DownloadIcon, PlusCircle, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
-import { saveAs } from "file-saver";
 import { useToast } from "@/hooks";
-import { salesApi } from "@/core/api";
-import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
 
 // Components
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { BreadcrumbItem, Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { PageHeader } from "@/components/ui/page-header";
-import { SalesTable } from "@/components/tables/sales/SalesTable";
-import { SalesFilterPanel } from "@/components/sales/SalesFilterPanel";
-import { DateRangePicker } from "@/components/ui/composed/date-range-picker";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/core/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
+import { PageHeader } from '@/core/components/ui/page-header';
+import { 
+  SalesTable, 
+  SalesFilterPanel, 
+  useSalesQuery,
+  useExportSales,
+  SalesFilters
+} from "@/features/sales";
+import { Sheet, SheetContent, SheetTrigger } from "@/core/components/ui/sheet";
+import { ScrollArea } from '@/core/components/ui/scroll-area';
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { salesApi } from "@/core/api";
 
 export function SalesPage() {
   const { t } = useTranslation();
@@ -26,17 +27,7 @@ export function SalesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-  // Memoize the breadcrumb segments to prevent unnecessary re-renders
-  const breadcrumbSegments = useMemo(() => [
-    { name: t("navigation.dashboard"), href: "/" },
-    { name: t("navigation.sales"), href: "/sales" },
-  ], [t]);
-
-  // Get page title and description from translations
-  const pageTitle = useMemo(() => t("sales.title", "Sales"), [t]);
-  const pageDescription = useMemo(() => t("sales.description", "Manage and track all sales transactions"), [t]);
-
+  
   // Date range state with default to current month
   const [dateRange, setDateRange] = useState<{
     from: Date;
@@ -46,99 +37,77 @@ export function SalesPage() {
     to: new Date(),
   });
 
-  // Export mutation
-  const exportMutation = useMutation({
-    mutationFn: async () => {
-      const formattedFrom = format(dateRange.from, "yyyy-MM-dd");
-      const formattedTo = dateRange.to 
-        ? format(dateRange.to, "yyyy-MM-dd") 
-        : formattedFrom;
-      
-      return await salesApi.exportSales({
-        startDate: formattedFrom,
-        endDate: formattedTo,
-        format: "csv"
-      });
-    },
-    onSuccess: (data) => {
-      // Create a Blob from the CSV data
-      const blob = new Blob([data], { type: "text/csv;charset=utf-8" });
-      
-      // Generate filename with current date
-      const fileName = `sales_export_${format(new Date(), "yyyy-MM-dd")}.csv`;
-      
-      // Save file
-      saveAs(blob, fileName);
-      
-      toast({
-        title: t("common.success"),
-        description: getApiSuccessMessage(apiNamespaces.sales, 'export'),
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: t("common.error"),
-        description: error instanceof Error 
-          ? error.message 
-          : getApiErrorMessage(apiNamespaces.sales, 'export'),
-        variant: "destructive",
-      });
+  // Convert date range to filters
+  const filters: SalesFilters = useMemo(() => ({
+    dateRange: {
+      from: dateRange.from,
+      to: dateRange.to
     }
-  });
+  }), [dateRange]);
 
+  // Use our custom hooks
+  const { data: sales = [], isLoading } = useSalesQuery(filters);
+  const { exportSalesData, isExporting } = useExportSales();
+  
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => salesApi.deleteSale(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
-      toast({
-        title: t("common.success"),
-        description: getApiSuccessMessage(apiNamespaces.sales, 'delete'),
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: t("common.error"),
-        description: error instanceof Error 
-          ? error.message 
-          : getApiErrorMessage(apiNamespaces.sales, 'delete'),
-        variant: "destructive",
-      });
     }
   });
+
+  // Handle filter changes
+  const handleFiltersChange = (newFilters: SalesFilters) => {
+    // If the filters include a date range, update our local state
+    if (newFilters.dateRange) {
+      setDateRange({
+        from: newFilters.dateRange.from,
+        to: newFilters.dateRange.to
+      });
+    }
+  };
 
   // Handle delete confirmation
   const handleDelete = async (id: string) => {
     try {
       await deleteMutation.mutateAsync(id);
+      toast({
+        title: t("common.success"),
+        description: t("sales.deleteSuccess", "Sale deleted successfully"),
+      });
     } catch (error) {
-      // Error is handled in the mutation
+      toast({
+        title: t("common.error"),
+        description: t("sales.deleteError", "Failed to delete sale"),
+        variant: "destructive",
+      });
     }
   };
 
   // Handle export button click
   const handleExport = async () => {
     try {
-      await exportMutation.mutateAsync();
+      await exportSalesData({
+        startDate: format(dateRange.from, "yyyy-MM-dd"),
+        endDate: dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : format(dateRange.from, "yyyy-MM-dd"),
+        format: "csv"
+      });
     } catch (error) {
-      // Error is handled in the mutation
+      toast({
+        title: t("common.error"),
+        description: t("sales.exportError", "Failed to export sales data"),
+        variant: "destructive",
+      });
     }
   };
 
   return (
     <div className="container py-6 max-w-7xl mx-auto">
-      <Breadcrumbs>
-        {breadcrumbSegments.map((segment, index) => (
-          <BreadcrumbItem key={index} href={segment.href}>
-            {segment.name}
-          </BreadcrumbItem>
-        ))}
-      </Breadcrumbs>
-
       <div className="my-4">
         <PageHeader
-          heading={pageTitle}
-          subheading={pageDescription}
+          title={t("sales.title", "Sales")}
+          description={t("sales.description", "Manage and track all sales transactions")}
         >
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
@@ -152,29 +121,21 @@ export function SalesPage() {
                 <ScrollArea className="h-[calc(100vh-80px)] pr-4">
                   <SalesFilterPanel
                     onClose={() => setIsFilterOpen(false)}
+                    onFiltersChange={handleFiltersChange}
                   />
                 </ScrollArea>
               </SheetContent>
             </Sheet>
-            
-            <DateRangePicker
-              value={dateRange}
-              onChange={setDateRange}
-              calendarClassName="bg-card text-card-foreground"
-              align="end"
-              showCompare={false}
-              popoverContentClassName="bg-card text-card-foreground border-border"
-            />
 
             <Button
               variant="outline"
               size="sm"
               className="h-8 gap-1"
               onClick={handleExport}
-              disabled={exportMutation.isPending}
+              disabled={isExporting}
             >
               <DownloadIcon className="h-3.5 w-3.5" />
-              <span>{t("sales.export")}</span>
+              <span>{t("sales.export", "Export")}</span>
             </Button>
 
             <Button
@@ -184,7 +145,7 @@ export function SalesPage() {
               onClick={() => navigate("/sales/new")}
             >
               <PlusCircle className="h-3.5 w-3.5" />
-              <span>{getApiActionLabel(apiNamespaces.sales, 'create')}</span>
+              <span>{t("sales.create", "New Sale")}</span>
             </Button>
           </div>
         </PageHeader>
@@ -205,8 +166,8 @@ export function SalesPage() {
 
         {/* Sales Table */}
         <SalesTable
-          startDate={format(dateRange.from, "yyyy-MM-dd")}
-          endDate={dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
+          sales={sales}
+          isLoading={isLoading}
           onDelete={handleDelete}
         />
       </div>

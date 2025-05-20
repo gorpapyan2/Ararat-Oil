@@ -86,3 +86,5 @@ Thumbs.db
 # Misc
 .vercel
 .netlify
+
+*storybook.log

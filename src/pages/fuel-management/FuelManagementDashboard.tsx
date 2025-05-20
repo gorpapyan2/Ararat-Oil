@@ -2,23 +2,21 @@ import React, { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { PageHeader } from "@/components/ui/page-header";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { PageHeader } from '@/core/components/ui/page-header';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
 import { IconGasStation, IconTank, IconTruck, IconArrowRight, IconFilter, IconRefresh, IconDroplet, IconFileText, IconAlertCircle } from "@tabler/icons-react";
-import { Tank as TankType, fuelManagementApi } from '@/core/api';
+import { Tank } from '@/features/tanks/types';
 import { formatCurrency, formatNumber } from '@/utils/format';
-import { DateRangePicker } from '@/components/ui/date-range-picker';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DateRangePicker } from '@/core/components/ui/composed/date-range-picker';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/primitives/select";
 import { DateRange } from 'react-day-picker';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from "@/components/ui/progress";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/primitives/tabs";
+import { Progress } from "@/core/components/ui/primitives/progress";
+import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
 import { AlertCircle, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from '@/core/components/ui/badge';
+import { ScrollArea } from '@/core/components/ui/scroll-area';
 
 // Define a custom type for the fuel type selection
 type FuelTypeSelection = 'all' | string;
@@ -319,7 +317,7 @@ export default function FuelManagementDashboard() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t('common.all')}</SelectItem>
-                      {summary.tanks.list.map((tank) => (
+                      {summary.tanks.list.map((tank: Tank) => (
                         <SelectItem key={tank.id} value={tank.id}>
                           {tank.name} ({tank.fuel_type_id})
                         </SelectItem>
@@ -371,7 +369,7 @@ export default function FuelManagementDashboard() {
                         cost: number;
                         date: string;
                       }) => (
-                        <div key={supply.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div key={supply.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted bg-opacity-50 transition-colors">
                           <div>
                             <div className="font-medium">{supply.fuel_type}</div>
                             <div className="text-sm text-muted-foreground">
@@ -399,7 +397,7 @@ export default function FuelManagementDashboard() {
                         capacity: number;
                         current_level: number;
                       }) => (
-                        <div key={tank.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div key={tank.id} className="p-4 border rounded-lg hover:bg-muted bg-opacity-50 transition-colors">
                           <div className="flex items-center justify-between mb-2">
                             <div className="font-medium">{tank.name}</div>
                             <Badge variant={'status' in tank && tank.status === 'active' ? 'default' : 'secondary'}>

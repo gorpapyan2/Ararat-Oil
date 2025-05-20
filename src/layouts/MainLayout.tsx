@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/layouts/Sidebar";
 import { useLocation } from "react-router-dom";
-import { Toaster } from "@/components/ui/toaster";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Toaster } from "@/core/components/ui/toast";
+import { cn } from "@/shared/utils";
+import { Button } from "@/core/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { SkipToContent } from "@/components/ui/skip-to-content";
+import { SkipToContent } from '@/core/components/ui/skip-to-content';
 import { useIsMobile } from "@/hooks/useResponsive";
 
 type MainLayoutProps = {
@@ -46,7 +46,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   // Use a different layout for the auth page
   if (isAuthPage) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <main
           id="main-content"
           className="flex min-h-screen flex-col items-center justify-center"
@@ -86,9 +86,9 @@ export function MainLayout({ children }: MainLayoutProps) {
             "shadow-lg shadow-primary/20",
             "border-2 border-primary-foreground/10",
             "transition-all duration-200 ease-in-out",
-            "hover:bg-primary/90 hover:scale-105",
+            "hover:bg-primary bg-opacity-90 hover:scale-105",
             "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background",
-            mobileSidebarOpen && "bg-background text-foreground rotate-90",
+            mobileSidebarOpen && "bg-gray-50 text-foreground rotate-90",
           )}
           aria-label={mobileSidebarOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileSidebarOpen}
@@ -107,7 +107,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       {/* Overlay for mobile sidebar */}
       {isMobile && mobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          className="fixed inset-0 bg-black bg-opacity-50  z-40"
           aria-hidden="true"
           onClick={() => setMobileSidebarOpen(false)}
         />

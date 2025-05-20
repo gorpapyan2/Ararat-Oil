@@ -1,0 +1,12 @@
+node_modules
+dist
+.next
+build
+coverage
+public
+**/*.d.ts
+**/stories/**
+**/supabase/**
+**/*.test.ts
+**/*.test.tsx
+**/__tests__/** 

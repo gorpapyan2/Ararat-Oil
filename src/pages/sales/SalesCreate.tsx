@@ -5,9 +5,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { IconSend, IconArrowLeft } from "@tabler/icons-react";
 
 // Import components
-import { PageHeader } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from '@/core/components/ui/page-header';
+import { Button } from "@/core/components/ui/button";
+import { Card, CardContent } from "@/core/components/ui/card";
 import { SalesFormStandardized, ShiftControl } from "@/features/sales";
 import { createSale } from '@/features/sales/services';
 import { useToast } from "@/hooks";

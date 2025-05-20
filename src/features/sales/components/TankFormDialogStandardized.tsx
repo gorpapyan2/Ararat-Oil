@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { StandardDialog } from "@/components/ui/composed/dialog";
-import { Button } from "@/components/ui/button";
+import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
-import { FormInput, FormSelect } from "@/components/ui/composed/form-fields";
+import { FormInput, FormSelect } from '@/core/components/ui/composed/form-fields';
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 import { FuelTank, FuelTypeCode } from "@/types";
 

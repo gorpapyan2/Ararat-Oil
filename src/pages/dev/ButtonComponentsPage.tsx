@@ -1,5 +1,5 @@
 import React from "react";
-import { ButtonShowcase } from "@/components/ui/ButtonShowcase";
+import { ButtonShowcase } from '@/core/components/ui/ButtonShowcase';
 import { PageLayout } from "@/layouts/PageLayout";
 
 /**
@@ -22,7 +22,7 @@ export default function ButtonComponentsPage() {
               <h3 className="font-medium">Base Button</h3>
               <p className="text-sm text-muted-foreground">Use the base Button component for most actions. Choose the appropriate variant based on the action's importance.</p>
               <pre className="mt-2 p-4 bg-card text-sm rounded-md overflow-x-auto">
-                {`import { Button } from "@/components/ui/button";
+                {`import { Button } from "@/core/components/ui/button";
 
 // Basic usage
 <Button>Click Me</Button>

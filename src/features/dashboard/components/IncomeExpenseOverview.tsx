@@ -22,7 +22,7 @@ import {
   CardHeader,
   CardTitle,
   CardFooter,
-} from "@/components/ui/card";
+} from "@/core/components/ui/card";
 import { 
   ArrowUpRight, 
   ArrowDownRight, 
@@ -33,10 +33,10 @@ import {
   PieChart
 } from 'lucide-react';
 import { useMediaQuery } from '@/hooks/useResponsive';
-import { formatCurrency } from '@/lib/utils';
-import { cn } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip as TooltipUI, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatCurrency } from "@/shared/utils";
+import { cn } from "@/shared/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
+import { Tooltip as TooltipUI, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
 import { fetchDashboardData } from '../services/dashboard';
 import type { DashboardData } from '../types';
 
@@ -215,7 +215,7 @@ export function IncomeExpenseOverview() {
       const isProfit = profit >= 0;
       
       return (
-        <div className="rounded-lg border bg-background p-4 shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
+        <div className="rounded-lg border bg-gray-50 p-4 shadow-lg animate-in fade-in-50 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
           <div className="mb-2 flex items-center">
             <span className="text-sm font-semibold tracking-tight">{payload[0]?.payload?.fullMonth || label}</span>
           </div>
@@ -277,7 +277,7 @@ export function IncomeExpenseOverview() {
     
     return (
       <div className={cn(
-        "rounded-lg bg-background border p-3 lg:p-4 flex flex-col justify-between", 
+        "rounded-lg bg-gray-50 border p-3 lg:p-4 flex flex-col justify-between", 
         compact ? "h-[100px]" : "h-[120px]"
       )}>
         <div className="flex justify-between items-start">
@@ -329,7 +329,7 @@ export function IncomeExpenseOverview() {
             <TabsContent value="monthly" className="mt-0">
               <div className="h-[300px] md:h-[350px] w-full">
                 {isLoading ? (
-                  <div className="h-full w-full flex items-center justify-center bg-muted/20 rounded-md">
+                  <div className="h-full w-full flex items-center justify-center bg-muted bg-opacity-20 rounded-md">
                     <p>{t("common.loading")}</p>
                   </div>
                 ) : (

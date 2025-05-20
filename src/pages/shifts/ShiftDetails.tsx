@@ -2,16 +2,16 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/layouts/PageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Button, ButtonLink } from "@/core/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
 import { ArrowLeft, AlertCircle, CalendarClock, DollarSign, FileCheck, Clock, Receipt, Users, CreditCard } from "lucide-react";
-import { formatCurrency, formatDateTime, calculateDuration, calculateShiftDuration } from "@/lib/utils";
+import { formatCurrency, formatDateTime, calculateDuration, calculateShiftDuration } from "@/shared/utils";
 import { supabase } from "@/core/api/supabase";
 import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
+import { Skeleton } from '@/core/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
+import { Separator } from '@/core/components/ui/separator';
 
 // Define the shift structure based on what's used in this component
 interface DetailShift {
@@ -320,7 +320,7 @@ export default function ShiftDetails() {
               
               <TabsContent value="details" className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  <div className="p-4 bg-muted/20 rounded-lg border border-muted">
+                  <div className="p-4 bg-muted bg-opacity-20 rounded-lg border border-muted">
                     <div className="flex items-center mb-2 text-blue-600">
                       <CalendarClock className="h-4 w-4 mr-2" />
                       <h3 className="font-medium text-sm">{t("shifts.timeDetails")}</h3>
@@ -355,7 +355,7 @@ export default function ShiftDetails() {
                     </div>
                   </div>
                   
-                  <div className="p-4 bg-muted/20 rounded-lg border border-muted">
+                  <div className="p-4 bg-muted bg-opacity-20 rounded-lg border border-muted">
                     <div className="flex items-center mb-2 text-blue-600">
                       <DollarSign className="h-4 w-4 mr-2" />
                       <h3 className="font-medium text-sm">{t("shifts.cashDetails")}</h3>
@@ -392,7 +392,7 @@ export default function ShiftDetails() {
                     </div>
                   </div>
                   
-                  <div className="p-4 bg-muted/20 rounded-lg border border-muted">
+                  <div className="p-4 bg-muted bg-opacity-20 rounded-lg border border-muted">
                     <div className="flex items-center mb-2 text-blue-600">
                       <Receipt className="h-4 w-4 mr-2" />
                       <h3 className="font-medium text-sm">{t("shifts.salesDetails")}</h3>
@@ -418,7 +418,7 @@ export default function ShiftDetails() {
                 
                 {/* Cash Difference Explanation */}
                 {shift.status === 'CLOSED' && shift.opening_cash !== undefined && shift.closing_cash !== undefined && (
-                  <div className="bg-accent/20 p-4 rounded-lg border border-accent">
+                  <div className="bg-accent bg-opacity-20 p-4 rounded-lg border border-accent">
                     <h3 className="font-medium text-sm mb-2">{t("shifts.cashReconciliation")}</h3>
                     <p className="text-sm text-muted-foreground mb-2">
                       {t("shifts.cashDifferenceDescription")}
@@ -464,7 +464,7 @@ export default function ShiftDetails() {
                     </div>
                     
                     <div className="rounded-lg border overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2.5 border-b">
+                      <div className="bg-muted bg-opacity-30 px-4 py-2.5 border-b">
                         <div className="grid grid-cols-5 gap-4">
                           <div className="col-span-3 text-sm font-medium">{t("common.paymentMethod")}</div>
                           <div className="col-span-2 text-sm font-medium text-right">{t("common.amount")}</div>
@@ -492,7 +492,7 @@ export default function ShiftDetails() {
                         </div>
                       ))}
                       
-                      <div className="px-4 py-3 bg-muted/20 border-t">
+                      <div className="px-4 py-3 bg-muted bg-opacity-20 border-t">
                         <div className="grid grid-cols-5 gap-4">
                           <div className="col-span-3 font-medium">{t("common.total")}</div>
                           <div className="col-span-2 text-right font-bold text-blue-600">

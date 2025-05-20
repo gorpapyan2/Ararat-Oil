@@ -6,7 +6,7 @@ import { SuppliesTable } from './SuppliesTable';
 import { useSuppliesFilters } from '../store/useSuppliesFilters';
 import { fetchFuelSupplies } from '@/services/fuel-supplies';
 import { fetchFuelTanks } from '@/services/tanks';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/core/components/ui/button";
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { FuelSuppliesManagerStandardized } from '@/features/fuel-supplies/components/FuelSuppliesManagerStandardized';

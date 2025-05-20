@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/shared/utils";
+import { Button } from "@/core/components/ui/button";
 import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
-import { SkipToContent } from "@/components/ui/skip-to-content";
+import { SkipToContent } from '@/core/components/ui/skip-to-content';
 import { useIsMobile } from "@/hooks/useResponsive";
 import { useAuth } from '@/features/auth';
-import { Toaster } from "@/components/ui/toaster";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Toaster } from "@/core/components/ui/toast";
+import { Sheet, SheetContent, SheetTrigger } from "@/core/components/ui/primitives/sheet";
 import { useTranslation } from "react-i18next";
-import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
+import { ThemeSwitcher } from '@/core/components/ui/ThemeSwitcher';
 import { IconLogout } from "@tabler/icons-react";
-import { DevMenu } from "@/components/ui/composed/dev-menu";
+import { DevMenu } from '@/core/components/ui/composed/dev-menu';
 import { useSidebarNavConfig } from "@/core/config";
 
 type AdminShellProps = {
@@ -103,10 +103,10 @@ export function AdminShell({ children }: AdminShellProps) {
                   // Common styling for the nav item
                   const navItemClasses = cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
-                    "hover:bg-primary/10",
+                    "hover:bg-primary bg-opacity-10",
                     isItemActive
-                      ? "bg-primary/15 text-primary font-medium"
-                      : "text-foreground/80 hover:text-foreground",
+                      ? "bg-primary bg-opacity-15 text-primary font-medium"
+                      : "text-foreground text-opacity-80 hover:text-foreground",
                   );
 
                   // Render the icon
@@ -151,7 +151,7 @@ export function AdminShell({ children }: AdminShellProps) {
               {t("common.theme")}
             </span>
           )}
-          <ThemeSwitcher variant="default" />
+          <ThemeSwitcher />
         </div>
 
         {/* Toggle collapse button */}
@@ -197,7 +197,7 @@ export function AdminShell({ children }: AdminShellProps) {
       {/* Sidebar - desktop version */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card/50 backdrop-blur transition-all md:block md:flex-col",
+          "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card bg-opacity-50  transition-all md:block md:flex-col",
           sidebarCollapsed ? "md:w-[70px]" : "md:w-[240px]",
         )}
       >
@@ -225,13 +225,13 @@ export function AdminShell({ children }: AdminShellProps) {
       <main
         id="main-content"
         className={cn(
-          "flex min-h-screen flex-col bg-background transition-all",
+          "flex min-h-screen flex-col bg-gray-50 transition-all",
           sidebarCollapsed ? "md:pl-[70px]" : "md:pl-[240px]",
         )}
         tabIndex={-1}
       >
         {/* Header */}
-        <header className="sticky top-0 z-20 flex h-14 items-center border-b bg-background/95 backdrop-blur px-4 shadow-sm">
+        <header className="sticky top-0 z-20 flex h-14 items-center border-b bg-gray-50 bg-opacity-95  px-4 shadow-sm">
           <div className="flex-1 overflow-hidden flex items-center">
             {/* Page title placeholder */}
             <h1 className="text-xl font-bold truncate">
@@ -247,9 +247,9 @@ export function AdminShell({ children }: AdminShellProps) {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full hover:bg-primary/10 transition-colors"
+              className="rounded-full hover:bg-primary bg-opacity-10 transition-colors"
             >
-              <span className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium">
+              <span className="size-8 rounded-full bg-primary bg-opacity-20 text-primary flex items-center justify-center font-medium">
                 AO
               </span>
             </Button>

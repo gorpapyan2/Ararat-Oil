@@ -1,0 +1,41 @@
+.storybook-button {
+  display: inline-block;
+  cursor: pointer;
+  border: 0;
+  border-radius: 3em;
+  font-weight: 700;
+  line-height: 1;
+  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.storybook-button--primary {
+  background-color: #616F39; /* Updated to Ararat OIL olive-lime palette */
+  color: white;
+}
+.storybook-button--secondary {
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;
+  background-color: transparent;
+  color: #3E432E; /* Updated to Ararat OIL olive-lime palette */
+}
+.storybook-button--small {
+  padding: 10px 16px;
+  font-size: 12px;
+}
+.storybook-button--medium {
+  padding: 11px 20px;
+  font-size: 14px;
+}
+.storybook-button--large {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+/* Hover effects */
+.storybook-button--primary:hover {
+  background-color: #A7D129; /* Lighter shade from olive-lime palette */
+  color: #000000;
+}
+
+.storybook-button--secondary:hover {
+  background-color: rgba(97, 111, 57, 0.1); /* Subtle background hover for secondary */
+  color: #616F39;
+}

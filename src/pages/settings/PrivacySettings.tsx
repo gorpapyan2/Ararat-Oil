@@ -11,19 +11,19 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { Switch } from '@/core/components/ui/switch';
+import { Label } from '@/core/components/ui/label';
+import { Separator } from '@/core/components/ui/separator';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from "@/core/components/ui/primitives/select";
+import { RadioGroup, RadioGroupItem } from "@/core/components/ui/primitives/radio-group";
 
 // Icons
 import {
@@ -431,7 +431,7 @@ function PrivacySettings() {
               </h3>
             </div>
             
-            <div className="bg-destructive/10 dark:bg-destructive/20 rounded-lg p-4 border border-destructive/20">
+            <div className="bg-destructive bg-opacity-10 dark:bg-destructive bg-opacity-20 rounded-lg p-4 border border-destructive border-opacity-20">
               <p className="text-sm mb-4">{t("settings.privacy.accountDeletionWarning")}</p>
               <Button
                 variant="destructive"

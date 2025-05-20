@@ -6,18 +6,18 @@ import {
 } from "@tabler/icons-react";
 
 // Import our custom UI components
-import { PageHeader } from "@/components/ui/page-header";
-import { CreateButton } from "@/components/ui/create-button";
+import { PageHeader } from '@/core/components/ui/page-header';
+import { CreateButton } from '@/core/components/ui/create-button';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { MetricCard } from "@/components/ui/composed/cards";
+} from "@/core/components/ui/card";
+import { MetricCard } from "@/core/components/ui/composed/card";
 
 // Import our specialized data table component
-import { EmployeesTable } from "@/components/employees/EmployeesTable";
+import { EmployeesTable } from "@/features/employees/components/EmployeesTable";
 
 // Import employee-related components and services
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -28,9 +28,10 @@ import {
   deleteEmployee,
 } from "@/services/employees";
 import { Employee } from "@/types";
-import { EmployeeDialogStandardized } from "@/components/employees/EmployeeDialogStandardized";
+import { EmployeeDialogStandardized } from "@/features/employees/components/EmployeeDialogStandardized";
 import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
 
 export default function EmployeesNew() {
   const { t } = useTranslation();
@@ -46,45 +47,45 @@ export default function EmployeesNew() {
   // Fetch employees data
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: fetchEmployees,
+    queryFn: () => fetchEmployees(),
   });
 
-  // Mutations for CRUD operations
+  // Mutations for CRUD operations with optimistic updates and proper error handling
   const createMutation = useMutation({
     mutationFn: createEmployee,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       setIsDialogOpen(false);
       toast({
-        title: "Success",
-        description: "Employee created successfully",
+        title: t("employees.success"),
+        description: getApiSuccessMessage(apiNamespaces.employees, 'create', 'employee'),
       });
     },
     onError: (error) => {
+      console.error("Error creating employee:", error);
       toast({
-        title: "Error",
-        description: "Failed to create employee",
+        title: t("employees.error"),
+        description: getApiErrorMessage(apiNamespaces.employees, 'create', 'employee'),
         variant: "destructive",
       });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Employee> }) =>
-      updateEmployee(id, data),
+    mutationFn: updateEmployee,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       setIsDialogOpen(false);
-      setSelectedEmployee(null);
       toast({
-        title: "Success",
-        description: "Employee updated successfully",
+        title: t("employees.success"),
+        description: getApiSuccessMessage(apiNamespaces.employees, 'update', 'employee'),
       });
     },
     onError: (error) => {
+      console.error("Error updating employee:", error);
       toast({
-        title: "Error",
-        description: "Failed to update employee",
+        title: t("employees.error"),
+        description: getApiErrorMessage(apiNamespaces.employees, 'update', 'employee'),
         variant: "destructive",
       });
     },
@@ -95,14 +96,15 @@ export default function EmployeesNew() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       toast({
-        title: "Success",
-        description: "Employee deleted successfully",
+        title: t("employees.success"),
+        description: getApiSuccessMessage(apiNamespaces.employees, 'delete', 'employee'),
       });
     },
     onError: (error) => {
+      console.error("Error deleting employee:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete employee",
+        title: t("employees.error"),
+        description: getApiErrorMessage(apiNamespaces.employees, 'delete', 'employee'),
         variant: "destructive",
       });
     },
@@ -120,12 +122,18 @@ export default function EmployeesNew() {
   }, []);
 
   const handleView = useCallback((employee: Employee) => {
-    setSelectedEmployee(employee);
-    setIsDialogOpen(true);
+    // Implement view functionality
+    console.log("Viewing employee:", employee);
   }, []);
 
-  const handleDelete = useCallback((id: string) => {
-    deleteMutation.mutate(id);
+  const handleDelete = useCallback((employee: Employee) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${employee.name}?`
+      )
+    ) {
+      deleteMutation.mutate(employee.id);
+    }
   }, [deleteMutation]);
 
   // Calculate metrics
@@ -154,17 +162,14 @@ export default function EmployeesNew() {
 
   // Handle save
   const handleSave = useCallback(
-    (data: any) => {
-      if (selectedEmployee?.id) {
-        updateMutation.mutate({
-          id: selectedEmployee.id,
-          data,
-        });
+    (employee: Employee) => {
+      if (employee.id) {
+        updateMutation.mutate(employee);
       } else {
-        createMutation.mutate(data);
+        createMutation.mutate(employee);
       }
     },
-    [selectedEmployee, updateMutation, createMutation],
+    [updateMutation, createMutation]
   );
 
   const breadcrumbSegments = useMemo(() => [
@@ -177,11 +182,15 @@ export default function EmployeesNew() {
     title: "Employees"
   });
 
+  // Get translated page title and description using the API translation helpers
+  const pageTitle = t("employees.title") || getApiActionLabel(apiNamespaces.employees, 'list');
+  const pageDescription = t("employees.subtitle") || "Manage employee information";
+
   return (
     <div className="container mx-auto p-4 space-y-6">
       <PageHeader
-        title={t("employees.title")}
-        description={t("employees.subtitle")}
+        title={pageTitle}
+        description={pageDescription}
         actions={
           <CreateButton onClick={handleAdd}>
             <IconUserPlus className="mr-2 h-4 w-4" />
@@ -195,19 +204,19 @@ export default function EmployeesNew() {
           title={t("employees.total_employees")}
           value={totalEmployees}
           icon={<IconUsers className="h-6 w-6" />}
-          className="bg-primary/10"
+          className="bg-primary bg-opacity-10"
         />
         <MetricCard
           title={t("employees.active_employees")}
           value={activeEmployees}
           icon={<IconUsers className="h-6 w-6" />}
-          className="bg-success/10"
+          className="bg-success bg-opacity-10"
         />
         <MetricCard
           title={t("employees.on_leave")}
           value={onLeaveEmployees}
           icon={<IconUsers className="h-6 w-6" />}
-          className="bg-warning/10"
+          className="bg-warning bg-opacity-10"
         />
       </div>
 

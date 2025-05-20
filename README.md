@@ -1,4 +1,61 @@
-# Welcome to your Lovable project
+# Fuel Station Management System
+
+A comprehensive application for managing fuel stations, tracking sales, inventory, expenses, and more.
+
+## Features
+
+The application has been refactored to use a feature-based architecture, with the following key features:
+
+- **Filling Systems Management**: Track and manage fuel dispensers
+- **Fuel Supplies Management**: Record and monitor fuel deliveries
+- **Sales Management**: Record and track fuel sales
+- **Expenses Management**: Track and categorize expenses
+- **Tanks Management**: Monitor fuel levels and capacity
+- **Reports**: Generate comprehensive business reports
+
+## Feature-Based Architecture
+
+The application has been migrated to a feature-based architecture for better code organization and maintainability:
+
+```
+src/
+├── features/
+│   ├── filling-systems/
+│   ├── fuel-supplies/
+│   ├── sales/
+│   ├── tanks/
+│   └── ...
+├── core/
+│   ├── api/
+│   ├── components/
+│   └── ...
+└── ...
+```
+
+Each feature is isolated and contains:
+
+- **Components**: UI components specific to the feature
+- **Hooks**: Custom React hooks for data fetching and state management
+- **Services**: API service functions
+- **Types**: TypeScript interfaces and types
+- **Utils**: Utility functions
+
+## Recent Progress
+
+- Migrated filling-systems and fuel-supplies to the feature-based architecture
+- Created documentation for features in the `docs/features` directory
+- Implemented React Query hooks for data fetching and mutations
+- Added support for exporting data in CSV format
+
+## Tech Stack
+
+- **Frontend**: React, TypeScript, TailwindCSS, Radix UI, React Query
+- **Backend**: Supabase Edge Functions, PostgreSQL
+- **Infrastructure**: Vercel, Supabase
+
+## Documentation
+
+See the `docs/` directory for detailed feature documentation.
 
 ## Project info
 
@@ -115,3 +172,52 @@ The system automatically calculates the total and ensures it matches the sales t
 ### Database Migration
 
 Before using the payment method tracking feature, the `shift_payment_methods` table needs to be created in the database. A migration script is provided in `src/migrations/shift_payment_methods.sql`.
+
+## Development Tools
+
+### Hook Standardization
+
+To maintain consistent React Query hook patterns across the codebase, use these tools:
+
+#### Verify Hook Standards
+
+Analyzes all hooks for compliance with standardization rules defined in `docs/refactoring/hook-standardization-guide.md`.
+
+```bash
+npm run verify-hooks
+```
+
+This command:
+- Scans all hooks in the `src/features/*/hooks` directories
+- Checks for consistent query key formats, TypeScript generics, staleTime configuration, etc.
+- Generates a report of issues found by feature and rule type
+- Saves results to `hook-standards-report.json`
+
+#### Generate Standardized Hook
+
+Creates new hook files following the standardized patterns.
+
+```bash
+npm run generate-hook <feature-name> <hook-name>
+```
+
+Example:
+```bash
+npm run generate-hook filling-systems useFillingSystem
+```
+
+This creates:
+- `src/features/filling-systems/hooks/useFillingSystem.ts` with the standard hook patterns
+- `src/features/filling-systems/hooks/__tests__/useFillingSystem.test.ts` with tests
+
+The generated files include:
+- Proper TypeScript generics
+- Consistent query key formats
+- StaleTime configurations
+- Combined loading/error states
+- Consistent return structures
+
+To overwrite existing files, use:
+```bash
+OVERWRITE=true npm run generate-hook filling-systems useFillingSystem
+```

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { StandardDialog } from '@/shared/components/common/dialog/StandardDialog';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/core/components/ui/button";
 import type { Employee } from '../types/employees.types';
 
 interface DeleteConfirmDialogStandardizedProps {

@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { StandardDialog } from "@/components/ui/composed/dialog";
-import { DialogContent } from "@/components/ui/styled/dialog";
+import { Button } from "@/core/components/ui/button";
+import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { DialogContent } from '@/core/components/ui/styled/dialog';
 import { SalesFormStandardized } from "./SalesFormStandardized";
 import { useState, useRef } from "react";
 import { salesApi } from "@/core/api";
@@ -8,7 +8,7 @@ import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import React from "react";
-import { CreateButton } from "@/components/ui/create-button";
+import { CreateButton } from '@/core/components/ui/create-button';
 
 interface NewSaleButtonProps {
   className?: string;

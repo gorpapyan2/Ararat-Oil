@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { supabase } from "@/core/api/supabase";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/primitives/select";
+import { DateRangePicker } from '@/core/components/ui/date-range-picker';
 import type { FuelSaleFilters } from "../types/fuel-sales.types";
 
 interface FuelTank {

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Progress } from "@/core/components/ui/primitives/progress";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import type { FuelTank } from '../types/fuel.types';
 
 interface FuelTankCardProps {

@@ -10,15 +10,15 @@ import { expensesApi } from "@/core/api";
 import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
 
 // Components
-import { BreadcrumbItem, Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
-import { ExpensesTable } from "@/components/tables/expenses/ExpensesTable";
-import { FilterPanel } from "@/components/expenses/FilterPanel"; 
-import { DateRangePicker } from "@/components/ui/composed/date-range-picker";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { BreadcrumbItem, Breadcrumbs } from '@/core/components/ui/breadcrumbs';
+import { Button } from "@/core/components/ui/button";
+import { PageHeader } from '@/core/components/ui/page-header';
+import { ExpensesTable } from "@/features/expenses/components/ExpensesTable";
+import { FilterPanel } from "@/features/expenses/components/FilterPanel"; 
+import { DateRangePicker } from '@/core/components/ui/composed/date-range-picker';
+import { Sheet, SheetContent, SheetTrigger } from "@/core/components/ui/sheet";
+import { ScrollArea } from '@/core/components/ui/scroll-area';
+import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
 
 export function ExpensesPage() {
   const { t } = useTranslation();

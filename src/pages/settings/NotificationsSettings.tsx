@@ -11,11 +11,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+} from "@/core/components/ui/card";
+import { Separator } from '@/core/components/ui/separator';
+import { Switch } from '@/core/components/ui/switch';
+import { Label } from '@/core/components/ui/label';
+import { Button } from "@/core/components/ui/button";
 
 function NotificationsSettings() {
   const { t } = useTranslation();

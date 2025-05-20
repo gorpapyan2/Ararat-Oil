@@ -99,7 +99,7 @@ Deno.serve(async (req: Request) => {
 function calculateDateRange(timeframe: TimeFrame, startDate?: string | null, endDate?: string | null): { startDate: string; endDate: string } {
   const now = new Date();
   let start: Date;
-  let end = new Date(now);
+  const end = new Date(now);
   
   // Set to end of current day
   end.setHours(23, 59, 59, 999);

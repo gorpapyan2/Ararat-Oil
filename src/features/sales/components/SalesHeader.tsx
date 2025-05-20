@@ -35,7 +35,7 @@ export function SalesHeader({
   onTotalSalesRangeChange,
 }: SalesHeaderProps) {
   return (
-    <div className="flex flex-col space-y-6 bg-background">
+    <div className="flex flex-col space-y-6 bg-gray-50">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-2">
         <div className="hidden">
           {/* Prevent duplication with card header */}

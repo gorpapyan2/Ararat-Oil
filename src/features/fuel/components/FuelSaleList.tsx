@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/core/components/ui/primitives/table";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import type { FuelSale } from '../types/fuel.types';
 
 interface FuelSaleListProps {

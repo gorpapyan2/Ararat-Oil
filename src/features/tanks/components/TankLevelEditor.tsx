@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { FuelTank, TankLevelAdjustment } from "../types/tanks.types";
-import { tanksService } from "../services/tanksService";
+import { adjustTankLevel } from "../services";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Label } from '@/core/components/ui/label';
+import { RadioGroup, RadioGroupItem } from "@/core/components/ui/primitives/radio-group";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -41,7 +41,7 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
         reason: "Tank level editor",
       };
 
-      await tanksService.adjustTankLevel(tank.id, adjustment);
+      await adjustTankLevel(tank.id, adjustment);
       await queryClient.invalidateQueries({ queryKey: ["tanks"] });
       
       toast({

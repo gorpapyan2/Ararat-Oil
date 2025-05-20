@@ -2,33 +2,33 @@ import { ShiftControl } from "@/features/sales";
 import { PageLayout } from "@/layouts/PageLayout";
 import { CalendarClock, ChartBar, Search, Filter, RefreshCw, Eye, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/core/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
-import { formatCurrency } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrency } from "@/shared/utils";
+import { Skeleton } from '@/core/components/ui/skeleton';
 import { Shift } from "@/types";
 import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
 import { fetchEmployeeByUserId, fetchShiftHistory } from "@/utils/api-helpers";
 import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
-import { Input } from "@/components/ui/input";
-import { Button, ButtonLink } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Button, ButtonLink } from "@/core/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/primitives/select";
+import { DateRangePicker } from '@/core/components/ui/date-range-picker';
 import { addDays } from "date-fns";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/core/components/ui/badge';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/core/components/ui/tooltip';
 import { useShift } from "@/hooks/useShift";
 import { useNavigate } from "react-router-dom";
-import { formatDateTime, calculateDuration } from "@/lib/utils";
+import { formatDateTime, calculateDuration } from "@/shared/utils";
 import { ArrowRight, DollarSign } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils";
 
 // Local InputWithIcon implementation
 const InputWithIcon = ({ 
