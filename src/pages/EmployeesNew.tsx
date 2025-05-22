@@ -204,19 +204,19 @@ export default function EmployeesNew() {
           title={t("employees.total_employees")}
           value={totalEmployees}
           icon={<IconUsers className="h-6 w-6" />}
-          className="bg-primary bg-opacity-10"
+          className="bg-primary/10"
         />
         <MetricCard
           title={t("employees.active_employees")}
           value={activeEmployees}
           icon={<IconUsers className="h-6 w-6" />}
-          className="bg-success bg-opacity-10"
+          className="bg-success/10"
         />
         <MetricCard
           title={t("employees.on_leave")}
           value={onLeaveEmployees}
           icon={<IconUsers className="h-6 w-6" />}
-          className="bg-warning bg-opacity-10"
+          className="bg-warning/10"
         />
       </div>
 

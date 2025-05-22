@@ -8,13 +8,13 @@
   font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .storybook-button--primary {
-  background-color: #616F39; /* Updated to Ararat OIL olive-lime palette */
+  background-color: rgb(97 111 57); /* Updated to Ararat OIL olive-lime palette */
   color: white;
 }
 .storybook-button--secondary {
   box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;
   background-color: transparent;
-  color: #3E432E; /* Updated to Ararat OIL olive-lime palette */
+  color: rgb(62 67 46); /* Updated to Ararat OIL olive-lime palette */
 }
 .storybook-button--small {
   padding: 10px 16px;
@@ -31,11 +31,11 @@
 
 /* Hover effects */
 .storybook-button--primary:hover {
-  background-color: #A7D129; /* Lighter shade from olive-lime palette */
-  color: #000000;
+  background-color: rgb(167 209 41); /* Lighter shade from olive-lime palette */
+  color: rgb(0 0 0);
 }
 
 .storybook-button--secondary:hover {
   background-color: rgba(97, 111, 57, 0.1); /* Subtle background hover for secondary */
-  color: #616F39;
+  color: rgb(97 111 57);
 }

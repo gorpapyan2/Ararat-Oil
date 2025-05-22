@@ -567,7 +567,7 @@ function SecuritySettings() {
           
           {security.passwordLessLogin && !security.twoFactorEnabled && (
             <div className="rounded-lg bg-orange-50 dark:bg-orange-950/50 p-3 text-sm text-orange-600 dark:text-orange-400 flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
               <p>{t("settings.security.twoFactorRequiredWarning")}</p>
             </div>
           )}

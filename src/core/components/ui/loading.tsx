@@ -38,7 +38,7 @@ export function Loading({
   // Classes based on variant
   const containerClasses = {
     default: 'flex items-center justify-center p-4',
-    fullscreen: 'fixed inset-0 flex items-center justify-center bg-gray-50 bg-opacity-80 z-50',
+    fullscreen: 'fixed inset-0 flex items-center justify-center bg-gray-50/80 z-50',
     inline: 'inline-flex items-center justify-center',
     page: 'flex flex-col items-center justify-center min-h-[60vh]',
   };

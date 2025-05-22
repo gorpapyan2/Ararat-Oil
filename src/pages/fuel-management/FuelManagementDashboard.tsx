@@ -369,7 +369,7 @@ export default function FuelManagementDashboard() {
                         cost: number;
                         date: string;
                       }) => (
-                        <div key={supply.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted bg-opacity-50 transition-colors">
+                        <div key={supply.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                           <div>
                             <div className="font-medium">{supply.fuel_type}</div>
                             <div className="text-sm text-muted-foreground">
@@ -397,7 +397,7 @@ export default function FuelManagementDashboard() {
                         capacity: number;
                         current_level: number;
                       }) => (
-                        <div key={tank.id} className="p-4 border rounded-lg hover:bg-muted bg-opacity-50 transition-colors">
+                        <div key={tank.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                           <div className="flex items-center justify-between mb-2">
                             <div className="font-medium">{tank.name}</div>
                             <Badge variant={'status' in tank && tank.status === 'active' ? 'default' : 'secondary'}>

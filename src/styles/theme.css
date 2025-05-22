@@ -138,11 +138,11 @@
   }
 
   td {
-    @apply px-4 py-3 border-b border-border border-opacity-30;
+    @apply px-4 py-3 border-b border-border/30;
   }
 
   tr:hover {
-    @apply bg-muted bg-opacity-30;
+    @apply bg-muted/30;
   }
 
   /* Mobile-first adjustments */
@@ -196,7 +196,7 @@
 @layer components {
   /* Card with hover effect */
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-md hover:border-primary border-opacity-30;
+    @apply transition-all duration-300 hover:shadow-md hover:border-primary/30;
   }
 
   /* Status indicators */
@@ -205,15 +205,15 @@
   }
 
   .status-pending {
-    @apply bg-warning bg-opacity-20 text-warning-foreground;
+    @apply bg-warning/20 text-warning-foreground;
   }
 
   .status-active {
-    @apply bg-success bg-opacity-20 text-success-foreground;
+    @apply bg-success/20 text-success-foreground;
   }
 
   .status-inactive {
-    @apply bg-destructive bg-opacity-20 text-destructive-foreground;
+    @apply bg-destructive/20 text-destructive-foreground;
   }
 
   /* Data visualization colors */

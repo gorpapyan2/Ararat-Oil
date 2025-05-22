@@ -86,7 +86,7 @@ export function PaymentMethodFormStandardized({
 
       {entityDetails && (
         <CardContent className="pt-0 pb-3">
-          <div className="bg-muted bg-opacity-50 p-3 rounded-md">
+          <div className="bg-muted/50 p-3 rounded-md">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <p className="text-muted-foreground">Invoice #:</p>

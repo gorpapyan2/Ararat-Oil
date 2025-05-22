@@ -115,7 +115,7 @@ export function SupabaseConnectionStatus() {
             <p className="font-medium mb-1">Synced Resources:</p>
             <div className="flex flex-wrap gap-1">
               {syncedResources.map(resource => (
-                <span key={resource} className="px-2 py-0.5 bg-primary bg-opacity-10 rounded-full text-xs">
+                <span key={resource} className="px-2 py-0.5 bg-primary/10 rounded-full text-xs">
                   {resource}
                 </span>
               ))}

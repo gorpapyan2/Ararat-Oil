@@ -9,6 +9,22 @@ import {
 } from "@/core/components/ui/primitives/dialog";
 import { X } from "lucide-react";
 
+// Define size variant classnames
+const sizeVariants = {
+  sm: "sm:max-w-sm",
+  md: "sm:max-w-md",
+  lg: "sm:max-w-lg",
+  xl: "sm:max-w-xl",
+  "2xl": "sm:max-w-2xl",
+  full: "sm:max-w-full",
+};
+
+// Define position variant classnames
+const positionVariants = {
+  center: "top-[50%] translate-y-[-50%]",
+  top: "top-[10%] translate-y-0",
+};
+
 /**
  * Props for StandardDialog component
  */
@@ -56,9 +72,26 @@ export interface StandardDialogProps {
   
   /**
    * Maximum width class for the dialog
-   * @default "sm:max-w-md"
+   * @default "md"
+   */
+  size?: keyof typeof sizeVariants;
+  
+  /**
+   * Custom maximum width if the size variants don't fit your need
    */
   maxWidth?: string;
+  
+  /**
+   * Position of the dialog
+   * @default "center"
+   */
+  position?: keyof typeof positionVariants;
+  
+  /**
+   * Whether to prevent closing when clicking outside the dialog
+   * @default false
+   */
+  preventOutsideClose?: boolean;
 }
 
 /**
@@ -94,18 +127,37 @@ export function StandardDialog({
   actions,
   className,
   showCloseButton = true,
-  maxWidth = "sm:max-w-md",
+  size = "md",
+  maxWidth,
+  position = "center",
+  preventOutsideClose = false,
 }: StandardDialogProps) {
+  // Handle dialog close
+  const handleOpenChange = (open: boolean) => {
+    if (!open && preventOutsideClose) {
+      return;
+    }
+    onOpenChange(open);
+  };
+
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+    <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black bg-opacity-60  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content
           className={cn(
-            "fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border bg-gray-50 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg p-6",
-            maxWidth,
+            "fixed left-[50%] z-50 grid w-full translate-x-[-50%] gap-4 border bg-gray-50 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg p-6",
+            // Use size variant from predefined sizes, or fallback to custom maxWidth, or use default md size
+            maxWidth ? maxWidth : sizeVariants[size],
+            // Use position variant
+            positionVariants[position],
             className
           )}
+          onInteractOutside={(e) => {
+            if (preventOutsideClose) {
+              e.preventDefault();
+            }
+          }}
         >
           {showCloseButton && (
             <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">

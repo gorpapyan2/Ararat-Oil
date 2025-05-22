@@ -1,11 +1,11 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { 
   useFillingSystem, 
   useFillingSystemById, 
   useFillingSystemMutations 
 } from '../useFillingSystem';
+import { setupHookTest, setupErrorTest, setupMutationTest } from '@/test/utils/test-setup';
 
 // Mock the services
 vi.mock('../../services', () => ({
@@ -26,21 +26,6 @@ import {
   validateTankIds 
 } from '../../services';
 
-// Create a wrapper for the QueryClientProvider
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-  
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
-
 describe('Filling System Hooks', () => {
   beforeEach(() => {
     vi.resetAllMocks();
@@ -53,11 +38,11 @@ describe('Filling System Hooks', () => {
         { id: '2', name: 'Filling System 2', tank_ids: ['tank3'], is_active: true, created_at: '2023-01-02', updated_at: '2023-01-02' }
       ];
       
-      (getFillingSystems as any).mockResolvedValue(mockFillingSystems);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockFillingSystems);
       
-      const { result } = renderHook(() => useFillingSystem(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystem());
       
       expect(result.current.isLoading).toBe(true);
       
@@ -70,12 +55,11 @@ describe('Filling System Hooks', () => {
     });
     
     it('should handle filling system fetch error', async () => {
-      const mockError = new Error('Failed to fetch filling systems');
-      (getFillingSystems as any).mockRejectedValue(mockError);
+      // Use shared error test utility
+      const { renderTestHook, mockFetch } = setupErrorTest();
+      mockFetch.mockRejectedValue(new Error('Failed to fetch filling systems'));
       
-      const { result } = renderHook(() => useFillingSystem(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystem());
       
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -89,11 +73,11 @@ describe('Filling System Hooks', () => {
         { id: '1', name: 'Filling System 1', tank_ids: ['tank1', 'tank2'], is_active: true, created_at: '2023-01-01', updated_at: '2023-01-01' }
       ];
       
-      (getFillingSystems as any).mockResolvedValue(mockFillingSystems);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockFillingSystems);
       
-      const { result } = renderHook(() => useFillingSystem(filters), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystem(filters));
       
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -115,11 +99,11 @@ describe('Filling System Hooks', () => {
         updated_at: '2023-01-01' 
       };
       
-      (getFillingSystemById as any).mockResolvedValue(mockFillingSystem);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockFillingSystem);
       
-      const { result } = renderHook(() => useFillingSystemById('1'), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystemById('1'));
       
       expect(result.current.isLoading).toBe(true);
       
@@ -132,9 +116,10 @@ describe('Filling System Hooks', () => {
     });
     
     it('should not fetch filling system if id is empty', async () => {
-      const { result } = renderHook(() => useFillingSystemById(''), {
-        wrapper: createWrapper()
-      });
+      // Use shared test utility
+      const { renderTestHook } = setupHookTest();
+      
+      const { result } = renderTestHook(() => useFillingSystemById(''));
       
       // It should not load or fetch
       expect(result.current.isLoading).toBe(false);
@@ -142,12 +127,11 @@ describe('Filling System Hooks', () => {
     });
     
     it('should handle fetch error for a single filling system', async () => {
-      const mockError = new Error('Failed to fetch filling system');
-      (getFillingSystemById as any).mockRejectedValue(mockError);
+      // Use shared error test utility
+      const { renderTestHook, mockFetch } = setupErrorTest();
+      mockFetch.mockRejectedValue(new Error('Failed to fetch filling system'));
       
-      const { result } = renderHook(() => useFillingSystemById('1'), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystemById('1'));
       
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -171,11 +155,11 @@ describe('Filling System Hooks', () => {
         updated_at: '2023-01-03'
       };
       
-      (createFillingSystem as any).mockResolvedValue(createdFillingSystem);
+      // Use shared mutation test utility
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(createdFillingSystem);
       
-      const { result } = renderHook(() => useFillingSystemMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystemMutations());
       
       await act(async () => {
         result.current.createFillingSystem.mutate(newFillingSystem);
@@ -205,11 +189,11 @@ describe('Filling System Hooks', () => {
         updated_at: '2023-01-04'
       };
       
-      (updateFillingSystem as any).mockResolvedValue(updatedFillingSystem);
+      // Use shared mutation test utility
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(updatedFillingSystem);
       
-      const { result } = renderHook(() => useFillingSystemMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystemMutations());
       
       await act(async () => {
         result.current.updateFillingSystem.mutate({ id: fillingSystemId, data: updateData });
@@ -226,11 +210,11 @@ describe('Filling System Hooks', () => {
     it('should delete a filling system successfully', async () => {
       const fillingSystemId = '2';
       
-      (deleteFillingSystem as any).mockResolvedValue(true);
+      // Use shared mutation test utility
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(true);
       
-      const { result } = renderHook(() => useFillingSystemMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystemMutations());
       
       await act(async () => {
         result.current.deleteFillingSystem.mutate(fillingSystemId);
@@ -247,43 +231,67 @@ describe('Filling System Hooks', () => {
     it('should validate tank IDs successfully', async () => {
       const tankIds = ['tank1', 'tank2'];
       
-      (validateTankIds as any).mockResolvedValue(true);
+      // Use shared mutation test utility
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(true);
       
-      const { result } = renderHook(() => useFillingSystemMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystemMutations());
+      
+      let validationResult;
       
       await act(async () => {
-        result.current.validateTankIds.mutate(tankIds);
+        validationResult = await result.current.validateTankIds(tankIds);
       });
       
-      await waitFor(() => {
-        expect(result.current.validateTankIds.isSuccess).toBe(true);
-        expect(result.current.validateTankIds.data).toBe(true);
-      });
-      
+      expect(validationResult).toBe(true);
       expect(validateTankIds).toHaveBeenCalledWith(tankIds);
     });
     
-    it('should handle validation failure for tank IDs', async () => {
-      const tankIds = ['invalidTank1', 'invalidTank2'];
+    it('should handle tank ID validation error', async () => {
+      const tankIds = ['invalidTank'];
+      const validationError = new Error('Invalid tank IDs');
       
-      (validateTankIds as any).mockResolvedValue(false);
+      // Use shared mutation test utility
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockRejectedValue(validationError);
       
-      const { result } = renderHook(() => useFillingSystemMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFillingSystemMutations());
+      
+      let error;
       
       await act(async () => {
-        result.current.validateTankIds.mutate(tankIds);
+        try {
+          await result.current.validateTankIds(tankIds);
+        } catch (e) {
+          error = e;
+        }
+      });
+      
+      expect(error).toEqual(validationError);
+      expect(validateTankIds).toHaveBeenCalledWith(tankIds);
+    });
+    
+    it('should invalidate queries after successful mutations', async () => {
+      // Setup a mock query client and spies
+      const { queryClient, renderTestHook, mockMutate } = setupMutationTest();
+      const spyInvalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+      
+      // Mock a successful filling system creation
+      const newFillingSystem = { name: 'Test System', tank_ids: ['tank1'], is_active: true };
+      mockMutate.mockResolvedValue({ id: '3', ...newFillingSystem, created_at: '2023-01-05', updated_at: '2023-01-05' });
+      
+      const { result } = renderTestHook(() => useFillingSystemMutations());
+      
+      await act(async () => {
+        result.current.createFillingSystem.mutate(newFillingSystem);
       });
       
       await waitFor(() => {
-        expect(result.current.validateTankIds.isSuccess).toBe(true);
-        expect(result.current.validateTankIds.data).toBe(false);
+        expect(result.current.createFillingSystem.isSuccess).toBe(true);
       });
       
-      expect(validateTankIds).toHaveBeenCalledWith(tankIds);
+      // Verify that the cache was invalidated
+      expect(spyInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['filling-systems'] });
     });
   });
 }); 

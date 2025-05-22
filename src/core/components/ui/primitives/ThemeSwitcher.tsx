@@ -100,7 +100,7 @@ export function ThemeSwitcher({
           onClick={() => setTheme("light")}
           className={cn(
             "flex items-center gap-2 cursor-pointer",
-            theme === "light" && "bg-accent bg-opacity-20 text-accent font-medium"
+            theme === "light" && "bg-accent/20 text-accent font-medium"
           )}
         >
           <Sun className="h-4 w-4" />
@@ -110,7 +110,7 @@ export function ThemeSwitcher({
           onClick={() => setTheme("dark")}
           className={cn(
             "flex items-center gap-2 cursor-pointer",
-            theme === "dark" && "bg-accent bg-opacity-20 text-accent font-medium"
+            theme === "dark" && "bg-accent/20 text-accent font-medium"
           )}
         >
           <Moon className="h-4 w-4" />
@@ -120,7 +120,7 @@ export function ThemeSwitcher({
           onClick={() => setTheme("system")}
           className={cn(
             "flex items-center gap-2 cursor-pointer",
-            theme === "system" && "bg-accent bg-opacity-20 text-accent font-medium"
+            theme === "system" && "bg-accent/20 text-accent font-medium"
           )}
         >
           <Monitor className="h-4 w-4" />

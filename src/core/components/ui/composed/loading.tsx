@@ -22,7 +22,7 @@ export function Loading({
 }: LoadingProps) {
   if (variant === "fullscreen") {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-50 bg-opacity-80 ">
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-50/80 ">
         <Loader2 className={cn("animate-spin", sizeMap[size])} />
         {text && <p className="mt-4 text-muted-foreground">{text}</p>}
       </div>
@@ -31,7 +31,7 @@ export function Loading({
 
   if (variant === "overlay") {
     return (
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 bg-opacity-60">
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/60">
         <Loader2 className={cn("animate-spin", sizeMap[size])} />
         {text && <p className="mt-2 text-sm text-muted-foreground">{text}</p>}
       </div>

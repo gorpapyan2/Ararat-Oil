@@ -73,7 +73,7 @@ export function DevToolsMenu() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">{tool.title}</CardTitle>
-                <div className="p-2 bg-primary bg-opacity-10 rounded-full">
+                <div className="p-2 bg-primary/10 rounded-full">
                   {tool.icon}
                 </div>
               </div>
@@ -87,7 +87,7 @@ export function DevToolsMenu() {
           </Card>
         ))}
         
-        <Card className="border-dashed border-2 hover:border-primary border-opacity-50 transition-colors">
+        <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
           <CardContent className="flex flex-col items-center justify-center h-[200px]">
             <Sparkles className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-center text-muted-foreground">

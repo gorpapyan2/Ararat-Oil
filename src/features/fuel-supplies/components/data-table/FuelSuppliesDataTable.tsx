@@ -161,7 +161,7 @@ export function FuelSuppliesDataTable({
 
         return (
           <div className="text-right font-medium tabular-nums py-2">
-            <span className="rounded-md bg-primary bg-opacity-10 px-2 py-1 text-primary">
+            <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
               {displayValue} L
             </span>
           </div>
@@ -260,7 +260,7 @@ export function FuelSuppliesDataTable({
                       e.stopPropagation();
                       onEdit(supply);
                     }}
-                    className="h-8 w-8 p-0 hover:bg-primary bg-opacity-10 hover:text-primary"
+                    className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
                   >
                     <span className="sr-only">
                       {t("fuelSupplies.editTooltip")}
@@ -314,10 +314,10 @@ export function FuelSuppliesDataTable({
   // Use the DataTable component with adjusted props
   return (
     <div
-      className="rounded-lg bg-card text-card-foreground shadow-sm overflow-hidden border border-border border-opacity-40 
-      [&_tr:hover]:bg-primary bg-opacity-5 [&_tr]:transition-colors [&_tr]:group
-      [&_th]:text-muted-foreground [&_th]:font-medium [&_th]:border-b [&_th]:border-border border-opacity-50
-      [&_td]:border-b [&_td]:border-border border-opacity-10 [&_.pagination]:mt-2"
+      className="rounded-lg bg-card text-card-foreground shadow-sm overflow-hidden border border-border/40 
+      [&_tr:hover]:bg-primary/5 [&_tr]:transition-colors [&_tr]:group
+      [&_th]:text-muted-foreground [&_th]:font-medium [&_th]:border-b [&_th]:border-border/50
+      [&_td]:border-b [&_td]:border-border/10 [&_.pagination]:mt-2"
     >
       <DataTable
         columns={columns}

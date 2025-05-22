@@ -179,7 +179,7 @@ const Slider = React.forwardRef<
           <SliderPrimitive.Track
             className={cn(
               "relative h-2 w-full grow overflow-hidden rounded-full bg-secondary",
-              error && "bg-destructive bg-opacity-20"
+              error && "bg-destructive/20"
             )}
           >
             <SliderPrimitive.Range className={cn(

@@ -1,0 +1,31 @@
+/**
+ * @deprecated This component is deprecated and will be removed in the next major version.
+ * Please use the standardized version from the feature directory instead:
+ * {@link import('@/features/fuel-supplies/components/FuelSuppliesManagerStandardized')}
+ * 
+ * Deprecation Date: 2023-06-17
+ * Planned Removal Date: 2023-12-17
+ * Migration Guide: See docs/refactoring/component-deprecation-schedule.md
+ */
+import React, { useEffect } from "react";
+import { trackDeprecatedComponentUsage } from "@/utils/deprecation/tracking";
+import { FuelSuppliesManagerStandardized as FeatureFuelSuppliesManagerStandardized } from "@/features/fuel-supplies/components/FuelSuppliesManagerStandardized";
+
+/**
+ * @deprecated This component is a bridge to the standardized version.
+ * Please update imports to use the standardized component directly:
+ * {@link import('@/features/fuel-supplies/components/FuelSuppliesManagerStandardized')}
+ */
+export function FuelSuppliesManagerStandardized(props) {
+  // Issue a deprecation warning
+  useEffect(() => {
+    trackDeprecatedComponentUsage(
+      "FuelSuppliesManagerStandardized",
+      "src\components\fuel-supplies\FuelSuppliesManagerStandardized.tsx",
+      "@/features/fuel-supplies/components/FuelSuppliesManagerStandardized"
+    );
+  }, []);
+  
+  // Re-export the feature component
+  return <FeatureFuelSuppliesManagerStandardized {...props} />;
+}

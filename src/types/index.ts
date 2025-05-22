@@ -1,3 +1,8 @@
+// Re-export all types from this central location
+
+// Export supabase types from their canonical location
+export * from '@/integrations/supabase/types';
+
 // Employee status enum
 export type EmployeeStatus = 'active' | 'inactive' | 'on_leave';
 

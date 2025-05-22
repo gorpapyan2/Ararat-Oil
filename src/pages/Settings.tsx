@@ -407,30 +407,30 @@ export default function Settings() {
                 <h3 className="text-sm font-medium">{t("settings.appearance.theme")}</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div
-                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "light" ? "border-primary bg-primary bg-opacity-5" : ""}`}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "light" ? "border-primary bg-primary/5" : ""}`}
                     onClick={() => setTheme("light")}
                   >
-                    <div className="rounded-full bg-primary bg-opacity-10 p-2">
+                    <div className="rounded-full bg-primary/10 p-2">
                       <IconSun className="h-5 w-5 text-primary" />
                     </div>
                     <span className="text-sm font-medium">{t("settings.appearance.light")}</span>
                   </div>
 
                   <div
-                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "dark" ? "border-primary bg-primary bg-opacity-5" : ""}`}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "dark" ? "border-primary bg-primary/5" : ""}`}
                     onClick={() => setTheme("dark")}
                   >
-                    <div className="rounded-full bg-primary bg-opacity-10 p-2">
+                    <div className="rounded-full bg-primary/10 p-2">
                       <IconMoon className="h-5 w-5 text-primary" />
                     </div>
                     <span className="text-sm font-medium">{t("settings.appearance.dark")}</span>
                   </div>
 
                   <div
-                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "system" ? "border-primary bg-primary bg-opacity-5" : ""}`}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "system" ? "border-primary bg-primary/5" : ""}`}
                     onClick={() => setTheme("system")}
                   >
-                    <div className="rounded-full bg-primary bg-opacity-10 p-2">
+                    <div className="rounded-full bg-primary/10 p-2">
                       <IconDeviceLaptop className="h-5 w-5 text-primary" />
                     </div>
                     <span className="text-sm font-medium">{t("settings.appearance.system")}</span>

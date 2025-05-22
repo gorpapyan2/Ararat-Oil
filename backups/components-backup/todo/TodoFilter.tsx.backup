@@ -39,7 +39,7 @@ export function TodoFilter({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <div className="relative flex-grow">
+        <div className="relative grow">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"

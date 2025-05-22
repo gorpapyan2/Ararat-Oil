@@ -141,7 +141,7 @@ export function Breadcrumb({
                       <Link 
                         key={segment.href}
                         to={segment.href} 
-                        className="hover:text-foreground text-muted-foreground py-1 px-2 rounded hover:bg-muted bg-opacity-50 transition-colors"
+                        className="hover:text-foreground text-muted-foreground py-1 px-2 rounded hover:bg-muted/50 transition-colors"
                       >
                         {segment.name}
                       </Link>
@@ -167,7 +167,7 @@ export function Breadcrumb({
                 <span
                   className={cn(
                     "text-sm font-medium truncate max-w-[150px] sm:max-w-[200px] md:max-w-none px-1.5 py-1",
-                    "text-foreground rounded-md bg-muted bg-opacity-40"
+                    "text-foreground rounded-md bg-muted/40"
                   )}
                   aria-current="page"
                   title={segment.name}
@@ -180,7 +180,7 @@ export function Breadcrumb({
                   className={cn(
                     "text-sm font-medium text-muted-foreground hover:text-foreground truncate max-w-[100px] sm:max-w-[200px] md:max-w-none px-1.5 py-1",
                     "transition-colors duration-200 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    "hover:bg-muted bg-opacity-30"
+                    "hover:bg-muted/30"
                   )}
                   title={segment.name}
                 >

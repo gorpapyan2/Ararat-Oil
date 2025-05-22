@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnostic Page</title>
+  <link rel="stylesheet" href="/src/index.css">
+  <style>
+    /* Fallback styles in case CSS isn't loading */
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #fff;
+      color: #000;
+    }
+    .diagnostic-container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .test-box {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .primary-bg {
+      background-color: rgb(58, 166, 85);
+      color: white;
+    }
+    .secondary-bg {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .primary-btn {
+      background-color: rgb(58, 166, 85);
+      color: white;
+    }
+    h1, h2, p {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="diagnostic-container">
+    <h1>Diagnostic Page</h1>
+    <p>This page tests basic CSS and JavaScript functionality.</p>
+    
+    <h2>CSS Variables Test</h2>
+    <div class="test-box primary-bg">
+      This box uses hardcoded RGB color values (58, 166, 85)
+    </div>
+    <div class="test-box secondary-bg">
+      This box uses hardcoded colors (#f1f5f9)
+    </div>
+    
+    <h2>Theme Test</h2>
+    <div id="theme-indicator"></div>
+    <button onclick="toggleTheme()" class="primary-btn">Toggle Theme</button>
+    
+    <h2>CSS Import Test</h2>
+    <p>If you can see styling from index.css, CSS imports are working correctly.</p>
+    <div>
+      <span id="css-test-bg-background" class="bg-background">This uses bg-background</span>
+      <span id="css-test-text-primary" class="text-primary">This uses text-primary</span>
+    </div>
+    
+    <h2>JavaScript Test</h2>
+    <div id="js-test">JavaScript loading test</div>
+    <div id="computed-styles"></div>
+  </div>
+
+  <script>
+    // Test JavaScript execution
+    document.getElementById('js-test').textContent = 'JavaScript is working! ' + new Date().toLocaleTimeString();
+    
+    // Theme toggle function
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      
+      if (isDark) {
+        html.classList.remove('dark');
+        html.style.colorScheme = 'light';
+      } else {
+        html.classList.add('dark');
+        html.style.colorScheme = 'dark';
+      }
+      
+      updateThemeIndicator();
+    }
+    
+    // Update theme indicator
+    function updateThemeIndicator() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const indicator = document.getElementById('theme-indicator');
+      indicator.textContent = `Current theme: ${isDark ? 'Dark' : 'Light'}`;
+      indicator.style.backgroundColor = isDark ? '#333' : '#eee';
+      indicator.style.color = isDark ? '#fff' : '#000';
+      indicator.style.padding = '10px';
+    }
+    
+    // Display computed styles to debug CSS variables
+    function displayComputedStyles() {
+      const bgBackground = document.getElementById('css-test-bg-background');
+      const textPrimary = document.getElementById('css-test-text-primary');
+      const stylesDiv = document.getElementById('computed-styles');
+      
+      const bgStyle = window.getComputedStyle(bgBackground);
+      const textStyle = window.getComputedStyle(textPrimary);
+      
+      stylesDiv.innerHTML = `
+        <h3>Computed Styles:</h3>
+        <pre>
+bg-background:
+  background-color: ${bgStyle.backgroundColor}
+  
+text-primary:
+  color: ${textStyle.color}
+        </pre>
+      `;
+    }
+    
+    // Initialize
+    updateThemeIndicator();
+    setTimeout(displayComputedStyles, 500); // Wait for CSS to apply
+  </script>
+</body>
+</html> 

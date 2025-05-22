@@ -107,7 +107,7 @@ export function ActionCard({
     <Card className={cn("overflow-hidden", className)} {...props}>
       <CardHeader className="pb-2">
         <div className="flex items-center space-x-2">
-          {icon && <div className="flex-shrink-0">{icon}</div>}
+          {icon && <div className="shrink-0">{icon}</div>}
           <CardTitle className="text-lg font-medium">{title}</CardTitle>
         </div>
         {description && <CardDescription>{description}</CardDescription>}

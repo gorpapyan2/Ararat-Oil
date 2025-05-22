@@ -49,9 +49,39 @@ Each feature is isolated and contains:
 
 ## Tech Stack
 
-- **Frontend**: React, TypeScript, TailwindCSS, Radix UI, React Query
+- **Frontend**: React, TypeScript, TailwindCSS v4, Radix UI, React Query
 - **Backend**: Supabase Edge Functions, PostgreSQL
-- **Infrastructure**: Vercel, Supabase
+- **Infrastructure**: Vercel, Supabase, AWS ECS
+
+## Tailwind CSS v4 Migration
+
+This project has been upgraded to Tailwind CSS v4, which brings several benefits:
+
+- **Improved performance**: Smaller bundle size and faster compilation
+- **Modern color system**: Using RGB color notation for better color handling
+- **Simplified configuration**: Using the Vite plugin for streamlined integration
+
+For developers working on this project, please refer to:
+- [Tailwind CSS v4 Documentation](https://tailwindcss.com/docs)
+- Our migration guide at `docs/tailwind-v4-migration.md`
+
+### Key Changes
+
+- CSS variables now use the `--color-` prefix and RGB format
+- Import syntax has changed from `@tailwind` to `@import "tailwindcss"`
+- Color format is now RGB notation instead of hex values
+
+### Automated Tools
+
+We've implemented automated tools to assist with the migration:
+
+```bash
+# Run color format converter
+npm run tailwind:convert-colors
+
+# Run complete upgrade process
+npm run tailwind:full-upgrade
+```
 
 ## Documentation
 

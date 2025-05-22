@@ -101,7 +101,7 @@ export function ToastContainer({
 
             <button
               type="button"
-              className="ml-4 flex-shrink-0 rounded-md p-1 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-white"
+              className="ml-4 shrink-0 rounded-md p-1 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-white"
               onClick={() => {
                 dismiss(toast.id);
                 toast.onOpenChange?.(false);

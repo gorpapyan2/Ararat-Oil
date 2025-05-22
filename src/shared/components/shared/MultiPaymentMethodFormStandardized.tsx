@@ -218,7 +218,7 @@ export function MultiPaymentMethodFormStandardized({
           
           <div className="space-y-4">
             {formPaymentMethods.map((method, index) => (
-              <div key={index} className="p-4 border rounded-md bg-muted bg-opacity-30 relative">
+              <div key={index} className="p-4 border rounded-md bg-muted/30 relative">
                 {/* Remove button */}
                 {formPaymentMethods.length > 1 && (
                   <Button

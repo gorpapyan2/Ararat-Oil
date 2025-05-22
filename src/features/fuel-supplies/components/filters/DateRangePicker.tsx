@@ -1,5 +1,5 @@
 import React from "react";
-import { CalendarIcon, Check } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 import { Calendar } from '@/core/components/ui/calendar';
 import {
@@ -25,6 +25,7 @@ import {
 import { Label } from '@/core/components/ui/label';
 import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils";
+import { DateRange } from "@/core/components/ui/primitives/calendar";
 
 interface DateRangePickerProps {
   dateRange: [Date | undefined, Date | undefined];
@@ -86,22 +87,6 @@ export function DateRangePicker({
     },
   ];
 
-  const handleSelect = (date: Date | undefined) => {
-    if (!startDate || (startDate && endDate)) {
-      // If no start date is selected or both dates are selected, set the start date
-      onDateRangeChange([date, undefined]);
-    } else {
-      // If only start date is selected, set the end date
-      // Ensure end date is not before start date
-      if (date && startDate && date < startDate) {
-        onDateRangeChange([date, startDate]);
-      } else {
-        onDateRangeChange([startDate, date]);
-      }
-      setIsCalendarOpen(false);
-    }
-  };
-
   const formatDateRange = () => {
     if (startDate && endDate) {
       return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
@@ -117,9 +102,25 @@ export function DateRangePicker({
     setIsCalendarOpen(false);
   };
 
+  // Convert the current date range to a format the Calendar component expects
+  const calendarValue: DateRange = {
+    from: startDate || undefined,
+    to: endDate || undefined,
+  };
+
+  // Handle the calendar selection
+  const handleCalendarSelect = (value: DateRange | undefined) => {
+    if (!value) return;
+    
+    onDateRangeChange([value.from, value.to]);
+    if (value.from && value.to) {
+      setIsCalendarOpen(false);
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
+      <Label className="text-sm font-medium text-muted-foreground">
         {label}
       </Label>
       <div className="flex gap-2">
@@ -128,49 +129,41 @@ export function DateRangePicker({
             <Button
               variant="outline"
               className={cn(
-                "w-full justify-start text-left font-normal bg-[hsl(var(--50))] bg-opacity-$2 border-[hsl(var(--50))] border-opacity-$2 hover:bg-[hsl(var(--80))] bg-opacity-$2 transition-colors",
-                !startDate && !endDate && "text-[hsl(var(--muted-foreground))]",
+                "w-full justify-start text-left font-normal bg-50/20 border-50/20 hover:bg-80/20 transition-colors",
+                !startDate && !endDate && "text-muted-foreground",
               )}
             >
-              <CalendarIcon className="mr-2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+              <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
               {startDate || endDate
                 ? formatDateRange()
                 : t("common.selectDateRange")}
             </Button>
-          </PopoverTrigger>
+          </PopoverTrigger> 
           <PopoverContent
-            className="w-auto p-0 border border-[hsl(var(--40))] border-opacity-$2 shadow-md"
+            className="w-auto p-0 border border-40/20 shadow-md"
             align="start"
           >
             <Calendar
               mode="range"
-              selected={{
-                from: startDate,
-                to: endDate,
-              }}
-              onSelect={(range) => {
-                onDateRangeChange([range?.from, range?.to]);
-                if (range?.from && range?.to) {
-                  setIsCalendarOpen(false);
-                }
-              }}
-              initialFocus
+              selected={calendarValue}
+              onSelect={handleCalendarSelect as (value: DateRange | undefined) => void}
+              initialFocus={true}
               numberOfMonths={2}
               className="p-3"
             />
-            <div className="flex items-center justify-between p-3 border-t border-[hsl(var(--30))] border-opacity-$2 bg-[hsl(var(--30))] bg-opacity-$2">
+            <div className="flex items-center justify-between p-3 border-t border-30/20 bg-30/20">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={clearDateRange}
-                className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 {t("common.clear")}
               </Button>
               <Button
                 size="sm"
                 onClick={() => setIsCalendarOpen(false)}
-                className="bg-[hsl(var(--90))] bg-opacity-$2 hover:bg-[hsl(var(--primary))] transition-colors"
+                className="bg-90/20 hover:bg-primary transition-colors"
               >
                 {t("common.apply")}
               </Button>
@@ -182,14 +175,14 @@ export function DateRangePicker({
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="px-2 bg-[hsl(var(--50))] bg-opacity-$2 border-[hsl(var(--50))] border-opacity-$2 hover:bg-[hsl(var(--80))] bg-opacity-$2 transition-colors"
+              className="px-2 bg-50/20 border-50/20 hover:bg-80/20 transition-colors"
             >
-              <CalendarIcon className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="border border-[hsl(var(--40))] border-opacity-$2 shadow-md"
+            className="border border-40/20 shadow-md"
           >
             {presets.map((preset) => (
               <DropdownMenuItem
@@ -198,15 +191,15 @@ export function DateRangePicker({
                   onDateRangeChange(preset.value);
                   setIsCalendarOpen(false);
                 }}
-                className="flex items-center gap-2 hover:bg-[hsl(var(--10))] bg-opacity-$2 transition-colors"
+                className="flex items-center gap-2 hover:bg-10/20 transition-colors"
               >
                 {preset.name}
               </DropdownMenuItem>
             ))}
-            <DropdownMenuSeparator className="bg-[hsl(var(--30))] bg-opacity-$2" />
+            <DropdownMenuSeparator className="bg-30/20" />
             <DropdownMenuItem
               onClick={clearDateRange}
-              className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--10))] bg-opacity-$2 transition-colors"
+              className="text-muted-foreground hover:text-foreground hover:bg-10/20 transition-colors"
             >
               {t("common.clearDateRange")}
             </DropdownMenuItem>

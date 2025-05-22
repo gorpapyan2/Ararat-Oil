@@ -86,7 +86,7 @@ export function MainLayout({ children }: MainLayoutProps) {
             "shadow-lg shadow-primary/20",
             "border-2 border-primary-foreground/10",
             "transition-all duration-200 ease-in-out",
-            "hover:bg-primary bg-opacity-90 hover:scale-105",
+            "hover:bg-primary/90 hover:scale-105",
             "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background",
             mobileSidebarOpen && "bg-gray-50 text-foreground rotate-90",
           )}
@@ -107,7 +107,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       {/* Overlay for mobile sidebar */}
       {isMobile && mobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50  z-40"
+          className="fixed inset-0 bg-black/50  z-40"
           aria-hidden="true"
           onClick={() => setMobileSidebarOpen(false)}
         />

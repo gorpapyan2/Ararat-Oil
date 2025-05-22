@@ -60,7 +60,7 @@ export default function ConnectionInfo() {
             <SupabaseConnectionStatus />
           </div>
           
-          <div className="bg-accent bg-opacity-50 rounded-lg p-4">
+          <div className="bg-accent/50 rounded-lg p-4">
             <h3 className="text-lg font-medium mb-2">Developer Information</h3>
             <p className="text-sm text-muted-foreground mb-2">
               Connection URL: <code className="bg-gray-50 px-1 py-0.5 rounded">https://qnghvjeunmicykrzpeog.supabase.co</code>

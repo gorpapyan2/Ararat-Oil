@@ -56,7 +56,7 @@ export function SidebarFooter({
         variant="ghost" 
         className={cn(
           "w-full font-normal transition-colors duration-200",
-          "hover:bg-destructive bg-opacity-10 hover:text-destructive",
+          "hover:bg-destructive/10 hover:text-destructive",
           "focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2",
           collapsed ? "justify-center px-0" : "justify-start"
         )}
@@ -97,7 +97,7 @@ export function SidebarFooter({
         className={cn(
           "transition-all duration-200 group",
           "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-          "hover:bg-primary bg-opacity-10 hover:text-primary",
+          "hover:bg-primary/10 hover:text-primary",
           collapsed ? "w-10 h-10 rounded-full p-0 mx-auto" : "w-full justify-between"
         )}
         aria-label={collapsed ? t("sidebar.expandSidebar") : t("sidebar.collapseSidebar")}
@@ -169,7 +169,7 @@ export function SidebarFooter({
         title={t('settings.logout')}
         description={t('settings.logoutConfirmation')}
         confirmButtonProps={{
-          className: 'bg-destructive hover:bg-destructive bg-opacity-90 text-destructive-foreground',
+          className: 'bg-destructive hover:bg-destructive/90 text-destructive-foreground',
         }}
       />
     </div>

@@ -76,7 +76,7 @@ export function ProviderFilter({
             <div className="max-h-[300px] overflow-y-auto">
               {isLoading ? (
                 <div className="py-6 text-center text-sm">
-                  <div className="h-4 w-4 animate-spin mx-auto border-2 border-primary border-opacity-50 border-t-primary rounded-full" />
+                  <div className="h-4 w-4 animate-spin mx-auto border-2 border-primary/50 border-t-primary rounded-full" />
                   <p className="mt-2 text-muted-foreground">
                     {t("common.loading")}
                   </p>

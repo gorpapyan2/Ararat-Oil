@@ -1,7 +1,8 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, Mock } from 'vitest';
 import { useFinance } from '../useFinance';
+import { setupHookTest, setupErrorTest, setupMutationTest } from '@/test/utils/test-setup';
+import type { FinanceTransaction, Expense, ProfitLossData, FinanceOverview } from '../../types/finance.types';
 
 // Mock the services
 vi.mock('../../services', () => ({
@@ -28,21 +29,6 @@ import {
   getFinanceOverview
 } from '../../services';
 
-// Create a wrapper for the QueryClientProvider
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-  
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
-
 describe('Finance Hooks', () => {
   beforeEach(() => {
     vi.resetAllMocks();
@@ -55,11 +41,11 @@ describe('Finance Hooks', () => {
         { id: '2', amount: 500, date: '2023-01-02', type: 'expense', category: 'supplies', description: 'Office supplies', created_at: '2023-01-02', updated_at: '2023-01-02' }
       ];
       
-      (getTransactions as any).mockResolvedValue(mockTransactions);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockTransactions);
       
-      const { result } = renderHook(() => useFinance(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFinance());
       
       expect(result.current.transactionsQuery.isLoading).toBe(true);
       
@@ -77,11 +63,11 @@ describe('Finance Hooks', () => {
         { id: '2', amount: 500, date: '2023-01-02', category: 'rent', description: 'Office rent', is_recurring: true, created_at: '2023-01-02', updated_at: '2023-01-02' }
       ];
       
-      (getExpenses as any).mockResolvedValue(mockExpenses);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockExpenses);
       
-      const { result } = renderHook(() => useFinance(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFinance());
       
       expect(result.current.expensesQuery.isLoading).toBe(true);
       
@@ -105,11 +91,11 @@ describe('Finance Hooks', () => {
         }
       };
       
-      (getProfitLoss as any).mockResolvedValue(mockProfitLoss);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockProfitLoss);
       
-      const { result } = renderHook(() => useFinance(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFinance());
       
       expect(result.current.profitLossQuery.isLoading).toBe(true);
       
@@ -135,11 +121,11 @@ describe('Finance Hooks', () => {
         financial_health: 'good'
       };
       
-      (getFinanceOverview as any).mockResolvedValue(mockOverview);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockOverview);
       
-      const { result } = renderHook(() => useFinance(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFinance());
       
       expect(result.current.overviewQuery.isLoading).toBe(true);
       
@@ -167,11 +153,11 @@ describe('Finance Hooks', () => {
         updated_at: '2023-01-10'
       };
       
-      (createTransaction as any).mockResolvedValue(createdTransaction);
+      // Use shared mutation test utility
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(createdTransaction);
       
-      const { result } = renderHook(() => useFinance(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFinance());
       
       await act(async () => {
         result.current.createTransactionMutation.mutate(newTransaction);
@@ -203,11 +189,11 @@ describe('Finance Hooks', () => {
         updated_at: '2023-01-10'
       };
       
-      (updateTransaction as any).mockResolvedValue(updatedTransaction);
+      // Use shared mutation test utility
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(updatedTransaction);
       
-      const { result } = renderHook(() => useFinance(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFinance());
       
       await act(async () => {
         result.current.updateTransactionMutation.mutate({ id: transactionId, data: updateData });
@@ -234,11 +220,11 @@ describe('Finance Hooks', () => {
         }
       };
       
-      (calculateProfitLoss as any).mockResolvedValue(mockProfitLossCalculation);
+      // Use shared mutation test utility
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(mockProfitLossCalculation);
       
-      const { result } = renderHook(() => useFinance(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFinance());
       
       await act(async () => {
         result.current.calculateProfitLossMutation.mutate(timePeriod);
@@ -253,16 +239,9 @@ describe('Finance Hooks', () => {
     });
     
     it('should invalidate queries after successful mutations', async () => {
-      // Setup a mock query client to spy on invalidateQueries
-      const queryClient = new QueryClient({
-        defaultOptions: { queries: { retry: false } }
-      });
-      
+      // Use shared mutation test utility with query client access
+      const { queryClient, renderTestHook, mockMutate } = setupMutationTest();
       const spyInvalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
-      
-      const customWrapper = ({ children }: { children: React.ReactNode }) => (
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-      );
       
       // Mock a successful creation
       const newExpense = {
@@ -280,11 +259,9 @@ describe('Finance Hooks', () => {
         updated_at: '2023-01-15'
       };
       
-      (createExpense as any).mockResolvedValue(createdExpense);
+      mockMutate.mockResolvedValue(createdExpense);
       
-      const { result } = renderHook(() => useFinance(), {
-        wrapper: customWrapper
-      });
+      const { result } = renderTestHook(() => useFinance());
       
       await act(async () => {
         result.current.createExpenseMutation.mutate(newExpense);

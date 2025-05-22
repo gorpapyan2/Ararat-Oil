@@ -1,100 +1,150 @@
 /* This file contains explicit utility classes that might be purged by Tailwind */
 
+/* Base color utilities with RGB values for Tailwind v4 */
 .bg-gray-50 {
-  background-color: #ffffff;
-}
-
-.bg-black {
-  background-color: #000000;
-}
-
-.text-white {
-  color: #ffffff;
-}
-
-.text-black {
-  color: #000000;
-}
-
-.bg-gray-50 {
-  background-color: #f9fafb;
-}
-
-.bg-gray-800 {
-  background-color: #1f2937;
-}
-
-.bg-gray-900 {
-  background-color: #111827;
-}
-
-.text-gray-50 {
-  color: #f9fafb;
-}
-
-.text-gray-900 {
-  color: #111827;
-}
-
-.border-gray-200 {
-  border-color: #e5e7eb;
-}
-
-/* 
- * Legacy compatibility classes for Tailwind CSS v4
- * These classes use the tw- prefix to avoid conflicts
- */
-
-.tw-bg-white {
-  background-color: rgb(255 255 255);
-}
-
-.tw-bg-black {
-  background-color: rgb(0 0 0);
-}
-
-.tw-text-white {
-  color: rgb(255 255 255);
-}
-
-.tw-text-black {
-  color: rgb(0 0 0);
-}
-
-.tw-bg-gray-50 {
   background-color: rgb(249 250 251);
 }
 
-.tw-bg-gray-800 {
+.bg-black {
+  background-color: rgb(0 0 0);
+}
+
+.text-white {
+  color: rgb(255 255 255);
+}
+
+.text-black {
+  color: rgb(0 0 0);
+}
+
+.bg-gray-800 {
   background-color: rgb(31 41 55);
 }
 
-.tw-bg-gray-900 {
+.bg-gray-900 {
   background-color: rgb(17 24 39);
 }
 
-.tw-text-gray-50 {
+.text-gray-50 {
   color: rgb(249 250 251);
 }
 
-.tw-text-gray-900 {
-  color: rgb(17 24 39);
-}
-
-.tw-border-gray-200 {
-  border-color: rgb(229 231 235);
-}
-
-/* Legacy class for background color */
-.bg-background {
-  background-color: var(--color-background);
-}
-
-/* Legacy text colors */
 .text-gray-500 {
   color: rgb(107 114 128);
 }
 
 .text-gray-700 {
   color: rgb(55 65 81);
+}
+
+.text-gray-900 {
+  color: rgb(17 24 39);
+}
+
+.border-gray-200 {
+  border-color: rgb(229 231 235);
+}
+
+/* 
+ * Theme variable utilities for Tailwind CSS v4
+ * Using the modern --color-* prefix
+ */
+
+.bg-background {
+  background-color: var(--color-background);
+}
+
+.text-foreground {
+  color: var(--color-foreground);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+.text-secondary {
+  color: var(--color-secondary);
+}
+
+.bg-muted {
+  background-color: var(--color-muted);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-muted-foreground {
+  color: var(--color-muted-foreground);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.border-secondary {
+  border-color: var(--color-secondary);
+}
+
+/* Numeric color variables */
+.bg-10 {
+  background-color: var(--color-10, rgb(249 250 251));
+}
+
+.bg-30 {
+  background-color: var(--color-30, rgb(229 231 235));
+}
+
+.bg-40 {
+  background-color: var(--color-40, rgb(209 213 219));
+}
+
+.bg-50 {
+  background-color: var(--color-50, rgb(209 213 219));
+}
+
+.bg-80 {
+  background-color: var(--color-80, rgb(156 163 175));
+}
+
+.bg-90 {
+  background-color: var(--color-90, rgb(107 114 128));
+}
+
+/* Border colors */
+.border-10 {
+  border-color: var(--color-10, rgb(249 250 251));
+}
+
+.border-30 {
+  border-color: var(--color-30, rgb(229 231 235));
+}
+
+.border-40 {
+  border-color: var(--color-40, rgb(209 213 219));
+}
+
+.border-50 {
+  border-color: var(--color-50, rgb(209 213 219));
+}
+
+/* Focus/hover effects */
+.ring-primary {
+  --tw-ring-color: var(--color-primary);
+}
+
+.hover-bg-primary:hover {
+  background-color: var(--color-primary);
+}
+
+.hover-text-primary:hover {
+  color: var(--color-primary);
 } 

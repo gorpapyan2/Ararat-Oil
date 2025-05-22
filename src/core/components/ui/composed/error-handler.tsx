@@ -45,7 +45,7 @@ export function ErrorDisplay({
   // For inline variant (simplest)
   if (variant === 'inline') {
     return (
-      <Alert variant="destructive" className={cn("border-destructive border-opacity-50", className)}>
+      <Alert variant="destructive" className={cn("border-destructive/50", className)}>
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>{title}</AlertTitle>
         <AlertDescription>
@@ -73,7 +73,7 @@ export function ErrorDisplay({
   // For card variant (more detailed)
   if (variant === 'card') {
     return (
-      <Card className={cn("border-destructive border-opacity-50", className)}>
+      <Card className={cn("border-destructive/50", className)}>
         <CardHeader className="pb-2">
           <CardTitle className="text-destructive flex items-center gap-2">
             <AlertCircle className="h-5 w-5" />
@@ -111,10 +111,10 @@ export function ErrorDisplay({
   return (
     <div className="flex min-h-[200px] flex-col items-center justify-center p-6">
       <div className="max-w-md w-full">
-        <Card className={cn("border-destructive border-opacity-50 shadow-lg", className)}>
+        <Card className={cn("border-destructive/50 shadow-lg", className)}>
           <CardHeader className="pb-2">
             <div className="flex justify-center mb-4">
-              <div className="rounded-full bg-destructive bg-opacity-10 p-3">
+              <div className="rounded-full bg-destructive/10 p-3">
                 <AlertCircle className="h-6 w-6 text-destructive" />
               </div>
             </div>

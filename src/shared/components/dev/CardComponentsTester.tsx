@@ -202,14 +202,14 @@ export function CardComponentsTester() {
             </Card>
             
             <Card>
-              <CardHeader className="bg-muted bg-opacity-50">
+              <CardHeader className="bg-muted/50">
                 <CardTitle>Custom Styling</CardTitle>
                 <CardDescription>Cards can be easily styled with utility classes</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <p>You can add custom backgrounds, borders, and spacing to cards.</p>
               </CardContent>
-              <CardFooter className="bg-muted bg-opacity-30 justify-between">
+              <CardFooter className="bg-muted/30 justify-between">
                 <Button variant="ghost" size="sm">Cancel</Button>
                 <Button size="sm">Submit</Button>
               </CardFooter>

@@ -1,0 +1,39 @@
+/**
+ * Fuel Supplies Feature
+ * 
+ * This feature manages fuel supply records, including deliveries from providers,
+ * quantity tracking, pricing, and inventory management.
+ */
+
+// Re-export components
+export { FuelSuppliesManagerStandardized } from './components/FuelSuppliesManagerStandardized';
+export { FuelSuppliesFormStandardized } from './components/FuelSuppliesFormStandardized';
+export { FuelSuppliesTable } from './components/FuelSuppliesTable';
+export { ConfirmDeleteDialogStandardized } from './components/ConfirmDeleteDialogStandardized';
+export { ConfirmAddDialogStandardized } from './components/ConfirmAddDialogStandardized';
+export { FuelSuppliesSummary } from './components/summary/FuelSuppliesSummary';
+
+// Re-export hooks
+export { useFuelSupplies } from './hooks/useFuelSupplies';
+export type { FuelSuppliesFilters } from './hooks/useFuelSupplies';
+export { useFuelSuppliesFilters } from './hooks/useFuelSuppliesFilters';
+export type { FuelSuppliesFilterState } from './hooks/useFuelSuppliesFilters';
+
+// Re-export services
+export { fuelSuppliesService } from './services';
+
+// Re-export utilities
+export {
+  calculateCostPerLiter,
+  calculateTotalCost,
+  calculateExpectedVolume,
+  calculateVolumeDiscrepancy,
+  isDiscrepancySignificant
+} from './utils/calculations';
+
+// Re-export types
+export type { 
+  FuelSupply,
+  CreateFuelSupplyRequest,
+  UpdateFuelSupplyRequest
+} from './types'; 

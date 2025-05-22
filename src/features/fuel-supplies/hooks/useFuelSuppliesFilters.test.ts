@@ -1,8 +1,8 @@
-import { renderHook, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { useFuelSuppliesFilters } from './useFuelSuppliesFilters';
+import { setupHookTest } from '@/test/utils/test-setup';
 import { fuelSuppliesService } from '../services';
-import { vi } from 'vitest';
 
 // Mock the API service
 vi.mock('../services', () => ({
@@ -63,28 +63,15 @@ const mockSupplies = [
 ];
 
 describe('useFuelSuppliesFilters', () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-
   beforeEach(() => {
     vi.resetAllMocks();
-    queryClient.clear();
-    vi.mocked(fuelSuppliesService.getFuelSupplies).mockResolvedValue(mockSupplies);
   });
 
   it('should initialize with default filters', async () => {
-    const { result } = renderHook(() => useFuelSuppliesFilters(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook } = setupHookTest();
+    
+    const { result } = renderTestHook(() => useFuelSuppliesFilters());
     
     expect(result.current.filters).toEqual({
       searchTerm: '',
@@ -96,7 +83,10 @@ describe('useFuelSuppliesFilters', () => {
   });
 
   it('should update filters correctly', async () => {
-    const { result } = renderHook(() => useFuelSuppliesFilters(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook } = setupHookTest();
+    
+    const { result } = renderTestHook(() => useFuelSuppliesFilters());
     
     act(() => {
       result.current.updateFilters({ searchTerm: 'diesel' });
@@ -118,7 +108,10 @@ describe('useFuelSuppliesFilters', () => {
   });
 
   it('should reset filters to default values', async () => {
-    const { result } = renderHook(() => useFuelSuppliesFilters(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook } = setupHookTest();
+    
+    const { result } = renderTestHook(() => useFuelSuppliesFilters());
     
     act(() => {
       result.current.updateFilters({ 
@@ -142,9 +135,13 @@ describe('useFuelSuppliesFilters', () => {
   });
 
   it('should filter supplies by search term', async () => {
-    const { result } = renderHook(() => useFuelSuppliesFilters(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook, mockFetch } = setupHookTest();
+    mockFetch.mockResolvedValue(mockSupplies);
     
-    await vi.waitFor(() => {
+    const { result } = renderTestHook(() => useFuelSuppliesFilters());
+    
+    await waitFor(() => {
       expect(result.current.supplies).toHaveLength(2);
     });
     
@@ -157,9 +154,13 @@ describe('useFuelSuppliesFilters', () => {
   });
 
   it('should filter supplies by provider', async () => {
-    const { result } = renderHook(() => useFuelSuppliesFilters(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook, mockFetch } = setupHookTest();
+    mockFetch.mockResolvedValue(mockSupplies);
     
-    await vi.waitFor(() => {
+    const { result } = renderTestHook(() => useFuelSuppliesFilters());
+    
+    await waitFor(() => {
       expect(result.current.supplies).toHaveLength(2);
     });
     
@@ -172,9 +173,13 @@ describe('useFuelSuppliesFilters', () => {
   });
 
   it('should filter supplies by fuel type', async () => {
-    const { result } = renderHook(() => useFuelSuppliesFilters(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook, mockFetch } = setupHookTest();
+    mockFetch.mockResolvedValue(mockSupplies);
     
-    await vi.waitFor(() => {
+    const { result } = renderTestHook(() => useFuelSuppliesFilters());
+    
+    await waitFor(() => {
       expect(result.current.supplies).toHaveLength(2);
     });
     
@@ -187,9 +192,13 @@ describe('useFuelSuppliesFilters', () => {
   });
 
   it('should filter supplies by payment status', async () => {
-    const { result } = renderHook(() => useFuelSuppliesFilters(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook, mockFetch } = setupHookTest();
+    mockFetch.mockResolvedValue(mockSupplies);
     
-    await vi.waitFor(() => {
+    const { result } = renderTestHook(() => useFuelSuppliesFilters());
+    
+    await waitFor(() => {
       expect(result.current.supplies).toHaveLength(2);
     });
     
@@ -202,9 +211,13 @@ describe('useFuelSuppliesFilters', () => {
   });
 
   it('should generate filter options from supplies data', async () => {
-    const { result } = renderHook(() => useFuelSuppliesFilters(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook, mockFetch } = setupHookTest();
+    mockFetch.mockResolvedValue(mockSupplies);
     
-    await vi.waitFor(() => {
+    const { result } = renderTestHook(() => useFuelSuppliesFilters());
+    
+    await waitFor(() => {
       expect(result.current.supplies).toHaveLength(2);
     });
     

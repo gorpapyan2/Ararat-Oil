@@ -136,7 +136,7 @@ export function DeleteConfirmDialog({
       className={cn("sm:max-w-md", className)}
     >
       <div className="flex flex-col items-center justify-center gap-4 py-4">
-        <div className="rounded-full bg-destructive bg-opacity-10 p-3">
+        <div className="rounded-full bg-destructive/10 p-3">
           <AlertTriangle className="h-6 w-6 text-destructive" />
         </div>
         <p className="text-center text-sm text-muted-foreground">

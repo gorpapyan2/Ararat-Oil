@@ -39,7 +39,7 @@ export function SalesRangesFilters({
 
   return (
     <section
-      className="rounded-xl shadow-lg border border-border bg-gray-50 bg-opacity-70 p-6 mt-2
+      className="rounded-xl shadow-lg border border-border bg-gray-50/70 p-6 mt-2
         flex flex-col gap-6
         md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6"
       aria-label="Sales Range Filters"

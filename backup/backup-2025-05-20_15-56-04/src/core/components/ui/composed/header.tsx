@@ -17,7 +17,7 @@ export function Header({ className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "h-16 shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "h-16 shrink-0 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60",
         "flex items-center justify-between px-4",
         className,
       )}

@@ -34,7 +34,7 @@ export const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
           "animate-spin rounded-full",
           useCurrentColor 
             ? "border-current border-t-transparent" 
-            : "border-primary border-opacity-30 border-t-primary",
+            : "border-primary/30 border-t-primary",
           sizeClasses[size],
           className
         )}

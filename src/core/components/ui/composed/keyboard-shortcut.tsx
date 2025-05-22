@@ -35,7 +35,7 @@ export function KeyboardShortcut({
             className={cn(
               "inline-flex select-none items-center justify-center rounded border",
               "bg-muted font-mono font-medium",
-              "transition-all duration-150 hover:bg-muted bg-opacity-80",
+              "transition-all duration-150 hover:bg-muted/80",
               sizes[size]
             )}
           >

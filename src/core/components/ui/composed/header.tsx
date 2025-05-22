@@ -17,7 +17,7 @@ export function Header({ className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "h-16 shrink-0 border-b bg-gray-50 bg-opacity-95  bg-gray-50 bg-opacity-60",
+        "h-16 shrink-0 border-b bg-gray-50/95  bg-gray-50/60",
         "flex items-center justify-between px-4",
         className,
       )}

@@ -197,7 +197,7 @@ export default function SyncUpPage() {
                     <p className="font-medium mb-1">{t('syncUp.syncedResources')}:</p>
                     <div className="flex flex-wrap gap-1">
                       {syncResult.refreshedResources.map(resource => (
-                        <span key={resource} className="px-2 py-0.5 bg-primary bg-opacity-10 rounded-full text-xs">
+                        <span key={resource} className="px-2 py-0.5 bg-primary/10 rounded-full text-xs">
                           {resource}
                         </span>
                       ))}

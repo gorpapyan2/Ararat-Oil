@@ -130,11 +130,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           />
         )}
         {!isLoading && startIcon && (
-          <span className="mr-2 flex-shrink-0">{startIcon}</span>
+          <span className="mr-2 shrink-0">{startIcon}</span>
         )}
         {isLoading && loadingText ? loadingText : children}
         {endIcon && (
-          <span className="ml-2 flex-shrink-0">{endIcon}</span>
+          <span className="ml-2 shrink-0">{endIcon}</span>
         )}
       </ButtonPrimitive>
     );
@@ -175,11 +175,11 @@ const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         {...props}
       >
         {startIcon && (
-          <span className="mr-2 flex-shrink-0">{startIcon}</span>
+          <span className="mr-2 shrink-0">{startIcon}</span>
         )}
         {children}
         {endIcon && (
-          <span className="ml-2 flex-shrink-0">{endIcon}</span>
+          <span className="ml-2 shrink-0">{endIcon}</span>
         )}
       </Link>
     );

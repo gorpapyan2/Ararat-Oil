@@ -141,19 +141,19 @@ export default function SalesNew() {
           title="Total Sales"
           value={formatCurrency(totalSalesAmount)}
           icon={<IconCurrencyDollar className="h-6 w-6" />}
-          className="bg-primary bg-opacity-10"
+          className="bg-primary/10"
         />
         <MetricCard
           title="Total Liters"
           value={`${Math.round(totalLiters).toLocaleString()} L`}
           icon={<IconCurrencyDollar className="h-6 w-6" />}
-          className="bg-success bg-opacity-10"
+          className="bg-success/10"
         />
         <MetricCard
           title="Average Price"
           value={formatCurrency(averagePrice)}
           icon={<IconCurrencyDollar className="h-6 w-6" />}
-          className="bg-warning bg-opacity-10"
+          className="bg-warning/10"
         />
       </div>
 

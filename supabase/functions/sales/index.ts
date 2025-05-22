@@ -1,15 +1,155 @@
-import { createServiceClient, getUserFromRequest } from '../_shared/database.ts';
-import { 
-  handleCors, 
-  successResponse, 
-  errorResponse, 
-  methodNotAllowed,
-  unauthorized,
-  notFound,
-  parseRequestBody,
-  getUrlParams
-} from '../_shared/api.ts';
-import { Sale, PaymentStatus } from '../_shared/types.ts';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'npm:@supabase/supabase-js@2.39.3';
+
+// ---- START INLINED CODE FROM SHARED MODULES ----
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+};
+
+// Shared types
+type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
+type PaymentMethod = "cash" | "card" | "bank_transfer" | "mobile_payment";
+type FuelType = "diesel" | "gas" | "petrol_regular" | "petrol_premium";
+
+interface Sale {
+  id: string;
+  date: string;
+  fuel_type: FuelType;
+  quantity: number;
+  price_per_unit: number;
+  total_sales: number;
+  payment_status: PaymentStatus;
+  filling_system_name: string;
+  created_at?: string;
+  meter_start: number;
+  meter_end: number;
+  filling_system_id: string;
+  employee_id: string;
+  shift_id?: string;
+}
+
+// Database utilities
+const createServiceClient = () => {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Missing Supabase URL or service role key environment variables');
+  }
+  
+  return createClient(supabaseUrl, supabaseServiceKey);
+};
+
+const createAnonClient = () => {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') as string;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase URL or anon key environment variables');
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
+
+const handleError = (error: unknown): { error: string; details?: unknown } => {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return {
+      error: String(error.message),
+      details: error
+    };
+  }
+  
+  return {
+    error: 'An unknown error occurred',
+    details: error
+  };
+};
+
+const getUserFromRequest = async (request: Request) => {
+  const authHeader = request.headers.get('Authorization');
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  
+  const token = authHeader.replace('Bearer ', '');
+  const supabase = createAnonClient();
+  
+  const { data, error } = await supabase.auth.getUser(token);
+  
+  if (error || !data.user) {
+    return null;
+  }
+  
+  return data.user;
+};
+
+// API utilities
+function handleCors(req: Request): Response | null {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+  return null;
+}
+
+function createJsonResponse<T>(data: { data?: T; error?: string }, status = 200): Response {
+  return new Response(
+    JSON.stringify(data),
+    {
+      status,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    }
+  );
+}
+
+function successResponse<T>(data: T, status = 200): Response {
+  return createJsonResponse({ data }, status);
+}
+
+function errorResponse(error: unknown, status = 400): Response {
+  const errorData = handleError(error);
+  return createJsonResponse(errorData, status);
+}
+
+async function parseRequestBody<T>(request: Request): Promise<T> {
+  try {
+    const contentType = request.headers.get('content-type');
+    
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Content-Type must be application/json');
+    }
+    
+    return await request.json() as T;
+  } catch (error) {
+    throw new Error(`Failed to parse request body: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+function getUrlParams(request: Request): URLSearchParams {
+  const url = new URL(request.url);
+  return url.searchParams;
+}
+
+function methodNotAllowed(): Response {
+  return errorResponse({ message: 'Method not allowed' }, 405);
+}
+
+function unauthorized(): Response {
+  return errorResponse({ message: 'Unauthorized' }, 401);
+}
+
+function notFound(resource = 'Resource'): Response {
+  return errorResponse({ message: `${resource} not found` }, 404);
+}
+
+// ---- END INLINED CODE FROM SHARED MODULES ----
 
 // Types for better type safety
 interface SaleWithRelations extends Sale {
@@ -40,7 +180,7 @@ interface SaleValidation {
 console.info('Sales Edge Function started');
 
 // Handle sales operations
-Deno.serve(async (req: Request) => {
+serve(async (req: Request) => {
   // Handle CORS
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
@@ -450,4 +590,4 @@ async function deleteSale(id: string): Promise<Response> {
     console.error(`Error deleting sale ${id}:`, error);
     return errorResponse(error);
   }
-} 
+}

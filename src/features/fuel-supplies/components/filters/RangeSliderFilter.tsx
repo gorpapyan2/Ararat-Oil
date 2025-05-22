@@ -101,7 +101,7 @@ export function RangeSliderFilter({
   return (
     <div className={cn("space-y-5", className)}>
       <div className="flex justify-between items-center">
-        <Label className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
+        <Label className="text-sm font-medium text-muted-foreground">
           {label}
         </Label>
         {isCustomRange && (
@@ -109,7 +109,7 @@ export function RangeSliderFilter({
             variant="ghost"
             size="sm"
             onClick={resetToDefault}
-            className="h-6 px-2 text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
+            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             <RotateCcw className="h-3 w-3 mr-1" />
             Reset
@@ -130,7 +130,7 @@ export function RangeSliderFilter({
         {/* Custom tooltip for min value */}
         <div
           className={cn(
-            "absolute top-0 px-2 py-1 rounded-md text-xs bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform -translate-x-1/2 transition-all duration-200",
+            "absolute top-0 px-2 py-1 rounded-md text-xs bg-primary text-primary-foreground transform -translate-x-1/2 transition-all duration-200",
             isDragging && activeHandle === "min"
               ? "opacity-100 scale-100"
               : "opacity-0 scale-90",
@@ -138,13 +138,13 @@ export function RangeSliderFilter({
           style={{ left: `${minPercent}%` }}
         >
           {formatValue(value[0])}
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-[hsl(var(--primary))]"></div>
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-primary"></div>
         </div>
 
         {/* Custom tooltip for max value */}
         <div
           className={cn(
-            "absolute top-0 px-2 py-1 rounded-md text-xs bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] transform -translate-x-1/2 transition-all duration-200",
+            "absolute top-0 px-2 py-1 rounded-md text-xs bg-primary text-primary-foreground transform -translate-x-1/2 transition-all duration-200",
             isDragging && activeHandle === "max"
               ? "opacity-100 scale-100"
               : "opacity-0 scale-90",
@@ -152,11 +152,11 @@ export function RangeSliderFilter({
           style={{ left: `${maxPercent}%` }}
         >
           {formatValue(value[1])}
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-[hsl(var(--primary))]"></div>
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-primary"></div>
         </div>
 
         {/* Value markers */}
-        <div className="flex justify-between mt-1 px-1 text-xs text-[hsl(var(--muted-foreground))]">
+        <div className="flex justify-between mt-1 px-1 text-xs text-muted-foreground">
           <span>{formatValue(min)}</span>
           <span>{formatValue(max)}</span>
         </div>
@@ -164,7 +164,7 @@ export function RangeSliderFilter({
 
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col flex-1">
-          <span className="text-xs text-[hsl(var(--muted-foreground))] mb-1">
+          <span className="text-xs text-muted-foreground mb-1">
             Min
           </span>
           <Input
@@ -176,11 +176,11 @@ export function RangeSliderFilter({
                 setLocalMin(value[0].toString());
               }
             }}
-            className="h-8 bg-[hsl(var(--50))] bg-opacity-$2 border-[hsl(var(--50))] border-opacity-$2 hover:bg-[hsl(var(--80))] bg-opacity-$2 focus:border-[hsl(var(--50))] border-opacity-$2 focus:ring-1 focus:ring-[hsl(var(--primary))]/30 transition-colors"
+            className="h-8 bg-50/20 border-50/20 hover:bg-80/20 focus:border-50/20 focus:ring-1 focus:ring-primary/30 transition-colors"
           />
         </div>
         <div className="flex flex-col flex-1">
-          <span className="text-xs text-[hsl(var(--muted-foreground))] mb-1">
+          <span className="text-xs text-muted-foreground mb-1">
             Max
           </span>
           <Input
@@ -192,7 +192,7 @@ export function RangeSliderFilter({
                 setLocalMax(value[1].toString());
               }
             }}
-            className="h-8 bg-[hsl(var(--50))] bg-opacity-$2 border-[hsl(var(--50))] border-opacity-$2 hover:bg-[hsl(var(--80))] bg-opacity-$2 focus:border-[hsl(var(--50))] border-opacity-$2 focus:ring-1 focus:ring-[hsl(var(--primary))]/30 transition-colors"
+            className="h-8 bg-50/20 border-50/20 hover:bg-80/20 focus:border-50/20 focus:ring-1 focus:ring-primary/30 transition-colors"
           />
         </div>
       </div>
@@ -200,16 +200,16 @@ export function RangeSliderFilter({
       {/* Selected range indicator */}
       <div className="flex justify-between items-center">
         <div className="text-sm font-medium">
-          <span className="text-[hsl(var(--primary))]">
+          <span className="text-primary">
             {formatValue(value[0])}
           </span>
-          <span className="mx-2 text-[hsl(var(--muted-foreground))]">—</span>
-          <span className="text-[hsl(var(--primary))]">
+          <span className="mx-2 text-muted-foreground">—</span>
+          <span className="text-primary">
             {formatValue(value[1])}
           </span>
         </div>
         {isCustomRange && (
-          <span className="text-xs text-[hsl(var(--muted-foreground))]">
+          <span className="text-xs text-muted-foreground">
             Range: {formatValue(value[1] - value[0])}
           </span>
         )}

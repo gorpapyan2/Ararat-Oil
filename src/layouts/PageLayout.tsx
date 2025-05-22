@@ -31,7 +31,7 @@ export function PageLayout({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3">
             {Icon && (
-              <div className="rounded-md bg-primary bg-opacity-10 p-2 text-primary">
+              <div className="rounded-md bg-primary/10 p-2 text-primary">
                 <Icon size={isMobile ? 18 : 24} />
               </div>
             )}

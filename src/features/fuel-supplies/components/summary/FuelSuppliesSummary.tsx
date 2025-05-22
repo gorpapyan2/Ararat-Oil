@@ -545,7 +545,7 @@ export function FuelSuppliesSummary({
                            dateRange.from && dateRange.to && preset.dates.from && preset.dates.to &&
                            isSameDay(dateRange.from, preset.dates.from) && 
                            isSameDay(dateRange.to, preset.dates.to)) 
-                            ? "bg-primary bg-opacity-10" 
+                            ? "bg-primary/10" 
                             : ""
                         )}
                         onClick={() => handlePresetSelect(preset)}
@@ -558,7 +558,7 @@ export function FuelSuppliesSummary({
                       size="sm"
                       className={cn(
                         "justify-start text-xs h-8",
-                        timePeriod === "all" ? "bg-primary bg-opacity-10" : ""
+                        timePeriod === "all" ? "bg-primary/10" : ""
                       )}
                       onClick={() => {
                         setTimePeriod("all");

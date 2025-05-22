@@ -1,12 +1,21 @@
-import { StandardDialog } from "@/core/components/ui/primitives/dialog";
-import { Button } from "@/core/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from '@/core/components/ui/avatar';
-import { Separator } from '@/core/components/ui/separator';
-import { FormInput } from '@/core/components/ui/composed/form-fields';
-import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
-import { useProfileDialog, profileSchema, ProfileFormData } from "@/hooks/useProfileDialog";
-import { IconCamera, IconX, IconCheck } from "@tabler/icons-react";
+import { useState } from "react";
+import { Button } from "@/core/components/ui/primitives/button";
+import { Avatar, AvatarImage, AvatarFallback } from '@/core/components/ui/primitives/avatar';
+import { Separator } from '@/core/components/ui/composed/separator';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/core/components/ui/primitives/form";
+import { Input } from "@/core/components/ui/primitives/input";
+import { z } from "zod";
+import { useProfileDialog, ProfileFormData } from "@/hooks/useProfileDialog";
+import { IconCamera, IconX } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { toast as sonnerToast } from "sonner";
+import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
 
 interface ProfileDialogStandardizedProps {
   user?: any;
@@ -14,6 +23,29 @@ interface ProfileDialogStandardizedProps {
   onSuccess?: (data: ProfileFormData) => void;
   onAvatarChange?: (url: string) => void;
 }
+
+// Define a Zod schema for profile validation
+const createProfileSchema = () => {
+  const { t } = useTranslation();
+  
+  return z.object({
+    fullName: z
+      .string({ required_error: t("settings.profile.fullNameRequired", "Full name is required") })
+      .min(2, t("settings.profile.fullNameMinLength", "Full name must be at least 2 characters")),
+    email: z
+      .string({ required_error: t("settings.profile.emailRequired", "Email is required") })
+      .email(t("settings.profile.invalidEmail", "Please enter a valid email address")),
+    phone: z
+      .string()
+      .optional(),
+    position: z
+      .string()
+      .optional(),
+  });
+};
+
+// Type for the form values based on the schema
+type ProfileFormValues = z.infer<ReturnType<typeof createProfileSchema>>;
 
 export function ProfileDialogStandardized({
   user,
@@ -26,7 +58,6 @@ export function ProfileDialogStandardized({
   const {
     isOpen,
     setIsOpen,
-    isSubmitting,
     avatarUrl,
     handleSubmit: submitProfile,
     handleChangeAvatar,
@@ -39,115 +70,155 @@ export function ProfileDialogStandardized({
     currentUser: user,
     currentProfile: profile,
   });
+
+  // Create schema
+  const profileSchema = createProfileSchema();
   
-  const form = useZodForm({
-    schema: profileSchema,
-    defaultValues: getDefaultValues(),
-  });
+  // Default values for the form
+  const defaultValues = getDefaultValues();
   
-  const { onSubmit } = useFormSubmitHandler<ProfileFormData>(
-    form,
-    submitProfile
-  );
+  // Submit handler
+  const handleSubmit = async (data: ProfileFormValues) => {
+    try {
+      const result = await submitProfile(data);
+      
+      if (result) {
+        sonnerToast.success(t("settings.profile.success", "Profile updated successfully"));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      sonnerToast.error(
+        t("settings.profile.error", "Error updating profile"), 
+        { description: error instanceof Error ? error.message : undefined }
+      );
+      return false;
+    }
+  };
+
+  // Get an initial value for fullName to use in the avatar fallback
+  const [fullNameValue, setFullNameValue] = useState(defaultValues.fullName);
   
   return (
-    <StandardDialog
+    <FormDialog
       open={isOpen}
       onOpenChange={setIsOpen}
-      title={t("settings.profile.title")}
-      description={t("settings.profile.description")}
-      maxWidth="sm:max-w-lg"
+      title={t("settings.profile.title", "Edit Profile")}
+      schema={profileSchema}
+      defaultValues={defaultValues}
+      onSubmit={handleSubmit}
+      submitText={t("settings.profile.saveChanges", "Save changes")}
+      size="lg"
     >
-      <form onSubmit={onSubmit} className="space-y-6">
-        {/* Avatar Section */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <Avatar className="h-20 w-20">
-            <AvatarImage
-              src={avatarUrl}
-              alt={form.getValues().fullName}
-            />
-            <AvatarFallback className="text-lg">
-              {getInitials(form.getValues().fullName)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">{t("settings.profile.photo")}</h3>
-            <div className="flex gap-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                onClick={handleChangeAvatar}
-              >
-                <IconCamera className="h-4 w-4 mr-2" />
-                {t("settings.profile.change")}
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                onClick={handleRemoveAvatar}
-              >
-                <IconX className="h-4 w-4 mr-2" />
-                {t("settings.profile.remove")}
-              </Button>
+      {({ control }) => {
+        return (
+          <>
+            {/* Avatar Section */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage
+                  src={avatarUrl}
+                  alt={fullNameValue}
+                />
+                <AvatarFallback className="text-lg">
+                  {getInitials(fullNameValue)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">{t("settings.profile.photo", "Profile Photo")}</h3>
+                <div className="flex gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleChangeAvatar}
+                  >
+                    <IconCamera className="h-4 w-4 mr-2" />
+                    {t("settings.profile.change", "Change")}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleRemoveAvatar}
+                  >
+                    <IconX className="h-4 w-4 mr-2" />
+                    {t("settings.profile.remove", "Remove")}
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <Separator />
+            <Separator className="my-4" />
 
-        {/* Form Fields */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormInput
-            name="fullName"
-            label={t("settings.profile.fullName")}
-            form={form}
-            placeholder={t("settings.profile.fullName")}
-          />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("settings.profile.fullName", "Full Name")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={t("settings.profile.fullName", "Full Name")} onChange={(e) => {
+                        field.onChange(e);
+                        setFullNameValue(e.target.value);
+                      }} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormInput
-            name="email"
-            label={t("settings.profile.email")}
-            form={form}
-            type="email"
-            placeholder="john@example.com"
-            disabled={!!user?.email} // Disable if provided by auth
-          />
+              <FormField
+                control={control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("settings.profile.email", "Email")}</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        {...field} 
+                        placeholder="john@example.com" 
+                        disabled={!!user?.email}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormInput
-            name="phone"
-            label={t("settings.profile.phone")}
-            form={form}
-            placeholder="+1 (555) 000-0000"
-          />
+              <FormField
+                control={control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("settings.profile.phone", "Phone")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="+1 (555) 000-0000" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormInput
-            name="position"
-            label={t("settings.profile.position")}
-            form={form}
-            placeholder={t("settings.profile.position")}
-          />
-        </div>
-
-        <div className="flex justify-end gap-2 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setIsOpen(false)}
-            disabled={isSubmitting}
-          >
-            {t("settings.profile.cancel")}
-          </Button>
-          <Button 
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? t("settings.profile.saving") : t("settings.profile.saveChanges")}
-            {!isSubmitting && <IconCheck className="ml-2 h-4 w-4" />}
-          </Button>
-        </div>
-      </form>
-    </StandardDialog>
+              <FormField
+                control={control}
+                name="position"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("settings.profile.position", "Position")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={t("settings.profile.position", "Position")} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </>
+        );
+      }}
+    </FormDialog>
   );
 } 

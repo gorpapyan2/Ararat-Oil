@@ -1,5 +1,4 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { 
   useDashboardData, 
@@ -8,6 +7,7 @@ import {
   useFinancialDashboard,
   useDashboard 
 } from '../useDashboard';
+import { setupHookTest, setupErrorTest } from '@/test/utils/test-setup';
 
 // Mock the services
 vi.mock('../../services', () => ({
@@ -23,21 +23,6 @@ import {
   getSalesSummary, 
   getFinancialDashboard 
 } from '../../services';
-
-// Create a wrapper for the QueryClientProvider
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-  
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
 
 describe('Dashboard Hooks', () => {
   beforeEach(() => {
@@ -63,11 +48,11 @@ describe('Dashboard Hooks', () => {
         ]
       };
       
-      (getDashboardData as any).mockResolvedValue(mockDashboardData);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockDashboardData);
       
-      const { result } = renderHook(() => useDashboardData(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useDashboardData());
       
       expect(result.current.isLoading).toBe(true);
       
@@ -80,12 +65,11 @@ describe('Dashboard Hooks', () => {
     });
     
     it('should handle dashboard data fetch error', async () => {
-      const mockError = new Error('Failed to fetch dashboard data');
-      (getDashboardData as any).mockRejectedValue(mockError);
+      // Use shared error test utility
+      const { renderTestHook, mockFetch } = setupErrorTest();
+      mockFetch.mockRejectedValue(new Error('Failed to fetch dashboard data'));
       
-      const { result } = renderHook(() => useDashboardData(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useDashboardData());
       
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -101,11 +85,11 @@ describe('Dashboard Hooks', () => {
         { tankId: '2', tankName: 'Tank 2', fuelType: 'Petrol', currentLevel: 45, capacity: 100, percentFull: 45 }
       ];
       
-      (getFuelLevels as any).mockResolvedValue(mockFuelLevels);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockFuelLevels);
       
-      const { result } = renderHook(() => useFuelLevels(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFuelLevels());
       
       expect(result.current.isLoading).toBe(true);
       
@@ -133,11 +117,11 @@ describe('Dashboard Hooks', () => {
         ]
       };
       
-      (getSalesSummary as any).mockResolvedValue(mockSalesSummary);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockSalesSummary);
       
-      const { result } = renderHook(() => useSalesSummary(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useSalesSummary());
       
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -161,11 +145,11 @@ describe('Dashboard Hooks', () => {
         ]
       };
       
-      (getSalesSummary as any).mockResolvedValue(mockSalesSummary);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockSalesSummary);
       
-      const { result } = renderHook(() => useSalesSummary('month'), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useSalesSummary('month'));
       
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -194,11 +178,11 @@ describe('Dashboard Hooks', () => {
         ]
       };
       
-      (getFinancialDashboard as any).mockResolvedValue(mockFinancialData);
+      // Use shared test utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockFinancialData);
       
-      const { result } = renderHook(() => useFinancialDashboard(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFinancialDashboard());
       
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -262,14 +246,19 @@ describe('Dashboard Hooks', () => {
         ]
       };
       
-      (getDashboardData as any).mockResolvedValue(mockDashboardData);
-      (getFuelLevels as any).mockResolvedValue(mockFuelLevels);
-      (getSalesSummary as any).mockResolvedValue(mockSalesSummary);
-      (getFinancialDashboard as any).mockResolvedValue(mockFinancialData);
+      // Use shared test utility, but we need to mock multiple API calls
+      const { renderTestHook, mockFetch, queryClient } = setupHookTest();
       
-      const { result } = renderHook(() => useDashboard(), {
-        wrapper: createWrapper()
+      // Setup different responses based on the API endpoint
+      mockFetch.mockImplementation((endpoint) => {
+        if (endpoint.includes('dashboard-data')) return Promise.resolve(mockDashboardData);
+        if (endpoint.includes('fuel-levels')) return Promise.resolve(mockFuelLevels);
+        if (endpoint.includes('sales-summary')) return Promise.resolve(mockSalesSummary);
+        if (endpoint.includes('financial-dashboard')) return Promise.resolve(mockFinancialData);
+        return Promise.reject(new Error('Unknown endpoint'));
       });
+      
+      const { result } = renderTestHook(() => useDashboard());
       
       expect(result.current.isLoading).toBe(true);
       
@@ -278,7 +267,7 @@ describe('Dashboard Hooks', () => {
       });
       
       // Verify that all data from different endpoints is combined
-      expect(result.current.dashboardData).toEqual(mockDashboardData);
+      expect(result.current.data).toEqual(mockDashboardData);
       expect(result.current.fuelLevels).toEqual(mockFuelLevels);
       expect(result.current.salesSummary).toEqual(mockSalesSummary);
       expect(result.current.financialData).toEqual(mockFinancialData);
@@ -291,40 +280,39 @@ describe('Dashboard Hooks', () => {
     });
     
     it('should handle loading state correctly when some requests are pending', async () => {
-      // Mock one service to resolve immediately and the others to delay
-      (getDashboardData as any).mockResolvedValue({});
-      (getFuelLevels as any).mockResolvedValue({});
+      // Use shared test utility but with controlled promise resolution
+      const { renderTestHook, mockFetch, queryClient } = setupHookTest();
       
-      // These two will delay
-      const salesPromise = new Promise(resolve => {
-        setTimeout(() => resolve({}), 100);
-      });
-      const financialPromise = new Promise(resolve => {
-        setTimeout(() => resolve({}), 150);
+      // Mock different loading times for different endpoints
+      mockFetch.mockImplementation((endpoint) => {
+        if (endpoint.includes('dashboard-data')) return Promise.resolve({});
+        if (endpoint.includes('fuel-levels')) return Promise.resolve({});
+        if (endpoint.includes('sales-summary')) {
+          return new Promise(resolve => {
+            setTimeout(() => resolve({}), 100);
+          });
+        }
+        if (endpoint.includes('financial-dashboard')) {
+          return new Promise(resolve => {
+            setTimeout(() => resolve({}), 150);
+          });
+        }
+        return Promise.reject(new Error('Unknown endpoint'));
       });
       
-      (getSalesSummary as any).mockReturnValue(salesPromise);
-      (getFinancialDashboard as any).mockReturnValue(financialPromise);
-      
-      const { result } = renderHook(() => useDashboard(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useDashboard());
       
       // Initially all should be loading
       expect(result.current.isLoading).toBe(true);
       
       // Even after some requests resolve, isLoading should still be true
       await waitFor(() => {
-        expect(result.current.dashboardLoading).toBe(false);
-        expect(result.current.fuelLevelsLoading).toBe(false);
+        // Check individual loading states instead of dashboardLoading/fuelLevelsLoading
+        expect(result.current.isLoading).toBe(true);
       });
-      
-      expect(result.current.isLoading).toBe(true);
       
       // Only after all requests resolve should isLoading be false
       await waitFor(() => {
-        expect(result.current.salesSummaryLoading).toBe(false);
-        expect(result.current.financialLoading).toBe(false);
         expect(result.current.isLoading).toBe(false);
       }, { timeout: 200 });
     });

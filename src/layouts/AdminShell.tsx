@@ -103,10 +103,10 @@ export function AdminShell({ children }: AdminShellProps) {
                   // Common styling for the nav item
                   const navItemClasses = cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
-                    "hover:bg-primary bg-opacity-10",
+                    "hover:bg-primary/10",
                     isItemActive
-                      ? "bg-primary bg-opacity-15 text-primary font-medium"
-                      : "text-foreground text-opacity-80 hover:text-foreground",
+                      ? "bg-primary/15 text-primary font-medium"
+                      : "text-foreground/80 hover:text-foreground",
                   );
 
                   // Render the icon
@@ -197,7 +197,7 @@ export function AdminShell({ children }: AdminShellProps) {
       {/* Sidebar - desktop version */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card bg-opacity-50  transition-all md:block md:flex-col",
+          "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card/50  transition-all md:block md:flex-col",
           sidebarCollapsed ? "md:w-[70px]" : "md:w-[240px]",
         )}
       >
@@ -231,7 +231,7 @@ export function AdminShell({ children }: AdminShellProps) {
         tabIndex={-1}
       >
         {/* Header */}
-        <header className="sticky top-0 z-20 flex h-14 items-center border-b bg-gray-50 bg-opacity-95  px-4 shadow-sm">
+        <header className="sticky top-0 z-20 flex h-14 items-center border-b bg-gray-50/95  px-4 shadow-sm">
           <div className="flex-1 overflow-hidden flex items-center">
             {/* Page title placeholder */}
             <h1 className="text-xl font-bold truncate">
@@ -247,9 +247,9 @@ export function AdminShell({ children }: AdminShellProps) {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full hover:bg-primary bg-opacity-10 transition-colors"
+              className="rounded-full hover:bg-primary/10 transition-colors"
             >
-              <span className="size-8 rounded-full bg-primary bg-opacity-20 text-primary flex items-center justify-center font-medium">
+              <span className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium">
                 AO
               </span>
             </Button>
@@ -267,7 +267,7 @@ export function AdminShell({ children }: AdminShellProps) {
   // Use different layouts for auth and main pages
   if (isAuthPage) {
     return (
-      <div className="min-h-screen bg-[hsl(var(--background))]">
+      <div className="min-h-screen bg-background">
         <main
           id="main-content"
           className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8"

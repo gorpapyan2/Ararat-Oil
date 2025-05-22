@@ -3,9 +3,28 @@ import { type Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 import animatePlugin from "tailwindcss-animate";
 
+// Define a custom config type that includes safelist
+type CustomConfig = Config & {
+  safelist?: string[];
+};
+
 export default {
   darkMode: "class",
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  // Add critical styles to safelist to prevent them from being purged
+  safelist: [
+    // Base colors
+    'bg-white', 'bg-black', 'text-white', 'text-black',
+    // Theme colors
+    'bg-background', 'text-foreground',
+    'bg-primary', 'text-primary',
+    // Critical UI elements
+    'dark:bg-gray-800', 'dark:text-gray-50',
+    'border-border', 'border-primary', 
+    'bg-30', 'bg-10', 'bg-40', 'bg-50',
+    // Numeric variables
+    'border-30', 'border-10'
+  ],
   theme: {
     container: {
       center: true,
@@ -14,14 +33,14 @@ export default {
         "2xl": "1400px",
       },
     },
-    // Base colors that should always be available
+    // Base colors that should always be available (in RGB format for Tailwind v4)
     colors: {
       white: "rgb(255 255 255)",
       black: "rgb(0 0 0)",
       transparent: 'transparent',
       current: 'currentColor',
-      background: "rgb(255 255 255)",
-      foreground: "rgb(17 24 39)",
+      background: "var(--color-background)",
+      foreground: "var(--color-foreground)",
       gray: {
         50: "rgb(249 250 251)",
         100: "rgb(243 244 246)",
@@ -49,62 +68,75 @@ export default {
       },
       colors: {
         surface: {
-          1: "rgb(255 255 255)",
-          2: "rgb(243 244 246)",
+          1: "var(--color-surface-1)",
+          2: "var(--color-surface-2)",
         },
         
         primary: {
-          DEFAULT: "rgb(58 166 85)",
-          foreground: "rgb(255 255 255)",
+          DEFAULT: "var(--color-primary)",
+          foreground: "var(--color-primary-foreground)",
         },
         
         accent: {
-          DEFAULT: "rgb(246 201 14)",
-          foreground: "rgb(17 24 39)",
+          DEFAULT: "var(--color-accent)",
+          foreground: "var(--color-accent-foreground)",
         },
         
         card: {
-          DEFAULT: "rgb(255 255 255)",
-          foreground: "rgb(17 24 39)",
+          DEFAULT: "var(--color-card)",
+          foreground: "var(--color-card-foreground)",
         },
         
         secondary: {
-          DEFAULT: "rgb(241 245 249)",
-          foreground: "rgb(17 24 39)",
+          DEFAULT: "var(--color-secondary)",
+          foreground: "var(--color-secondary-foreground)",
         },
         
         muted: {
-          DEFAULT: "rgb(241 245 249)",
-          foreground: "rgb(107 114 128)",
+          DEFAULT: "var(--color-muted)",
+          foreground: "var(--color-muted-foreground)",
         },
         
         success: {
-          DEFAULT: "rgb(22 163 74)",
-          foreground: "rgb(255 255 255)",
+          DEFAULT: "var(--color-success)",
+          foreground: "var(--color-success-foreground)",
         },
         
         warning: {
-          DEFAULT: "rgb(234 179 8)",
-          foreground: "rgb(255 255 255)",
+          DEFAULT: "var(--color-warning)",
+          foreground: "var(--color-warning-foreground)",
         },
         
         destructive: {
-          DEFAULT: "rgb(239 68 68)",
-          foreground: "rgb(255 255 255)",
+          DEFAULT: "var(--color-destructive)",
+          foreground: "var(--color-destructive-foreground)",
         },
         
         info: {
-          DEFAULT: "rgb(59 130 246)",
-          foreground: "rgb(255 255 255)",
+          DEFAULT: "var(--color-info)",
+          foreground: "var(--color-info-foreground)",
         },
 
-        border: "rgb(226 232 240)",
-        input: "rgb(226 232 240)",
-        ring: "rgb(58 166 85)",
+        border: "var(--color-border)",
+        input: "var(--color-input)",
+        ring: "var(--color-ring)",
+        
+        // Numeric scales for flexibility
+        10: "var(--color-10)",
+        30: "var(--color-30)",
+        40: "var(--color-40)",
+        50: "var(--color-50)",
+        80: "var(--color-80)",
+        90: "var(--color-90)",
       },
       borderColor: {
-        DEFAULT: "rgb(226 232 240)",
-        border: "rgb(226 232 240)",
+        DEFAULT: "var(--color-border)",
+        border: "var(--color-border)",
+        // Add numeric border colors for more flexibility
+        10: "var(--color-10)",
+        30: "var(--color-30)",
+        40: "var(--color-40)",
+        50: "var(--color-50)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -157,4 +189,4 @@ export default {
       });
     }),
   ],
-} satisfies Config;
+} as CustomConfig;

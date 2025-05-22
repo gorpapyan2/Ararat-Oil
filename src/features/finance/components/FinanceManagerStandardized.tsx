@@ -57,7 +57,7 @@ export function FinanceManagerStandardized() {
             </h2>
             <button
               onClick={handleCreateTransaction}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary bg-opacity-90"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
             >
               {t("finance.transactions.create", "Create New")}
             </button>

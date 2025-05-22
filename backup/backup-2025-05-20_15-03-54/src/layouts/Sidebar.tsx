@@ -65,7 +65,7 @@ export function Sidebar({
   return (
     <motion.aside
       className={cn(
-        "flex flex-col border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "flex flex-col border-r bg-card/50 backdrop-blur supports-backdrop-filter:bg-background/60",
         "fixed top-0 left-0 h-screen z-30 transition-colors duration-300",
         isMobile && "z-50 shadow-lg",
         isMobile && !isOpen && "transform -translate-x-full",
@@ -105,7 +105,7 @@ export function Sidebar({
         </AnimatePresence>
       </div>
 
-      <div className="bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
+      <div className="bg-card/50 backdrop-blur supports-backdrop-filter:bg-background/60 border-t">
         {/* Theme switcher */}
         <div className={cn(
           "flex items-center p-3", 

@@ -12,6 +12,17 @@ import {
 import { cn } from '@/utils/cn';
 import { Calendar } from "@/core/components/ui/primitives/calendar";
 import { format } from 'date-fns';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { Label } from '@/core/components/ui/primitives/label';
+import { Input } from '@/core/components/ui/primitives/input';
+import { 
+  FormControl, 
+  FormDescription, 
+  FormField, 
+  FormItem as PrimitiveFormItem, 
+  FormLabel, 
+  FormMessage 
+} from '@/core/components/ui/primitives/form';
 
 interface FormItemProps {
   label?: string;
@@ -21,7 +32,8 @@ interface FormItemProps {
   className?: string;
 }
 
-export const FormItem = ({
+// Rename the local FormItem to LegacyFormItem to avoid conflict
+export const LegacyFormItem = ({
   label,
   description,
   error,
@@ -51,6 +63,198 @@ export const FormItem = ({
   );
 };
 
+// Create a base field component to reduce duplication
+function BaseFormField({
+  name,
+  label,
+  placeholder,
+  description,
+  type = 'text',
+  className,
+  fieldClassName,
+  labelClassName,
+  renderInput,
+  required,
+}: {
+  name: string;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  type?: string;
+  className?: string;
+  fieldClassName?: string;
+  labelClassName?: string;
+  renderInput?: (field: any) => React.ReactNode;
+  required?: boolean;
+}) {
+  const { control } = useFormContext();
+  
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <PrimitiveFormItem className={cn('space-y-2', className)}>
+          <FormLabel className={cn(labelClassName)}>
+            {label}{required && <span className="text-red-500 ml-1">*</span>}
+          </FormLabel>
+          <FormControl>
+            {renderInput ? (
+              renderInput(field)
+            ) : (
+              <Input
+                type={type}
+                placeholder={placeholder}
+                className={cn(fieldClassName)}
+                {...field}
+              />
+            )}
+          </FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </PrimitiveFormItem>
+      )}
+    />
+  );
+}
+
+// Use the base field for all specific implementations
+export function TextField({
+  name,
+  label,
+  placeholder,
+  description,
+  className,
+  fieldClassName,
+  labelClassName,
+  required,
+}: {
+  name: string;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  className?: string;
+  fieldClassName?: string;
+  labelClassName?: string;
+  required?: boolean;
+}) {
+  return (
+    <BaseFormField
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      description={description}
+      className={className}
+      fieldClassName={fieldClassName}
+      labelClassName={labelClassName}
+      required={required}
+    />
+  );
+}
+
+export function PasswordField({
+  name,
+  label,
+  placeholder,
+  description,
+  className,
+  fieldClassName,
+  labelClassName,
+  required,
+}: {
+  name: string;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  className?: string;
+  fieldClassName?: string;
+  labelClassName?: string;
+  required?: boolean;
+}) {
+  return (
+    <BaseFormField
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      description={description}
+      type="password"
+      className={className}
+      fieldClassName={fieldClassName}
+      labelClassName={labelClassName}
+      required={required}
+    />
+  );
+}
+
+export function EmailField({
+  name,
+  label,
+  placeholder,
+  description,
+  className,
+  fieldClassName,
+  labelClassName,
+  required,
+}: {
+  name: string;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  className?: string;
+  fieldClassName?: string;
+  labelClassName?: string;
+  required?: boolean;
+}) {
+  return (
+    <BaseFormField
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      description={description}
+      type="email"
+      className={className}
+      fieldClassName={fieldClassName}
+      labelClassName={labelClassName}
+      required={required}
+    />
+  );
+}
+
+// Preserve original exports but reduce code duplication
+export function NumberField({
+  name,
+  label,
+  placeholder,
+  description,
+  className,
+  fieldClassName,
+  labelClassName,
+  required,
+}: {
+  name: string;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  className?: string;
+  fieldClassName?: string;
+  labelClassName?: string;
+  required?: boolean;
+}) {
+  return (
+    <BaseFormField
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      description={description}
+      type="number"
+      className={className}
+      fieldClassName={fieldClassName}
+      labelClassName={labelClassName}
+      required={required}
+    />
+  );
+}
+
 // Basic text input field
 export interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -79,7 +283,7 @@ export function FormInput<
   const error = errors[name]?.message as string | undefined;
   
   return (
-    <FormItem 
+    <LegacyFormItem 
       label={label} 
       description={description} 
       error={error}
@@ -93,7 +297,7 @@ export function FormInput<
         className="w-full px-3 py-2 border rounded-md"
         {...register(name)}
       />
-    </FormItem>
+    </LegacyFormItem>
   );
 }
 
@@ -125,7 +329,7 @@ export function FormSelect<
   const error = errors[name]?.message as string | undefined;
   
   return (
-    <FormItem 
+    <LegacyFormItem 
       label={label} 
       description={description} 
       error={error}
@@ -148,7 +352,7 @@ export function FormSelect<
           </option>
         ))}
       </select>
-    </FormItem>
+    </LegacyFormItem>
   );
 }
 
@@ -176,7 +380,7 @@ export function FormCheckbox<
   const error = errors[name]?.message as string | undefined;
   
   return (
-    <FormItem 
+    <LegacyFormItem 
       error={error}
       className={cn("flex items-start space-x-2 space-y-0", className)}
     >
@@ -199,7 +403,7 @@ export function FormCheckbox<
           <p className="text-xs text-muted-foreground">{description}</p>
         )}
       </div>
-    </FormItem>
+    </LegacyFormItem>
   );
 }
 
@@ -231,7 +435,7 @@ export function FormTextarea<
   const error = errors[name]?.message as string | undefined;
   
   return (
-    <FormItem 
+    <LegacyFormItem 
       label={label} 
       description={description} 
       error={error}
@@ -245,7 +449,7 @@ export function FormTextarea<
         className="w-full px-3 py-2 border rounded-md resize-y"
         {...register(name)}
       />
-    </FormItem>
+    </LegacyFormItem>
   );
 }
 
@@ -275,7 +479,7 @@ export function FormDatePicker<
   const error = errors[name]?.message as string | undefined;
   
   return (
-    <FormItem 
+    <LegacyFormItem 
       label={label} 
       description={description} 
       error={error}
@@ -305,7 +509,7 @@ export function FormDatePicker<
           </div>
         )}
       />
-    </FormItem>
+    </LegacyFormItem>
   );
 }
 
@@ -337,7 +541,7 @@ export function FormCurrencyInput<
   const error = errors[name]?.message as string | undefined;
   
   return (
-    <FormItem 
+    <LegacyFormItem 
       label={label} 
       description={description} 
       error={error} 
@@ -367,7 +571,7 @@ export function FormCurrencyInput<
           </div>
         )}
       />
-    </FormItem>
+    </LegacyFormItem>
   );
 }
 
@@ -399,7 +603,7 @@ export function FormRadioGroup<
   const error = errors[name]?.message as string | undefined;
   
   return (
-    <FormItem 
+    <LegacyFormItem 
       label={label} 
       description={description} 
       error={error} 
@@ -430,7 +634,7 @@ export function FormRadioGroup<
           </div>
         ))}
       </div>
-    </FormItem>
+    </LegacyFormItem>
   );
 }
 
@@ -459,7 +663,7 @@ export function FormSwitch<
   const error = errors[name]?.message as string | undefined;
   
   return (
-    <FormItem 
+    <LegacyFormItem 
       label={label} 
       description={description} 
       error={error}
@@ -499,6 +703,9 @@ export function FormSwitch<
           </div>
         )}
       />
-    </FormItem>
+    </LegacyFormItem>
   );
-} 
+}
+
+// Re-export the FormProvider for convenience
+export { FormProvider }; 

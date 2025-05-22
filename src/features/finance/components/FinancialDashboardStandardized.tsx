@@ -34,7 +34,7 @@ export function FinancialDashboardStandardized({ className }: FinancialDashboard
 
   if (error) {
     return (
-      <div className="p-4 border border-destructive bg-destructive bg-opacity-10 rounded-md">
+      <div className="p-4 border border-destructive bg-destructive/10 rounded-md">
         <h3 className="font-medium text-destructive">{t('common.error')}</h3>
         <p className="text-sm text-muted-foreground">{t('finance.error_loading_data')}</p>
       </div>

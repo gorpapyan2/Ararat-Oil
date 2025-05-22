@@ -42,38 +42,38 @@ export const THEME_CONFIG = {
 export const COLOR_PALETTE = {
   // Primary colors
   PRIMARY: {
-    LIGHT: 'hsl(var(--primary))',
-    DARK: 'hsl(var(--primary))',
+    LIGHT: 'var(--color-primary)',
+    DARK: 'var(--color-primary)',
   },
   
   // Background colors
   BACKGROUND: {
-    LIGHT: 'hsl(var(--background))',
-    DARK: 'hsl(var(--background))',
+    LIGHT: 'var(--color-background)',
+    DARK: 'var(--color-background)',
   },
   
   // Foreground colors
   FOREGROUND: {
-    LIGHT: 'hsl(var(--foreground))',
-    DARK: 'hsl(var(--foreground))',
+    LIGHT: 'var(--color-foreground)',
+    DARK: 'var(--color-foreground)',
   },
   
   // Card colors
   CARD: {
-    LIGHT: 'hsl(var(--card))',
-    DARK: 'hsl(var(--card))',
+    LIGHT: 'var(--color-card)',
+    DARK: 'var(--color-card)',
   },
   
   // Muted colors
   MUTED: {
-    LIGHT: 'hsl(var(--muted))',
-    DARK: 'hsl(var(--muted))',
+    LIGHT: 'var(--color-muted)',
+    DARK: 'var(--color-muted)',
   },
   
   // Accent colors
   ACCENT: {
-    LIGHT: 'hsl(var(--accent))',
-    DARK: 'hsl(var(--accent))',
+    LIGHT: 'var(--color-accent)',
+    DARK: 'var(--color-accent)',
   },
 };
 

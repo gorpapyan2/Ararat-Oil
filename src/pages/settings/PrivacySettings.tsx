@@ -431,7 +431,7 @@ function PrivacySettings() {
               </h3>
             </div>
             
-            <div className="bg-destructive bg-opacity-10 dark:bg-destructive bg-opacity-20 rounded-lg p-4 border border-destructive border-opacity-20">
+            <div className="bg-destructive/10 dark:bg-destructive/20 rounded-lg p-4 border border-destructive/20">
               <p className="text-sm mb-4">{t("settings.privacy.accountDeletionWarning")}</p>
               <Button
                 variant="destructive"

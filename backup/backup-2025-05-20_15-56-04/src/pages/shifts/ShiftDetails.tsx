@@ -212,7 +212,7 @@ export default function ShiftDetails() {
                   </div>
                 ))}
               </div>
-              <div className="h-[1px] w-full bg-muted my-4" />
+              <div className="h-px w-full bg-muted my-4" />
               <Skeleton className="h-28 w-full" />
             </CardContent>
           </Card>

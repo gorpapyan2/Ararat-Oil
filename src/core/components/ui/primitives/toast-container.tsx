@@ -69,11 +69,11 @@ export function ToastContainer({
               toast.type === "success" &&
                 "bg-green-800/90 border-green-700 text-white",
               toast.type === "error" &&
-                "bg-destructive bg-opacity-90 border-destructive border-opacity-70 text-white",
+                "bg-destructive/90 border-destructive/70 text-white",
               toast.type === "warning" &&
                 "bg-amber-600/90 border-amber-500 text-white",
               toast.type === "info" &&
-                "bg-primary bg-opacity-90 border-primary border-opacity-70 text-white",
+                "bg-primary/90 border-primary/70 text-white",
             )}
             role="alert"
             aria-atomic="true"
@@ -101,7 +101,7 @@ export function ToastContainer({
 
             <button
               type="button"
-              className="ml-4 flex-shrink-0 rounded-md p-1 hover:bg-black bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-white"
+              className="ml-4 shrink-0 rounded-md p-1 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-white"
               onClick={() => {
                 dismiss(toast.id);
                 toast.onOpenChange?.(false);

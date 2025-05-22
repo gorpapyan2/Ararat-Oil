@@ -1,8 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { vi } from 'vitest';
 import { useFuelSupplies } from './useFuelSupplies';
 import { fuelSuppliesService } from '../services';
-import { vi } from 'vitest';
+import { setupHookTest, setupMutationTest } from '@/test/utils/test-setup';
 
 // Mock the API service
 vi.mock('../services', () => ({
@@ -33,29 +33,16 @@ const mockSupplies = [
 ];
 
 describe('useFuelSupplies', () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-
   beforeEach(() => {
     vi.resetAllMocks();
-    queryClient.clear();
   });
 
   it('should fetch fuel supplies', async () => {
-    vi.mocked(fuelSuppliesService.getFuelSupplies).mockResolvedValue(mockSupplies);
-
-    const { result } = renderHook(() => useFuelSupplies(), { wrapper });
+    // Use shared test utility
+    const { renderTestHook, mockFetch } = setupHookTest();
+    mockFetch.mockResolvedValue(mockSupplies);
+    
+    const { result } = renderTestHook(() => useFuelSupplies());
 
     expect(result.current.isLoading).toBe(true);
     
@@ -81,14 +68,18 @@ describe('useFuelSupplies', () => {
       payment_status: 'paid'
     };
 
-    vi.mocked(fuelSuppliesService.createFuelSupply).mockResolvedValue({
+    const createdSupply = {
       ...newSupply,
       id: '2',
       created_at: '2023-01-02T12:00:00Z',
       updated_at: '2023-01-02T12:00:00Z'
-    });
+    };
 
-    const { result } = renderHook(() => useFuelSupplies(), { wrapper });
+    // Use shared mutation test utility
+    const { renderTestHook, mockMutate } = setupMutationTest();
+    mockMutate.mockResolvedValue(createdSupply);
+
+    const { result } = renderTestHook(() => useFuelSupplies());
 
     result.current.createSupply.mutate(newSupply);
 
@@ -107,13 +98,17 @@ describe('useFuelSupplies', () => {
       }
     };
 
-    vi.mocked(fuelSuppliesService.updateFuelSupply).mockResolvedValue({
+    const updatedSupply = {
       ...mockSupplies[0],
       ...updateData.data,
       updated_at: '2023-01-03T12:00:00Z'
-    });
+    };
 
-    const { result } = renderHook(() => useFuelSupplies(), { wrapper });
+    // Use shared mutation test utility
+    const { renderTestHook, mockMutate } = setupMutationTest();
+    mockMutate.mockResolvedValue(updatedSupply);
+
+    const { result } = renderTestHook(() => useFuelSupplies());
 
     result.current.updateSupply.mutate({ id: updateData.id, data: updateData.data });
 
@@ -129,9 +124,12 @@ describe('useFuelSupplies', () => {
 
   it('should delete a fuel supply', async () => {
     const supplyId = '1';
-    vi.mocked(fuelSuppliesService.deleteFuelSupply).mockResolvedValue({ success: true });
+    
+    // Use shared mutation test utility
+    const { renderTestHook, mockMutate } = setupMutationTest();
+    mockMutate.mockResolvedValue({ success: true });
 
-    const { result } = renderHook(() => useFuelSupplies(), { wrapper });
+    const { result } = renderTestHook(() => useFuelSupplies());
 
     result.current.deleteSupply.mutate(supplyId);
 
@@ -151,14 +149,53 @@ describe('useFuelSupplies', () => {
       providerId: 'provider1'
     };
 
-    vi.mocked(fuelSuppliesService.getFuelSupplies).mockResolvedValue(mockSupplies);
+    // Use shared test utility
+    const { renderTestHook, mockFetch } = setupHookTest();
+    mockFetch.mockResolvedValue(mockSupplies);
 
-    const { result } = renderHook(() => useFuelSupplies(filters), { wrapper });
+    const { result } = renderTestHook(() => useFuelSupplies(filters));
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
     });
     
     expect(fuelSuppliesService.getFuelSupplies).toHaveBeenCalledWith(filters);
+  });
+  
+  it('should invalidate queries after successful mutations', async () => {
+    // Use shared mutation test utility with query client access
+    const { queryClient, renderTestHook, mockMutate } = setupMutationTest();
+    const spyInvalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    
+    const newSupply = {
+      delivery_date: '2023-01-02',
+      provider_id: 'provider1',
+      tank_id: 'tank1',
+      quantity_liters: 2000,
+      price_per_liter: 500,
+      total_cost: 1000000,
+      comments: 'New supply',
+      shift_id: 'shift1',
+      payment_method: 'cash',
+      payment_status: 'paid'
+    };
+    
+    mockMutate.mockResolvedValue({
+      ...newSupply,
+      id: '2',
+      created_at: '2023-01-02T12:00:00Z',
+      updated_at: '2023-01-02T12:00:00Z'
+    });
+    
+    const { result } = renderTestHook(() => useFuelSupplies());
+    
+    result.current.createSupply.mutate(newSupply);
+    
+    await waitFor(() => {
+      expect(result.current.createSupply.isSuccess).toBe(true);
+    });
+    
+    // Should invalidate fuelSupplies query
+    expect(spyInvalidateQueries).toHaveBeenCalledWith(['fuelSupplies']);
   });
 }); 

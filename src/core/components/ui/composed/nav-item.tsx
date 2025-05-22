@@ -55,11 +55,11 @@ export const NavItem = forwardRef<HTMLAnchorElement, NavItemProps>(({
       onKeyDown={handleKeyDown}
       className={cn(
         "flex items-center gap-3 rounded-md text-sm font-medium transition-all relative",
-        "hover:bg-accent bg-opacity-15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", 
+        "hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2", 
         "active:scale-[0.98] duration-75",
         collapsed ? "justify-center px-2 py-2 w-10 h-10" : "px-3 py-2",
         isActive
-          ? "bg-accent bg-opacity-15 text-accent hover:bg-accent bg-opacity-20"
+          ? "bg-accent/15 text-accent hover:bg-accent/20"
           : "text-muted-foreground hover:text-foreground",
         className
       )}

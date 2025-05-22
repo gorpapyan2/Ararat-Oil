@@ -282,7 +282,7 @@ export function IncomeExpenseOverview() {
       )}>
         <div className="flex justify-between items-start">
           <span className="text-sm text-muted-foreground">{title}</span>
-          <span className={`rounded-full p-1.5 bg-opacity-20 ${color.replace('text-', 'bg-')}`}>
+          <span className={`rounded-full p-1.5 ${color.replace('text-', 'bg-')}/20`}>
             {icon}
           </span>
         </div>
@@ -329,7 +329,7 @@ export function IncomeExpenseOverview() {
             <TabsContent value="monthly" className="mt-0">
               <div className="h-[300px] md:h-[350px] w-full">
                 {isLoading ? (
-                  <div className="h-full w-full flex items-center justify-center bg-muted bg-opacity-20 rounded-md">
+                  <div className="h-full w-full flex items-center justify-center bg-muted/20 rounded-md">
                     <p>{t("common.loading")}</p>
                   </div>
                 ) : (

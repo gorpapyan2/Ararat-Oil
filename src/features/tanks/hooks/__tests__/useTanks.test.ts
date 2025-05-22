@@ -1,5 +1,4 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { 
   useTanks, 
@@ -9,6 +8,9 @@ import {
   useTankMutations,
   useTanksManager
 } from '../useTanks';
+
+// Import our shared test utilities
+import { setupHookTest, setupErrorTest, setupMutationTest } from '@/test/utils/test-setup';
 
 // Mock the services
 vi.mock('../../services', () => ({
@@ -33,21 +35,6 @@ import {
   adjustTankLevel 
 } from '../../services';
 
-// Create a wrapper for the QueryClientProvider
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-  
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
-
 describe('Tanks Hooks', () => {
   beforeEach(() => {
     vi.resetAllMocks();
@@ -60,11 +47,11 @@ describe('Tanks Hooks', () => {
         { id: '2', name: 'Tank 2', fuel_type_id: 'ft2', capacity: 2000, current_level: 1500, is_active: true, created_at: '2023-01-02', updated_at: '2023-01-02' }
       ];
       
-      (getTanks as any).mockResolvedValue(mockTanks);
+      // Use shared setup utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockTanks);
       
-      const { result } = renderHook(() => useTanks(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useTanks());
       
       expect(result.current.isLoading).toBe(true);
       
@@ -77,12 +64,11 @@ describe('Tanks Hooks', () => {
     });
     
     it('should handle tank fetch error', async () => {
-      const mockError = new Error('Failed to fetch tanks');
-      (getTanks as any).mockRejectedValue(mockError);
+      // Use shared error test setup
+      const { renderTestHook, mockFetch } = setupErrorTest();
+      mockFetch.mockRejectedValue(new Error('Failed to fetch tanks'));
       
-      const { result } = renderHook(() => useTanks(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useTanks());
       
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -104,11 +90,11 @@ describe('Tanks Hooks', () => {
         updated_at: '2023-01-01' 
       };
       
-      (getTankById as any).mockResolvedValue(mockTank);
+      // Use shared setup utility
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockTank);
       
-      const { result } = renderHook(() => useTank('1'), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useTank('1'));
       
       expect(result.current.isLoading).toBe(true);
       
@@ -121,9 +107,10 @@ describe('Tanks Hooks', () => {
     });
     
     it('should not fetch tank if id is empty', async () => {
-      const { result } = renderHook(() => useTank(''), {
-        wrapper: createWrapper()
-      });
+      // Use shared setup utility
+      const { renderTestHook } = setupHookTest();
+      
+      const { result } = renderTestHook(() => useTank(''));
       
       // It should not load or fetch
       expect(result.current.isLoading).toBe(false);
@@ -138,11 +125,10 @@ describe('Tanks Hooks', () => {
         { id: '2', tank_id: '1', previous_level: 700, new_level: 650, change_amount: 50, change_type: 'subtract', reason: 'Usage', created_at: '2023-01-02', created_by: 'user1' }
       ];
       
-      (getTankLevelChanges as any).mockResolvedValue(mockLevelChanges);
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockLevelChanges);
       
-      const { result } = renderHook(() => useTankLevelChanges('1'), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useTankLevelChanges('1'));
       
       expect(result.current.isLoading).toBe(true);
       
@@ -163,11 +149,10 @@ describe('Tanks Hooks', () => {
         { id: 'ft3', name: 'CNG' }
       ];
       
-      (getFuelTypes as any).mockResolvedValue(mockFuelTypes);
+      const { renderTestHook, mockFetch } = setupHookTest();
+      mockFetch.mockResolvedValue(mockFuelTypes);
       
-      const { result } = renderHook(() => useFuelTypes(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useFuelTypes());
       
       expect(result.current.isLoading).toBe(true);
       
@@ -197,11 +182,11 @@ describe('Tanks Hooks', () => {
         updated_at: '2023-01-03'
       };
       
-      (createTank as any).mockResolvedValue(createdTank);
+      // Use shared mutation test setup
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(createdTank);
       
-      const { result } = renderHook(() => useTankMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useTankMutations());
       
       await act(async () => {
         result.current.createTank.mutate(newTank);
@@ -233,11 +218,10 @@ describe('Tanks Hooks', () => {
         updated_at: '2023-01-04'
       };
       
-      (updateTank as any).mockResolvedValue(updatedTank);
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(updatedTank);
       
-      const { result } = renderHook(() => useTankMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useTankMutations());
       
       await act(async () => {
         result.current.updateTank.mutate({ id: tankId, data: updateData });
@@ -254,11 +238,10 @@ describe('Tanks Hooks', () => {
     it('should delete a tank successfully', async () => {
       const tankId = '2';
       
-      (deleteTank as any).mockResolvedValue(true);
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(true);
       
-      const { result } = renderHook(() => useTankMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useTankMutations());
       
       await act(async () => {
         result.current.deleteTank.mutate(tankId);
@@ -292,11 +275,10 @@ describe('Tanks Hooks', () => {
         created_by: 'system'
       };
       
-      (adjustTankLevel as any).mockResolvedValue(levelChangeResult);
+      const { renderTestHook, mockMutate } = setupMutationTest();
+      mockMutate.mockResolvedValue(levelChangeResult);
       
-      const { result } = renderHook(() => useTankMutations(), {
-        wrapper: createWrapper()
-      });
+      const { result } = renderTestHook(() => useTankMutations());
       
       await act(async () => {
         result.current.adjustTankLevel.mutate(adjustmentData);
@@ -330,12 +312,17 @@ describe('Tanks Hooks', () => {
         { id: 'ft2', name: 'Petrol' }
       ];
       
-      (getTanks as any).mockResolvedValue(mockTanks);
-      (getFuelTypes as any).mockResolvedValue(mockFuelTypes);
+      const { renderTestHook, mockFetch } = setupHookTest();
       
-      const { result } = renderHook(() => useTanksManager(), {
-        wrapper: createWrapper()
+      // Mock both API calls
+      mockFetch.mockImplementation((endpoint: string) => {
+        if (endpoint.includes('fuel-types')) {
+          return Promise.resolve(mockFuelTypes);
+        }
+        return Promise.resolve(mockTanks);
       });
+      
+      const { result } = renderTestHook(() => useTanksManager());
       
       expect(result.current.isLoading).toBe(true);
       

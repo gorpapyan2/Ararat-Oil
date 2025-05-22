@@ -386,7 +386,7 @@ export function DataTable<TData, TValue>({
       <div className="rounded-md border relative">
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 bg-gray-50 bg-opacity-70 dark:bg-gray-950/70 z-10 flex items-center justify-center">
+          <div className="absolute inset-0 bg-gray-50/70 dark:bg-gray-950/70 z-10 flex items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
           </div>
         )}

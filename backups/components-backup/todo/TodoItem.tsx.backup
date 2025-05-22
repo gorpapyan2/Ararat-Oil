@@ -84,7 +84,7 @@ export function TodoItem({
         todo.completed && "opacity-70 bg-muted",
       )}
     >
-      <div className="flex items-center gap-3 flex-grow min-w-0">
+      <div className="flex items-center gap-3 grow min-w-0">
         <Checkbox
           checked={todo.completed}
           onCheckedChange={() => onToggle(todo.id)}
@@ -101,11 +101,11 @@ export function TodoItem({
             onChange={(e) => setEditText(e.target.value)}
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
-            className="flex-grow"
+            className="grow"
             aria-label={t("todo.editTodo")}
           />
         ) : (
-          <div className="flex flex-col flex-grow min-w-0">
+          <div className="flex flex-col grow min-w-0">
             <div className="flex items-center gap-2">
               <span
                 className={cn(

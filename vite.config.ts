@@ -21,7 +21,7 @@ function getServerPort() {
   }
   
   // Default port if not specified in env
-  return 3001;
+  return 3006;
 }
 
 // https://vitejs.dev/config/
@@ -34,6 +34,11 @@ export default defineConfig(({ command, mode }) => ({
       usePolling: true,
     },
     open: true,
+    // Add hmr configuration to prevent blank screen issues
+    hmr: {
+      overlay: true,
+      timeout: 30000,
+    },
   },
   // Add base configuration to ensure proper path resolution
   base: '/',
@@ -44,10 +49,24 @@ export default defineConfig(({ command, mode }) => ({
     // Fix for require not defined error
     'require': 'window.require'
   },
+  css: {
+    // Enable source maps for easier debugging
+    devSourcemap: true,
+    // Add preprocessOptions to ensure proper import ordering
+    preprocessorOptions: {
+      css: {
+        // Ensure @import statements are processed in the correct order
+        charset: false,
+        // Always add imports at the beginning
+        additionalData: '/* Ensure imports first */\n',
+      },
+    },
+  },
   plugins: [
+    // Use Tailwind CSS v4 Vite plugin
     tailwindcss(),
     react({
-      jsxImportSource: 'react'
+      jsxImportSource: 'react',
     }),
     command === 'serve' && componentTagger(),
     mode === 'analyze' && visualizer({
@@ -101,7 +120,11 @@ export default defineConfig(({ command, mode }) => ({
       define: {
         global: 'window'
       },
+      // Add logLevel for better debugging
+      logLevel: 'error',
     },
+    // Ensure dependencies are properly pre-bundled
+    force: true,
   },
   build: {
     outDir: 'dist',
@@ -134,6 +157,13 @@ export default defineConfig(({ command, mode }) => ({
           'icon-vendor': ['@tabler/icons-react', 'lucide-react'],
         },
       },
+      input: mode === 'debug' ? {
+        main: path.resolve(__dirname, 'index.html'),
+        debug: path.resolve(__dirname, 'src/main.debug.tsx')
+      } : undefined,
     },
+    // Add CSS specific settings
+    cssCodeSplit: true,
+    cssMinify: true,
   },
 }));

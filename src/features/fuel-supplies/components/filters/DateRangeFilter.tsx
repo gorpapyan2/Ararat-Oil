@@ -1,18 +1,10 @@
 import { CalendarIcon, Check } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
-import { Calendar } from '@/core/components/ui/calendar';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/core/components/ui/popover';
-import {
-  format,
   subDays,
   startOfWeek,
-  endOfWeek,
   startOfMonth,
-  endOfMonth,
+  format
 } from "date-fns";
 import {
   DropdownMenu,
@@ -20,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/core/components/ui/dropdown-menu';
+import { StandardDatePicker } from "@/shared/components/common/datepicker";
 
 interface DateRangeFilterProps {
   date: Date | undefined;
@@ -39,58 +32,45 @@ export function DateRangeFilter({ date, onDateChange }: DateRangeFilterProps) {
   ];
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted-foreground">
-        Delivery Date
-      </label>
+    <div className="flex flex-col gap-2">
       <div className="flex gap-2">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={`w-full h-9 justify-start text-left font-normal ${!date ? "text-muted-foreground" : ""}`}
-            >
-              <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-              {date ? format(date, "PPP") : <span>Select date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={onDateChange}
-              initialFocus
-              className="p-3 pointer-events-auto"
-            />
-          </PopoverContent>
-        </Popover>
+        <div className="flex-1">
+          <StandardDatePicker
+            value={date}
+            onChange={onDateChange}
+            label="Delivery Date"
+            mode="single"
+          />
+        </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9 px-2">
-              <CalendarIcon className="h-3.5 w-3.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {presets.map((preset) => (
-              <DropdownMenuItem
-                key={preset.name}
-                onClick={() => onDateChange(preset.value)}
-                className="flex items-center justify-between"
-              >
-                <span>{preset.name}</span>
-                {date &&
-                  format(date, "yyyy-MM-dd") ===
-                    format(preset.value, "yyyy-MM-dd") && (
-                    <Check className="h-4 w-4" />
-                  )}
+        <div className="self-end pb-[2px]">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-9 px-2">
+                <CalendarIcon className="h-3.5 w-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {presets.map((preset) => (
+                <DropdownMenuItem
+                  key={preset.name}
+                  onClick={() => onDateChange(preset.value)}
+                  className="flex items-center justify-between"
+                >
+                  <span>{preset.name}</span>
+                  {date &&
+                    format(date, "yyyy-MM-dd") ===
+                      format(preset.value, "yyyy-MM-dd") && (
+                      <Check className="h-4 w-4" />
+                    )}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuItem onClick={() => onDateChange(undefined)}>
+                Clear date
               </DropdownMenuItem>
-            ))}
-            <DropdownMenuItem onClick={() => onDateChange(undefined)}>
-              Clear date
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   );

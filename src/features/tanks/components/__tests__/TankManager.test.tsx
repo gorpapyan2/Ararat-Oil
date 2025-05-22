@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TankManager } from "../TankManager";
 import { tanksService } from "../../services/tanksService";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
+import { setupComponentWrapper } from "@/test/utils/test-wrappers";
 
 // Mock the tanks service
 vi.mock("../../services/tanksService", () => ({
@@ -21,22 +21,7 @@ vi.mock("@/hooks/useDialog", () => ({
   }),
 }));
 
-// Mock the useTranslation hook
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
-
 describe("TankManager", () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
   const mockTanks = [
     {
       id: "1",
@@ -54,19 +39,25 @@ describe("TankManager", () => {
     { id: "2", name: "Petrol" },
   ];
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    (tanksService.getTanks as any).mockResolvedValue(mockTanks);
-    (tanksService.getFuelTypes as any).mockResolvedValue(mockFuelTypes);
-  });
-
-  const renderComponent = () => {
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <TankManager />
-      </QueryClientProvider>
-    );
+  const setup = () => {
+    // Use the shared test utility
+    const { renderWithProviders, mockTranslation } = setupComponentWrapper();
+    
+    beforeEach(() => {
+      vi.clearAllMocks();
+      (tanksService.getTanks as any).mockResolvedValue(mockTanks);
+      (tanksService.getFuelTypes as any).mockResolvedValue(mockFuelTypes);
+      mockTranslation.mockImplementation((key) => key);
+    });
+    
+    const renderComponent = (props = {}) => {
+      return renderWithProviders(<TankManager {...props} />);
+    };
+    
+    return { renderComponent };
   };
+  
+  const { renderComponent } = setup();
 
   it("renders loading state initially", () => {
     renderComponent();
@@ -100,11 +91,7 @@ describe("TankManager", () => {
 
   it("handles custom action rendering", async () => {
     const onRenderAction = vi.fn();
-    render(
-      <QueryClientProvider client={queryClient}>
-        <TankManager onRenderAction={onRenderAction} />
-      </QueryClientProvider>
-    );
+    renderComponent({ onRenderAction });
 
     await waitFor(() => {
       expect(onRenderAction).toHaveBeenCalled();
