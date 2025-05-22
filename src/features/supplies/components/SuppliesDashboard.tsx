@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@sentry/react';
 import { KpiCardGrid } from './KpiCardGrid';
-import { SuppliesTable } from './SuppliesTable';
+import { SuppliesTableStandardized } from './SuppliesTableStandardized';
 import { useSuppliesFilters } from '../store/useSuppliesFilters';
 import { fetchFuelSupplies } from '@/services/fuel-supplies';
 import { fetchFuelTanks } from '@/services/tanks';
@@ -73,10 +73,11 @@ export function SuppliesDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <SuppliesTable
+          <SuppliesTableStandardized
             supplies={supplies || []}
             isLoading={isLoadingSupplies}
             tanks={tanks}
+            providers={[]}
           />
         </motion.div>
 

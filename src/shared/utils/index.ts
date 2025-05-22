@@ -11,6 +11,7 @@ export {
   numberWithCommas,
   formatDate,
   formatCurrency,
+  formatNumber,
   formatInputCurrency,
   parseCurrencyInput,
   formatDateTime,

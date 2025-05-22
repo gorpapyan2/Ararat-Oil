@@ -10,10 +10,10 @@ import { expensesApi } from "@/core/api";
 import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
 
 // Components
-import { BreadcrumbItem, Breadcrumbs } from '@/core/components/ui/breadcrumbs';
+import { Breadcrumbs, BreadcrumbItem } from '@/core/components/ui/breadcrumbs';
 import { Button } from "@/core/components/ui/button";
 import { PageHeader } from '@/core/components/ui/page-header';
-import { ExpensesTable } from "@/features/expenses/components/ExpensesTable";
+import { ExpensesTableStandardized } from "@/features/finance/components/ExpensesTableStandardized";
 import { FilterPanel } from "@/features/expenses/components/FilterPanel"; 
 import { DateRangePicker } from '@/core/components/ui/composed/date-range-picker';
 import { Sheet, SheetContent, SheetTrigger } from "@/core/components/ui/sheet";
@@ -226,7 +226,7 @@ export function ExpensesPage() {
         )}
 
         {/* Expenses Table */}
-        <ExpensesTable
+        <ExpensesTableStandardized
           startDate={format(dateRange.from, "yyyy-MM-dd")}
           endDate={dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
           onDelete={handleDelete}

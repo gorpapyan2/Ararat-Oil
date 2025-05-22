@@ -113,8 +113,8 @@ const ToastTester = lazy(() => import(/* webpackChunkName: "dev-toast" */ "@/pag
 const DevTools = lazy(() => import(/* webpackChunkName: "dev-tools" */ "@/pages/dev/DevTools"));
 const CardComponentsPage = lazy(() => import(/* webpackChunkName: "dev-cards" */ "@/pages/dev/CardComponentsPage"));
 const ButtonComponentsPage = lazy(() => import(/* webpackChunkName: "dev-buttons" */ "@/pages/dev/ButtonComponentsPage"));
-// Import the ComponentShowcase page
 const ComponentShowcase = lazy(() => import(/* webpackChunkName: "component-showcase" */ "@/pages/ComponentShowcase"));
+const HooksShowcase = lazy(() => import(/* webpackChunkName: "hooks-showcase" */ "@/features/dev/pages/HooksShowcase"));
 // Fix for named export
 
 // Add new import for ConnectionInfo
@@ -533,6 +533,7 @@ const App = () => {
                                     <Route path="button-components" element={<ButtonComponentsPage />} />
                                     <Route path="connection-info" element={<ConnectionInfo />} />
                                     <Route path="component-showcase" element={<ComponentShowcase />} />
+                                    <Route path="hooks-showcase" element={<HooksShowcase />} />
                                   </Routes>
                                 </AdminShell>
                               </RouteErrorBoundary>

@@ -461,8 +461,17 @@ export interface FormDatePickerProps<
   name: TName;
   form: UseFormReturn<TFieldValues>;
   placeholder?: string;
+  /**
+   * @deprecated Use FormStandardDatePicker instead
+   * Format string for displaying the date
+   * @default "PP" (e.g., "Apr 29, 2021")
+   */
+  dateFormat?: string;
 }
 
+/**
+ * @deprecated Use FormStandardDatePicker instead
+ */
 export function FormDatePicker<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -473,43 +482,31 @@ export function FormDatePicker<
   description,
   required,
   placeholder,
+  dateFormat = "PP",
   className,
 }: FormDatePickerProps<TFieldValues, TName>) {
-  const { control, formState: { errors } } = form;
-  const error = errors[name]?.message as string | undefined;
+  // Import dynamically to avoid circular dependencies
+  const { FormStandardDatePicker } = require('@/shared/components/common/datepicker');
   
+  // Log deprecation warning
+  React.useEffect(() => {
+    console.warn(
+      'FormDatePicker is deprecated and will be removed in a future version. ' +
+      'Please use FormStandardDatePicker from @/shared/components/common/datepicker instead.'
+    );
+  }, []);
+
   return (
-    <LegacyFormItem 
-      label={label} 
-      description={description} 
-      error={error}
-      required={required} 
+    <FormStandardDatePicker
+      name={name}
+      control={form.control}
+      label={label}
+      description={description}
+      required={required}
+      placeholder={placeholder}
+      dateFormat={dateFormat}
       className={className}
-    >
-      <Controller
-        name={name}
-        control={control}
-        render={({ field }) => (
-          <div className="relative">
-            <input
-              id={name}
-              value={field.value ? format(field.value, 'PP') : ''}
-              placeholder={placeholder}
-              className="w-full px-3 py-2 border rounded-md"
-              readOnly
-              onClick={() => {/* Open date picker */}}
-            />
-            <div className="absolute top-full left-0 z-10 mt-1 hidden">
-              <Calendar
-                mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-              />
-            </div>
-          </div>
-        )}
-      />
-    </LegacyFormItem>
+    />
   );
 }
 

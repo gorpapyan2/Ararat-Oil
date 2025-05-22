@@ -1,17 +1,7 @@
 /**
- * This file re-exports cards components from the primitives directory.
- * This helps maintain backward compatibility with existing imports.
+ * @deprecated Import from "@/core/components/ui/cards" instead
+ * This file is maintained for backward compatibility
  */
 
-export { 
-  StatsCardProps,
-  StatsCard,
-  MetricCardProps,
-  MetricCard,
-  ActionCardProps,
-  ActionCard,
-  SummaryCardProps,
-  SummaryCard,
-  CardGridProps,
-  CardGrid 
-} from "@/core/components/ui/primitives/cards";
+// Direct re-export from the cards directory
+export * from "./cards/index";

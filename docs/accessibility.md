@@ -20,6 +20,7 @@ Our application implements the following accessibility features:
 - Focus is visually apparent with a clear outline
 - Skip-to-content link allows keyboard users to bypass navigation
 - Focus trapping in modals and dialogs to prevent keyboard traps
+- Table rows can be navigated with arrow keys, with Enter to view details
 
 ### Screen Reader Support
 
@@ -28,6 +29,8 @@ Our application implements the following accessibility features:
 - Live regions for dynamic content (toasts, alerts)
 - Meaningful link text and button labels
 - Alternative text for images
+- Enhanced table accessibility with row and column information
+- Visually hidden text to provide additional context
 
 ### Responsive Design
 
@@ -67,11 +70,61 @@ Our application implements the following accessibility features:
 - Use proper ARIA roles and attributes
 - Provide close mechanisms via keyboard
 
+### Tables and Data Grids
+
+- Use proper semantic table elements (table, th, td)
+- Include caption or aria-label for table identification
+- Provide row and column headers with appropriate scope
+- Implement keyboard navigation with arrow keys
+- Add aria-sort attributes for sortable columns
+- Use aria-live regions for dynamic table updates
+- Provide accessible names for action buttons
+- Support keyboard shortcuts for common actions (Enter, Space, Delete)
+
 ### Notifications and Alerts
 
 - Use appropriate `aria-live` regions
 - Make notifications dismissible via keyboard
 - Use appropriate timing for auto-dismissal
+
+## Accessibility Components
+
+The application includes several dedicated accessibility components:
+
+### VisuallyHidden
+
+The `VisuallyHidden` component hides content visually while keeping it accessible to screen readers. This is useful for providing additional context to screen reader users without affecting the visual design.
+
+```tsx
+<VisuallyHidden>
+  Additional context for screen readers
+</VisuallyHidden>
+```
+
+### StandardizedDataTable
+
+Our `StandardizedDataTable` component is built with accessibility in mind:
+
+- ARIA labels for sortable columns
+- Keyboard navigation support
+- Descriptive row labels for screen readers
+- Properly labeled action buttons
+- Accessible pagination controls
+
+```tsx
+<StandardizedDataTable
+  aria-label="Employees table with sortable columns"
+  getRowAriaLabel={(employee) => `${employee.name}, Position: ${employee.position}`}
+  keyboardNavigation={{
+    enabled: true,
+    rowFocusKey: 'id',
+    onKeyDown: (e, row) => {
+      // Custom keyboard handling
+    }
+  }}
+  // Other props...
+/>
+```
 
 ## Resources
 

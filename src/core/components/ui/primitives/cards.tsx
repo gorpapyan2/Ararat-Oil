@@ -1,360 +1,200 @@
-import React from "react";
+/**
+ * @deprecated Use components from @/core/components/ui/cards instead.
+ * This file is kept for backward compatibility and will be removed in a future release.
+ * Please update your imports to use the new card component system.
+ */
+
 import { cn } from "@/shared/utils";
+import * as React from "react";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
+  CardFooter,
   CardTitle,
+  CardDescription,
+  CardContent
 } from "@/core/components/ui/card";
-import { Button } from "@/core/components/ui/button";
-import { ArrowRightIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 
-/**
- * Simple stat card for displaying metrics
- */
-export interface StatsCardProps {
+// Re-export card components
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent
+};
+
+// @deprecated - Use MetricCard from @/core/components/ui/cards
+export interface StatsCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   value: string | number;
-  change?: {
-    value: string | number;
-    direction: "up" | "down" | "neutral";
-  };
+  description?: string;
   icon?: React.ReactNode;
-  className?: string;
+  trending?: string;
+  trendingUp?: boolean;
 }
 
-export const StatsCard: React.FC<StatsCardProps> = ({
-  title,
-  value,
-  change,
-  icon,
-  className,
-}) => {
-  const directionClasses = {
-    up: "text-green-600 dark:text-green-400",
-    down: "text-red-600 dark:text-red-400",
-    neutral: "text-muted-foreground",
-  };
-
-  return (
-    <Card className={cn("overflow-hidden", className)}>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle size="sm">{title}</CardTitle>
-          {icon && <div className="text-muted-foreground/60">{icon}</div>}
-        </div>
+// @deprecated - Use MetricCard from @/core/components/ui/cards
+export const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
+  ({ className, title, value, description, icon, trending, trendingUp, ...props }, ref) => (
+    <Card
+      ref={ref}
+      className={cn("flex flex-col", className)}
+      {...props}
+    >
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold tracking-tight">{value}</div>
-        {change && (
-          <div
-            className={cn("mt-1 text-sm", directionClasses[change.direction])}
-          >
-            {change.direction === "up" && "↑ "}
-            {change.direction === "down" && "↓ "}
-            {change.value}
-          </div>
+        <div className="text-2xl font-bold">{value}</div>
+        {description && (
+          <p className="text-xs text-muted-foreground">{description}</p>
+        )}
+        {trending && (
+          <p className={cn("text-xs", trendingUp ? "text-green-600" : "text-red-600")}>
+            {trending}
+          </p>
         )}
       </CardContent>
     </Card>
-  );
-};
+  )
+);
+StatsCard.displayName = "StatsCard";
 
-/**
- * Metric card with trend data and loading state
- */
-export interface MetricCardProps {
+// @deprecated - Use MetricCard from @/core/components/ui/cards
+export interface MetricCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
-  value: string | number;
-  description?: string;
+  metric: string | number;
+  subtext?: string;
   icon?: React.ReactNode;
   trend?: {
-    value: string | number;
+    value: string;
     positive?: boolean;
-    label?: string;
   };
-  loading?: boolean;
-  footer?: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
+  actions?: React.ReactNode;
 }
 
-export const MetricCard: React.FC<MetricCardProps> = ({
-  title,
-  value,
-  description,
-  icon,
-  trend,
-  loading = false,
-  footer,
-  className,
-  onClick,
-}) => {
-  return (
+// @deprecated - Use MetricCard from @/core/components/ui/cards
+export const MetricCard = React.forwardRef<HTMLDivElement, MetricCardProps>(
+  ({ className, title, metric, subtext, icon, trend, actions, ...props }, ref) => (
     <Card
-      className={cn(
-        "overflow-hidden transition-all duration-300",
-        onClick && "cursor-pointer hover:shadow-md hover:scale-[1.01]",
-        loading && "animate-pulse",
-        className,
-      )}
-      onClick={onClick}
+      ref={ref}
+      className={cn("flex flex-col", className)}
+      {...props}
     >
-      <CardHeader className="pb-2 flex justify-between items-start">
-        <div>
-          <CardTitle size="sm" className="line-clamp-1">
-            {title}
-          </CardTitle>
-          {description && (
-            <CardDescription className="line-clamp-1 mt-1">
-              {description}
-            </CardDescription>
-          )}
-        </div>
-        {icon && (
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary">
-            {icon}
-          </div>
-        )}
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
       </CardHeader>
-
-      <CardContent className="pb-2">
-        <div className="text-2xl font-bold">
-          {loading ? (
-            <div className="h-8 w-24 bg-muted rounded animate-pulse" />
-          ) : (
-            value
-          )}
-        </div>
-
+      <CardContent className="space-y-1">
+        <div className="text-2xl font-bold">{metric}</div>
+        {subtext && (
+          <p className="text-xs text-muted-foreground">{subtext}</p>
+        )}
         {trend && (
-          <div
-            className={cn(
-              "flex items-center mt-1 text-sm font-medium",
-              trend.positive
-                ? "text-green-600 dark:text-green-500"
-                : "text-red-600 dark:text-red-500",
-            )}
-          >
-            {trend.positive ? (
-              <TrendingUpIcon className="w-4 h-4 mr-1" />
-            ) : (
-              <TrendingDownIcon className="w-4 h-4 mr-1" />
-            )}
-            <span>{trend.value}</span>
-            {trend.label && (
-              <span className="text-muted-foreground ml-1">
-                ({trend.label})
-              </span>
-            )}
-          </div>
+          <p className={cn("text-xs", trend.positive ? "text-green-600" : "text-red-600")}>
+            {trend.value}
+          </p>
         )}
       </CardContent>
-
-      {footer && <CardFooter className="pt-2">{footer}</CardFooter>}
+      {actions && (
+        <CardFooter className="flex justify-end">
+          {actions}
+        </CardFooter>
+      )}
     </Card>
-  );
-};
+  )
+);
+MetricCard.displayName = "MetricCard";
 
-/**
- * Action card with colored status
- */
-export interface ActionCardProps {
+// @deprecated - Use ActionCard from @/core/components/ui/cards
+export interface ActionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   description?: string;
-  status?: "success" | "warning" | "error" | "info" | "muted";
-  actionLabel?: string;
-  onAction?: () => void;
   icon?: React.ReactNode;
-  className?: string;
+  status?: "default" | "warning" | "error" | "success";
+  action?: React.ReactNode;
 }
 
-export const ActionCard: React.FC<ActionCardProps> = ({
-  title,
-  description,
-  status = "muted",
-  actionLabel = "View details",
-  onAction,
-  icon,
-  className,
-}) => {
-  // Status indicator colors
-  const statusColors = {
-    success: "bg-green-500",
-    warning: "bg-amber-500",
-    error: "bg-red-500",
-    info: "bg-blue-500",
-    muted: "bg-muted-foreground",
-  };
+// @deprecated - Use ActionCard from @/core/components/ui/cards
+export const ActionCard = React.forwardRef<HTMLDivElement, ActionCardProps>(
+  ({ className, title, description, icon, status, action, ...props }, ref) => {
+    const statusColors = {
+      default: "",
+      warning: "border-orange-500",
+      error: "border-red-500",
+      success: "border-green-500",
+    };
 
-  return (
-    <Card className={cn("overflow-hidden", className)}>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            {status && (
-              <div
-                className={cn(
-                  "w-2 h-2 rounded-full mr-2",
-                  statusColors[status],
-                )}
-              />
-            )}
-            <CardTitle size="sm">{title}</CardTitle>
-          </div>
-          {icon && <div className="text-muted-foreground">{icon}</div>}
-        </div>
-        {description && (
-          <CardDescription className="mt-1 text-sm line-clamp-2">
-            {description}
-          </CardDescription>
+    return (
+      <Card
+        ref={ref}
+        className={cn(
+          "flex flex-col",
+          status && status !== "default" && `border-l-4 ${statusColors[status]}`,
+          className
         )}
-      </CardHeader>
-      {onAction && (
-        <CardFooter>
-          <Button
-            variant="ghost"
-            className="p-0 h-auto text-sm font-medium"
-            onClick={onAction}
-          >
-            {actionLabel}
-            <ArrowRightIcon className="ml-1 h-3 w-3" />
-          </Button>
-        </CardFooter>
-      )}
-    </Card>
-  );
-};
+        {...props}
+      >
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="flex items-center space-x-2">
+            {icon && <span>{icon}</span>}
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          </div>
+        </CardHeader>
+        {description && (
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{description}</p>
+          </CardContent>
+        )}
+        {action && (
+          <CardFooter className="flex justify-end">
+            {action}
+          </CardFooter>
+        )}
+      </Card>
+    );
+  }
+);
+ActionCard.displayName = "ActionCard";
 
-/**
- * Summary card for dashboard overview sections
- */
-export interface SummaryCardProps {
+// @deprecated - Use SummaryCard from @/core/components/ui/cards
+export interface SummaryCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
-  metrics: Array<{
+  items: Array<{
     label: string;
     value: string | number;
-    color?: "default" | "muted" | "success" | "warning" | "danger";
   }>;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
-  className?: string;
+  footer?: React.ReactNode;
 }
 
-export const SummaryCard: React.FC<SummaryCardProps> = ({
-  title,
-  metrics,
-  action,
-  className,
-}) => {
-  const colorVariants = {
-    default: "text-foreground",
-    muted: "text-muted-foreground",
-    success: "text-green-600 dark:text-green-500",
-    warning: "text-amber-600 dark:text-amber-500",
-    danger: "text-red-600 dark:text-red-500",
-  };
-
-  return (
-    <Card className={cn("", className)}>
+// @deprecated - Use SummaryCard from @/core/components/ui/cards
+export const SummaryCard = React.forwardRef<HTMLDivElement, SummaryCardProps>(
+  ({ className, title, items, footer, ...props }, ref) => (
+    <Card
+      ref={ref}
+      className={cn("flex flex-col", className)}
+      {...props}
+    >
       <CardHeader className="pb-2">
-        <CardTitle size="sm">{title}</CardTitle>
+        <CardTitle className="text-lg font-medium">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="pb-2">
-        <div className="space-y-2">
-          {metrics.map((metric, index) => (
-            <div key={index} className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
-                {metric.label}
-              </span>
-              <span
-                className={cn(
-                  "font-medium",
-                  metric.color
-                    ? colorVariants[metric.color]
-                    : colorVariants.default,
-                )}
-              >
-                {metric.value}
-              </span>
-            </div>
-          ))}
-        </div>
+      <CardContent className="space-y-1">
+        {items.map((item, i) => (
+          <div key={i} className="flex justify-between py-1">
+            <span className="text-sm text-muted-foreground">{item.label}</span>
+            <span className="text-sm font-medium">{item.value}</span>
+          </div>
+        ))}
       </CardContent>
-      {action && (
-        <CardFooter align="end">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={action.onClick}
-            className="h-8 text-xs"
-          >
-            {action.label}
-          </Button>
+      {footer && (
+        <CardFooter className="border-t pt-3">
+          {footer}
         </CardFooter>
       )}
     </Card>
-  );
-};
-
-/**
- * Grid of metric cards
- */
-export interface CardGridProps {
-  metrics: Array<MetricCardProps>;
-  className?: string;
-}
-
-export const CardGrid: React.FC<CardGridProps> = ({ 
-  metrics, 
-  className = "" 
-}) => {
-  return (
-    <div className={`relative w-full ${className}`}>
-      {/* Horizontally scrollable cards for mobile */}
-      <div
-        className="flex overflow-x-auto pb-4 gap-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
-        aria-label="Metrics summary"
-      >
-        {metrics.map((metric, index) => (
-          <div
-            key={index}
-            className="min-w-[260px] w-[85vw] sm:w-[45vw] md:w-1/2 lg:w-1/4 flex-none snap-start"
-          >
-            <MetricCard {...metric} />
-          </div>
-        ))}
-      </div>
-
-      {/* Hidden grid for desktop layout, used for positioning */}
-      <div
-        className={`hidden lg:grid lg:grid-cols-${Math.min(metrics.length, 4)} gap-4 absolute inset-0 -z-10`}
-      >
-        {metrics.map((_, i) => (
-          <div
-            key={i}
-            className="opacity-0 pointer-events-none"
-            aria-hidden="true"
-          />
-        ))}
-      </div>
-
-      {/* Scroll indicators for mobile */}
-      {metrics.length > 1 && (
-        <div className="flex justify-center gap-1 mt-2 md:hidden">
-          {metrics.map((_, i) => (
-            <div
-              key={i}
-              className="w-1.5 h-1.5 rounded-full bg-gray-300 scroll-indicator"
-              aria-hidden="true"
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}; 
+  )
+);
+SummaryCard.displayName = "SummaryCard"; 

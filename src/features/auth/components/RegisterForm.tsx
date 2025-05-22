@@ -71,7 +71,7 @@ export function RegisterForm() {
       const credentials: RegisterCredentials = {
         email: data.email,
         password: data.password,
-        fir st_name: data.firstName,
+        first_name: data.firstName,
         last_name: data.lastName,
         confirm_password: data.confirmPassword,
       };

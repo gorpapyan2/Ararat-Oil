@@ -3,41 +3,28 @@ import { useForm, UseFormProps, UseFormReturn, FieldValues } from "react-hook-fo
 import { z } from "zod";
 import { useState } from "react";
 
-interface UseZodFormProps<TSchema extends z.ZodType, TFieldValues extends FieldValues> extends Omit<UseFormProps<TFieldValues>, "resolver"> {
+/**
+ * Options for the useZodForm hook
+ */
+interface UseZodFormOptions<TSchema extends z.ZodSchema> extends Omit<UseFormProps<z.infer<TSchema>>, 'resolver'> {
+  /**
+   * The Zod schema to validate against
+   */
   schema: TSchema;
 }
 
 /**
- * A hook that integrates React Hook Form with Zod validation.
+ * A hook that integrates react-hook-form with Zod validation
  * 
- * @param props The form props including the Zod schema
- * @returns A React Hook Form useForm instance with Zod validation
- * 
- * @example
- * ```tsx
- * const formSchema = z.object({
- *   email: z.string().email("Please enter a valid email"),
- *   password: z.string().min(8, "Password must be at least 8 characters"),
- * });
- * 
- * const form = useZodForm({
- *   schema: formSchema,
- *   defaultValues: {
- *     email: "",
- *     password: "",
- *   },
- * });
- * ```
+ * @param options Configuration options including schema and form options
+ * @returns The react-hook-form methods with Zod validation
  */
-export function useZodForm<
-  TSchema extends z.ZodType,
-  TFieldValues extends z.infer<TSchema> = z.infer<TSchema>
->({
+export function useZodForm<TSchema extends z.ZodSchema>({
   schema,
-  ...formProps
-}: UseZodFormProps<TSchema, TFieldValues>): UseFormReturn<TFieldValues> {
-  return useForm<TFieldValues>({
-    ...formProps,
+  ...formOptions
+}: UseZodFormOptions<TSchema>): UseFormReturn<z.infer<TSchema>> {
+  return useForm<z.infer<TSchema>>({
+    ...formOptions,
     resolver: zodResolver(schema),
   });
 }

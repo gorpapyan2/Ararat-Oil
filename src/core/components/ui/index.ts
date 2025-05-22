@@ -11,9 +11,10 @@ import {
   FormRow
 } from './composed/base-form';
 import type { 
-  StandardFormProps,
-  FormRowProps
+  StandardFormProps
 } from './composed/base-form';
+// Import FormRowProps from the correct location
+import type { FormRowProps } from './types/form-types';
 
 // Base dialog components
 import {
@@ -26,6 +27,25 @@ import type {
   ConfirmDialogProps as BaseConfirmDialogProps,
   DeleteConfirmDialogProps as BaseDeleteConfirmDialogProps,
 } from './composed/base-dialog';
+
+// Import card components from the new card system
+import {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardMedia,
+  CardActions,
+  MetricCard,
+  ActionCard,
+  StatsCard,
+  SummaryCard,
+  InfoCard,
+  CardGrid,
+  CardGroup
+} from './cards';
 
 // Re-export with clear namespacing
 export {
@@ -49,6 +69,28 @@ export {
   BaseConfirmDialog,
   BaseDeleteConfirmDialog,
 };
+
+// Re-export card components
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardMedia,
+  CardActions,
+  MetricCard,
+  ActionCard,
+  StatsCard,
+  SummaryCard,
+  InfoCard,
+  CardGrid,
+  CardGroup
+};
+
+// Re-export card component types
+export type * from './cards/types';
 
 // Re-export composed components that don't have conflicts
 export * from './composed/form-fields';
@@ -104,7 +146,8 @@ export * from './primitives/accordion';
 export * from './primitives/badge';
 export * from './primitives/button';
 export * from './primitives/calendar';
-export * from './primitives/card';
+// Remove old card exports and use the new system instead
+// export * from './primitives/card';
 export * from './primitives/checkbox';
 export * from './primitives/context-menu';
 export * from './primitives/dialog';

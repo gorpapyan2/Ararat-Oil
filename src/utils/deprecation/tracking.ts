@@ -6,7 +6,7 @@
  */
 
 // Track component usage with timestamps
-export const trackDeprecatedComponentUsage = (componentName, path, replacementPath) => {
+export const trackDeprecatedComponentUsage = (componentName: string, path: string, replacementPath: string) => {
   try {
     // Get existing tracking data
     const existingData = localStorage.getItem('deprecation_usage');
@@ -83,7 +83,7 @@ export const getDeprecationUsageSummary = () => {
       usageCount: data.usageCount,
       lastUsed: data.lastUsed,
       daysSinceLastUsage: data.lastUsed ? 
-        Math.floor((new Date() - new Date(data.lastUsed)) / (1000 * 60 * 60 * 24)) : 
+        Math.floor((new Date().getTime() - new Date(data.lastUsed).getTime()) / (1000 * 60 * 60 * 24)) : 
         'Never'
     }));
     

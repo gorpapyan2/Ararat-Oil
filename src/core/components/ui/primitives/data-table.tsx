@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -39,6 +39,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/core/components/ui/dropdown-menu';
+import { DebouncedSearch } from "@/shared/components/unified/DebouncedSearch";
+import { SearchHighlighter, highlightCellContent } from "@/shared/components/unified/SearchHighlighter";
 
 export type SortDirection = "asc" | "desc" | false;
 
@@ -80,6 +82,13 @@ export interface DataTableProps<TData, TValue> {
   export?: ExportOptions<TData>;
   selection?: SelectionOptions<TData>;
   className?: string;
+  "aria-label"?: string;
+  "aria-describedby"?: string;
+  getRowProps?: (row: TData, index: number) => Record<string, any>;
+  getCellProps?: (cell: any) => Record<string, any>;
+  getHeaderProps?: (header: any) => Record<string, any>;
+  highlightSearchResults?: boolean;
+  searchDebounceMs?: number;
 }
 
 // IndeterminateCheckbox component
@@ -117,6 +126,13 @@ export function DataTable<TData, TValue>({
   export: exportOptions,
   selection,
   className = "",
+  "aria-label": ariaLabel,
+  "aria-describedby": ariaDescribedby,
+  getRowProps = () => ({}),
+  getCellProps = () => ({}),
+  getHeaderProps = () => ({}),
+  highlightSearchResults = true,
+  searchDebounceMs = 300,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialFilters);
@@ -193,10 +209,38 @@ export function DataTable<TData, TValue>({
     }
   }, [rowSelection, selection]);
 
+  // Create a modified version of columns for search highlighting if enabled
+  const processedColumns = useMemo(() => {
+    if (!highlightSearchResults || !globalFilter) {
+      return columns;
+    }
+
+    // Clone the columns and add search highlighting
+    return columns.map(column => {
+      // Only modify columns that have cells we can highlight
+      if (!column.cell || column.id === 'actions' || column.id === 'select') {
+        return column;
+      }
+
+      // Create a new cell renderer that wraps the original with highlighting
+      const originalCell = column.cell;
+      const highlightedCell = (props: any) => {
+        const originalContent = originalCell(props);
+        return highlightCellContent(originalContent, globalFilter);
+      };
+
+      // Return the modified column
+      return {
+        ...column,
+        cell: highlightedCell,
+      };
+    });
+  }, [columns, globalFilter, highlightSearchResults]);
+
   // Create table instance
   const table = useReactTable({
     data,
-    columns: tableColumns,
+    columns: processedColumns,
     state: {
       sorting,
       columnFilters,
@@ -307,29 +351,23 @@ export function DataTable<TData, TValue>({
   }, [table, globalFilter]);
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className}`} aria-describedby={ariaDescribedby}>
       {/* Table Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         {title && <h2 className="text-lg font-semibold">{title}</h2>}
         
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          {/* Global Filter */}
+          {/* Global Filter - replaced with DebouncedSearch */}
           <div className="relative w-full sm:w-auto">
-            <Input
-              placeholder={globalFilterPlaceholder}
+            <DebouncedSearch
               value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="pl-8 w-full"
+              onSearch={(value) => setGlobalFilter(value)}
+              placeholder={globalFilterPlaceholder}
+              debounceMs={searchDebounceMs}
+              screenReaderLabel="Search all columns"
+              containerClassName="w-full"
+              clearable={true}
             />
-            <Filter className="absolute left-2 top-2 h-4 w-4 text-gray-400" />
-            {globalFilter && (
-              <button
-                onClick={() => setGlobalFilter("")}
-                className="absolute right-2 top-2"
-              >
-                <FilterX className="h-4 w-4 text-gray-400" />
-              </button>
-            )}
           </div>
 
           {/* Export Button */}
@@ -339,8 +377,9 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={handleExport}
               className="ml-auto"
+              aria-label="Export data"
             >
-              <Download className="mr-2 h-4 w-4" />
+              <Download className="mr-2 h-4 w-4" aria-hidden="true" />
               Export
             </Button>
           )}
@@ -349,7 +388,7 @@ export function DataTable<TData, TValue>({
 
       {/* Selection Actions */}
       {selection?.enabled && Object.keys(rowSelection).length > 0 && (
-        <div className="flex items-center gap-2 bg-muted p-2 rounded-md">
+        <div className="flex items-center gap-2 bg-muted p-2 rounded-md" role="region" aria-live="polite">
           <span className="text-sm font-medium">
             {Object.keys(rowSelection).length} selected
           </span>
@@ -386,47 +425,83 @@ export function DataTable<TData, TValue>({
       <div className="rounded-md border relative">
         {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 bg-gray-50/70 dark:bg-gray-950/70 z-10 flex items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+          <div 
+            className="absolute inset-0 bg-gray-50/70 dark:bg-gray-950/70 z-10 flex items-center justify-center" 
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <div 
+              className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+              role="status"
+              aria-label="Loading"
+            ></div>
           </div>
         )}
 
-        <Table>
+        <Table aria-label={ariaLabel} role="grid">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={
-                          header.column.getCanSort()
-                            ? "flex items-center cursor-pointer select-none"
-                            : ""
-                        }
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                        {header.column.getCanSort() && (
-                          <span className="ml-1">
-                            {{
-                              asc: <ChevronUp className="h-4 w-4" />,
-                              desc: <ChevronDown className="h-4 w-4" />,
-                            }[header.column.getIsSorted() as string] ?? (
-                              <div className="h-4 w-4 opacity-0 group-hover:opacity-50">
-                                <ChevronUp className="h-2 w-2" />
-                                <ChevronDown className="h-2 w-2" />
-                              </div>
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const customHeaderProps = getHeaderProps(header);
+                  
+                  return (
+                    <TableHead 
+                      key={header.id}
+                      {...customHeaderProps}
+                      sortDirection={header.column.getIsSorted() as "asc" | "desc" | null}
+                      sortable={header.column.getCanSort()}
+                    >
+                      {header.isPlaceholder ? null : (
+                        <div
+                          className={
+                            header.column.getCanSort()
+                              ? "flex items-center cursor-pointer select-none"
+                              : ""
+                          }
+                          onClick={header.column.getToggleSortingHandler()}
+                          role={header.column.getCanSort() ? "button" : undefined}
+                          tabIndex={header.column.getCanSort() ? 0 : undefined}
+                          aria-label={
+                            header.column.getCanSort()
+                              ? `${header.column.columnDef.header}, ${
+                                  header.column.getIsSorted() === "asc"
+                                    ? "sorted ascending"
+                                    : header.column.getIsSorted() === "desc"
+                                    ? "sorted descending"
+                                    : "not sorted"
+                                }`
+                              : undefined
+                          }
+                          onKeyDown={(e) => {
+                            if (header.column.getCanSort() && (e.key === 'Enter' || e.key === ' ')) {
+                              e.preventDefault();
+                              header.column.toggleSorting();
+                            }
+                          }}
+                        >
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                          {header.column.getCanSort() && (
+                            <span className="ml-1" aria-hidden="true">
+                              {{
+                                asc: <ChevronUp className="h-4 w-4" />,
+                                desc: <ChevronDown className="h-4 w-4" />,
+                              }[header.column.getIsSorted() as string] ?? (
+                                <div className="h-4 w-4 opacity-0 group-hover:opacity-50">
+                                  <ChevronUp className="h-2 w-2" />
+                                  <ChevronDown className="h-2 w-2" />
+                                </div>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
@@ -434,21 +509,30 @@ export function DataTable<TData, TValue>({
             {(() => {
               const rows = table.getRowModel().rows;
               return rows?.length ? (
-                rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                rows.map((row, rowIndex) => {
+                  const customRowProps = getRowProps(row.original, rowIndex);
+                  
+                  return (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                      {...customRowProps}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const customCellProps = getCellProps(cell);
+                        
+                        return (
+                          <TableCell key={cell.id} {...customCellProps}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell
@@ -483,7 +567,7 @@ export function DataTable<TData, TValue>({
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500" aria-live="polite">
             Showing{" "}
             <strong>
               {pagination.pageIndex * pagination.pageSize + 1} to{" "}
@@ -503,7 +587,7 @@ export function DataTable<TData, TValue>({
             entries
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" role="navigation" aria-label="Table pagination">
           <span className="text-sm">Page size:</span>
           <Select
             value={String(pagination.pageSize)}
@@ -528,6 +612,7 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.firstPage()}
               disabled={!table.getCanPreviousPage()}
+              aria-label="First page"
             >
               {"<<"}
             </Button>
@@ -536,10 +621,11 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
+              aria-label="Previous page"
             >
               {"<"}
             </Button>
-            <span className="text-sm mx-2">
+            <span className="text-sm mx-2" aria-live="polite" aria-atomic="true">
               Page{" "}
               <strong>
                 {pagination.pageIndex + 1} of {table.getPageCount()}
@@ -550,6 +636,7 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
+              aria-label="Next page"
             >
               {">"}
             </Button>
@@ -558,6 +645,7 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.lastPage()}
               disabled={!table.getCanNextPage()}
+              aria-label="Last page"
             >
               {">>"}
             </Button>

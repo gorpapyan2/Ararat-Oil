@@ -14,10 +14,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { MetricCard } from "@/core/components/ui/composed/card";
 
 // Import our specialized data table component
-import { EmployeesTable } from "@/features/employees/components/EmployeesTable";
+import { 
+  EmployeesTableStandardized
+} from "@/features/employees/components/EmployeesTableStandardized";
+import { type Employee as EmployeeFeature } from "@/features/employees/types/employees.types";
+import { type EmployeeFormValues } from "@/features/employees/components/EmployeeDialogStandardized";
 
 // Import employee-related components and services
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,6 +36,47 @@ import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
 
+// Create a function to convert between Employee types
+function convertToFeatureEmployee(employee: Employee): EmployeeFeature {
+  return {
+    id: employee.id,
+    first_name: employee.name.split(' ')[0] || '',
+    last_name: employee.name.split(' ')[1] || '',
+    email: employee.contact,
+    phone: '',  // Not available in the global Employee type
+    position: employee.position,
+    department: '',  // Not available in the global Employee type
+    hire_date: employee.hire_date,
+    salary: employee.salary,
+    status: employee.status,
+    notes: '',  // Not available in the global Employee type
+    created_at: employee.created_at,
+    updated_at: employee.created_at,  // Not available in the global Employee type
+  };
+}
+
+// Create a type for create employee request that matches the API expectations
+interface CreateEmployeeRequest {
+  name: string;
+  position: string;
+  contact: string;
+  salary: number;
+  hire_date: string;
+  status: 'active' | 'inactive' | 'on_leave';
+}
+
+// Convert form data to the format expected by createEmployee API
+function convertFormToCreateRequest(data: EmployeeFormValues): CreateEmployeeRequest {
+  return {
+    name: `${data.first_name} ${data.last_name}`,
+    position: data.position,
+    contact: data.email || '',
+    salary: data.salary || 0,
+    hire_date: data.hire_date || new Date().toISOString(),
+    status: data.status
+  };
+}
+
 export default function EmployeesNew() {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -45,14 +89,23 @@ export default function EmployeesNew() {
   );
 
   // Fetch employees data
-  const { data: employees = [], isLoading } = useQuery({
+  const { data: employeesData = [], isLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: () => fetchEmployees(),
   });
 
+  // Convert employees to the feature type - handle potential type mismatches with a type assertion
+  const employees = useMemo(() => 
+    (employeesData as Employee[]).map(emp => convertToFeatureEmployee(emp)),
+  [employeesData]);
+
   // Mutations for CRUD operations with optimistic updates and proper error handling
   const createMutation = useMutation({
-    mutationFn: createEmployee,
+    mutationFn: (data: EmployeeFormValues) => {
+      // Convert form data to the format expected by the API
+      const createRequest = convertFormToCreateRequest(data);
+      return createEmployee(createRequest);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       setIsDialogOpen(false);
@@ -72,7 +125,14 @@ export default function EmployeesNew() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: updateEmployee,
+    mutationFn: (params: {id: string, data: EmployeeFormValues}) => {
+      // Convert form data to the format expected by the API
+      const updateRequest = {
+        id: params.id,
+        ...convertFormToCreateRequest(params.data)
+      };
+      return updateEmployee(params.id, updateRequest);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       setIsDialogOpen(false);
@@ -116,6 +176,18 @@ export default function EmployeesNew() {
     setIsDialogOpen(true);
   }, []);
 
+  // Handler for feature employee type
+  const handleEditFeature = useCallback((employee: EmployeeFeature) => {
+    // Find the original employee from our data
+    const originalEmployee = employeesData.find(e => e.id === employee.id);
+    if (originalEmployee) {
+      // Use type assertion to address type incompatibility between different Employee types
+      setSelectedEmployee(originalEmployee as unknown as Employee);
+      setIsDialogOpen(true);
+    }
+  }, [employeesData]);
+
+  // Handler for standard employee type
   const handleEdit = useCallback((employee: Employee) => {
     setSelectedEmployee(employee);
     setIsDialogOpen(true);
@@ -125,6 +197,15 @@ export default function EmployeesNew() {
     // Implement view functionality
     console.log("Viewing employee:", employee);
   }, []);
+
+  // Handler for feature employee type 
+  const handleViewFeature = useCallback((employee: EmployeeFeature) => {
+    // Find the original employee from our data
+    const originalEmployee = employeesData.find(e => e.id === employee.id);
+    if (originalEmployee) {
+      console.log("Viewing employee:", originalEmployee);
+    }
+  }, [employeesData]);
 
   const handleDelete = useCallback((employee: Employee) => {
     if (
@@ -136,21 +217,30 @@ export default function EmployeesNew() {
     }
   }, [deleteMutation]);
 
+  // Handler for feature employee type 
+  const handleDeleteFeature = useCallback((id: string) => {
+    // Find the original employee from our data
+    const employee = employeesData.find(e => e.id === id);
+    if (employee && window.confirm(`Are you sure you want to delete ${employee.name}?`)) {
+      deleteMutation.mutate(id);
+    }
+  }, [deleteMutation, employeesData]);
+
   // Calculate metrics
-  const totalEmployees = employees.length;
-  const activeEmployees = employees.filter(
+  const totalEmployees = employeesData.length;
+  const activeEmployees = employeesData.filter(
     (emp) => emp.status === "active",
   ).length;
-  const onLeaveEmployees = employees.filter(
+  const onLeaveEmployees = employeesData.filter(
     (emp) => emp.status === "on_leave",
   ).length;
 
   // Extract unique positions for filtering
   const uniquePositions = useMemo(() => {
-    return Array.from(new Set(employees.map((emp) => emp.position)))
+    return Array.from(new Set(employeesData.map((emp) => emp.position)))
       .filter(Boolean)
       .sort();
-  }, [employees]);
+  }, [employeesData]);
 
   // Create position categories for filter
   const positionCategories = useMemo(() => {
@@ -161,16 +251,22 @@ export default function EmployeesNew() {
   }, [uniquePositions]);
 
   // Handle save
-  const handleSave = useCallback(
-    (employee: Employee) => {
-      if (employee.id) {
-        updateMutation.mutate(employee);
+  const handleSave = useCallback(async (formData: EmployeeFormValues): Promise<boolean> => {
+    try {
+      if (selectedEmployee?.id) {
+        await updateMutation.mutateAsync({
+          id: selectedEmployee.id,
+          data: formData
+        });
       } else {
-        createMutation.mutate(employee);
+        await createMutation.mutateAsync(formData);
       }
-    },
-    [updateMutation, createMutation]
-  );
+      return true;
+    } catch (error) {
+      console.error("Error saving employee:", error);
+      return false;
+    }
+  }, [updateMutation, createMutation, selectedEmployee]);
 
   const breadcrumbSegments = useMemo(() => [
     { name: "Dashboard", href: "/" },
@@ -188,36 +284,53 @@ export default function EmployeesNew() {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <PageHeader
-        title={pageTitle}
-        description={pageDescription}
-        actions={
+      <PageHeader className="mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">{pageTitle}</h1>
+          <p className="text-muted-foreground">{pageDescription}</p>
+        </div>
+        <div className="flex justify-end">
           <CreateButton onClick={handleAdd}>
             <IconUserPlus className="mr-2 h-4 w-4" />
             {t("employees.add")}
           </CreateButton>
-        }
-      />
+        </div>
+      </PageHeader>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <MetricCard
-          title={t("employees.total_employees")}
-          value={totalEmployees}
-          icon={<IconUsers className="h-6 w-6" />}
-          className="bg-primary/10"
-        />
-        <MetricCard
-          title={t("employees.active_employees")}
-          value={activeEmployees}
-          icon={<IconUsers className="h-6 w-6" />}
-          className="bg-success/10"
-        />
-        <MetricCard
-          title={t("employees.on_leave")}
-          value={onLeaveEmployees}
-          icon={<IconUsers className="h-6 w-6" />}
-          className="bg-warning/10"
-        />
+        <Card className="bg-primary/10 p-4 rounded-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">{t("employees.total_employees")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center">
+              <IconUsers className="h-6 w-6 mr-2" />
+              <span className="text-2xl font-bold">{totalEmployees}</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-success/10 p-4 rounded-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">{t("employees.active_employees")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center">
+              <IconUsers className="h-6 w-6 mr-2" />
+              <span className="text-2xl font-bold">{activeEmployees}</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-warning/10 p-4 rounded-lg">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">{t("employees.on_leave")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center">
+              <IconUsers className="h-6 w-6 mr-2" />
+              <span className="text-2xl font-bold">{onLeaveEmployees}</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
@@ -225,12 +338,12 @@ export default function EmployeesNew() {
           <CardTitle>{t("employees.management")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <EmployeesTable
+          <EmployeesTableStandardized
             employees={employees}
             isLoading={isLoading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onView={handleView}
+            onEdit={handleEditFeature}
+            onDelete={handleDeleteFeature}
+            onView={handleViewFeature}
             positions={positionCategories}
           />
         </CardContent>
@@ -239,7 +352,7 @@ export default function EmployeesNew() {
       <EmployeeDialogStandardized
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        employee={selectedEmployee}
+        employee={selectedEmployee ? convertToFeatureEmployee(selectedEmployee) : undefined}
         onSubmit={handleSave}
       />
     </div>

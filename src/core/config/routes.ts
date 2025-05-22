@@ -234,6 +234,12 @@ export const DEV_ROUTES = {
     description: 'View button component variations',
     auth: true,
   },
+  HOOKS_SHOWCASE: {
+    path: '/dev/hooks-showcase',
+    title: 'Hooks Architecture Showcase',
+    description: 'Showcase of the refactored hooks architecture',
+    auth: true,
+  },
   CONNECTION_INFO: {
     path: '/dev/connection-info',
     title: 'Connection Information',

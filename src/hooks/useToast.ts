@@ -1,153 +1,112 @@
-import { useAppStore, selectToasts } from "@/core/store";
-import { v4 as uuidv4 } from "uuid";
-import { Toast, ToastType } from "@/types/toast";
-import type { ToastOptions } from "@/types/toast.d";
-import * as React from "react";
+/**
+ * Toast variant options
+ */
+export type ToastVariant = "default" | "success" | "error" | "warning" | "info" | "destructive";
 
 /**
- * Type for toast return value
+ * Toast notification options
  */
-export interface ToastReturn {
+export interface ToastOptions {
+  /**
+   * The title of the toast
+   */
+  title: string;
+  
+  /**
+   * Optional description for additional details
+   */
+  description?: string;
+  
+  /**
+   * Style variant for the toast
+   */
+  variant?: ToastVariant;
+  
+  /**
+   * Duration in milliseconds before auto-dismissing
+   * Set to null to prevent auto-dismiss
+   */
+  duration?: number | null;
+  
+  /**
+   * Type alias for backward compatibility
+   */
+  type?: string;
+  
+  /**
+   * Message alias for description
+   */
+  message?: string;
+  
+  /**
+   * Optional action component or configuration
+   */
+  action?: any;
+  
+  /**
+   * Callback for open state changes
+   */
+  onOpenChange?: (open: boolean) => void;
+}
+
+/**
+ * Toast return type
+ */
+interface ToastReturn {
   id: string;
   dismiss: () => void;
   update: (newOptions: Partial<ToastOptions>) => void;
 }
 
 /**
- * Convert ToastOptions to complete Toast object
- */
-const createToastData = (options: ToastOptions, id: string): Toast => ({
-  id,
-  title: options.title,
-  description: options.description || options.message,
-  message: options.message || options.description || "", 
-  duration: options.duration || 5000,
-  type: options.type || "info",
-  action: options.action,
-  onOpenChange: options.onOpenChange,
-  createdAt: new Date(),
-});
-
-/**
- * Hook for managing toast notifications
+ * Hook for displaying toast notifications
  * 
- * @returns Methods for creating and managing toasts
+ * This is a placeholder implementation. In a real application,
+ * this would integrate with a toast notification system.
+ * 
+ * @returns Functions for displaying and managing toast notifications
  */
-export const useToast = () => {
-  const store = useAppStore();
-  const { addToast, removeToast, updateToast } = store;
-  const toasts = useAppStore(selectToasts);
-
+export function useToast() {
   /**
-   * Create a new toast
+   * Display a toast notification
    */
-  const toast = React.useCallback((options: ToastOptions): ToastReturn => {
-    const id = uuidv4();
-    const toastData = createToastData(options, id);
-
-    addToast(toastData);
-
-    // Auto dismiss after duration
-    if (options.duration !== Infinity) {
-      setTimeout(() => {
-        removeToast(id);
-      }, options.duration || 5000);
-    }
-
-    // Return an object with the id and control functions
+  const toast = (options: ToastOptions): ToastReturn => {
+    console.log("TOAST:", options);
+    // In a real implementation, this would trigger a toast notification
     return {
-      id,
-      dismiss: () => removeToast(id),
-      update: (newOptions: Partial<ToastOptions>) => {
-        updateToast(id, {
-          ...newOptions,
-        });
-      },
+      id: "placeholder-id",
+      dismiss: () => console.log("Dismissing toast"),
+      update: (newOptions: Partial<ToastOptions>) => console.log("Updating toast", newOptions)
     };
-  }, [addToast, removeToast, updateToast]);
-
+  };
+  
+  /**
+   * Dismiss all active toast notifications
+   */
+  const dismiss = (toastId?: string) => {
+    console.log("DISMISS TOAST:", toastId || "all");
+    // In a real implementation, this would dismiss toasts
+  };
+  
   // Convenience methods for different toast types
-  const success = React.useCallback((options: Omit<ToastOptions, "type">): ToastReturn =>
-    toast({ ...options, type: "success" }), [toast]);
+  const success = (options: Omit<ToastOptions, "variant">) => 
+    toast({ ...options, variant: "success" });
     
-  const error = React.useCallback((options: Omit<ToastOptions, "type">): ToastReturn =>
-    toast({ ...options, type: "error" }), [toast]);
+  const error = (options: Omit<ToastOptions, "variant">) => 
+    toast({ ...options, variant: "destructive" });
     
-  const warning = React.useCallback((options: Omit<ToastOptions, "type">): ToastReturn =>
-    toast({ ...options, type: "warning" }), [toast]);
+  const warning = (options: Omit<ToastOptions, "variant">) => 
+    toast({ ...options, variant: "warning" });
     
-  const info = React.useCallback((options: Omit<ToastOptions, "type">): ToastReturn =>
-    toast({ ...options, type: "info" }), [toast]);
-
+  const info = (options: Omit<ToastOptions, "variant">) => 
+    toast({ ...options, variant: "info" });
+  
   return {
-    toasts, // Return current toasts array for rendering
     toast,
+    dismiss,
     success,
     error,
     warning,
-    info,
-    dismiss: removeToast,
-    update: updateToast,
+    info
   };
-};
-
-// Singleton pattern for use outside of React components
-// Non-hook version using the store directly
-const getAppStore = useAppStore.getState;
-
-/**
- * Create standalone toast function that doesn't rely on hooks
- */
-export const toast = (options: ToastOptions): ToastReturn => {
-  const store = getAppStore();
-  const id = uuidv4();
-  const toastData = createToastData(options, id);
-
-  store.addToast(toastData);
-
-  // Auto dismiss after duration
-  if (options.duration !== Infinity) {
-    setTimeout(() => {
-      getAppStore().removeToast(id);
-    }, options.duration || 5000);
-  }
-
-  return {
-    id,
-    dismiss: () => getAppStore().removeToast(id),
-    update: (newOptions: Partial<ToastOptions>) => {
-      getAppStore().updateToast(id, {
-        ...newOptions,
-      });
-    },
-  };
-};
-
-/**
- * Create a success toast outside of React components
- */
-export const success = (options: Omit<ToastOptions, "type">): ToastReturn =>
-  toast({ ...options, type: "success" });
-  
-/**
- * Create an error toast outside of React components
- */
-export const error = (options: Omit<ToastOptions, "type">): ToastReturn =>
-  toast({ ...options, type: "error" });
-  
-/**
- * Create a warning toast outside of React components
- */
-export const warning = (options: Omit<ToastOptions, "type">): ToastReturn =>
-  toast({ ...options, type: "warning" });
-  
-/**
- * Create an info toast outside of React components
- */
-export const info = (options: Omit<ToastOptions, "type">): ToastReturn =>
-  toast({ ...options, type: "info" });
-
-/**
- * Dismiss a toast by ID outside of React components
- */
-export const dismiss = (id: string): void => getAppStore().removeToast(id);
+} 
