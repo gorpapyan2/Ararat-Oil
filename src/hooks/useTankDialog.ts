@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -76,7 +77,15 @@ export function useTankDialog({ onSuccess }: UseTankDialogOptions = {}) {
     setIsSubmitting(true);
     
     try {
-      await createFuelTank(pendingTankData);
+      // Ensure all required properties are present
+      const tankData = {
+        name: pendingTankData.name,
+        fuel_type: pendingTankData.fuel_type,
+        capacity: pendingTankData.capacity,
+        current_level: pendingTankData.current_level,
+      };
+      
+      await createFuelTank(tankData);
       
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       
@@ -130,4 +139,4 @@ export function useTankDialog({ onSuccess }: UseTankDialogOptions = {}) {
       { value: "cng", label: "CNG" },
     ],
   };
-} 
+}
