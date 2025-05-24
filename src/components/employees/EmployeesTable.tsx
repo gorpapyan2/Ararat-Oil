@@ -193,7 +193,7 @@ export function EmployeesTable({
         if (employee) onEdit(employee);
       } : undefined}
       onDelete={onDelete}
-      onRowClick={onView}
+      onRowClick={onView ? (row: Employee) => onView(row) : undefined}
       filters={filters}
       onFilterChange={handleFilterChange}
       totalRows={totalCount}

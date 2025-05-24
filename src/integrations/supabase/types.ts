@@ -101,18 +101,92 @@ export type Database = {
           },
         ]
       }
+      fuel_prices: {
+        Row: {
+          created_at: string
+          effective_date: string
+          fuel_type: string
+          fuel_type_id: string
+          id: string
+          price_per_liter: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          effective_date?: string
+          fuel_type: string
+          fuel_type_id: string
+          id?: string
+          price_per_liter: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          effective_date?: string
+          fuel_type?: string
+          fuel_type_id?: string
+          id?: string
+          price_per_liter?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_fuel_prices_fuel_type"
+            columns: ["fuel_type_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fuel_prices_backup: {
+        Row: {
+          action: string
+          actioned_at: string
+          created_at: string | null
+          effective_date: string | null
+          fuel_type: string | null
+          fuel_type_id: string | null
+          id: string | null
+          price_per_liter: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          action?: string
+          actioned_at?: string
+          created_at?: string | null
+          effective_date?: string | null
+          fuel_type?: string | null
+          fuel_type_id?: string | null
+          id?: string | null
+          price_per_liter?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          action?: string
+          actioned_at?: string
+          created_at?: string | null
+          effective_date?: string | null
+          fuel_type?: string | null
+          fuel_type_id?: string | null
+          id?: string | null
+          price_per_liter?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       fuel_supplies: {
         Row: {
           comments: string | null
           created_at: string | null
           delivery_date: string
-          employee_id: string
           id: string
           payment_method: string | null
           payment_status: string
           price_per_liter: number
           provider_id: string
           quantity_liters: number
+          shift_id: string | null
           tank_id: string
           total_cost: number
         }
@@ -120,13 +194,13 @@ export type Database = {
           comments?: string | null
           created_at?: string | null
           delivery_date: string
-          employee_id: string
           id?: string
           payment_method?: string | null
           payment_status?: string
           price_per_liter: number
           provider_id: string
           quantity_liters: number
+          shift_id?: string | null
           tank_id: string
           total_cost: number
         }
@@ -134,29 +208,29 @@ export type Database = {
           comments?: string | null
           created_at?: string | null
           delivery_date?: string
-          employee_id?: string
           id?: string
           payment_method?: string | null
           payment_status?: string
           price_per_liter?: number
           provider_id?: string
           quantity_liters?: number
+          shift_id?: string | null
           tank_id?: string
           total_cost?: number
         }
         Relationships: [
           {
-            foreignKeyName: "fuel_supplies_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "fuel_supplies_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "petrol_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_supplies_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
           {
@@ -174,6 +248,7 @@ export type Database = {
           created_at: string | null
           current_level: number
           fuel_type: string
+          fuel_type_id: string
           id: string
           name: string
         }
@@ -182,6 +257,7 @@ export type Database = {
           created_at?: string | null
           current_level?: number
           fuel_type: string
+          fuel_type_id: string
           id?: string
           name: string
         }
@@ -190,8 +266,44 @@ export type Database = {
           created_at?: string | null
           current_level?: number
           fuel_type?: string
+          fuel_type_id?: string
           id?: string
           name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_fuel_tanks_fuel_type"
+            columns: ["fuel_type_id"]
+            isOneToOne: false
+            referencedRelation: "fuel_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fuel_types: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -542,6 +654,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_table_exists: {
+        Args: { table_name: string }
+        Returns: boolean
+      }
+      create_fuel_supply: {
+        Args: { p_supply: Json }
+        Returns: Json
+      }
       create_sale_and_update_tank: {
         Args: {
           p_date: string
@@ -572,6 +692,10 @@ export type Database = {
           total_sold_liters: number
         }
       }
+      delete_fuel_supply: {
+        Args: { p_id: string }
+        Returns: Json
+      }
       delete_sale_and_restore_tank: {
         Args: {
           p_sale_id: string
@@ -591,6 +715,10 @@ export type Database = {
           p_change_type: string
         }
         Returns: undefined
+      }
+      update_fuel_supply: {
+        Args: { p_id: string; p_supply: Json }
+        Returns: Json
       }
     }
     Enums: {

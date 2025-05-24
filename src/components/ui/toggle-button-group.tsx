@@ -88,9 +88,10 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
       
       if (multiple) {
         // For multiple selection, add or remove from array
+        const currentValues = Array.isArray(selectedValues) ? selectedValues : [];
         newValue = isActive
-          ? [...selectedValues, toggleValue]
-          : selectedValues.filter(v => v !== toggleValue);
+          ? [...currentValues, toggleValue]
+          : currentValues.filter(v => v !== toggleValue);
       } else {
         // For single selection, replace or clear
         newValue = isActive ? toggleValue : "";
@@ -98,9 +99,10 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
       
       // Update internal state or call onChange
       if (isControlled) {
-        onChange!(multiple ? newValue as string[] : newValue as string);
+        onChange!(newValue);
       } else {
-        setInternalValue(multiple ? newValue as string[] : [newValue as string]);
+        const newInternalValue = Array.isArray(newValue) ? newValue : [newValue].filter(Boolean);
+        setInternalValue(newInternalValue);
       }
     };
     
@@ -117,7 +119,7 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
       
       const isActive = selectedValues.includes(childValue);
       
-      return React.cloneElement(child, {
+      return React.cloneElement(child as React.ReactElement<any>, {
         isActive,
         onToggle: (active: boolean) => handleToggle(childValue, active),
         activeVariant: child.props.activeVariant || activeVariant,

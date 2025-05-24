@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { FilterX, Download, Filter, Pencil as PencilIcon, Trash2 as TrashIcon } from 'lucide-react';
 import { 
@@ -48,6 +49,7 @@ export interface StandardizedDataTableProps<TData extends object> {
   loading?: boolean;
   onEdit?: (id: string | number) => void;
   onDelete?: (id: string | number) => void;
+  onRowClick?: (row: TData) => void;
   filters?: FiltersShape;
   onFilterChange?: (filters: FiltersShape) => void;
   totalRows?: number;
@@ -69,6 +71,7 @@ export function StandardizedDataTable<TData extends object>({
   loading = false,
   onEdit,
   onDelete,
+  onRowClick,
   filters,
   onFilterChange,
   totalRows = 0,
@@ -103,7 +106,6 @@ export function StandardizedDataTable<TData extends object>({
         ? ({ getValue, row }: any) => column.cell!(getValue(), row.original)
         : undefined,
       enableSorting: column.enableSorting ?? true,
-      footer: column.footer,
       meta: column.meta
     })) as ColumnDef<TData, unknown>[];
     
@@ -213,6 +215,7 @@ export function StandardizedDataTable<TData extends object>({
       noResultsMessage="No results found"
       serverSide={serverSideOptions}
       export={dataTableExportOptions}
+      onRowClick={onRowClick ? ({ original }: any) => onRowClick(original) : undefined}
       className={className}
     />
   );
