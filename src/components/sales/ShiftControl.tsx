@@ -17,7 +17,10 @@ export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen = false }: 
       <Button variant="outline" onClick={() => setIsOpen(true)}>
         {isShiftOpen ? "Close Shift" : "Open Shift"}
       </Button>
-      <DialogContent className="sm:max-w-[425px]" title={isShiftOpen ? "Close Shift" : "Open Shift"}>
+      <DialogContent 
+        className="sm:max-w-[425px]" 
+        title={isShiftOpen ? "Close Shift" : "Open Shift"}
+      >
         <div className="flex flex-col space-y-4">
           <h2 className="text-lg font-semibold">
             {isShiftOpen ? "Close Shift" : "Open Shift"}

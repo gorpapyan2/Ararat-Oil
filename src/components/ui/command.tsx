@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { type DialogProps } from "@radix-ui/react-dialog";
 import { Search, Loader2 } from "lucide-react";
@@ -31,9 +30,9 @@ const Command = React.forwardRef<
 
 Command.displayName = CommandPrimitive.displayName || "Command";
 
-interface CommandDialogProps extends React.ComponentPropsWithoutRef<typeof Dialog> {
+interface CommandDialogProps extends DialogProps {
   commandDialogTitle?: string;
-  title?: string;
+  title: string;
 }
 
 const CommandDialog = ({
@@ -44,7 +43,7 @@ const CommandDialog = ({
 }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0">
+      <DialogContent className="overflow-hidden p-0" title={title}>
         <DialogHeader>
           <DialogTitle>{title || commandDialogTitle}</DialogTitle>
         </DialogHeader>

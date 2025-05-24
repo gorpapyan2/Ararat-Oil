@@ -215,7 +215,6 @@ export function StandardizedDataTable<TData extends object>({
       noResultsMessage="No results found"
       serverSide={serverSideOptions}
       export={dataTableExportOptions}
-      onRowClick={onRowClick ? ({ original }: any) => onRowClick(original) : undefined}
       className={className}
     />
   );

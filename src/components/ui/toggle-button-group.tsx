@@ -3,60 +3,17 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ToggleButton, ToggleButtonProps } from "@/components/ui/toggle-button";
 
-/**
- * Props for ToggleButtonGroup component
- */
 export interface ToggleButtonGroupProps {
-  /**
-   * Children components (should be ToggleButton instances)
-   */
   children: React.ReactNode;
-  
-  /**
-   * CSS class names
-   */
   className?: string;
-  
-  /**
-   * Whether to allow multiple selections
-   * @default false
-   */
   multiple?: boolean;
-  
-  /**
-   * Currently selected value(s)
-   */
   value?: string | string[];
-  
-  /**
-   * Callback when selection changes
-   */
   onChange?: (value: string | string[]) => void;
-  
-  /**
-   * Orientation of the button group
-   * @default "horizontal"
-   */
   orientation?: "horizontal" | "vertical";
-  
-  /**
-   * Active variant for all toggle buttons in the group
-   * @default "default"
-   */
   activeVariant?: ToggleButtonProps["activeVariant"];
-  
-  /**
-   * Inactive variant for all toggle buttons in the group
-   * @default "outline"
-   */
   inactiveVariant?: ToggleButtonProps["inactiveVariant"];
 }
 
-/**
- * ToggleButtonGroup component for grouping related toggle buttons
- *
- * Manages selection state and ensures proper accessibility
- */
 export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGroupProps>(
   ({ 
     children, 
@@ -69,18 +26,20 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
     inactiveVariant,
     ...props 
   }, ref) => {
+    // Normalize value to always be an array internally
+    const normalizeValue = (val: string | string[] | undefined): string[] => {
+      if (!val) return [];
+      return Array.isArray(val) ? val : [val];
+    };
+
     // Internal state for uncontrolled component
     const [internalValue, setInternalValue] = React.useState<string[]>(
-      multiple 
-        ? Array.isArray(value) ? value : value ? [value] : [] 
-        : value ? [value] : []
+      normalizeValue(value)
     );
     
     // Determine if component is controlled
     const isControlled = value !== undefined && onChange !== undefined;
-    const selectedValues = isControlled 
-      ? (multiple ? (Array.isArray(value) ? value : value ? [value] : []) : (value ? [value] : []))
-      : internalValue;
+    const selectedValues = isControlled ? normalizeValue(value) : internalValue;
       
     // Handle toggle button clicks
     const handleToggle = (toggleValue: string, isActive: boolean) => {
@@ -88,10 +47,11 @@ export const ToggleButtonGroup = React.forwardRef<HTMLDivElement, ToggleButtonGr
       
       if (multiple) {
         // For multiple selection, add or remove from array
-        const currentValues = Array.isArray(selectedValues) ? selectedValues : [];
-        newValue = isActive
+        const currentValues = selectedValues;
+        const newValues = isActive
           ? [...currentValues, toggleValue]
           : currentValues.filter(v => v !== toggleValue);
+        newValue = newValues;
       } else {
         // For single selection, replace or clear
         newValue = isActive ? toggleValue : "";

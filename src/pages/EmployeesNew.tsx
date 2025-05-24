@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -27,7 +28,7 @@ import {
   updateEmployee,
   deleteEmployee,
 } from "@/services/employees";
-import { Employee } from "@/types";
+import { Employee, EmployeeStatus } from "@/types";
 import { EmployeeDialogStandardized } from "@/components/employees/EmployeeDialogStandardized";
 import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
@@ -43,10 +44,10 @@ export default function EmployeesNew() {
     null,
   );
 
-  // Fetch employees data
+  // Fetch employees data with proper typing
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: fetchEmployees,
+    queryFn: () => fetchEmployees(),
   });
 
   // Mutations for CRUD operations
@@ -128,25 +129,25 @@ export default function EmployeesNew() {
     deleteMutation.mutate(id);
   }, [deleteMutation]);
 
-  // Calculate metrics
+  // Calculate metrics with proper typing
   const totalEmployees = employees.length;
   const activeEmployees = employees.filter(
-    (emp) => emp.status === "active",
+    (emp: Employee) => emp.status === "active",
   ).length;
   const onLeaveEmployees = employees.filter(
-    (emp) => emp.status === "on_leave",
+    (emp: Employee) => emp.status === "on_leave",
   ).length;
 
   // Extract unique positions for filtering
   const uniquePositions = useMemo(() => {
-    return Array.from(new Set(employees.map((emp) => emp.position)))
+    return Array.from(new Set(employees.map((emp: Employee) => emp.position)))
       .filter(Boolean)
       .sort();
   }, [employees]);
 
   // Create position categories for filter
   const positionCategories = useMemo(() => {
-    return uniquePositions.map((position) => ({
+    return uniquePositions.map((position: string) => ({
       id: position,
       name: position,
     }));
