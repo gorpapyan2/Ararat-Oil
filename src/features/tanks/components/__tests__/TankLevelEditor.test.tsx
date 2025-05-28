@@ -1,8 +1,9 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TankLevelEditor } from "../TankLevelEditor";
-import { vi } from "vitest";
+import { vi, describe, it, expect, beforeEach, type MockedFunction } from "vitest";
 import { tanksService } from "../../services/tanksService";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { FuelTank, TankLevelAdjustment, TankLevelChange } from "../../types";
 
 // Mock the useTranslation hook
 vi.mock("react-i18next", () => ({
@@ -36,7 +37,7 @@ const createTestQueryClient = () =>
   });
 
 describe("TankLevelEditor", () => {
-  const mockTank = {
+  const mockTank: FuelTank = {
     id: "1",
     name: "Tank 1",
     fuel_type_id: "1",
@@ -83,8 +84,18 @@ describe("TankLevelEditor", () => {
   });
 
   it("handles add fuel adjustment", async () => {
-    const mockResponse = { success: true };
-    (tanksService.adjustTankLevel as any).mockResolvedValueOnce(mockResponse);
+    const mockResponse: TankLevelChange = {
+      id: "new-change-id",
+      tank_id: "1",
+      previous_level: 500,
+      new_level: 600,
+      change_amount: 100,
+      change_type: "add",
+      created_by: "user-1",
+      created_at: "2024-01-01T10:00:00Z",
+      reason: "Tank level editor",
+    };
+    (tanksService.adjustTankLevel as MockedFunction<typeof tanksService.adjustTankLevel>).mockResolvedValueOnce(mockResponse);
 
     renderComponent();
 
@@ -110,8 +121,18 @@ describe("TankLevelEditor", () => {
   });
 
   it("handles remove fuel adjustment", async () => {
-    const mockResponse = { success: true };
-    (tanksService.adjustTankLevel as any).mockResolvedValueOnce(mockResponse);
+    const mockResponse: TankLevelChange = {
+      id: "new-change-id",
+      tank_id: "1",
+      previous_level: 500,
+      new_level: 450,
+      change_amount: 50,
+      change_type: "subtract",
+      created_by: "user-1",
+      created_at: "2024-01-01T10:00:00Z",
+      reason: "Tank level editor",
+    };
+    (tanksService.adjustTankLevel as MockedFunction<typeof tanksService.adjustTankLevel>).mockResolvedValueOnce(mockResponse);
 
     renderComponent();
 
@@ -159,7 +180,7 @@ describe("TankLevelEditor", () => {
 
   it("handles API error", async () => {
     const mockError = new Error("API Error");
-    (tanksService.adjustTankLevel as any).mockRejectedValueOnce(mockError);
+    (tanksService.adjustTankLevel as MockedFunction<typeof tanksService.adjustTankLevel>).mockRejectedValueOnce(mockError);
 
     renderComponent();
 

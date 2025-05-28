@@ -1,15 +1,21 @@
-import { petrolProvidersApi, PetrolProvider } from "@/core/api";
+import { petrolProvidersApi, PetrolProvider, PetrolProviderCreate, PetrolProviderUpdate } from "@/core/api";
 
 export interface CreateProviderRequest {
   name: string;
-  contact: string;
-  is_active: boolean;
+  contact_person: string;
+  email: string;
+  phone: string;
+  address: string;
+  status: "active" | "inactive";
 }
 
 export interface UpdateProviderRequest {
   name?: string;
-  contact?: string;
-  is_active?: boolean;
+  contact_person?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  status?: "active" | "inactive";
 }
 
 /**
@@ -21,7 +27,7 @@ export async function fetchPetrolProviders(
   options: { activeOnly?: boolean } = {}
 ): Promise<PetrolProvider[]> {
   try {
-    const response = await petrolProvidersApi.getAll();
+    const response = await petrolProvidersApi.getPetrolProviders();
 
     if (response.error) {
       console.error("Error fetching petrol providers:", response.error);
@@ -30,7 +36,7 @@ export async function fetchPetrolProviders(
 
     // Filter active providers only if requested
     if (options.activeOnly) {
-      return (response.data || []).filter((provider) => provider.is_active);
+      return (response.data || []).filter((provider) => provider.status === "active");
     }
 
     return response.data || [];
@@ -44,7 +50,7 @@ export async function fetchPetrolProviderById(
   id: string
 ): Promise<PetrolProvider | null> {
   try {
-    const response = await petrolProvidersApi.getById(id);
+    const response = await petrolProvidersApi.getPetrolProviderById(id);
 
     if (response.error) {
       console.error(
@@ -65,7 +71,7 @@ export async function createPetrolProvider(
   provider: CreateProviderRequest
 ): Promise<PetrolProvider> {
   try {
-    const response = await petrolProvidersApi.create(provider);
+    const response = await petrolProvidersApi.createPetrolProvider(provider);
 
     if (response.error) {
       console.error("Error creating petrol provider:", response.error);
@@ -84,7 +90,7 @@ export async function updatePetrolProvider(
   provider: UpdateProviderRequest
 ): Promise<PetrolProvider> {
   try {
-    const response = await petrolProvidersApi.update(id, provider);
+    const response = await petrolProvidersApi.updatePetrolProvider(id, provider);
 
     if (response.error) {
       console.error(
@@ -103,7 +109,7 @@ export async function updatePetrolProvider(
 
 export async function deletePetrolProvider(id: string): Promise<void> {
   try {
-    const response = await petrolProvidersApi.delete(id);
+    const response = await petrolProvidersApi.deletePetrolProvider(id);
 
     if (response.error) {
       console.error(
@@ -121,8 +127,11 @@ export async function deletePetrolProvider(id: string): Promise<void> {
 export async function createSampleProvider(): Promise<PetrolProvider> {
   const sampleProvider: CreateProviderRequest = {
     name: "Sample Provider",
-    contact: "sample@example.com",
-    is_active: true,
+    contact_person: "John Doe",
+    email: "sample@example.com",
+    phone: "+1234567890",
+    address: "123 Sample Street",
+    status: "active",
   };
   return createPetrolProvider(sampleProvider);
 }

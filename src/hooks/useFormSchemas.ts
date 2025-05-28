@@ -9,7 +9,7 @@ type PaymentMethod = "credit" | "debit" | "bank" | "paypal";
 /**
  * A type-safe way to create a payment form with conditional fields
  */
-const createPaymentForm = (t: Function) => {
+const createPaymentForm = (t: (key: string) => string) => {
   // Base payment method field
   return z
     .object({
@@ -162,24 +162,21 @@ export function useFormSchemas() {
    * Password change form schema
    */
   const passwordChangeSchema = useCallback(() => {
-    return z.object({
-      currentPassword: requiredString(1, "currentPassword"),
-      newPassword: password(8),
-      confirmNewPassword: z
-        .string()
-        .min(1, t("validation.confirmPasswordRequired"))
-        .refine(
-          (value, ctx) => {
-            // Workaround to access newPassword value
-            const formData =
-              ctx.path.length > 0 ? (ctx as { _container?: Record<string, unknown> })._container : null;
-
-            if (!formData) return true; // Skip validation if container is not available
-            return value === formData.newPassword;
-          },
-          { message: t("validation.passwordsDontMatch") }
-        ),
-    });
+    return z
+      .object({
+        currentPassword: requiredString(1, "currentPassword"),
+        newPassword: password(8),
+        confirmNewPassword: z.string().min(1, t("validation.confirmPasswordRequired")),
+      })
+      .superRefine((data, ctx) => {
+        if (data.confirmNewPassword !== data.newPassword) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("validation.passwordsDontMatch"),
+            path: ["confirmNewPassword"],
+          });
+        }
+      });
   }, [requiredString, password, t]);
 
   /**

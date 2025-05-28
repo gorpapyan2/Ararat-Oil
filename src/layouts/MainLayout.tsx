@@ -41,7 +41,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     if (isMobile && mobileSidebarOpen) {
       setMobileSidebarOpen(false);
     }
-  }, [pathname, isMobile]);
+  }, [pathname, isMobile, mobileSidebarOpen]);
 
   // Use a different layout for the auth page
   if (isAuthPage) {

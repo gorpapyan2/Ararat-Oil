@@ -49,7 +49,7 @@ export const DATE_FORMATS = {
  */
 export const ROUTES = {
   HOME: "/",
-  LOGIN: "/login",
+  LOGIN: "/auth",
   DASHBOARD: "/dashboard",
   SETTINGS: "/settings",
   PROFILE: "/profile",

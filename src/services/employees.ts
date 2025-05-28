@@ -1,5 +1,5 @@
-import { employeesApi, Employee } from "@/core/api";
-import { EmployeeStatus } from "@/types";
+import { employeesApi } from '../core/api/endpoints/employees';
+import type { Employee } from '../core/api/types';
 
 export interface CreateEmployeeRequest {
   name: string;
@@ -7,7 +7,7 @@ export interface CreateEmployeeRequest {
   contact: string;
   salary: number;
   hire_date: string;
-  status: EmployeeStatus;
+  status: "active" | "inactive" | "on_leave";
   department?: string;
 }
 
@@ -17,49 +17,45 @@ export interface UpdateEmployeeRequest {
   contact?: string;
   salary?: number;
   hire_date?: string;
-  status?: EmployeeStatus;
+  status?: "active" | "inactive" | "on_leave";
   department?: string;
 }
 
-export const fetchEmployees = async (options?: {
-  status?: EmployeeStatus;
-}): Promise<Employee[]> => {
+export const fetchEmployees = async (): Promise<Employee[]> => {
   try {
-    const response = await employeesApi.getAll(options);
+    const response = await employeesApi.getEmployees();
 
     if (response.error) {
-      console.error("Error fetching employees:", response.error);
+      console.error('Error fetching employees:', response.error);
       throw new Error(response.error.message);
     }
 
     return response.data || [];
   } catch (err) {
-    console.error("Failed to fetch employees:", err);
+    console.error('Failed to fetch employees:', err);
     throw err;
   }
 };
 
 export const fetchActiveEmployees = async (): Promise<Employee[]> => {
   try {
-    const response = await employeesApi.getActive();
+    const response = await employeesApi.getActiveEmployees();
 
     if (response.error) {
-      console.error("Error fetching active employees:", response.error);
+      console.error('Error fetching active employees:', response.error);
       throw new Error(response.error.message);
     }
 
     return response.data || [];
   } catch (err) {
-    console.error("Failed to fetch active employees:", err);
+    console.error('Failed to fetch active employees:', err);
     throw err;
   }
 };
 
-export const fetchEmployeeById = async (
-  id: string
-): Promise<Employee | null> => {
+export const fetchEmployeeById = async (id: string): Promise<Employee | null> => {
   try {
-    const response = await employeesApi.getById(id);
+    const response = await employeesApi.getEmployeeById(id);
 
     if (response.error) {
       console.error(`Error fetching employee with ID ${id}:`, response.error);
@@ -73,30 +69,25 @@ export const fetchEmployeeById = async (
   }
 };
 
-export const createEmployee = async (
-  employee: CreateEmployeeRequest
-): Promise<Employee> => {
+export const createEmployee = async (employee: CreateEmployeeRequest): Promise<Employee> => {
   try {
-    const response = await employeesApi.create(employee);
+    const response = await employeesApi.createEmployee(employee);
 
     if (response.error) {
-      console.error("Error creating employee:", response.error);
+      console.error('Error creating employee:', response.error);
       throw new Error(response.error.message);
     }
 
     return response.data!;
   } catch (err) {
-    console.error("Failed to create employee:", err);
+    console.error('Failed to create employee:', err);
     throw err;
   }
 };
 
-export const updateEmployee = async (
-  id: string,
-  employee: UpdateEmployeeRequest
-): Promise<Employee> => {
+export const updateEmployee = async (id: string, updates: UpdateEmployeeRequest): Promise<Employee> => {
   try {
-    const response = await employeesApi.update(id, employee);
+    const response = await employeesApi.updateEmployee(id, updates);
 
     if (response.error) {
       console.error(`Error updating employee with ID ${id}:`, response.error);
@@ -112,7 +103,7 @@ export const updateEmployee = async (
 
 export const deleteEmployee = async (id: string): Promise<void> => {
   try {
-    const response = await employeesApi.delete(id);
+    const response = await employeesApi.deleteEmployee(id);
 
     if (response.error) {
       console.error(`Error deleting employee with ID ${id}:`, response.error);

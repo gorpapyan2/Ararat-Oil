@@ -6,6 +6,7 @@ import React, {
   useEffect,
   ReactNode,
   useMemo,
+  useCallback,
 } from "react";
 
 type Theme = "light" | "dark" | "system";
@@ -60,7 +61,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   );
 
   // Set theme in localStorage and update DOM
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: Theme) => {
     try {
       localStorage.setItem("theme", newTheme);
     } catch (error) {
@@ -68,12 +69,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     }
 
     setThemeState(newTheme);
-  };
+  }, []);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     const currentTheme = theme === "system" ? getSystemTheme() : theme;
     setTheme(currentTheme === "light" ? "dark" : "light");
-  };
+  }, [theme, setTheme]);
 
   // Apply theme classes to document
   useEffect(() => {

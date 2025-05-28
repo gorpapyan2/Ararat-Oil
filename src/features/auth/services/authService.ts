@@ -11,29 +11,23 @@ import type {
 const EDGE_FUNCTION_URL = "/functions/auth";
 
 export const authService = {
-  async login({ email, password }: LoginCredentials): Promise<AuthResponse> {
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const { data, error } = await supabase.functions.invoke(
-        `${EDGE_FUNCTION_URL}/login`,
-        {
-          method: "POST",
-          body: { email, password },
-        }
-      );
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      });
 
-      if (error) throw error;
+      if (error) {
+        return { error: new Error(error.message) };
+      }
 
       return {
         user: data.user,
         session: data.session,
-        error: null,
       };
     } catch (error) {
-      return {
-        user: null,
-        session: null,
-        error: error as AuthError,
-      };
+      return { error: error as Error };
     }
   },
 
@@ -49,118 +43,95 @@ export const authService = {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        return { error: new Error(error.message) };
+      }
 
       return {
         user: data.user,
         session: data.session,
-        error: null,
       };
     } catch (error) {
-      return {
-        user: null,
-        session: null,
-        error: error as AuthError,
-      };
+      return { error: error as Error };
     }
   },
 
-  async logout(): Promise<{ error: AuthError | null }> {
+  async logout(): Promise<{ error?: Error }> {
     try {
-      const { error } = await supabase.functions.invoke(
-        `${EDGE_FUNCTION_URL}/logout`,
-        {
-          method: "POST",
-        }
-      );
+      const { error } = await supabase.auth.signOut();
 
-      if (error) throw error;
+      if (error) {
+        return { error: new Error(error.message) };
+      }
 
-      return { error: null };
+      return {};
     } catch (error) {
-      return { error: error as AuthError };
+      return { error: error as Error };
     }
   },
 
-  async getSessions(): Promise<{
-    sessions: SessionDevice[];
-    error: AuthError | null;
-  }> {
+  async getSessions(): Promise<{ sessions?: any[]; error?: Error }> {
     try {
-      const { data, error } = await supabase.functions.invoke(
-        `${EDGE_FUNCTION_URL}/sessions`,
-        {
-          method: "GET",
-        }
-      );
+      const { data, error } = await supabase.auth.getSession();
 
-      if (error) throw error;
+      if (error) {
+        return { error: new Error(error.message) };
+      }
 
-      return {
-        sessions: data.sessions,
-        error: null,
-      };
+      return { sessions: data.session ? [data.session] : [] };
     } catch (error) {
-      return {
-        sessions: [],
-        error: error as AuthError,
-      };
+      return { error: error as Error };
     }
   },
 
-  async deleteSession(sessionId: string): Promise<{ error: AuthError | null }> {
+  async deleteSession(sessionId: string): Promise<{ error?: Error }> {
     try {
-      const { error } = await supabase.functions.invoke(
-        `${EDGE_FUNCTION_URL}/sessions`,
-        {
-          method: "DELETE",
-          body: { sessionId },
-        }
-      );
+      const { error } = await supabase.auth.signOut();
 
-      if (error) throw error;
+      if (error) {
+        return { error: new Error(error.message) };
+      }
 
-      return { error: null };
+      return {};
     } catch (error) {
-      return { error: error as AuthError };
+      return { error: error as Error };
     }
   },
 
-  async requestPasswordReset({
-    email,
-  }: PasswordResetRequest): Promise<{ error: AuthError | null }> {
+  async requestPasswordReset(
+    request: PasswordResetRequest
+  ): Promise<{ error?: Error }> {
     try {
-      const { error } = await supabase.functions.invoke(
-        `${EDGE_FUNCTION_URL}/password-reset`,
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        request.email,
         {
-          method: "POST",
-          body: { email },
+          redirectTo: `${window.location.origin}/auth/reset-password`,
         }
       );
 
-      if (error) throw error;
+      if (error) {
+        return { error: new Error(error.message) };
+      }
 
-      return { error: null };
+      return {};
     } catch (error) {
-      return { error: error as AuthError };
+      return { error: error as Error };
     }
   },
 
-  async updatePassword(password: string): Promise<{ error: AuthError | null }> {
+  async updatePassword(password: string): Promise<{ error?: Error }> {
     try {
-      const { error } = await supabase.functions.invoke(
-        `${EDGE_FUNCTION_URL}/update-password`,
-        {
-          method: "POST",
-          body: { password },
-        }
-      );
+      const { error } = await supabase.auth.updateUser({
+        password: password,
+      });
 
-      if (error) throw error;
+      if (error) {
+        return { error: new Error(error.message) };
+      }
 
-      return { error: null };
+      return {};
     } catch (error) {
-      return { error: error as AuthError };
+      return { error: error as Error };
     }
   },
 };

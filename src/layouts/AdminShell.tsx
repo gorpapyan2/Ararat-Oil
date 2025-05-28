@@ -14,11 +14,11 @@ import {
 } from "@/core/components/ui/primitives/sheet";
 import { useTranslation } from "react-i18next";
 import { ThemeSwitcher } from "@/core/components/ui/ThemeSwitcher";
-import { IconLogout } from "@tabler/icons-react";
+import { IconLogout, type Icon } from "@/core/components/ui/icons";
 import { DevMenu } from "@/core/components/ui/composed/dev-menu";
 import { useSidebarNavConfig } from "@/core/config";
 import { LucideIcon } from "lucide-react";
-import { Icon } from "@tabler/icons-react";
+import { APP_ROUTES } from "@/core/config/routes";
 
 // Define types for navigation items
 interface NavigationItem {
@@ -35,7 +35,7 @@ type AdminShellProps = {
 export function AdminShell({ children }: AdminShellProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const isAuthPage = pathname === "/auth" || pathname === "/login";
+  const isAuthPage = pathname === APP_ROUTES.AUTH.path;
   const isMobile = useIsMobile();
   const { user, logout } = useAuth();
   const navConfig = useSidebarNavConfig();
@@ -44,7 +44,7 @@ export function AdminShell({ children }: AdminShellProps) {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate("/login");
+      navigate(APP_ROUTES.AUTH.path);
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -69,7 +69,7 @@ export function AdminShell({ children }: AdminShellProps) {
     if (isMobile && isMobileSidebarOpen) {
       setIsMobileSidebarOpen(false);
     }
-  }, [pathname, isMobile]);
+  }, [pathname, isMobile, isMobileSidebarOpen]);
 
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed);

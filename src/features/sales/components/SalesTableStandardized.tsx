@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { FileText, Eye } from "lucide-react";
@@ -37,15 +37,15 @@ export function SalesTableStandardized({
     if (sale && onEdit) onEdit(sale);
   };
 
-  const handleView = (id: string) => {
+  const handleView = useCallback((id: string) => {
     const sale = sales.find((s) => s.id === id);
     if (sale && onView) onView(sale);
-  };
+  }, [sales, onView]);
 
-  const handleGenerateReceipt = (id: string) => {
+  const handleGenerateReceipt = useCallback((id: string) => {
     const sale = sales.find((s) => s.id === id);
     if (sale && onGenerateReceipt) onGenerateReceipt(sale);
-  };
+  }, [sales, onGenerateReceipt]);
 
   // Define custom actions for the dropdown menu
   const customActions = useMemo(() => {
@@ -77,7 +77,7 @@ export function SalesTableStandardized({
     }
 
     return actions;
-  }, [onView, onGenerateReceipt, t]);
+  }, [onView, onGenerateReceipt, t, handleView, handleGenerateReceipt]);
 
   // Define column structure
   const columns = useMemo(

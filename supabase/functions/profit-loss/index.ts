@@ -294,11 +294,12 @@ function calculateDateRange(periodType: PeriodType, startDate?: string | null, e
       // Start of current month
       start = new Date(now.getFullYear(), now.getMonth(), 1);
       break;
-    case 'quarter':
+    case 'quarter': {
       // Start of current quarter
       const quarter = Math.floor(now.getMonth() / 3);
       start = new Date(now.getFullYear(), quarter * 3, 1);
       break;
+    }
     case 'year':
       // Start of current year
       start = new Date(now.getFullYear(), 0, 1);
@@ -328,9 +329,10 @@ function formatPeriodString(periodType: PeriodType, startDate: string, endDate: 
       return `Week of ${start.toISOString().split('T')[0]}`;
     case 'month':
       return `${start.toLocaleString('default', { month: 'long' })} ${start.getFullYear()}`;
-    case 'quarter':
+    case 'quarter': {
       const quarter = Math.floor(start.getMonth() / 3) + 1;
       return `Q${quarter} ${start.getFullYear()}`;
+    }
     case 'year':
       return `${start.getFullYear()}`;
     case 'custom':

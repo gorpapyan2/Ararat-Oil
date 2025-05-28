@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/core/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { SessionLogoutDialogStandardized } from "../settings/SessionLogoutDialogStandardized";
+import { SessionLogoutDialogStandardized } from "@/features/auth/components/SessionLogoutDialogStandardized";
 import { cn } from "@/shared/utils";
 import {
   Tooltip,

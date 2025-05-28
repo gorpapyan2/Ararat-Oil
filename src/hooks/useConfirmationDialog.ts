@@ -55,32 +55,19 @@ export function useConfirmationDialog({
     setIsOpen(false);
   }, []);
 
-  const handleConfirm = useCallback(async () => {
-    if (!options.onConfirm) {
-      closeDialog();
-      return;
+  const handleConfirm = useCallback(() => {
+    if (options?.onConfirm) {
+      options.onConfirm();
     }
-
-    setIsLoading(true);
-    try {
-      await options.onConfirm();
-      closeDialog();
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "An error occurred during the operation";
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [options.onConfirm, closeDialog, toast]);
+    setIsOpen(false);
+  }, [options, setIsOpen]);
 
   const handleCancel = useCallback(() => {
-    options.onCancel?.();
-    closeDialog();
-  }, [options.onCancel, closeDialog]);
+    if (options?.onCancel) {
+      options.onCancel();
+    }
+    setIsOpen(false);
+  }, [options, setIsOpen]);
 
   return {
     isOpen,

@@ -17,7 +17,7 @@ import type {
 export const getFillingSystemsWithFilters = async (
   filters?: FillingSystemFilters
 ) => {
-  return fillingSystemsApi.getFilingSystems();
+  return fillingSystemsApi.getFillingSystems();
 };
 
 /**

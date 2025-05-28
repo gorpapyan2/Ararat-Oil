@@ -126,7 +126,7 @@ export function useSalesDialog(options?: UseSalesDialogOptions) {
         editDialog.setIsSubmitting(false);
       }
     },
-    [editDialog, toast, queryClient]
+    [editDialog, queryClient, showError, success]
   );
 
   /**
@@ -165,7 +165,7 @@ export function useSalesDialog(options?: UseSalesDialogOptions) {
     } finally {
       editDialog.setIsSubmitting(false);
     }
-  }, [editDialog, toast, queryClient, closeDeleteDialog, options]);
+  }, [editDialog, queryClient, closeDeleteDialog, showError, success]);
 
   return {
     // Re-export everything from the edit dialog

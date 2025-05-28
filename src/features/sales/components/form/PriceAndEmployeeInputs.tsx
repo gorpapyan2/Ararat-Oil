@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { employeesApi } from "@/core/api";
 import { toast } from "sonner";
-import { useShift } from "@/hooks/useShift";
+import { useShift } from "@/features/shifts";
 import { Alert, AlertDescription } from "@/core/components/ui/alert";
 import { Info } from "lucide-react";
 

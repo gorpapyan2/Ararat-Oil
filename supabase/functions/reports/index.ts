@@ -134,11 +134,12 @@ function calculateDateRange(timeframe: TimeFrame, startDate?: string | null, end
       // Start of current month
       start = new Date(now.getFullYear(), now.getMonth(), 1);
       break;
-    case 'quarter':
+    case 'quarter': {
       // Start of current quarter
       const quarter = Math.floor(now.getMonth() / 3);
       start = new Date(now.getFullYear(), quarter * 3, 1);
       break;
+    }
     case 'year':
       // Start of current year
       start = new Date(now.getFullYear(), 0, 1);

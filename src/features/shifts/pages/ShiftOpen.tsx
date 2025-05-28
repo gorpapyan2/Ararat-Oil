@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useShift } from "@/hooks/useShift";
+import { useShift } from "../hooks/useShift";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/layouts/PageLayout";
 import {
@@ -13,7 +13,6 @@ import {
 } from "@/core/components/ui/card";
 import { Button, ButtonLink } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Label } from "@/core/components/ui/label";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -133,7 +132,7 @@ export default function ShiftOpen() {
   useEffect(() => {
     const loadActiveEmployees = async () => {
       try {
-        const response = await employeesApi.getAll({ status: "active" });
+        const response = await employeesApi.getActiveEmployees();
         if (response.error) {
           throw new Error(response.error.message);
         }
@@ -150,7 +149,7 @@ export default function ShiftOpen() {
   useEffect(() => {
     const loadFuelPrices = async () => {
       try {
-        const response = await fuelPricesApi.getAll();
+        const response = await fuelPricesApi.getFuelPrices();
         if (response.error) {
           throw new Error(response.error.message);
         }
@@ -159,7 +158,7 @@ export default function ShiftOpen() {
         setCurrentFuelPrices(
           prices.reduce(
             (acc, price) => {
-              acc[price.fuel_type as FuelType] = price.price_per_liter;
+              acc[price.fuel_type] = price.price_per_liter;
               return acc;
             },
             {} as Record<FuelType, number>
@@ -211,7 +210,7 @@ export default function ShiftOpen() {
           const updates: Record<string, number> = data.fuelPrices as Record<string, number>;
 
           for (const [type, price] of Object.entries(updates)) {
-            await fuelPricesApi.update(type, {
+            await fuelPricesApi.updateFuelPrice(type, {
               price_per_liter: price,
               effective_date: new Date().toISOString(),
             });

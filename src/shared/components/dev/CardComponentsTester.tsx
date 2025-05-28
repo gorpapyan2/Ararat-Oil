@@ -30,7 +30,7 @@ import {
   ActionCard,
   StatsCard,
   SummaryCard,
-} from "@/core/components/ui/composed/card";
+} from "@/core/components/ui/cards";
 
 export function CardComponentsTester() {
   return (
@@ -53,7 +53,7 @@ export function CardComponentsTester() {
               value="$45,231.89"
               trend={{
                 value: "12.5%",
-                positive: true,
+                direction: "up",
                 label: "vs. last month",
               }}
               icon={<TrendingUp className="h-5 w-5" />}
@@ -72,7 +72,7 @@ export function CardComponentsTester() {
               value="$123,456"
               trend={{
                 value: "8.2%",
-                positive: true,
+                direction: "up",
                 label: "compared to last month",
               }}
               icon={<BarChart3 className="h-5 w-5" />}
@@ -84,7 +84,7 @@ export function CardComponentsTester() {
               value="7,523 L"
               trend={{
                 value: "3.1%",
-                positive: false,
+                direction: "down",
                 label: "remaining capacity",
               }}
               icon={<TrendingDown className="h-5 w-5" />}
@@ -266,7 +266,7 @@ export function CardComponentsTester() {
               value="1,234"
               trend={{
                 value: "12.5%",
-                positive: true,
+                direction: "up",
                 label: "vs. last month",
               }}
               description="vs. last month"
@@ -278,7 +278,7 @@ export function CardComponentsTester() {
               value="$12,543"
               trend={{
                 value: "3.2%",
-                positive: false,
+                direction: "down",
                 label: "vs. last month",
               }}
               description="vs. last month"

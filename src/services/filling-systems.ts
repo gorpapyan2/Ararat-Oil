@@ -16,7 +16,7 @@ export interface UpdateFillingSystemRequest {
 
 export const fetchFillingSystems = async (): Promise<FillingSystem[]> => {
   try {
-    const response = await fillingSystemsApi.getAll();
+    const response = await fillingSystemsApi.getFillingSystems();
 
     if (response.error) {
       console.error("Error fetching filling systems:", response.error);
@@ -34,7 +34,7 @@ export const fetchFillingSystemById = async (
   id: string
 ): Promise<FillingSystem | null> => {
   try {
-    const response = await fillingSystemsApi.getById(id);
+    const response = await fillingSystemsApi.getFillingSystemById(id);
 
     if (response.error) {
       console.error(
@@ -55,7 +55,7 @@ export const createFillingSystem = async (
   system: CreateFillingSystemRequest
 ): Promise<FillingSystem> => {
   try {
-    const response = await fillingSystemsApi.create(system);
+    const response = await fillingSystemsApi.createFillingSystem(system);
 
     if (response.error) {
       console.error("Error creating filling system:", response.error);
@@ -74,7 +74,7 @@ export const updateFillingSystem = async (
   updates: UpdateFillingSystemRequest
 ): Promise<FillingSystem> => {
   try {
-    const response = await fillingSystemsApi.update(id, updates);
+    const response = await fillingSystemsApi.updateFillingSystem(id, updates);
 
     if (response.error) {
       console.error(
@@ -93,7 +93,7 @@ export const updateFillingSystem = async (
 
 export const deleteFillingSystem = async (id: string): Promise<void> => {
   try {
-    const response = await fillingSystemsApi.delete(id);
+    const response = await fillingSystemsApi.deleteFillingSystem(id);
 
     if (response.error) {
       console.error(

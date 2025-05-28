@@ -2,6 +2,11 @@ import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
 import { PaymentMethod } from "@/types";
 import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
 
+// Type that matches what the edge function expects
+type CreateShiftPaymentMethod = Omit<ShiftPaymentMethod, 'id' | 'created_at' | 'shift_id'> & {
+  reference?: string;
+};
+
 export async function addShiftPaymentMethods(
   shiftId: string,
   paymentMethods: PaymentMethodItem[]
@@ -17,8 +22,8 @@ export async function addShiftPaymentMethods(
       throw new Error("No payment methods provided");
     }
 
-    // Validate each payment method
-    const validatedPayments = paymentMethods.map((method) => {
+    // Validate each payment method and prepare data for API
+    const validatedPayments: CreateShiftPaymentMethod[] = paymentMethods.map((method) => {
       // Validate payment_method
       if (
         !method.payment_method ||
@@ -43,13 +48,14 @@ export async function addShiftPaymentMethods(
       return {
         payment_method: method.payment_method,
         amount: method.amount,
-        reference: method.reference || null,
+        reference: method.reference || undefined,
+        updated_at: "",
       };
     });
 
     const response = await shiftsApi.addShiftPaymentMethods(
       shiftId,
-      validatedPayments as any
+      validatedPayments as ShiftPaymentMethod[]
     );
 
     if (response.error) {
@@ -68,6 +74,11 @@ export async function getShiftPaymentMethods(
   shiftId: string
 ): Promise<ShiftPaymentMethod[]> {
   try {
+    // Validate shiftId
+    if (!shiftId || typeof shiftId !== "string" || shiftId.trim() === "") {
+      throw new Error("Invalid shift ID provided");
+    }
+
     const response = await shiftsApi.getShiftPaymentMethods(shiftId);
 
     if (response.error) {
@@ -77,8 +88,8 @@ export async function getShiftPaymentMethods(
 
     return response.data || [];
   } catch (err: unknown) {
-    console.error("Error fetching shift payment methods:", err);
-    throw err instanceof Error ? err : new Error("Failed to fetch shift payment methods");
+    console.error("Error fetching payment methods:", err);
+    throw err instanceof Error ? err : new Error("Failed to fetch payment methods");
   }
 }
 
@@ -88,7 +99,7 @@ export async function deleteShiftPaymentMethods(
   try {
     // Validate shiftId
     if (!shiftId || typeof shiftId !== "string" || shiftId.trim() === "") {
-      throw new Error("Invalid shift ID provided for deletion");
+      throw new Error("Invalid shift ID provided");
     }
 
     const response = await shiftsApi.deleteShiftPaymentMethods(shiftId);
@@ -98,26 +109,44 @@ export async function deleteShiftPaymentMethods(
       throw new Error(response.error.message);
     }
 
-    console.log(`Successfully deleted payment methods for shift: ${shiftId}`);
+    console.log(`Payment methods deleted for shift: ${shiftId}`);
   } catch (err: unknown) {
     console.error("Error deleting payment methods:", err);
     throw err instanceof Error ? err : new Error("Failed to delete payment methods");
   }
 }
 
-// Calculate total amount from payment methods
+/**
+ * Calculate total amount from payment methods array
+ */
 export function calculateTotalFromPaymentMethods(
-  paymentMethods: ShiftPaymentMethod[]
+  paymentMethods: PaymentMethodItem[]
 ): number {
-  return paymentMethods.reduce((total, method) => total + method.amount, 0);
+  if (!Array.isArray(paymentMethods)) {
+    return 0;
+  }
+
+  return paymentMethods.reduce((total, method) => {
+    const amount = parseFloat(method.amount?.toString() || "0");
+    return total + (isNaN(amount) ? 0 : amount);
+  }, 0);
 }
 
-// Get amount for a specific payment method
+/**
+ * Get amount for a specific payment method from array
+ */
 export function getAmountByPaymentMethod(
-  paymentMethods: ShiftPaymentMethod[],
-  method: PaymentMethod
+  paymentMethods: PaymentMethodItem[],
+  paymentMethod: string
 ): number {
+  if (!Array.isArray(paymentMethods)) {
+    return 0;
+  }
+
   return paymentMethods
-    .filter((pm) => pm.payment_method === method)
-    .reduce((sum, pm) => sum + pm.amount, 0);
-}
+    .filter((method) => method.payment_method === paymentMethod)
+    .reduce((total, method) => {
+      const amount = parseFloat(method.amount?.toString() || "0");
+      return total + (isNaN(amount) ? 0 : amount);
+    }, 0);
+} 

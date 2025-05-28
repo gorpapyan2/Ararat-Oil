@@ -1,3 +1,14 @@
+// Page Components
+export {
+  ExpenseCreate,
+  ExpenseForm,
+  ExpensesPage,
+  FinanceDashboard,
+  FinancePage,
+  TransactionsPage,
+} from "./pages";
+export type { ExpenseFormValues } from "./pages";
+
 // Components
 export { TransactionDialogStandardized } from "./components/TransactionDialogStandardized";
 export { ExpenseDialogStandardized } from "./components/ExpenseDialogStandardized";

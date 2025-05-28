@@ -61,7 +61,7 @@ export function DebouncedSearch({
     };
   }, []);
 
-  // Handle external value changes
+  // Sync with external value prop changes
   useEffect(() => {
     if (initialValue !== undefined && initialValue !== value) {
       setValue(initialValue);
@@ -69,7 +69,7 @@ export function DebouncedSearch({
         onSearch(initialValue);
       }
     }
-  }, [initialValue, onSearch]);
+  }, [initialValue, onSearch, value]);
 
   // Handle input changes with debounce
   const handleChange = useCallback(

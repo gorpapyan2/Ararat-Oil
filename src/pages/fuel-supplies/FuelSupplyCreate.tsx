@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { IconChevronLeft } from "@/core/components/ui/icons";
 import { Home, Fuel, Truck, Plus, AlertCircle } from "lucide-react";
 
 // Import components
@@ -12,17 +12,17 @@ import { Alert, AlertDescription } from "@/core/components/ui/alert";
 import { useToast } from "@/hooks";
 import { format } from "date-fns";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
-import { useShift } from "@/hooks/useShift";
+import { useShift } from "@/features/shifts/hooks/useShift";
 
 // Import features
 import {
   useFuelSupplies,
-  FuelSuppliesFormStandardized,
 } from "@/features/fuel-supplies";
 import type {
   FuelSupply,
   CreateFuelSupplyRequest,
 } from "@/features/fuel-supplies";
+import { FuelSuppliesForm } from "./FuelSuppliesForm";
 
 export default function FuelSupplyCreate() {
   const { t } = useTranslation();
@@ -147,7 +147,7 @@ export default function FuelSupplyCreate() {
         actions={
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleCancel}>
-              <IconArrowLeft className="mr-2 h-4 w-4" />
+              <IconChevronLeft className="mr-2 h-4 w-4" />
               {t("common.back")}
             </Button>
           </div>
@@ -170,7 +170,7 @@ export default function FuelSupplyCreate() {
 
       <Card className="max-w-4xl mx-auto">
         <CardContent className="pt-6">
-          <FuelSuppliesFormStandardized
+          <FuelSuppliesForm
             onSubmit={handleSubmit}
             isSubmitting={createSupply.isPending}
             defaultValues={{

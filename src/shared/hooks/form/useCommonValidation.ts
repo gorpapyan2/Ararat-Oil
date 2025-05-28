@@ -166,7 +166,7 @@ export function useCommonValidation() {
   const matchField = useCallback(
     (field: string, message?: string) => {
       return (val: string, ctx: z.RefinementCtx) => {
-        const fieldValue = ctx.path[0] ? (ctx as any).data[field] : undefined;
+        const fieldValue = ctx.path[0] ? (ctx as { data?: Record<string, unknown> }).data?.[field] : undefined;
 
         if (val !== fieldValue) {
           ctx.addIssue({

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Tabs,
@@ -7,14 +7,15 @@ import {
   TabsTrigger,
 } from "@/core/components/ui/tabs";
 import { PageHeader } from "@/core/components/ui/page-header";
-import { IconGasStation, IconTank, IconTruck } from "@tabler/icons-react";
+import { IconGasStation, IconTank, IconTruck, IconCoin } from "@/core/components/ui/icons";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { useTranslation } from "react-i18next";
+import { useBreadcrumbs } from "@/core/providers/BreadcrumbProvider";
 
 // Import from feature modules
 import { FillingSystemManagerStandardized } from "@/features/filling-systems";
 import { TankManager } from "@/features/tanks";
 import { FuelSuppliesManagerStandardized } from "@/features/fuel-supplies";
-import { useTranslation } from "react-i18next";
 
 // Tab values
 const TABS = {

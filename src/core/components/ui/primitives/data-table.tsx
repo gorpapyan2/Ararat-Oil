@@ -159,7 +159,7 @@ export function DataTable<TData, TValue>({
   const [selectedBatchAction, setSelectedBatchAction] = useState<string>("");
 
   // Create selection column if enabled
-  const selectionColumn: ColumnDef<TData, unknown> = {
+  const selectionColumn: ColumnDef<TData, unknown> = useMemo(() => ({
     id: "select",
     header: ({ table }) => (
       <div className="w-12">
@@ -184,7 +184,7 @@ export function DataTable<TData, TValue>({
     enableSorting: false,
     enableHiding: false,
     size: 40,
-  };
+  }), []);
 
   // Add selection column if selection is enabled
   const tableColumns = React.useMemo(() => {
@@ -192,7 +192,7 @@ export function DataTable<TData, TValue>({
       return [selectionColumn, ...columns];
     }
     return columns;
-  }, [columns, selection?.enabled]);
+  }, [columns, selection?.enabled, selectionColumn]);
 
   // Handle server-side pagination, sorting, and filtering
   useEffect(() => {

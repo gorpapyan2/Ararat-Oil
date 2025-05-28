@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fillingSystemsApi } from "@/core/api";
 import { FillingSystem } from "@/core/api";
-import { SimpleFormSelect } from "@/core/components/ui/composed/form-fields";
+import { FormSelect } from "@/core/components/ui/primitives/form-fields";
 import { Control, useWatch } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,7 +9,8 @@ import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/core/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
-import { UseFormReturn, FieldValues } from "react-hook-form";
+import React from "react";
+import { UseFormReturn } from "react-hook-form";
 
 // Define the form data structure for sales
 interface SalesFormData {
@@ -48,13 +49,15 @@ export function FillingSystemSelect({
     refetch,
   } = useQuery({
     queryKey: ["filling-systems", retryCount],
-    queryFn: fillingSystemsApi.getFilingSystems,
+    queryFn: fillingSystemsApi.getFillingSystems,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2,
   });
 
   // Extract the filling systems from the API response
-  const fillingSystems = (response?.data || []) as FillingSystem[];
+  const fillingSystems = React.useMemo(() => {
+    return (response?.data || []) as FillingSystem[];
+  }, [response?.data]);
 
   // Log errors to console and show toast notification
   useEffect(() => {
@@ -107,45 +110,6 @@ export function FillingSystemSelect({
     };
   });
 
-  // Create a proper mock form object that matches UseFormReturn interface
-  const mockForm: UseFormReturn<FieldValues> = {
-    control: control as Control<FieldValues>,
-    register: () => ({
-      onChange: () => {},
-      onBlur: () => {},
-      name: "",
-      ref: () => {},
-    }),
-    handleSubmit: () => () => {},
-    watch: (name?: string | string[]) => {
-      if (typeof name === "string") return undefined;
-      if (Array.isArray(name)) return [];
-      return {};
-    },
-    formState: { 
-      errors: {},
-      isDirty: false,
-      isSubmitted: false,
-      isSubmitting: false,
-      isValid: false,
-      isValidating: false,
-      submitCount: 0,
-      touchedFields: {},
-      dirtyFields: {},
-    },
-    setValue: () => {},
-    getValues: () => ({}),
-    reset: () => {},
-    clearErrors: () => {},
-    setError: () => {},
-    trigger: () => Promise.resolve(true),
-    getFieldState: () => ({ invalid: false, isTouched: false, isDirty: false }),
-    resetField: () => {},
-    setFocus: () => {},
-    unregister: () => {},
-    subscribe: () => ({ unsubscribe: () => {} }),
-  };
-
   // Determine what content to render
   let content;
 
@@ -193,21 +157,27 @@ export function FillingSystemSelect({
     );
   }
 
+  // Create a minimal form object for FormSelect
+  const formObject = {
+    control,
+  } as UseFormReturn<SalesFormData>;
+
   // Always render the FormSelect component with options
   return (
-    <>
+    <div className="space-y-4">
       {content}
-      <SimpleFormSelect
+      <FormSelect
         name="filling_system_id"
         label={t("sales.fillingSystem")}
-        form={mockForm}
+        form={formObject}
         options={options}
         placeholder={
           isLoading
             ? t("fillingSystems.loading", "Loading...")
             : t("fillingSystems.selectTank")
         }
+        onChange={onChange}
       />
-    </>
+    </div>
   );
 }

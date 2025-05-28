@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TankFormDialog } from "../TankFormDialog";
-import { vi } from "vitest";
+import { vi, describe, it, expect, beforeEach, type MockedFunction } from "vitest";
 import { tanksService } from "../../services/tanksService";
+import type { FuelTank, CreateTankRequest, UpdateTankRequest, FuelType } from "../../types";
 
 // Mock the useTranslation hook
 vi.mock("react-i18next", () => ({
@@ -20,17 +21,18 @@ vi.mock("../../services/tanksService", () => ({
 }));
 
 describe("TankFormDialog", () => {
-  const mockFuelTypes = [
+  const mockFuelTypes: FuelType[] = [
     { id: "1", name: "Diesel" },
     { id: "2", name: "Petrol" },
   ];
 
-  const mockTank = {
+  const mockTank: Partial<FuelTank> = {
     id: "1",
     name: "Tank 1",
     fuel_type_id: "1",
     capacity: 1000,
     current_level: 500,
+    is_active: true,
     created_at: "2024-01-01",
     updated_at: "2024-01-01",
   };
@@ -39,7 +41,9 @@ describe("TankFormDialog", () => {
     open: true,
     onClose: vi.fn(),
     onSuccess: vi.fn(),
+    onOpenChange: vi.fn(),
     tank: undefined,
+    fuelTypes: mockFuelTypes,
   };
 
   const renderComponent = (props = {}) => {
@@ -48,7 +52,7 @@ describe("TankFormDialog", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (tanksService.getFuelTypes as any).mockResolvedValue(mockFuelTypes);
+    (tanksService.getFuelTypes as MockedFunction<typeof tanksService.getFuelTypes>).mockResolvedValue(mockFuelTypes);
   });
 
   it("renders create form when no tank is provided", async () => {
@@ -80,8 +84,18 @@ describe("TankFormDialog", () => {
   });
 
   it("handles create tank submission", async () => {
-    const mockResponse = { success: true };
-    (tanksService.createTank as any).mockResolvedValueOnce(mockResponse);
+    const mockResponse: FuelTank = { 
+      id: "new-tank-id", 
+      name: "New Tank", 
+      fuel_type_id: "1", 
+      capacity: 2000, 
+      current_level: 0, 
+      fuel_type: mockFuelTypes[0], 
+      is_active: true,
+      created_at: "2024-01-01", 
+      updated_at: "2024-01-01" 
+    };
+    (tanksService.createTank as MockedFunction<typeof tanksService.createTank>).mockResolvedValueOnce(mockResponse);
 
     renderComponent();
 
@@ -109,8 +123,12 @@ describe("TankFormDialog", () => {
   });
 
   it("handles update tank submission", async () => {
-    const mockResponse = { success: true };
-    (tanksService.updateTank as any).mockResolvedValueOnce(mockResponse);
+    const mockResponse: FuelTank = { 
+      ...mockTank, 
+      name: "Updated Tank", 
+      capacity: 1500 
+    } as FuelTank;
+    (tanksService.updateTank as MockedFunction<typeof tanksService.updateTank>).mockResolvedValueOnce(mockResponse);
 
     renderComponent({ tank: mockTank });
 
@@ -162,7 +180,7 @@ describe("TankFormDialog", () => {
 
   it("handles API error", async () => {
     const mockError = new Error("API Error");
-    (tanksService.createTank as any).mockRejectedValueOnce(mockError);
+    (tanksService.createTank as MockedFunction<typeof tanksService.createTank>).mockRejectedValueOnce(mockError);
 
     renderComponent();
 

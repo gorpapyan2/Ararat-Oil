@@ -88,7 +88,7 @@ export function useFormValidation<TSchema extends z.ZodSchema>({
   // Set up the form submission handler and capture the typed submit handler
   const formHandler = useFormSubmitHandler(
     form,
-    onSubmit as any, // Type assertion needed due to generic constraints
+    onSubmit as (data: z.infer<TSchema>) => Promise<void> | void,
     submitOptions
   );
 

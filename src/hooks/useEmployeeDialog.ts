@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { Employee } from "@/types";
-import { toast } from "./use-toast";
+import { useToast } from "./use-toast";
 
 /**
  * Custom hook for managing EmployeeDialog state and data handling
@@ -9,6 +9,8 @@ export function useEmployeeDialog(options?: {
   onCreateSuccess?: (employee: Employee) => void;
   onUpdateSuccess?: (employee: Employee) => void;
 }) {
+  const { toast } = useToast();
+  
   // Dialog state
   const [isOpen, setIsOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(

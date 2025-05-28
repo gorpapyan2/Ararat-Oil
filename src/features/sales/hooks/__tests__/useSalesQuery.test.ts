@@ -8,6 +8,7 @@ import {
 import { setupHookTest, setupMutationTest } from "@/test/utils/test-setup";
 import * as salesService from "../../services/sales";
 import { FuelTypeCode } from "@/types";
+import { CreateSaleRequest, UpdateSaleRequest } from "../../types";
 
 // Mock the sales service
 vi.mock("../../services/sales", () => ({
@@ -121,7 +122,15 @@ describe("useSalesMutations", () => {
 
     const { result } = renderTestHook(() => useSalesMutations());
 
-    const newSale = { amount: 100, quantityLiters: 10 } as any;
+    const newSale: CreateSaleRequest = { 
+      amount: 100, 
+      quantityLiters: 10,
+      unitPrice: 10,
+      saleDate: new Date("2024-01-01"),
+      fuelType: "diesel",
+      paymentMethod: "cash",
+      paymentStatus: "completed"
+    };
     result.current.createSale.mutate(newSale);
 
     await waitFor(() => {
@@ -140,7 +149,7 @@ describe("useSalesMutations", () => {
 
     const { result } = renderTestHook(() => useSalesMutations());
 
-    const updateData = { amount: 200 } as any;
+    const updateData: UpdateSaleRequest = { id: "1", amount: 200 };
     result.current.updateSale.mutate({ id: "1", data: updateData });
 
     await waitFor(() => {
@@ -178,7 +187,15 @@ describe("useSalesMutations", () => {
     const { result } = renderTestHook(() => useSalesMutations());
 
     // Test create mutation invalidation
-    result.current.createSale.mutate({ amount: 100 } as any);
+    result.current.createSale.mutate({ 
+      amount: 100,
+      quantityLiters: 10,
+      unitPrice: 10,
+      saleDate: new Date("2024-01-01"),
+      fuelType: "diesel",
+      paymentMethod: "cash",
+      paymentStatus: "completed"
+    } satisfies CreateSaleRequest);
 
     await waitFor(() => {
       expect(result.current.createSale.isSuccess).toBe(true);

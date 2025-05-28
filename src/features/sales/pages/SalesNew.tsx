@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { MetricCard } from "@/core/components/ui/composed/card";
+import { MetricCard } from "@/core/components/ui/cards/metric-card";
 
 // Import existing sales hooks and components
 import {
@@ -27,9 +27,9 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createSale } from "@/features/sales/services";
 import { useToast } from "@/hooks";
-import { useShift } from "@/hooks/useShift";
+import { useShift } from "@/features/shifts/hooks/useShift";
 import { Sale } from "@/types";
-import { SalesFilters } from '@/features/sales/types';
+import { SalesFilters } from "@/features/sales/types";
 
 export default function SalesNew() {
   const { t } = useTranslation();

@@ -246,6 +246,7 @@ export function useFuelTankMonitor({
     warning,
     showError,
     queryClient,
+    startRefill,
   ]);
 
   // Start refilling the tank

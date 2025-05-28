@@ -10,15 +10,15 @@
  */
 export const API_CONFIG = {
   // Base URLs
-  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || "http://localhost:54321",
+  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || "https://vfywgrsymuvojbbfodri.supabase.co",
   FUNCTIONS_URL:
     import.meta.env.VITE_SUPABASE_FUNCTIONS_URL ||
-    "http://localhost:54321/functions/v1",
+    "https://vfywgrsymuvojbbfodri.supabase.co/functions/v1",
 
   // Authentication
   SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || "",
   PROJECT_ID:
-    import.meta.env.VITE_SUPABASE_PROJECT_ID || "web-tech-whisperer-vibe",
+    import.meta.env.VITE_SUPABASE_PROJECT_ID || "vfywgrsymuvojbbfodri",
 
   // Timeouts (in milliseconds)
   TIMEOUT: 30000, // 30 seconds

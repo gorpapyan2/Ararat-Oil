@@ -17,7 +17,7 @@ const ENDPOINT = API_ENDPOINTS.FUNCTIONS.FILLING_SYSTEMS;
 /**
  * Fetches all filling systems
  */
-export async function getFilingSystems(): Promise<
+export async function getFillingSystems(): Promise<
   ApiResponse<FillingSystem[]>
 > {
   return fetchFromFunction<FillingSystem[]>(ENDPOINT);
@@ -86,7 +86,7 @@ export async function validateTankIds(
  * Filling systems API object with all methods
  */
 export const fillingSystemsApi = {
-  getFilingSystems,
+  getFillingSystems,
   getFillingSystemById,
   createFillingSystem,
   updateFillingSystem,

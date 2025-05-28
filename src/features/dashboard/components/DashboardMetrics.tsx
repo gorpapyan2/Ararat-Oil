@@ -10,7 +10,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth";
 import { useEffect, useMemo } from "react";
 import { useToast } from "@/hooks";
-import { CardGrid, MetricCardProps } from "@/core/components/ui/composed/card";
+import { CardGrid } from "@/core/components/ui/cards/card-grid";
+import { MetricCard } from "@/core/components/ui/cards/metric-card";
+import { MetricCardProps } from "@/core/components/ui/cards/types";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { fetchDashboardData } from "../services/dashboard";
@@ -49,8 +51,8 @@ export function DashboardMetrics() {
         title: t("common.loading"),
         value: "Loading...",
         description: t("common.loading"),
-        icon: PieChart,
-        loading: true,
+        icon: <PieChart className="h-5 w-5" />,
+        isLoading: true,
       });
     }
 
@@ -63,27 +65,25 @@ export function DashboardMetrics() {
         title: t("dashboard.totalSales"),
         value: `${dashboardData.totalSales.toLocaleString()} ֏`,
         description: "+20.1% from last month",
-        icon: DollarSign,
+        icon: <DollarSign className="h-5 w-5" />,
       },
       {
         title: t("dashboard.totalExpenses"),
         value: `${dashboardData.totalExpenses.toLocaleString()} ֏`,
         description: "+19% from last month",
-        icon: TrendingUp,
+        icon: <TrendingUp className="h-5 w-5" />,
       },
       {
         title: t("dashboard.netProfit"),
         value: `${dashboardData.netProfit.toLocaleString()} ֏`,
         description: "+15% from last month",
-        icon: dashboardData.netProfit >= 0 ? ArrowUp : ArrowDown,
-        iconColor:
-          dashboardData.netProfit >= 0 ? "text-green-500" : "text-red-500",
+        icon: dashboardData.netProfit >= 0 ? <ArrowUp className="h-5 w-5" /> : <ArrowDown className="h-5 w-5" />,
       },
       {
         title: t("dashboard.inventoryValue"),
         value: `${dashboardData.inventoryValue.toLocaleString()} ֏`,
         description: "Based on current tank levels",
-        icon: Fuel,
+        icon: <Fuel className="h-5 w-5" />,
       },
     ];
   }, [isLoading, dashboardData, t]);
@@ -100,5 +100,18 @@ export function DashboardMetrics() {
     );
   }
 
-  return <CardGrid metrics={metrics} />;
+  return (
+    <CardGrid>
+      {metrics.map((metric, index) => (
+        <MetricCard
+          key={index}
+          title={metric.title}
+          value={metric.value}
+          description={metric.description}
+          icon={metric.icon}
+          isLoading={metric.isLoading}
+        />
+      ))}
+    </CardGrid>
+  );
 }

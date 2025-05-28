@@ -33,7 +33,7 @@ describe("API Translation Helpers", () => {
     });
 
     it("should return generic error message when action is not provided", () => {
-      // @ts-ignore - testing missing action parameter
+      // @ts-expect-error - testing missing action parameter
       const message = getApiErrorMessage(apiNamespaces.employees);
       expect(message).toBe("api.errors.employees.generic");
     });
@@ -55,7 +55,7 @@ describe("API Translation Helpers", () => {
     });
 
     it("should return generic success message when action is not provided", () => {
-      // @ts-ignore - testing missing action parameter
+      // @ts-expect-error - testing missing action parameter
       const message = getApiSuccessMessage(apiNamespaces.shifts);
       expect(message).toBe("api.success.shifts.generic");
     });
@@ -77,13 +77,13 @@ describe("API Translation Helpers", () => {
     });
 
     it("should handle missing entity by returning a generic action label", () => {
-      // @ts-ignore - testing with invalid namespace
+      // @ts-expect-error - testing with invalid namespace
       const label = getApiActionLabel("nonexistent", "delete");
       expect(label).toBe("api.actions.generic.delete");
     });
 
     it("should handle missing action by returning a fallback", () => {
-      // @ts-ignore - testing with invalid action
+      // @ts-expect-error - testing with invalid action
       const label = getApiActionLabel(apiNamespaces.sales, "nonexistent");
       expect(label).toBe("api.actions.sales.generic");
     });

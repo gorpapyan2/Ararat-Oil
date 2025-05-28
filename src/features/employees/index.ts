@@ -5,6 +5,9 @@
  * Only expose what's needed by other features to minimize dependencies.
  */
 
+// Page Components
+export { EmployeesPage } from "./pages";
+
 // Export services for CRUD operations
 export * from "./services";
 
@@ -16,10 +19,10 @@ export type {
   EmployeeSummary,
 } from "./types/employees.types";
 
-// Don't export mappers or internal utilities unless needed by other features
-
-export * from "./components/EmployeeManagerStandardized";
-export * from "./components/EmployeeDialogStandardized";
-export * from "./components/DeleteConfirmDialogStandardized";
-export * from "./components/EmployeesTable";
-export * from "./hooks/useEmployees";
+// Only export components that actually exist
+// TODO: Verify these exist and remove if they don't:
+// export * from "./components/EmployeeManagerStandardized";
+// export * from "./components/EmployeeDialogStandardized";
+// export * from "./components/DeleteConfirmDialogStandardized";
+// export * from "./components/EmployeesTable";
+// export * from "./hooks/useEmployees";

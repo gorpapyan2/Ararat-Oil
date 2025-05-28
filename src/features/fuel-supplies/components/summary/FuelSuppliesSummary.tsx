@@ -7,8 +7,10 @@ import {
   CardTitle,
   CardFooter,
 } from "@/core/components/ui/card";
-import { CardGrid, MetricCardProps } from "@/core/components/ui/composed/card";
-import { FuelSupply } from "@/features/supplies/types";
+import { CardGrid } from "@/core/components/ui/cards/card-grid";
+import { MetricCard } from "@/core/components/ui/cards/metric-card";
+import { MetricCardProps } from "@/core/components/ui/cards/types";
+import { FuelSupply } from "../../types";
 import { FuelType } from "@/types";
 import {
   format,
@@ -234,8 +236,8 @@ export function FuelSuppliesSummary({
 
         // Normal date range check - the date-fns isWithinInterval is inclusive
         return isWithinInterval(supplyDate, {
-          start: startOfDay(dateRange.from),
-          end: endOfDay(dateRange.to),
+          start: startOfDay(dateRange.from!),
+          end: endOfDay(dateRange.to!),
         });
       });
     }
@@ -462,7 +464,7 @@ export function FuelSuppliesSummary({
         title: "Loading...",
         value: "Loading...",
         description: "Loading...",
-        loading: true,
+        isLoading: true,
       });
     }
 
@@ -696,7 +698,18 @@ export function FuelSuppliesSummary({
         </div>
       </div>
 
-      <CardGrid metrics={metrics} />
+      <CardGrid>
+        {metrics.map((metric, index) => (
+          <MetricCard
+            key={index}
+            title={metric.title}
+            value={metric.value}
+            description={metric.description}
+            icon={metric.icon}
+            isLoading={metric.isLoading}
+          />
+        ))}
+      </CardGrid>
 
       {/* Grouped Data Breakdown */}
       {!loading && (

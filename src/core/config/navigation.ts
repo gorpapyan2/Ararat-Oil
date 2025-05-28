@@ -1,17 +1,16 @@
+import { LucideIcon } from "lucide-react";
+import { BarChart3, Users, Settings, CreditCard, CalendarClock, Database, Bug } from "lucide-react";
 import {
-  Home,
-  Settings,
-  Users,
-  BarChart,
-  Receipt,
-  ListChecks,
-  CalendarClock,
-  Bug,
-  Fuel,
-  Wallet,
-  Database,
-} from "lucide-react";
-import { IconGasStation, IconTank, IconTruck } from "@tabler/icons-react";
+  IconGasStation,
+  IconUser,
+  IconReport,
+  IconReceipt,
+  IconCash,
+  IconChartLine,
+  IconCoin,
+  IconTank,
+  type Icon,
+} from "@/core/components/ui/icons";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -30,13 +29,12 @@ export const useSidebarNavConfig = () => {
 
   return {
     overview: [
-      { to: "/", icon: Home, label: t("common.dashboard") },
-      { to: "/todo", icon: ListChecks, label: t("common.todo") },
+      { to: "/", icon: BarChart3, label: t("common.dashboard") },
     ],
     fuelManagement: [
       {
         to: "/fuel-management",
-        icon: Fuel,
+        icon: IconGasStation,
         label: t("common.fuelManagement"),
         children: [
           {
@@ -51,7 +49,7 @@ export const useSidebarNavConfig = () => {
           },
           {
             to: "/fuel-management/fuel-supplies",
-            icon: IconTruck,
+            icon: IconReceipt,
             label: t("common.fuelSupplies"),
           },
         ],
@@ -60,10 +58,10 @@ export const useSidebarNavConfig = () => {
     salesFinance: [
       {
         to: "/finance",
-        icon: Wallet,
+        icon: IconCash,
         label: t("common.finance"),
         children: [
-          { to: "/finance/sales", icon: BarChart, label: t("common.sales") },
+          { to: "/finance/sales", icon: BarChart3, label: t("common.sales") },
           {
             to: "/finance/shifts",
             icon: CalendarClock,
@@ -71,7 +69,7 @@ export const useSidebarNavConfig = () => {
           },
           {
             to: "/finance/expenses",
-            icon: Receipt,
+            icon: IconCoin,
             label: t("common.expenses"),
           },
         ],
@@ -85,3 +83,92 @@ export const useSidebarNavConfig = () => {
     development: [{ to: "/debug", icon: Bug, label: t("common.debug") }],
   };
 };
+
+export interface NavigationItem {
+  to: string;
+  icon: LucideIcon | Icon;
+  label: string;
+  children?: NavigationItem[];
+}
+
+export const navigationConfig: NavigationItem[] = [
+  {
+    to: "/dashboard",
+    icon: BarChart3,
+    label: "dashboard",
+  },
+  {
+    to: "/employees",
+    icon: Users,
+    label: "employees",
+  },
+  {
+    to: "/fuel-management",
+    icon: IconGasStation,
+    label: "fuel_management",
+    children: [
+      {
+        to: "/fuel-management/dashboard",
+        icon: BarChart3,
+        label: "overview",
+      },
+      {
+        to: "/fuel-management/tanks",
+        icon: IconTank,
+        label: "tanks",
+      },
+      {
+        to: "/fuel-management/providers",
+        icon: IconUser,
+        label: "providers",
+      },
+      {
+        to: "/fuel-management/filling-systems",
+        icon: IconGasStation,
+        label: "filling_systems",
+      },
+      {
+        to: "/fuel-management/fuel-supplies",
+        icon: IconReceipt,
+        label: "fuel_supplies",
+      },
+    ],
+  },
+  {
+    to: "/sales",
+    icon: IconCash,
+    label: "sales",
+  },
+  {
+    to: "/finances",
+    icon: CreditCard,
+    label: "finances",
+    children: [
+      {
+        to: "/finances/reports",
+        icon: IconReport,
+        label: "reports",
+      },
+      {
+        to: "/finances/profit-loss",
+        icon: IconChartLine,
+        label: "profit_loss",
+      },
+      {
+        to: "/finances/expenses",
+        icon: IconCoin,
+        label: "expenses",
+      },
+      {
+        to: "/finances/transactions",
+        icon: IconReceipt,
+        label: "transactions",
+      },
+    ],
+  },
+  {
+    to: "/settings",
+    icon: Settings,
+    label: "settings",
+  },
+];

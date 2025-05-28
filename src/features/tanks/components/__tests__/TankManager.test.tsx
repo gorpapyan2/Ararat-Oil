@@ -1,8 +1,9 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TankManager } from "../TankManager";
 import { tanksService } from "../../services/tanksService";
-import { vi } from "vitest";
+import { vi, describe, it, expect, beforeEach, type MockedFunction } from "vitest";
 import { setupComponentWrapper } from "@/test/utils/test-wrappers";
+import type { FuelTank, FuelType } from "../../types";
 
 // Mock the tanks service
 vi.mock("../../services/tanksService", () => ({
@@ -22,19 +23,20 @@ vi.mock("@/hooks/useDialog", () => ({
 }));
 
 describe("TankManager", () => {
-  const mockTanks = [
+  const mockTanks: FuelTank[] = [
     {
       id: "1",
       name: "Tank 1",
       fuel_type_id: "1",
       capacity: 1000,
       current_level: 500,
+      is_active: true,
       created_at: "2024-01-01",
       updated_at: "2024-01-01",
     },
   ];
 
-  const mockFuelTypes = [
+  const mockFuelTypes: FuelType[] = [
     { id: "1", name: "Diesel" },
     { id: "2", name: "Petrol" },
   ];
@@ -45,8 +47,8 @@ describe("TankManager", () => {
 
     beforeEach(() => {
       vi.clearAllMocks();
-      (tanksService.getTanks as any).mockResolvedValue(mockTanks);
-      (tanksService.getFuelTypes as any).mockResolvedValue(mockFuelTypes);
+      (tanksService.getTanks as MockedFunction<typeof tanksService.getTanks>).mockResolvedValue(mockTanks);
+      (tanksService.getFuelTypes as MockedFunction<typeof tanksService.getFuelTypes>).mockResolvedValue(mockFuelTypes);
       mockTranslation.mockImplementation((key) => key);
     });
 
@@ -99,7 +101,7 @@ describe("TankManager", () => {
   });
 
   it("handles error state", async () => {
-    (tanksService.getTanks as any).mockRejectedValue(
+    (tanksService.getTanks as MockedFunction<typeof tanksService.getTanks>).mockRejectedValue(
       new Error("Failed to fetch")
     );
     renderComponent();

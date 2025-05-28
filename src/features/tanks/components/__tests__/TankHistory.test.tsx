@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TankHistory } from "../TankHistory";
-import { vi } from "vitest";
+import { vi, describe, it, expect, beforeEach, type MockedFunction } from "vitest";
 import { tanksService } from "../../services/tanksService";
+import type { FuelTank, TankLevelChange } from "../../types";
 
 // Mock the useTranslation hook
 vi.mock("react-i18next", () => ({
@@ -18,17 +19,18 @@ vi.mock("../../services/tanksService", () => ({
 }));
 
 describe("TankHistory", () => {
-  const mockTank = {
+  const mockTank: Partial<FuelTank> = {
     id: "1",
     name: "Tank 1",
     fuel_type: { id: "1", name: "Diesel" },
     capacity: 1000,
     current_level: 500,
+    is_active: true,
     created_at: "2024-01-01",
     updated_at: "2024-01-01",
   };
 
-  const mockLevelChanges = [
+  const mockLevelChanges: TankLevelChange[] = [
     {
       id: "1",
       tank_id: "1",
@@ -37,7 +39,8 @@ describe("TankHistory", () => {
       change_amount: 100,
       change_type: "add",
       created_at: "2024-01-02T10:00:00Z",
-      metadata: { reason: "Refill" },
+      created_by: "user-1",
+      reason: "Refill",
     },
     {
       id: "2",
@@ -47,12 +50,14 @@ describe("TankHistory", () => {
       change_amount: 50,
       change_type: "subtract",
       created_at: "2024-01-03T10:00:00Z",
-      metadata: { reason: "Usage" },
+      created_by: "user-1",
+      reason: "Usage",
     },
   ];
 
   const defaultProps = {
     tank: mockTank,
+    tankId: "1",
     onClose: vi.fn(),
   };
 
@@ -62,7 +67,7 @@ describe("TankHistory", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (tanksService.getTankLevelChanges as any).mockResolvedValue(
+    (tanksService.getTankLevelChanges as MockedFunction<typeof tanksService.getTankLevelChanges>).mockResolvedValue(
       mockLevelChanges
     );
   });
@@ -93,7 +98,7 @@ describe("TankHistory", () => {
 
   it("handles API error", async () => {
     const mockError = new Error("API Error");
-    (tanksService.getTankLevelChanges as any).mockRejectedValueOnce(mockError);
+    (tanksService.getTankLevelChanges as MockedFunction<typeof tanksService.getTankLevelChanges>).mockRejectedValueOnce(mockError);
 
     renderComponent();
 
@@ -103,7 +108,7 @@ describe("TankHistory", () => {
   });
 
   it("handles empty history", async () => {
-    (tanksService.getTankLevelChanges as any).mockResolvedValueOnce([]);
+    (tanksService.getTankLevelChanges as MockedFunction<typeof tanksService.getTankLevelChanges>).mockResolvedValueOnce([]);
 
     renderComponent();
 

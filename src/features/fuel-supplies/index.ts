@@ -8,6 +8,7 @@
 // Re-export components
 export { FuelSuppliesTable } from "./components/FuelSuppliesTable";
 export { FuelSuppliesSummary } from "./components/summary/FuelSuppliesSummary";
+export { FuelSuppliesManagerStandardized } from "./components/FuelSuppliesManagerStandardized";
 
 // Re-export hooks
 export { useFuelSupplies } from "./hooks/useFuelSupplies";

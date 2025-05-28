@@ -187,7 +187,7 @@ export function StandardDatePicker(props: StandardDatePickerProps) {
   };
 
   // Handle clearing the date(s)
-  const handleClear = () => {
+  const handleClear = React.useCallback(() => {
     if (mode === "single" && "onChange" in props && props.onChange) {
       (props.onChange as (date: Date | undefined) => void)(undefined);
     } else if (mode === "range" && "onChange" in props && props.onChange) {
@@ -200,7 +200,7 @@ export function StandardDatePicker(props: StandardDatePickerProps) {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  };
+  }, [mode, props, setOpen]);
 
   // Format the display value based on mode
   const displayValue = React.useMemo(() => {
@@ -221,7 +221,7 @@ export function StandardDatePicker(props: StandardDatePickerProps) {
 
       return `${format(rangeValue.from, dateFormat)}${separator}${format(rangeValue.to, dateFormat)}`;
     }
-  }, [props.value, dateFormat, mode]);
+  }, [props, dateFormat, mode]);
 
   const hasValue =
     mode === "single"

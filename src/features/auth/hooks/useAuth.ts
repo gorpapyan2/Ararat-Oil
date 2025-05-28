@@ -8,6 +8,7 @@ import type {
   RegisterCredentials,
   PasswordResetRequest,
 } from "../types/auth.types";
+import { APP_ROUTES } from "@/core/config/routes";
 
 export function useAuth() {
   const navigate = useNavigate();
@@ -76,7 +77,7 @@ export function useAuth() {
           isLoading: false,
         }));
 
-        navigate("/");
+        navigate(APP_ROUTES.AUTH.path);
       } catch (error) {
         setState((prev) => ({
           ...prev,
@@ -104,7 +105,7 @@ export function useAuth() {
           isLoading: false,
         }));
 
-        navigate("/");
+        navigate(APP_ROUTES.DASHBOARD.path);
       } catch (error) {
         setState((prev) => ({
           ...prev,
@@ -130,7 +131,7 @@ export function useAuth() {
         isLoading: false,
       }));
 
-      navigate("/login");
+      navigate(APP_ROUTES.AUTH.path);
     } catch (error) {
       setState((prev) => ({
         ...prev,

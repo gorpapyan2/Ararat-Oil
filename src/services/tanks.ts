@@ -19,7 +19,7 @@ export interface UpdateTankRequest {
 
 export const fetchTanks = async (): Promise<Tank[]> => {
   try {
-    const response = await tanksApi.getAll();
+    const response = await tanksApi.getTanks();
 
     if (response.error) {
       console.error("Error fetching tanks:", response.error);
@@ -35,7 +35,7 @@ export const fetchTanks = async (): Promise<Tank[]> => {
 
 export const fetchActiveTanks = async (): Promise<Tank[]> => {
   try {
-    const response = await tanksApi.getAll();
+    const response = await tanksApi.getTanks();
 
     if (response.error) {
       console.error("Error fetching active tanks:", response.error);
@@ -51,7 +51,7 @@ export const fetchActiveTanks = async (): Promise<Tank[]> => {
 
 export const fetchTankById = async (id: string): Promise<Tank | null> => {
   try {
-    const response = await tanksApi.getById(id);
+    const response = await tanksApi.getTankById(id);
 
     if (response.error) {
       console.error(`Error fetching tank with ID ${id}:`, response.error);
@@ -69,7 +69,7 @@ export const fetchTankLevelChanges = async (
   tankId: string
 ): Promise<TankLevelChange[]> => {
   try {
-    const response = await tanksApi.getLevelChanges(tankId);
+    const response = await tanksApi.getTankLevelChanges(tankId);
 
     if (response.error) {
       console.error(
@@ -88,7 +88,7 @@ export const fetchTankLevelChanges = async (
 
 export const createTank = async (tank: CreateTankRequest): Promise<Tank> => {
   try {
-    const response = await tanksApi.create(tank);
+    const response = await tanksApi.createTank(tank);
 
     if (response.error) {
       console.error("Error creating tank:", response.error);
@@ -107,7 +107,7 @@ export const updateTank = async (
   updates: UpdateTankRequest
 ): Promise<Tank> => {
   try {
-    const response = await tanksApi.update(id, updates);
+    const response = await tanksApi.updateTank(id, updates);
 
     if (response.error) {
       console.error(`Error updating tank with ID ${id}:`, response.error);
@@ -123,7 +123,7 @@ export const updateTank = async (
 
 export const deleteTank = async (id: string): Promise<void> => {
   try {
-    const response = await tanksApi.delete(id);
+    const response = await tanksApi.deleteTank(id);
 
     if (response.error) {
       console.error(`Error deleting tank with ID ${id}:`, response.error);
@@ -142,7 +142,7 @@ export const adjustTankLevel = async (
   reason?: string
 ): Promise<Tank> => {
   try {
-    const response = await tanksApi.adjustLevel(
+    const response = await tanksApi.adjustTankLevel(
       id,
       changeAmount,
       changeType,

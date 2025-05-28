@@ -103,7 +103,7 @@ function AdminPage() {
   const { isAuthenticated, user } = useAuthGuard({ requiredRole: 'admin' });
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/auth" />;
   }
 
   return <AdminContent />;

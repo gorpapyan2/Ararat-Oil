@@ -78,7 +78,16 @@ export function useTankDialog({ onSuccess }: UseTankDialogOptions = {}) {
     setIsSubmitting(true);
 
     try {
-      await tanksApi.createTank(pendingTankData as any);
+      // Transform the form data to match the API interface
+      const tankData = {
+        name: pendingTankData.name,
+        capacity: pendingTankData.capacity,
+        current_level: pendingTankData.current_level,
+        fuel_type_id: pendingTankData.fuel_type, // Map fuel_type to fuel_type_id
+        status: "active" as const, // Default status
+      };
+
+      await tanksApi.createTank(tankData);
 
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
 

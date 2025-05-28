@@ -123,7 +123,6 @@ export default defineConfig(({ command, mode }) => ({
       '@tanstack/react-query',
       '@tanstack/react-query-devtools',
       'lucide-react',
-      '@tabler/icons-react',
       '@radix-ui/react-icons',
       '@radix-ui/react-slot',
       '@radix-ui/react-dialog',
@@ -141,8 +140,9 @@ export default defineConfig(({ command, mode }) => ({
       'recharts'
     ],
     exclude: [
-      // Exclude Node.js utility scripts
-      'src/utils/component-audit.js'
+      // Exclude Node.js utility scripts and problematic icon library
+      'src/utils/component-audit.js',
+      '@tabler/icons-react'
     ],
     esbuildOptions: {
       target: 'es2020',
@@ -179,17 +179,32 @@ export default defineConfig(({ command, mode }) => ({
         /.*component-audit\.js$/
       ],
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'ui-vendor': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-select',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-toast'
-          ],
-          'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
-          'chart-vendor': ['recharts'],
-          'icon-vendor': ['@tabler/icons-react', 'lucide-react'],
+        manualChunks: (id) => {
+          // Handle Tabler Icons specially to prevent chunk splitting
+          if (id.includes('@tabler/icons-react')) {
+            return 'tabler-icons';
+          }
+          
+          // Group other vendor libraries
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('@tanstack/react-query')) {
+              return 'query-vendor';
+            }
+            if (id.includes('recharts')) {
+              return 'chart-vendor';
+            }
+            if (id.includes('lucide-react')) {
+              return 'lucide-icons';
+            }
+            // Group other vendor dependencies
+            return 'vendor';
+          }
         },
       },
       input: getInputForMode(mode),

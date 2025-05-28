@@ -178,6 +178,7 @@ export interface Sale {
   price_per_liter: number;
   total_price: number;
   payment_method: string;
+  payment_status?: string;
   employee_id: string;
   shift_id?: string;
   created_at: string;

@@ -1,5 +1,5 @@
 // Components
-export { SalesTable } from "./components/SalesTable";
+export { SalesTableStandardized as SalesTable } from "./components/SalesTableStandardized";
 export { SalesFormStandardized } from "./components/SalesFormStandardized";
 export { SalesDialogsStandardized } from "./components/SalesDialogsStandardized";
 export { NewSaleButton } from "./components/NewSaleButton";
@@ -17,6 +17,9 @@ export { SalesFilterPanel } from "./components/SalesFilterPanel";
 // Form Components
 export { PriceAndEmployeeInputs } from "./components/form/PriceAndEmployeeInputs";
 export { FillingSystemSelect as FormFillingSystemSelect } from "./components/form/FillingSystemSelect";
+
+// Page Components
+export { SalesPage, SalesNew, SalesCreate } from "./pages";
 
 // Hooks
 export { useSalesMutations } from "./hooks/useSalesMutations";

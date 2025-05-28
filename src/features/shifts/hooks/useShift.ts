@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Shift, ShiftPaymentMethod, PaymentMethod } from "@/types";
 import { shiftsApi } from "@/core/api";
 import { useAuth } from "@/features/auth";
-import { useToast } from "./use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
 
 export function useShift() {
@@ -18,19 +18,19 @@ export function useShift() {
   const { toast } = useToast();
 
   // Add a function to clear stuck loading states
-  const clearStuckStates = () => {
+  const clearStuckStates = useCallback(() => {
     // If the check has been running for more than 10 seconds, force reset
     if (isCheckingShift && Date.now() - lastCheckTime > 10000) {
       console.warn("Detected stuck loading state in useShift, resetting");
       setIsCheckingShift(false);
     }
-  };
+  }, [isCheckingShift, lastCheckTime]);
 
   // Run the clear function periodically
   useEffect(() => {
     const interval = setInterval(clearStuckStates, 5000);
     return () => clearInterval(interval);
-  }, [isCheckingShift, lastCheckTime]);
+  }, [clearStuckStates, isCheckingShift, lastCheckTime]);
 
   // Check for active shift
   const checkActiveShift = useCallback(
@@ -198,21 +198,9 @@ export function useShift() {
     }
   }, [activeShift]);
 
-  const fetchShiftPaymentMethods = async (shiftId: string) => {
-    try {
-      const response = await shiftsApi.getShiftPaymentMethods(shiftId);
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-      setShiftPaymentMethods(response.data || []);
-    } catch (error) {
-      console.error("Error fetching shift payment methods", error);
-    }
-  };
-
+  // Update shift sales total
   const updateShiftSalesTotal = async (shiftId: string) => {
     try {
-      // Get sum of total_sales for this shift using API
       const response = await shiftsApi.getShiftSalesTotal(shiftId);
       if (response.error) {
         throw new Error(response.error.message);
@@ -220,184 +208,286 @@ export function useShift() {
 
       const salesTotal = response.data?.total || 0;
 
-      // Update the shift object with current sales total
-      if (activeShift) {
-        setActiveShift((prev) => {
-          if (!prev) return null;
+      // Update the active shift with the new sales total
+      setActiveShift((prevShift) => {
+        if (prevShift && prevShift.id === shiftId) {
           return {
-            ...prev,
+            ...prevShift,
             sales_total: salesTotal,
           };
-        });
-      }
+        }
+        return prevShift;
+      });
     } catch (error) {
-      console.error("Error updating shift sales total", error);
+      console.error("Error updating shift sales total:", error);
     }
   };
 
+  // Begin a new shift
   const beginShift = async (
     openingCash: number,
     employeeIds: string[] = []
   ) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "User not authenticated",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setSuccess(false);
+
     try {
-      setIsLoading(true);
+      const response = await shiftsApi.startShift(
+        openingCash,
+        employeeIds.length > 0 ? employeeIds : [user.id]
+      );
 
-      // Check if there's already an active shift first - for ANY employee
-      if (!navigator.onLine) {
-        // For offline mode, check local cache
-        const cachedShift = localStorage.getItem(`activeShift_${user?.id}`);
-        if (cachedShift) {
-          throw new Error(
-            "You already have an active shift open. Please close it before starting a new one."
-          );
-        }
-
-        // Also check for system-wide active shift
-        const systemShift = localStorage.getItem(`activeShift_system`);
-        if (systemShift) {
-          const parsedShift = JSON.parse(systemShift);
-          if (parsedShift && parsedShift.employee_id !== user?.id) {
-            throw new Error(
-              "Another employee has an active shift open. Only one shift can be active at a time."
-            );
-          }
-        }
-      } else {
-        // For online mode, check with the server
-        try {
-          // Query for ANY active shift in the system using the API
-          const response = await shiftsApi.getSystemActiveShift();
-          if (response.error) {
-            throw new Error(response.error.message);
-          }
-
-          const systemActiveShift = response.data || null;
-
-          if (systemActiveShift) {
-            // There's an active shift already
-            const isCurrentUserShift =
-              systemActiveShift.employee_id === user?.id;
-
-            if (isCurrentUserShift) {
-              throw new Error(
-                "You already have an active shift open. Please close it before starting a new one."
-              );
-            } else {
-              throw new Error(
-                "Another employee has an active shift open. Only one shift can be active at a time."
-              );
-            }
-          }
-        } catch (checkError: unknown) {
-          // If the error indicates no active shifts were found, we can proceed
-          const errorMessage = checkError instanceof Error ? checkError.message : "";
-          if (!errorMessage.includes("No active shifts found")) {
-            console.error(
-              "Error checking for existing active shifts:",
-              checkError
-            );
-            throw checkError;
-          }
-        }
-      }
-
-      // Start new shift
-      const response = await shiftsApi.startShift(openingCash, employeeIds);
       if (response.error) {
         throw new Error(response.error.message);
       }
 
-      const newShift = response.data!;
+      const newShift = response.data;
+      if (newShift) {
+        setActiveShift(newShift as unknown as Shift);
+        setSuccess(true);
 
-      // Update state with new shift
-      setActiveShift(newShift as unknown as Shift);
+        // Cache the new shift
+        try {
+          localStorage.setItem(
+            `activeShift_${user.id}`,
+            JSON.stringify(newShift)
+          );
+        } catch (e) {
+          console.warn("Failed to cache new shift:", e);
+        }
 
-      // Cache the new shift for offline mode
-      localStorage.setItem(`activeShift_${user?.id}`, JSON.stringify(newShift));
-      localStorage.setItem(`activeShift_system`, JSON.stringify(newShift));
+        toast({
+          title: "Success",
+          description: "Shift started successfully",
+        });
 
-      toast({
-        title: "Shift Started",
-        description: `Shift started with ${openingCash} cash`,
-        variant: "success",
-      });
-
-      return newShift;
+        // Clear success state after a delay
+        setTimeout(() => setSuccess(false), 3000);
+      }
     } catch (error: unknown) {
       console.error("Error starting shift:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to start shift";
+
       toast({
-        title: "Error Starting Shift",
+        title: "Error",
         description: errorMessage,
         variant: "destructive",
       });
-      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
+  // End the current shift
   const endShift = async (
     closingCash: number,
     paymentMethods?: PaymentMethodItem[]
   ) => {
+    if (!activeShift) {
+      toast({
+        title: "Error",
+        description: "No active shift to close",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setSuccess(false);
+
     try {
-      setIsLoading(true);
-      setSuccess(true); // Indicate we're in the closing process
-
-      if (!activeShift) {
-        throw new Error("No active shift found to close");
-      }
-
-      // Close the shift
       const response = await shiftsApi.closeShift(
         activeShift.id,
         closingCash,
-        paymentMethods
+        paymentMethods?.map((pm) => ({
+          id: "",
+          shift_id: activeShift.id,
+          payment_method: pm.payment_method as "cash" | "card" | "bank_transfer" | "mobile_payment",
+          amount: pm.amount,
+          notes: pm.reference || "",
+          created_at: "",
+          updated_at: "",
+        }))
       );
+
       if (response.error) {
         throw new Error(response.error.message);
       }
 
-      const closedShift = response.data!;
-
-      // Remove cached shift data since it's now closed
-      localStorage.removeItem(`activeShift_${user?.id}`);
-      localStorage.removeItem(`activeShift_system`);
-
-      // Reset state
       setActiveShift(null);
       setShiftPaymentMethods([]);
+      setSuccess(true);
+
+      // Clear cached shift data
+      try {
+        localStorage.removeItem(`activeShift_${user?.id}`);
+        localStorage.removeItem(`activeShift_system`);
+      } catch (e) {
+        console.warn("Failed to clear cached shift data:", e);
+      }
 
       toast({
-        title: "Shift Closed",
-        description: `Shift closed with ${closingCash} cash`,
-        variant: "success",
+        title: "Success",
+        description: "Shift closed successfully",
       });
 
-      return closedShift;
+      // Clear success state after a delay
+      setTimeout(() => setSuccess(false), 3000);
     } catch (error: unknown) {
       console.error("Error closing shift:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to close shift";
+
       toast({
-        title: "Error Closing Shift",
+        title: "Error",
         description: errorMessage,
         variant: "destructive",
       });
-      return null;
     } finally {
       setIsLoading(false);
-      setSuccess(false);
     }
   };
+
+  // Fetch shift payment methods
+  const fetchShiftPaymentMethods = async (shiftId: string) => {
+    try {
+      const response = await shiftsApi.getShiftPaymentMethods(shiftId);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const methods = response.data || [];
+      const formattedMethods: PaymentMethodItem[] = methods.map((method) => ({
+        payment_method: method.payment_method as "cash" | "card" | "bank_transfer" | "mobile_payment",
+        amount: method.amount,
+        reference: method.notes,
+      }));
+
+      setShiftPaymentMethods(formattedMethods);
+    } catch (error) {
+      console.error("Error fetching shift payment methods:", error);
+    }
+  };
+
+  // Add payment methods to shift
+  const addPaymentMethods = async (paymentMethods: PaymentMethodItem[]) => {
+    if (!activeShift) {
+      toast({
+        title: "Error",
+        description: "No active shift",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await shiftsApi.addShiftPaymentMethods(
+        activeShift.id,
+        paymentMethods.map((pm) => ({
+          id: "",
+          shift_id: activeShift.id,
+          payment_method: pm.payment_method as "cash" | "card" | "bank_transfer" | "mobile_payment",
+          amount: pm.amount,
+          notes: pm.reference || "",
+          created_at: "",
+          updated_at: "",
+        }))
+      );
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      // Refresh payment methods
+      await fetchShiftPaymentMethods(activeShift.id);
+
+      toast({
+        title: "Success",
+        description: "Payment methods added successfully",
+      });
+    } catch (error: unknown) {
+      console.error("Error adding payment methods:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to add payment methods";
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Delete payment method from shift
+  const deletePaymentMethod = async (paymentMethodId: string) => {
+    if (!activeShift) {
+      toast({
+        title: "Error",
+        description: "No active shift",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await shiftsApi.deleteShiftPaymentMethods(activeShift.id);
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      // Refresh payment methods
+      await fetchShiftPaymentMethods(activeShift.id);
+
+      toast({
+        title: "Success",
+        description: "Payment method removed successfully",
+      });
+    } catch (error: unknown) {
+      console.error("Error deleting payment method:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to delete payment method";
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Initialize shift check on mount and user change
+  useEffect(() => {
+    if (user) {
+      checkActiveShift();
+    }
+  }, [user, checkActiveShift]);
 
   return {
     activeShift,
     isLoading,
+    success,
+    isCheckingShift,
     shiftPaymentMethods,
     checkActiveShift,
     beginShift,
     endShift,
-    isCheckingShift,
+    addPaymentMethods,
+    deletePaymentMethod,
+    updateShiftSalesTotal,
   };
-}
+} 

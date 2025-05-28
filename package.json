@@ -144,6 +144,7 @@
     "postcss": "^8.5.3",
     "postcss-import": "^16.1.0",
     "rollup-plugin-visualizer": "^5.14.0",
+    "supabase": "^2.23.4",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.7",
     "typescript": "^5.5.3",

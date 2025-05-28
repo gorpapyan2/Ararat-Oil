@@ -133,7 +133,7 @@ export default function FuelManagementDashboard() {
       if (response.error) {
         const errorMessage = typeof response.error === "string" 
           ? response.error 
-          : (response.error as any)?.message || "Unknown error occurred";
+          : (response.error as { message?: string })?.message || "Unknown error occurred";
         throw new Error(errorMessage);
       }
 

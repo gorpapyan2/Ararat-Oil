@@ -1,7 +1,9 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuthGuard } from "../hooks/useAuthGuard";
+import { useAuth } from "../hooks/useAuth";
 import type { AuthConfig } from "../types/auth.types";
+import { Loading } from "@/core/components/ui/loading";
+import { APP_ROUTES } from "@/core/config/routes";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -9,19 +11,17 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, config }: AuthGuardProps) {
+  const { user, isLoading } = useAuth();
   const location = useLocation();
-  const { isAuthenticated, isLoading, user } = useAuthGuard(config);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
+      <Loading variant="page" text="Checking authentication..." />
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!user) {
+    return <Navigate to={APP_ROUTES.AUTH.path} state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

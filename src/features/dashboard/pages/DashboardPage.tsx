@@ -9,10 +9,10 @@ import {
   TabsTrigger,
 } from "@/core/components/ui/tabs";
 import { PageHeader } from "@/core/components/ui/page-header";
-import { Breadcrumbs, BreadcrumbItem } from "@/core/components/ui/breadcrumbs";
-import { FuelManagementDashboard } from "@/features/dashboard/componentss/FuelManagementDashboard";
-import { SalesDashboard } from "@/features/dashboard/componentss/SalesDashboard";
-import { FinanceDashboard } from "@/features/dashboard/componentss/FinanceDashboard";
+import { Breadcrumb } from "@/core/components/ui/breadcrumb";
+import { FuelManagementDashboard } from "@/features/dashboard/components/FuelManagementDashboard";
+import { SalesDashboard } from "@/features/dashboard/components/SalesDashboard";
+import { FinanceDashboard } from "@/features/dashboard/components/FinanceDashboard";
 import {
   Alert,
   AlertDescription,
@@ -76,13 +76,7 @@ export function DashboardPage() {
 
   return (
     <div className="container py-6 max-w-7xl mx-auto">
-      <Breadcrumbs>
-        {breadcrumbSegments.map((segment, index) => (
-          <BreadcrumbItem key={index} href={segment.href}>
-            {segment.name}
-          </BreadcrumbItem>
-        ))}
-      </Breadcrumbs>
+      <Breadcrumb segments={breadcrumbSegments} />
 
       <div className="my-4">
         <PageHeader title={pageTitle} description={pageDescription}>

@@ -1,45 +1,33 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/supabase";
 
-// Set up ENV configs for Supabase
+// Environment variables check
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    "Missing environment variables VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY!"
-  );
+  throw new Error("Missing Supabase environment variables");
 }
 
-// Configure the Supabase client with better network handling
-const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+// Create Supabase client with improved network handling
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
+    detectSessionInUrl: true,
   },
-  global: {
-    // Add fetch options with longer timeout
-    fetch: (url, options) => {
-      const fetchOptions = {
-        ...options,
-        // Longer timeout for slower connections
-        timeout: 30000, // 30 seconds
-      };
-
-      return fetch(url, fetchOptions);
-    },
-  },
-  // Improved retry configuration
-  db: {
-    schema: "public",
-  },
-  // Add custom fetch handler to simulate retries
   realtime: {
     params: {
-      eventsPerSecond: 10,
+      eventsPerSecond: 2,
+    },
+  },
+  global: {
+    headers: {
+      "x-client-info": "web-tech-whisperer-vibe",
     },
   },
 });
+
+export default supabase;
 
 // Add error event listener to detect network issues
 window.addEventListener("offline", () => {
@@ -48,7 +36,6 @@ window.addEventListener("offline", () => {
 
 window.addEventListener("online", () => {
   console.log("Connection restored. Reconnecting to Supabase...");
-  // We can trigger any reconnection logic here if needed
 });
 
 // Helper to check if a network error occurred
@@ -69,88 +56,3 @@ export const isNetworkError = (error: unknown): boolean => {
   
   return false;
 };
-
-// Check Supabase connection on import
-(async function checkSupabaseConnection() {
-  try {
-    console.log("Checking Supabase connection...");
-    const { data, error } = await supabaseClient
-      .from("petrol_providers")
-      .select("count")
-      .limit(1);
-
-    if (error) {
-      console.error("Supabase connection error:", error);
-    } else {
-      console.log("Supabase connection successful, table access verified");
-    }
-  } catch (err) {
-    console.error("Failed to check Supabase connection:", err);
-  }
-})();
-
-// Re-export all types from types directory
-export * from "@/core/api/types";
-
-// Re-export service functions with more specific exports to avoid naming conflicts
-export {
-  fetchExpenseById,
-  fetchExpenseCategories,
-  createExpense,
-  updateExpense,
-  deleteExpense,
-} from "./expenses";
-
-// Explicitly rename the fetchExpenses export from expenses.ts to avoid naming conflicts
-import { fetchExpenses as fetchExpensesList } from "./expenses";
-export { fetchExpensesList };
-
-export {
-  fetchProfitLoss,
-  fetchRevenue,
-  fetchExpenses as fetchFinancialExpenses,
-  fetchFinancialDashboard,
-} from "./financials";
-
-// Export sales functions from the sales modules
-export { fetchSales, fetchLatestSale } from "./sales";
-
-export {
-  fetchActiveTanks,
-  fetchTankById,
-  fetchTankLevelChanges,
-  createTank,
-  updateTank,
-  deleteTank,
-  adjustTankLevel,
-  fetchFuelTanks,
-  createFuelTank,
-  updateTankLevel,
-} from "./tanks";
-
-// Specify the exports for the remaining modules
-// We'll be more specific with these exports to avoid ambiguity
-export {
-  fetchFuelSupplies,
-  createFuelSupply,
-  updateFuelSupply,
-  deleteFuelSupply,
-} from "./fuel-supplies";
-
-export {
-  createFillingSystem,
-  fetchFillingSystems,
-  deleteFillingSystem,
-  validateTankIds,
-} from "./filling-systems";
-
-export {
-  fetchPetrolProviders,
-  createPetrolProvider,
-  updatePetrolProvider,
-  deletePetrolProvider,
-} from "./petrol-providers";
-
-// Export the client with both named export and as default
-export const supabase = supabaseClient;
-export default supabaseClient;

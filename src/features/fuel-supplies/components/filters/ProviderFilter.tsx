@@ -28,7 +28,10 @@ export function ProviderFilter({
   const { t } = useTranslation();
 
   // Ensure providers is always defined and an array
-  const providersList = Array.isArray(providers) ? providers : [];
+  const providersList = React.useMemo(() => {
+    return Array.isArray(providers) ? providers : [];
+  }, [providers]);
+  
   const selectedProvider = providersList.find(
     (provider) => provider.id === value
   );

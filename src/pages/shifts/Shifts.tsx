@@ -18,7 +18,7 @@ import {
   CardDescription,
 } from "@/core/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { formatCurrency } from "@/shared/utils";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { Shift } from "@/types";
@@ -39,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/core/components/ui/primitives/select";
-import { DateRangePicker } from "@/core/components/ui/date-range-picker";
+import { StandardDatePicker } from "@/shared/components/common/datepicker/StandardDatePicker";
 import { addDays } from "date-fns";
 import { Badge } from "@/core/components/ui/badge";
 import {
@@ -48,7 +48,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/core/components/ui/tooltip";
-import { useShift } from "@/hooks/useShift";
+import { useShift } from "@/features/shifts/hooks/useShift";
 import { useNavigate } from "react-router-dom";
 import { formatDateTime, calculateDuration } from "@/shared/utils";
 import { ArrowRight, DollarSign } from "lucide-react";
@@ -159,18 +159,7 @@ const Shifts = () => {
     });
   };
 
-  useEffect(() => {
-    if (user) {
-      loadShiftHistory();
-    }
-  }, [user]);
-
-  // Apply filters whenever filter state changes
-  useEffect(() => {
-    applyFilters();
-  }, [searchTerm, statusFilter, dateRange, shiftHistory]);
-
-  const loadShiftHistory = async () => {
+  const loadShiftHistory = useCallback(async () => {
     if (!user) return;
 
     setIsLoading(true);
@@ -204,32 +193,16 @@ const Shifts = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
-  const loadPaymentMethodsForShifts = async (shifts: ShiftHistoryItem[]) => {
-    try {
-      const closedShifts = shifts.filter((shift) => shift.status === "CLOSED");
-
-      for (const shift of closedShifts) {
-        const response = await shiftsApi.getShiftPaymentMethods(shift.id);
-        if (response.error) {
-          console.error(
-            `Error fetching payment methods for shift ${shift.id}:`,
-            response.error
-          );
-        } else {
-          shift.payment_methods = response.data || [];
-        }
-      }
-
-      // Update state with payment methods information
-      setShiftHistory([...shifts]);
-    } catch (error) {
-      console.error("Error loading payment methods for shifts:", error);
+  useEffect(() => {
+    if (user) {
+      loadShiftHistory();
     }
-  };
+  }, [user, loadShiftHistory]);
 
-  const applyFilters = () => {
+  // Apply filters whenever filter state changes
+  const applyFilters = useCallback(() => {
     let result = [...shiftHistory];
 
     // Apply status filter
@@ -258,6 +231,33 @@ const Shifts = () => {
     }
 
     setFilteredShifts(result);
+  }, [shiftHistory, statusFilter, dateRange, searchTerm]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
+
+  const loadPaymentMethodsForShifts = async (shifts: ShiftHistoryItem[]) => {
+    try {
+      const closedShifts = shifts.filter((shift) => shift.status === "CLOSED");
+
+      for (const shift of closedShifts) {
+        const response = await shiftsApi.getShiftPaymentMethods(shift.id);
+        if (response.error) {
+          console.error(
+            `Error fetching payment methods for shift ${shift.id}:`,
+            response.error
+          );
+        } else {
+          shift.payment_methods = response.data || [];
+        }
+      }
+
+      // Update state with payment methods information
+      setShiftHistory([...shifts]);
+    } catch (error) {
+      console.error("Error loading payment methods for shifts:", error);
+    }
   };
 
   // Calculate shift metrics
@@ -305,7 +305,7 @@ const Shifts = () => {
       action={
         activeShift || metrics.activeShifts > 0 ? (
           <ButtonLink
-            href="/finance/shifts/close"
+            to="/finance/shifts/close"
             variant="default"
             className="bg-amber-600 hover:bg-amber-700"
           >
@@ -313,7 +313,7 @@ const Shifts = () => {
             {t("shifts.closeShift")}
           </ButtonLink>
         ) : (
-          <ButtonLink href="/finance/shifts/open" variant="default">
+          <ButtonLink to="/finance/shifts/open" variant="default">
             <Plus className="h-4 w-4 mr-2" />
             {t("shifts.startShift")}
           </ButtonLink>
@@ -467,7 +467,8 @@ const Shifts = () => {
                 </Select>
               </div>
               <div className="w-full sm:w-auto flex-1 sm:flex-none min-w-[250px]">
-                <DateRangePicker
+                <StandardDatePicker
+                  mode="range"
                   value={dateRange}
                   onChange={handleDateRangeChange}
                 />

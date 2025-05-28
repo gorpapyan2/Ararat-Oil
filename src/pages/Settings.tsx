@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useTranslation } from "react-i18next";
+import { Routes, Route } from "react-router-dom";
+import { ProfileSettings } from "@/features/settings";
 import {
   IconSettings,
   IconUser,
@@ -12,12 +14,15 @@ import {
   IconCheck,
   IconX,
   IconDeviceLaptop,
-} from "@tabler/icons-react";
+  IconShield,
+  IconEye,
+  IconPalette,
+} from "@/core/components/ui/icons";
 import { useBreadcrumbs } from "@/core/providers/BreadcrumbProvider";
 import { Settings as SettingsIcon } from "lucide-react";
 
 // Import our custom UI components
-import { PageHeader } from "@/core/components/ui/page-header";
+import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "@/core/components/ui/page-header";
 import {
   Card,
   CardContent,
@@ -57,6 +62,7 @@ import { useAuth } from "@/features/auth";
 import { ActionButton } from "@/core/components/ui/action-button";
 import { LoadingButton } from "@/core/components/ui/loading-button";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { LoadingSpinner } from "@/core/components/ui/loading-spinner";
 
 export default function Settings() {
   const { setBreadcrumbs } = useBreadcrumbs();

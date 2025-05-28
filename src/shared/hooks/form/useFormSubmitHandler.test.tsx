@@ -1,6 +1,7 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 import { useFormSubmitHandler } from "./useFormSubmitHandler";
 import { useToast } from "../ui";
+import type { UseFormReturn, FieldValues } from "react-hook-form";
 
 // Mock the useToast hook
 jest.mock("../ui", () => ({
@@ -9,7 +10,7 @@ jest.mock("../ui", () => ({
 
 describe("useFormSubmitHandler", () => {
   // Mock form
-  const mockForm = {
+  const mockForm: Partial<UseFormReturn<FieldValues>> = {
     handleSubmit: jest.fn((fn) => fn),
     reset: jest.fn(),
   };
@@ -32,7 +33,7 @@ describe("useFormSubmitHandler", () => {
 
   it("should initialize with isSubmitting set to false", () => {
     const { result } = renderHook(() =>
-      useFormSubmitHandler(mockForm as any, jest.fn())
+      useFormSubmitHandler(mockForm as UseFormReturn<FieldValues>, jest.fn())
     );
 
     expect(result.current.isSubmitting).toBe(false);
@@ -43,7 +44,7 @@ describe("useFormSubmitHandler", () => {
     const mockOnSuccess = jest.fn();
 
     const { result } = renderHook(() =>
-      useFormSubmitHandler(mockForm as any, mockOnSubmit, {
+      useFormSubmitHandler(mockForm as UseFormReturn<FieldValues>, mockOnSubmit, {
         successMessage: "Success message",
         onSuccess: mockOnSuccess,
         showSuccessToast: true,
@@ -76,7 +77,7 @@ describe("useFormSubmitHandler", () => {
     const mockOnError = jest.fn();
 
     const { result } = renderHook(() =>
-      useFormSubmitHandler(mockForm as any, mockOnSubmit, {
+      useFormSubmitHandler(mockForm as UseFormReturn<FieldValues>, mockOnSubmit, {
         errorMessage: "Custom error message",
         onError: mockOnError,
         showErrorToast: true,
@@ -104,7 +105,7 @@ describe("useFormSubmitHandler", () => {
     const mockOnSubmit = jest.fn().mockResolvedValue(undefined);
 
     const { result } = renderHook(() =>
-      useFormSubmitHandler(mockForm as any, mockOnSubmit, {
+      useFormSubmitHandler(mockForm as UseFormReturn<FieldValues>, mockOnSubmit, {
         resetOnSuccess: true,
       })
     );
@@ -122,7 +123,7 @@ describe("useFormSubmitHandler", () => {
     const mockOnSubmit = jest.fn().mockResolvedValue(undefined);
 
     const { result } = renderHook(() =>
-      useFormSubmitHandler(mockForm as any, mockOnSubmit, {
+      useFormSubmitHandler(mockForm as UseFormReturn<FieldValues>, mockOnSubmit, {
         successMessage: "Success message",
         showSuccessToast: false,
       })
@@ -142,7 +143,7 @@ describe("useFormSubmitHandler", () => {
     const mockOnSubmit = jest.fn().mockRejectedValue(testError);
 
     const { result } = renderHook(() =>
-      useFormSubmitHandler(mockForm as any, mockOnSubmit, {
+      useFormSubmitHandler(mockForm as UseFormReturn<FieldValues>, mockOnSubmit, {
         errorMessage: "Error message",
         showErrorToast: false,
       })

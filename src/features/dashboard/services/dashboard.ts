@@ -4,52 +4,50 @@ import {
   tanksApi,
   Expense,
   Sale,
-  FuelTank,
+  Tank,
 } from "@/core/api";
 import type { DashboardData } from "../types";
 
-export async function fetchDashboardData(): Promise<DashboardData> {
-  const [sales, expenses, tanks] = await Promise.all([
-    salesApi.getAll(),
-    expensesApi.getAll(),
-    tanksApi.getAll(),
-  ]);
+/**
+ * Fetches all dashboard data including sales, expenses, and tank information
+ * @returns Promise<DashboardData> - Complete dashboard data
+ */
+export const fetchDashboardData = async (): Promise<DashboardData> => {
+  try {
+    // Fetch all required data in parallel
+    const [salesResponse, expensesResponse, tanksResponse] = await Promise.all([
+      salesApi.getSales(),
+      expensesApi.getExpenses(),
+      tanksApi.getTanks()
+    ]);
 
-  // Calculate totals
-  const totalSales =
-    sales.data?.reduce(
-      (sum: number, sale: Sale) => sum + Number(sale.total_sales || 0),
-      0
-    ) || 0;
-  const totalExpenses =
-    expenses.data?.reduce(
-      (sum: number, expense: Expense) => sum + Number(expense.amount || 0),
-      0
-    ) || 0;
-  const netProfit = totalSales - totalExpenses;
+    // Extract data from responses, defaulting to empty arrays if not present
+    const sales: Sale[] = salesResponse.data || [];
+    const expenses: Expense[] = expensesResponse.data || [];
+    const tanks: Tank[] = tanksResponse.data || [];
 
-  // Calculate inventory value based on current tank levels
-  const fuelPrices = {
-    petrol: 500, // Example price per liter in AMD
-    diesel: 550,
-    gas: 300,
-    kerosene: 600,
-    cng: 350,
-  };
+    // Calculate totals
+    const totalSales = sales.reduce((sum, sale) => sum + (sale.total_price || 0), 0);
+    const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    const netProfit = totalSales - totalExpenses;
 
-  const inventoryValue = tanks.data?.reduce((sum: number, tank: FuelTank) => {
-    const pricePerLiter =
-      fuelPrices[tank.fuel_type as keyof typeof fuelPrices] || 500; // Default to petrol price if type unknown
-    return sum + tank.current_level * pricePerLiter;
-  }, 0);
+    // Calculate inventory value (using a default price per liter for now)
+    const defaultPricePerLiter = 1.5; // This should come from fuel prices
+    const inventoryValue = tanks.reduce((sum, tank) => {
+      return sum + (tank.current_level * defaultPricePerLiter);
+    }, 0);
 
-  return {
-    sales,
-    expenses,
-    tanks,
-    totalSales,
-    totalExpenses,
-    netProfit,
-    inventoryValue,
-  };
-}
+    return {
+      sales,
+      expenses,
+      tanks,
+      totalSales,
+      totalExpenses,
+      netProfit,
+      inventoryValue
+    };
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    throw error;
+  }
+};

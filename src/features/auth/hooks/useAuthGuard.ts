@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import type { AuthConfig } from "../types/auth.types";
 import { hasRequiredRole } from "../utils/auth.utils";
+import { APP_ROUTES } from "@/core/config/routes";
 
 export function useAuthGuard(config: AuthConfig = {}) {
   const { user, isLoading } = useAuth();
@@ -11,7 +12,7 @@ export function useAuthGuard(config: AuthConfig = {}) {
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        navigate("/login");
+        navigate(APP_ROUTES.AUTH.path);
         return;
       }
 

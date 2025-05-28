@@ -92,7 +92,18 @@ export async function createExpense(
   expense: CreateExpenseRequest
 ): Promise<Expense> {
   try {
-    const response = await expensesApi.createExpense(expense as any);
+    // Transform the request to match the API's expected structure
+    const expenseData: Omit<Expense, "id" | "created_at" | "updated_at"> = {
+      category: expense.category,
+      amount: expense.amount,
+      description: expense.description,
+      payment_status: expense.payment_status as "paid" | "pending" | "cancelled",
+      payment_date: expense.date,
+      receipt_number: expense.invoice_number,
+      created_by: "", // This should be set by the API based on the authenticated user
+    };
+
+    const response = await expensesApi.createExpense(expenseData);
 
     if (response.error) {
       console.error("Error creating expense:", response.error);
@@ -111,7 +122,19 @@ export async function updateExpense(
   expense: UpdateExpenseRequest
 ): Promise<Expense> {
   try {
-    const response = await expensesApi.updateExpense(id, expense as any);
+    // Transform the request to match the API's expected structure
+    const expenseData: Partial<Omit<Expense, "id" | "created_at" | "updated_at">> = {
+      ...(expense.category && { category: expense.category }),
+      ...(expense.amount && { amount: expense.amount }),
+      ...(expense.description && { description: expense.description }),
+      ...(expense.payment_status && { 
+        payment_status: expense.payment_status as "paid" | "pending" | "cancelled" 
+      }),
+      ...(expense.date && { payment_date: expense.date }),
+      ...(expense.invoice_number && { receipt_number: expense.invoice_number }),
+    };
+
+    const response = await expensesApi.updateExpense(id, expenseData);
 
     if (response.error) {
       console.error(`Error updating expense with ID ${id}:`, response.error);
@@ -137,4 +160,4 @@ export async function deleteExpense(id: string): Promise<void> {
     console.error(`Failed to delete expense with ID ${id}:`, err);
     throw err;
   }
-}
+} 

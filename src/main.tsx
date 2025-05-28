@@ -3,6 +3,9 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
+// Initialize i18n before app starts
+import "./i18n/i18n";
+
 // Performance measurement
 const startTime = performance.now();
 console.log("Application starting...");
@@ -37,8 +40,9 @@ window.addEventListener("error", (event) => {
 
   // Auto-remove after 10 seconds
   setTimeout(() => {
-    document.body.contains(errorDisplay) &&
+    if (document.body.contains(errorDisplay)) {
       document.body.removeChild(errorDisplay);
+    }
   }, 10000);
 });
 

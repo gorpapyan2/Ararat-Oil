@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useShift } from "@/hooks/useShift";
+import { useShift } from "../hooks/useShift";
 import { useAuth } from "@/features/auth";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/layouts/PageLayout";
@@ -60,6 +60,7 @@ export default function ShiftClose() {
     endShift,
     isLoading: isShiftLoading,
     checkActiveShift,
+    updateShiftSalesTotal,
   } = useShift();
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -188,13 +189,13 @@ export default function ShiftClose() {
       isMounted = false;
       clearTimeout(loadingTimeout);
     };
-  }, []); // Remove the dependencies to ensure this only runs once
+  }, []); // This only runs once on mount // eslint-disable-line react-hooks/exhaustive-deps
 
   // Periodic check for active shift - runs after initial check is done
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!initialCheckDone) return;
 
-    let intervalId: number;
     let redirected = false;
 
     const checkShift = async () => {
@@ -213,7 +214,7 @@ export default function ShiftClose() {
     };
 
     // Set up periodic check - make it less frequent (20 seconds)
-    intervalId = window.setInterval(checkShift, 20000);
+    const intervalId = window.setInterval(checkShift, 20000);
 
     return () => {
       if (intervalId) {
@@ -228,7 +229,7 @@ export default function ShiftClose() {
     navigate,
     success,
     isSubmitting,
-    user,
+    user?.id,
   ]);
 
   // Set up redirection after success
@@ -249,6 +250,18 @@ export default function ShiftClose() {
       }
     };
   }, [success, navigate]);
+
+  // Periodic refresh of sales totals - only runs once on mount  
+  useEffect(() => {
+    if (activeShift) {
+      // Set up periodic refresh of sales total
+      const intervalId = setInterval(() => {
+        updateShiftSalesTotal(activeShift.id);
+      }, 30000); // Refresh every 30 seconds
+
+      return () => clearInterval(intervalId); // Clean up interval on unmount or shift change
+    }
+  }, [activeShift, updateShiftSalesTotal]);
 
   const handleEndShift = async (data: MultiPaymentFormData) => {
     if (!activeShift) {

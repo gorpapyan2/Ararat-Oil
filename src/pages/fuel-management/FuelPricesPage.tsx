@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/core/components/ui/page-header";
 import {
@@ -190,34 +190,27 @@ export default function FuelPricesPage() {
   }, [activeTab, t]);
 
   // Load price history
-  const loadPriceHistory = async (fuelType?: FuelTypeCode) => {
-    setHistoryLoading(true);
+  const loadPriceHistory = useCallback(async (fuelType?: FuelTypeCode) => {
+    if (!fuelType) return;
+
     try {
-      const filters = fuelType ? { fuel_type: fuelType } : undefined;
-      const prices = await getFuelPrices(filters);
-      setPriceHistory(prices);
+      setHistoryLoading(true);
+      const history = await getFuelPrices({ fuel_type: fuelType });
+      setPriceHistory(history || []);
     } catch (err) {
       console.error("Failed to load price history:", err);
-      toast({
-        title: t("common.error"),
-        description: getApiErrorMessage(
-          apiNamespaces.fuelPrices,
-          "fetch",
-          "price history"
-        ),
-        type: "error",
-      });
+      setPriceHistory([]);
     } finally {
       setHistoryLoading(false);
     }
-  };
+  }, []);
 
   // Refresh price history when selectedFuelType changes or when showing history
   useEffect(() => {
     if (showHistory) {
       loadPriceHistory(selectedFuelType);
     }
-  }, [showHistory, selectedFuelType]);
+  }, [showHistory, selectedFuelType, loadPriceHistory]);
 
   // Handle start editing
   const handleStartEditing = () => {
@@ -434,7 +427,7 @@ export default function FuelPricesPage() {
   // Add new fuel type
   const renderAddFuelTypeDialog = () => (
     <StandardDialog
-      open={isAddDialogOpen}
+      isOpen={isAddDialogOpen}
       onOpenChange={setIsAddDialogOpen}
       title={
         t("fuelPrices.addFuelType") ||
@@ -444,7 +437,7 @@ export default function FuelPricesPage() {
         t("fuelPrices.addFuelTypeDescription") ||
         "Create a new fuel type for your station"
       }
-      actions={
+      footer={
         <Button type="submit" onClick={handleAddFuelType}>
           {t("common.save") || "Save"}
         </Button>
@@ -468,7 +461,7 @@ export default function FuelPricesPage() {
 
   const renderEditFuelTypeDialog = () => (
     <StandardDialog
-      open={isEditDialogOpen && editingFuelType !== null}
+      isOpen={isEditDialogOpen && editingFuelType !== null}
       onOpenChange={(open) => {
         setIsEditDialogOpen(open);
         if (!open) setEditingFuelType(null);
@@ -477,7 +470,7 @@ export default function FuelPricesPage() {
         t("fuelPrices.editFuelType") ||
         getApiActionLabel(apiNamespaces.fuelPrices, "update", "fuel type")
       }
-      actions={
+      footer={
         <Button type="submit" onClick={handleEditFuelType}>
           {t("common.save") || "Save"}
         </Button>
@@ -531,7 +524,6 @@ export default function FuelPricesPage() {
       <PageHeader
         title={pageTitle}
         description={pageDescription}
-        icon={<Tag className="h-6 w-6 mr-2" />}
       />
 
       {error && (

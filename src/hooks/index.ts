@@ -20,12 +20,8 @@ export { useZodForm, useFormSubmitHandler } from "./use-form";
 // Toast hooks
 export {
   useToast,
-  toast,
-  success,
-  error,
-  warning,
-  info,
-  dismiss,
+  type ToastOptions,
+  type ToastVariant,
 } from "./use-toast";
 
 // Export API hooks
