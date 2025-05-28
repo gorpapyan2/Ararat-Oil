@@ -1,16 +1,16 @@
 /**
  * useApiInfiniteQuery - Standardized hook for paginated data fetching
- * 
+ *
  * This hook wraps React Query's useInfiniteQuery with standardized options and patterns
  * to ensure consistent paginated data fetching across the application.
  */
 
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { UseApiInfiniteQueryOptions } from './types';
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { UseApiInfiniteQueryOptions } from "./types";
 
 /**
  * Hook for making standardized API infinite/paginated queries
- * 
+ *
  * @example
  * ```tsx
  * const productsQuery = useApiInfiniteQuery({
@@ -19,13 +19,13 @@ import { UseApiInfiniteQueryOptions } from './types';
  *   filters,
  *   getNextPageParam: (lastPage) => lastPage.nextPage || undefined,
  * });
- * 
+ *
  * // Use the standardized result
  * if (productsQuery.isLoading) return <Loading />;
  * if (productsQuery.isError) return <Error error={productsQuery.error} />;
  * return (
- *   <ProductList 
- *     data={productsQuery.data.pages.flatMap(page => page.items)} 
+ *   <ProductList
+ *     data={productsQuery.data.pages.flatMap(page => page.items)}
  *     hasMore={productsQuery.hasNextPage}
  *     loadMore={productsQuery.fetchNextPage}
  *     isLoadingMore={productsQuery.isFetchingNextPage}
@@ -47,23 +47,32 @@ export function useApiInfiniteQuery<TData, TError = Error, TFilters = unknown>({
     // If queryKey is already an array, use it directly; otherwise, wrap in array with filters
     queryKey: Array.isArray(queryKey) ? queryKey : [queryKey, filters],
     queryFn: ({ pageParam = 1 }) => queryFn(pageParam),
-    
+
     // Default getNextPageParam implementation if not provided
-    getNextPageParam: getNextPageParam || ((lastPage: any) => {
-      // Default implementation expects a standard pagination structure
-      // Override this by providing your own getNextPageParam function
-      if (!lastPage) return undefined;
-      
-      // Try common pagination patterns
-      if (lastPage.nextPage) return lastPage.nextPage;
-      if (lastPage.page && lastPage.totalPages && lastPage.page < lastPage.totalPages) {
-        return lastPage.page + 1;
-      }
-      if (lastPage.hasMore) return (lastPage.page || 1) + 1;
-      
-      return undefined;
-    }),
-    
+    getNextPageParam:
+      getNextPageParam ||
+      ((lastPage: unknown) => {
+        // Default implementation expects a standard pagination structure
+        // Override this by providing your own getNextPageParam function
+        if (!lastPage) return undefined;
+
+        // Try common pagination patterns
+        const page = lastPage as Record<string, unknown>;
+        if (page.nextPage) return page.nextPage;
+        if (
+          page.page &&
+          page.totalPages &&
+          typeof page.page === 'number' &&
+          typeof page.totalPages === 'number' &&
+          page.page < page.totalPages
+        ) {
+          return page.page + 1;
+        }
+        if (page.hasMore) return ((page.page as number) || 1) + 1;
+
+        return undefined;
+      }),
+
     enabled,
     staleTime,
     ...options,
@@ -73,7 +82,7 @@ export function useApiInfiniteQuery<TData, TError = Error, TFilters = unknown>({
   return {
     // Original result
     ...infiniteQueryResult,
-    
+
     // Convenience properties for common use cases
     data: infiniteQueryResult.data,
     isLoading: infiniteQueryResult.isLoading,
@@ -81,21 +90,23 @@ export function useApiInfiniteQuery<TData, TError = Error, TFilters = unknown>({
     error: infiniteQueryResult.error as Error | null,
     hasNextPage: infiniteQueryResult.hasNextPage,
     isFetchingNextPage: infiniteQueryResult.isFetchingNextPage,
-    
+
     // Helper methods
     loadMore: infiniteQueryResult.fetchNextPage,
     refresh: infiniteQueryResult.refetch,
-    
+
     // Helper computed property that flattens all pages (common use case)
-    flatData: infiniteQueryResult.data?.pages.flatMap((page: any) => {
-      // Try to get items from common response structures
-      if (Array.isArray(page)) return page;
-      if (page.items) return page.items;
-      if (page.data) return page.data;
-      if (page.results) return page.results;
-      return [];
-    }) || [],
+    flatData:
+      infiniteQueryResult.data?.pages.flatMap((page: unknown) => {
+        // Try to get items from common response structures
+        if (Array.isArray(page)) return page;
+        const pageObj = page as Record<string, unknown>;
+        if (pageObj.items && Array.isArray(pageObj.items)) return pageObj.items;
+        if (pageObj.data && Array.isArray(pageObj.data)) return pageObj.data;
+        if (pageObj.results && Array.isArray(pageObj.results)) return pageObj.results;
+        return [];
+      }) || [],
   };
 }
 
-export default useApiInfiniteQuery; 
+export default useApiInfiniteQuery;

@@ -1,0 +1,6 @@
+@echo off
+echo Cleaning Vite cache...
+rmdir /s /q "node_modules\.vite" 2>nul
+
+echo Starting development server...
+npm run dev 

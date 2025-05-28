@@ -9,14 +9,20 @@ interface TankControllerProps {
   onSuccess?: () => void;
   className?: string;
   buttonText?: string;
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
+  variant?:
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | "destructive";
   size?: "default" | "sm" | "lg" | "icon";
   showIcon?: boolean;
 }
 
 /**
  * TankController - Component for managing tank creation and editing
- * 
+ *
  * This component provides a button to trigger the tank creation dialog
  * and handles the display of the TankFormDialog.
  */
@@ -29,7 +35,7 @@ export function TankController({
   showIcon = true,
 }: TankControllerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   // Fetch fuel types
   const { data: fuelTypes = [] } = useQuery({
     queryKey: ["fuel-types"],
@@ -56,4 +62,4 @@ export function TankController({
       />
     </>
   );
-} 
+}

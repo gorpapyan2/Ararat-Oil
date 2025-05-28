@@ -1,5 +1,5 @@
 import React from "react";
-import { ButtonShowcase } from '@/core/components/ui/ButtonShowcase';
+import { ButtonShowcase } from "@/core/components/ui/ButtonShowcase";
 import { PageLayout } from "@/layouts/PageLayout";
 
 /**
@@ -13,14 +13,17 @@ export default function ButtonComponentsPage() {
     >
       <div className="container mx-auto py-6">
         <ButtonShowcase />
-        
+
         <div className="mt-8 p-6 bg-muted rounded-lg">
           <h2 className="text-xl font-semibold mb-4">Usage Guidelines</h2>
-          
+
           <div className="space-y-4">
             <div>
               <h3 className="font-medium">Base Button</h3>
-              <p className="text-sm text-muted-foreground">Use the base Button component for most actions. Choose the appropriate variant based on the action's importance.</p>
+              <p className="text-sm text-muted-foreground">
+                Use the base Button component for most actions. Choose the
+                appropriate variant based on the action's importance.
+              </p>
               <pre className="mt-2 p-4 bg-card text-sm rounded-md overflow-x-auto">
                 {`import { Button } from "@/core/components/ui/button";
 
@@ -39,10 +42,13 @@ export default function ButtonComponentsPage() {
 <Button isLoading loadingText="Saving...">Save</Button>`}
               </pre>
             </div>
-            
+
             <div>
               <h3 className="font-medium">Specialized Buttons</h3>
-              <p className="text-sm text-muted-foreground">Use specialized button components for common patterns to ensure consistency across the application.</p>
+              <p className="text-sm text-muted-foreground">
+                Use specialized button components for common patterns to ensure
+                consistency across the application.
+              </p>
               <pre className="mt-2 p-4 bg-card text-sm rounded-md overflow-x-auto">
                 {`// Icon Button
 <IconButton 
@@ -79,10 +85,13 @@ export default function ButtonComponentsPage() {
 </ButtonLink>`}
               </pre>
             </div>
-            
+
             <div>
               <h3 className="font-medium">Button Groups</h3>
-              <p className="text-sm text-muted-foreground">Use button groups to organize related actions and create toolbars.</p>
+              <p className="text-sm text-muted-foreground">
+                Use button groups to organize related actions and create
+                toolbars.
+              </p>
               <pre className="mt-2 p-4 bg-card text-sm rounded-md overflow-x-auto">
                 {`// Standard Button Group
 <ButtonGroup>
@@ -125,10 +134,13 @@ export default function ButtonComponentsPage() {
 </ButtonGroup>`}
               </pre>
             </div>
-            
+
             <div>
               <h3 className="font-medium">Toggle Buttons</h3>
-              <p className="text-sm text-muted-foreground">Use toggle buttons for binary states or option selection. They can be used individually or in groups.</p>
+              <p className="text-sm text-muted-foreground">
+                Use toggle buttons for binary states or option selection. They
+                can be used individually or in groups.
+              </p>
               <pre className="mt-2 p-4 bg-card text-sm rounded-md overflow-x-auto">
                 {`// Single Toggle Button
 <ToggleButton 
@@ -174,4 +186,4 @@ export default function ButtonComponentsPage() {
       </div>
     </PageLayout>
   );
-} 
+}

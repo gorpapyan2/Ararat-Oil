@@ -1,12 +1,12 @@
 /**
  * Tanks API
- * 
+ *
  * This file provides API functions for working with tanks data.
  */
 
-import { fetchFromFunction, ApiResponse } from '../client';
-import { API_ENDPOINTS } from '@/core/config/api';
-import type { Tank, TankCreate, TankUpdate } from '../types';
+import { fetchFromFunction, ApiResponse } from "../client";
+import { API_ENDPOINTS } from "@/core/config/api";
+import type { Tank, TankCreate, TankUpdate, TankLevelChange } from "../types";
 
 const ENDPOINT = API_ENDPOINTS.FUNCTIONS.TANKS;
 
@@ -27,8 +27,10 @@ export async function getTankById(id: string): Promise<ApiResponse<Tank>> {
 /**
  * Fetches level changes for a specific tank
  */
-export async function getTankLevelChanges(id: string): Promise<ApiResponse<any[]>> {
-  return fetchFromFunction<any[]>(`${ENDPOINT}/${id}/level-changes`);
+export async function getTankLevelChanges(
+  id: string
+): Promise<ApiResponse<TankLevelChange[]>> {
+  return fetchFromFunction<TankLevelChange[]>(`${ENDPOINT}/${id}/level-changes`);
 }
 
 /**
@@ -36,8 +38,8 @@ export async function getTankLevelChanges(id: string): Promise<ApiResponse<any[]
  */
 export async function createTank(data: TankCreate): Promise<ApiResponse<Tank>> {
   return fetchFromFunction<Tank>(ENDPOINT, {
-    method: 'POST',
-    body: data
+    method: "POST",
+    body: data,
   });
 }
 
@@ -45,21 +47,23 @@ export async function createTank(data: TankCreate): Promise<ApiResponse<Tank>> {
  * Updates a tank by ID
  */
 export async function updateTank(
-  id: string, 
+  id: string,
   data: TankUpdate
 ): Promise<ApiResponse<Tank>> {
   return fetchFromFunction<Tank>(`${ENDPOINT}/${id}`, {
-    method: 'PUT',
-    body: data
+    method: "PUT",
+    body: data,
   });
 }
 
 /**
  * Deletes a tank by ID
  */
-export async function deleteTank(id: string): Promise<ApiResponse<{ success: boolean }>> {
+export async function deleteTank(
+  id: string
+): Promise<ApiResponse<{ success: boolean }>> {
   return fetchFromFunction<{ success: boolean }>(`${ENDPOINT}/${id}`, {
-    method: 'DELETE'
+    method: "DELETE",
   });
 }
 
@@ -67,18 +71,18 @@ export async function deleteTank(id: string): Promise<ApiResponse<{ success: boo
  * Adjusts the level of a tank
  */
 export async function adjustTankLevel(
-  id: string, 
-  changeAmount: number, 
-  changeType: 'add' | 'subtract', 
+  id: string,
+  changeAmount: number,
+  changeType: "add" | "subtract",
   reason?: string
 ): Promise<ApiResponse<Tank>> {
   return fetchFromFunction<Tank>(`${ENDPOINT}/${id}/adjust-level`, {
-    method: 'POST',
-    body: { 
-      change_amount: changeAmount, 
-      change_type: changeType, 
-      reason 
-    }
+    method: "POST",
+    body: {
+      change_amount: changeAmount,
+      change_type: changeType,
+      reason,
+    },
   });
 }
 
@@ -92,5 +96,5 @@ export const tanksApi = {
   createTank,
   updateTank,
   deleteTank,
-  adjustTankLevel
-}; 
+  adjustTankLevel,
+};

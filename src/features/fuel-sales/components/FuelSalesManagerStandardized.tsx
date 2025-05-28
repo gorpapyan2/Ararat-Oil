@@ -23,10 +23,10 @@ interface FuelTank {
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
   const { data, error } = await supabase
-    .from('fuel_tanks')
-    .select('id, name, fuel_type')
-    .order('name');
-  
+    .from("fuel_tanks")
+    .select("id, name, fuel_type")
+    .order("name");
+
   if (error) throw error;
   return data;
 }
@@ -40,48 +40,54 @@ export function FuelSalesManagerStandardized({
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<FuelSaleFilters>({});
 
-  const {
-    open: isAddDialogOpen,
-    onOpenChange: onAddDialogOpenChange,
-  } = useDialog();
+  const { open: isAddDialogOpen, onOpenChange: onAddDialogOpenChange } =
+    useDialog();
 
-  const {
-    open: isEditDialogOpen,
-    onOpenChange: onEditDialogOpenChange,
-  } = useDialog();
+  const { open: isEditDialogOpen, onOpenChange: onEditDialogOpenChange } =
+    useDialog();
 
-  const {
-    open: isDeleteDialogOpen,
-    onOpenChange: onDeleteDialogOpenChange,
-  } = useDialog();
+  const { open: isDeleteDialogOpen, onOpenChange: onDeleteDialogOpenChange } =
+    useDialog();
 
   const { data: tanks = [] } = useQuery<FuelTank[]>({
     queryKey: ["fuel-tanks"],
     queryFn: fetchFuelTanks,
   });
 
-  const { sales, isLoading: isSalesLoading, createSale, updateSale, deleteSale } = useFuelSales(filters);
+  const {
+    sales,
+    isLoading: isSalesLoading,
+    createSale,
+    updateSale,
+    deleteSale,
+  } = useFuelSales(filters);
 
   const handleAddSale = useCallback(() => {
     setEditingSale(undefined);
     onAddDialogOpenChange(true);
   }, [onAddDialogOpenChange]);
 
-  const handleEditSale = useCallback((id: string) => {
-    const sale = sales.find(s => s.id === id);
-    if (sale) {
-      setEditingSale(sale);
-      onEditDialogOpenChange(true);
-    }
-  }, [sales, onEditDialogOpenChange]);
+  const handleEditSale = useCallback(
+    (id: string) => {
+      const sale = sales.find((s) => s.id === id);
+      if (sale) {
+        setEditingSale(sale);
+        onEditDialogOpenChange(true);
+      }
+    },
+    [sales, onEditDialogOpenChange]
+  );
 
-  const handleDeleteSale = useCallback((id: string) => {
-    const sale = sales.find(s => s.id === id);
-    if (sale) {
-      setDeletingSale(sale);
-      onDeleteDialogOpenChange(true);
-    }
-  }, [sales, onDeleteDialogOpenChange]);
+  const handleDeleteSale = useCallback(
+    (id: string) => {
+      const sale = sales.find((s) => s.id === id);
+      if (sale) {
+        setDeletingSale(sale);
+        onDeleteDialogOpenChange(true);
+      }
+    },
+    [sales, onDeleteDialogOpenChange]
+  );
 
   const handleCreateSuccess = useCallback(() => {
     onAddDialogOpenChange(false);
@@ -116,11 +122,11 @@ export function FuelSalesManagerStandardized({
       setIsLoading(true);
       await deleteSale.mutateAsync(deletingSale.id);
       handleDeleteSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting fuel sale:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to delete fuel sale.",
+        description: error instanceof Error ? error.message : "Failed to delete fuel sale.",
         variant: "destructive",
       });
     } finally {
@@ -132,14 +138,17 @@ export function FuelSalesManagerStandardized({
     setFilters(newFilters);
   }, []);
 
-  const actionElement = useMemo(() => (
-    <button
-      onClick={handleAddSale}
-      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-    >
-      Add Sale
-    </button>
-  ), [handleAddSale]);
+  const actionElement = useMemo(
+    () => (
+      <button
+        onClick={handleAddSale}
+        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+      >
+        Add Sale
+      </button>
+    ),
+    [handleAddSale]
+  );
 
   if (onRenderAction) {
     onRenderAction(actionElement);
@@ -180,4 +189,4 @@ export function FuelSalesManagerStandardized({
       />
     </div>
   );
-} 
+}

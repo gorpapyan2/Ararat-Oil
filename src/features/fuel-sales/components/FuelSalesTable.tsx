@@ -1,5 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/core/components/ui/table";
 import { Button } from "@/core/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { FuelSalesStatusUpdate } from "./FuelSalesStatusUpdate";
@@ -28,13 +35,13 @@ export function FuelSalesTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>{t('fuel.sales.date')}</TableHead>
-          <TableHead>{t('fuel.sales.customer')}</TableHead>
-          <TableHead>{t('fuel.sales.quantity')}</TableHead>
-          <TableHead>{t('fuel.sales.price')}</TableHead>
-          <TableHead>{t('fuel.sales.total')}</TableHead>
-          <TableHead>{t('fuel.sales.status')}</TableHead>
-          <TableHead className="w-[100px]">{t('common.actions')}</TableHead>
+          <TableHead>{t("fuel.sales.date")}</TableHead>
+          <TableHead>{t("fuel.sales.customer")}</TableHead>
+          <TableHead>{t("fuel.sales.quantity")}</TableHead>
+          <TableHead>{t("fuel.sales.price")}</TableHead>
+          <TableHead>{t("fuel.sales.total")}</TableHead>
+          <TableHead>{t("fuel.sales.status")}</TableHead>
+          <TableHead className="w-[100px]">{t("common.actions")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -73,4 +80,4 @@ export function FuelSalesTable({
       </TableBody>
     </Table>
   );
-} 
+}

@@ -4,11 +4,11 @@ import {
   FormLabel,
   FormControl,
 } from "@/core/components/ui/form";
-import { Textarea } from '@/core/components/ui/textarea';
-import { Control } from "react-hook-form";
+import { Textarea } from "@/core/components/ui/textarea";
+import { Control, FieldValues } from "react-hook-form";
 
 interface CommentsFieldProps {
-  control: Control<any>;
+  control: Control<FieldValues>;
 }
 
 export function CommentsField({ control }: CommentsFieldProps) {

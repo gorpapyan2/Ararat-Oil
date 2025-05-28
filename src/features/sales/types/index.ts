@@ -1,4 +1,4 @@
-import { FuelTypeCode, PaymentMethod, PaymentStatus } from '@/types';
+import { FuelTypeCode, PaymentMethod, PaymentStatus } from "@/types";
 
 // Main Sale interface
 export interface Sale {
@@ -52,9 +52,9 @@ export interface SalesFilters {
     from: Date;
     to?: Date;
   };
-  fuelType?: FuelTypeCode | 'all';
-  paymentStatus?: PaymentStatus | 'all';
-  fillingSystem?: string | 'all';
+  fuelType?: FuelTypeCode | "all";
+  paymentStatus?: PaymentStatus | "all";
+  fillingSystem?: string | "all";
   minAmount?: number;
   maxAmount?: number;
   minQuantity?: number;
@@ -67,22 +67,28 @@ export interface SalesSummary {
   totalQuantity: number;
   averagePrice: number;
   salesCount: number;
-  byFuelType?: Record<FuelTypeCode, {
-    quantity: number;
-    amount: number;
-    count: number;
-  }>;
-  byPaymentMethod?: Record<PaymentMethod, {
-    amount: number;
-    count: number;
-  }>;
+  byFuelType?: Record<
+    FuelTypeCode,
+    {
+      quantity: number;
+      amount: number;
+      count: number;
+    }
+  >;
+  byPaymentMethod?: Record<
+    PaymentMethod,
+    {
+      amount: number;
+      count: number;
+    }
+  >;
 }
 
 // Export options
 export interface SalesExportOptions {
   startDate: string;
   endDate: string;
-  format: 'csv' | 'pdf' | 'excel';
+  format: "csv" | "pdf" | "excel";
   includeDetails?: boolean;
 }
 
@@ -91,4 +97,4 @@ export interface SalesExportResponse {
   url?: string;
   data?: string;
   filename?: string;
-} 
+}

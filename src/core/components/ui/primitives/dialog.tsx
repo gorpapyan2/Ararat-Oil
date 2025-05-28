@@ -21,19 +21,19 @@ export {
   AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
-} from '@/core/components/ui/styled/dialog';
+} from "@/core/components/ui/styled/dialog";
 
 // Export composed dialog types and components
-export { 
+export {
   ConfirmDialog,
   AlertMessageDialog,
-  DeleteConfirmDialog 
-} from '@/core/components/ui/composed/dialog';
+  DeleteConfirmDialog,
+} from "@/core/components/ui/composed/dialog";
 
 // Export types using the 'export type' syntax
-export type { 
+export type {
   StandardDialogProps,
   ConfirmDialogProps,
   AlertMessageDialogProps,
-  DeleteConfirmDialogProps
-} from '@/core/components/ui/composed/dialog'; 
+  DeleteConfirmDialogProps,
+} from "@/core/components/ui/composed/dialog";

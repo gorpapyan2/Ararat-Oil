@@ -1,21 +1,26 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  getFuelPrices, 
-  getFuelPriceById, 
-  createFuelPrice, 
-  updateFuelPrice, 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getFuelPrices,
+  getFuelPriceById,
+  createFuelPrice,
+  updateFuelPrice,
   deleteFuelPrice,
   getCurrentPrices,
-  getPriceSummary
-} from '../services';
-import { FuelPrice, FuelPriceFormData, FuelPriceFilters, FuelPriceSummary } from '../types';
+  getPriceSummary,
+} from "../services";
+import {
+  FuelPrice,
+  FuelPriceFormData,
+  FuelPriceFilters,
+  FuelPriceSummary,
+} from "../types";
 
 // Define query keys
 const QUERY_KEYS = {
-  fuelPrices: 'fuel-prices',
-  fuelPriceById: (id: string) => ['fuel-price', id],
-  currentPrices: 'current-fuel-prices',
-  priceSummary: 'fuel-price-summary',
+  fuelPrices: "fuel-prices",
+  fuelPriceById: (id: string) => ["fuel-price", id],
+  currentPrices: "current-fuel-prices",
+  priceSummary: "fuel-price-summary",
 };
 
 /**
@@ -64,7 +69,7 @@ export function usePriceSummary() {
  */
 export function useCreateFuelPrice() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: FuelPriceFormData) => createFuelPrice(data),
     onSuccess: () => {
@@ -81,14 +86,21 @@ export function useCreateFuelPrice() {
  */
 export function useUpdateFuelPrice() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<FuelPriceFormData> }) => 
-      updateFuelPrice(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<FuelPriceFormData>;
+    }) => updateFuelPrice(id, data),
     onSuccess: (_, variables) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelPrices] });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.fuelPriceById(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.fuelPriceById(variables.id),
+      });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.currentPrices] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.priceSummary] });
     },
@@ -100,7 +112,7 @@ export function useUpdateFuelPrice() {
  */
 export function useDeleteFuelPrice() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => deleteFuelPrice(id),
     onSuccess: () => {
@@ -110,4 +122,4 @@ export function useDeleteFuelPrice() {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.priceSummary] });
     },
   });
-} 
+}

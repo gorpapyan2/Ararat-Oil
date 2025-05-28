@@ -8,8 +8,8 @@ export const deleteSale = async (id: string): Promise<void> => {
       console.error(`Error deleting sale with ID ${id}:`, response.error);
       throw new Error(response.error.message);
     }
-  } catch (err: any) {
-    console.error(`Failed to delete sale with ID ${id}:`, err);
-    throw new Error(err.message || "Failed to delete sale");
+  } catch (err: unknown) {
+    console.error("Error deleting sale:", err);
+    throw err instanceof Error ? err : new Error("Failed to delete sale");
   }
 };

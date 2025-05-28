@@ -1,14 +1,19 @@
-import { fetchJson, fetchText, ApiResponse } from '../client';
-import type { Sale } from '../types';
-import type { SalesExportOptions } from '@/features/sales/types';
+import { fetchJson, fetchText, ApiResponse } from "../client";
+import type { Sale } from "../types";
+import type { SalesExportOptions } from "@/features/sales/types";
 
 /**
  * Get all sales with optional filtering
  * @param filters Optional filters for sales data
  * @returns ApiResponse with array of sales
  */
-export async function getSales(filters?: { shift_id?: string; start_date?: string; end_date?: string; employee?: string }): Promise<ApiResponse<Sale[]>> {
-  return fetchJson<Sale[]>('sales', { queryParams: filters });
+export async function getSales(filters?: {
+  shift_id?: string;
+  start_date?: string;
+  end_date?: string;
+  employee?: string;
+}): Promise<ApiResponse<Sale[]>> {
+  return fetchJson<Sale[]>("sales", { queryParams: filters });
 }
 
 /**
@@ -25,7 +30,9 @@ export async function getSaleById(id: string): Promise<ApiResponse<Sale>> {
  * @param fillingSystemId The filling system ID
  * @returns ApiResponse with the latest sale data
  */
-export async function getLatestSale(fillingSystemId: string): Promise<ApiResponse<Sale>> {
+export async function getLatestSale(
+  fillingSystemId: string
+): Promise<ApiResponse<Sale>> {
   return fetchJson<Sale>(`sales/latest/${fillingSystemId}`);
 }
 
@@ -34,8 +41,10 @@ export async function getLatestSale(fillingSystemId: string): Promise<ApiRespons
  * @param data The sale data to create
  * @returns ApiResponse with the created sale
  */
-export async function createSale(data: Omit<Sale, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Sale>> {
-  return fetchJson<Sale>('sales', { method: 'POST', body: data });
+export async function createSale(
+  data: Omit<Sale, "id" | "created_at" | "updated_at">
+): Promise<ApiResponse<Sale>> {
+  return fetchJson<Sale>("sales", { method: "POST", body: data });
 }
 
 /**
@@ -44,8 +53,11 @@ export async function createSale(data: Omit<Sale, 'id' | 'created_at' | 'updated
  * @param data The updated sale data
  * @returns ApiResponse with the updated sale
  */
-export async function updateSale(id: string, data: Partial<Omit<Sale, 'id' | 'created_at' | 'updated_at'>>): Promise<ApiResponse<Sale>> {
-  return fetchJson<Sale>(`sales/${id}`, { method: 'PUT', body: data });
+export async function updateSale(
+  id: string,
+  data: Partial<Omit<Sale, "id" | "created_at" | "updated_at">>
+): Promise<ApiResponse<Sale>> {
+  return fetchJson<Sale>(`sales/${id}`, { method: "PUT", body: data });
 }
 
 /**
@@ -54,7 +66,7 @@ export async function updateSale(id: string, data: Partial<Omit<Sale, 'id' | 'cr
  * @returns ApiResponse with success status
  */
 export async function deleteSale(id: string): Promise<ApiResponse<void>> {
-  return fetchJson<void>(`sales/${id}`, { method: 'DELETE' });
+  return fetchJson<void>(`sales/${id}`, { method: "DELETE" });
 }
 
 /**
@@ -62,7 +74,7 @@ export async function deleteSale(id: string): Promise<ApiResponse<void>> {
  * @returns ApiResponse with the count of sales
  */
 export async function getSalesCount(): Promise<ApiResponse<{ count: number }>> {
-  return fetchJson<{ count: number }>('sales/count');
+  return fetchJson<{ count: number }>("sales/count");
 }
 
 /**
@@ -70,15 +82,17 @@ export async function getSalesCount(): Promise<ApiResponse<{ count: number }>> {
  * @param options Export options including date range and format
  * @returns CSV data as string
  */
-export async function exportSales(options: SalesExportOptions): Promise<string> {
+export async function exportSales(
+  options: SalesExportOptions
+): Promise<string> {
   try {
-    return await fetchText('sales/export', { 
-      method: 'POST', 
-      body: options
+    return await fetchText("sales/export", {
+      method: "POST",
+      body: options,
     });
   } catch (error) {
-    console.error('Error exporting sales:', error);
-    throw new Error('Failed to export sales data');
+    console.error("Error exporting sales:", error);
+    throw new Error("Failed to export sales data");
   }
 }
 
@@ -93,5 +107,5 @@ export const salesApi = {
   updateSale,
   deleteSale,
   getSalesCount,
-  exportSales
-}; 
+  exportSales,
+};

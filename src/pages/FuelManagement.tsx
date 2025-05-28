@@ -1,7 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
-import { PageHeader } from '@/core/components/ui/page-header';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/core/components/ui/tabs";
+import { PageHeader } from "@/core/components/ui/page-header";
 import { IconGasStation, IconTank, IconTruck } from "@tabler/icons-react";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
@@ -22,14 +27,17 @@ export default function FuelManagement() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const breadcrumbSegments = useMemo(() => [
-    { name: "Dashboard", href: "/" },
-    { name: "Fuel Management", href: "/fuel-management", isCurrent: true }
-  ], []);
+  const breadcrumbSegments = useMemo(
+    () => [
+      { name: "Dashboard", href: "/" },
+      { name: "Fuel Management", href: "/fuel-management", isCurrent: true },
+    ],
+    []
+  );
 
   usePageBreadcrumbs({
     segments: breadcrumbSegments,
-    title: "Fuel Management"
+    title: "Fuel Management",
   });
 
   // Get active tab from URL or default to filling systems
@@ -112,7 +120,9 @@ export default function FuelManagement() {
         {/* Tab Content */}
         <div className="mt-6">
           <TabsContent value={TABS.FILLING_SYSTEMS} className="m-0">
-            <FillingSystemManagerStandardized onRenderAction={setFillingSystemsAction} />
+            <FillingSystemManagerStandardized
+              onRenderAction={setFillingSystemsAction}
+            />
           </TabsContent>
 
           <TabsContent value={TABS.TANKS} className="m-0">
@@ -120,7 +130,9 @@ export default function FuelManagement() {
           </TabsContent>
 
           <TabsContent value={TABS.FUEL_SUPPLIES} className="m-0">
-            <FuelSuppliesManagerStandardized onRenderAction={setFuelSuppliesAction} />
+            <FuelSuppliesManagerStandardized
+              onRenderAction={setFuelSuppliesAction}
+            />
           </TabsContent>
         </div>
       </Tabs>

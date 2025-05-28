@@ -3,19 +3,33 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/core/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/core/components/ui/dialog";
 import { Button } from "@/core/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/core/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/core/components/ui/form";
 import { Input } from "@/core/components/ui/primitives/input";
 import { useToast } from "@/hooks";
-import { Textarea } from '@/core/components/ui/textarea';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import { Textarea } from "@/core/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/core/components/ui/primitives/select";
+import { Transaction } from '../types/finance.types';
 
 // Schema for transaction form
 const transactionSchema = z.object({
@@ -32,7 +46,7 @@ type TransactionFormValues = z.infer<typeof transactionSchema>;
 interface TransactionDialogStandardizedProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  transaction?: any; // Would be better typed in a real app
+  transaction?: Transaction; // Properly typed transaction
   onSubmit: (data: TransactionFormValues) => Promise<void>;
   categories?: { id: string; name: string; type: string }[];
   isLoading?: boolean;
@@ -58,13 +72,15 @@ function TransactionDialogStandardized({
       type: transaction?.type || "income",
       category: transaction?.category || "",
       description: transaction?.description || "",
-      date: transaction?.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      date: transaction?.date
+        ? new Date(transaction.date).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
     },
   });
 
   // Get the current transaction type from form
   const transactionType = form.watch("type");
-  
+
   // Filter categories based on transaction type
   const filteredCategories = categories.filter(
     (category) => category.type === transactionType || category.type === "all"
@@ -76,7 +92,9 @@ function TransactionDialogStandardized({
       await onSubmit(data);
       toast({
         title: "Success",
-        description: isEditing ? "Transaction updated successfully" : "Transaction created successfully",
+        description: isEditing
+          ? "Transaction updated successfully"
+          : "Transaction created successfully",
       });
       form.reset();
       onOpenChange(false);
@@ -101,26 +119,39 @@ function TransactionDialogStandardized({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("finance.transactionType", "Transaction Type")}</FormLabel>
+                  <FormLabel>
+                    {t("finance.transactionType", "Transaction Type")}
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={t("finance.selectType", "Select type")} />
+                        <SelectValue
+                          placeholder={t("finance.selectType", "Select type")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="income">{t("finance.income", "Income")}</SelectItem>
-                      <SelectItem value="expense">{t("finance.expense", "Expense")}</SelectItem>
-                      <SelectItem value="transfer">{t("finance.transfer", "Transfer")}</SelectItem>
+                      <SelectItem value="income">
+                        {t("finance.income", "Income")}
+                      </SelectItem>
+                      <SelectItem value="expense">
+                        {t("finance.expense", "Expense")}
+                      </SelectItem>
+                      <SelectItem value="transfer">
+                        {t("finance.transfer", "Transfer")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -159,7 +190,12 @@ function TransactionDialogStandardized({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={t("finance.selectCategory", "Select category")} />
+                        <SelectValue
+                          placeholder={t(
+                            "finance.selectCategory",
+                            "Select category"
+                          )}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -194,10 +230,15 @@ function TransactionDialogStandardized({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("common.description", "Description")}</FormLabel>
+                  <FormLabel>
+                    {t("common.description", "Description")}
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={t("finance.transactionDescription", "Enter description...")}
+                      placeholder={t(
+                        "finance.transactionDescription",
+                        "Enter description..."
+                      )}
                       className="resize-none"
                       {...field}
                     />
@@ -220,8 +261,8 @@ function TransactionDialogStandardized({
                 {isLoading
                   ? t("common.saving", "Saving...")
                   : isEditing
-                  ? t("common.save", "Save")
-                  : t("common.create", "Create")}
+                    ? t("common.save", "Save")
+                    : t("common.create", "Create")}
               </Button>
             </DialogFooter>
           </form>
@@ -232,4 +273,4 @@ function TransactionDialogStandardized({
 }
 
 export { TransactionDialogStandardized };
-export default TransactionDialogStandardized; 
+export default TransactionDialogStandardized;

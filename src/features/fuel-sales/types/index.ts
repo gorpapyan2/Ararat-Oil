@@ -1,1 +1,1 @@
-export * from './fuel-sales.types'; 
+export * from "./fuel-sales.types";

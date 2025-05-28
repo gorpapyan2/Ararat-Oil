@@ -10,7 +10,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from '@/core/components/ui/table';
+} from "@/core/components/ui/table";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -20,12 +20,12 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
-} from '@/core/components/ui/alert-dialog';
+} from "@/core/components/ui/alert-dialog";
 import { ProviderDialogStandardized } from "@/features/petrol-providers/components/ProviderDialogStandardized";
 import { petrolProvidersApi, type PetrolProvider } from "@/core/api";
 import { useTranslation } from "react-i18next";
-import { CreateButton } from '@/core/components/ui/create-button';
-import { IconButton } from '@/core/components/ui/icon-button';
+import { CreateButton } from "@/core/components/ui/create-button";
+import { IconButton } from "@/core/components/ui/icon-button";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function PetrolProviders() {
@@ -48,7 +48,10 @@ export default function PetrolProviders() {
     mutationFn: petrolProvidersApi.createPetrolProvider,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
-      toast({ title: t("common.success"), description: t("petrolProviders.providerCreated") });
+      toast({
+        title: t("common.success"),
+        description: t("petrolProviders.providerCreated"),
+      });
     },
   });
 
@@ -57,7 +60,10 @@ export default function PetrolProviders() {
       petrolProvidersApi.updatePetrolProvider(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
-      toast({ title: t("common.success"), description: t("petrolProviders.providerUpdated") });
+      toast({
+        title: t("common.success"),
+        description: t("petrolProviders.providerUpdated"),
+      });
     },
   });
 
@@ -65,11 +71,17 @@ export default function PetrolProviders() {
     mutationFn: petrolProvidersApi.deletePetrolProvider,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
-      toast({ title: t("common.success"), description: t("petrolProviders.providerDeleted") });
+      toast({
+        title: t("common.success"),
+        description: t("petrolProviders.providerDeleted"),
+      });
     },
   });
 
-  const handleOpenCreateDialog = useCallback(() => setIsCreateDialogOpen(true), []);
+  const handleOpenCreateDialog = useCallback(
+    () => setIsCreateDialogOpen(true),
+    []
+  );
   const handleOpenEditDialog = useCallback((provider: PetrolProvider) => {
     setSelectedProvider(provider);
     setIsEditDialogOpen(true);
@@ -93,16 +105,16 @@ export default function PetrolProviders() {
   usePageBreadcrumbs({
     segments: [
       { name: "Dashboard", href: "/" },
-      { name: "Providers", href: "/providers", isCurrent: true }
+      { name: "Providers", href: "/providers", isCurrent: true },
     ],
-    title: "Providers"
+    title: "Providers",
   });
 
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">{t("petrolProviders.title")}</h1>
-        <CreateButton 
+        <CreateButton
           onClick={handleOpenCreateDialog}
           label={t("petrolProviders.addProvider")}
         />
@@ -171,7 +183,9 @@ export default function PetrolProviders() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("petrolProviders.deleteConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("petrolProviders.deleteConfirmTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("petrolProviders.deleteConfirmDescription")}
             </AlertDialogDescription>

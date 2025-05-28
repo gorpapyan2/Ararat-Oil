@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   MultiSelect,
-  type Option 
+  type Option,
 } from "@/core/components/ui/primitives/multi-select";

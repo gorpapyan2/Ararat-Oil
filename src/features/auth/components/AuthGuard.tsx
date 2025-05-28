@@ -1,7 +1,7 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthGuard } from '../hooks/useAuthGuard';
-import type { AuthConfig } from '../types/auth.types';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuthGuard } from "../hooks/useAuthGuard";
+import type { AuthConfig } from "../types/auth.types";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -25,4 +25,4 @@ export function AuthGuard({ children, config }: AuthGuardProps) {
   }
 
   return <>{children}</>;
-} 
+}

@@ -16,7 +16,7 @@ import { StandardizedForm } from "@/components/ui/composed/StandardizedForm";
 function MyForm() {
   const form = useZodForm({
     schema: mySchema,
-    defaultValues: { name: "" }
+    defaultValues: { name: "" },
   });
 
   const handleSubmit = (data) => {
@@ -24,11 +24,7 @@ function MyForm() {
   };
 
   return (
-    <StandardizedForm
-      form={form}
-      onSubmit={handleSubmit}
-      className="space-y-4"
-    >
+    <StandardizedForm form={form} onSubmit={handleSubmit} className="space-y-4">
       <FormInput name="name" label="Name" form={form} />
       <Button type="submit">Submit</Button>
     </StandardizedForm>
@@ -46,7 +42,7 @@ import { FormProvider } from "react-hook-form";
 function MyForm() {
   const form = useZodForm({
     schema: mySchema,
-    defaultValues: { name: "" }
+    defaultValues: { name: "" },
   });
 
   const handleSubmit = (data) => {
@@ -86,4 +82,4 @@ This error occurs because:
 
 1. Our form field components use `useFormContext()` internally to access form state
 2. Without a `FormProvider` higher up in the component tree, `useFormContext()` returns null
-3. Attempting to destructure properties from null produces the error 
+3. Attempting to destructure properties from null produces the error

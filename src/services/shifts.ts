@@ -1,20 +1,23 @@
 import { shiftsApi, Shift } from "@/core/api";
 import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
 
-export async function startShift(openingCash: number, employeeIds: string[] = []): Promise<Shift> {
+export async function startShift(
+  openingCash: number,
+  employeeIds: string[] = []
+): Promise<Shift> {
   try {
     console.log("Starting shift using Edge Function...");
-    
+
     const response = await shiftsApi.startShift(openingCash, employeeIds);
-    
+
     if (response.error) {
       throw new Error(`Failed to start shift: ${response.error.message}`);
     }
-    
+
     if (!response.data) {
       throw new Error("No data returned after starting shift");
     }
-    
+
     console.log("Started shift:", response.data);
     return response.data;
   } catch (error) {
@@ -30,53 +33,60 @@ export async function closeShift(
 ): Promise<Shift> {
   try {
     console.log("Closing shift using Edge Function...");
-    
-    const response = await shiftsApi.closeShift(shiftId, closingCash, paymentMethods);
-    
+
+    const response = await shiftsApi.closeShift(
+      shiftId,
+      closingCash,
+      paymentMethods
+    );
+
     if (response.error) {
       throw new Error(`Failed to close shift: ${response.error.message}`);
     }
-    
+
     if (!response.data) {
       throw new Error("No data returned after closing shift");
     }
-    
+
     console.log("Closed shift:", response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in closeShift service:", error);
-    
+
     // Check if it's a network error
-    if (error.message?.includes("Failed to fetch") || 
-        !navigator.onLine || 
-        error.message?.includes("offline")) {
+    if (
+      error instanceof Error &&
+      (error.message?.includes("Failed to fetch") ||
+        !navigator.onLine ||
+        error.message?.includes("offline"))
+    ) {
       throw new Error("Network error: Cannot close shift while offline");
     }
-    
-    throw error;
+
+    throw error instanceof Error ? error : new Error("Failed to close shift");
   }
 }
 
 export async function getActiveShift(): Promise<Shift | null> {
   try {
     console.log("Getting active shift using Edge Function...");
-    
+
     const response = await shiftsApi.getActiveShift();
-    
+
     if (response.error) {
       console.error("Error fetching active shift:", response.error);
       return null;
     }
-    
+
     if (!response.data) {
       console.log("No active shift found");
       return null;
     }
-    
+
     console.log("Found active shift:", response.data);
     return response.data;
-  } catch (e) {
-    console.error("Exception fetching active shift:", e);
+  } catch (error: unknown) {
+    console.error("Exception fetching active shift:", error);
     return null;
   }
 }
@@ -87,20 +97,25 @@ export async function addShiftPaymentMethods(
 ): Promise<void> {
   try {
     console.log("Adding payment methods to shift using Edge Function...");
-    
+
     // Transform PaymentMethodItem to the format expected by the API
     const paymentData = methods.map((method) => ({
       payment_method: method.payment_method,
       amount: method.amount,
       reference: method.reference || "",
     }));
-    
-    const response = await shiftsApi.addShiftPaymentMethods(shiftId, paymentData as any);
-    
+
+    const response = await shiftsApi.addShiftPaymentMethods(
+      shiftId,
+      paymentData as any
+    );
+
     if (response.error) {
-      throw new Error(`Failed to add payment methods: ${response.error.message}`);
+      throw new Error(
+        `Failed to add payment methods: ${response.error.message}`
+      );
     }
-    
+
     console.log("Added payment methods to shift:", shiftId);
   } catch (error) {
     console.error("Error adding payment methods:", error);
@@ -108,16 +123,20 @@ export async function addShiftPaymentMethods(
   }
 }
 
-export async function deleteShiftPaymentMethods(shiftId: string): Promise<void> {
+export async function deleteShiftPaymentMethods(
+  shiftId: string
+): Promise<void> {
   try {
     console.log("Deleting payment methods from shift using Edge Function...");
-    
+
     const response = await shiftsApi.deleteShiftPaymentMethods(shiftId);
-    
+
     if (response.error) {
-      throw new Error(`Failed to delete payment methods: ${response.error.message}`);
+      throw new Error(
+        `Failed to delete payment methods: ${response.error.message}`
+      );
     }
-    
+
     console.log("Deleted payment methods from shift:", shiftId);
   } catch (error) {
     console.error("Error deleting payment methods:", error);
@@ -143,71 +162,85 @@ export async function getShiftEmployees(shiftId: string): Promise<string[]> {
 export async function getSystemActiveShift(): Promise<Shift | null> {
   try {
     console.log("Getting system-wide active shift using Edge Function...");
-    
+
     const response = await shiftsApi.getSystemActiveShift();
-    
+
     if (response.error) {
       console.error("Error fetching system active shift:", response.error);
       return null;
     }
-    
+
     if (!response.data) {
       console.log("No system-wide active shift found");
       return null;
     }
-    
+
     console.log("Found system-wide active shift:", response.data);
     return response.data;
-  } catch (e) {
-    console.error("Exception fetching system-wide active shift:", e);
+  } catch (error: unknown) {
+    console.error("Error fetching system-wide active shift:", error);
     return null;
   }
 }
 
-export async function getActiveShiftForUser(userId: string): Promise<Shift | null> {
+export async function getActiveShiftForUser(
+  userId: string
+): Promise<Shift | null> {
   try {
-    console.log(`Getting active shift for user ${userId} using Edge Function...`);
-    
+    console.log(
+      `Getting active shift for user ${userId} using Edge Function...`
+    );
+
     const response = await shiftsApi.getActiveShiftForUser(userId);
-    
+
     if (response.error) {
-      console.error(`Error fetching active shift for user ${userId}:`, response.error);
+      console.error(
+        `Error fetching active shift for user ${userId}:`,
+        response.error
+      );
       return null;
     }
-    
+
     if (!response.data) {
       console.log(`No active shift found for user ${userId}`);
       return null;
     }
-    
+
     console.log(`Found active shift for user ${userId}:`, response.data);
     return response.data;
-  } catch (e) {
-    console.error(`Exception fetching active shift for user ${userId}:`, e);
+  } catch (error: unknown) {
+    console.error(`Exception fetching active shift for user ${userId}:`, error);
     return null;
   }
 }
 
-export async function getShiftSalesTotal(shiftId: string): Promise<{ total: number }> {
+export async function getShiftSalesTotal(
+  shiftId: string
+): Promise<{ total: number }> {
   try {
-    console.log(`Getting sales total for shift ${shiftId} using Edge Function...`);
-    
+    console.log(
+      `Getting sales total for shift ${shiftId} using Edge Function...`
+    );
+
     const response = await shiftsApi.getShiftSalesTotal(shiftId);
-    
+
     if (response.error) {
-      console.error(`Error fetching sales total for shift ${shiftId}:`, response.error);
+      console.error(
+        `Error fetching sales total for shift ${shiftId}:`,
+        response.error
+      );
       return { total: 0 };
     }
-    
+
     if (!response.data) {
       console.log(`No sales total found for shift ${shiftId}`);
       return { total: 0 };
     }
-    
+
     console.log(`Found sales total for shift ${shiftId}:`, response.data);
     return response.data;
-  } catch (e) {
-    console.error(`Exception fetching sales total for shift ${shiftId}:`, e);
+  } catch (error: unknown) {
+    console.error(`Exception fetching sales total for shift ${shiftId}:`, error);
     return { total: 0 };
   }
 }

@@ -33,7 +33,7 @@ export const initSentry = () => {
             (e) =>
               e.type === "NetworkError" ||
               e.value?.includes("Network") ||
-              e.value?.includes("Failed to fetch"),
+              e.value?.includes("Failed to fetch")
           )
         ) {
           return null;
@@ -47,7 +47,7 @@ export const initSentry = () => {
 // Helper functions to standardize logging
 export const logger = {
   // Information logging
-  info: (message: string, extraData?: Record<string, any>) => {
+  info: (message: string, extraData?: Record<string, unknown>) => {
     console.info(`[INFO] ${message}`, extraData);
     Sentry.addBreadcrumb({
       category: "info",
@@ -58,7 +58,7 @@ export const logger = {
   },
 
   // Warning logging
-  warn: (message: string, extraData?: Record<string, any>) => {
+  warn: (message: string, extraData?: Record<string, unknown>) => {
     console.warn(`[WARN] ${message}`, extraData);
     Sentry.addBreadcrumb({
       category: "warning",
@@ -69,14 +69,14 @@ export const logger = {
   },
 
   // Error logging
-  error: (error: Error | string, extraData?: Record<string, any>) => {
+  error: (error: Error | string, extraData?: Record<string, unknown>) => {
     const isErrorObject = error instanceof Error;
     const errorMessage = isErrorObject ? error.message : error;
 
     console.error(
       `[ERROR] ${errorMessage}`,
       isErrorObject ? error : "",
-      extraData,
+      extraData
     );
 
     if (isErrorObject) {
@@ -92,7 +92,7 @@ export const logger = {
   },
 
   // Track user actions
-  trackAction: (action: string, extraData?: Record<string, any>) => {
+  trackAction: (action: string, extraData?: Record<string, unknown>) => {
     console.debug(`[ACTION] ${action}`, extraData);
     Sentry.addBreadcrumb({
       category: "action",
@@ -117,7 +117,7 @@ export const logger = {
   },
 
   // Set extra context for better error tracking
-  setContext: (name: string, context: Record<string, any>) => {
+  setContext: (name: string, context: Record<string, unknown>) => {
     Sentry.setContext(name, context);
   },
 };

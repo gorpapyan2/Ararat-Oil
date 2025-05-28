@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, X } from 'lucide-react';
-import { Input } from '@/core/components/ui/primitives/input';
-import { Button } from '@/core/components/ui/button';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Search, X } from "lucide-react";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Button } from "@/core/components/ui/button";
 
-export interface DebouncedSearchProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface DebouncedSearchProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   /** Debounce delay in milliseconds */
   debounceMs?: number;
   /** Called when the search value changes (after debounce) */
@@ -28,29 +29,29 @@ export interface DebouncedSearchProps extends React.InputHTMLAttributes<HTMLInpu
 
 /**
  * DebouncedSearch component
- * 
+ *
  * A search input that debounces user input to avoid excessive callbacks
  * Particularly useful for search fields that trigger API calls
  */
 export function DebouncedSearch({
   debounceMs = 300,
   onSearch,
-  placeholder = 'Search...',
-  value: initialValue = '',
+  placeholder = "Search...",
+  value: initialValue = "",
   icon = <Search className="h-4 w-4" />,
   clearIcon = <X className="h-4 w-4" />,
   clearable = true,
-  containerClassName = '',
+  containerClassName = "",
   inputProps,
-  screenReaderLabel = 'Search',
+  screenReaderLabel = "Search",
   ...rest
 }: DebouncedSearchProps) {
   // Controlled input value
   const [value, setValue] = useState(initialValue);
-  
+
   // Refs for debouncing
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -59,7 +60,7 @@ export function DebouncedSearch({
       }
     };
   }, []);
-  
+
   // Handle external value changes
   useEffect(() => {
     if (initialValue !== undefined && initialValue !== value) {
@@ -69,45 +70,48 @@ export function DebouncedSearch({
       }
     }
   }, [initialValue, onSearch]);
-  
+
   // Handle input changes with debounce
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setValue(newValue);
-    
-    // Cancel any pending debounce
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    
-    // Set new debounce timer
-    debounceTimerRef.current = setTimeout(() => {
-      if (onSearch) {
-        onSearch(newValue);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setValue(newValue);
+
+      // Cancel any pending debounce
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
       }
-    }, debounceMs);
-  }, [debounceMs, onSearch]);
-  
+
+      // Set new debounce timer
+      debounceTimerRef.current = setTimeout(() => {
+        if (onSearch) {
+          onSearch(newValue);
+        }
+      }, debounceMs);
+    },
+    [debounceMs, onSearch]
+  );
+
   // Handle clear button click
   const handleClear = useCallback(() => {
-    setValue('');
+    setValue("");
     if (onSearch) {
-      onSearch('');
+      onSearch("");
     }
   }, [onSearch]);
-  
+
   return (
     <div className={`relative ${containerClassName}`}>
       <div className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground pointer-events-none">
         {icon}
       </div>
-      
+
       {/* Screen reader text */}
       <label htmlFor="debounced-search-input" className="sr-only">
         {screenReaderLabel}
       </label>
-      
-      <Input 
+
+      <Input
         id="debounced-search-input"
         type="text"
         value={value}
@@ -119,7 +123,7 @@ export function DebouncedSearch({
         {...inputProps}
         {...rest}
       />
-      
+
       {clearable && value && (
         <Button
           type="button"
@@ -134,4 +138,4 @@ export function DebouncedSearch({
       )}
     </div>
   );
-} 
+}

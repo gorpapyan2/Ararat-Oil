@@ -1,26 +1,44 @@
 import * as React from "react";
-import { 
-  FormControl, 
-  FormDescription, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/core/components/ui/form";
 import { Input, type InputProps } from "@/core/components/ui/primitives/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/primitives/select";
-import { Checkbox } from '@/core/components/ui/checkbox';
-import { Textarea } from '@/core/components/ui/textarea';
-import { Switch } from '@/core/components/ui/switch';
-import { RadioGroup, RadioGroupItem } from "@/core/components/ui/primitives/radio-group";
-import { CurrencyInput } from '@/core/components/ui/currency-input';
-import { Calendar } from '@/core/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/core/components/ui/primitives/select";
+import { Checkbox } from "@/core/components/ui/checkbox";
+import { Textarea } from "@/core/components/ui/textarea";
+import { Switch } from "@/core/components/ui/switch";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/core/components/ui/primitives/radio-group";
+import { CurrencyInput } from "@/core/components/ui/currency-input";
+import { Calendar } from "@/core/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/core/components/ui/popover";
 import { Button } from "@/core/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/shared/utils";
-import { ControllerRenderProps, FieldPath, FieldValues, UseFormReturn } from "react-hook-form";
+import {
+  ControllerRenderProps,
+  FieldPath,
+  FieldValues,
+  UseFormReturn,
+} from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { Path } from "react-hook-form";
 
@@ -34,7 +52,8 @@ interface FormFieldBaseProps<TFieldValues extends FieldValues> {
 }
 
 // FormInput component
-export interface FormInputProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
+export interface FormInputProps<TFieldValues extends FieldValues>
+  extends FormFieldBaseProps<TFieldValues> {
   type?: InputProps["type"];
   placeholder?: string;
   autoComplete?: string;
@@ -81,14 +100,19 @@ export function FormInput<TFieldValues extends FieldValues>({
 }
 
 // FormSelect component
-export interface FormSelectProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
+export interface FormSelectProps<TFieldValues extends FieldValues>
+  extends FormFieldBaseProps<TFieldValues> {
   options: { value: string; label: string; colorClass?: string }[];
   placeholder?: string;
   selectClassName?: string;
   contentClassName?: string;
   itemClassName?: string;
   onChange?: (value: string) => void;
-  renderOption?: (option: { value: string; label: string; colorClass?: string }) => React.ReactNode;
+  renderOption?: (option: {
+    value: string;
+    label: string;
+    colorClass?: string;
+  }) => React.ReactNode;
 }
 
 export function FormSelect<TFieldValues extends FieldValues>({
@@ -112,11 +136,11 @@ export function FormSelect<TFieldValues extends FieldValues>({
       render={({ field }) => (
         <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
-          <Select 
+          <Select
             onValueChange={(value) => {
               field.onChange(value);
               onChange?.(value);
-            }} 
+            }}
             value={field.value || ""}
             defaultValue={field.value}
           >
@@ -126,9 +150,9 @@ export function FormSelect<TFieldValues extends FieldValues>({
               </SelectTrigger>
             </FormControl>
             <SelectContent className={contentClassName}>
-              {options.map(option => (
-                <SelectItem 
-                  key={option.value} 
+              {options.map((option) => (
+                <SelectItem
+                  key={option.value}
                   value={option.value}
                   className={itemClassName}
                 >
@@ -146,7 +170,8 @@ export function FormSelect<TFieldValues extends FieldValues>({
 }
 
 // FormCheckbox component
-export interface FormCheckboxProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
+export interface FormCheckboxProps<TFieldValues extends FieldValues>
+  extends FormFieldBaseProps<TFieldValues> {
   disabled?: boolean;
 }
 
@@ -163,7 +188,12 @@ export function FormCheckbox<TFieldValues extends FieldValues>({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("flex flex-row items-start space-x-3 space-y-0", className)}>
+        <FormItem
+          className={cn(
+            "flex flex-row items-start space-x-3 space-y-0",
+            className
+          )}
+        >
           <FormControl>
             <Checkbox
               checked={field.value}
@@ -183,7 +213,8 @@ export function FormCheckbox<TFieldValues extends FieldValues>({
 }
 
 // FormTextarea component
-export interface FormTextareaProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
+export interface FormTextareaProps<TFieldValues extends FieldValues>
+  extends FormFieldBaseProps<TFieldValues> {
   placeholder?: string;
   rows?: number;
   textareaClassName?: string;
@@ -224,7 +255,8 @@ export function FormTextarea<TFieldValues extends FieldValues>({
 }
 
 // FormSwitch component
-export interface FormSwitchProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
+export interface FormSwitchProps<TFieldValues extends FieldValues>
+  extends FormFieldBaseProps<TFieldValues> {
   switchLabel: string;
 }
 
@@ -241,18 +273,22 @@ export function FormSwitch<TFieldValues extends FieldValues>({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("flex flex-row items-center justify-between space-y-0", className)}>
+        <FormItem
+          className={cn(
+            "flex flex-row items-center justify-between space-y-0",
+            className
+          )}
+        >
           <div className="space-y-0.5">
             {label && <FormLabel>{label}</FormLabel>}
             {description && <FormDescription>{description}</FormDescription>}
           </div>
           <FormControl>
             <div className="flex items-center space-x-2">
-              <Switch
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-              <span className="text-sm text-muted-foreground">{switchLabel}</span>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <span className="text-sm text-muted-foreground">
+                {switchLabel}
+              </span>
             </div>
           </FormControl>
           <FormMessage />
@@ -263,7 +299,8 @@ export function FormSwitch<TFieldValues extends FieldValues>({
 }
 
 // FormRadioGroup component
-export interface FormRadioGroupProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
+export interface FormRadioGroupProps<TFieldValues extends FieldValues>
+  extends FormFieldBaseProps<TFieldValues> {
   options: { value: string; label: string }[];
   orientation?: "horizontal" | "vertical";
 }
@@ -289,9 +326,11 @@ export function FormRadioGroup<TFieldValues extends FieldValues>({
             <RadioGroup
               onValueChange={field.onChange}
               value={field.value}
-              className={orientation === "horizontal" ? "flex space-x-4" : "space-y-1"}
+              className={
+                orientation === "horizontal" ? "flex space-x-4" : "space-y-1"
+              }
             >
-              {options.map(option => (
+              {options.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
                   <RadioGroupItem value={option.value} />
                   <FormLabel className="font-normal">{option.label}</FormLabel>
@@ -307,7 +346,8 @@ export function FormRadioGroup<TFieldValues extends FieldValues>({
 }
 
 // FormCurrencyInput component
-export interface FormCurrencyInputProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
+export interface FormCurrencyInputProps<TFieldValues extends FieldValues>
+  extends FormFieldBaseProps<TFieldValues> {
   placeholder?: string;
   symbol?: string;
   inputClassName?: string;
@@ -353,7 +393,8 @@ export function FormCurrencyInput<TFieldValues extends FieldValues>({
 }
 
 // FormDatePicker component
-export interface FormDatePickerProps<TFieldValues extends FieldValues> extends FormFieldBaseProps<TFieldValues> {
+export interface FormDatePickerProps<TFieldValues extends FieldValues>
+  extends FormFieldBaseProps<TFieldValues> {
   placeholder?: string;
   disabled?: (date: Date) => boolean;
   buttonClassName?: string;
@@ -370,7 +411,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
   buttonClassName,
 }: FormDatePickerProps<TFieldValues>) {
   const [isOpen, setIsOpen] = React.useState(false);
-  
+
   return (
     <FormField
       control={form.control}
@@ -420,7 +461,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
 }
 
 // FormField - For custom field rendering while maintaining form structure
-interface CustomFormFieldProps<T extends Record<string, any>> {
+interface CustomFormFieldProps<T extends Record<string, unknown>> {
   name: string;
   label: string;
   form: UseFormReturn<T>;
@@ -429,7 +470,7 @@ interface CustomFormFieldProps<T extends Record<string, any>> {
   render: (field: ControllerRenderProps<T>) => React.ReactNode;
 }
 
-export function CustomFormField<T extends Record<string, any>>({
+export function CustomFormField<T extends Record<string, unknown>>({
   name,
   label,
   form,
@@ -445,9 +486,7 @@ export function CustomFormField<T extends Record<string, any>>({
         name={name as Path<T>}
         render={({ field, fieldState }) => (
           <>
-            <FormControl>
-              {render(field)}
-            </FormControl>
+            <FormControl>{render(field)}</FormControl>
             {description && <FormDescription>{description}</FormDescription>}
             {fieldState.error && (
               <FormMessage>{fieldState.error.message}</FormMessage>
@@ -457,4 +496,4 @@ export function CustomFormField<T extends Record<string, any>>({
       />
     </FormItem>
   );
-} 
+}

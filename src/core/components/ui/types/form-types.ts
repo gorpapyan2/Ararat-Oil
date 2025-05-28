@@ -2,23 +2,25 @@
  * Type definitions for form components
  * This file centralizes type definitions to improve type safety across form implementations
  */
-import { z } from 'zod';
-import { 
-  FieldValues, 
-  UseFormReturn, 
+import { z, ZodTypeDef } from "zod";
+import {
+  FieldValues,
+  UseFormReturn,
   SubmitHandler,
   UseFormProps,
   FieldPath,
   RegisterOptions,
   Control,
-  FieldErrors
-} from 'react-hook-form';
-import { ReactNode } from 'react';
+  FieldErrors,
+} from "react-hook-form";
+import { ReactNode } from "react";
 
 /**
  * Base form field properties
  */
-export interface BaseFieldProps<TFieldValues extends FieldValues = FieldValues> {
+export interface BaseFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+> {
   /** Field name */
   name: FieldPath<TFieldValues>;
   /** Field label */
@@ -64,7 +66,7 @@ export interface FormRowProps {
  */
 export interface ValueFieldProps<
   TFieldValues extends FieldValues = FieldValues,
-  TValue = any
+  TValue = unknown,
 > extends BaseFieldProps<TFieldValues> {
   /** Current field value */
   value?: TValue;
@@ -77,7 +79,9 @@ export interface ValueFieldProps<
 /**
  * Props for form components using StandardForm
  */
-export interface StandardFormComponentProps<TSchema extends z.ZodType<any, any>> {
+export interface StandardFormComponentProps<
+  TSchema extends z.ZodType<ZodTypeDef, unknown>,
+> {
   /** Zod schema for form validation */
   schema: TSchema;
   /** Default values for form fields */
@@ -85,13 +89,16 @@ export interface StandardFormComponentProps<TSchema extends z.ZodType<any, any>>
   /** Handler for form submission */
   onSubmit: SubmitHandler<z.infer<TSchema>>;
   /** Additional props for the useForm hook */
-  formOptions?: Omit<UseFormProps<z.infer<TSchema>>, 'resolver' | 'defaultValues'>;
+  formOptions?: Omit<
+    UseFormProps<z.infer<TSchema>>,
+    "resolver" | "defaultValues"
+  >;
 }
 
 /**
- * Props for rendered form components 
+ * Props for rendered form components
  */
-export interface FormRenderProps<TSchema extends z.ZodType<any, any>> 
+export interface FormRenderProps<TSchema extends z.ZodType<unknown, unknown>>
   extends StandardFormComponentProps<TSchema> {
   /** Form methods from react-hook-form */
   form: UseFormReturn<z.infer<TSchema>>;
@@ -108,7 +115,7 @@ export interface FormRenderProps<TSchema extends z.ZodType<any, any>>
  */
 export interface FieldRenderOptions<
   TFieldValues extends FieldValues = FieldValues,
-  TValue = any
+  TValue = unknown,
 > {
   /** Field ID */
   id: string;
@@ -127,7 +134,7 @@ export interface FieldRenderOptions<
   /** Error message */
   errorMessage?: string;
   /** Ref for the input element */
-  ref: React.Ref<any>;
+  ref: React.Ref<HTMLElement>;
 }
 
 /**
@@ -148,25 +155,25 @@ export interface FormSubmissionState {
  * Form field types for dynamic form generation
  */
 export enum FieldType {
-  TEXT = 'text',
-  TEXTAREA = 'textarea',
-  EMAIL = 'email',
-  PASSWORD = 'password',
-  NUMBER = 'number',
-  DATE = 'date',
-  TIME = 'time',
-  DATETIME = 'datetime-local',
-  CHECKBOX = 'checkbox',
-  RADIO = 'radio',
-  SELECT = 'select',
-  MULTISELECT = 'multiselect',
-  FILE = 'file',
+  TEXT = "text",
+  TEXTAREA = "textarea",
+  EMAIL = "email",
+  PASSWORD = "password",
+  NUMBER = "number",
+  DATE = "date",
+  TIME = "time",
+  DATETIME = "datetime-local",
+  CHECKBOX = "checkbox",
+  RADIO = "radio",
+  SELECT = "select",
+  MULTISELECT = "multiselect",
+  FILE = "file",
 }
 
 /**
  * Configuration for a dynamic form field
  */
-export interface FieldConfig<TFieldValues extends FieldValues = FieldValues> 
+export interface FieldConfig<TFieldValues extends FieldValues = FieldValues>
   extends BaseFieldProps<TFieldValues> {
   /** Field type */
   type: FieldType;
@@ -178,4 +185,4 @@ export interface FieldConfig<TFieldValues extends FieldValues = FieldValues>
   }>;
   /** Custom renderer */
   render?: (props: FieldRenderOptions) => ReactNode;
-} 
+}

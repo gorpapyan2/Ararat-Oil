@@ -11,22 +11,24 @@
 // Global test setup
 beforeAll(() => {
   // Global setup - runs once before all tests
-  console.log('Setting up test environment');
+  console.log("Setting up test environment");
 });
 
 afterAll(() => {
   // Global teardown - runs once after all tests
-  console.log('Tearing down test environment');
+  console.log("Tearing down test environment");
 });
 
 // Mock any browser APIs that aren't available in the test environment
 // For example, window.matchMedia
-if (typeof window !== 'undefined') {
-  window.matchMedia = window.matchMedia || function() {
-    return {
-      matches: false,
-      addListener: function() {},
-      removeListener: function() {}
+if (typeof window !== "undefined") {
+  window.matchMedia =
+    window.matchMedia ||
+    function () {
+      return {
+        matches: false,
+        addListener: function () {},
+        removeListener: function () {},
+      };
     };
-  };
-} 
+}

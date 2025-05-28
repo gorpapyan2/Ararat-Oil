@@ -1,22 +1,24 @@
-import * as React from "react"
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
-import { cn } from "@/shared/utils"
-import { Button } from "@/core/components/ui/button"
-import { Calendar } from "@/core/components/ui/primitives/calendar"
+import * as React from "react";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { cn } from "@/shared/utils";
+import { Button } from "@/core/components/ui/button";
+import { Calendar } from "@/core/components/ui/primitives/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/core/components/ui/primitives/popover"
+} from "@/core/components/ui/primitives/popover";
 
 export interface DateRangePickerProps {
-  dateRange?: { from: Date; to?: Date }
-  onDateRangeChange?: (dateRange: { from: Date; to?: Date } | undefined) => void
-  disabled?: boolean
-  placeholder?: string
-  className?: string
+  dateRange?: { from: Date; to?: Date };
+  onDateRangeChange?: (
+    dateRange: { from: Date; to?: Date } | undefined
+  ) => void;
+  disabled?: boolean;
+  placeholder?: string;
+  className?: string;
 }
 
 export function DateRangePicker({
@@ -26,29 +28,31 @@ export function DateRangePicker({
   placeholder = "Select date range",
   className,
 }: DateRangePickerProps) {
-  const [date, setDate] = React.useState<{ from: Date; to?: Date } | undefined>(dateRange)
+  const [date, setDate] = React.useState<{ from: Date; to?: Date } | undefined>(
+    dateRange
+  );
 
   React.useEffect(() => {
-    setDate(dateRange)
-  }, [dateRange])
+    setDate(dateRange);
+  }, [dateRange]);
 
   const handleSelect = (selectedDate: Date) => {
-    setDate(prev => {
+    setDate((prev) => {
       if (!prev) {
-        return { from: selectedDate }
+        return { from: selectedDate };
       }
-      
+
       if (prev.from && !prev.to && selectedDate >= prev.from) {
-        const newRange = { from: prev.from, to: selectedDate }
-        onDateRangeChange?.(newRange)
-        return newRange
+        const newRange = { from: prev.from, to: selectedDate };
+        onDateRangeChange?.(newRange);
+        return newRange;
       }
-      
-      const newRange = { from: selectedDate }
-      onDateRangeChange?.(newRange)
-      return newRange
-    })
-  }
+
+      const newRange = { from: selectedDate };
+      onDateRangeChange?.(newRange);
+      return newRange;
+    });
+  };
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -79,13 +83,9 @@ export function DateRangePicker({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="range"
-            selected={date}
-            onSelect={handleSelect}
-          />
+          <Calendar mode="range" selected={date} onSelect={handleSelect} />
         </PopoverContent>
       </Popover>
     </div>
-  )
-} 
+  );
+}

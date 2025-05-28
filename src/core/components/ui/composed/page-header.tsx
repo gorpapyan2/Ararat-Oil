@@ -4,7 +4,8 @@ import { cn } from "@/shared/utils";
 /**
  * Interface for PageHeaderPrimitive component props
  */
-export interface PageHeaderPrimitiveProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface PageHeaderPrimitiveProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Forward ref to the root div element
    */
@@ -26,7 +27,8 @@ PageHeaderPrimitive.displayName = "PageHeaderPrimitive";
 /**
  * Interface for PageHeaderTitlePrimitive component props
  */
-export interface PageHeaderTitlePrimitiveProps extends React.HTMLAttributes<HTMLHeadingElement> {
+export interface PageHeaderTitlePrimitiveProps
+  extends React.HTMLAttributes<HTMLHeadingElement> {
   /**
    * Forward ref to the heading element
    */
@@ -35,7 +37,7 @@ export interface PageHeaderTitlePrimitiveProps extends React.HTMLAttributes<HTML
    * HTML heading level (h1-h6)
    * @default 'h1'
    */
-  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
 /**
@@ -44,7 +46,7 @@ export interface PageHeaderTitlePrimitiveProps extends React.HTMLAttributes<HTML
 export const PageHeaderTitlePrimitive = React.forwardRef<
   HTMLHeadingElement,
   PageHeaderTitlePrimitiveProps
->(({ className, as: Comp = 'h1', ...props }, ref) => {
+>(({ className, as: Comp = "h1", ...props }, ref) => {
   return <Comp ref={ref} className={cn(className)} {...props} />;
 });
 PageHeaderTitlePrimitive.displayName = "PageHeaderTitlePrimitive";
@@ -52,7 +54,8 @@ PageHeaderTitlePrimitive.displayName = "PageHeaderTitlePrimitive";
 /**
  * Interface for PageHeaderDescriptionPrimitive component props
  */
-export interface PageHeaderDescriptionPrimitiveProps extends React.HTMLAttributes<HTMLParagraphElement> {
+export interface PageHeaderDescriptionPrimitiveProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {
   /**
    * Forward ref to the paragraph element
    */
@@ -73,7 +76,8 @@ PageHeaderDescriptionPrimitive.displayName = "PageHeaderDescriptionPrimitive";
 /**
  * Interface for PageHeaderActionsPrimitive component props
  */
-export interface PageHeaderActionsPrimitiveProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface PageHeaderActionsPrimitiveProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Forward ref to the actions div element
    */
@@ -94,7 +98,8 @@ PageHeaderActionsPrimitive.displayName = "PageHeaderActionsPrimitive";
 /**
  * Interface for PageHeaderBreadcrumbsPrimitive component props
  */
-export interface PageHeaderBreadcrumbsPrimitiveProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface PageHeaderBreadcrumbsPrimitiveProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Forward ref to the breadcrumbs div element
    */
@@ -110,4 +115,4 @@ export const PageHeaderBreadcrumbsPrimitive = React.forwardRef<
 >(({ className, ...props }, ref) => {
   return <div ref={ref} className={cn(className)} {...props} />;
 });
-PageHeaderBreadcrumbsPrimitive.displayName = "PageHeaderBreadcrumbsPrimitive"; 
+PageHeaderBreadcrumbsPrimitive.displayName = "PageHeaderBreadcrumbsPrimitive";

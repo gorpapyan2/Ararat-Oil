@@ -41,7 +41,7 @@ export const ActionCard = React.forwardRef<HTMLDivElement, ActionCardProps>(
 
     // Action configuration
     const hasAction = !!(onAction || actionHref);
-    
+
     // Handle click event
     const handleClick = (e: React.MouseEvent) => {
       if (onAction) {
@@ -79,7 +79,7 @@ export const ActionCard = React.forwardRef<HTMLDivElement, ActionCardProps>(
             </CardDescription>
           )}
         </CardHeader>
-        
+
         {hasAction && (
           <CardActions>
             <Button
@@ -108,4 +108,4 @@ export const ActionCard = React.forwardRef<HTMLDivElement, ActionCardProps>(
   }
 );
 
-ActionCard.displayName = "ActionCard"; 
+ActionCard.displayName = "ActionCard";

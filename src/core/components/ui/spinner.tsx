@@ -3,9 +3,9 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   SpinnerProps,
   Spinner,
   SpinnerWithTextProps,
-  SpinnerWithText 
+  SpinnerWithText,
 } from "@/core/components/ui/primitives/spinner";

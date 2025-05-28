@@ -1,17 +1,13 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
+import { Calendar, CreditCard, BadgeCheck } from "lucide-react";
 import {
-  Calendar,
-  CreditCard,
-  BadgeCheck,
-} from "lucide-react";
-import { 
-  StandardizedDataTable, 
+  StandardizedDataTable,
   FiltersShape,
   createBadgeCell,
   createDateCell,
-  createCurrencyCell
+  createCurrencyCell,
 } from "@/shared/components/unified/StandardizedDataTable";
 import { Badge } from "@/core/components/ui/primitives/badge";
 import type { Transaction } from "../types/finance.types";
@@ -27,7 +23,7 @@ interface TransactionsTableStandardizedProps {
   onFiltersChange?: (filters: FiltersShape) => void;
   totalCount?: number;
   onPageChange?: (page: number, pageSize: number) => void;
-  onSortChange?: (column: string | null, direction: 'asc' | 'desc') => void;
+  onSortChange?: (column: string | null, direction: "asc" | "desc") => void;
 }
 
 export function TransactionsTableStandardized({
@@ -52,7 +48,7 @@ export function TransactionsTableStandardized({
   onPageChange,
   onSortChange,
 }: TransactionsTableStandardizedProps) {
-  const { t } = useTranslation(['finance', 'common']);
+  const { t } = useTranslation(["finance", "common"]);
   const [filters, setFilters] = useState<FiltersShape>({
     searchTerm: "",
     paymentMethod: "all",
@@ -88,70 +84,74 @@ export function TransactionsTableStandardized({
 
   // Define status badge variant based on status value
   const getStatusVariant = (status: string | undefined) => {
-    if (!status) return 'outline';
-    
+    if (!status) return "outline";
+
     const statusLower = status.toLowerCase();
-    if (statusLower === 'completed' || statusLower === 'success') {
-      return 'success';
-    } else if (statusLower === 'pending') {
-      return 'warning';
-    } else if (statusLower === 'failed' || statusLower === 'error') {
-      return 'destructive';
+    if (statusLower === "completed" || statusLower === "success") {
+      return "success";
+    } else if (statusLower === "pending") {
+      return "warning";
+    } else if (statusLower === "failed" || statusLower === "error") {
+      return "destructive";
     }
-    return 'outline';
+    return "outline";
   };
 
   // Define columns for the StandardizedDataTable
-  const columns = useMemo(() => [
-    {
-      header: t('finance:transactions.fields.date'),
-      accessorKey: 'created_at' as keyof Transaction,
-      cell: (value: string) => createDateCell(value),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:transactions.fields.amount'),
-      accessorKey: 'amount' as keyof Transaction,
-      cell: (value: number) => createCurrencyCell(value),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:transactions.fields.paymentMethod'),
-      accessorKey: 'payment_method' as keyof Transaction,
-      cell: (value: string) => (
-        <div className="flex items-center gap-2 py-2">
-          <CreditCard className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">
-            {value ? value.replace("_", " ").toUpperCase() : "N/A"}
-          </span>
-        </div>
-      ),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:transactions.fields.status'),
-      accessorKey: 'payment_status' as keyof Transaction,
-      cell: (value: string) => createBadgeCell(
-        value ? value.toUpperCase() : "N/A", 
-        getStatusVariant(value)
-      ),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:transactions.fields.description'),
-      accessorKey: 'description' as keyof Transaction,
-      cell: (value: string) => (
-        <span className="truncate max-w-[200px]">{value || "N/A"}</span>
-      ),
-      enableSorting: true,
-    },
-  ], [t]);
+  const columns = useMemo(
+    () => [
+      {
+        header: t("finance:transactions.fields.date"),
+        accessorKey: "created_at" as keyof Transaction,
+        cell: (value: string) => createDateCell(value),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:transactions.fields.amount"),
+        accessorKey: "amount" as keyof Transaction,
+        cell: (value: number) => createCurrencyCell(value),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:transactions.fields.paymentMethod"),
+        accessorKey: "payment_method" as keyof Transaction,
+        cell: (value: string) => (
+          <div className="flex items-center gap-2 py-2">
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">
+              {value ? value.replace("_", " ").toUpperCase() : "N/A"}
+            </span>
+          </div>
+        ),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:transactions.fields.status"),
+        accessorKey: "payment_status" as keyof Transaction,
+        cell: (value: string) =>
+          createBadgeCell(
+            value ? value.toUpperCase() : "N/A",
+            getStatusVariant(value)
+          ),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:transactions.fields.description"),
+        accessorKey: "description" as keyof Transaction,
+        cell: (value: string) => (
+          <span className="truncate max-w-[200px]">{value || "N/A"}</span>
+        ),
+        enableSorting: true,
+      },
+    ],
+    [t]
+  );
 
   const isServerSide = Boolean(onPageChange && onSortChange);
 
   return (
     <StandardizedDataTable
-      title={t('finance:transactions.title')}
+      title={t("finance:transactions.title")}
       columns={columns}
       data={transactions}
       loading={isLoading}
@@ -166,9 +166,9 @@ export function TransactionsTableStandardized({
       onSortChange={onSortChange}
       exportOptions={{
         enabled: true,
-        filename: 'transactions-export',
-        exportAll: true
+        filename: "transactions-export",
+        exportAll: true,
       }}
     />
   );
-} 
+}

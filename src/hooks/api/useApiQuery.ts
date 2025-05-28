@@ -1,16 +1,16 @@
 /**
  * useApiQuery - Standardized hook for data fetching operations
- * 
+ *
  * This hook wraps React Query's useQuery with standardized options and patterns
  * to ensure consistent data fetching across the application.
  */
 
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { UseApiQueryOptions, UseApiQueryResult } from './types';
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { UseApiQueryOptions, UseApiQueryResult } from "./types";
 
 /**
- * Hook for making standardized API queries 
- * 
+ * Hook for making standardized API queries
+ *
  * @example
  * ```tsx
  * const employees = useApiQuery({
@@ -19,7 +19,7 @@ import { UseApiQueryOptions, UseApiQueryResult } from './types';
  *   filters,
  *   staleTime: 5 * 60 * 1000 // 5 minutes
  * });
- * 
+ *
  * // Use the standardized result
  * if (employees.isLoading) return <Loading />;
  * if (employees.isError) return <Error error={employees.error} />;
@@ -66,4 +66,4 @@ export function useApiQuerySimple<TData, TError = Error, TFilters = unknown>(
   return [result.data, result.isLoading, result.error];
 }
 
-export default useApiQuery; 
+export default useApiQuery;

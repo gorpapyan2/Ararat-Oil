@@ -3,8 +3,8 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   BadgeProps,
   Badge,
-  badgeVariants 
+  badgeVariants,
 } from "@/core/components/ui/primitives/badge";

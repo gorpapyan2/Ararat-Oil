@@ -1,6 +1,6 @@
 /**
  * Fuel Sales Type Definitions
- * 
+ *
  * This file contains types specific to the fuel sales feature
  */
 
@@ -16,8 +16,8 @@ export interface FuelSale {
   quantity: number;
   price_per_liter: number;
   total_price: number;
-  payment_method: 'cash' | 'card' | 'credit' | 'transfer' | string;
-  payment_status?: 'completed' | 'pending' | 'cancelled';
+  payment_method: "cash" | "card" | "credit" | "transfer" | string;
+  payment_status?: "completed" | "pending" | "cancelled";
   employee_id: string;
   employee_name?: string;
   shift_id?: string;
@@ -67,7 +67,7 @@ export interface FuelSaleExportOptions {
     start: string;
     end: string;
   };
-  format: 'csv' | 'xlsx' | 'pdf';
+  format: "csv" | "xlsx" | "pdf";
   include_fields: string[];
 }
 
@@ -78,14 +78,17 @@ export interface FuelSaleSummary {
   total_sales: number;
   total_quantity: number;
   average_price: number;
-  sales_by_fuel_type: Record<string, {
-    quantity: number;
-    amount: number;
-  }>;
+  sales_by_fuel_type: Record<
+    string,
+    {
+      quantity: number;
+      amount: number;
+    }
+  >;
   sales_by_payment_method: Record<string, number>;
   daily_sales: Array<{
     date: string;
     amount: number;
     quantity: number;
   }>;
-} 
+}

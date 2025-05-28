@@ -11,7 +11,7 @@ import {
 } from "react-hook-form";
 
 import { cn } from "@/shared/utils";
-import { Label } from '@/core/components/ui/label';
+import { Label } from "@/core/components/ui/label";
 
 const Form = FormProvider;
 
@@ -23,7 +23,7 @@ type FormFieldContextValue<
 };
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue,
+  {} as FormFieldContextValue
 );
 
 const FormField = <
@@ -67,7 +67,7 @@ type FormItemContextValue = {
 };
 
 const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue,
+  {} as FormItemContextValue
 );
 
 const FormItem = React.forwardRef<

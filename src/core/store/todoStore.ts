@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { v4 as uuidv4 } from "uuid";
-import { 
-  TodoItem, 
-  FilterType, 
-  SortType, 
+import {
+  TodoItem,
+  FilterType,
+  SortType,
   PriorityType,
-  PRIORITY_ORDER
+  PRIORITY_ORDER,
 } from "@/types/todo";
 
 /**
@@ -38,7 +38,7 @@ export interface TodoState {
 
 /**
  * Todo state store
- * 
+ *
  * Manages todo items including:
  * - Todo CRUD operations
  * - Filtering, sorting, and search functionality
@@ -75,7 +75,7 @@ export const useTodoStore = create<TodoState>()(
                   completed: !todo.completed,
                   completedAt: !todo.completed ? Date.now() : undefined,
                 }
-              : todo,
+              : todo
           ),
         })),
 
@@ -87,7 +87,7 @@ export const useTodoStore = create<TodoState>()(
       editTodo: (id, text) =>
         set((state) => ({
           todos: state.todos.map((todo) =>
-            todo.id === id ? { ...todo, text } : todo,
+            todo.id === id ? { ...todo, text } : todo
           ),
         })),
 
@@ -105,7 +105,7 @@ export const useTodoStore = create<TodoState>()(
       updatePriority: (id, priority) =>
         set((state) => ({
           todos: state.todos.map((todo) =>
-            todo.id === id ? { ...todo, priority } : todo,
+            todo.id === id ? { ...todo, priority } : todo
           ),
         })),
     }),
@@ -114,8 +114,8 @@ export const useTodoStore = create<TodoState>()(
       partialize: (state) => ({
         todos: state.todos,
       }),
-    },
-  ),
+    }
+  )
 );
 
 /**
@@ -125,30 +125,30 @@ export const useTodoStore = create<TodoState>()(
 /**
  * Get total number of todos
  */
-export const selectTotalTodos = (state: TodoState): number => 
+export const selectTotalTodos = (state: TodoState): number =>
   state.todos.length;
 
 /**
  * Get number of active todos
  */
-export const selectActiveTodos = (state: TodoState): number => 
-  state.todos.filter(todo => !todo.completed).length;
+export const selectActiveTodos = (state: TodoState): number =>
+  state.todos.filter((todo) => !todo.completed).length;
 
 /**
  * Get number of completed todos
  */
-export const selectCompletedTodos = (state: TodoState): number => 
-  state.todos.filter(todo => todo.completed).length;
+export const selectCompletedTodos = (state: TodoState): number =>
+  state.todos.filter((todo) => todo.completed).length;
 
 /**
  * Check if there are any completed todos
  */
-export const selectHasCompletedTodos = (state: TodoState): boolean => 
+export const selectHasCompletedTodos = (state: TodoState): boolean =>
   selectCompletedTodos(state) > 0;
 
 /**
  * Helper function to get filtered and sorted todos
- * 
+ *
  * @param state Todo state
  * @returns Filtered and sorted todo items
  */
@@ -157,7 +157,7 @@ export const getFilteredTodos = (state: TodoState): TodoItem[] => {
 
   // Filter todos
   let filteredTodos = todos;
-  
+
   if (filter === "active") {
     filteredTodos = filteredTodos.filter((todo) => !todo.completed);
   } else if (filter === "completed") {
@@ -185,4 +185,4 @@ export const getFilteredTodos = (state: TodoState): TodoItem[] => {
       return b.createdAt - a.createdAt;
     }
   });
-}; 
+};

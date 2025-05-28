@@ -1,10 +1,10 @@
 import React from "react";
-import { 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
 import { z } from "zod";
@@ -14,28 +14,22 @@ import { Employee } from "@/features/employees/types/employees.types";
 import { Control, FieldValues } from "react-hook-form";
 import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
 
-/**
- * Create a schema for employee form validation
- */
-const createEmployeeSchema = () => {
-  const { t } = useTranslation();
-  
-  return z.object({
-    first_name: z.string().min(1, t("employees.firstNameRequired", "First name is required")),
-    last_name: z.string().min(1, t("employees.lastNameRequired", "Last name is required")),
-    position: z.string().min(1, t("employees.positionRequired", "Position is required")),
-    department: z.string().optional(),
-    hire_date: z.string().optional(),
-    email: z.string().email(t("employees.invalidEmail", "Invalid email address")).optional(),
-    phone: z.string().optional(),
-    status: z.enum(["active", "inactive", "on_leave"]).default("active"),
-    salary: z.number().optional(),
-    notes: z.string().optional(),
-  });
-};
+// Create a base schema type for export
+const baseEmployeeSchema = z.object({
+  first_name: z.string().min(1),
+  last_name: z.string().min(1),
+  position: z.string().min(1),
+  department: z.string().optional(),
+  hire_date: z.string().optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  status: z.enum(["active", "inactive", "on_leave"]).default("active"),
+  salary: z.number().optional(),
+  notes: z.string().optional(),
+});
 
 // Export the type for reuse in other components
-export type EmployeeFormValues = z.infer<ReturnType<typeof createEmployeeSchema>>;
+export type EmployeeFormValues = z.infer<typeof baseEmployeeSchema>;
 
 interface EmployeeDialogStandardizedProps {
   open: boolean;
@@ -54,15 +48,39 @@ function EmployeeDialogStandardized({
 }: EmployeeDialogStandardizedProps) {
   const { t } = useTranslation();
   const isEditing = Boolean(employee);
-  const employeeSchema = createEmployeeSchema();
-  
+
+  // Create schema inside the component where hooks can be called
+  const employeeSchema = z.object({
+    first_name: z
+      .string()
+      .min(1, t("employees.firstNameRequired", "First name is required")),
+    last_name: z
+      .string()
+      .min(1, t("employees.lastNameRequired", "Last name is required")),
+    position: z
+      .string()
+      .min(1, t("employees.positionRequired", "Position is required")),
+    department: z.string().optional(),
+    hire_date: z.string().optional(),
+    email: z
+      .string()
+      .email(t("employees.invalidEmail", "Invalid email address"))
+      .optional(),
+    phone: z.string().optional(),
+    status: z.enum(["active", "inactive", "on_leave"]).default("active"),
+    salary: z.number().optional(),
+    notes: z.string().optional(),
+  });
+
   // Set up default values
   const defaultValues: Partial<EmployeeFormValues> = {
     first_name: employee?.first_name || "",
     last_name: employee?.last_name || "",
     position: employee?.position || "",
     department: employee?.department || "",
-    hire_date: employee?.hire_date ? new Date(employee.hire_date).toISOString().split('T')[0] : "",
+    hire_date: employee?.hire_date
+      ? new Date(employee.hire_date).toISOString().split("T")[0]
+      : "",
     email: employee?.email || "",
     phone: employee?.phone || "",
     status: employee?.status || "active",
@@ -74,11 +92,11 @@ function EmployeeDialogStandardized({
   const handleSubmit = async (data: EmployeeFormValues) => {
     try {
       const success = await onSubmit(data);
-      
+
       if (success) {
         sonnerToast.success(
-          isEditing 
-            ? t("employees.updateSuccess", "Employee updated successfully") 
+          isEditing
+            ? t("employees.updateSuccess", "Employee updated successfully")
             : t("employees.createSuccess", "Employee created successfully")
         );
         return true;
@@ -94,18 +112,20 @@ function EmployeeDialogStandardized({
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEditing 
-        ? t("employees.editEmployee", "Edit Employee") 
-        : t("employees.addEmployee", "Add Employee")
+      title={
+        isEditing
+          ? t("employees.editEmployee", "Edit Employee")
+          : t("employees.addEmployee", "Add Employee")
       }
       schema={employeeSchema}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}
-      submitText={isLoading
-        ? t("common.saving", "Saving...")
-        : isEditing
-        ? t("common.save", "Save")
-        : t("common.create", "Create")
+      submitText={
+        isLoading
+          ? t("common.saving", "Saving...")
+          : isEditing
+            ? t("common.save", "Save")
+            : t("common.create", "Create")
       }
       isSubmitting={isLoading}
       size="lg"
@@ -163,7 +183,7 @@ function EmployeeDialogStandardized({
               <FormItem>
                 <FormLabel>{t("employees.department", "Department")}</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input {...field} value={field.value || ""} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -178,7 +198,7 @@ function EmployeeDialogStandardized({
                 <FormItem>
                   <FormLabel>{t("employees.hireDate", "Hire Date")}</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} value={field.value || ''} />
+                    <Input type="date" {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -192,13 +212,19 @@ function EmployeeDialogStandardized({
                 <FormItem>
                   <FormLabel>{t("employees.status", "Status")}</FormLabel>
                   <FormControl>
-                    <select 
-                      className="w-full px-3 py-2 border rounded-md" 
+                    <select
+                      className="w-full px-3 py-2 border rounded-md"
                       {...field}
                     >
-                      <option value="active">{t("employees.statusActive", "Active")}</option>
-                      <option value="inactive">{t("employees.statusInactive", "Inactive")}</option>
-                      <option value="on_leave">{t("employees.statusOnLeave", "On Leave")}</option>
+                      <option value="active">
+                        {t("employees.statusActive", "Active")}
+                      </option>
+                      <option value="inactive">
+                        {t("employees.statusInactive", "Inactive")}
+                      </option>
+                      <option value="on_leave">
+                        {t("employees.statusOnLeave", "On Leave")}
+                      </option>
                     </select>
                   </FormControl>
                   <FormMessage />
@@ -215,7 +241,7 @@ function EmployeeDialogStandardized({
                 <FormItem>
                   <FormLabel>{t("common.email", "Email")}</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} value={field.value || ''} />
+                    <Input type="email" {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -229,7 +255,7 @@ function EmployeeDialogStandardized({
                 <FormItem>
                   <FormLabel>{t("common.phone", "Phone")}</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value || ''} />
+                    <Input {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -244,10 +270,10 @@ function EmployeeDialogStandardized({
               <FormItem>
                 <FormLabel>{t("common.notes", "Notes")}</FormLabel>
                 <FormControl>
-                  <textarea 
-                    className="w-full h-20 px-3 py-2 border rounded-md resize-none" 
-                    {...field} 
-                    value={field.value || ''}
+                  <textarea
+                    className="w-full h-20 px-3 py-2 border rounded-md resize-none"
+                    {...field}
+                    value={field.value || ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -261,4 +287,4 @@ function EmployeeDialogStandardized({
 }
 
 export { EmployeeDialogStandardized };
-export default EmployeeDialogStandardized; 
+export default EmployeeDialogStandardized;

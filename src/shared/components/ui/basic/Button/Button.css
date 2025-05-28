@@ -5,10 +5,12 @@
   border-radius: 3em;
   font-weight: 700;
   line-height: 1;
-  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: "Nunito Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 .storybook-button--primary {
-  background-color: rgb(97 111 57); /* Updated to Ararat OIL olive-lime palette */
+  background-color: rgb(
+    97 111 57
+  ); /* Updated to Ararat OIL olive-lime palette */
   color: white;
 }
 .storybook-button--secondary {
@@ -36,6 +38,11 @@
 }
 
 .storybook-button--secondary:hover {
-  background-color: rgba(97, 111, 57, 0.1); /* Subtle background hover for secondary */
+  background-color: rgba(
+    97,
+    111,
+    57,
+    0.1
+  ); /* Subtle background hover for secondary */
   color: rgb(97 111 57);
 }

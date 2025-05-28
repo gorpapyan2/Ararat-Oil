@@ -5,19 +5,25 @@
 Based on the analysis of the codebase, we need to implement a clear 3-layer architecture for UI components:
 
 ### 1. Base Layer: Core Primitive Components
+
 These are the simplest building blocks, styling-agnostic, with accessibility features built-in:
+
 - **Location**: `src/components/ui/primitives/`
 - **Purpose**: Provide the foundation with proper accessibility, event handling, and React patterns
 - **Example**: A base `Card` component that handles the structure, refs, and accessibility
 
-### 2. Styled Layer: Design System Components  
+### 2. Styled Layer: Design System Components
+
 These are primitive components with our design system styling applied:
+
 - **Location**: `src/components/ui/`
 - **Purpose**: Apply our design tokens and styling to primitive components
 - **Example**: The standard styled `Card` component with our design system's appearance
 
 ### 3. Composed Layer: Enhanced Components
+
 These are specialized compositions of styled components for specific use cases:
+
 - **Location**: `src/components/ui/composed/`
 - **Purpose**: Provide ready-to-use components for specific use cases
 - **Example**: `MetricCard`, `StatsCard`, etc.
@@ -27,12 +33,14 @@ These are specialized compositions of styled components for specific use cases:
 ### 1. Current Issues
 
 We currently have multiple implementations with overlapping functionality:
+
 - `src/components/ui/card.tsx`: Basic card with shadcn styling
 - `src/components/ui-custom/card.tsx`: Custom card extending the base card
 - `src/components/ui-custom/data-card.tsx`: Specialized data presentation cards
 - `src/components/ui/card-grid.tsx`: Card grid with another MetricCard implementation
 
 This leads to:
+
 - **Duplication**: Multiple implementations of similar functionality
 - **Inconsistency**: Different styling and props across implementations
 - **Confusion**: Developers aren't sure which card component to use
@@ -50,23 +58,35 @@ We will:
 ### 3. Consolidated Component Structure
 
 #### Base Primitives (`src/components/ui/primitives/card.tsx`)
+
 ```tsx
 // Basic Card primitive with accessibility features
-export const CardPrimitive = React.forwardRef<HTMLDivElement, CardPrimitiveProps>(/* ... */);
+export const CardPrimitive = React.forwardRef<
+  HTMLDivElement,
+  CardPrimitiveProps
+>(/* ... */);
 
 // Other primitives: CardHeaderPrimitive, CardFooterPrimitive, etc.
 ```
 
 #### Design System Components (`src/components/ui/card.tsx`)
+
 ```tsx
 // Main Card with design system styles
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(/* ... */);
 
 // Standard subcomponents
-export const CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardMedia, CardActions;
+export const CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardMedia,
+  CardActions;
 ```
 
 #### Composed Components (`src/components/ui/composed/cards.tsx`)
+
 ```tsx
 // Specialized cards for various use cases
 export const MetricCard: React.FC<MetricCardProps>;
@@ -80,14 +100,17 @@ export const SummaryCard: React.FC<SummaryCardProps>;
 The consolidated Card component will:
 
 1. **Support all current variant styles**:
+
    - Default, outline, elevated, subtle
    - Custom variants from ui-custom/card.tsx
 
 2. **Support all current props**:
+
    - Support for sizes, alignment options
    - Support for noPadding option
 
 3. **Have consistent naming and behavior**:
+
    - Clear, consistent prop names
    - Consistent default behavior
 
@@ -98,15 +121,18 @@ The consolidated Card component will:
 ### 5. Migration Steps
 
 1. **Create new Card structure**:
+
    - Implement the primitives layer
    - Implement the design system layer
    - Implement the composed components layer
 
 2. **Update imports in existing components**:
+
    - Gradually update imports to point to new location
    - Use proxies for backward compatibility if needed
 
 3. **Deprecate old components**:
+
    - Mark old components as deprecated
    - Provide clear migration path
 
@@ -122,11 +148,11 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'outline' | 'elevated' | 'subtle';
+  variant?: "default" | "outline" | "elevated" | "subtle";
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = 'default', ...props }, ref) => {
+  ({ className, variant = "default", ...props }, ref) => {
     const variantClasses = {
       default: "bg-card border-border/40",
       outline: "bg-transparent border-border",
@@ -141,7 +167,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           "rounded-xl border shadow transition-all duration-200",
           "hover:shadow-md",
           variantClasses[variant],
-          className,
+          className
         )}
         {...props}
       />
@@ -156,14 +182,17 @@ Card.displayName = "Card";
 ## Timeline
 
 1. **Phase 1 (1-2 days)**:
+
    - Create new directory structure
    - Implement base Card components
 
 2. **Phase 2 (2-3 days)**:
+
    - Implement composed Card components
    - Update documentation
 
 3. **Phase 3 (1-2 days)**:
+
    - Update imports in existing components
    - Test for regressions
 
@@ -176,4 +205,4 @@ Card.displayName = "Card";
 - All duplicate card implementations consolidated
 - Clear documentation exists for component usage
 - No regressions in existing functionality
-- Reduced bundle size from removing duplicate code 
+- Reduced bundle size from removing duplicate code

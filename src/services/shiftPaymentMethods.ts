@@ -8,7 +8,7 @@ export async function addShiftPaymentMethods(
 ): Promise<ShiftPaymentMethod[]> {
   try {
     // Validate shiftId
-    if (!shiftId || typeof shiftId !== 'string' || shiftId.trim() === '') {
+    if (!shiftId || typeof shiftId !== "string" || shiftId.trim() === "") {
       throw new Error("Invalid shift ID provided");
     }
 
@@ -18,40 +18,55 @@ export async function addShiftPaymentMethods(
     }
 
     // Validate each payment method
-    const validatedPayments = paymentMethods.map(method => {
+    const validatedPayments = paymentMethods.map((method) => {
       // Validate payment_method
-      if (!method.payment_method || 
-          !['cash', 'card', 'bank_transfer', 'mobile_payment'].includes(method.payment_method)) {
+      if (
+        !method.payment_method ||
+        !["cash", "card", "bank_transfer", "mobile_payment"].includes(
+          method.payment_method
+        )
+      ) {
         throw new Error(`Invalid payment method: ${method.payment_method}`);
       }
-      
+
       // Validate amount
-      if (typeof method.amount !== 'number' || isNaN(method.amount) || method.amount <= 0) {
-        throw new Error(`Invalid amount for ${method.payment_method}: ${method.amount}`);
+      if (
+        typeof method.amount !== "number" ||
+        isNaN(method.amount) ||
+        method.amount <= 0
+      ) {
+        throw new Error(
+          `Invalid amount for ${method.payment_method}: ${method.amount}`
+        );
       }
-      
+
       return {
         payment_method: method.payment_method,
         amount: method.amount,
-        reference: method.reference || null
+        reference: method.reference || null,
       };
     });
 
-    const response = await shiftsApi.addShiftPaymentMethods(shiftId, validatedPayments as any);
+    const response = await shiftsApi.addShiftPaymentMethods(
+      shiftId,
+      validatedPayments as any
+    );
 
     if (response.error) {
       console.error("Error adding shift payment methods:", response.error);
       throw new Error(response.error.message);
     }
-    
+
     return response.data || [];
-  } catch (err: any) {
-    console.error("Error in addShiftPaymentMethods:", err);
-    throw new Error(err.message || "Failed to add shift payment methods");
+  } catch (err: unknown) {
+    console.error("Error adding payment methods:", err);
+    throw err instanceof Error ? err : new Error("Failed to add payment methods");
   }
 }
 
-export async function getShiftPaymentMethods(shiftId: string): Promise<ShiftPaymentMethod[]> {
+export async function getShiftPaymentMethods(
+  shiftId: string
+): Promise<ShiftPaymentMethod[]> {
   try {
     const response = await shiftsApi.getShiftPaymentMethods(shiftId);
 
@@ -59,46 +74,50 @@ export async function getShiftPaymentMethods(shiftId: string): Promise<ShiftPaym
       console.error("Error fetching shift payment methods:", response.error);
       throw new Error(response.error.message);
     }
-    
+
     return response.data || [];
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error fetching shift payment methods:", err);
-    throw new Error(err.message || "Failed to fetch shift payment methods");
+    throw err instanceof Error ? err : new Error("Failed to fetch shift payment methods");
   }
 }
 
-export async function deleteShiftPaymentMethods(shiftId: string): Promise<void> {
+export async function deleteShiftPaymentMethods(
+  shiftId: string
+): Promise<void> {
   try {
     // Validate shiftId
-    if (!shiftId || typeof shiftId !== 'string' || shiftId.trim() === '') {
+    if (!shiftId || typeof shiftId !== "string" || shiftId.trim() === "") {
       throw new Error("Invalid shift ID provided for deletion");
     }
-    
+
     const response = await shiftsApi.deleteShiftPaymentMethods(shiftId);
 
     if (response.error) {
       console.error("Error deleting shift payment methods:", response.error);
       throw new Error(response.error.message);
     }
-    
+
     console.log(`Successfully deleted payment methods for shift: ${shiftId}`);
-  } catch (err: any) {
-    console.error("Error deleting shift payment methods:", err);
-    throw new Error(err.message || "Failed to delete shift payment methods");
+  } catch (err: unknown) {
+    console.error("Error deleting payment methods:", err);
+    throw err instanceof Error ? err : new Error("Failed to delete payment methods");
   }
 }
 
 // Calculate total amount from payment methods
-export function calculateTotalFromPaymentMethods(paymentMethods: ShiftPaymentMethod[]): number {
+export function calculateTotalFromPaymentMethods(
+  paymentMethods: ShiftPaymentMethod[]
+): number {
   return paymentMethods.reduce((total, method) => total + method.amount, 0);
 }
 
 // Get amount for a specific payment method
 export function getAmountByPaymentMethod(
-  paymentMethods: ShiftPaymentMethod[], 
+  paymentMethods: ShiftPaymentMethod[],
   method: PaymentMethod
 ): number {
   return paymentMethods
-    .filter(pm => pm.payment_method === method)
+    .filter((pm) => pm.payment_method === method)
     .reduce((sum, pm) => sum + pm.amount, 0);
-} 
+}

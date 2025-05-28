@@ -1,87 +1,30 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { DateRangePicker } from '@/core/components/ui/daterangepicker';
-import { useState } from 'react';
-import { addDays } from 'date-fns';
-
-// Define the date range type to match what DateRangePicker expects
-type DateRangeType = { from: Date; to?: Date } | undefined;
+import type { Meta, StoryObj } from "@storybook/react";
+import { DateRangePicker } from "@/core/components/ui/date-range-picker";
 
 const meta = {
-  title: 'UI/DateRangePicker',
+  title: "Components/DateRangePicker",
   component: DateRangePicker,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 } satisfies Meta<typeof DateRangePicker>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  render: (args: any) => {
-    // @ts-ignore - This is a Storybook pattern
-    const [dateRange, setDateRange] = useState<DateRangeType>({
-      from: new Date(),
-      to: addDays(new Date(), 7),
-    });
-    
-    // Handler function for date range changes
-    const handleDateRangeChange = (range: DateRangeType) => {
-      setDateRange(range);
-    };
-    
-    return (
-      <DateRangePicker 
-        dateRange={dateRange} 
-        onDateRangeChange={handleDateRangeChange} 
-        {...args} 
-      />
-    );
+  args: {},
+};
+
+export const WithClassName: Story = {
+  args: {
+    className: "border-2 border-dashed border-blue-500",
   },
 };
 
-export const WithPlaceholder: Story = {
-  render: (args: any) => {
-    // @ts-ignore - This is a Storybook pattern
-    const [dateRange, setDateRange] = useState<DateRangeType>(undefined);
-    
-    // Handler function for date range changes
-    const handleDateRangeChange = (range: DateRangeType) => {
-      setDateRange(range);
-    };
-    
-    return (
-      <DateRangePicker 
-        dateRange={dateRange} 
-        onDateRangeChange={handleDateRangeChange} 
-        placeholder="Select a date range" 
-        {...args} 
-      />
-    );
+export const CustomStyle: Story = {
+  args: {
+    style: { minHeight: "200px", padding: "2rem" },
   },
 };
-
-export const Disabled: Story = {
-  render: (args: any) => {
-    // @ts-ignore - This is a Storybook pattern
-    const [dateRange, setDateRange] = useState<DateRangeType>({
-      from: new Date(),
-      to: addDays(new Date(), 7),
-    });
-    
-    // Handler function for date range changes
-    const handleDateRangeChange = (range: DateRangeType) => {
-      setDateRange(range);
-    };
-    
-    return (
-      <DateRangePicker 
-        dateRange={dateRange} 
-        onDateRangeChange={handleDateRangeChange} 
-        disabled={true} 
-        {...args} 
-      />
-    );
-  },
-}; 

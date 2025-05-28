@@ -1,23 +1,24 @@
-import { salesApi } from '@/core/api';
-import { 
-  Sale, 
-  CreateSaleRequest, 
-  UpdateSaleRequest, 
+import { salesApi } from "@/core/api";
+import {
+  Sale,
+  CreateSaleRequest,
+  UpdateSaleRequest,
   SalesFilters,
-  SalesExportOptions 
-} from '../types';
+  SalesExportOptions,
+} from "../types";
 
 /**
  * Fetches all sales with optional filters
  */
 export const fetchSales = async (filters?: SalesFilters): Promise<Sale[]> => {
-  const transformedFilters = filters 
+  const transformedFilters = filters
     ? {
         ...filters,
         dateRange: filters.dateRange
           ? {
               from: filters.dateRange.from.toISOString(),
-              to: filters.dateRange.to?.toISOString() || new Date().toISOString(),
+              to:
+                filters.dateRange.to?.toISOString() || new Date().toISOString(),
             }
           : undefined,
       }
@@ -41,11 +42,12 @@ export const fetchSale = async (id: string): Promise<Sale> => {
 export const createSale = async (data: CreateSaleRequest): Promise<Sale> => {
   const transformedData = {
     ...data,
-    saleDate: typeof data.saleDate === 'object' 
-      ? data.saleDate.toISOString() 
-      : data.saleDate
+    saleDate:
+      typeof data.saleDate === "object"
+        ? data.saleDate.toISOString()
+        : data.saleDate,
   };
-  
+
   const response = await salesApi.createSale(transformedData);
   return response.data;
 };
@@ -53,14 +55,18 @@ export const createSale = async (data: CreateSaleRequest): Promise<Sale> => {
 /**
  * Updates an existing sale
  */
-export const updateSale = async (id: string, data: Partial<CreateSaleRequest>): Promise<Sale> => {
+export const updateSale = async (
+  id: string,
+  data: Partial<CreateSaleRequest>
+): Promise<Sale> => {
   const transformedData = {
     ...data,
-    saleDate: data.saleDate && typeof data.saleDate === 'object' 
-      ? data.saleDate.toISOString() 
-      : data.saleDate
+    saleDate:
+      data.saleDate && typeof data.saleDate === "object"
+        ? data.saleDate.toISOString()
+        : data.saleDate,
   };
-  
+
   const response = await salesApi.updateSale(id, transformedData);
   return response.data;
 };
@@ -76,16 +82,20 @@ export const deleteSale = async (id: string): Promise<{ message: string }> => {
 /**
  * Exports sales data based on provided options
  */
-export const exportSales = async (options: SalesExportOptions): Promise<string> => {
+export const exportSales = async (
+  options: SalesExportOptions
+): Promise<string> => {
   const transformedOptions = {
     ...options,
-    startDate: typeof options.startDate === 'object' 
-      ? options.startDate.toISOString() 
-      : options.startDate,
-    endDate: options.endDate && typeof options.endDate === 'object' 
-      ? options.endDate.toISOString() 
-      : options.endDate
+    startDate:
+      typeof options.startDate === "object"
+        ? options.startDate.toISOString()
+        : options.startDate,
+    endDate:
+      options.endDate && typeof options.endDate === "object"
+        ? options.endDate.toISOString()
+        : options.endDate,
   };
-  
+
   return await salesApi.exportSales(transformedOptions);
-}; 
+};

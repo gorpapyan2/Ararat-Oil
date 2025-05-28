@@ -10,13 +10,13 @@ import {
 } from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Label } from '@/core/components/ui/label';
+import { Label } from "@/core/components/ui/label";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/core/components/ui/tabs';
+} from "@/core/components/ui/tabs";
 import { CheckIcon, XIcon } from "lucide-react";
 
 export function ResponsiveTester() {
@@ -30,7 +30,8 @@ export function ResponsiveTester() {
   const is2xl = useMediaQuery("(min-width: 1536px)");
   const isDark = useMediaQuery("(prefers-color-scheme: dark)");
   const isReduced = useMediaQuery("(prefers-reduced-motion)");
-  const isCustom = testQuery ? useMediaQuery(testQuery) : false;
+  const customQueryResult = useMediaQuery(testQuery || "(min-width: 0px)");
+  const isCustom = testQuery ? customQueryResult : false;
 
   const handleTestQuery = () => {
     setTestQuery(customQuery);
@@ -94,14 +95,14 @@ export function ResponsiveTester() {
                     {is2xl
                       ? "2xl (1536px+)"
                       : isXl
-                      ? "xl (1280px - 1535px)"
-                      : isLg
-                      ? "lg (1024px - 1279px)"
-                      : isMd
-                      ? "md (768px - 1023px)"
-                      : isSm
-                      ? "sm (640px - 767px)"
-                      : "xs (< 640px)"}
+                        ? "xl (1280px - 1535px)"
+                        : isLg
+                          ? "lg (1024px - 1279px)"
+                          : isMd
+                            ? "md (768px - 1023px)"
+                            : isSm
+                              ? "sm (640px - 767px)"
+                              : "xs (< 640px)"}
                   </div>
                 </CardContent>
               </Card>
@@ -195,4 +196,4 @@ function MediaQueryCard({
       </CardContent>
     </Card>
   );
-} 
+}

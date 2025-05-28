@@ -12,18 +12,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { Separator } from '@/core/components/ui/separator';
-import { Switch } from '@/core/components/ui/switch';
-import { Label } from '@/core/components/ui/label';
+import { Separator } from "@/core/components/ui/separator";
+import { Switch } from "@/core/components/ui/switch";
+import { Label } from "@/core/components/ui/label";
 import { Button } from "@/core/components/ui/button";
 
 function NotificationsSettings() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  
+
   // Log render count in development
   useRenderCount("NotificationsSettings");
-  
+
   // State for notification preferences
   const [preferences, setPreferences] = useState({
     emailNotifications: true,
@@ -36,9 +36,10 @@ function NotificationsSettings() {
   });
 
   // Handle preference toggle
-  const handleToggle = (key: keyof typeof preferences) => (checked: boolean) => {
-    setPreferences((prev) => ({ ...prev, [key]: checked }));
-  };
+  const handleToggle =
+    (key: keyof typeof preferences) => (checked: boolean) => {
+      setPreferences((prev) => ({ ...prev, [key]: checked }));
+    };
 
   // Handle form submission
   const handleSave = () => {
@@ -59,8 +60,10 @@ function NotificationsSettings() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
-          <h3 className="text-sm font-medium">{t("settings.notifications.generalTitle")}</h3>
-          
+          <h3 className="text-sm font-medium">
+            {t("settings.notifications.generalTitle")}
+          </h3>
+
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -77,7 +80,7 @@ function NotificationsSettings() {
                 onCheckedChange={handleToggle("emailNotifications")}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="pushNotifications" className="text-base">
@@ -93,7 +96,7 @@ function NotificationsSettings() {
                 onCheckedChange={handleToggle("pushNotifications")}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="marketingEmails" className="text-base">
@@ -115,8 +118,10 @@ function NotificationsSettings() {
         <Separator />
 
         <div className="space-y-4">
-          <h3 className="text-sm font-medium">{t("settings.notifications.appNotifications")}</h3>
-          
+          <h3 className="text-sm font-medium">
+            {t("settings.notifications.appNotifications")}
+          </h3>
+
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -133,7 +138,7 @@ function NotificationsSettings() {
                 onCheckedChange={handleToggle("securityAlerts")}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="productUpdates" className="text-base">
@@ -149,7 +154,7 @@ function NotificationsSettings() {
                 onCheckedChange={handleToggle("productUpdates")}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="taskReminders" className="text-base">
@@ -165,7 +170,7 @@ function NotificationsSettings() {
                 onCheckedChange={handleToggle("taskReminders")}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="mentionNotifications" className="text-base">
@@ -185,13 +190,11 @@ function NotificationsSettings() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button onClick={handleSave}>
-          {t("common.saveChanges")}
-        </Button>
+        <Button onClick={handleSave}>{t("common.saveChanges")}</Button>
       </CardFooter>
     </Card>
   );
 }
 
 // Export a memoized version for better performance
-export default memo(NotificationsSettings); 
+export default memo(NotificationsSettings);

@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/core/components/ui/dropdown-menu';
+} from "@/core/components/ui/dropdown-menu";
 import { cn } from "@/shared/utils";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -18,9 +18,9 @@ interface ThemeSwitcherProps {
 }
 
 export function ThemeSwitcher({
-  variant = "ghost", 
+  variant = "ghost",
   size = "default",
-  className
+  className,
 }: ThemeSwitcherProps) {
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
@@ -30,7 +30,7 @@ export function ThemeSwitcher({
     initial: { scale: 0.6, rotate: 0 },
     animate: { scale: 1, rotate: 0 },
     exit: { scale: 0.6, rotate: 90 },
-    hover: { scale: 1.1 }
+    hover: { scale: 1.1 },
   };
 
   const getCurrentIcon = () => {
@@ -80,8 +80,8 @@ export function ThemeSwitcher({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant={variant} 
+        <Button
+          variant={variant}
           size={size === "lg" ? "default" : size}
           className={cn(
             "h-9 w-9 px-0 rounded-md",

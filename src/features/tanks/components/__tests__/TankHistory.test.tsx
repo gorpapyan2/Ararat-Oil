@@ -62,7 +62,9 @@ describe("TankHistory", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (tanksService.getTankLevelChanges as any).mockResolvedValue(mockLevelChanges);
+    (tanksService.getTankLevelChanges as any).mockResolvedValue(
+      mockLevelChanges
+    );
   });
 
   it("renders the component with tank details", () => {
@@ -73,15 +75,15 @@ describe("TankHistory", () => {
 
   it("loads and displays level changes", async () => {
     renderComponent();
-    
+
     // Check loading state
     expect(screen.getByText("common.loading")).toBeInTheDocument();
-    
+
     // Wait for data to load
     await waitFor(() => {
       expect(tanksService.getTankLevelChanges).toHaveBeenCalledWith("1");
     });
-    
+
     // Check if changes are displayed
     expect(screen.getByText("Refill")).toBeInTheDocument();
     expect(screen.getByText("Usage")).toBeInTheDocument();
@@ -94,7 +96,7 @@ describe("TankHistory", () => {
     (tanksService.getTankLevelChanges as any).mockRejectedValueOnce(mockError);
 
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.getByText("tanks.historyLoadFailed")).toBeInTheDocument();
     });
@@ -104,7 +106,7 @@ describe("TankHistory", () => {
     (tanksService.getTankLevelChanges as any).mockResolvedValueOnce([]);
 
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.getByText("tanks.noHistoryFound")).toBeInTheDocument();
     });
@@ -118,7 +120,7 @@ describe("TankHistory", () => {
 
   it("formats dates correctly", async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       // Check if dates are formatted correctly
       expect(screen.getByText("Jan 2, 2024, 10:00 AM")).toBeInTheDocument();
@@ -128,12 +130,12 @@ describe("TankHistory", () => {
 
   it("displays correct change indicators", async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       // Check for add indicator
       const addIndicator = screen.getByText("+100 liters");
       expect(addIndicator).toHaveClass("text-green-500");
-      
+
       // Check for subtract indicator
       const subtractIndicator = screen.getByText("-50 liters");
       expect(subtractIndicator).toHaveClass("text-red-500");
@@ -142,15 +144,15 @@ describe("TankHistory", () => {
 
   it("displays correct level percentages", async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       // Check previous level percentages
       expect(screen.getByText("40%")).toBeInTheDocument();
       expect(screen.getByText("50%")).toBeInTheDocument();
-      
+
       // Check new level percentages
       expect(screen.getByText("50%")).toBeInTheDocument();
       expect(screen.getByText("45%")).toBeInTheDocument();
     });
   });
-}); 
+});

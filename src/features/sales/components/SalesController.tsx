@@ -9,7 +9,13 @@ interface SalesControllerProps {
   onSuccess?: () => void;
   className?: string;
   buttonText?: string;
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
+  variant?:
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | "destructive";
   size?: "default" | "sm" | "lg" | "icon";
   showIcon?: boolean;
 }
@@ -23,7 +29,7 @@ export function SalesController({
   showIcon = true,
 }: SalesControllerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+
   // Fetch fuel types
   const { data: fuelTypes = [] } = useQuery({
     queryKey: ["fuel-types"],
@@ -50,4 +56,4 @@ export function SalesController({
       />
     </>
   );
-} 
+}

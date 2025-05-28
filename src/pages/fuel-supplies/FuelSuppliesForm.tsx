@@ -9,23 +9,34 @@ import { FormProvider } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks";
 import { useNavigate } from "react-router-dom";
-import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage } from "@/i18n/i18n";
+import {
+  apiNamespaces,
+  getApiErrorMessage,
+  getApiSuccessMessage,
+} from "@/i18n/i18n";
 
 // Services
-import { petrolProvidersApi, Tank, tanksApi, employeesApi, Employee, ApiResponse } from "@/core/api";
+import {
+  petrolProvidersApi,
+  Tank,
+  tanksApi,
+  employeesApi,
+  Employee,
+  ApiResponse,
+} from "@/core/api";
 import { FuelSupply, FuelType, FuelTypeCode } from "@/types";
 
 // UI Components
 import { Button } from "@/core/components/ui/button";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/core/components/ui/primitives/dialog";
-import { Alert, AlertDescription } from '@/core/components/ui/alert';
-import { Skeleton } from '@/core/components/ui/skeleton';
+import { Alert, AlertDescription } from "@/core/components/ui/alert";
+import { Skeleton } from "@/core/components/ui/skeleton";
 
 // Form Components
 import {
@@ -33,25 +44,26 @@ import {
   FormSelect,
   FormTextarea,
   FormCurrencyInput,
-  FormDatePicker
-} from '@/core/components/ui/composed/form-fields';
+  FormDatePicker,
+} from "@/core/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 
 // Define custom styles for the tank select dropdown
 const tankSelectStyles = {
   trigger: "bg-slate-800 text-white font-semibold border-slate-600 shadow-sm",
-  content: "bg-slate-800 border border-slate-600 shadow-lg"
+  content: "bg-slate-800 border border-slate-600 shadow-lg",
 };
 
 // Add custom styles for the dropdown items
-const selectItemStyle = "text-white hover:bg-slate-700 hover:text-white data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground";
+const selectItemStyle =
+  "text-white hover:bg-slate-700 hover:text-white data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground";
 
 // Define fuel type color indicators for the tank options
 const fuelTypeColors: Record<FuelTypeCode, string> = {
   diesel: "text-green-400",
   gas: "text-blue-400",
   petrol_regular: "text-rose-400",
-  petrol_premium: "text-red-500"
+  petrol_premium: "text-red-500",
 };
 
 // Define the Zod schema for form validation
@@ -88,41 +100,41 @@ export function FuelSuppliesForm({
   defaultValues,
   onConfirm,
   onConfirmCancel,
-  isConfirmOpen
+  isConfirmOpen,
 }: FuelSuppliesFormProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const navigate = useNavigate();
-  
+
   // Fetch data with proper error handling and loading states
-  const { 
+  const {
     data: providers,
     isLoading: isLoadingProviders,
-    error: providersError
+    error: providersError,
   } = useQuery({
     queryKey: ["petrol-providers"],
     queryFn: petrolProvidersApi.getPetrolProviders,
   });
 
-  const { 
+  const {
     data: tanks,
     isLoading: isLoadingTanks,
-    error: tanksError
+    error: tanksError,
   } = useQuery({
     queryKey: ["fuel-tanks"],
     queryFn: tanksApi.getTanks,
   });
 
-  const { 
+  const {
     data: employees,
     isLoading: isLoadingEmployees,
-    error: employeesError
+    error: employeesError,
   } = useQuery<ApiResponse<Employee[]>, Error>({
     queryKey: ["employees"],
     queryFn: async () => {
       return await employeesApi.getEmployees();
-    }
+    },
   });
 
   // Use formatted today's date as the default
@@ -142,35 +154,44 @@ export function FuelSuppliesForm({
       comments: defaultValues?.comments || "",
     },
   });
-  
+
   // Get form submission handler
   const { onSubmit: handleSubmit } = useFormSubmitHandler<FuelSupplyFormValues>(
     form,
     (data) => {
       // Additional validation to prevent empty UUIDs
-      const requiredUuidFields = ['provider_id', 'tank_id'] as const;
-      const emptyFields = requiredUuidFields.filter(field => !data[field] || data[field] === '');
-      
+      const requiredUuidFields = ["provider_id", "tank_id"] as const;
+      const emptyFields = requiredUuidFields.filter(
+        (field) => !data[field] || data[field] === ""
+      );
+
       if (emptyFields.length > 0) {
-        const fieldNames = emptyFields.map(field => {
-          switch(field) {
-            case 'provider_id': return t("fuelSupplies.provider", "Provider");
-            case 'tank_id': return t("fuelSupplies.tank", "Fuel Tank");
-            default: return field;
+        const fieldNames = emptyFields.map((field) => {
+          switch (field) {
+            case "provider_id":
+              return t("fuelSupplies.provider", "Provider");
+            case "tank_id":
+              return t("fuelSupplies.tank", "Fuel Tank");
+            default:
+              return field;
           }
         });
-        
+
         toast({
           title: t("common.error"),
-          description: t("fuelSupplies.requiredFieldsError", "Please select a value for: {{fields}}", {
-            fields: fieldNames.join(', ')
-          }),
+          description: t(
+            "fuelSupplies.requiredFieldsError",
+            "Please select a value for: {{fields}}",
+            {
+              fields: fieldNames.join(", "),
+            }
+          ),
           variant: "destructive",
         });
-        
+
         return false;
       }
-      
+
       onSubmit(data as Omit<FuelSupply, "id" | "created_at">);
       return true;
     }
@@ -210,36 +231,38 @@ export function FuelSuppliesForm({
     if (!providers || !providers.data || providers.data.length === 0) {
       return [];
     }
-    
+
     return providers.data
-      .filter(provider => provider.status === 'active') // Filter out inactive providers
-      .map(provider => ({
+      .filter((provider) => provider.status === "active") // Filter out inactive providers
+      .map((provider) => ({
         value: provider.id,
-        label: provider.name || "Unnamed Provider"
+        label: provider.name || "Unnamed Provider",
       }));
   }, [providers]);
 
   // Tank options for select with color-coded fuel types - ALWAYS call this hook
   const tankOptions = useMemo(() => {
-    return tanks?.data?.map(tank => {
-      // Safely extract fuel type label
-      const fuelTypeLabel = tank.fuel_type_id || "";
-      
-      const fuelTypeCode = tank.fuel_type_id;
-      const fuelTypeColor = fuelTypeColors[fuelTypeCode as FuelTypeCode];
-      
-      return {
-        value: tank.id,
-        label: `${tank.name} (${fuelTypeLabel})`,
-        colorClass: fuelTypeColor
-      };
-    }) || [];
+    return (
+      tanks?.data?.map((tank) => {
+        // Safely extract fuel type label
+        const fuelTypeLabel = tank.fuel_type_id || "";
+
+        const fuelTypeCode = tank.fuel_type_id;
+        const fuelTypeColor = fuelTypeColors[fuelTypeCode as FuelTypeCode];
+
+        return {
+          value: tank.id,
+          label: `${tank.name} (${fuelTypeLabel})`,
+          colorClass: fuelTypeColor,
+        };
+      }) || []
+    );
   }, [tanks]);
 
   // Employee options for select - ALWAYS call this hook
   const employeeOptions = useMemo(() => {
     if (!employees || !employees.data) return [];
-    
+
     return employees.data.map((employee: Employee) => ({
       value: employee.id,
       label: employee.name,
@@ -247,7 +270,11 @@ export function FuelSuppliesForm({
   }, [employees]);
 
   // Custom render function for tank options
-  const renderTankOption = (option: { value: string; label: string; colorClass?: string }) => (
+  const renderTankOption = (option: {
+    value: string;
+    label: string;
+    colorClass?: string;
+  }) => (
     <div>
       {option.colorClass ? (
         <span className={option.colorClass}>{option.label}</span>
@@ -297,7 +324,8 @@ export function FuelSuppliesForm({
   // Create a renderContent function to handle conditional rendering
   const renderContent = () => {
     // Show loading state
-    const isLoading = isLoadingProviders || isLoadingTanks || isLoadingEmployees;
+    const isLoading =
+      isLoadingProviders || isLoadingTanks || isLoadingEmployees;
     if (isLoading) {
       return (
         <div className="space-y-6">
@@ -324,7 +352,9 @@ export function FuelSuppliesForm({
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {error instanceof Error ? error.message : getApiErrorMessage(apiNamespaces.fuelSupplies, 'fetch')}
+            {error instanceof Error
+              ? error.message
+              : getApiErrorMessage(apiNamespaces.fuelSupplies, "fetch")}
           </AlertDescription>
         </Alert>
       );
@@ -337,7 +367,12 @@ export function FuelSuppliesForm({
           <Alert variant="default" className="border-amber-500 bg-amber-500/10">
             <AlertCircle className="h-4 w-4 text-amber-500" />
             <AlertDescription className="flex flex-col space-y-3">
-              <p>{t("fuelSupplies.noProviders", "No petrol providers found. You need to create a provider before adding a fuel supply.")}</p>
+              <p>
+                {t(
+                  "fuelSupplies.noProviders",
+                  "No petrol providers found. You need to create a provider before adding a fuel supply."
+                )}
+              </p>
               <div className="flex space-x-2">
                 <Button
                   variant="outline"
@@ -350,25 +385,38 @@ export function FuelSuppliesForm({
                         email: "sample@example.com",
                         phone: "123-456-7890",
                         address: "123 Main St",
-                        status: "active"
+                        status: "active",
                       });
-                      await queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
+                      await queryClient.invalidateQueries({
+                        queryKey: ["petrol-providers"],
+                      });
                       toast({
                         title: t("common.success"),
-                        description: getApiSuccessMessage(apiNamespaces.petrolProviders, 'create', 'sample provider'),
+                        description: getApiSuccessMessage(
+                          apiNamespaces.petrolProviders,
+                          "create",
+                          "sample provider"
+                        ),
                       });
                     } catch (error) {
                       toast({
                         title: t("common.error"),
-                        description: error instanceof Error 
-                          ? error.message 
-                          : getApiErrorMessage(apiNamespaces.petrolProviders, 'create'),
+                        description:
+                          error instanceof Error
+                            ? error.message
+                            : getApiErrorMessage(
+                                apiNamespaces.petrolProviders,
+                                "create"
+                              ),
                         variant: "destructive",
                       });
                     }
                   }}
                 >
-                  {t("fuelSupplies.createSampleProvider", "Create Sample Provider")}
+                  {t(
+                    "fuelSupplies.createSampleProvider",
+                    "Create Sample Provider"
+                  )}
                 </Button>
                 <Button
                   variant="outline"
@@ -384,7 +432,7 @@ export function FuelSuppliesForm({
       );
     }
 
-    // Regular form 
+    // Regular form
     return (
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-5">
@@ -470,13 +518,16 @@ export function FuelSuppliesForm({
             name="comments"
             label={t("fuelSupplies.comments", "Comments")}
             form={form}
-            placeholder={t("fuelSupplies.optionalComments", "Optional comments about the fuel supply")}
+            placeholder={t(
+              "fuelSupplies.optionalComments",
+              "Optional comments about the fuel supply"
+            )}
           />
         </div>
 
         <div className="flex justify-end">
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isSubmitting}
             className="w-full sm:w-auto"
           >
@@ -489,47 +540,60 @@ export function FuelSuppliesForm({
 
   return (
     <>
-      <FormProvider {...form}>
-        {renderContent()}
-      </FormProvider>
+      <FormProvider {...form}>{renderContent()}</FormProvider>
 
       {/* Confirmation Dialog */}
-      <Dialog 
-        open={isConfirmOpen} 
+      <Dialog
+        open={isConfirmOpen}
         onOpenChange={onConfirmCancel}
         title={t("fuelSupplies.confirmSupply", "Confirm Fuel Supply")}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("fuelSupplies.confirmSupply", "Confirm Fuel Supply")}</DialogTitle>
+            <DialogTitle>
+              {t("fuelSupplies.confirmSupply", "Confirm Fuel Supply")}
+            </DialogTitle>
           </DialogHeader>
-          
+
           <div className="py-4">
-            <p className="mb-4">{t("fuelSupplies.confirmMessage", "Please confirm the following fuel supply:")}</p>
-            
+            <p className="mb-4">
+              {t(
+                "fuelSupplies.confirmMessage",
+                "Please confirm the following fuel supply:"
+              )}
+            </p>
+
             <div className="space-y-2 text-sm">
               {selectedTank && (
                 <div className="flex justify-between border-b pb-2">
-                  <span className="text-muted-foreground">{t("fuelSupplies.tank")}:</span>
+                  <span className="text-muted-foreground">
+                    {t("fuelSupplies.tank")}:
+                  </span>
                   <span className="font-medium">{selectedTank.name}</span>
                 </div>
               )}
-              
+
               <div className="flex justify-between border-b pb-2">
-                <span className="text-muted-foreground">{t("fuelSupplies.quantity")}:</span>
+                <span className="text-muted-foreground">
+                  {t("fuelSupplies.quantity")}:
+                </span>
                 <span className="font-medium">{quantity} L</span>
               </div>
-              
+
               <div className="flex justify-between border-b pb-2">
-                <span className="text-muted-foreground">{t("fuelSupplies.pricePerLiter")}:</span>
+                <span className="text-muted-foreground">
+                  {t("fuelSupplies.pricePerLiter")}:
+                </span>
                 <span className="font-medium">{price} ֏</span>
               </div>
-              
+
               <div className="flex justify-between border-b pb-2">
-                <span className="text-muted-foreground">{t("fuelSupplies.totalCost")}:</span>
+                <span className="text-muted-foreground">
+                  {t("fuelSupplies.totalCost")}:
+                </span>
                 <span className="font-medium">{totalCost} ֏</span>
               </div>
-              
+
               {tankStatus.isFull && (
                 <div className="mt-4 p-3 bg-red-900/30 border border-red-500 rounded-md text-red-400">
                   <p className="font-semibold">{t("fuelSupplies.warning")}:</p>
@@ -538,13 +602,12 @@ export function FuelSuppliesForm({
               )}
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button variant="outline" onClick={onConfirmCancel}>{t("common.cancel")}</Button>
-            <Button 
-              onClick={onConfirm} 
-              disabled={isSubmitting}
-            >
+            <Button variant="outline" onClick={onConfirmCancel}>
+              {t("common.cancel")}
+            </Button>
+            <Button onClick={onConfirm} disabled={isSubmitting}>
               {t("common.confirm")}
             </Button>
           </DialogFooter>
@@ -552,4 +615,4 @@ export function FuelSuppliesForm({
       </Dialog>
     </>
   );
-} 
+}

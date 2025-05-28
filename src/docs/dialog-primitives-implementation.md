@@ -9,16 +9,19 @@ This document outlines the implementation of accessible dialog primitives as par
 When implementing dialogs, several accessibility requirements must be met:
 
 1. **Focus Management**
+
    - Focus must be trapped within the dialog when open
    - Focus must return to the triggering element when closed
    - The first focusable element should receive focus when dialog opens
 
 2. **Keyboard Navigation**
+
    - ESC key should close the dialog
    - TAB key should cycle through focusable elements
    - SHIFT+TAB should reverse the tab order
 
 3. **ARIA Attributes**
+
    - `role="dialog"` for standard dialogs
    - `role="alertdialog"` for important messages requiring user attention
    - `aria-modal="true"` to indicate modal behavior
@@ -42,12 +45,13 @@ We'll implement dialog primitives in three main components:
 
 ```tsx
 // src/components/ui/primitives/dialog.tsx
-import * as React from 'react';
-import { useId } from 'react';
-import { useFocusTrap } from '@/hooks/use-focus-trap';
-import { useKeyboardHandler } from '@/hooks/use-keyboard-handler';
+import * as React from "react";
+import { useId } from "react";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { useKeyboardHandler } from "@/hooks/use-keyboard-handler";
 
-export interface DialogPrimitiveProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface DialogPrimitiveProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Controls whether the dialog is open
    */
@@ -78,7 +82,10 @@ export interface DialogPrimitiveProps extends React.HTMLAttributes<HTMLDivElemen
   modal?: boolean;
 }
 
-export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveProps>(
+export const DialogPrimitive = React.forwardRef<
+  HTMLDivElement,
+  DialogPrimitiveProps
+>(
   (
     {
       open,
@@ -95,32 +102,28 @@ export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveP
     // Create refs for focus management
     const dialogRef = React.useRef<HTMLDivElement>(null);
     const combinedRef = useCombinedRefs(forwardedRef, dialogRef);
-    
+
     // Create IDs for accessibility attributes
     const titleId = useId();
     const descriptionId = useId();
-    
+
     // Focus trap to keep focus inside dialog
     useFocusTrap(dialogRef, open);
-    
+
     // Handle keyboard events (ESC to close)
-    useKeyboardHandler(
-      dialogRef,
-      open,
-      {
-        Escape: () => onOpenChange(false)
-      }
-    );
-    
+    useKeyboardHandler(dialogRef, open, {
+      Escape: () => onOpenChange(false),
+    });
+
     // Store previous active element to restore focus on close
     const previousActiveRef = React.useRef<HTMLElement | null>(null);
-    
+
     // Handle focus management when dialog opens/closes
     React.useEffect(() => {
       if (open) {
         // Store current active element
         previousActiveRef.current = document.activeElement as HTMLElement;
-        
+
         // Focus first focusable element in dialog
         requestAnimationFrame(() => {
           if (dialogRef.current) {
@@ -138,7 +141,7 @@ export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveP
         previousActiveRef.current.focus();
       }
     }, [open]);
-    
+
     // Handle click outside to close
     const handleOutsideClick = React.useCallback(
       (e: React.MouseEvent) => {
@@ -152,10 +155,10 @@ export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveP
       },
       [onOpenChange]
     );
-    
+
     // Don't render anything if dialog is closed
     if (!open) return null;
-    
+
     return (
       <div
         role="presentation"
@@ -164,12 +167,12 @@ export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveP
       >
         {/* Modal backdrop */}
         {modal && (
-          <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm" 
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             aria-hidden="true"
           />
         )}
-        
+
         {/* Dialog container */}
         <div
           ref={combinedRef}
@@ -185,14 +188,14 @@ export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveP
           <div id={titleId} className="sr-only">
             {title}
           </div>
-          
+
           {/* Hidden but accessible description */}
           {description && (
             <div id={descriptionId} className="sr-only">
               {description}
             </div>
           )}
-          
+
           {children}
         </div>
       </div>
@@ -200,37 +203,39 @@ export const DialogPrimitive = React.forwardRef<HTMLDivElement, DialogPrimitiveP
   }
 );
 
-DialogPrimitive.displayName = 'DialogPrimitive';
+DialogPrimitive.displayName = "DialogPrimitive";
 ```
 
 ## AlertDialogPrimitive Implementation
 
 ```tsx
 // src/components/ui/primitives/alert-dialog.tsx
-import * as React from 'react';
-import { DialogPrimitive, DialogPrimitiveProps } from './dialog';
+import * as React from "react";
+import { DialogPrimitive, DialogPrimitiveProps } from "./dialog";
 
-export interface AlertDialogPrimitiveProps extends Omit<DialogPrimitiveProps, 'role'> {
+export interface AlertDialogPrimitiveProps
+  extends Omit<DialogPrimitiveProps, "role"> {
   /**
    * Severity of the alert
    */
-  severity?: 'info' | 'warning' | 'danger';
+  severity?: "info" | "warning" | "danger";
 }
 
-export const AlertDialogPrimitive = React.forwardRef<HTMLDivElement, AlertDialogPrimitiveProps>(
-  ({ severity = 'info', ...props }, ref) => {
-    return (
-      <DialogPrimitive
-        ref={ref}
-        role="alertdialog" // Use alertdialog role for screen readers
-        modal={true} // Alert dialogs should always be modal
-        {...props}
-      />
-    );
-  }
-);
+export const AlertDialogPrimitive = React.forwardRef<
+  HTMLDivElement,
+  AlertDialogPrimitiveProps
+>(({ severity = "info", ...props }, ref) => {
+  return (
+    <DialogPrimitive
+      ref={ref}
+      role="alertdialog" // Use alertdialog role for screen readers
+      modal={true} // Alert dialogs should always be modal
+      {...props}
+    />
+  );
+});
 
-AlertDialogPrimitive.displayName = 'AlertDialogPrimitive';
+AlertDialogPrimitive.displayName = "AlertDialogPrimitive";
 ```
 
 ## Utility Functions
@@ -243,19 +248,19 @@ AlertDialogPrimitive.displayName = 'AlertDialogPrimitive';
  */
 function useCombinedRefs<T>(...refs: Array<React.Ref<T> | null | undefined>) {
   const targetRef = React.useRef<T>(null);
-  
+
   React.useEffect(() => {
-    refs.forEach(ref => {
+    refs.forEach((ref) => {
       if (!ref) return;
-      
-      if (typeof ref === 'function') {
+
+      if (typeof ref === "function") {
         ref(targetRef.current);
       } else {
         (ref as React.MutableRefObject<T | null>).current = targetRef.current;
       }
     });
   }, [refs]);
-  
+
   return targetRef;
 }
 
@@ -268,7 +273,7 @@ function getFocusableElements(container: HTMLElement): HTMLElement[] {
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     )
   ).filter(
-    el => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden')
+    (el) => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden")
   ) as HTMLElement[];
 }
 ```
@@ -277,7 +282,7 @@ function getFocusableElements(container: HTMLElement): HTMLElement[] {
 
 ```tsx
 // src/hooks/use-focus-trap.ts
-import { useEffect, RefObject } from 'react';
+import { useEffect, RefObject } from "react";
 
 /**
  * Hook that traps focus within a container when active
@@ -288,35 +293,35 @@ export function useFocusTrap(
 ) {
   useEffect(() => {
     if (!isActive || !containerRef.current) return;
-    
+
     const container = containerRef.current;
     const focusableElements = getFocusableElements(container);
-    
+
     if (focusableElements.length === 0) return;
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     const handleTabKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-      
+      if (e.key !== "Tab") return;
+
       // If shift+tab on first element, move to last element
       if (e.shiftKey && document.activeElement === firstElement) {
         e.preventDefault();
         lastElement.focus();
       }
-      
+
       // If tab on last element, move to first element
       if (!e.shiftKey && document.activeElement === lastElement) {
         e.preventDefault();
         firstElement.focus();
       }
     };
-    
-    container.addEventListener('keydown', handleTabKey);
-    
+
+    container.addEventListener("keydown", handleTabKey);
+
     return () => {
-      container.removeEventListener('keydown', handleTabKey);
+      container.removeEventListener("keydown", handleTabKey);
     };
   }, [containerRef, isActive]);
 }
@@ -326,7 +331,7 @@ export function useFocusTrap(
 
 ```tsx
 // src/hooks/use-keyboard-handler.ts
-import { useEffect, RefObject } from 'react';
+import { useEffect, RefObject } from "react";
 
 type KeyHandlers = {
   [key: string]: (e: KeyboardEvent) => void;
@@ -342,20 +347,20 @@ export function useKeyboardHandler(
 ) {
   useEffect(() => {
     if (!isActive || !elementRef.current) return;
-    
+
     const element = elementRef.current;
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       const handler = handlers[e.key];
       if (handler) {
         handler(e);
       }
     };
-    
-    element.addEventListener('keydown', handleKeyDown);
-    
+
+    element.addEventListener("keydown", handleKeyDown);
+
     return () => {
-      element.removeEventListener('keydown', handleKeyDown);
+      element.removeEventListener("keydown", handleKeyDown);
     };
   }, [elementRef, isActive, handlers]);
 }
@@ -367,41 +372,33 @@ To ensure our dialog primitives meet accessibility requirements, we'll implement
 
 ```tsx
 // src/components/ui/primitives/__tests__/dialog.test.tsx
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { DialogPrimitive } from '../dialog';
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { DialogPrimitive } from "../dialog";
 
-describe('DialogPrimitive', () => {
+describe("DialogPrimitive", () => {
   // Test rendering and basic functionality
-  it('renders when open and not when closed', () => {
+  it("renders when open and not when closed", () => {
     const { rerender } = render(
-      <DialogPrimitive
-        open={true}
-        onOpenChange={() => {}}
-        title="Test Dialog"
-      >
+      <DialogPrimitive open={true} onOpenChange={() => {}} title="Test Dialog">
         Dialog content
       </DialogPrimitive>
     );
-    
-    expect(screen.getByText('Dialog content')).toBeInTheDocument();
-    
+
+    expect(screen.getByText("Dialog content")).toBeInTheDocument();
+
     rerender(
-      <DialogPrimitive
-        open={false}
-        onOpenChange={() => {}}
-        title="Test Dialog"
-      >
+      <DialogPrimitive open={false} onOpenChange={() => {}} title="Test Dialog">
         Dialog content
       </DialogPrimitive>
     );
-    
-    expect(screen.queryByText('Dialog content')).not.toBeInTheDocument();
+
+    expect(screen.queryByText("Dialog content")).not.toBeInTheDocument();
   });
-  
+
   // Test accessibility attributes
-  it('has correct ARIA attributes', () => {
+  it("has correct ARIA attributes", () => {
     render(
       <DialogPrimitive
         open={true}
@@ -412,21 +409,24 @@ describe('DialogPrimitive', () => {
         Dialog content
       </DialogPrimitive>
     );
-    
-    const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveAttribute('aria-modal', 'true');
-    expect(dialog).toHaveAttribute('aria-labelledby');
-    expect(dialog).toHaveAttribute('aria-describedby');
-    
-    const titleId = dialog.getAttribute('aria-labelledby');
-    const descriptionId = dialog.getAttribute('aria-describedby');
-    
-    expect(screen.getByText('Test Dialog')).toHaveAttribute('id', titleId);
-    expect(screen.getByText('Test Description')).toHaveAttribute('id', descriptionId);
+
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(dialog).toHaveAttribute("aria-labelledby");
+    expect(dialog).toHaveAttribute("aria-describedby");
+
+    const titleId = dialog.getAttribute("aria-labelledby");
+    const descriptionId = dialog.getAttribute("aria-describedby");
+
+    expect(screen.getByText("Test Dialog")).toHaveAttribute("id", titleId);
+    expect(screen.getByText("Test Description")).toHaveAttribute(
+      "id",
+      descriptionId
+    );
   });
-  
+
   // Test keyboard interaction
-  it('closes on Escape key press', () => {
+  it("closes on Escape key press", () => {
     const handleOpenChange = jest.fn();
     render(
       <DialogPrimitive
@@ -437,13 +437,13 @@ describe('DialogPrimitive', () => {
         Dialog content
       </DialogPrimitive>
     );
-    
-    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
     expect(handleOpenChange).toHaveBeenCalledWith(false);
   });
-  
+
   // Test click outside behavior
-  it('closes when clicking outside', () => {
+  it("closes when clicking outside", () => {
     const handleOpenChange = jest.fn();
     render(
       <DialogPrimitive
@@ -454,43 +454,39 @@ describe('DialogPrimitive', () => {
         Dialog content
       </DialogPrimitive>
     );
-    
+
     // Click the backdrop (outside the dialog)
     fireEvent.click(document.querySelector('[role="presentation"]')!);
     expect(handleOpenChange).toHaveBeenCalledWith(false);
   });
-  
+
   // Test focus management
-  it('traps focus within the dialog', async () => {
+  it("traps focus within the dialog", async () => {
     render(
-      <DialogPrimitive
-        open={true}
-        onOpenChange={() => {}}
-        title="Test Dialog"
-      >
+      <DialogPrimitive open={true} onOpenChange={() => {}} title="Test Dialog">
         <button>First Button</button>
         <input type="text" />
         <button>Last Button</button>
       </DialogPrimitive>
     );
-    
-    const firstButton = screen.getByText('First Button');
-    const lastButton = screen.getByText('Last Button');
-    
+
+    const firstButton = screen.getByText("First Button");
+    const lastButton = screen.getByText("Last Button");
+
     // First focusable element should be focused automatically
     expect(firstButton).toHaveFocus();
-    
+
     // Tab to the last element
     await userEvent.tab();
     await userEvent.tab();
     expect(lastButton).toHaveFocus();
-    
+
     // Tab again should loop back to first element
     await userEvent.tab();
     expect(firstButton).toHaveFocus();
-    
+
     // Shift+Tab should go to last element
-    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
     expect(lastButton).toHaveFocus();
   });
 });
@@ -500,14 +496,14 @@ describe('DialogPrimitive', () => {
 
 In addition to automated tests, we'll perform manual testing with the following combinations:
 
-| Browser | Screen Reader | OS |
-|---------|--------------|-----|
-| Chrome | NVDA | Windows |
-| Firefox | NVDA | Windows |
-| Safari | VoiceOver | macOS |
-| Chrome | ChromeVox | Chrome OS |
-| Chrome | TalkBack | Android |
-| Safari | VoiceOver | iOS |
+| Browser | Screen Reader | OS        |
+| ------- | ------------- | --------- |
+| Chrome  | NVDA          | Windows   |
+| Firefox | NVDA          | Windows   |
+| Safari  | VoiceOver     | macOS     |
+| Chrome  | ChromeVox     | Chrome OS |
+| Chrome  | TalkBack      | Android   |
+| Safari  | VoiceOver     | iOS       |
 
 For each combination, we'll test:
 
@@ -534,4 +530,4 @@ Our dialog primitives implementation will be considered successful when:
 3. Focus management works correctly
 4. Keyboard navigation follows accessibility best practices
 5. ARIA attributes are properly implemented
-6. The implementation is flexible enough to support all required dialog types 
+6. The implementation is flexible enough to support all required dialog types

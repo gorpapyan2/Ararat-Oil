@@ -1,5 +1,5 @@
-import type { Sale as ApiSale } from '@/core/api/types';
-import type { FuelSale, FuelSaleFormData } from '../types';
+import type { Sale as ApiSale } from "@/core/api/types";
+import type { FuelSale, FuelSaleFormData } from "../types";
 
 /**
  * Convert API Sale to feature FuelSale
@@ -13,7 +13,8 @@ export function adaptApiResponseToFeatureType(apiSale: ApiSale): FuelSale {
     price_per_liter: apiSale.price_per_liter,
     total_price: apiSale.total_price,
     payment_method: apiSale.payment_method,
-    payment_status: apiSale.payment_method === 'pending' ? 'pending' : 'completed', // Default assumption
+    payment_status:
+      apiSale.payment_method === "pending" ? "pending" : "completed", // Default assumption
     employee_id: apiSale.employee_id,
     shift_id: apiSale.shift_id,
     created_at: apiSale.created_at,
@@ -24,7 +25,9 @@ export function adaptApiResponseToFeatureType(apiSale: ApiSale): FuelSale {
 /**
  * Convert feature FuelSaleFormData to API request data
  */
-export function adaptFeatureTypeToApiRequest(saleData: FuelSaleFormData): Omit<ApiSale, 'id' | 'created_at' | 'updated_at'> {
+export function adaptFeatureTypeToApiRequest(
+  saleData: FuelSaleFormData
+): Omit<ApiSale, "id" | "created_at" | "updated_at"> {
   return {
     filling_system_id: saleData.filling_system_id,
     fuel_type_id: saleData.fuel_type_id,
@@ -36,4 +39,4 @@ export function adaptFeatureTypeToApiRequest(saleData: FuelSaleFormData): Omit<A
     shift_id: saleData.shift_id,
     // Other optional fields
   };
-} 
+}

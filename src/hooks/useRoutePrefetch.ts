@@ -13,28 +13,33 @@ interface PrefetchOptions {
  * @param options Prefetch options
  * @returns Handlers for prefetching (onMouseEnter, onFocus)
  */
-export function useRoutePrefetch(routePath: string, options: PrefetchOptions = {}) {
+export function useRoutePrefetch(
+  routePath: string,
+  options: PrefetchOptions = {}
+) {
   const { strategy = "hover", timeout = 2000 } = options;
 
   // Map route paths to their respective module imports
   const prefetchRoute = useCallback(() => {
-    const routeModules: Record<string, () => Promise<any>> = {
+    const routeModules: Record<string, () => Promise<{ default: React.ComponentType }>> = {
       "/": () => import("@/pages/DashboardNew"),
       "/fuel-management": () => import("@/pages/FuelManagement"),
       "/sales": () => import("@/pages/sales/SalesNew"),
       "/employees": () => import("@/pages/EmployeesNew"),
       "/expenses": () => import("@/pages/Expenses"),
-      "/settings": () => import("@/pages/settings"),
+      "/settings": () => import("@/pages/Settings"),
       "/settings/profile": () => import("@/pages/settings/ProfileSettings"),
-      "/settings/appearance": () => import("@/pages/settings/AppearanceSettings"),
-      "/settings/notifications": () => import("@/pages/settings/NotificationSettings"),
+      "/settings/appearance": () =>
+        import("@/pages/settings/AppearanceSettings"),
+      "/settings/notifications": () =>
+        import("@/pages/settings/NotificationSettings"),
       "/settings/security": () => import("@/pages/settings/SecuritySettings"),
     };
 
     if (routeModules[routePath]) {
       return routeModules[routePath]();
     }
-    
+
     return Promise.resolve();
   }, [routePath]);
 
@@ -48,7 +53,7 @@ export function useRoutePrefetch(routePath: string, options: PrefetchOptions = {
     } else if (strategy === "idle") {
       // Use requestIdleCallback or setTimeout as fallback
       if ("requestIdleCallback" in window) {
-        (window as any).requestIdleCallback(() => prefetchRoute());
+        (window as Window & { requestIdleCallback: (callback: () => void) => void }).requestIdleCallback(() => prefetchRoute());
       } else {
         timeoutId = setTimeout(prefetchRoute, timeout);
       }
@@ -65,4 +70,4 @@ export function useRoutePrefetch(routePath: string, options: PrefetchOptions = {
     onFocus: strategy === "hover" ? prefetchRoute : undefined,
     prefetch: prefetchRoute,
   };
-} 
+}

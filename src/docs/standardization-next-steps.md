@@ -11,6 +11,7 @@ This document outlines the remaining steps in our UI component standardization e
 **Status**: In Progress
 **Description**: We need to ensure consistent importing from centralized hook files.
 **Tasks**:
+
 - [x] Review and update `useToast` import paths (change imports from @/hooks/useToast to @/hooks)
 - [x] Update `toast` imports to use the same consistent pattern
 - [ ] Fix type issues with toast `variant` properties
@@ -22,6 +23,7 @@ This document outlines the remaining steps in our UI component standardization e
 **Status**: Not Started
 **Description**: Add unit tests for our standardized components to ensure stability.
 **Tasks**:
+
 - [ ] Create test plan for standardized dialog components
 - [ ] Write tests for core dialog components (StandardDialog, ConfirmDialog, AlertDialog)
 - [ ] Write tests for dialog hooks (useDialog, useConfirmDialog, etc.)
@@ -34,6 +36,7 @@ This document outlines the remaining steps in our UI component standardization e
 **Status**: 90% Complete
 **Description**: Finalize documentation for all standardized components.
 **Tasks**:
+
 - [ ] Update dialog documentation with controller pattern examples
 - [ ] Add usage examples for nested dialogs
 - [ ] Create interactive examples for table customization
@@ -45,6 +48,7 @@ This document outlines the remaining steps in our UI component standardization e
 **Status**: Not Started
 **Description**: Create a guide for developers to help them create new components that follow our standardization patterns.
 **Tasks**:
+
 - [ ] Document the component creation process
 - [ ] Create templates for new standardized components
 - [ ] Define conventions for naming, file structure, and imports
@@ -55,6 +59,7 @@ This document outlines the remaining steps in our UI component standardization e
 **Status**: Not Started
 **Description**: Review and optimize performance of standardized components.
 **Tasks**:
+
 - [ ] Audit render performance of dialog components
 - [ ] Optimize table rendering for large datasets
 - [ ] Add memoization where appropriate
@@ -65,6 +70,7 @@ This document outlines the remaining steps in our UI component standardization e
 **Status**: Partially Complete
 **Description**: Implement the remaining specialized components from our standardization plan.
 **Tasks**:
+
 - [ ] Implement nested dialog example
 - [ ] Create dynamic content dialog example
 - [ ] Design and implement infinite scroll table variant
@@ -73,11 +79,13 @@ This document outlines the remaining steps in our UI component standardization e
 ## Completed Work
 
 ### Form Standardization
+
 - Created MultiPaymentMethodFormStandardized as a standardized version of MultiPaymentMethodForm
 - Updated Shifts.tsx and ShiftClose.tsx to use the new standardized form
 - Updated form-standardization-status.md to include our work
 
 ### Hooks Import Structure
+
 - Created toast.d.ts file to extend the ToastOptions type
 - Updated hooks/index.ts to export both useToast and toast
 - Updated useToast.ts to use the new types
@@ -87,45 +95,51 @@ This document outlines the remaining steps in our UI component standardization e
 ### Update Hooks Import Structure
 
 1. First, check all files importing `useToast` to ensure they use the centralized import from `@/hooks`:
+
    ```typescript
    // Change this:
    import { useToast } from "@/hooks/useToast";
-   
+
    // To this:
    import { useToast } from "@/hooks";
    ```
 
 2. Update all direct `toast` imports to follow the same pattern:
+
    ```typescript
    // Change this:
    import { toast } from "@/hooks/useToast";
-   
+
    // To this:
    import { toast } from "@/hooks";
    ```
 
 3. Update `src/hooks/index.ts` to ensure it properly exports both `useToast` and `toast`:
+
    ```typescript
-   export { useToast, toast } from './useToast';
+   export { useToast, toast } from "./useToast";
    ```
 
 4. Fix the `variant` property issues by extending the ToastOptions type:
+
    ```typescript
    // In src/types/toast.d.ts
-   import { ToastOptions as OriginalToastOptions } from '@/components/ui/toast';
-   
+   import { ToastOptions as OriginalToastOptions } from "@/components/ui/toast";
+
    export interface ToastOptions extends OriginalToastOptions {
-     variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
+     variant?: "default" | "destructive" | "success" | "warning" | "info";
    }
    ```
 
 ### Add Testing for Components
 
 1. Set up test infrastructure:
+
    - Install and configure testing libraries (Jest, Testing Library)
    - Create test utilities and helpers
 
 2. Create test plans:
+
    - Identify critical components to test
    - Define test coverage goals
    - Create test templates for consistent testing
@@ -138,11 +152,13 @@ This document outlines the remaining steps in our UI component standardization e
 ### Complete Documentation
 
 1. Review current documentation:
+
    - Identify gaps in current documentation
    - Verify accuracy of existing documentation
    - Check for consistency in documentation style
 
 2. Create missing documentation:
+
    - Add examples for advanced use cases
    - Document component APIs in detail
    - Create troubleshooting guides
@@ -165,4 +181,4 @@ This document outlines the remaining steps in our UI component standardization e
 - Core components have at least 80% test coverage
 - All standardized components have complete documentation
 - Developer guide is available for new component creation
-- Performance metrics show improvement in component rendering time 
+- Performance metrics show improvement in component rendering time

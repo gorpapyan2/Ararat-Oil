@@ -3,13 +3,11 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks";
 import { useRenderCount } from "@/utils/performance";
+import { User } from "@supabase/supabase-js";
+import { UserProfile } from "./ProfileController";
 
 // Icons
-import {
-  IconCamera,
-  IconCheck,
-  IconX,
-} from "@tabler/icons-react";
+import { IconCamera, IconCheck, IconX } from "@tabler/icons-react";
 
 // UI Components
 import {
@@ -21,9 +19,13 @@ import {
   CardFooter,
 } from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
-import { Separator } from '@/core/components/ui/separator';
-import { Avatar, AvatarImage, AvatarFallback } from '@/core/components/ui/avatar';
-import { FormInput } from '@/core/components/ui/composed/form-fields';
+import { Separator } from "@/core/components/ui/separator";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/core/components/ui/avatar";
+import { FormInput } from "@/core/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 
 // Define the form validation schema
@@ -34,37 +36,33 @@ const profileSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
     .email("Please enter a valid email address"),
-  phone: z
-    .string()
-    .optional(),
-  position: z
-    .string()
-    .optional(),
+  phone: z.string().optional(),
+  position: z.string().optional(),
 });
 
 // Infer the form data type from the schema
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 interface ProfileFormProps {
-  user: any;
-  profile: any;
+  user: User;
+  profile: UserProfile;
   onSubmit: (data: ProfileFormData) => Promise<void>;
   avatarUrl?: string;
   onChangeAvatar?: () => void;
   onRemoveAvatar?: () => void;
 }
 
-function ProfileFormStandardized({ 
-  user, 
-  profile, 
+function ProfileFormStandardized({
+  user,
+  profile,
   onSubmit,
   avatarUrl,
   onChangeAvatar,
-  onRemoveAvatar
+  onRemoveAvatar,
 }: ProfileFormProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
-  
+
   // Log render count in development
   useRenderCount("ProfileFormStandardized");
 
@@ -78,16 +76,16 @@ function ProfileFormStandardized({
       position: profile?.position || "",
     },
   });
-  
+
   // Get form submission handler
-  const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<ProfileFormData>(
-    form,
-    async (data) => {
+  const { isSubmitting, onSubmit: handleSubmit } =
+    useFormSubmitHandler<ProfileFormData>(form, async (data) => {
       try {
         await onSubmit(data);
         toast({
           title: "Profile updated",
-          description: "Your profile information has been updated successfully.",
+          description:
+            "Your profile information has been updated successfully.",
         });
         return true;
       } catch (error) {
@@ -98,8 +96,7 @@ function ProfileFormStandardized({
         });
         return false;
       }
-    }
-  );
+    });
 
   // Reset form to initial values
   const resetForm = () => {
@@ -126,9 +123,7 @@ function ProfileFormStandardized({
     <Card>
       <CardHeader>
         <CardTitle>{t("settings.profile.title")}</CardTitle>
-        <CardDescription>
-          {t("settings.profile.description")}
-        </CardDescription>
+        <CardDescription>{t("settings.profile.description")}</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-6">
@@ -144,20 +139,22 @@ function ProfileFormStandardized({
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
-              <h3 className="text-sm font-medium">{t("settings.profile.photo")}</h3>
+              <h3 className="text-sm font-medium">
+                {t("settings.profile.photo")}
+              </h3>
               <div className="flex gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   size="sm"
                   onClick={onChangeAvatar}
                 >
                   <IconCamera className="h-4 w-4 mr-2" />
                   {t("settings.profile.change")}
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   size="sm"
                   onClick={onRemoveAvatar}
                 >
@@ -184,15 +181,14 @@ function ProfileFormStandardized({
               label={t("settings.profile.email")}
               form={form}
               type="email"
-              placeholder="john@example.com"
-              disabled={!!user?.email} // Disable if provided by auth
+              placeholder={t("settings.profile.email")}
             />
 
             <FormInput
               name="phone"
               label={t("settings.profile.phone")}
               form={form}
-              placeholder="+1 (555) 000-0000"
+              placeholder={t("settings.profile.phone")}
             />
 
             <FormInput
@@ -212,11 +208,10 @@ function ProfileFormStandardized({
           >
             {t("settings.profile.cancel")}
           </Button>
-          <Button 
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? t("settings.profile.saving") : t("settings.profile.saveChanges")}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting
+              ? t("settings.profile.saving")
+              : t("settings.profile.saveChanges")}
             {!isSubmitting && <IconCheck className="ml-2 h-4 w-4" />}
           </Button>
         </CardFooter>
@@ -226,4 +221,4 @@ function ProfileFormStandardized({
 }
 
 // Export a memoized version for better performance
-export default memo(ProfileFormStandardized); 
+export default memo(ProfileFormStandardized);

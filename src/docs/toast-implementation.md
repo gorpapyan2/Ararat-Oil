@@ -21,11 +21,11 @@ This project uses a consolidated toast notification system that provides a simpl
 ### Basic Usage
 
 ```tsx
-import { useToast } from '@/hooks';
+import { useToast } from "@/hooks";
 
 function MyComponent() {
   const { toast, success, error, warning, info } = useToast();
-  
+
   function handleAction() {
     success({
       title: "Success!",
@@ -33,7 +33,7 @@ function MyComponent() {
       duration: 5000, // 5 seconds
     });
   }
-  
+
   return <button onClick={handleAction}>Complete Action</button>;
 }
 ```
@@ -41,20 +41,20 @@ function MyComponent() {
 ### Toast with Action Button
 
 ```tsx
-import { useToast } from '@/hooks';
-import { Button } from '@/components/ui/button';
+import { useToast } from "@/hooks";
+import { Button } from "@/components/ui/button";
 
 function MyComponent() {
   const { toast } = useToast();
-  
+
   function handleActionWithConfirmation() {
     const { dismiss } = toast({
       title: "Confirm Action",
       description: "Are you sure you want to proceed?",
       duration: Infinity, // Won't auto-dismiss
       action: (
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
           onClick={() => {
             // Handle confirmation
@@ -66,7 +66,7 @@ function MyComponent() {
       ),
     });
   }
-  
+
   return <button onClick={handleActionWithConfirmation}>Start Action</button>;
 }
 ```
@@ -76,13 +76,16 @@ function MyComponent() {
 You can use toasts outside of React components:
 
 ```tsx
-import { toast, success, error } from '@/hooks';
+import { toast, success, error } from "@/hooks";
 
 // In an async function
 async function fetchData() {
   try {
-    const data = await api.get('/some-endpoint');
-    success({ title: "Data loaded", description: "Your data has been loaded successfully" });
+    const data = await api.get("/some-endpoint");
+    success({
+      title: "Data loaded",
+      description: "Your data has been loaded successfully",
+    });
     return data;
   } catch (err) {
     error({ title: "Error", description: err.message });
@@ -97,28 +100,28 @@ async function fetchData() {
 
 The `useToast` hook returns an object with the following properties:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| toasts | Toast[] | Array of current toast notifications |
-| toast | (options: ToastOptions) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Main function to display a toast |
-| success | (options: Omit<ToastOptions, "type">) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Shorthand for success toasts |
-| error | (options: Omit<ToastOptions, "type">) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Shorthand for error toasts |
-| warning | (options: Omit<ToastOptions, "type">) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Shorthand for warning toasts |
-| info | (options: Omit<ToastOptions, "type">) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Shorthand for info toasts |
-| dismiss | (id: string) => void | Function to dismiss a toast by ID |
-| update | (id: string, options: Partial<ToastOptions>) => void | Function to update an existing toast |
+| Property | Type                                                                                                                              | Description                          |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| toasts   | Toast[]                                                                                                                           | Array of current toast notifications |
+| toast    | (options: ToastOptions) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void }               | Main function to display a toast     |
+| success  | (options: Omit<ToastOptions, "type">) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Shorthand for success toasts         |
+| error    | (options: Omit<ToastOptions, "type">) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Shorthand for error toasts           |
+| warning  | (options: Omit<ToastOptions, "type">) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Shorthand for warning toasts         |
+| info     | (options: Omit<ToastOptions, "type">) => { id: string, dismiss: () => void, update: (newOptions: Partial<ToastOptions>) => void } | Shorthand for info toasts            |
+| dismiss  | (id: string) => void                                                                                                              | Function to dismiss a toast by ID    |
+| update   | (id: string, options: Partial<ToastOptions>) => void                                                                              | Function to update an existing toast |
 
 ### ToastOptions
 
-| Property | Type | Description | Default |
-|----------|------|-------------|---------|
-| title | string | Toast title | undefined |
-| description | string | Toast description/content | undefined |
-| message | string | Alternative to description | undefined |
-| duration | number | Duration in milliseconds | 5000 |
-| type | "success" \| "error" \| "warning" \| "info" | Toast type | "info" |
-| action | React.ReactNode | Action button or component | undefined |
-| onOpenChange | (open: boolean) => void | Callback when open state changes | undefined |
+| Property     | Type                                        | Description                      | Default   |
+| ------------ | ------------------------------------------- | -------------------------------- | --------- |
+| title        | string                                      | Toast title                      | undefined |
+| description  | string                                      | Toast description/content        | undefined |
+| message      | string                                      | Alternative to description       | undefined |
+| duration     | number                                      | Duration in milliseconds         | 5000      |
+| type         | "success" \| "error" \| "warning" \| "info" | Toast type                       | "info"    |
+| action       | React.ReactNode                             | Action button or component       | undefined |
+| onOpenChange | (open: boolean) => void                     | Callback when open state changes | undefined |
 
 ## Components
 
@@ -127,7 +130,7 @@ The `useToast` hook returns an object with the following properties:
 Renders the toasts in the UI:
 
 ```tsx
-<ToastContainer 
+<ToastContainer
   position="bottom-right" // "top-right" | "top-left" | "bottom-right" | "bottom-left"
   className="custom-class"
 />
@@ -150,4 +153,4 @@ The toast system is implemented across several files:
 - `src/store/useAppStore.ts`: The global store containing toast state
 - `src/components/ui/toast-container.tsx`: The container component for rendering toasts
 - `src/components/ui/toaster.tsx`: A convenience component for including toasts in layouts
-- `src/types/toast.d.ts`: TypeScript types for the toast system 
+- `src/types/toast.d.ts`: TypeScript types for the toast system

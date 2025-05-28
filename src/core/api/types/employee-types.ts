@@ -12,4 +12,4 @@ export interface ApiEmployee {
   created_at: string;
   updated_at?: string;
   department?: string;
-} 
+}

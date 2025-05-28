@@ -4,7 +4,7 @@
  */
 
 // DOM utilities
-export { cn, generateId, debounce, sleep, checkColorContrast } from './dom';
+export { cn, generateId, debounce, sleep, checkColorContrast } from "./dom";
 
 // Formatting utilities
 export {
@@ -16,8 +16,8 @@ export {
   parseCurrencyInput,
   formatDateTime,
   calculateDuration,
-  calculateShiftDuration
-} from './formatting';
+  calculateShiftDuration,
+} from "./formatting";
 
 // Object utilities
 export {
@@ -26,5 +26,5 @@ export {
   isPlainObject,
   deepMerge,
   pick,
-  omit
-} from './object'; 
+  omit,
+} from "./object";

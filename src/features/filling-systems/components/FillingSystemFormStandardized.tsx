@@ -4,7 +4,10 @@ import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { tanksApi } from "@/core/api";
-import { FormInput, FormSelect } from '@/core/components/ui/composed/form-fields';
+import {
+  FormInput,
+  FormSelect,
+} from "@/core/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 import { useTranslation } from "react-i18next";
 import { apiNamespaces, getApiActionLabel } from "@/i18n/i18n";
@@ -18,9 +21,10 @@ interface FillingSystemFormStandardizedProps {
 
 // Define Zod schema for validation
 const fillingSystemSchema = z.object({
-  name: z.string({ required_error: "Name is required" })
+  name: z
+    .string({ required_error: "Name is required" })
     .min(2, "Name must be at least 2 characters"),
-  tank_id: z.string({ required_error: "Tank selection is required" })
+  tank_id: z.string({ required_error: "Tank selection is required" }),
 });
 
 // Type based on schema
@@ -35,7 +39,7 @@ export function FillingSystemFormStandardized({
   const { toast } = useToast();
   const { useCreateFillingSystemMutation } = useFillingSystem();
   const createFillingSystemMutation = useCreateFillingSystemMutation();
-  
+
   // Initialize form with Zod validation
   const form = useZodForm({
     schema: fillingSystemSchema,
@@ -51,28 +55,31 @@ export function FillingSystemFormStandardized({
   });
 
   // Format tanks as options for select
-  const tankOptions = tanks?.data?.map(tank => ({
-    value: tank.id,
-    label: `${tank.name} (${tank.fuel_type_id})`
-  })) || [];
+  const tankOptions =
+    tanks?.data?.map((tank) => ({
+      value: tank.id,
+      label: `${tank.name} (${tank.fuel_type_id})`,
+    })) || [];
 
   // Get translated strings or use API translation helpers
-  const title = t("fillingSystems.addSystem") || 
-    getApiActionLabel(apiNamespaces.fillingSystems, 'create');
-  const description = t("fillingSystems.addSystemDescription") || 
+  const title =
+    t("fillingSystems.addSystem") ||
+    getApiActionLabel(apiNamespaces.fillingSystems, "create");
+  const description =
+    t("fillingSystems.addSystemDescription") ||
     "Create a new filling system connected to a fuel tank";
   const cancelButton = t("common.cancel") || "Cancel";
   const createButton = t("common.create") || "Create System";
   const creatingButton = t("common.creating") || "Creating...";
   const systemNameLabel = t("fillingSystems.systemName") || "System Name";
-  const systemNamePlaceholder = t("fillingSystems.enterSystemName") || "Enter system name";
+  const systemNamePlaceholder =
+    t("fillingSystems.enterSystemName") || "Enter system name";
   const tankLabel = t("fillingSystems.associatedTank") || "Associated Tank";
   const tankPlaceholder = t("fillingSystems.selectTank") || "Select a tank";
 
   // Form submission handler
-  const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<FillingSystemFormData>(
-    form,
-    async (data) => {
+  const { isSubmitting, onSubmit: handleSubmit } =
+    useFormSubmitHandler<FillingSystemFormData>(form, async (data) => {
       try {
         // Use the mutation from our hook
         await createFillingSystemMutation.mutateAsync({
@@ -80,7 +87,7 @@ export function FillingSystemFormStandardized({
           tank_id: data.tank_id,
           location: "Default Location",
           status: "active",
-          type: "standard"
+          type: "standard",
         });
         form.reset();
         onSuccess();
@@ -88,8 +95,7 @@ export function FillingSystemFormStandardized({
       } catch (error) {
         return false;
       }
-    }
-  );
+    });
 
   // Create form actions
   const formActions = (
@@ -117,7 +123,11 @@ export function FillingSystemFormStandardized({
       maxWidth="sm:max-w-[425px]"
       actions={formActions}
     >
-      <form id="filling-system-form" onSubmit={handleSubmit} className="space-y-4">
+      <form
+        id="filling-system-form"
+        onSubmit={handleSubmit}
+        className="space-y-4"
+      >
         <FormInput
           name="name"
           label={systemNameLabel}
@@ -125,7 +135,7 @@ export function FillingSystemFormStandardized({
           placeholder={systemNamePlaceholder}
           autoComplete="off"
         />
-        
+
         <FormSelect
           name="tank_id"
           label={tankLabel}
@@ -136,4 +146,4 @@ export function FillingSystemFormStandardized({
       </form>
     </StandardDialog>
   );
-} 
+}

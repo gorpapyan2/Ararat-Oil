@@ -6,7 +6,7 @@
 /**
  * Standard API response structure
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   /** Response data */
   data: T;
   /** Status code */
@@ -28,7 +28,7 @@ export interface ApiError {
   /** Optional status code */
   status?: number;
   /** Additional error details */
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -50,7 +50,7 @@ export interface SortingParams {
   /** Field to sort by */
   sortBy?: string;
   /** Sort direction */
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 /**
@@ -97,12 +97,14 @@ export interface PaginatedResponse<T> {
 /**
  * Create entity request
  */
-export type CreateRequest<T> = Omit<T, 'id' | 'created_at' | 'updated_at'>;
+export type CreateRequest<T> = Omit<T, "id" | "created_at" | "updated_at">;
 
 /**
  * Update entity request
  */
-export type UpdateRequest<T> = Partial<Omit<T, 'id' | 'created_at' | 'updated_at'>>;
+export type UpdateRequest<T> = Partial<
+  Omit<T, "id" | "created_at" | "updated_at">
+>;
 
 /**
  * Utility type for API functions returning a single entity
@@ -117,7 +119,9 @@ export type ApiCollectionResponse<T> = Promise<ApiResponse<T[]>>;
 /**
  * Utility type for API functions returning a paginated collection
  */
-export type ApiPaginatedResponse<T> = Promise<ApiResponse<PaginatedResponse<T>>>;
+export type ApiPaginatedResponse<T> = Promise<
+  ApiResponse<PaginatedResponse<T>>
+>;
 
 /**
  * Date range filter
@@ -133,11 +137,11 @@ export interface DateRangeFilter {
  * Common status values
  */
 export enum Status {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  PENDING = 'pending',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  PENDING = "pending",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
 }
 
 /**
@@ -151,7 +155,31 @@ export interface ApiEndpointConfig {
   /** Default headers */
   headers?: Record<string, string>;
   /** Default query parameters */
-  defaultParams?: Record<string, any>;
+  defaultParams?: Record<string, unknown>;
   /** Timeout in milliseconds */
   timeout?: number;
-} 
+}
+
+/**
+ * Database entity with common fields
+ */
+export interface BaseEntity {
+  /** Unique identifier */
+  id: string;
+  /** Creation timestamp */
+  created_at: string;
+  /** Last update timestamp */
+  updated_at: string;
+}
+
+/**
+ * Generic metadata type for responses
+ */
+export interface ResponseMetadata {
+  /** Request ID for tracking */
+  requestId?: string;
+  /** Timestamp of the response */
+  timestamp?: number;
+  /** Additional metadata */
+  [key: string]: unknown;
+}

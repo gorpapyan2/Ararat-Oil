@@ -65,7 +65,7 @@ export function ExpenseDialogStandardized({
     amount: expense?.amount || 0,
     description: expense?.description || "",
     category: expense?.category || "",
-    date: expense?.date || new Date().toISOString().split('T')[0],
+    date: expense?.date || new Date().toISOString().split("T")[0],
     employee_id: expense?.employee_id || "",
   };
 
@@ -75,23 +75,27 @@ export function ExpenseDialogStandardized({
   const handleSubmit = async (data: ExpenseFormValues) => {
     try {
       if (isEditing && expense) {
-        await updateExpense.mutateAsync({ 
-          id: expense.id, 
-          data: data as Partial<Expense>
+        await updateExpense.mutateAsync({
+          id: expense.id,
+          data: data as Partial<Expense>,
         });
-        toast.success(t("finance.expenses.updateSuccess", "Expense updated successfully"));
+        toast.success(
+          t("finance.expenses.updateSuccess", "Expense updated successfully")
+        );
         return true;
       } else {
         await createExpense.mutateAsync(
           data as Omit<Expense, "id" | "created_at" | "updated_at">
         );
-        toast.success(t("finance.expenses.createSuccess", "Expense created successfully"));
+        toast.success(
+          t("finance.expenses.createSuccess", "Expense created successfully")
+        );
         return true;
       }
     } catch (error) {
       toast.error(
-        isEditing 
-          ? t("finance.expenses.updateError", "Failed to update expense") 
+        isEditing
+          ? t("finance.expenses.updateError", "Failed to update expense")
           : t("finance.expenses.createError", "Failed to create expense")
       );
       console.error("Error with expense:", error);
@@ -103,15 +107,18 @@ export function ExpenseDialogStandardized({
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEditing
-        ? t("finance.expenses.edit", "Edit Expense")
-        : t("finance.expenses.create", "Create Expense")
+      title={
+        isEditing
+          ? t("finance.expenses.edit", "Edit Expense")
+          : t("finance.expenses.create", "Create Expense")
       }
       schema={expenseSchema}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}
       isSubmitting={createExpense.isPending || updateExpense.isPending}
-      submitText={isEditing ? t("common.save", "Save") : t("common.create", "Create")}
+      submitText={
+        isEditing ? t("common.save", "Save") : t("common.create", "Create")
+      }
       cancelText={t("common.cancel", "Cancel")}
     >
       {({ control }) => (
@@ -131,7 +138,10 @@ export function ExpenseDialogStandardized({
             />
           </FormRow>
 
-          <FormRow label={t("finance.expenses.description", "Description")} required>
+          <FormRow
+            label={t("finance.expenses.description", "Description")}
+            required
+          >
             <FormField
               control={control}
               name="description"
@@ -152,18 +162,39 @@ export function ExpenseDialogStandardized({
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={t("finance.expenses.selectCategory", "Select category")} />
+                        <SelectValue
+                          placeholder={t(
+                            "finance.expenses.selectCategory",
+                            "Select category"
+                          )}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="utilities">{t("finance.expenseCategories.utilities", "Utilities")}</SelectItem>
-                      <SelectItem value="rent">{t("finance.expenseCategories.rent", "Rent")}</SelectItem>
-                      <SelectItem value="supplies">{t("finance.expenseCategories.supplies", "Supplies")}</SelectItem>
-                      <SelectItem value="maintenance">{t("finance.expenseCategories.maintenance", "Maintenance")}</SelectItem>
-                      <SelectItem value="other">{t("finance.expenseCategories.other", "Other")}</SelectItem>
+                      <SelectItem value="utilities">
+                        {t("finance.expenseCategories.utilities", "Utilities")}
+                      </SelectItem>
+                      <SelectItem value="rent">
+                        {t("finance.expenseCategories.rent", "Rent")}
+                      </SelectItem>
+                      <SelectItem value="supplies">
+                        {t("finance.expenseCategories.supplies", "Supplies")}
+                      </SelectItem>
+                      <SelectItem value="maintenance">
+                        {t(
+                          "finance.expenseCategories.maintenance",
+                          "Maintenance"
+                        )}
+                      </SelectItem>
+                      <SelectItem value="other">
+                        {t("finance.expenseCategories.other", "Other")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -190,4 +221,4 @@ export function ExpenseDialogStandardized({
       )}
     </FormDialog>
   );
-} 
+}

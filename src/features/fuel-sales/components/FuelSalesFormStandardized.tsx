@@ -4,7 +4,11 @@ import { StandardDialog } from "@/core/components/ui/composed/dialog";
 import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
-import { FormInput, FormSelect, FormTextarea } from '@/core/components/ui/composed/form-fields';
+import {
+  FormInput,
+  FormSelect,
+  FormTextarea,
+} from "@/core/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 import { useFuelSales } from "../hooks/useFuelSales";
 import { supabase } from "@/core/api/supabase";
@@ -29,18 +33,20 @@ const fuelSaleSchema = z.object({
   customer_name: z.string({ required_error: "Customer name is required" }),
   quantity: z.preprocess(
     (val) => (val === "" ? 0 : Number(val)),
-    z.number({ required_error: "Quantity must be a number" })
+    z
+      .number({ required_error: "Quantity must be a number" })
       .gt(0, "Quantity must be greater than 0")
   ),
   price_per_unit: z.preprocess(
     (val) => (val === "" ? 0 : Number(val)),
-    z.number({ required_error: "Price per unit must be a number" })
+    z
+      .number({ required_error: "Price per unit must be a number" })
       .gt(0, "Price per unit must be greater than 0")
   ),
-  payment_method: z.enum(['cash', 'card', 'bank_transfer'], {
+  payment_method: z.enum(["cash", "card", "bank_transfer"], {
     required_error: "Payment method is required",
   }),
-  payment_status: z.enum(['pending', 'completed', 'failed'], {
+  payment_status: z.enum(["pending", "completed", "failed"], {
     required_error: "Payment status is required",
   }),
 });
@@ -49,10 +55,10 @@ type FuelSaleFormValues = z.infer<typeof fuelSaleSchema>;
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
   const { data, error } = await supabase
-    .from('fuel_tanks')
-    .select('id, name, fuel_type')
-    .order('name');
-  
+    .from("fuel_tanks")
+    .select("id, name, fuel_type")
+    .order("name");
+
   if (error) throw error;
   return data;
 }
@@ -69,7 +75,8 @@ export function FuelSalesFormStandardized({
   const form = useZodForm({
     schema: fuelSaleSchema,
     defaultValues: {
-      sale_date: initialData?.sale_date || new Date().toISOString().split('T')[0],
+      sale_date:
+        initialData?.sale_date || new Date().toISOString().split("T")[0],
       tank_id: initialData?.tank_id || "",
       customer_name: initialData?.customer_name || "",
       quantity: initialData?.quantity || 0,
@@ -84,27 +91,30 @@ export function FuelSalesFormStandardized({
     queryFn: fetchFuelTanks,
   });
 
-  const tankOptions = tanks.map(tank => ({
-    value: tank.id,
-    label: tank.name
-  })) || [];
+  const tankOptions =
+    tanks.map((tank) => ({
+      value: tank.id,
+      label: tank.name,
+    })) || [];
 
-  const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<FuelSaleFormValues>(
-    form,
-    async (data) => {
+  const { isSubmitting, onSubmit: handleSubmit } =
+    useFormSubmitHandler<FuelSaleFormValues>(form, async (data) => {
       try {
         const fuelSaleData: FuelSaleFormData = {
           sale_date: data.sale_date,
           tank_id: data.tank_id,
           customer_name: data.customer_name,
-          quantity_liters: data.quantity_liters,
-          price_per_liter: data.price_per_liter,
+          quantity: data.quantity,
+          price_per_unit: data.price_per_unit,
           payment_method: data.payment_method,
           payment_status: data.payment_status,
         };
-        
+
         if (initialData) {
-          await updateSale.mutateAsync({ id: initialData.id, data: fuelSaleData });
+          await updateSale.mutateAsync({
+            id: initialData.id,
+            data: fuelSaleData,
+          });
         } else {
           await createSale.mutateAsync(fuelSaleData);
         }
@@ -114,16 +124,15 @@ export function FuelSalesFormStandardized({
         });
         onSuccess();
         onOpenChange(false);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error saving fuel sale:", error);
         toast({
           title: "Error",
-          description: error.message || "Failed to save fuel sale record.",
+          description: error instanceof Error ? error.message : "Failed to save fuel sale record.",
           variant: "destructive",
         });
       }
-    }
-  );
+    });
 
   const formActions = (
     <div className="flex justify-end space-x-2">
@@ -136,7 +145,11 @@ export function FuelSalesFormStandardized({
         Cancel
       </Button>
       <Button type="submit" disabled={isSubmitting} form="fuel-sale-form">
-        {isSubmitting ? "Saving..." : initialData ? "Update Sale" : "Create Sale"}
+        {isSubmitting
+          ? "Saving..."
+          : initialData
+            ? "Update Sale"
+            : "Create Sale"}
       </Button>
     </div>
   );
@@ -146,17 +159,16 @@ export function FuelSalesFormStandardized({
       open={open}
       onOpenChange={onOpenChange}
       title={initialData ? "Edit Fuel Sale" : "Add New Fuel Sale"}
-      description={initialData ? "Update existing fuel sale record" : "Create a new fuel sale record"}
+      description={
+        initialData
+          ? "Update existing fuel sale record"
+          : "Create a new fuel sale record"
+      }
       maxWidth="sm:max-w-[600px]"
       actions={formActions}
     >
       <form id="fuel-sale-form" onSubmit={handleSubmit} className="space-y-4">
-        <FormInput
-          name="sale_date"
-          label="Sale Date"
-          form={form}
-          type="date"
-        />
+        <FormInput name="sale_date" label="Sale Date" form={form} type="date" />
         <FormSelect
           name="tank_id"
           label="Tank"
@@ -207,4 +219,4 @@ export function FuelSalesFormStandardized({
       </form>
     </StandardDialog>
   );
-} 
+}

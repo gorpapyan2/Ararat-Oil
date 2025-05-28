@@ -11,16 +11,16 @@ export function SidebarLogo({ collapsed = false }: SidebarLogoProps) {
   const { t } = useTranslation();
   const appName = "Ararat Oil";
   const shortAppName = "AO";
-  
+
   return (
-    <div 
+    <div
       className={cn(
         "h-14 flex items-center border-b px-4",
         "transition-all duration-300 ease-in-out"
       )}
     >
-      <Link 
-        to="/" 
+      <Link
+        to="/"
         className={cn(
           "flex items-center gap-2 font-heading transition-all duration-300 ease-in-out",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
@@ -29,7 +29,7 @@ export function SidebarLogo({ collapsed = false }: SidebarLogoProps) {
         )}
         aria-label={t("common.backToDashboard")}
       >
-        <div 
+        <div
           className={cn(
             "flex items-center justify-center rounded-md bg-primary text-primary-foreground",
             "transition-all duration-300 ease-in-out transform",
@@ -37,14 +37,16 @@ export function SidebarLogo({ collapsed = false }: SidebarLogoProps) {
             "hover:scale-105 hover:shadow-md"
           )}
         >
-          <span className={cn(
-            "font-bold transition-all duration-300",
-            collapsed ? "text-lg" : "text-sm"
-          )}>
+          <span
+            className={cn(
+              "font-bold transition-all duration-300",
+              collapsed ? "text-lg" : "text-sm"
+            )}
+          >
             {shortAppName}
           </span>
         </div>
-        
+
         {!collapsed && (
           <div className="overflow-hidden">
             <span className="font-bold text-xl opacity-100 transition-opacity duration-300">

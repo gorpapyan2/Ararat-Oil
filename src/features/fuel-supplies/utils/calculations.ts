@@ -9,7 +9,10 @@
  * @param volume Volume in liters
  * @returns Cost per liter
  */
-export function calculateCostPerLiter(totalCost: number, volume: number): number {
+export function calculateCostPerLiter(
+  totalCost: number,
+  volume: number
+): number {
   if (!volume || volume <= 0) return 0;
   return totalCost / volume;
 }
@@ -20,7 +23,10 @@ export function calculateCostPerLiter(totalCost: number, volume: number): number
  * @param volume Volume in liters
  * @returns Total cost
  */
-export function calculateTotalCost(costPerLiter: number, volume: number): number {
+export function calculateTotalCost(
+  costPerLiter: number,
+  volume: number
+): number {
   return costPerLiter * volume;
 }
 
@@ -30,7 +36,10 @@ export function calculateTotalCost(costPerLiter: number, volume: number): number
  * @param endLevel Ending level in liters
  * @returns Expected volume based on tank readings
  */
-export function calculateExpectedVolume(startLevel: number, endLevel: number): number {
+export function calculateExpectedVolume(
+  startLevel: number,
+  endLevel: number
+): number {
   return Math.max(0, endLevel - startLevel);
 }
 
@@ -40,7 +49,10 @@ export function calculateExpectedVolume(startLevel: number, endLevel: number): n
  * @param reportedVolume Reported volume from delivery
  * @returns Discrepancy in liters (positive means excess)
  */
-export function calculateVolumeDiscrepancy(expectedVolume: number, reportedVolume: number): number {
+export function calculateVolumeDiscrepancy(
+  expectedVolume: number,
+  reportedVolume: number
+): number {
   return reportedVolume - expectedVolume;
 }
 
@@ -52,10 +64,10 @@ export function calculateVolumeDiscrepancy(expectedVolume: number, reportedVolum
  * @returns True if discrepancy exceeds threshold
  */
 export function isDiscrepancySignificant(
-  discrepancy: number, 
-  reportedVolume: number, 
+  discrepancy: number,
+  reportedVolume: number,
   threshold = 0.02
 ): boolean {
   if (reportedVolume === 0) return false;
   return Math.abs(discrepancy / reportedVolume) > threshold;
-} 
+}

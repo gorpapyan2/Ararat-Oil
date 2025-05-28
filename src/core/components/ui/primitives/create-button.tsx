@@ -6,7 +6,7 @@ import { cn } from "@/shared/utils";
 /**
  * Props for the CreateButton component
  */
-export interface CreateButtonProps extends Omit<ButtonProps, 'startIcon'> {
+export interface CreateButtonProps extends Omit<ButtonProps, "startIcon"> {
   /**
    * Label to display on the button
    * @default "Create New"
@@ -21,17 +21,17 @@ export interface CreateButtonProps extends Omit<ButtonProps, 'startIcon'> {
 
 /**
  * CreateButton component for adding new items
- * 
+ *
  * Standardized button with a plus icon for create/add actions
  */
-export const CreateButton = React.forwardRef<HTMLButtonElement, CreateButtonProps>(
-  ({ 
-    className, 
-    label = "Create New", 
-    icon,
-    variant = "default",
-    ...props 
-  }, ref) => {
+export const CreateButton = React.forwardRef<
+  HTMLButtonElement,
+  CreateButtonProps
+>(
+  (
+    { className, label = "Create New", icon, variant = "default", ...props },
+    ref
+  ) => {
     return (
       <Button
         className={cn("gap-1", className)}
@@ -46,4 +46,4 @@ export const CreateButton = React.forwardRef<HTMLButtonElement, CreateButtonProp
   }
 );
 
-CreateButton.displayName = "CreateButton"; 
+CreateButton.displayName = "CreateButton";

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 import {
   Card,
   CardContent,
@@ -6,40 +6,50 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/core/components/ui/card';
-import { Button } from '@/core/components/ui/button';
+} from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
 
 const meta = {
-  title: 'UI/Card',
+  title: "Components/Card",
   component: Card,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 } satisfies Meta<typeof Card>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Basic: Story = {
-  render: (args: any) => (
-    <Card className="w-[350px]" {...args}>
+export const Default: Story = {
+  render: (args: React.ComponentProps<typeof Card>) => (
+    <Card {...args}>
       <CardHeader>
         <CardTitle>Card Title</CardTitle>
-        <CardDescription>Card Description</CardDescription>
+        <CardDescription>Card description goes here</CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Card Content</p>
+        <p>This is the card content area.</p>
       </CardContent>
-      <CardFooter>
-        <p>Card Footer</p>
-      </CardFooter>
+    </Card>
+  ),
+};
+
+export const WithoutDescription: Story = {
+  render: (args: React.ComponentProps<typeof Card>) => (
+    <Card {...args}>
+      <CardHeader>
+        <CardTitle>Simple Card</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p>This card doesn't have a description.</p>
+      </CardContent>
     </Card>
   ),
 };
 
 export const WithActions: Story = {
-  render: (args: any) => (
+  render: (args: React.ComponentProps<typeof Card>) => (
     <Card className="w-[350px]" {...args}>
       <CardHeader>
         <CardTitle>Account Summary</CardTitle>
@@ -67,4 +77,4 @@ export const WithActions: Story = {
       </CardFooter>
     </Card>
   ),
-}; 
+};

@@ -1,19 +1,19 @@
 /**
  * Fuel Supplies Hooks - Refactored Version
- * 
+ *
  * This file demonstrates the migration from the old implementation to
  * the new standardized API hooks.
  */
 
-import { createResourceHooks } from '@/hooks/api';
-import { fuelSuppliesService } from '../services';
-import type { 
-  FuelSupply, 
-  CreateFuelSupplyRequest, 
-  UpdateFuelSupplyRequest 
-} from '../types';
+import { createResourceHooks } from "@/hooks/api";
+import { fuelSuppliesService } from "../services";
+import type {
+  FuelSupply,
+  CreateFuelSupplyRequest,
+  UpdateFuelSupplyRequest,
+} from "../types";
 
-// Define the filters interface 
+// Define the filters interface
 export interface FuelSuppliesFilters {
   dateRange?: { from: Date; to: Date };
   providerId?: string;
@@ -39,13 +39,18 @@ const {
   useById: useFuelSupplyById,
   useCreate: useCreateFuelSupply,
   useUpdate: useUpdateFuelSupply,
-  useDelete: useDeleteFuelSupply
-} = createResourceHooks<FuelSupply, FuelSuppliesFilters, CreateFuelSupplyRequest, UpdateFuelSupplyRequest>({
-  resourceName: 'fuel-supplies',
+  useDelete: useDeleteFuelSupply,
+} = createResourceHooks<
+  FuelSupply,
+  FuelSuppliesFilters,
+  CreateFuelSupplyRequest,
+  UpdateFuelSupplyRequest
+>({
+  resourceName: "fuel-supplies",
   service: fuelSupplyService,
   options: {
     staleTime: 5 * 60 * 1000, // 5 minutes
-  }
+  },
 });
 
 /**
@@ -65,12 +70,12 @@ export function useFuelSupplies(filters?: FuelSuppliesFilters) {
     isLoading: supplies.isLoading,
     isError: supplies.isError,
     error: supplies.error,
-    
+
     // Expose the mutations with the same API
     createSupply: createSupplyMutation,
     updateSupply: updateSupplyMutation,
     deleteSupply: deleteSupplyMutation,
-    
+
     // Add refetch for convenience
     refetchSupplies: supplies.refetch,
   };
@@ -82,5 +87,5 @@ export {
   useFuelSupplyById,
   useCreateFuelSupply,
   useUpdateFuelSupply,
-  useDeleteFuelSupply
-}; 
+  useDeleteFuelSupply,
+};

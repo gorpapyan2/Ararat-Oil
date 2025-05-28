@@ -1,13 +1,15 @@
-import { fetchFromFunction, ApiResponse } from '../client';
-import type { Employee } from '../types';
+import { fetchFromFunction, ApiResponse } from "../client";
+import type { Employee } from "../types";
 
 /**
  * Get all employees with optional filtering
  * @param filters Optional filters for employee data
  * @returns ApiResponse with array of employees
  */
-export async function getEmployees(filters?: { status?: string }): Promise<ApiResponse<Employee[]>> {
-  return fetchFromFunction('employees', { queryParams: filters });
+export async function getEmployees(filters?: {
+  status?: string;
+}): Promise<ApiResponse<Employee[]>> {
+  return fetchFromFunction("employees", { queryParams: filters });
 }
 
 /**
@@ -15,7 +17,9 @@ export async function getEmployees(filters?: { status?: string }): Promise<ApiRe
  * @param id The employee ID
  * @returns ApiResponse with the employee data
  */
-export async function getEmployeeById(id: string): Promise<ApiResponse<Employee>> {
+export async function getEmployeeById(
+  id: string
+): Promise<ApiResponse<Employee>> {
   return fetchFromFunction(`employees/${id}`);
 }
 
@@ -24,7 +28,7 @@ export async function getEmployeeById(id: string): Promise<ApiResponse<Employee>
  * @returns ApiResponse with array of active employees
  */
 export async function getActiveEmployees(): Promise<ApiResponse<Employee[]>> {
-  return fetchFromFunction('employees/active');
+  return fetchFromFunction("employees/active");
 }
 
 /**
@@ -32,8 +36,10 @@ export async function getActiveEmployees(): Promise<ApiResponse<Employee[]>> {
  * @param data The employee data to create
  * @returns ApiResponse with the created employee
  */
-export async function createEmployee(data: Omit<Employee, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Employee>> {
-  return fetchFromFunction('employees', { method: 'POST', body: data });
+export async function createEmployee(
+  data: Omit<Employee, "id" | "created_at" | "updated_at">
+): Promise<ApiResponse<Employee>> {
+  return fetchFromFunction("employees", { method: "POST", body: data });
 }
 
 /**
@@ -42,8 +48,11 @@ export async function createEmployee(data: Omit<Employee, 'id' | 'created_at' | 
  * @param data The updated employee data
  * @returns ApiResponse with the updated employee
  */
-export async function updateEmployee(id: string, data: Partial<Omit<Employee, 'id' | 'created_at' | 'updated_at'>>): Promise<ApiResponse<Employee>> {
-  return fetchFromFunction(`employees/${id}`, { method: 'PUT', body: data });
+export async function updateEmployee(
+  id: string,
+  data: Partial<Omit<Employee, "id" | "created_at" | "updated_at">>
+): Promise<ApiResponse<Employee>> {
+  return fetchFromFunction(`employees/${id}`, { method: "PUT", body: data });
 }
 
 /**
@@ -52,7 +61,7 @@ export async function updateEmployee(id: string, data: Partial<Omit<Employee, 'i
  * @returns ApiResponse with success status
  */
 export async function deleteEmployee(id: string): Promise<ApiResponse<void>> {
-  return fetchFromFunction(`employees/${id}`, { method: 'DELETE' });
+  return fetchFromFunction(`employees/${id}`, { method: "DELETE" });
 }
 
 /**
@@ -64,5 +73,5 @@ export const employeesApi = {
   getActiveEmployees,
   createEmployee,
   updateEmployee,
-  deleteEmployee
-}; 
+  deleteEmployee,
+};

@@ -4,15 +4,15 @@
 export interface Meta<T> {
   title: string;
   component: T;
-  parameters?: Record<string, any>;
+  parameters?: Record<string, unknown>;
   tags?: string[];
-  argTypes?: Record<string, any>;
+  argTypes?: Record<string, unknown>;
 }
 
 export interface StoryObj<T> {
-  args?: Record<string, any>;
-  render?: (args: any) => JSX.Element;
+  args?: Record<string, unknown>;
+  render?: (args: Record<string, unknown>) => JSX.Element;
 }
 
 // Re-export these types for use in story files
-export type { Meta as StorybookMeta, StoryObj as StorybookStory }; 
+export type { Meta as StorybookMeta, StoryObj as StorybookStory };

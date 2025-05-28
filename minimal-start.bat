@@ -1,0 +1,6 @@
+@echo off
+echo Cleaning Vite cache...
+rmdir /s /q "node_modules\.vite" 2>nul
+
+echo Starting in minimal diagnostic mode...
+npm run dev -- --mode minimal 

@@ -1,2 +1,2 @@
-export * from './SuppliesTable';
-export * from './SuppliesTableStandardized'; 
+export * from "./SuppliesTable";
+export * from "./SuppliesTableStandardized";

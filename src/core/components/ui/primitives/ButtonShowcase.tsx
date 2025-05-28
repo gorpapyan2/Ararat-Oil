@@ -1,24 +1,54 @@
 import * as React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
-import { Button, ButtonLink, buttonVariants } from "@/core/components/ui/button";
-import { IconButton } from '@/core/components/ui/icon-button';
-import { CreateButton } from '@/core/components/ui/create-button';
-import { LoadingButton } from '@/core/components/ui/loading-button';
-import { ActionButton } from '@/core/components/ui/action-button';
-import { PlusIcon, SearchIcon, TrashIcon, DownloadIcon, PrinterIcon, Loader2Icon, InfoIcon, BoldIcon, ItalicIcon, UnderlineIcon, AlignLeftIcon, AlignCenterIcon, AlignRightIcon, AlignJustifyIcon, ListIcon, ColumnsIcon } from "lucide-react";
-import { ToggleButton } from '@/core/components/ui/toggle-button';
-import { ToggleButtonGroup } from '@/core/components/ui/toggle-button-group';
-import { ButtonGroup } from '@/core/components/ui/button-group';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
+import {
+  Button,
+  ButtonLink,
+  buttonVariants,
+} from "@/core/components/ui/button";
+import { IconButton } from "@/core/components/ui/icon-button";
+import { CreateButton } from "@/core/components/ui/create-button";
+import { LoadingButton } from "@/core/components/ui/loading-button";
+import { ActionButton } from "@/core/components/ui/action-button";
+import {
+  PlusIcon,
+  SearchIcon,
+  TrashIcon,
+  DownloadIcon,
+  PrinterIcon,
+  Loader2Icon,
+  InfoIcon,
+  BoldIcon,
+  ItalicIcon,
+  UnderlineIcon,
+  AlignLeftIcon,
+  AlignCenterIcon,
+  AlignRightIcon,
+  AlignJustifyIcon,
+  ListIcon,
+  ColumnsIcon,
+} from "lucide-react";
+import { ToggleButton } from "@/core/components/ui/toggle-button";
+import { ToggleButtonGroup } from "@/core/components/ui/toggle-button-group";
+import { ButtonGroup } from "@/core/components/ui/button-group";
 
 export function ButtonShowcase() {
-  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-  
+  const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
   const handleAsyncClick = async () => {
     await sleep(2000);
   };
-  
+
   const [singleValue, setSingleValue] = React.useState<string>("center");
-  const [multipleValues, setMultipleValues] = React.useState<string[]>(["bold"]);
+  const [multipleValues, setMultipleValues] = React.useState<string[]>([
+    "bold",
+  ]);
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -42,8 +72,12 @@ export function ButtonShowcase() {
             <Button variant="destructive">Destructive</Button>
           </div>
           <p className="text-sm text-muted-foreground">
-            <strong>Default:</strong> Primary action. <strong>Secondary:</strong> Secondary action. <strong>Accent:</strong> Highlight action. 
-            <strong>Outline:</strong> Less prominent action. <strong>Ghost:</strong> Minimal emphasis. <strong>Link:</strong> Hyperlink style.
+            <strong>Default:</strong> Primary action.{" "}
+            <strong>Secondary:</strong> Secondary action.{" "}
+            <strong>Accent:</strong> Highlight action.
+            <strong>Outline:</strong> Less prominent action.{" "}
+            <strong>Ghost:</strong> Minimal emphasis. <strong>Link:</strong>{" "}
+            Hyperlink style.
             <strong>Destructive:</strong> Dangerous action.
           </p>
         </div>
@@ -55,7 +89,9 @@ export function ButtonShowcase() {
             <Button size="sm">Small</Button>
             <Button size="default">Default</Button>
             <Button size="lg">Large</Button>
-            <Button size="icon"><PlusIcon className="h-4 w-4" /></Button>
+            <Button size="icon">
+              <PlusIcon className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
@@ -69,8 +105,8 @@ export function ButtonShowcase() {
             <Button endIcon={<DownloadIcon className="h-4 w-4" />}>
               Download
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               startIcon={<SearchIcon className="h-4 w-4" />}
               endIcon={<InfoIcon className="h-4 w-4" />}
             >
@@ -84,11 +120,13 @@ export function ButtonShowcase() {
           <h3 className="text-lg font-medium">Loading States</h3>
           <div className="flex flex-wrap gap-4">
             <Button isLoading>Loading</Button>
-            <Button isLoading loadingText="Processing...">Submit</Button>
+            <Button isLoading loadingText="Processing...">
+              Submit
+            </Button>
             <LoadingButton onClick={handleAsyncClick}>
               Click to Load (2s)
             </LoadingButton>
-            <LoadingButton 
+            <LoadingButton
               variant="outline"
               onClick={handleAsyncClick}
               loadingText="Downloading..."
@@ -102,11 +140,11 @@ export function ButtonShowcase() {
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Specialized Button Components</h3>
           <div className="flex flex-wrap gap-4">
-            <IconButton 
+            <IconButton
               icon={<SearchIcon className="h-4 w-4" />}
               ariaLabel="Search"
             />
-            <IconButton 
+            <IconButton
               icon={<TrashIcon className="h-4 w-4" />}
               ariaLabel="Delete"
               variant="destructive"
@@ -114,7 +152,11 @@ export function ButtonShowcase() {
             <CreateButton />
             <CreateButton label="Add User" />
             <ActionButton isDestructive>Delete Item</ActionButton>
-            <ButtonLink href="#" variant="secondary" startIcon={<InfoIcon className="h-4 w-4" />}>
+            <ButtonLink
+              href="#"
+              variant="secondary"
+              startIcon={<InfoIcon className="h-4 w-4" />}
+            >
               Documentation
             </ButtonLink>
           </div>
@@ -125,53 +167,70 @@ export function ButtonShowcase() {
           <h3 className="text-lg font-medium">Button Groups</h3>
           <div className="space-y-6">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Standard Button Group:</p>
+              <p className="text-sm text-muted-foreground mb-2">
+                Standard Button Group:
+              </p>
               <ButtonGroup>
                 <Button variant="outline">Copy</Button>
                 <Button variant="outline">Paste</Button>
                 <Button variant="outline">Cut</Button>
               </ButtonGroup>
             </div>
-            
+
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Attached Buttons:</p>
+              <p className="text-sm text-muted-foreground mb-2">
+                Attached Buttons:
+              </p>
               <ButtonGroup attached>
-                <Button variant="outline" startIcon={<PlusIcon className="h-4 w-4" />}>
+                <Button
+                  variant="outline"
+                  startIcon={<PlusIcon className="h-4 w-4" />}
+                >
                   Add
                 </Button>
-                <Button variant="outline" startIcon={<TrashIcon className="h-4 w-4" />}>
+                <Button
+                  variant="outline"
+                  startIcon={<TrashIcon className="h-4 w-4" />}
+                >
                   Remove
                 </Button>
-                <Button variant="outline" startIcon={<PrinterIcon className="h-4 w-4" />}>
+                <Button
+                  variant="outline"
+                  startIcon={<PrinterIcon className="h-4 w-4" />}
+                >
                   Print
                 </Button>
               </ButtonGroup>
             </div>
-            
+
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Vertical Button Group:</p>
+              <p className="text-sm text-muted-foreground mb-2">
+                Vertical Button Group:
+              </p>
               <ButtonGroup orientation="vertical" attached>
                 <Button variant="outline">Top</Button>
                 <Button variant="outline">Middle</Button>
                 <Button variant="outline">Bottom</Button>
               </ButtonGroup>
             </div>
-            
+
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Icon Button Group:</p>
+              <p className="text-sm text-muted-foreground mb-2">
+                Icon Button Group:
+              </p>
               <ButtonGroup attached size="icon">
-                <IconButton 
-                  icon={<AlignLeftIcon className="h-4 w-4" />} 
+                <IconButton
+                  icon={<AlignLeftIcon className="h-4 w-4" />}
                   ariaLabel="Align Left"
                   variant="outline"
                 />
-                <IconButton 
-                  icon={<AlignCenterIcon className="h-4 w-4" />} 
+                <IconButton
+                  icon={<AlignCenterIcon className="h-4 w-4" />}
                   ariaLabel="Align Center"
                   variant="outline"
                 />
-                <IconButton 
-                  icon={<AlignRightIcon className="h-4 w-4" />} 
+                <IconButton
+                  icon={<AlignRightIcon className="h-4 w-4" />}
                   ariaLabel="Align Right"
                   variant="outline"
                 />
@@ -185,9 +244,13 @@ export function ButtonShowcase() {
           <h3 className="text-lg font-medium">Disabled States</h3>
           <div className="flex flex-wrap gap-4">
             <Button disabled>Disabled</Button>
-            <Button disabled variant="secondary">Disabled</Button>
-            <Button disabled variant="destructive">Disabled</Button>
-            <IconButton 
+            <Button disabled variant="secondary">
+              Disabled
+            </Button>
+            <Button disabled variant="destructive">
+              Disabled
+            </Button>
+            <IconButton
               disabled
               icon={<PrinterIcon className="h-4 w-4" />}
               ariaLabel="Print"
@@ -200,28 +263,28 @@ export function ButtonShowcase() {
           <h3 className="text-lg font-medium">Toggle Buttons</h3>
           <div className="flex flex-col gap-6">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Single Toggle Button:</p>
-              <ToggleButton isActive={true}>
-                Selected
-              </ToggleButton>
+              <p className="text-sm text-muted-foreground mb-2">
+                Single Toggle Button:
+              </p>
+              <ToggleButton isActive={true}>Selected</ToggleButton>
               <span className="mx-2" />
-              <ToggleButton isActive={false}>
-                Not Selected
-              </ToggleButton>
+              <ToggleButton isActive={false}>Not Selected</ToggleButton>
               <span className="mx-2" />
-              <ToggleButton 
-                isActive={true} 
+              <ToggleButton
+                isActive={true}
                 activeVariant="accent"
                 inactiveVariant="ghost"
               >
                 Custom Variants
               </ToggleButton>
             </div>
-            
+
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Single Selection Group:</p>
-              <ToggleButtonGroup 
-                value={singleValue} 
+              <p className="text-sm text-muted-foreground mb-2">
+                Single Selection Group:
+              </p>
+              <ToggleButtonGroup
+                value={singleValue}
                 onChange={(value) => setSingleValue(value as string)}
                 className="p-1"
               >
@@ -238,14 +301,18 @@ export function ButtonShowcase() {
                   <AlignJustifyIcon className="h-4 w-4" />
                 </ToggleButton>
               </ToggleButtonGroup>
-              <p className="text-xs text-muted-foreground mt-2">Selected: {singleValue}</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Selected: {singleValue}
+              </p>
             </div>
-            
+
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Multiple Selection Group:</p>
-              <ToggleButtonGroup 
-                multiple 
-                value={multipleValues} 
+              <p className="text-sm text-muted-foreground mb-2">
+                Multiple Selection Group:
+              </p>
+              <ToggleButtonGroup
+                multiple
+                value={multipleValues}
                 onChange={(value) => setMultipleValues(value as string[])}
                 className="p-1"
               >
@@ -259,7 +326,9 @@ export function ButtonShowcase() {
                   <UnderlineIcon className="h-4 w-4" />
                 </ToggleButton>
               </ToggleButtonGroup>
-              <p className="text-xs text-muted-foreground mt-2">Selected: {multipleValues.join(', ')}</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Selected: {multipleValues.join(", ")}
+              </p>
             </div>
           </div>
         </div>

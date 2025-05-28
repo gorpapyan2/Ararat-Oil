@@ -1,17 +1,17 @@
 /**
  * Unified card component system
- * 
- * This module exports a comprehensive set of card components designed to 
+ *
+ * This module exports a comprehensive set of card components designed to
  * provide a consistent UI experience throughout the application.
- * 
+ *
  * @example
  * ```tsx
- * import { 
- *   Card, 
- *   CardHeader, 
- *   CardTitle, 
- *   MetricCard, 
- *   CardGrid 
+ * import {
+ *   Card,
+ *   CardHeader,
+ *   CardTitle,
+ *   MetricCard,
+ *   CardGrid
  * } from "@/core/components/ui/cards";
  * ```
  */
@@ -44,4 +44,4 @@ export type {
   StatsCardProps,
   SummaryCardProps,
   InfoCardProps,
-} from "./types"; 
+} from "./types";

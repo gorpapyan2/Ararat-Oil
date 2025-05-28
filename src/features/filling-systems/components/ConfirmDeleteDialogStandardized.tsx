@@ -18,12 +18,14 @@ export function ConfirmDeleteDialogStandardized({
   systemName,
 }: ConfirmDeleteDialogStandardizedProps) {
   const { t } = useTranslation();
-  
+
   // Get translated title and description using API helpers or fallback to direct translation
-  const title = t("fillingSystems.deleteSystem") || 
-    getApiActionLabel(apiNamespaces.fillingSystems, 'delete');
-  
-  const description = t("fillingSystems.deleteConfirmationText", { systemName }) || 
+  const title =
+    t("fillingSystems.deleteSystem") ||
+    getApiActionLabel(apiNamespaces.fillingSystems, "delete");
+
+  const description =
+    t("fillingSystems.deleteConfirmationText", { systemName }) ||
     `Are you sure you want to delete the "${systemName}" filling system? This action cannot be undone.`;
 
   return (
@@ -36,4 +38,4 @@ export function ConfirmDeleteDialogStandardized({
       isLoading={isLoading}
     />
   );
-} 
+}

@@ -1,5 +1,10 @@
 import { useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { useTranslation } from "react-i18next";
 import type { FuelSale } from "../../types/fuel-sales.types";
 
@@ -28,40 +33,46 @@ export function FuelSalesSummary({ sales }: FuelSalesSummaryProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            {t('fuel.sales.summary.totalQuantity')}
+            {t("fuel.sales.summary.totalQuantity")}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{summary.totalQuantity.toFixed(2)}L</div>
+          <div className="text-2xl font-bold">
+            {summary.totalQuantity.toFixed(2)}L
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            {t('fuel.sales.summary.totalAmount')}
+            {t("fuel.sales.summary.totalAmount")}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${summary.totalAmount.toFixed(2)}</div>
+          <div className="text-2xl font-bold">
+            ${summary.totalAmount.toFixed(2)}
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            {t('fuel.sales.summary.averagePrice')}
+            {t("fuel.sales.summary.averagePrice")}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${summary.averagePrice.toFixed(2)}/L</div>
+          <div className="text-2xl font-bold">
+            ${summary.averagePrice.toFixed(2)}/L
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            {t('fuel.sales.summary.saleCount')}
+            {t("fuel.sales.summary.saleCount")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -70,4 +81,4 @@ export function FuelSalesSummary({ sales }: FuelSalesSummaryProps) {
       </Card>
     </div>
   );
-} 
+}

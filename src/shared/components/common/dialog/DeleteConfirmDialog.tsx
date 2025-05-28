@@ -12,51 +12,51 @@ export interface DeleteConfirmDialogProps {
    * Controls whether the dialog is open
    */
   open: boolean;
-  
+
   /**
    * Callback fired when the dialog open state changes
    */
   onOpenChange: (open: boolean) => void;
-  
+
   /**
    * Title of the dialog
    * @default "Confirm Deletion"
    */
   title?: string;
-  
+
   /**
    * Description text for the confirmation
    */
   description: string;
-  
+
   /**
    * Callback fired when the deletion is confirmed
    */
   onConfirm: () => void;
-  
+
   /**
    * Callback fired when the deletion is canceled
    */
   onCancel?: () => void;
-  
+
   /**
    * Text for the delete button
    * @default "Delete"
    */
   deleteText?: string;
-  
+
   /**
    * Text for the cancel button
    * @default "Cancel"
    */
   cancelText?: string;
-  
+
   /**
    * Whether the dialog is in a loading state
    * @default false
    */
   isLoading?: boolean;
-  
+
   /**
    * Optional class name for styling
    */
@@ -65,10 +65,10 @@ export interface DeleteConfirmDialogProps {
 
 /**
  * DeleteConfirmDialog component
- * 
+ *
  * A specialized dialog component for confirming deletion actions.
  * Shows a warning icon and provides confirm/cancel buttons with appropriate styling.
- * 
+ *
  * @example
  * ```tsx
  * <DeleteConfirmDialog
@@ -98,7 +98,7 @@ export function DeleteConfirmDialog({
       onOpenChange(false);
     }
   };
-  
+
   // Handle cancel action
   const handleCancel = () => {
     if (onCancel) {
@@ -106,14 +106,10 @@ export function DeleteConfirmDialog({
     }
     onOpenChange(false);
   };
-  
+
   const actions = (
     <>
-      <Button
-        variant="outline"
-        onClick={handleCancel}
-        disabled={isLoading}
-      >
+      <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
         {cancelText}
       </Button>
       <Button
@@ -140,9 +136,10 @@ export function DeleteConfirmDialog({
           <AlertTriangle className="h-6 w-6 text-destructive" />
         </div>
         <p className="text-center text-sm text-muted-foreground">
-          This action cannot be undone. Please confirm that you want to proceed with deletion.
+          This action cannot be undone. Please confirm that you want to proceed
+          with deletion.
         </p>
       </div>
     </StandardDialog>
   );
-} 
+}

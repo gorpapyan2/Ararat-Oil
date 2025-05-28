@@ -1,4 +1,9 @@
-import { fuelTypesApi, FuelType, FuelTypeCreate, FuelTypeUpdate } from "@/core/api";
+import {
+  fuelTypesApi,
+  FuelType,
+  FuelTypeCreate,
+  FuelTypeUpdate,
+} from "@/core/api";
 
 /**
  * Fetch all fuel types
@@ -34,7 +39,7 @@ export async function fetchActiveFuelTypes(): Promise<FuelType[]> {
     }
 
     // Filter active fuel types
-    return (response.data || []).filter(type => type.status === 'active');
+    return (response.data || []).filter((type) => type.status === "active");
   } catch (err) {
     console.error("Failed to fetch active fuel types:", err);
     throw err;
@@ -67,7 +72,9 @@ export async function fetchFuelTypeById(id: string): Promise<FuelType | null> {
  * @param fuelType Fuel type data to create
  * @returns Created fuel type
  */
-export async function createFuelType(fuelType: FuelTypeCreate): Promise<FuelType> {
+export async function createFuelType(
+  fuelType: FuelTypeCreate
+): Promise<FuelType> {
   try {
     const response = await fuelTypesApi.create(fuelType);
 
@@ -89,7 +96,10 @@ export async function createFuelType(fuelType: FuelTypeCreate): Promise<FuelType
  * @param updates Updates to apply
  * @returns Updated fuel type
  */
-export async function updateFuelType(id: string, updates: FuelTypeUpdate): Promise<FuelType> {
+export async function updateFuelType(
+  id: string,
+  updates: FuelTypeUpdate
+): Promise<FuelType> {
   try {
     const response = await fuelTypesApi.update(id, updates);
 
@@ -129,20 +139,23 @@ export async function deleteFuelType(id: string): Promise<void> {
  * @param id The ID to check
  * @param excludeId Optional ID to exclude from the check (for updates)
  * @returns True if the ID is unique
- * 
+ *
  * Note: This function now relies on the server-side validation in our Edge Function.
  * If a fuel type with the same ID exists, the create or update operation will fail
  * with an appropriate error message.
  */
-export async function isFuelTypeIdUnique(id: string, excludeId?: string): Promise<boolean> {
+export async function isFuelTypeIdUnique(
+  id: string,
+  excludeId?: string
+): Promise<boolean> {
   try {
     const response = await fuelTypesApi.getAll();
-    
+
     if (!response.data) return true;
-    
+
     // Check if any fuel type (except the one being excluded) has this id
-    return !response.data.some(ft => 
-      ft.id === id && (!excludeId || ft.id !== excludeId)
+    return !response.data.some(
+      (ft) => ft.id === id && (!excludeId || ft.id !== excludeId)
     );
   } catch (err) {
     console.error(`Failed to check if fuel type ID ${id} is unique:`, err);
@@ -155,23 +168,26 @@ export async function isFuelTypeIdUnique(id: string, excludeId?: string): Promis
  * @param code The code to check
  * @param excludeId Optional ID to exclude from the check (for updates)
  * @returns True if the code is unique
- * 
+ *
  * Note: This function now relies on the server-side validation in our Edge Function.
  * If a fuel type with the same code exists, the create or update operation will fail
  * with an appropriate error message.
  */
-export async function isFuelTypeCodeUnique(code: string, excludeId?: string): Promise<boolean> {
+export async function isFuelTypeCodeUnique(
+  code: string,
+  excludeId?: string
+): Promise<boolean> {
   try {
     const response = await fuelTypesApi.getAll();
-    
+
     if (!response.data) return true;
-    
+
     // Check if any fuel type (except the one being excluded) has this id
-    return !response.data.some(ft => 
-      ft.id === code && (!excludeId || ft.id !== excludeId)
+    return !response.data.some(
+      (ft) => ft.id === code && (!excludeId || ft.id !== excludeId)
     );
   } catch (err) {
     console.error(`Failed to check if fuel type code ${code} is unique:`, err);
     throw err;
   }
-} 
+}

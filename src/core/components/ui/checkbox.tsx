@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   CheckboxProps,
-  Checkbox 
+  Checkbox,
 } from "@/core/components/ui/primitives/checkbox";

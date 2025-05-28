@@ -34,4 +34,4 @@ export interface Toast {
   action?: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
   createdAt: Date;
-} 
+}

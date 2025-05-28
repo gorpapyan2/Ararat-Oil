@@ -8,56 +8,56 @@ This document outlines the components that have been removed as part of our stan
 
 ### Table Components
 
-| Removed Component | Replacement |
-|-------------------|-------------|
-| `UnifiedDataTable` | `StandardizedDataTable` |
+| Removed Component             | Replacement                                   |
+| ----------------------------- | --------------------------------------------- |
+| `UnifiedDataTable`            | `StandardizedDataTable`                       |
 | `mobile-aware-data-table.tsx` | `StandardizedDataTable` with responsive props |
-| `enhanced-table.tsx` | `StandardizedDataTable` |
-| `ui-custom/table.tsx` | `@/components/ui/table` |
+| `enhanced-table.tsx`          | `StandardizedDataTable`                       |
+| `ui-custom/table.tsx`         | `@/components/ui/table`                       |
 
 ### UI-Custom Components
 
-| Removed Component | Replacement |
-|-------------------|-------------|
-| `ui-custom/page-header.tsx` | `@/components/ui/page-header` |
-| `ui-custom/data-card.tsx` | `@/components/ui/composed/cards` |
-| `ui-custom/card.tsx` | `@/components/ui/card` |
-| `ui-custom/index.ts` | Direct imports from standardized components |
-| `ui/card-grid.tsx` | `@/components/ui/composed/cards` |
-| `ThemeToggle.tsx` | `@/components/ui/ThemeSwitcher` |
+| Removed Component           | Replacement                                 |
+| --------------------------- | ------------------------------------------- |
+| `ui-custom/page-header.tsx` | `@/components/ui/page-header`               |
+| `ui-custom/data-card.tsx`   | `@/components/ui/composed/cards`            |
+| `ui-custom/card.tsx`        | `@/components/ui/card`                      |
+| `ui-custom/index.ts`        | Direct imports from standardized components |
+| `ui/card-grid.tsx`          | `@/components/ui/composed/cards`            |
+| `ThemeToggle.tsx`           | `@/components/ui/ThemeSwitcher`             |
 
 ### Sales Components
 
-| Removed Component | Replacement |
-|-------------------|-------------|
-| `sales/SalesDialogs.tsx` | `sales/SalesDialogsStandardized.tsx` or `sales/SalesDialogsHooked.tsx` |
-| `sales/SalesForm.tsx` | `sales/SalesFormStandardized.tsx` |
-| `form-fields/CurrencyField.tsx` | `ui/composed/form-fields/FormCurrencyInput` |
-| `form-fields/FormCurrencyInput.tsx` | `ui/composed/form-fields/FormCurrencyInput` |
+| Removed Component                   | Replacement                                                            |
+| ----------------------------------- | ---------------------------------------------------------------------- |
+| `sales/SalesDialogs.tsx`            | `sales/SalesDialogsStandardized.tsx` or `sales/SalesDialogsHooked.tsx` |
+| `sales/SalesForm.tsx`               | `sales/SalesFormStandardized.tsx`                                      |
+| `form-fields/CurrencyField.tsx`     | `ui/composed/form-fields/FormCurrencyInput`                            |
+| `form-fields/FormCurrencyInput.tsx` | `ui/composed/form-fields/FormCurrencyInput`                            |
 
 ### Form Component Refactorings
 
-| Refactored Component | Updates |
-|----------------------|---------|
-| `fuel-supplies/form/QuantityAndPrice.tsx` | Updated to use FormCurrencyInput from standardized components |
-| `expenses/ExpensesForm.tsx` | Updated to use FormCurrencyInput from standardized components |
-| `sales/form/PriceAndEmployeeInputs.tsx` | Updated to use standardized form components |
-| `sales/form/FillingSystemSelect.tsx` | Updated to use standardized form components and useWatch for field changes |
+| Refactored Component                      | Updates                                                                    |
+| ----------------------------------------- | -------------------------------------------------------------------------- |
+| `fuel-supplies/form/QuantityAndPrice.tsx` | Updated to use FormCurrencyInput from standardized components              |
+| `expenses/ExpensesForm.tsx`               | Updated to use FormCurrencyInput from standardized components              |
+| `sales/form/PriceAndEmployeeInputs.tsx`   | Updated to use standardized form components                                |
+| `sales/form/FillingSystemSelect.tsx`      | Updated to use standardized form components and useWatch for field changes |
 
 ### Tests
 
-| Removed Test | Notes |
-|--------------|-------|
+| Removed Test          | Notes                                                                                              |
+| --------------------- | -------------------------------------------------------------------------------------------------- |
 | `ui-custom/__tests__` | All tests for the removed components have been replaced with tests for the standardized components |
 
 ## Legacy Components For Removal
 
 The following components have been identified as deprecated and can be safely removed:
 
-| Component Path | Replacement Component |
-|----------------|----------------------|
+| Component Path                              | Replacement Component                          |
+| ------------------------------------------- | ---------------------------------------------- |
 | `components/unified/UnifiedDataManager.tsx` | `components/unified/StandardizedDataTable.tsx` |
-| `pages/UnifiedData.tsx` | Not needed |
+| `pages/UnifiedData.tsx`                     | Not needed                                     |
 
 ### Details
 
@@ -101,6 +101,7 @@ The `UnifiedDataManager.tsx` file contains many deprecated patterns and refers t
 Update imports in your files:
 
 **Old imports:**
+
 ```tsx
 import { CardGrid, MetricCard } from "@/components/ui/card-grid";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -108,6 +109,7 @@ import { Card } from "@/components/ui-custom/card";
 ```
 
 **New imports:**
+
 ```tsx
 import { CardGrid, MetricCard } from "@/components/ui/composed/cards";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
@@ -124,25 +126,27 @@ The following files have been successfully removed or reorganized as part of Pha
 
 ### Removed Files
 
-| Component Path | Reason |
-|----------------|--------|
-| `components/demo/DashboardDemo.tsx` | Unused demo component |
-| `components/demo/ThemeTest.tsx` | Unused demo component |
+| Component Path                        | Reason                            |
+| ------------------------------------- | --------------------------------- |
+| `components/demo/DashboardDemo.tsx`   | Unused demo component             |
+| `components/demo/ThemeTest.tsx`       | Unused demo component             |
 | `components/examples/FormExample.tsx` | Superseded by StandardFormExample |
-| `components/ToastTester.tsx` | Moved to components/dev directory |
+| `components/ToastTester.tsx`          | Moved to components/dev directory |
 | `components/CardComponentsTester.tsx` | Moved to components/dev directory |
-| `components/ResponsiveTester.tsx` | Moved to components/dev directory |
-| `components/dev/dev-tools-menu.tsx` | Duplicate of DevToolsMenu.tsx |
+| `components/ResponsiveTester.tsx`     | Moved to components/dev directory |
+| `components/dev/dev-tools-menu.tsx`   | Duplicate of DevToolsMenu.tsx     |
 
 ### Organization Changes
 
 1. Created bridge files with deprecation warnings:
+
    - `components/shared/PaymentMethodForm.tsx` -> points to PaymentMethodFormStandardized
    - `components/shared/MultiPaymentMethodForm.tsx` -> points to MultiPaymentMethodFormStandardized
 
 2. Moved showcase/testing components to dedicated dev directory:
+
    - Created `components/dev/ToastTester.tsx`
-   - Created `components/dev/CardComponentsTester.tsx` 
+   - Created `components/dev/CardComponentsTester.tsx`
    - Created `components/dev/ResponsiveTester.tsx`
    - Updated imports in all pages using these components
 
@@ -158,13 +162,13 @@ The following files have been successfully removed or reorganized as part of Pha
 - Direct refactoring for components with limited usage reduces maintenance overhead
 - Eliminated duplicate components with inconsistent naming
 - Removed unused demo code
-- Cleaner codebase with appropriate component organization 
+- Cleaner codebase with appropriate component organization
 
 ## Direct Refactoring Progress (Phase 4+)
 
 Several components have been directly refactored to use their standardized versions:
 
-1. **ExpensesManager.tsx**: Updated to use `ExpensesFormStandardized` 
+1. **ExpensesManager.tsx**: Updated to use `ExpensesFormStandardized`
 2. **TankManager.tsx**: Updated to use `TankFormStandardized`
 3. **EmployeesNew.tsx**: Updated to use `EmployeeDialogStandardized`
 4. **FuelSuppliesManager.tsx**: Removed the import for the non-standardized `FuelSuppliesForm` as it was already using `FuelSuppliesFormStandardized`
@@ -191,4 +195,4 @@ This approach is more efficient than maintaining bridge files for components wit
 
 ### Next Steps
 
-Continue the refactoring process for any remaining components that are still using non-standardized versions. 
+Continue the refactoring process for any remaining components that are still using non-standardized versions.

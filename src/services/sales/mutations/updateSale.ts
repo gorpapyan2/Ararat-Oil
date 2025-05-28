@@ -25,8 +25,8 @@ export const updateSale = async (
     }
 
     return response.data!;
-  } catch (err: any) {
-    console.error(`Failed to update sale with ID ${id}:`, err);
-    throw new Error(err.message || "Failed to update sale");
+  } catch (err: unknown) {
+    console.error("Error updating sale:", err);
+    throw err instanceof Error ? err : new Error("Failed to update sale");
   }
 };

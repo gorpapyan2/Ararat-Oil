@@ -8,7 +8,7 @@
 export interface FillingSystem {
   id: string;
   name: string;
-  status: 'active' | 'inactive' | 'maintenance';
+  status: "active" | "inactive" | "maintenance";
   type: string;
   tank_id: string;
   tank_name?: string;
@@ -22,7 +22,7 @@ export interface FillingSystem {
  */
 export interface CreateFillingSystemRequest {
   name: string;
-  status: 'active' | 'inactive' | 'maintenance';
+  status: "active" | "inactive" | "maintenance";
   type: string;
   tank_id: string;
   location?: string;
@@ -33,7 +33,7 @@ export interface CreateFillingSystemRequest {
  */
 export interface UpdateFillingSystemRequest {
   name?: string;
-  status?: 'active' | 'inactive' | 'maintenance';
+  status?: "active" | "inactive" | "maintenance";
   type?: string;
   tank_id?: string;
   location?: string;
@@ -43,7 +43,7 @@ export interface UpdateFillingSystemRequest {
  * Filling system filtering options
  */
 export interface FillingSystemFilters {
-  status?: 'active' | 'inactive' | 'maintenance';
+  status?: "active" | "inactive" | "maintenance";
   tank_id?: string;
   search?: string;
 }
@@ -56,4 +56,4 @@ export interface FillingSystemStats {
   total_volume: number;
   average_daily_sales: number;
   last_maintenance?: string;
-} 
+}

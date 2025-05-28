@@ -33,60 +33,60 @@ export interface StandardDialogProps {
    * Controls whether the dialog is open
    */
   open: boolean;
-  
+
   /**
    * Callback fired when the dialog open state changes
    */
   onOpenChange: (open: boolean) => void;
-  
+
   /**
    * Title of the dialog
    */
   title: string;
-  
+
   /**
    * Optional description text
    */
   description?: string;
-  
+
   /**
    * Dialog content
    */
   children: React.ReactNode;
-  
+
   /**
    * Footer actions, typically buttons
    */
   actions?: React.ReactNode;
-  
+
   /**
    * Optional class name for the dialog container
    */
   className?: string;
-  
+
   /**
    * Whether to show a close button in the top right
    * @default true
    */
   showCloseButton?: boolean;
-  
+
   /**
    * Maximum width class for the dialog
    * @default "md"
    */
   size?: keyof typeof sizeVariants;
-  
+
   /**
    * Custom maximum width if the size variants don't fit your need
    */
   maxWidth?: string;
-  
+
   /**
    * Position of the dialog
    * @default "center"
    */
   position?: keyof typeof positionVariants;
-  
+
   /**
    * Whether to prevent closing when clicking outside the dialog
    * @default false
@@ -96,13 +96,13 @@ export interface StandardDialogProps {
 
 /**
  * StandardDialog component
- * 
+ *
  * A standardized dialog component that provides consistent layout and behavior
  * for dialogs throughout the application. It includes a header with title,
  * optional description, content area, and optional footer for actions.
- * 
+ *
  * Example usage:
- * 
+ *
  * ```jsx
  * <StandardDialog
  *   open={isOpen}
@@ -165,17 +165,19 @@ export function StandardDialog({
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
           )}
-          
+
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
-            {description && <DialogDescription>{description}</DialogDescription>}
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
           </DialogHeader>
-          
+
           <div className="py-4">{children}</div>
-          
+
           {actions && <DialogFooter>{actions}</DialogFooter>}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   );
-} 
+}

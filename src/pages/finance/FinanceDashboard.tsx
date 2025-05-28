@@ -2,12 +2,27 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { PageHeader } from '@/core/components/ui/page-header';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { PageHeader } from "@/core/components/ui/page-header";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
 import { shiftsApi, salesApi, expensesApi, financialsApi } from "@/core/api";
-import { CalendarClock, Receipt, CircleDollarSign, ArrowRight, BarChart3, ChevronRight, Plus } from "lucide-react";
-import { Skeleton } from '@/core/components/ui/skeleton';
+import {
+  CalendarClock,
+  Receipt,
+  CircleDollarSign,
+  ArrowRight,
+  BarChart3,
+  ChevronRight,
+  Plus,
+} from "lucide-react";
+import { Skeleton } from "@/core/components/ui/skeleton";
 
 export default function FinanceDashboard() {
   const { t } = useTranslation();
@@ -16,30 +31,30 @@ export default function FinanceDashboard() {
   // Fetch summary data for each section
   const { data: shiftsData } = useQuery({
     queryKey: ["shifts-count"],
-    queryFn: shiftsApi.getShiftsCount
+    queryFn: shiftsApi.getShiftsCount,
   });
 
   const { data: salesData } = useQuery({
     queryKey: ["sales-count"],
-    queryFn: salesApi.getSalesCount
+    queryFn: salesApi.getSalesCount,
   });
 
   const { data: expensesData } = useQuery({
     queryKey: ["expenses-count"],
-    queryFn: expensesApi.getExpensesCount
+    queryFn: expensesApi.getExpensesCount,
   });
 
   const { data: financeOverview } = useQuery({
     queryKey: ["finance-overview"],
-    queryFn: financialsApi.getFinanceOverview
+    queryFn: financialsApi.getFinanceOverview,
   });
 
   // Format number as currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('hy-AM', {
-      style: 'currency',
-      currency: 'AMD',
-      maximumFractionDigits: 0
+    return new Intl.NumberFormat("hy-AM", {
+      style: "currency",
+      currency: "AMD",
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -47,7 +62,10 @@ export default function FinanceDashboard() {
     <div className="space-y-6">
       <PageHeader
         title={t("common.financeManagement")}
-        description={t("finance.description") || "Manage your financial operations including shifts, sales, and expenses"}
+        description={
+          t("finance.description") ||
+          "Manage your financial operations including shifts, sales, and expenses"
+        }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -59,11 +77,14 @@ export default function FinanceDashboard() {
               {t("common.shifts")}
             </CardTitle>
             <CardDescription>
-              {t("shifts.description") || "Manage your work shifts and cash operations"}
+              {t("shifts.description") ||
+                "Manage your work shifts and cash operations"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{shiftsData?.data?.count || 0}</div>
+            <div className="text-3xl font-bold">
+              {shiftsData?.data?.count || 0}
+            </div>
             <p className="text-sm text-muted-foreground">
               {t("shifts.totalCount", { count: shiftsData?.data?.count || 0 })}
             </p>
@@ -88,13 +109,18 @@ export default function FinanceDashboard() {
               {t("common.sales")}
             </CardTitle>
             <CardDescription>
-              {t("sales.description") || "Track and manage all your sales transactions"}
+              {t("sales.description") ||
+                "Track and manage all your sales transactions"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{salesData?.data?.count || 0}</div>
+            <div className="text-3xl font-bold">
+              {salesData?.data?.count || 0}
+            </div>
             <p className="text-sm text-muted-foreground">
-              {t("sales.totalRevenue", { amount: formatCurrency(financeOverview?.data?.total_sales || 0) })}
+              {t("sales.totalRevenue", {
+                amount: formatCurrency(financeOverview?.data?.total_sales || 0),
+              })}
             </p>
           </CardContent>
           <CardFooter>
@@ -113,7 +139,7 @@ export default function FinanceDashboard() {
         <Card className="flex flex-col h-full col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('finance.expenses.title', 'Expenses')}
+              {t("finance.expenses.title", "Expenses")}
             </CardTitle>
             <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -122,7 +148,10 @@ export default function FinanceDashboard() {
               {(expensesData?.data?.count || 0).toString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              {t('finance.expenses.description', 'Track and manage business expenses')}
+              {t(
+                "finance.expenses.description",
+                "Track and manage business expenses"
+              )}
             </p>
           </CardContent>
           <CardFooter className="mt-auto pt-2">
@@ -130,9 +159,9 @@ export default function FinanceDashboard() {
               variant="outline"
               size="sm"
               className="w-full justify-between"
-              onClick={() => navigate('/finance/expenses')}
+              onClick={() => navigate("/finance/expenses")}
             >
-              <span>{t('common.manage', 'Manage')}</span>
+              <span>{t("common.manage", "Manage")}</span>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </CardFooter>
@@ -141,9 +170,9 @@ export default function FinanceDashboard() {
               variant="default"
               size="sm"
               className="w-full justify-between"
-              onClick={() => navigate('/finance/expenses/create')}
+              onClick={() => navigate("/finance/expenses/create")}
             >
-              <span>{t('common.add', 'Add New')}</span>
+              <span>{t("common.add", "Add New")}</span>
               <Plus className="h-4 w-4" />
             </Button>
           </CardFooter>
@@ -157,7 +186,8 @@ export default function FinanceDashboard() {
               {t("finance.profitLoss")}
             </CardTitle>
             <CardDescription>
-              {t("finance.profitLossDescription") || "Review financial performance and analysis"}
+              {t("finance.profitLossDescription") ||
+                "Review financial performance and analysis"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -182,4 +212,4 @@ export default function FinanceDashboard() {
       </div>
     </div>
   );
-} 
+}

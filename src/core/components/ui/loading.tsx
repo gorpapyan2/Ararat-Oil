@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { Loader2 } from 'lucide-react';
+import * as React from "react";
+import { Loader2 } from "lucide-react";
 
-import { cn } from '@/shared/utils';
+import { cn } from "@/shared/utils";
 
 export interface LoadingProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -11,13 +11,13 @@ export interface LoadingProps extends React.HTMLAttributes<HTMLDivElement> {
    * - 'inline': Inline with other content
    * - 'page': Full page height with text centered
    */
-  variant?: 'default' | 'fullscreen' | 'inline' | 'page';
-  
+  variant?: "default" | "fullscreen" | "inline" | "page";
+
   /**
    * Optional text to display with the loading spinner
    */
   text?: string;
-  
+
   /**
    * Size of the spinner in pixels
    * @default 24
@@ -28,38 +28,32 @@ export interface LoadingProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Loading component for showing loading states
  */
-export function Loading({ 
-  className, 
-  variant = 'default',
+export function Loading({
+  className,
+  variant = "default",
   text,
   size = 24,
-  ...props 
+  ...props
 }: LoadingProps) {
   // Classes based on variant
   const containerClasses = {
-    default: 'flex items-center justify-center p-4',
-    fullscreen: 'fixed inset-0 flex items-center justify-center bg-gray-50/80 z-50',
-    inline: 'inline-flex items-center justify-center',
-    page: 'flex flex-col items-center justify-center min-h-[60vh]',
+    default: "flex items-center justify-center p-4",
+    fullscreen:
+      "fixed inset-0 flex items-center justify-center bg-gray-50/80 z-50",
+    inline: "inline-flex items-center justify-center",
+    page: "flex flex-col items-center justify-center min-h-[60vh]",
   };
 
   return (
-    <div 
+    <div
       className={cn(containerClasses[variant], className)}
       role="status"
-      aria-label={text || 'Loading'}
+      aria-label={text || "Loading"}
       {...props}
     >
       <div className="flex flex-col items-center justify-center gap-2">
-        <Loader2 
-          className="animate-spin" 
-          size={size}
-        />
-        {text && (
-          <p className="text-sm text-muted-foreground">
-            {text}
-          </p>
-        )}
+        <Loader2 className="animate-spin" size={size} />
+        {text && <p className="text-sm text-muted-foreground">{text}</p>}
       </div>
     </div>
   );

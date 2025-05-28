@@ -2,10 +2,10 @@
  * Shared test wrapper components and utilities
  * This file provides wrapper components for testing
  */
-import React from 'react';
-import { render } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { vi } from 'vitest';
+import React from "react";
+import { render } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { vi } from "vitest";
 
 type TestWrapperProps = {
   children: React.ReactNode;
@@ -27,8 +27,8 @@ export function setupComponentWrapper() {
 
   // Mock translations
   const mockTranslation = vi.fn((key: string) => key);
-  
-  vi.mock('react-i18next', () => ({
+
+  vi.mock("react-i18next", () => ({
     useTranslation: () => ({
       t: mockTranslation,
       i18n: {
@@ -42,9 +42,7 @@ export function setupComponentWrapper() {
    */
   function QueryWrapper({ children }: TestWrapperProps) {
     return (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
   }
 
@@ -63,4 +61,4 @@ export function setupComponentWrapper() {
     mockTranslation,
     queryClient,
   };
-} 
+}

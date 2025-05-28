@@ -1,29 +1,53 @@
 import { ShiftControl } from "@/features/sales";
 import { PageLayout } from "@/layouts/PageLayout";
-import { CalendarClock, ChartBar, Search, Filter, RefreshCw, Eye, Plus } from "lucide-react";
+import {
+  CalendarClock,
+  ChartBar,
+  Search,
+  Filter,
+  RefreshCw,
+  Eye,
+  Plus,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/core/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/core/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "@/shared/utils";
-import { Skeleton } from '@/core/components/ui/skeleton';
+import { Skeleton } from "@/core/components/ui/skeleton";
 import { Shift } from "@/types";
 import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/core/components/ui/alert";
 import { fetchEmployeeByUserId, fetchShiftHistory } from "@/utils/api-helpers";
 import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Button, ButtonLink } from "@/core/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/primitives/select";
-import { DateRangePicker } from '@/core/components/ui/date-range-picker';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/core/components/ui/primitives/select";
+import { DateRangePicker } from "@/core/components/ui/date-range-picker";
 import { addDays } from "date-fns";
-import { Badge } from '@/core/components/ui/badge';
+import { Badge } from "@/core/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/core/components/ui/tooltip';
+} from "@/core/components/ui/tooltip";
 import { useShift } from "@/hooks/useShift";
 import { useNavigate } from "react-router-dom";
 import { formatDateTime, calculateDuration } from "@/shared/utils";
@@ -31,14 +55,14 @@ import { ArrowRight, DollarSign } from "lucide-react";
 import { cn } from "@/shared/utils";
 
 // Local InputWithIcon implementation
-const InputWithIcon = ({ 
-  icon, 
-  className, 
-  ...props 
-}: { 
-  icon?: React.ReactNode; 
-  className?: string; 
-  [key: string]: any 
+const InputWithIcon = ({
+  icon,
+  className,
+  ...props
+}: {
+  icon?: React.ReactNode;
+  className?: string;
+  [key: string]: unknown;
 }) => {
   return (
     <div className="relative">
@@ -47,10 +71,7 @@ const InputWithIcon = ({
           {icon}
         </div>
       )}
-      <Input
-        className={cn(icon && "pl-10", className)}
-        {...props}
-      />
+      <Input className={cn(icon && "pl-10", className)} {...props} />
     </div>
   );
 };
@@ -62,18 +83,22 @@ interface ShiftHistoryItem extends Omit<Shift, "sales_total" | "status"> {
   payment_methods?: ShiftPaymentMethod[];
 }
 
+interface ShiftFilters {
+  [key: string]: unknown;
+}
+
 // Helper function to format dates
 const formatDate = (dateString: string): string => {
   if (!dateString) return "-";
-  
+
   try {
     const date = new Date(dateString);
-    
+
     // Check if date is valid
     if (isNaN(date.getTime())) {
       return "-";
     }
-    
+
     return date.toLocaleDateString();
   } catch (error) {
     console.error("Error formatting date:", error);
@@ -106,12 +131,12 @@ const Shifts = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  
+
   // Add console log to debug activeShift state
   useEffect(() => {
     console.log("Shifts page - activeShift state:", activeShift);
   }, [activeShift]);
-  
+
   // Search and filter state
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -124,10 +149,13 @@ const Shifts = () => {
   });
 
   // Add a wrapper function to handle the DateRange type conversion
-  const handleDateRangeChange = (range: { from: Date | undefined; to: Date | undefined }) => {
+  const handleDateRangeChange = (range: {
+    from: Date | undefined;
+    to: Date | undefined;
+  }) => {
     setDateRange({
       from: range.from,
-      to: range.to || range.from || undefined
+      to: range.to || range.from || undefined,
     });
   };
 
@@ -136,7 +164,7 @@ const Shifts = () => {
       loadShiftHistory();
     }
   }, [user]);
-  
+
   // Apply filters whenever filter state changes
   useEffect(() => {
     applyFilters();
@@ -152,7 +180,7 @@ const Shifts = () => {
       const employee = await fetchEmployeeByUserId(user.id);
       const employeeName =
         employee && typeof employee === "object"
-          ? (employee as any).name || "Current User"
+          ? (employee as Record<string, unknown>).name || "Current User"
           : "Current User";
 
       // Then get shift history (increased limit for more history)
@@ -167,102 +195,116 @@ const Shifts = () => {
 
       setShiftHistory(formattedData as ShiftHistoryItem[]);
       setFilteredShifts(formattedData as ShiftHistoryItem[]);
-      
+
       // Load payment methods for closed shifts
       await loadPaymentMethodsForShifts(formattedData as ShiftHistoryItem[]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading shift history:", error);
-      setError(error.message || "Failed to load shift history");
+      setError(error instanceof Error ? error.message : "Failed to load shift history");
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   const loadPaymentMethodsForShifts = async (shifts: ShiftHistoryItem[]) => {
     try {
-      const closedShifts = shifts.filter(shift => shift.status === "CLOSED");
-      
+      const closedShifts = shifts.filter((shift) => shift.status === "CLOSED");
+
       for (const shift of closedShifts) {
         const response = await shiftsApi.getShiftPaymentMethods(shift.id);
         if (response.error) {
-          console.error(`Error fetching payment methods for shift ${shift.id}:`, response.error);
+          console.error(
+            `Error fetching payment methods for shift ${shift.id}:`,
+            response.error
+          );
         } else {
           shift.payment_methods = response.data || [];
         }
       }
-      
+
       // Update state with payment methods information
       setShiftHistory([...shifts]);
     } catch (error) {
       console.error("Error loading payment methods for shifts:", error);
     }
   };
-  
+
   const applyFilters = () => {
     let result = [...shiftHistory];
-    
+
     // Apply status filter
     if (statusFilter !== "all") {
-      result = result.filter(shift => shift.status === statusFilter);
+      result = result.filter((shift) => shift.status === statusFilter);
     }
-    
+
     // Apply date range filter
     if (dateRange.from && dateRange.to) {
-      result = result.filter(shift => {
+      result = result.filter((shift) => {
         const shiftDate = new Date(shift.created_at || shift.start_time);
         return shiftDate >= dateRange.from! && shiftDate <= dateRange.to!;
       });
     }
-    
+
     // Apply search term - search in dates or employee name
     if (searchTerm.trim()) {
       const lowercaseSearch = searchTerm.toLowerCase();
-      result = result.filter(shift => 
-        formatDate(shift.created_at || shift.start_time).toLowerCase().includes(lowercaseSearch) ||
-        shift.employee_name.toLowerCase().includes(lowercaseSearch)
+      result = result.filter(
+        (shift) =>
+          formatDate(shift.created_at || shift.start_time)
+            .toLowerCase()
+            .includes(lowercaseSearch) ||
+          shift.employee_name.toLowerCase().includes(lowercaseSearch)
       );
     }
-    
+
     setFilteredShifts(result);
   };
-  
+
   // Calculate shift metrics
   const calculateMetrics = () => {
-    const activeShifts = shiftHistory.filter(shift => shift.status === "OPEN").length;
+    const activeShifts = shiftHistory.filter(
+      (shift) => shift.status === "OPEN"
+    ).length;
     const totalShifts = shiftHistory.length;
-    const closedShifts = shiftHistory.filter(shift => shift.status === "CLOSED").length;
-    
+    const closedShifts = shiftHistory.filter(
+      (shift) => shift.status === "CLOSED"
+    ).length;
+
     // Calculate total sales from shift history
-    const historyTotalSales = shiftHistory.reduce((sum, shift) => sum + (shift.sales_total || 0), 0);
-    
+    const historyTotalSales = shiftHistory.reduce(
+      (sum, shift) => sum + (shift.sales_total || 0),
+      0
+    );
+
     // Add the current active shift's sales if it exists (and isn't already in history)
     const currentShiftSales = activeShift?.sales_total || 0;
-    
+
     // Check if the active shift is already in the history (to avoid double counting)
-    const activeShiftInHistory = activeShift ? 
-      shiftHistory.some(s => s.id === activeShift.id) : 
-      false;
-    
+    const activeShiftInHistory = activeShift
+      ? shiftHistory.some((s) => s.id === activeShift.id)
+      : false;
+
     // Total sales combines history and current shift (if not in history)
-    const totalSales = historyTotalSales + (activeShiftInHistory ? 0 : currentShiftSales);
-    
+    const totalSales =
+      historyTotalSales + (activeShiftInHistory ? 0 : currentShiftSales);
+
     return { activeShifts, totalShifts, closedShifts, totalSales };
   };
-  
+
   const metrics = calculateMetrics();
-  
+
   // Navigate to shift details
   const viewShiftDetails = (shift: ShiftHistoryItem) => {
     navigate(`/finance/shifts/${shift.id}`);
   };
-  
+
   return (
-    <PageLayout 
+    <PageLayout
       titleKey="shifts.title"
       descriptionKey="shifts.description"
       action={
         activeShift || metrics.activeShifts > 0 ? (
-          <ButtonLink 
+          <ButtonLink
             href="/finance/shifts/close"
             variant="default"
             className="bg-amber-600 hover:bg-amber-700"
@@ -271,10 +313,7 @@ const Shifts = () => {
             {t("shifts.closeShift")}
           </ButtonLink>
         ) : (
-          <ButtonLink 
-            href="/finance/shifts/open"
-            variant="default"
-          >
+          <ButtonLink href="/finance/shifts/open" variant="default">
             <Plus className="h-4 w-4 mr-2" />
             {t("shifts.startShift")}
           </ButtonLink>
@@ -297,36 +336,50 @@ const Shifts = () => {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                 <div className="space-y-1">
-                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">{t("shifts.startedAt")}</div>
+                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">
+                    {t("shifts.startedAt")}
+                  </div>
                   <div className="text-blue-900 dark:text-blue-300">
-                    {activeShift && activeShift.start_time ? safeFormatDateTime(activeShift.start_time) : "-"}
+                    {activeShift && activeShift.start_time
+                      ? safeFormatDateTime(activeShift.start_time)
+                      : "-"}
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">{t("shifts.duration")}</div>
+                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">
+                    {t("shifts.duration")}
+                  </div>
                   <div className="text-blue-900 dark:text-blue-300">
-                    {activeShift && activeShift.start_time ? calculateDuration(activeShift.start_time) : "-"}
+                    {activeShift && activeShift.start_time
+                      ? calculateDuration(activeShift.start_time)
+                      : "-"}
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">{t("shifts.openingCash")}</div>
+                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">
+                    {t("shifts.openingCash")}
+                  </div>
                   <div className="text-blue-900 dark:text-blue-300">
                     {formatCurrency(activeShift.opening_cash)}
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">{t("shifts.salesTotal")}</div>
+                  <div className="text-sm text-blue-700 dark:text-blue-500 font-medium">
+                    {t("shifts.salesTotal")}
+                  </div>
                   <div className="text-blue-900 dark:text-blue-300 font-bold">
                     {formatCurrency(activeShift.sales_total || 0)}
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-4 flex justify-end">
                 <Button
                   variant="outline"
                   className="text-blue-700 border-blue-300 hover:bg-blue-100 dark:text-blue-400 dark:border-blue-700 dark:hover:bg-blue-900/30"
-                  onClick={() => viewShiftDetails(activeShift as ShiftHistoryItem)}
+                  onClick={() =>
+                    viewShiftDetails(activeShift as ShiftHistoryItem)
+                  }
                 >
                   <Eye className="h-4 w-4 mr-1" />
                   {t("shifts.viewDetails")}
@@ -340,7 +393,9 @@ const Shifts = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="p-4">
-              <CardTitle className="text-base">{t("shifts.totalShifts")}</CardTitle>
+              <CardTitle className="text-base">
+                {t("shifts.totalShifts")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 px-4 pb-4">
               <div className="text-2xl font-bold">{metrics.totalShifts}</div>
@@ -348,7 +403,9 @@ const Shifts = () => {
           </Card>
           <Card>
             <CardHeader className="p-4">
-              <CardTitle className="text-base">{t("shifts.activeShifts")}</CardTitle>
+              <CardTitle className="text-base">
+                {t("shifts.activeShifts")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 px-4 pb-4">
               <div className="text-2xl font-bold">{metrics.activeShifts}</div>
@@ -356,7 +413,9 @@ const Shifts = () => {
           </Card>
           <Card>
             <CardHeader className="p-4">
-              <CardTitle className="text-base">{t("shifts.closedShifts")}</CardTitle>
+              <CardTitle className="text-base">
+                {t("shifts.closedShifts")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 px-4 pb-4">
               <div className="text-2xl font-bold">{metrics.closedShifts}</div>
@@ -364,10 +423,14 @@ const Shifts = () => {
           </Card>
           <Card>
             <CardHeader className="p-4">
-              <CardTitle className="text-base">{t("shifts.totalSales")}</CardTitle>
+              <CardTitle className="text-base">
+                {t("shifts.totalSales")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 px-4 pb-4">
-              <div className="text-2xl font-bold">{formatCurrency(metrics.totalSales)}</div>
+              <div className="text-2xl font-bold">
+                {formatCurrency(metrics.totalSales)}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -384,16 +447,15 @@ const Shifts = () => {
                 <InputWithIcon
                   placeholder={t("common.search")}
                   value={searchTerm}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearchTerm(e.target.value)
+                  }
                   className="w-full"
                   icon={<Search className="h-4 w-4" />}
                 />
               </div>
               <div className="w-full sm:w-auto">
-                <Select
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                >
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-full min-w-[120px]">
                     <SelectValue placeholder={t("shifts.filterByStatus")} />
                   </SelectTrigger>
@@ -433,7 +495,10 @@ const Shifts = () => {
             {isLoading && (
               <div className="space-y-2">
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className="flex items-center p-3 border rounded-md">
+                  <div
+                    key={index}
+                    className="flex items-center p-3 border rounded-md"
+                  >
                     <div className="flex-1">
                       <Skeleton className="h-4 w-24 mb-1" />
                       <Skeleton className="h-3 w-44" />
@@ -450,7 +515,10 @@ const Shifts = () => {
             {/* No Results State */}
             {!isLoading && filteredShifts.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
-                {searchTerm || statusFilter !== "all" || dateRange.from || dateRange.to
+                {searchTerm ||
+                statusFilter !== "all" ||
+                dateRange.from ||
+                dateRange.to
                   ? t("common.noFilterResults")
                   : t("shifts.noShiftHistory")}
               </div>
@@ -467,19 +535,27 @@ const Shifts = () => {
                     <div className="flex-1 min-w-0 mr-2">
                       <div className="flex items-center mb-1">
                         <h4 className="font-medium truncate mr-2">
-                          {safeFormatDateTime(shift.created_at || shift.start_time)}
+                          {safeFormatDateTime(
+                            shift.created_at || shift.start_time
+                          )}
                         </h4>
                         <Badge
-                          variant={shift.status === "OPEN" ? "success" : "default"}
+                          variant={
+                            shift.status === "OPEN" ? "success" : "default"
+                          }
                           className="ml-auto md:ml-2"
                         >
-                          {shift.status === "OPEN" ? t("shifts.open") : t("shifts.closed")}
+                          {shift.status === "OPEN"
+                            ? t("shifts.open")
+                            : t("shifts.closed")}
                         </Badge>
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {shift.status === "OPEN"
                           ? t("shifts.durationSoFar", {
-                              duration: shift.start_time ? calculateDuration(shift.start_time) : "-",
+                              duration: shift.start_time
+                                ? calculateDuration(shift.start_time)
+                                : "-",
                             })
                           : t("shifts.totalSales", {
                               amount: formatCurrency(shift.sales_total || 0),

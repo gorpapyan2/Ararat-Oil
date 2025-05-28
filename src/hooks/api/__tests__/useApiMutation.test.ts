@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { act } from 'react-dom/test-utils';
 import { useApiMutation } from '../useApiMutation';
 
@@ -23,11 +23,8 @@ const createWrapper = () => {
     },
   });
   
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return ({ children }: { children: ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
 };
 
 describe('useApiMutation', () => {
@@ -110,14 +107,7 @@ describe('useApiMutation', () => {
     
     // Trigger mutation with callbacks
     act(() => {
-      result.current.mutate(
-        { name: 'Updated Item' },
-        {
-          onSuccess: onSuccessMock,
-          onError: onErrorMock,
-          onSettled: onSettledMock,
-        }
-      );
+      result.current.mutate({ name: 'Updated Item' });
     });
     
     // Wait for mutation to complete
@@ -137,16 +127,13 @@ describe('useApiMutation', () => {
     const queryClient = new QueryClient();
     const invalidateQueriesSpy = jest.spyOn(queryClient, 'invalidateQueries');
     
-    const wrapper = ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    );
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(QueryClientProvider, { client: queryClient }, children);
 
     const { result } = renderHook(
       () => useApiMutation({
         mutationFn: mockCreateFn,
-        invalidateQueries: ['items'],
+        invalidateQueries: [['items']],
       }),
       {
         wrapper,
@@ -162,7 +149,7 @@ describe('useApiMutation', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     
     // Check invalidation
-    expect(invalidateQueriesSpy).toHaveBeenCalledWith(['items']);
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith([['items']]);
   });
 
   it('should support optimistic updates with rollback on error', async () => {
@@ -172,24 +159,21 @@ describe('useApiMutation', () => {
     // Setup initial data
     queryClient.setQueryData(queryKey, { id: '1', name: 'Original' });
     
-    const wrapper = ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    );
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      React.createElement(QueryClientProvider, { client: queryClient }, children);
 
     const { result } = renderHook(
       () => useApiMutation({
         mutationFn: mockErrorFn, // This will fail
         onMutate: async (variables) => {
           // Cancel outgoing refetches
-          await queryClient.cancelQueries(queryKey);
+          await queryClient.cancelQueries({ queryKey });
           
           // Snapshot the previous value
           const previousValue = queryClient.getQueryData(queryKey);
           
           // Optimistically update
-          queryClient.setQueryData(queryKey, (old: any) => ({ 
+          queryClient.setQueryData(queryKey, (old: { id: string; name: string } | undefined) => ({ 
             ...old, 
             name: variables.name 
           }));

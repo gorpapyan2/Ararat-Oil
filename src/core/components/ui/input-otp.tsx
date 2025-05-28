@@ -3,9 +3,9 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
-  InputOTPSeparator 
+  InputOTPSeparator,
 } from "@/core/components/ui/primitives/input-otp";

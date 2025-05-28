@@ -1,9 +1,9 @@
-import { useAuth } from '@/features/auth';
-import { LoginForm } from '@/features/auth';
+import { useAuth } from "@/features/auth";
+import { LoginForm } from "@/features/auth";
 import { Button } from "@/core/components/ui/button";
-import { Alert, AlertDescription } from '@/core/components/ui/alert';
-import { useNavigate } from 'react-router-dom';
-import type { LoginCredentials } from '@/features/auth';
+import { Alert, AlertDescription } from "@/core/components/ui/alert";
+import { useNavigate } from "react-router-dom";
+import type { LoginCredentials } from "@/features/auth";
 
 export default function Auth() {
   const { user, login, isLoading, error } = useAuth();
@@ -12,7 +12,7 @@ export default function Auth() {
   const handleLogin = async (credentials: LoginCredentials) => {
     await login(credentials);
     if (!error) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
@@ -24,7 +24,7 @@ export default function Auth() {
             You are already logged in. Redirecting to dashboard...
           </AlertDescription>
         </Alert>
-        <Button onClick={() => navigate('/dashboard')} className="mt-4">
+        <Button onClick={() => navigate("/dashboard")} className="mt-4">
           Go to Dashboard
         </Button>
       </div>

@@ -12,29 +12,26 @@ import {
   CardDescription,
   CardFooter,
 } from "@/core/components/ui/card";
-import { Separator } from '@/core/components/ui/separator';
+import { Separator } from "@/core/components/ui/separator";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Button } from "@/core/components/ui/button";
-import { Label } from '@/core/components/ui/label';
+import { Label } from "@/core/components/ui/label";
 
 // Icons
-import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/ui/avatar';
-import { 
-  Upload,
-  UserRound, 
-  Mail, 
-  Phone, 
-  MapPin,
-  Building
-} from "lucide-react";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/core/components/ui/avatar";
+import { Upload, UserRound, Mail, Phone, MapPin, Building } from "lucide-react";
 
 function AccountSettings() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  
+
   // Log render count in development
   useRenderCount("AccountSettings");
-  
+
   // Mock user data
   const [userData, setUserData] = useState({
     name: "Alex Johnson",
@@ -66,9 +63,7 @@ function AccountSettings() {
       <Card>
         <CardHeader>
           <CardTitle>{t("settings.account.title")}</CardTitle>
-          <CardDescription>
-            {t("settings.account.description")}
-          </CardDescription>
+          <CardDescription>{t("settings.account.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Profile Picture Section */}
@@ -82,17 +77,31 @@ function AccountSettings() {
                   .join("")}
               </AvatarFallback>
             </Avatar>
-            
+
             <div>
-              <h3 className="text-sm font-medium mb-2">{t("settings.account.profilePicture")}</h3>
+              <h3 className="text-sm font-medium mb-2">
+                {t("settings.account.profilePicture")}
+              </h3>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" className="gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
                   <Upload className="h-4 w-4" />
                   {t("settings.account.upload")}
                 </Button>
                 {userData.avatarUrl && (
-                  <Button type="button" variant="outline" size="sm" className="text-destructive" 
-                    onClick={() => setUserData(prev => ({ ...prev, avatarUrl: "" }))}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive"
+                    onClick={() =>
+                      setUserData((prev) => ({ ...prev, avatarUrl: "" }))
+                    }
+                  >
                     {t("common.remove")}
                   </Button>
                 )}
@@ -102,13 +111,15 @@ function AccountSettings() {
               </p>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           {/* Personal Information */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium">{t("settings.account.personalInfo")}</h3>
-            
+            <h3 className="text-sm font-medium">
+              {t("settings.account.personalInfo")}
+            </h3>
+
             <div className="grid gap-4 py-2 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="name" className="flex items-center gap-2">
@@ -123,7 +134,7 @@ function AccountSettings() {
                   placeholder={t("settings.account.fullNamePlaceholder")}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
@@ -138,7 +149,7 @@ function AccountSettings() {
                   placeholder={t("settings.account.emailPlaceholder")}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="phone" className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
@@ -152,7 +163,7 @@ function AccountSettings() {
                   placeholder={t("settings.account.phonePlaceholder")}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="company" className="flex items-center gap-2">
                   <Building className="h-4 w-4 text-muted-foreground" />
@@ -166,7 +177,7 @@ function AccountSettings() {
                   placeholder={t("settings.account.companyPlaceholder")}
                 />
               </div>
-              
+
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="address" className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -182,15 +193,17 @@ function AccountSettings() {
               </div>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <div className="space-y-4">
-            <h3 className="text-sm font-medium">{t("settings.account.dangerZone")}</h3>
+            <h3 className="text-sm font-medium">
+              {t("settings.account.dangerZone")}
+            </h3>
             <p className="text-sm text-muted-foreground">
               {t("settings.account.accountDeleteWarning")}
             </p>
-            <Button 
+            <Button
               type="button"
               variant="destructive"
               onClick={() => {
@@ -207,9 +220,7 @@ function AccountSettings() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit">
-            {t("common.saveChanges")}
-          </Button>
+          <Button type="submit">{t("common.saveChanges")}</Button>
         </CardFooter>
       </Card>
     </form>
@@ -217,4 +228,4 @@ function AccountSettings() {
 }
 
 // Export a memoized version for better performance
-export default memo(AccountSettings); 
+export default memo(AccountSettings);

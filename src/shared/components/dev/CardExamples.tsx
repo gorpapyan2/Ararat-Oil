@@ -12,20 +12,20 @@ import {
   SummaryCard,
   InfoCard,
   CardGrid,
-  CardGroup
+  CardGroup,
 } from "@/core/components/ui/cards";
 import { Button } from "@/core/components/ui/button";
-import { 
-  DollarSign, 
-  Users, 
-  Package, 
-  ShoppingCart, 
-  CreditCard, 
-  TrendingUp, 
+import {
+  DollarSign,
+  Users,
+  Package,
+  ShoppingCart,
+  CreditCard,
+  TrendingUp,
   Bell,
   Info,
   Settings,
-  AlertTriangle
+  AlertTriangle,
 } from "lucide-react";
 
 /**
@@ -37,7 +37,8 @@ export default function CardExamples() {
       <div>
         <h1 className="text-3xl font-bold mb-2">Card Component Examples</h1>
         <p className="text-muted-foreground mb-6">
-          This page demonstrates the new standardized card component system with various examples.
+          This page demonstrates the new standardized card component system with
+          various examples.
         </p>
       </div>
 
@@ -48,10 +49,15 @@ export default function CardExamples() {
           <Card>
             <CardHeader>
               <CardTitle>Account Settings</CardTitle>
-              <CardDescription>Manage your account preferences.</CardDescription>
+              <CardDescription>
+                Manage your account preferences.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>These are your account settings. You can update your profile here.</p>
+              <p>
+                These are your account settings. You can update your profile
+                here.
+              </p>
             </CardContent>
             <CardFooter>
               <Button>Save changes</Button>
@@ -71,7 +77,9 @@ export default function CardExamples() {
           <Card variant="elevated" hover interactive>
             <CardHeader>
               <CardTitle>Interactive Card</CardTitle>
-              <CardDescription>This card has hover and interactive states.</CardDescription>
+              <CardDescription>
+                This card has hover and interactive states.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p>Click me or hover over me to see effects.</p>
@@ -193,7 +201,7 @@ export default function CardExamples() {
             ]}
             action={{
               label: "View Full Report",
-              onClick: () => alert("View full report clicked!")
+              onClick: () => alert("View full report clicked!"),
             }}
           />
           <SummaryCard
@@ -207,7 +215,7 @@ export default function CardExamples() {
             ]}
             action={{
               label: "View User Analytics",
-              onClick: () => alert("View user analytics clicked!")
+              onClick: () => alert("View user analytics clicked!"),
             }}
           />
         </div>
@@ -222,11 +230,18 @@ export default function CardExamples() {
               title="Information"
               description="This is a general information message."
               type="info"
-              actions={<Button size="sm" variant="outline">Dismiss</Button>}
+              actions={
+                <Button size="sm" variant="outline">
+                  Dismiss
+                </Button>
+              }
             >
-              <p>Here is some additional information that might be helpful to the user.</p>
+              <p>
+                Here is some additional information that might be helpful to the
+                user.
+              </p>
             </InfoCard>
-            
+
             <InfoCard
               title="Success"
               description="Operation completed successfully."
@@ -238,9 +253,13 @@ export default function CardExamples() {
               title="Warning"
               description="Please review before proceeding."
               type="warning"
-              actions={<Button size="sm" variant="outline">Review</Button>}
+              actions={
+                <Button size="sm" variant="outline">
+                  Review
+                </Button>
+              }
             />
-            
+
             <InfoCard
               title="Error"
               description="There was an error processing your request."
@@ -248,12 +267,19 @@ export default function CardExamples() {
               icon={<AlertTriangle className="h-5 w-5" />}
               actions={
                 <div className="space-x-2">
-                  <Button size="sm" variant="destructive">Retry</Button>
-                  <Button size="sm" variant="outline">Cancel</Button>
+                  <Button size="sm" variant="destructive">
+                    Retry
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    Cancel
+                  </Button>
                 </div>
               }
             >
-              <p>Please check your connection and try again. If the problem persists, contact support.</p>
+              <p>
+                Please check your connection and try again. If the problem
+                persists, contact support.
+              </p>
             </InfoCard>
           </div>
         </div>
@@ -262,10 +288,12 @@ export default function CardExamples() {
       {/* Card Layouts */}
       <section>
         <h2 className="text-2xl font-semibold mb-4">Card Layouts</h2>
-        
+
         <div className="space-y-6">
           <div>
-            <h3 className="text-xl font-medium mb-3">Card Group (Horizontal, Joined)</h3>
+            <h3 className="text-xl font-medium mb-3">
+              Card Group (Horizontal, Joined)
+            </h3>
             <CardGroup direction="horizontal" joined>
               <Card>
                 <CardHeader>
@@ -287,9 +315,11 @@ export default function CardExamples() {
               </Card>
             </CardGroup>
           </div>
-          
+
           <div>
-            <h3 className="text-xl font-medium mb-3">Card Group (Vertical, Spaced)</h3>
+            <h3 className="text-xl font-medium mb-3">
+              Card Group (Vertical, Spaced)
+            </h3>
             <CardGroup direction="vertical" gap="gap-2">
               <Card>
                 <CardHeader>
@@ -305,7 +335,7 @@ export default function CardExamples() {
               </Card>
             </CardGroup>
           </div>
-          
+
           <div>
             <h3 className="text-xl font-medium mb-3">Auto-Fit Card Grid</h3>
             <CardGrid autoFit minWidth="200px" gap="gap-4">
@@ -314,9 +344,7 @@ export default function CardExamples() {
                   <CardHeader>
                     <CardTitle size="sm">Card {i}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    Auto-fit card content
-                  </CardContent>
+                  <CardContent>Auto-fit card content</CardContent>
                 </Card>
               ))}
             </CardGrid>
@@ -354,7 +382,7 @@ export default function CardExamples() {
               icon={<Package className="h-5 w-5" />}
             />
           </CardGrid>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
               <SummaryCard
@@ -367,7 +395,7 @@ export default function CardExamples() {
                 ]}
                 action={{
                   label: "View Full Report",
-                  onClick: () => alert("View report clicked!")
+                  onClick: () => alert("View report clicked!"),
                 }}
               />
             </div>
@@ -379,12 +407,14 @@ export default function CardExamples() {
               onAction={() => alert("View tasks clicked!")}
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Your latest actions in the system</CardDescription>
+                <CardDescription>
+                  Your latest actions in the system
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -394,39 +424,53 @@ export default function CardExamples() {
                     </div>
                     <div>
                       <p className="font-medium">New user registered</p>
-                      <p className="text-sm text-muted-foreground">John Doe created a new account</p>
+                      <p className="text-sm text-muted-foreground">
+                        John Doe created a new account
+                      </p>
                     </div>
-                    <div className="ml-auto text-sm text-muted-foreground">2h ago</div>
+                    <div className="ml-auto text-sm text-muted-foreground">
+                      2h ago
+                    </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <div className="bg-primary/10 p-2 rounded-full">
                       <ShoppingCart className="h-4 w-4 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium">New order placed</p>
-                      <p className="text-sm text-muted-foreground">Order #12345 was created</p>
+                      <p className="text-sm text-muted-foreground">
+                        Order #12345 was created
+                      </p>
                     </div>
-                    <div className="ml-auto text-sm text-muted-foreground">3h ago</div>
+                    <div className="ml-auto text-sm text-muted-foreground">
+                      3h ago
+                    </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <div className="bg-primary/10 p-2 rounded-full">
                       <Settings className="h-4 w-4 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium">Settings updated</p>
-                      <p className="text-sm text-muted-foreground">System settings were modified</p>
+                      <p className="text-sm text-muted-foreground">
+                        System settings were modified
+                      </p>
                     </div>
-                    <div className="ml-auto text-sm text-muted-foreground">5h ago</div>
+                    <div className="ml-auto text-sm text-muted-foreground">
+                      5h ago
+                    </div>
                   </div>
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" size="sm">View All Activity</Button>
+                <Button variant="outline" size="sm">
+                  View All Activity
+                </Button>
               </CardFooter>
             </Card>
-            
+
             <div className="space-y-6">
               <InfoCard
                 title="System Update"
@@ -434,26 +478,38 @@ export default function CardExamples() {
                 type="info"
                 actions={<Button size="sm">Update Now</Button>}
               />
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" className="h-auto py-4 flex flex-col">
+                    <Button
+                      variant="outline"
+                      className="h-auto py-4 flex flex-col"
+                    >
                       <Users className="h-5 w-5 mb-1" />
                       <span>Users</span>
                     </Button>
-                    <Button variant="outline" className="h-auto py-4 flex flex-col">
+                    <Button
+                      variant="outline"
+                      className="h-auto py-4 flex flex-col"
+                    >
                       <ShoppingCart className="h-5 w-5 mb-1" />
                       <span>Orders</span>
                     </Button>
-                    <Button variant="outline" className="h-auto py-4 flex flex-col">
+                    <Button
+                      variant="outline"
+                      className="h-auto py-4 flex flex-col"
+                    >
                       <Package className="h-5 w-5 mb-1" />
                       <span>Products</span>
                     </Button>
-                    <Button variant="outline" className="h-auto py-4 flex flex-col">
+                    <Button
+                      variant="outline"
+                      className="h-auto py-4 flex flex-col"
+                    >
                       <Settings className="h-5 w-5 mb-1" />
                       <span>Settings</span>
                     </Button>
@@ -466,4 +522,4 @@ export default function CardExamples() {
       </section>
     </div>
   );
-} 
+}

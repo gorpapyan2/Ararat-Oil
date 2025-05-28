@@ -30,6 +30,7 @@ A standardized text input field with validation.
 ```
 
 Additional props:
+
 - `type`: Input type (text, email, password, etc.)
 - `placeholder`: Placeholder text
 - `autoComplete`: HTML autocomplete attribute
@@ -48,7 +49,7 @@ A dropdown select component with options.
   options={[
     { value: "us", label: "United States" },
     { value: "ca", label: "Canada" },
-    { value: "mx", label: "Mexico" }
+    { value: "mx", label: "Mexico" },
   ]}
   placeholder="Select a country"
   selectClassName="w-full"
@@ -56,6 +57,7 @@ A dropdown select component with options.
 ```
 
 Additional props:
+
 - `options`: Array of options with value and label
 - `placeholder`: Placeholder text
 - `selectClassName`: Class applied to the select element
@@ -75,6 +77,7 @@ A checkbox component with label.
 ```
 
 Additional props:
+
 - `disabled`: Whether the checkbox is disabled
 
 ### FormTextarea
@@ -94,6 +97,7 @@ A multi-line text input.
 ```
 
 Additional props:
+
 - `placeholder`: Placeholder text
 - `rows`: Number of visible text rows
 - `textareaClassName`: Class applied to the textarea element
@@ -113,6 +117,7 @@ A toggle switch component.
 ```
 
 Additional props:
+
 - `switchLabel`: Label text for the switch state
 
 ### FormRadioGroup
@@ -128,13 +133,14 @@ A group of radio buttons.
   options={[
     { value: "free", label: "Free" },
     { value: "pro", label: "Pro" },
-    { value: "enterprise", label: "Enterprise" }
+    { value: "enterprise", label: "Enterprise" },
   ]}
   orientation="vertical"
 />
 ```
 
 Additional props:
+
 - `options`: Array of options with value and label
 - `orientation`: Layout direction ("horizontal" or "vertical")
 
@@ -156,6 +162,7 @@ A specialized input for currency values.
 ```
 
 Additional props:
+
 - `placeholder`: Placeholder text
 - `symbol`: Currency symbol to display
 - `disabled`: Whether the input is disabled
@@ -178,6 +185,7 @@ A date picker with calendar popover.
 ```
 
 Additional props:
+
 - `placeholder`: Placeholder text
 - `disabled`: Function to determine disabled dates
 - `buttonClassName`: Class applied to the date picker button
@@ -192,7 +200,7 @@ A hook that combines React Hook Form with Zod schema validation.
 const formSchema = z.object({
   username: z.string().min(3).max(20),
   email: z.string().email(),
-  password: z.string().min(8)
+  password: z.string().min(8),
 });
 
 const form = useZodForm({
@@ -200,8 +208,8 @@ const form = useZodForm({
   defaultValues: {
     username: "",
     email: "",
-    password: ""
-  }
+    password: "",
+  },
 });
 ```
 
@@ -234,7 +242,7 @@ import {
   FormInput,
   FormSelect,
   FormCheckbox,
-  FormTextarea
+  FormTextarea,
 } from "@/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 
@@ -243,9 +251,9 @@ const formSchema = z.object({
   email: z.string().email(),
   role: z.string().min(1),
   bio: z.string().optional(),
-  terms: z.boolean().refine(val => val === true, {
-    message: "You must agree to the terms and conditions"
-  })
+  terms: z.boolean().refine((val) => val === true, {
+    message: "You must agree to the terms and conditions",
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -258,8 +266,8 @@ export function UserForm() {
       email: "",
       role: "",
       bio: "",
-      terms: false
-    }
+      terms: false,
+    },
   });
 
   const { isSubmitting, onSubmit } = useFormSubmitHandler<FormValues>(
@@ -267,7 +275,7 @@ export function UserForm() {
     async (data) => {
       // Submit data
       console.log(data);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   );
 
@@ -280,7 +288,7 @@ export function UserForm() {
         form={form}
         placeholder="John Doe"
       />
-      
+
       <FormInput
         name="email"
         label="Email Address"
@@ -288,7 +296,7 @@ export function UserForm() {
         type="email"
         placeholder="john@example.com"
       />
-      
+
       <FormSelect
         name="role"
         label="Role"
@@ -296,10 +304,10 @@ export function UserForm() {
         options={[
           { value: "user", label: "User" },
           { value: "admin", label: "Administrator" },
-          { value: "manager", label: "Manager" }
+          { value: "manager", label: "Manager" },
         ]}
       />
-      
+
       <FormTextarea
         name="bio"
         label="Biography"
@@ -308,13 +316,13 @@ export function UserForm() {
         placeholder="Tell us about yourself"
         rows={4}
       />
-      
+
       <FormCheckbox
         name="terms"
         label="I agree to the terms and conditions"
         form={form}
       />
-      
+
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Submitting..." : "Create Account"}
       </Button>
@@ -339,13 +347,15 @@ Error messages from Zod validation will be displayed below each field. To custom
 
 ```tsx
 const schema = z.object({
-  age: z.number({
-    required_error: "Age is required",
-    invalid_type_error: "Age must be a number",
-  }).min(18, "You must be at least 18 years old"),
+  age: z
+    .number({
+      required_error: "Age is required",
+      invalid_type_error: "Age must be a number",
+    })
+    .min(18, "You must be at least 18 years old"),
 });
 ```
 
 ## Example Form
 
-See `src/components/examples/FormExample.tsx` for a complete example of a form using all the standardized components. 
+See `src/components/examples/FormExample.tsx` for a complete example of a form using all the standardized components.

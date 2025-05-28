@@ -3,6 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  Skeleton 
-} from "@/core/components/ui/primitives/skeleton";
+export { Skeleton } from "@/core/components/ui/primitives/skeleton";

@@ -25,21 +25,21 @@ Add the following to your `vite.config.ts` file:
 
 ```typescript
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
-import path from 'path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
   },
 });
 ```
@@ -47,7 +47,7 @@ export default defineConfig({
 Create a setup file at `src/test/setup.ts`:
 
 ```typescript
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 ```
 
 Add test scripts to your `package.json`:
@@ -82,31 +82,33 @@ Tests should be placed alongside the components they're testing, with a `.test.t
 Here's an example of a simple test for the `Button` component:
 
 ```tsx
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
-import { Button } from './button';
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi } from "vitest";
+import { Button } from "./button";
 
-describe('Button', () => {
-  it('renders correctly', () => {
+describe("Button", () => {
+  it("renders correctly", () => {
     render(<Button>Click me</Button>);
-    expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /click me/i })
+    ).toBeInTheDocument();
   });
 
-  it('handles click events', async () => {
+  it("handles click events", async () => {
     const handleClick = vi.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
-    await userEvent.click(screen.getByRole('button', { name: /click me/i }));
-    
+
+    await userEvent.click(screen.getByRole("button", { name: /click me/i }));
+
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it('renders with correct variant', () => {
+  it("renders with correct variant", () => {
     render(<Button variant="destructive">Delete</Button>);
-    
-    const button = screen.getByRole('button', { name: /delete/i });
-    expect(button).toHaveClass('destructive');
+
+    const button = screen.getByRole("button", { name: /delete/i });
+    expect(button).toHaveClass("destructive");
   });
 });
 ```
@@ -133,4 +135,4 @@ We aim for the following test coverage:
 - `npm run test`: Run all tests once
 - `npm run test:watch`: Run tests in watch mode (re-run on file changes)
 - `npm run test:ui`: Run tests with UI (useful for debugging)
-- `npm run test:coverage`: Generate coverage report 
+- `npm run test:coverage`: Generate coverage report

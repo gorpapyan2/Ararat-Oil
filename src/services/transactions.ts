@@ -1,14 +1,12 @@
 import { transactionsApi, Transaction } from "@/core/api";
 import { PaymentMethod, PaymentStatus } from "@/types";
 
-export const fetchTransactions = async (
-  filters?: { 
-    entity_type?: string; 
-    entity_id?: string; 
-    start_date?: string; 
-    end_date?: string 
-  }
-): Promise<Transaction[]> => {
+export const fetchTransactions = async (filters?: {
+  entity_type?: string;
+  entity_id?: string;
+  start_date?: string;
+  end_date?: string;
+}): Promise<Transaction[]> => {
   try {
     const response = await transactionsApi.getTransactions(filters);
 
@@ -24,12 +22,17 @@ export const fetchTransactions = async (
   }
 };
 
-export const fetchTransactionById = async (id: string): Promise<Transaction | null> => {
+export const fetchTransactionById = async (
+  id: string
+): Promise<Transaction | null> => {
   try {
     const response = await transactionsApi.getTransactionById(id);
 
     if (response.error) {
-      console.error(`Error fetching transaction with ID ${id}:`, response.error);
+      console.error(
+        `Error fetching transaction with ID ${id}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
 
@@ -41,7 +44,7 @@ export const fetchTransactionById = async (id: string): Promise<Transaction | nu
 };
 
 export const createTransaction = async (
-  transaction: Omit<Transaction, "id" | "created_at" | "updated_at">,
+  transaction: Omit<Transaction, "id" | "created_at" | "updated_at">
 ): Promise<Transaction> => {
   try {
     // Ensure payment_method is a valid enum value
@@ -49,15 +52,17 @@ export const createTransaction = async (
       "cash",
       "card",
       "bank_transfer",
-      "mobile_payment"
+      "mobile_payment",
     ];
-    const paymentMethod = validPaymentMethods.includes(transaction.payment_method)
+    const paymentMethod = validPaymentMethods.includes(
+      transaction.payment_method
+    )
       ? transaction.payment_method
       : "cash"; // Default to cash if invalid
 
     const transactionData = {
       ...transaction,
-      payment_method: paymentMethod
+      payment_method: paymentMethod,
     };
 
     const response = await transactionsApi.createTransaction(transactionData);
@@ -76,7 +81,7 @@ export const createTransaction = async (
 
 export const updateTransaction = async (
   id: string,
-  updates: Partial<Omit<Transaction, "id" | "created_at" | "updated_at">>,
+  updates: Partial<Omit<Transaction, "id" | "created_at" | "updated_at">>
 ): Promise<Transaction> => {
   try {
     // Validate payment method if it's being updated
@@ -85,7 +90,7 @@ export const updateTransaction = async (
         "cash",
         "card",
         "bank_transfer",
-        "mobile_payment"
+        "mobile_payment",
       ];
       if (!validPaymentMethods.includes(updates.payment_method)) {
         updates.payment_method = "cash"; // Default to cash if invalid
@@ -95,7 +100,10 @@ export const updateTransaction = async (
     const response = await transactionsApi.updateTransaction(id, updates);
 
     if (response.error) {
-      console.error(`Error updating transaction with ID ${id}:`, response.error);
+      console.error(
+        `Error updating transaction with ID ${id}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
 
@@ -111,7 +119,10 @@ export const deleteTransaction = async (id: string): Promise<void> => {
     const response = await transactionsApi.deleteTransaction(id);
 
     if (response.error) {
-      console.error(`Error deleting transaction with ID ${id}:`, response.error);
+      console.error(
+        `Error deleting transaction with ID ${id}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
   } catch (err) {

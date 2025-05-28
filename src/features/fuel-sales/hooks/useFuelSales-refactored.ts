@@ -1,11 +1,19 @@
 /**
  * Fuel Sales Hooks - Refactored Version
- * 
+ *
  * This file demonstrates the migration from the old implementation to
  * the new standardized API hooks.
  */
 
-import { createResourceHooks, useApiQuery } from '@/hooks/api';
+/**
+ * Fuel Sales Hooks - Refactored Version
+ *
+ * This file demonstrates the migration from the old implementation to
+ * the new standardized API hooks.
+ */
+
+import { createResourceHooks, useApiQuery } from "@/hooks/api";
+import type { ResourceService } from "@/hooks/api/types";
 import {
   getFuelSales,
   getFuelSaleById,
@@ -14,17 +22,22 @@ import {
   deleteFuelSale,
   getLatestFuelSale,
   getFuelSalesCount,
-  getFuelSalesSummary
-} from '../services';
-import { FuelSale, FuelSaleFormData, FuelSaleFilters, FuelSaleSummary } from '../types';
+  getFuelSalesSummary,
+} from "../services";
+import {
+  FuelSale,
+  FuelSaleFormData,
+  FuelSaleFilters,
+  FuelSaleSummary,
+} from "../types";
 
 // Adapt service to match ResourceService interface
-const fuelSalesService = {
+const fuelSalesService: ResourceService<FuelSale, FuelSaleFilters, FuelSaleFormData, Partial<FuelSaleFormData>> = {
   getList: getFuelSales,
   getById: getFuelSaleById,
   create: createFuelSale,
   update: updateFuelSale,
-  delete: deleteFuelSale
+  delete: deleteFuelSale,
 };
 
 // Create all standard fuel sales hooks with a single factory call
@@ -33,13 +46,18 @@ const {
   useById: useFuelSaleById,
   useCreate: useCreateFuelSale,
   useUpdate: useUpdateFuelSale,
-  useDelete: useDeleteFuelSale
-} = createResourceHooks<FuelSale, FuelSaleFilters, FuelSaleFormData, Partial<FuelSaleFormData>>({
-  resourceName: 'fuel-sales',
-  service: fuelSalesService as any,
+  useDelete: useDeleteFuelSale,
+} = createResourceHooks<
+  FuelSale,
+  FuelSaleFilters,
+  FuelSaleFormData,
+  Partial<FuelSaleFormData>
+>({
+  resourceName: "fuel-sales",
+  service: fuelSalesService,
   options: {
     staleTime: 5 * 60 * 1000, // 5 minutes
-  }
+  },
 });
 
 /**
@@ -47,7 +65,7 @@ const {
  */
 export function useLatestFuelSale(fillingSystemId: string) {
   return useApiQuery({
-    queryKey: ['latest-fuel-sale', fillingSystemId],
+    queryKey: ["latest-fuel-sale", fillingSystemId],
     queryFn: () => getLatestFuelSale(fillingSystemId),
     enabled: !!fillingSystemId,
   });
@@ -58,7 +76,7 @@ export function useLatestFuelSale(fillingSystemId: string) {
  */
 export function useFuelSalesCount() {
   return useApiQuery({
-    queryKey: ['fuel-sales-count'],
+    queryKey: ["fuel-sales-count"],
     queryFn: getFuelSalesCount,
   });
 }
@@ -66,9 +84,12 @@ export function useFuelSalesCount() {
 /**
  * Hook for fetching sales summary
  */
-export function useFuelSalesSummary(dateRange?: { start: string; end: string }) {
+export function useFuelSalesSummary(dateRange?: {
+  start: string;
+  end: string;
+}) {
   return useApiQuery<FuelSaleSummary>({
-    queryKey: ['fuel-sales-summary', dateRange],
+    queryKey: ["fuel-sales-summary", dateRange],
     queryFn: () => getFuelSalesSummary(dateRange),
   });
 }
@@ -80,7 +101,7 @@ export function useFuelSalesSummary(dateRange?: { start: string; end: string }) 
 export function useFuelSales(filters?: FuelSaleFilters) {
   // Use the new hooks internally
   const fuelSales = useFuelSalesList(filters);
-  
+
   return {
     // Make it compatible with the original API
     data: fuelSales.data || [],
@@ -126,4 +147,4 @@ export {
   useCreateFuelSale,
   useUpdateFuelSale,
   useDeleteFuelSale,
-}; 
+};

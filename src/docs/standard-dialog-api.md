@@ -26,6 +26,7 @@ import { StandardDialog } from "@/components/ui/dialog";
 ```
 
 Example usage:
+
 ```tsx
 <StandardDialog
   open={isOpen}
@@ -72,6 +73,7 @@ import { ConfirmDialog } from "@/components/ui/dialog";
 ```
 
 Example usage:
+
 ```tsx
 <ConfirmDialog
   open={isConfirmOpen}
@@ -105,6 +107,7 @@ import { DeleteConfirmDialog } from "@/components/ui/dialog";
 ```
 
 Example usage:
+
 ```tsx
 <DeleteConfirmDialog
   open={isDeleteOpen}
@@ -134,6 +137,7 @@ import { AlertMessageDialog } from "@/components/ui/dialog";
 ```
 
 Example usage:
+
 ```tsx
 <AlertMessageDialog
   open={isAlertOpen}
@@ -171,6 +175,7 @@ const dialog = useDialog({
 ```
 
 Example usage:
+
 ```tsx
 const dialog = useDialog();
 
@@ -179,7 +184,7 @@ return (
     <Button onClick={dialog.open} ref={dialog.triggerRef}>
       Open Dialog
     </Button>
-    
+
     <StandardDialog
       open={dialog.isOpen}
       onOpenChange={dialog.onOpenChange}
@@ -219,23 +224,21 @@ const confirmDialog = useConfirmDialog({
 ```
 
 Example usage:
+
 ```tsx
 const confirmDialog = useConfirmDialog({
   onConfirm: async () => {
     await saveChanges();
     // Loading state is handled by the hook
-  }
+  },
 });
 
 return (
   <>
-    <Button 
-      onClick={confirmDialog.open} 
-      ref={confirmDialog.triggerRef}
-    >
+    <Button onClick={confirmDialog.open} ref={confirmDialog.triggerRef}>
       Save Changes
     </Button>
-    
+
     <ConfirmDialog
       open={confirmDialog.isOpen}
       onOpenChange={confirmDialog.onOpenChange}
@@ -280,6 +283,7 @@ const alertDialog = useAlertDialog();
 ```
 
 Example usage:
+
 ```tsx
 const alertDialog = useAlertDialog();
 
@@ -288,7 +292,7 @@ const showError = (message: string) => {
   alertDialog.open({
     title: "Error",
     description: message,
-    severity: "error"
+    severity: "error",
   });
 };
 
@@ -297,7 +301,7 @@ return (
     <Button onClick={() => showError("Something went wrong!")}>
       Test Error
     </Button>
-    
+
     <AlertMessageDialog
       open={alertDialog.isOpen}
       onOpenChange={alertDialog.onOpenChange}
@@ -347,11 +351,12 @@ const confirmationDialog = useConfirmationDialog({
 ```
 
 Example usage:
+
 ```tsx
 const confirmationDialog = useConfirmationDialog();
 
 // Button that triggers the confirmation
-<Button 
+<Button
   onClick={() => confirmationDialog.openDialog({
     title: "Delete Item",
     message: "Are you sure you want to delete this item?",
@@ -409,6 +414,7 @@ const loginDialog = useLoginDialog({
 ```
 
 Example usage:
+
 ```tsx
 const loginDialog = useLoginDialog({
   onLoginSuccess: (user) => {
@@ -468,26 +474,28 @@ export function useEmployeeDialog({
   onUpdateSuccess?: (employee: Employee) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const openCreate = useCallback(() => {
     setSelectedEmployee(null);
     setIsOpen(true);
   }, []);
-  
+
   const openEdit = useCallback((employee: Employee) => {
     setSelectedEmployee(employee);
     setIsOpen(true);
   }, []);
-  
+
   const onOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
     if (!open) {
       setSelectedEmployee(null);
     }
   }, []);
-  
+
   const handleSubmit = useCallback(
     async (data: z.infer<typeof employeeSchema>) => {
       setIsSubmitting(true);
@@ -514,7 +522,7 @@ export function useEmployeeDialog({
     },
     [selectedEmployee, onCreateSuccess, onUpdateSuccess]
   );
-  
+
   return {
     isOpen,
     selectedEmployee,
@@ -528,6 +536,7 @@ export function useEmployeeDialog({
 ```
 
 Usage in component:
+
 ```tsx
 export function EmployeeManager() {
   const employeeDialog = useEmployeeDialog({
@@ -544,14 +553,12 @@ export function EmployeeManager() {
       });
     },
   });
-  
+
   return (
     <div>
-      <Button onClick={employeeDialog.openCreate}>
-        Add Employee
-      </Button>
-      
-      <EmployeeDialogHooked 
+      <Button onClick={employeeDialog.openCreate}>Add Employee</Button>
+
+      <EmployeeDialogHooked
         onCreateSuccess={employeeDialog.onCreateSuccess}
         onUpdateSuccess={employeeDialog.onUpdateSuccess}
       />
@@ -591,6 +598,7 @@ const salesDialog = useSalesDialog({
 ```
 
 Example usage:
+
 ```tsx
 export function SalesPage() {
   const salesDialog = useSalesDialog({
@@ -616,14 +624,12 @@ export function SalesPage() {
       refetchSales();
     },
   });
-  
+
   return (
     <div>
-      <Button onClick={salesDialog.openCreateDialog}>
-        Add Sale
-      </Button>
-      
-      <SalesDialogsHooked 
+      <Button onClick={salesDialog.openCreateDialog}>Add Sale</Button>
+
+      <SalesDialogsHooked
         onCreateSuccess={salesDialog.onCreateSuccess}
         onUpdateSuccess={salesDialog.onUpdateSuccess}
         onDeleteSuccess={salesDialog.onDeleteSuccess}
@@ -662,6 +668,7 @@ const tankDialog = useTankDialog({
 ```
 
 Example usage with a form:
+
 ```tsx
 export function TankFormDialog() {
   const {
@@ -684,7 +691,7 @@ export function TankFormDialog() {
       refetchTanks();
     },
   });
-  
+
   const form = useZodForm({
     schema: tankFormSchema,
     defaultValues: {
@@ -694,7 +701,7 @@ export function TankFormDialog() {
       current_level: 0,
     },
   });
-  
+
   const onSubmit = (data: TankFormData) => {
     const validationResult = handleFormSubmit(data);
     if (validationResult) {
@@ -703,7 +710,7 @@ export function TankFormDialog() {
       });
     }
   };
-  
+
   return (
     <>
       <StandardDialog
@@ -719,7 +726,7 @@ export function TankFormDialog() {
           </Button>
         </form>
       </StandardDialog>
-      
+
       <ConfirmDialog
         open={isConfirmOpen}
         onOpenChange={setIsConfirmOpen}
@@ -765,6 +772,7 @@ const profileDialog = useProfileDialog({
 ```
 
 Example usage with a profile form:
+
 ```tsx
 export function ProfileEditor() {
   const { user, profile } = useAuth();
@@ -796,19 +804,21 @@ export function ProfileEditor() {
     schema: profileSchema,
     defaultValues: getDefaultValues(),
   });
-  
+
   return (
     <StandardDialog open={isOpen} onOpenChange={setIsOpen}>
       <form onSubmit={form.handleSubmit(handleSubmit)}>
         {/* Avatar section */}
         <Avatar>
           <AvatarImage src={avatarUrl} />
-          <AvatarFallback>{getInitials(form.getValues().fullName)}</AvatarFallback>
+          <AvatarFallback>
+            {getInitials(form.getValues().fullName)}
+          </AvatarFallback>
         </Avatar>
-        
+
         <Button onClick={handleChangeAvatar}>Change Avatar</Button>
         <Button onClick={handleRemoveAvatar}>Remove Avatar</Button>
-        
+
         {/* Form fields */}
         {/* Form submission button */}
       </form>
@@ -853,6 +863,7 @@ const multiStepDialog = useMultiStepDialog({
 ```
 
 Example usage:
+
 ```tsx
 function RegistrationWizard() {
   const dialog = useMultiStepDialog({
@@ -860,38 +871,44 @@ function RegistrationWizard() {
     onComplete: (data) => {
       // Submit the complete registration data
       registerUser(data);
-    }
+    },
   });
 
   // Render different content based on current step
   const renderStepContent = () => {
     switch (dialog.currentStep) {
       case 1:
-        return <PersonalInfoStep 
-                 data={dialog.formData} 
-                 onSubmit={(data) => {
-                   dialog.updateFormData(data);
-                   dialog.nextStep();
-                 }} 
-               />;
+        return (
+          <PersonalInfoStep
+            data={dialog.formData}
+            onSubmit={(data) => {
+              dialog.updateFormData(data);
+              dialog.nextStep();
+            }}
+          />
+        );
       case 2:
-        return <AccountDetailsStep 
-                 data={dialog.formData} 
-                 onSubmit={(data) => {
-                   dialog.updateFormData(data);
-                   dialog.nextStep();
-                 }} 
-               />;
+        return (
+          <AccountDetailsStep
+            data={dialog.formData}
+            onSubmit={(data) => {
+              dialog.updateFormData(data);
+              dialog.nextStep();
+            }}
+          />
+        );
       case 3:
-        return <ReviewAndSubmitStep 
-                 data={dialog.formData} 
-                 onSubmit={(data) => {
-                   dialog.setIsSubmitting(true);
-                   // Final submit
-                   dialog.updateFormData(data);
-                   dialog.close();
-                 }} 
-               />;
+        return (
+          <ReviewAndSubmitStep
+            data={dialog.formData}
+            onSubmit={(data) => {
+              dialog.setIsSubmitting(true);
+              // Final submit
+              dialog.updateFormData(data);
+              dialog.close();
+            }}
+          />
+        );
       default:
         return null;
     }
@@ -899,9 +916,7 @@ function RegistrationWizard() {
 
   return (
     <>
-      <Button onClick={dialog.open}>
-        Register
-      </Button>
+      <Button onClick={dialog.open}>Register</Button>
 
       <StandardDialog
         open={dialog.isOpen}
@@ -920,8 +935,8 @@ function RegistrationWizard() {
                 Next
               </Button>
             ) : (
-              <Button 
-                form={`step-${dialog.currentStep}-form`} 
+              <Button
+                form={`step-${dialog.currentStep}-form`}
                 type="submit"
                 disabled={dialog.isSubmitting}
               >
@@ -934,12 +949,14 @@ function RegistrationWizard() {
         {/* Progress indicator */}
         <div className="mb-4">
           <div className="flex justify-between">
-            <div>Step {dialog.currentStep} of {dialog.totalSteps}</div>
+            <div>
+              Step {dialog.currentStep} of {dialog.totalSteps}
+            </div>
             <div>{dialog.progress}%</div>
           </div>
           <div className="h-2 w-full bg-muted rounded-full">
-            <div 
-              className="h-2 bg-primary rounded-full transition-all" 
+            <div
+              className="h-2 bg-primary rounded-full transition-all"
               style={{ width: `${dialog.progress}%` }}
             />
           </div>
@@ -989,6 +1006,7 @@ import { SalesController } from "@/components/sales/SalesController";
 ```
 
 Example usage with a data table:
+
 ```tsx
 <SalesDataTable
   columns={columns}
@@ -1023,8 +1041,9 @@ import { TankController } from "@/components/tanks/TankController";
 ```
 
 Example usage:
+
 ```tsx
-<TankController 
+<TankController
   onSuccess={() => {
     toast({
       title: "Success",
@@ -1059,10 +1078,11 @@ import { ProfileController } from "@/components/settings/ProfileController";
 ```
 
 Example usage:
+
 ```tsx
 const { user, profile } = useAuth();
 
-<ProfileController 
+<ProfileController
   user={user}
   profile={profile}
   onSuccess={(data) => {
@@ -1078,7 +1098,7 @@ const { user, profile } = useAuth();
   buttonText="Edit Your Profile"
   variant="ghost"
   size="sm"
-/>
+/>;
 ```
 
 ## Advanced Usage
@@ -1096,7 +1116,7 @@ return (
     <Button onClick={parentDialog.open} ref={parentDialog.triggerRef}>
       Open Parent
     </Button>
-    
+
     <StandardDialog
       open={parentDialog.isOpen}
       onOpenChange={parentDialog.onOpenChange}
@@ -1105,7 +1125,7 @@ return (
       <Button onClick={nestedDialog.open} ref={nestedDialog.triggerRef}>
         Open Nested
       </Button>
-      
+
       <StandardDialog
         open={nestedDialog.isOpen}
         onOpenChange={nestedDialog.onOpenChange}
@@ -1158,7 +1178,9 @@ const StepContent = () => {
     case 2:
       return <Step2Form onBack={() => setStep(1)} onNext={() => setStep(3)} />;
     case 3:
-      return <Step3Form onBack={() => setStep(2)} onComplete={handleComplete} />;
+      return (
+        <Step3Form onBack={() => setStep(2)} onComplete={handleComplete} />
+      );
     default:
       return null;
   }
@@ -1196,7 +1218,7 @@ For maximum accessibility, ensure:
 1. Dialog titles are clear and descriptive
 2. Interactive elements have appropriate labels
 3. Error messages are linked to form fields
-4. Color is not the only means of conveying information 
+4. Color is not the only means of conveying information
 
 ### ConfirmationDialogStandardized
 
@@ -1224,18 +1246,20 @@ import { ConfirmationDialogStandardized } from "@/components/dialogs/Confirmatio
 ```
 
 Example usage:
+
 ```tsx
 <ConfirmationDialogStandardized
   open={isConfirmOpen}
   onOpenChange={setIsConfirmOpen}
   defaultOptions={{
     title: "Delete Item",
-    message: "Are you sure you want to delete this item? This action cannot be undone.",
+    message:
+      "Are you sure you want to delete this item? This action cannot be undone.",
     variant: "destructive",
     confirmLabel: "Delete",
     cancelLabel: "Cancel",
     onConfirm: handleDeleteItem,
-    onCancel: () => console.log("Cancelled deletion")
+    onCancel: () => console.log("Cancelled deletion"),
   }}
 />
 ```
@@ -1249,27 +1273,30 @@ import { ConfirmationController } from "@/components/dialogs/ConfirmationControl
 
 <ConfirmationController
   defaultOptions={Partial<ConfirmationOptions>} // Optional: Default configuration
-  children={(openConfirmation) => ReactNode}    // Required: Render function
-/>
+  children={(openConfirmation) => ReactNode} // Required: Render function
+/>;
 
 // The children prop is a function that receives an openConfirmation function which
 // can be used to open the dialog with specific options.
 ```
 
 Example usage:
+
 ```tsx
 <ConfirmationController>
   {(openConfirmation) => (
     <Button
       variant="destructive"
       size="sm"
-      onClick={() => openConfirmation({
-        title: "Delete Item",
-        message: "Are you sure you want to delete this item?",
-        variant: "destructive",
-        confirmLabel: "Delete",
-        onConfirm: handleDeleteItem
-      })}
+      onClick={() =>
+        openConfirmation({
+          title: "Delete Item",
+          message: "Are you sure you want to delete this item?",
+          variant: "destructive",
+          confirmLabel: "Delete",
+          onConfirm: handleDeleteItem,
+        })
+      }
     >
       <Trash2 className="h-4 w-4 mr-2" />
       Delete
@@ -1299,6 +1326,7 @@ import { LoginDialogStandardized } from "@/components/auth/LoginDialogStandardiz
 ```
 
 Example usage:
+
 ```tsx
 <LoginDialogStandardized
   open={isLoginOpen}
@@ -1337,6 +1365,7 @@ import { LoginController } from "@/components/auth/LoginController";
 ```
 
 Example usage:
+
 ```tsx
 // Basic usage
 <LoginController
@@ -1360,4 +1389,4 @@ Example usage:
 >
   <CustomButton>Sign In</CustomButton>
 </LoginController>
-``` 
+```

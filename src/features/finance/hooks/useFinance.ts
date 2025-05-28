@@ -1,23 +1,28 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  getTransactions, 
-  createTransaction as createTransactionService, 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getTransactions,
+  createTransaction as createTransactionService,
   updateTransaction as updateTransactionService,
-  getExpenses, 
-  createExpense as createExpenseService, 
+  getExpenses,
+  createExpense as createExpenseService,
   updateExpense as updateExpenseService,
   getProfitLoss,
   calculateProfitLoss as calculateProfitLossService,
-  getFinanceOverview
-} from '../services';
-import type { Transaction, Expense, ProfitLoss, FinanceOverview } from '../types/finance.types';
+  getFinanceOverview,
+} from "../services";
+import type {
+  Transaction,
+  Expense,
+  ProfitLoss,
+  FinanceOverview,
+} from "../types/finance.types";
 
 // Define query keys as array strings for consistency
 const QUERY_KEYS = {
-  transactions: ['transactions'],
-  expenses: ['expenses'],
-  profitLoss: ['profit-loss'],
-  financeOverview: ['finance-overview']
+  transactions: ["transactions"],
+  expenses: ["expenses"],
+  profitLoss: ["profit-loss"],
+  financeOverview: ["finance-overview"],
 };
 
 /**
@@ -48,7 +53,7 @@ export function useFinance() {
       const data = await getProfitLoss();
       // Return the most recent profit/loss record or throw if none found
       if (data.length === 0) {
-        throw new Error('No profit/loss data available');
+        throw new Error("No profit/loss data available");
       }
       return data[0]; // Return the first/most recent item
     },
@@ -66,7 +71,7 @@ export function useFinance() {
   const createTransactionMutation = useMutation<
     Transaction,
     Error,
-    Omit<Transaction, 'id' | 'created_at' | 'updated_at'>
+    Omit<Transaction, "id" | "created_at" | "updated_at">
   >({
     mutationFn: createTransactionService,
     onSuccess: () => {
@@ -93,7 +98,7 @@ export function useFinance() {
   const createExpenseMutation = useMutation<
     Expense,
     Error,
-    Omit<Expense, 'id' | 'created_at' | 'updated_at'>
+    Omit<Expense, "id" | "created_at" | "updated_at">
   >({
     mutationFn: createExpenseService,
     onSuccess: () => {
@@ -130,16 +135,16 @@ export function useFinance() {
   });
 
   // Compute combined loading and error states
-  const isLoading = 
-    transactionsQuery.isLoading || 
-    expensesQuery.isLoading || 
-    profitLossQuery.isLoading || 
+  const isLoading =
+    transactionsQuery.isLoading ||
+    expensesQuery.isLoading ||
+    profitLossQuery.isLoading ||
     financeOverviewQuery.isLoading;
-  
-  const error = 
-    transactionsQuery.error || 
-    expensesQuery.error || 
-    profitLossQuery.error || 
+
+  const error =
+    transactionsQuery.error ||
+    expensesQuery.error ||
+    profitLossQuery.error ||
     financeOverviewQuery.error;
 
   return {
@@ -148,36 +153,36 @@ export function useFinance() {
     expenses: expensesQuery.data || [],
     profitLoss: profitLossQuery.data,
     financeOverview: financeOverviewQuery.data,
-    
+
     // Combined states
     isLoading,
     error,
-    
+
     // Individual loading states
     isLoadingTransactions: transactionsQuery.isLoading,
     isLoadingExpenses: expensesQuery.isLoading,
     isLoadingProfitLoss: profitLossQuery.isLoading,
     isLoadingFinanceOverview: financeOverviewQuery.isLoading,
-    
+
     // Individual error states
     transactionsError: transactionsQuery.error,
     expensesError: expensesQuery.error,
     profitLossError: profitLossQuery.error,
     financeOverviewError: financeOverviewQuery.error,
-    
+
     // Mutations
     createTransaction: createTransactionMutation,
     updateTransaction: updateTransactionMutation,
     createExpense: createExpenseMutation,
     updateExpense: updateExpenseMutation,
     calculateProfitLoss: calculateProfitLossMutation,
-    
+
     // Refetch functions
     refetchTransactions: transactionsQuery.refetch,
     refetchExpenses: expensesQuery.refetch,
     refetchProfitLoss: profitLossQuery.refetch,
     refetchFinanceOverview: financeOverviewQuery.refetch,
-    
+
     // Refetch all
     refetchAll: () => {
       transactionsQuery.refetch();
@@ -186,4 +191,4 @@ export function useFinance() {
       financeOverviewQuery.refetch();
     },
   };
-} 
+}

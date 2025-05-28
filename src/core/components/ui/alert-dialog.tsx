@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   AlertDialog,
   AlertDialogPortal,
   AlertDialogOverlay,
@@ -14,5 +14,5 @@ export {
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogAction,
-  AlertDialogCancel 
+  AlertDialogCancel,
 } from "@/core/components/ui/primitives/alert-dialog";

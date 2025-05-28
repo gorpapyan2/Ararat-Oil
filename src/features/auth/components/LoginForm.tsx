@@ -1,63 +1,63 @@
-import { useState } from 'react';
-import { z } from 'zod';
-import { useAuth } from '../hooks/useAuth';
-import { formatAuthError } from '../utils/auth.utils';
-import type { LoginCredentials } from '../types/auth.types';
-import { useTranslation } from 'react-i18next';
-import { StandardForm } from '@/core/components/ui/composed/base-form';
+import { useState } from "react";
+import { z } from "zod";
+import { useAuth } from "../hooks/useAuth";
+import { formatAuthError } from "../utils/auth.utils";
+import type { LoginCredentials } from "../types/auth.types";
+import { useTranslation } from "react-i18next";
+import { StandardForm } from "@/core/components/ui/composed/base-form";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/core/components/ui/primitives/form';
-import { Input } from '@/core/components/ui/primitives/input';
-import { Alert, AlertDescription } from '@/core/components/ui/alert';
-import { Control, FieldValues } from 'react-hook-form';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-
-// Define the login schema using zod
-const createLoginSchema = () => {
-  const { t } = useTranslation();
-  
-  return z.object({
-    email: z.string({
-      required_error: t('auth.emailRequired', 'Email is required')
-    }).email(t('auth.invalidEmail', 'Invalid email address')),
-    password: z.string({
-      required_error: t('auth.passwordRequired', 'Password is required')
-    }).min(6, t('auth.passwordMinLength', 'Password must be at least 6 characters')),
-  });
-};
-
-// Type for the form values based on the schema
-type LoginFormData = z.infer<ReturnType<typeof createLoginSchema>>;
+} from "@/core/components/ui/primitives/form";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Alert, AlertDescription } from "@/core/components/ui/alert";
+import { Control, FieldValues } from "react-hook-form";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 export function LoginForm() {
   const { t } = useTranslation();
   const { login, isLoading } = useAuth();
   const [authError, setAuthError] = useState<string | null>(null);
-  
-  // Create schema
-  const loginSchema = createLoginSchema();
-  
+
+  // Create schema inside the component where hooks can be called
+  const loginSchema = z.object({
+    email: z
+      .string({
+        required_error: t("auth.emailRequired", "Email is required"),
+      })
+      .email(t("auth.invalidEmail", "Invalid email address")),
+    password: z
+      .string({
+        required_error: t("auth.passwordRequired", "Password is required"),
+      })
+      .min(
+        6,
+        t("auth.passwordMinLength", "Password must be at least 6 characters")
+      ),
+  });
+
+  // Type for the form values based on the schema
+  type LoginFormData = z.infer<typeof loginSchema>;
+
   // Default values
   const defaultValues = {
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   };
-  
+
   // Submit handler
   const handleSubmit = async (data: LoginFormData) => {
     setAuthError(null);
-    
+
     try {
       const credentials: LoginCredentials = {
         email: data.email,
         password: data.password,
       };
-      
+
       await login(credentials);
       return true;
     } catch (error) {
@@ -71,7 +71,11 @@ export function LoginForm() {
       schema={loginSchema}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}
-      submitText={isLoading ? t('auth.signingIn', 'Signing in...') : t('auth.signIn', 'Sign in')}
+      submitText={
+        isLoading
+          ? t("auth.signingIn", "Signing in...")
+          : t("auth.signIn", "Sign in")
+      }
       className="space-y-4"
     >
       {({ control }) => (
@@ -82,13 +86,13 @@ export function LoginForm() {
               <AlertDescription>{authError}</AlertDescription>
             </Alert>
           )}
-          
+
           <FormField
             control={control as Control<FieldValues>}
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('auth.email', 'Email')}</FormLabel>
+                <FormLabel>{t("auth.email", "Email")}</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
                 </FormControl>
@@ -96,13 +100,13 @@ export function LoginForm() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={control as Control<FieldValues>}
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('auth.password', 'Password')}</FormLabel>
+                <FormLabel>{t("auth.password", "Password")}</FormLabel>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>
@@ -114,4 +118,4 @@ export function LoginForm() {
       )}
     </StandardForm>
   );
-} 
+}

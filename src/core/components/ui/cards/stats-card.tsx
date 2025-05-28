@@ -56,8 +56,8 @@ export const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
           {change && (
             <div
               className={cn(
-                "mt-1 text-sm", 
-                directionClasses[change.direction || 'neutral']
+                "mt-1 text-sm",
+                directionClasses[change.direction || "neutral"]
               )}
             >
               {change.direction === "up" && "↑ "}
@@ -66,12 +66,10 @@ export const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
             </div>
           )}
         </CardContent>
-        {footer && (
-          <CardFooter bordered>{footer}</CardFooter>
-        )}
+        {footer && <CardFooter bordered>{footer}</CardFooter>}
       </Card>
     );
   }
 );
 
-StatsCard.displayName = "StatsCard"; 
+StatsCard.displayName = "StatsCard";

@@ -5,9 +5,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/core/components/ui/dropdown-menu';
+} from "@/core/components/ui/dropdown-menu";
 import { Button } from "@/core/components/ui/button";
-import { Badge } from '@/core/components/ui/badge';
+import { Badge } from "@/core/components/ui/badge";
 import { Check, ChevronDown } from "lucide-react";
 import { useFuelSales } from "../hooks/useFuelSales";
 import type { FuelSale } from "../types/fuel-sales.types";
@@ -32,25 +32,28 @@ export function FuelSalesStatusUpdate({ sale }: FuelSalesStatusUpdateProps) {
   const { toast } = useToast();
   const { updateSale } = useFuelSales();
 
-  const handleStatusChange = useCallback(async (newStatus: typeof sale.payment_status) => {
-    try {
-      await updateSale.mutateAsync({
-        id: sale.id,
-        data: { payment_status: newStatus },
-      });
-      toast({
-        title: "Success",
-        description: `Payment status updated to ${statusLabels[newStatus]}`,
-      });
-    } catch (error: any) {
-      console.error("Error updating payment status:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update payment status",
-        variant: "destructive",
-      });
-    }
-  }, [sale.id, updateSale, toast]);
+  const handleStatusChange = useCallback(
+    async (newStatus: typeof sale.payment_status) => {
+      try {
+        await updateSale.mutateAsync({
+          id: sale.id,
+          data: { payment_status: newStatus },
+        });
+        toast({
+          title: "Success",
+          description: `Payment status updated to ${statusLabels[newStatus]}`,
+        });
+      } catch (error: unknown) {
+        console.error("Error updating fuel sale status:", error);
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to update fuel sale status.",
+          variant: "destructive",
+        });
+      }
+    },
+    [sale.id, updateSale, toast]
+  );
 
   return (
     <DropdownMenu>
@@ -69,12 +72,12 @@ export function FuelSalesStatusUpdate({ sale }: FuelSalesStatusUpdateProps) {
         {Object.entries(statusLabels).map(([status, label]) => (
           <DropdownMenuItem
             key={status}
-            onClick={() => handleStatusChange(status as typeof sale.payment_status)}
+            onClick={() =>
+              handleStatusChange(status as typeof sale.payment_status)
+            }
             className="flex items-center gap-2"
           >
-            {sale.payment_status === status && (
-              <Check className="h-4 w-4" />
-            )}
+            {sale.payment_status === status && <Check className="h-4 w-4" />}
             <Badge
               variant="outline"
               className={statusColors[status as keyof typeof statusColors]}
@@ -86,4 +89,4 @@ export function FuelSalesStatusUpdate({ sale }: FuelSalesStatusUpdateProps) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-} 
+}

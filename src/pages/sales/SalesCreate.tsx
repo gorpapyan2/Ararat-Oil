@@ -5,12 +5,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { IconSend, IconArrowLeft } from "@tabler/icons-react";
 
 // Import components
-import { PageHeader } from '@/core/components/ui/page-header';
+import { PageHeader } from "@/core/components/ui/page-header";
 import { Button } from "@/core/components/ui/button";
 import { Card, CardContent } from "@/core/components/ui/card";
 import { SalesFormStandardized, ShiftControl } from "@/features/sales";
-import { createSale } from '@/features/sales/services';
+import { createSale } from "@/features/sales/services";
 import { useToast } from "@/hooks";
+import { CreateSaleRequest } from '@/features/sales/types';
 
 export default function SalesCreate() {
   const { t } = useTranslation();
@@ -25,26 +26,26 @@ export default function SalesCreate() {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       queryClient.invalidateQueries({ queryKey: ["latest-sale"] });
-      
+
       toast({
         title: t("common.success"),
         description: t("sales.createSuccess"),
       });
-      
+
       // Navigate back to the sales page
       navigate("/sales");
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Create error:", error);
       toast({
         title: t("common.error"),
-        description: error.message || t("sales.createError"),
+        description: error instanceof Error ? error.message : t("sales.createError"),
         variant: "destructive",
       });
     },
   });
 
-  const handleSubmit = async (data: any): Promise<boolean> => {
+  const handleSubmit = async (data: CreateSaleRequest): Promise<boolean> => {
     try {
       await createSaleMutation.mutateAsync(data);
       return true; // Indicate submission was successful
@@ -72,15 +73,17 @@ export default function SalesCreate() {
         }
       />
 
-      <ShiftControl onShiftStart={() => {}} onShiftEnd={() => {}} isShiftOpen={false} />
+      <ShiftControl
+        onShiftStart={() => {}}
+        onShiftEnd={() => {}}
+        isShiftOpen={false}
+      />
 
       <Card className="max-w-3xl mx-auto">
         <CardContent className="pt-6">
-          <SalesFormStandardized 
-            onSubmit={handleSubmit} 
-          />
+          <SalesFormStandardized onSubmit={handleSubmit} />
         </CardContent>
       </Card>
     </div>
   );
-} 
+}

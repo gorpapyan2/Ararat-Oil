@@ -1,10 +1,15 @@
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { Progress } from "@/core/components/ui/primitives/progress";
-import { format } from 'date-fns';
-import { useTranslation } from 'react-i18next';
-import { SuppliesSummary } from '../types';
-import { Droplet, DollarSign, Calendar, Gauge } from 'lucide-react';
+import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
+import { SuppliesSummary } from "../types";
+import { Droplet, DollarSign, Calendar, Gauge } from "lucide-react";
 
 interface KpiCardGridProps {
   summary: SuppliesSummary;
@@ -13,21 +18,22 @@ interface KpiCardGridProps {
 
 export function KpiCardGrid({ summary, isLoading }: KpiCardGridProps) {
   const { t } = useTranslation();
-  const tankLevelPercentage = (summary.currentTankLevel / summary.tankCapacity) * 100;
+  const tankLevelPercentage =
+    (summary.currentTankLevel / summary.tankCapacity) * 100;
 
   const container = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const item = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    show: { opacity: 1, y: 0 },
   };
 
   if (isLoading) {
@@ -58,7 +64,7 @@ export function KpiCardGrid({ summary, isLoading }: KpiCardGridProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('supplies.totalLiters', 'Total Liters')}
+              {t("supplies.totalLiters", "Total Liters")}
             </CardTitle>
             <Droplet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -79,7 +85,7 @@ export function KpiCardGrid({ summary, isLoading }: KpiCardGridProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('supplies.totalCost', 'Total Cost')}
+              {t("supplies.totalCost", "Total Cost")}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -100,7 +106,7 @@ export function KpiCardGrid({ summary, isLoading }: KpiCardGridProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('supplies.lastDelivery', 'Last Delivery')}
+              {t("supplies.lastDelivery", "Last Delivery")}
             </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -111,7 +117,7 @@ export function KpiCardGrid({ summary, isLoading }: KpiCardGridProps) {
               transition={{ duration: 0.5 }}
               className="text-2xl font-bold"
             >
-              {format(new Date(summary.lastDelivery), 'MMM d, yyyy')}
+              {format(new Date(summary.lastDelivery), "MMM d, yyyy")}
             </motion.div>
           </CardContent>
         </Card>
@@ -121,7 +127,7 @@ export function KpiCardGrid({ summary, isLoading }: KpiCardGridProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('supplies.tankLevel', 'Tank Level')}
+              {t("supplies.tankLevel", "Tank Level")}
             </CardTitle>
             <Gauge className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -137,7 +143,8 @@ export function KpiCardGrid({ summary, isLoading }: KpiCardGridProps) {
               </motion.div>
               <Progress value={tankLevelPercentage} className="h-2" />
               <p className="text-xs text-muted-foreground">
-                {summary.currentTankLevel.toLocaleString()} / {summary.tankCapacity.toLocaleString()} L
+                {summary.currentTankLevel.toLocaleString()} /{" "}
+                {summary.tankCapacity.toLocaleString()} L
               </p>
             </div>
           </CardContent>
@@ -145,4 +152,4 @@ export function KpiCardGrid({ summary, isLoading }: KpiCardGridProps) {
       </motion.div>
     </motion.div>
   );
-} 
+}

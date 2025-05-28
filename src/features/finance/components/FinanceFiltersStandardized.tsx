@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Calendar } from '@/core/components/ui/composed/calendar';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Calendar } from "@/core/components/ui/composed/calendar";
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Label } from "@/core/components/ui/primitives/label";
@@ -16,8 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/core/components/ui/primitives/select";
-import { CalendarIcon, Search, X } from 'lucide-react';
-import { format, subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { CalendarIcon, Search, X } from "lucide-react";
+import {
+  format,
+  subDays,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+} from "date-fns";
 
 interface DateRange {
   from: Date;
@@ -36,7 +43,10 @@ export interface FinanceFilters {
   categoryId?: string;
 }
 
-export function FinanceFiltersStandardized({ onFilterChange, className }: FinanceFiltersStandardizedProps) {
+export function FinanceFiltersStandardized({
+  onFilterChange,
+  className,
+}: FinanceFiltersStandardizedProps) {
   const { t } = useTranslation();
   const today = new Date();
 
@@ -44,9 +54,9 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
     from: subDays(today, 30),
     to: today,
   });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [transactionType, setTransactionType] = useState<string>('all');
-  const [categoryId, setCategoryId] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [transactionType, setTransactionType] = useState<string>("all");
+  const [categoryId, setCategoryId] = useState<string>("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const handleDateRangeChange = (range: DateRange) => {
@@ -54,7 +64,7 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
     if (range.from && range.to) {
       applyFilters({
         ...filters,
-        dateRange: range
+        dateRange: range,
       });
       setIsCalendarOpen(false);
     }
@@ -67,7 +77,7 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
   const filters: FinanceFilters = {
     dateRange,
     searchQuery: searchQuery || undefined,
-    transactionType: transactionType !== 'all' ? transactionType : undefined,
+    transactionType: transactionType !== "all" ? transactionType : undefined,
     categoryId: categoryId || undefined,
   };
 
@@ -80,35 +90,37 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
       dateRange: {
         from: subDays(today, 30),
         to: today,
-      }
+      },
     };
-    
+
     setDateRange(resetData.dateRange);
-    setSearchQuery('');
-    setTransactionType('all');
-    setCategoryId('');
-    
+    setSearchQuery("");
+    setTransactionType("all");
+    setCategoryId("");
+
     applyFilters(resetData);
   };
 
-  const applyPresetDateRange = (preset: 'week' | 'month' | 'quarter' | 'custom') => {
+  const applyPresetDateRange = (
+    preset: "week" | "month" | "quarter" | "custom"
+  ) => {
     let from = dateRange.from;
     let to = dateRange.to;
 
     switch (preset) {
-      case 'week':
+      case "week":
         from = startOfWeek(today);
         to = endOfWeek(today);
         break;
-      case 'month':
+      case "month":
         from = startOfMonth(today);
         to = endOfMonth(today);
         break;
-      case 'quarter':
+      case "quarter":
         from = subDays(today, 90);
         to = today;
         break;
-      case 'custom':
+      case "custom":
         // Keep current values
         break;
     }
@@ -117,7 +129,7 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
     setDateRange(newRange);
     applyFilters({
       ...filters,
-      dateRange: newRange
+      dateRange: newRange,
     });
   };
 
@@ -125,7 +137,7 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
     <div className={`space-y-4 ${className}`}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="space-y-2">
-          <Label>{t('finance.date_range')}</Label>
+          <Label>{t("finance.date_range")}</Label>
           <div className="flex items-center">
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
@@ -136,10 +148,11 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dateRange.from && dateRange.to ? (
                     <>
-                      {format(dateRange.from, 'MMM d, yyyy')} - {format(dateRange.to, 'MMM d, yyyy')}
+                      {format(dateRange.from, "MMM d, yyyy")} -{" "}
+                      {format(dateRange.to, "MMM d, yyyy")}
                     </>
                   ) : (
-                    <span>{t('finance.select_date_range')}</span>
+                    <span>{t("finance.select_date_range")}</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -149,23 +162,23 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => applyPresetDateRange('week')}
+                      onClick={() => applyPresetDateRange("week")}
                     >
-                      {t('finance.this_week')}
+                      {t("finance.this_week")}
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => applyPresetDateRange('month')}
+                      onClick={() => applyPresetDateRange("month")}
                     >
-                      {t('finance.this_month')}
+                      {t("finance.this_month")}
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => applyPresetDateRange('quarter')}
+                      onClick={() => applyPresetDateRange("quarter")}
                     >
-                      {t('finance.last_90_days')}
+                      {t("finance.last_90_days")}
                     </Button>
                   </div>
                 </div>
@@ -175,7 +188,9 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
                     from: dateRange.from,
                     to: dateRange.to,
                   }}
-                  onSelect={(range) => handleDateRangeChange(range as DateRange)}
+                  onSelect={(range) =>
+                    handleDateRangeChange(range as DateRange)
+                  }
                   numberOfMonths={2}
                 />
               </PopoverContent>
@@ -184,17 +199,17 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
         </div>
 
         <div className="space-y-2">
-          <Label>{t('finance.search')}</Label>
+          <Label>{t("finance.search")}</Label>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder={t('finance.search_transactions')}
+              placeholder={t("finance.search_transactions")}
               className="pl-8"
               value={searchQuery}
               onChange={handleSearchChange}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   applyFilters(filters);
                 }
               }}
@@ -203,52 +218,58 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
         </div>
 
         <div className="space-y-2">
-          <Label>{t('finance.transaction_type')}</Label>
+          <Label>{t("finance.transaction_type")}</Label>
           <Select
             value={transactionType}
             onValueChange={(value) => {
               setTransactionType(value);
               applyFilters({
                 ...filters,
-                transactionType: value !== 'all' ? value : undefined
+                transactionType: value !== "all" ? value : undefined,
               });
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t('finance.all_transactions')} />
+              <SelectValue placeholder={t("finance.all_transactions")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('finance.all_transactions')}</SelectItem>
-              <SelectItem value="income">{t('finance.income')}</SelectItem>
-              <SelectItem value="expense">{t('finance.expenses')}</SelectItem>
-              <SelectItem value="transfer">{t('finance.transfers')}</SelectItem>
+              <SelectItem value="all">
+                {t("finance.all_transactions")}
+              </SelectItem>
+              <SelectItem value="income">{t("finance.income")}</SelectItem>
+              <SelectItem value="expense">{t("finance.expenses")}</SelectItem>
+              <SelectItem value="transfer">{t("finance.transfers")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>{t('finance.category')}</Label>
+          <Label>{t("finance.category")}</Label>
           <Select
             value={categoryId}
             onValueChange={(value) => {
               setCategoryId(value);
               applyFilters({
                 ...filters,
-                categoryId: value || undefined
+                categoryId: value || undefined,
               });
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t('finance.all_categories')} />
+              <SelectValue placeholder={t("finance.all_categories")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{t('finance.all_categories')}</SelectItem>
-              <SelectItem value="fuel">{t('finance.fuel')}</SelectItem>
-              <SelectItem value="maintenance">{t('finance.maintenance')}</SelectItem>
-              <SelectItem value="salary">{t('finance.salary')}</SelectItem>
-              <SelectItem value="supplies">{t('finance.supplies')}</SelectItem>
-              <SelectItem value="utilities">{t('finance.utilities')}</SelectItem>
-              <SelectItem value="other">{t('finance.other')}</SelectItem>
+              <SelectItem value="">{t("finance.all_categories")}</SelectItem>
+              <SelectItem value="fuel">{t("finance.fuel")}</SelectItem>
+              <SelectItem value="maintenance">
+                {t("finance.maintenance")}
+              </SelectItem>
+              <SelectItem value="salary">{t("finance.salary")}</SelectItem>
+              <SelectItem value="supplies">{t("finance.supplies")}</SelectItem>
+              <SelectItem value="utilities">
+                {t("finance.utilities")}
+              </SelectItem>
+              <SelectItem value="other">{t("finance.other")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -262,15 +283,12 @@ export function FinanceFiltersStandardized({ onFilterChange, className }: Financ
           className="flex items-center"
         >
           <X className="mr-1 h-4 w-4" />
-          {t('finance.reset_filters')}
+          {t("finance.reset_filters")}
         </Button>
-        <Button 
-          size="sm" 
-          onClick={() => applyFilters(filters)}
-        >
-          {t('finance.apply_filters')}
+        <Button size="sm" onClick={() => applyFilters(filters)}>
+          {t("finance.apply_filters")}
         </Button>
       </div>
     </div>
   );
-} 
+}

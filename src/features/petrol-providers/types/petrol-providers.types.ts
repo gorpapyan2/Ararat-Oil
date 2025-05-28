@@ -31,4 +31,4 @@ export interface PetrolProviderSummary {
   totalProviders: number;
   activeProviders: number;
   recentProviders: number;
-} 
+}

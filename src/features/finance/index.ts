@@ -1,9 +1,9 @@
 // Components
-export { TransactionDialogStandardized } from './components/TransactionDialogStandardized';
-export { ExpenseDialogStandardized } from './components/ExpenseDialogStandardized';
-export { ProfitLossManagerStandardized } from './components/ProfitLossManagerStandardized';
-export { ExpenseManagerStandardized } from './components/ExpenseManagerStandardized';
-export { FinanceManagerStandardized } from './components/FinanceManagerStandardized';
+export { TransactionDialogStandardized } from "./components/TransactionDialogStandardized";
+export { ExpenseDialogStandardized } from "./components/ExpenseDialogStandardized";
+export { ProfitLossManagerStandardized } from "./components/ProfitLossManagerStandardized";
+export { ExpenseManagerStandardized } from "./components/ExpenseManagerStandardized";
+export { FinanceManagerStandardized } from "./components/FinanceManagerStandardized";
 
 // Types
 export type {
@@ -11,10 +11,10 @@ export type {
   Expense,
   ProfitLoss,
   FinanceData,
-} from './types/finance.types';
+} from "./types/finance.types";
 
 // Services - export from the services folder for the new API-based implementation
-export * from './services';
+export * from "./services";
 
 // Hooks
-export { useFinance } from './hooks/useFinance'; 
+export { useFinance } from "./hooks/useFinance";

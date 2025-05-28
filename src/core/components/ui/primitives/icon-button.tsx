@@ -1,18 +1,22 @@
 import * as React from "react";
 import { cn } from "@/shared/utils";
-import { Button, ButtonProps, buttonVariants } from "@/core/components/ui/button";
+import {
+  Button,
+  ButtonProps,
+  buttonVariants,
+} from "@/core/components/ui/button";
 import { VariantProps } from "class-variance-authority";
 
 /**
  * Props for the IconButton component
  */
-export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
+export interface IconButtonProps extends Omit<ButtonProps, "children"> {
   /**
    * The icon to display inside the button
    * Should be a React component like a Lucide icon
    */
   icon: React.ReactNode;
-  
+
   /**
    * Accessible label for the button (for screen readers)
    * Required for accessibility when there's no visible text
@@ -25,14 +29,10 @@ export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
  * Provides proper accessibility with aria-label
  */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ 
-    className, 
-    icon, 
-    ariaLabel, 
-    variant = "ghost", 
-    size = "icon",
-    ...props 
-  }, ref) => {
+  (
+    { className, icon, ariaLabel, variant = "ghost", size = "icon", ...props },
+    ref
+  ) => {
     return (
       <Button
         className={className}
@@ -48,4 +48,4 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   }
 );
 
-IconButton.displayName = "IconButton"; 
+IconButton.displayName = "IconButton";

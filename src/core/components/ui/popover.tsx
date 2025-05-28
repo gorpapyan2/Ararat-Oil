@@ -3,8 +3,8 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   Popover,
   PopoverTrigger,
-  PopoverContent 
+  PopoverContent,
 } from "@/core/components/ui/primitives/popover";

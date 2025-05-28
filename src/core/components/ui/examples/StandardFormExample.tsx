@@ -1,28 +1,38 @@
-import React from 'react';
+import React from "react";
 import { z } from "zod";
 import { useZodForm } from "@/hooks/use-form";
-import { 
-  FormInput, 
-  FormSelect, 
-  FormCheckbox, 
+import {
+  FormInput,
+  FormSelect,
+  FormCheckbox,
   FormTextarea,
   FormDatePicker,
   FormCurrencyInput,
   FormRadioGroup,
-  FormSwitch
-} from '@/core/components/ui/composed/form-fields';
+  FormSwitch,
+} from "@/core/components/ui/composed/form-fields";
 import { Button } from "@/core/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(50),
   email: z.string().email("Please enter a valid email address"),
   role: z.string().min(1, "Please select a role"),
-  description: z.string().min(10, "Description must be at least 10 characters").max(500),
+  description: z
+    .string()
+    .min(10, "Description must be at least 10 characters")
+    .max(500),
   startDate: z.date({ required_error: "Please select a start date" }),
   salary: z.number({ required_error: "Please enter a salary amount" }),
   department: z.string().min(1, "Please select a department"),
-  agreeToTerms: z.boolean().refine(val => val === true, {
+  agreeToTerms: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms and conditions",
   }),
   notifications: z.boolean().optional(),
@@ -56,12 +66,16 @@ export function StandardFormExample() {
       <CardHeader>
         <CardTitle>Employee Information Form</CardTitle>
         <CardDescription>
-          Enter employee details to add them to the system.
-          All fields marked with * are required.
+          Enter employee details to add them to the system. All fields marked
+          with * are required.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form id="employee-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          id="employee-form"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormInput
               name="name"
@@ -163,11 +177,7 @@ export function StandardFormExample() {
         </form>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => form.reset()}
-        >
+        <Button type="button" variant="outline" onClick={() => form.reset()}>
           Reset Form
         </Button>
         <Button type="submit" form="employee-form">
@@ -176,4 +186,4 @@ export function StandardFormExample() {
       </CardFooter>
     </Card>
   );
-} 
+}

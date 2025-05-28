@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { transactionsApi, Transaction } from "@/core/api";
 import { PaymentMethod } from "@/types";
-import { useToast } from "@/hooks";
+import { useToast } from "./use-toast";
 
 interface CreateTransactionParams {
   amount: number;

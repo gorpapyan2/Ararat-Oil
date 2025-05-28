@@ -1,11 +1,16 @@
 /**
  * Tanks Hooks - Refactored Version
- * 
+ *
  * This file demonstrates the migration from the old implementation to
  * the new standardized API hooks system.
  */
 
-import { createResourceHooks, useApiQuery, useApiMutation, QueryKey } from '@/hooks/api';
+import {
+  createResourceHooks,
+  useApiQuery,
+  useApiMutation,
+  QueryKey,
+} from "@/hooks/api";
 import {
   getTanks,
   getTankById,
@@ -15,20 +20,20 @@ import {
   deleteTank,
   getFuelTypes,
   adjustTankLevel,
-  tanksService
-} from '../services';
-import type { 
-  FuelTank, 
-  TankLevelChange, 
-  CreateTankRequest, 
-  UpdateTankRequest, 
-  FuelType 
-} from '../types/tanks.types';
+  tanksService,
+} from "../services";
+import type {
+  FuelTank,
+  TankLevelChange,
+  CreateTankRequest,
+  UpdateTankRequest,
+  FuelType,
+} from "../types/tanks.types";
 
-// Define an empty filters type that extends Record<string, any>
-interface TankFilters extends Record<string, any> {
+// Define a filters type with specific properties
+interface TankFilters extends Record<string, unknown> {
   // Optional filter properties can be added here
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
   fuelTypeId?: string;
   searchQuery?: string;
 }
@@ -39,7 +44,7 @@ const tanksResourceService = {
   getById: getTankById,
   create: createTank,
   update: updateTank,
-  delete: deleteTank
+  delete: deleteTank,
 };
 
 // Create all standard tank hooks with a single factory call
@@ -48,13 +53,18 @@ const {
   useById: useTankById,
   useCreate: useCreateTank,
   useUpdate: useUpdateTank,
-  useDelete: useDeleteTank
-} = createResourceHooks<FuelTank, TankFilters, CreateTankRequest, UpdateTankRequest>({
-  resourceName: 'tanks',
+  useDelete: useDeleteTank,
+} = createResourceHooks<
+  FuelTank,
+  TankFilters,
+  CreateTankRequest,
+  UpdateTankRequest
+>({
+  resourceName: "tanks",
   service: tanksResourceService,
   options: {
     staleTime: 5 * 60 * 1000, // 5 minutes
-  }
+  },
 });
 
 /**
@@ -62,7 +72,7 @@ const {
  */
 export function useFuelTypes() {
   return useApiQuery<FuelType[], Error>({
-    queryKey: ['fuel-types'],
+    queryKey: ["fuel-types"],
     queryFn: getFuelTypes,
     staleTime: 30 * 60 * 1000, // 30 minutes - fuel types change rarely
   });
@@ -73,7 +83,7 @@ export function useFuelTypes() {
  */
 export function useTankLevelChanges(tankId: string) {
   return useApiQuery<TankLevelChange[], Error>({
-    queryKey: ['tank-level-changes', tankId],
+    queryKey: ["tank-level-changes", tankId],
     queryFn: () => getTankLevelChanges(tankId),
     enabled: !!tankId,
     staleTime: 5 * 60 * 1000,
@@ -84,7 +94,7 @@ export function useTankLevelChanges(tankId: string) {
 interface AdjustTankLevelParams {
   tankId: string;
   changeAmount: number;
-  changeType: 'add' | 'subtract';
+  changeType: "add" | "subtract";
   reason?: string;
 }
 
@@ -92,27 +102,26 @@ interface AdjustTankLevelParams {
  * Hook for adjusting tank level
  */
 export function useAdjustTankLevel() {
-  return useApiMutation<
-    TankLevelChange,
-    AdjustTankLevelParams
-  >({
-    mutationFn: ({ tankId, changeAmount, changeType, reason }) => 
+  return useApiMutation<TankLevelChange, AdjustTankLevelParams>({
+    mutationFn: ({ tankId, changeAmount, changeType, reason }) =>
       adjustTankLevel(tankId, {
         change_amount: changeAmount,
         change_type: changeType,
-        reason
+        reason,
       }),
     invalidateQueries: [
-      ['tanks'] as QueryKey,
-      ['tanks', 'list'] as QueryKey,
+      ["tanks"] as QueryKey,
+      ["tanks", "list"] as QueryKey,
       // Use proper static query keys instead of functions
       // or cast the query key arrays directly
     ],
     // Use onSuccessCallback for dynamic invalidation based on variables
     onSuccessCallback: (_, variables, _context, queryClient) => {
-      queryClient.invalidateQueries({ queryKey: ['tank', variables.tankId] });
-      queryClient.invalidateQueries({ queryKey: ['tank-level-changes', variables.tankId] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["tank", variables.tankId] });
+      queryClient.invalidateQueries({
+        queryKey: ["tank-level-changes", variables.tankId],
+      });
+    },
   });
 }
 
@@ -143,7 +152,7 @@ export function useTankMutations() {
     createTank: createTankMutation,
     updateTank: updateTankMutation,
     deleteTank: deleteTankMutation,
-    adjustTankLevel: adjustTankLevelMutation
+    adjustTankLevel: adjustTankLevelMutation,
   };
 }
 
@@ -155,40 +164,40 @@ export function useTanksManager() {
   const tanksQuery = useTanksList({});
   const fuelTypesQuery = useFuelTypes();
   const mutations = useTankMutations();
-  
+
   // Compute combined loading state
   const isLoading = tanksQuery.isLoading || fuelTypesQuery.isLoading;
-  
+
   // Compute combined error state
   const error = tanksQuery.error || fuelTypesQuery.error;
-  
+
   return {
     // Data properties
     tanks: tanksQuery.data || [],
     fuelTypes: fuelTypesQuery.data || [],
-    
+
     // Combined states
     isLoading,
     error,
-    
+
     // Individual states
     isLoadingTanks: tanksQuery.isLoading,
     isLoadingFuelTypes: fuelTypesQuery.isLoading,
     tanksError: tanksQuery.error,
     fuelTypesError: fuelTypesQuery.error,
-    
+
     // Mutations
     ...mutations,
-    
+
     // Refetch functions
     refetchTanks: tanksQuery.refetch,
     refetchFuelTypes: fuelTypesQuery.refetch,
-    
+
     // Refetch all
     refetchAll: () => {
       tanksQuery.refetch();
       fuelTypesQuery.refetch();
-    }
+    },
   };
 }
 
@@ -198,5 +207,5 @@ export {
   useTankById,
   useCreateTank,
   useUpdateTank,
-  useDeleteTank
-}; 
+  useDeleteTank,
+};

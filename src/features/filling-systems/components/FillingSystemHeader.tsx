@@ -8,12 +8,19 @@ interface FillingSystemHeaderProps {
   showAddButton?: boolean;
 }
 
-export function FillingSystemHeader({ onAddNew, showAddButton = true }: FillingSystemHeaderProps) {
+export function FillingSystemHeader({
+  onAddNew,
+  showAddButton = true,
+}: FillingSystemHeaderProps) {
   const { t } = useTranslation();
 
   // Get translated title using API helpers or fallback to direct translation
-  const title = t("fillingSystems.title") || getApiActionLabel(apiNamespaces.fillingSystems, 'list');
-  const addButtonText = t("fillingSystems.addFillingSystem") || getApiActionLabel(apiNamespaces.fillingSystems, 'create');
+  const title =
+    t("fillingSystems.title") ||
+    getApiActionLabel(apiNamespaces.fillingSystems, "list");
+  const addButtonText =
+    t("fillingSystems.addFillingSystem") ||
+    getApiActionLabel(apiNamespaces.fillingSystems, "create");
 
   return (
     <div className="flex items-center justify-between">
@@ -26,4 +33,4 @@ export function FillingSystemHeader({ onAddNew, showAddButton = true }: FillingS
       )}
     </div>
   );
-} 
+}

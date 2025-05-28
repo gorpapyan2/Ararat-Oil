@@ -3,8 +3,8 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   Alert,
   AlertTitle,
-  AlertDescription 
+  AlertDescription,
 } from "@/core/components/ui/primitives/alert";

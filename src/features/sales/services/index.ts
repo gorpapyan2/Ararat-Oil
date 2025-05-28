@@ -1,1 +1,1 @@
-export { fetchSales, createSale, updateSale, deleteSale } from './sales'; 
+export { fetchSales, createSale, updateSale, deleteSale } from "./sales";

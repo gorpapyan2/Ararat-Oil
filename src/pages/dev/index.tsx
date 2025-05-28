@@ -9,9 +9,5 @@ export default function DevToolsPage() {
     setIsMounted(true);
   }, []);
 
-  return (
-    <div>
-      {isMounted && <DevToolsMenu />}
-    </div>
-  );
-} 
+  return <div>{isMounted && <DevToolsMenu />}</div>;
+}

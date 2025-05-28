@@ -1,12 +1,12 @@
 /**
  * Transactions API
- * 
+ *
  * This file provides API functions for working with transactions data.
  */
 
-import { fetchFromFunction, ApiResponse } from '../client';
-import { API_ENDPOINTS } from '@/core/config/api';
-import type { Transaction } from '../types';
+import { fetchFromFunction, ApiResponse } from "../client";
+import { API_ENDPOINTS } from "@/core/config/api";
+import type { Transaction } from "../types";
 
 const ENDPOINT = API_ENDPOINTS.FUNCTIONS.TRANSACTIONS;
 
@@ -20,24 +20,28 @@ export async function getTransactions(filters?: {
   end_date?: string;
 }): Promise<ApiResponse<Transaction[]>> {
   return fetchFromFunction<Transaction[]>(ENDPOINT, {
-    queryParams: filters
+    queryParams: filters,
   });
 }
 
 /**
  * Fetches a transaction by ID
  */
-export async function getTransactionById(id: string): Promise<ApiResponse<Transaction>> {
+export async function getTransactionById(
+  id: string
+): Promise<ApiResponse<Transaction>> {
   return fetchFromFunction<Transaction>(`${ENDPOINT}/${id}`);
 }
 
 /**
  * Creates a new transaction
  */
-export async function createTransaction(data: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Transaction>> {
+export async function createTransaction(
+  data: Omit<Transaction, "id" | "created_at" | "updated_at">
+): Promise<ApiResponse<Transaction>> {
   return fetchFromFunction<Transaction>(ENDPOINT, {
-    method: 'POST',
-    body: data
+    method: "POST",
+    body: data,
   });
 }
 
@@ -45,21 +49,23 @@ export async function createTransaction(data: Omit<Transaction, 'id' | 'created_
  * Updates a transaction by ID
  */
 export async function updateTransaction(
-  id: string, 
-  data: Partial<Omit<Transaction, 'id' | 'created_at' | 'updated_at'>>
+  id: string,
+  data: Partial<Omit<Transaction, "id" | "created_at" | "updated_at">>
 ): Promise<ApiResponse<Transaction>> {
   return fetchFromFunction<Transaction>(`${ENDPOINT}/${id}`, {
-    method: 'PUT',
-    body: data
+    method: "PUT",
+    body: data,
   });
 }
 
 /**
  * Deletes a transaction by ID
  */
-export async function deleteTransaction(id: string): Promise<ApiResponse<{ success: boolean }>> {
+export async function deleteTransaction(
+  id: string
+): Promise<ApiResponse<{ success: boolean }>> {
   return fetchFromFunction<{ success: boolean }>(`${ENDPOINT}/${id}`, {
-    method: 'DELETE'
+    method: "DELETE",
   });
 }
 
@@ -71,5 +77,5 @@ export const transactionsApi = {
   getTransactionById,
   createTransaction,
   updateTransaction,
-  deleteTransaction
-}; 
+  deleteTransaction,
+};

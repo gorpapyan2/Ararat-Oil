@@ -76,9 +76,15 @@ const {
   handleEditDialogOpenChange,
   // ...other state and handlers
 } = useSalesDialog({
-  onCreateSuccess: (sale) => {/* handle success */},
-  onUpdateSuccess: (sale) => {/* handle success */},
-  onDeleteSuccess: (id) => {/* handle success */},
+  onCreateSuccess: (sale) => {
+    /* handle success */
+  },
+  onUpdateSuccess: (sale) => {
+    /* handle success */
+  },
+  onDeleteSuccess: (id) => {
+    /* handle success */
+  },
 });
 ```
 
@@ -89,10 +95,16 @@ For components that need to embed sales management functionality:
 ```tsx
 import { SalesController } from "@/components/sales/SalesController";
 
-<SalesController 
-  onCreateSuccess={(sale) => {/* handle success */}}
-  onUpdateSuccess={(sale) => {/* handle success */}}
-  onDeleteSuccess={(id) => {/* handle success */}}
+<SalesController
+  onCreateSuccess={(sale) => {
+    /* handle success */
+  }}
+  onUpdateSuccess={(sale) => {
+    /* handle success */
+  }}
+  onDeleteSuccess={(id) => {
+    /* handle success */
+  }}
   triggerButton={<CustomButton>Manage Sales</CustomButton>}
-/>
-``` 
+/>;
+```

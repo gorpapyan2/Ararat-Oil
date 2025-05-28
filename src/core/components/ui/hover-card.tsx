@@ -3,8 +3,8 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   HoverCard,
   HoverCardTrigger,
-  HoverCardContent 
+  HoverCardContent,
 } from "@/core/components/ui/primitives/hover-card";

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { logger } from '@/core/api';
+import { logger } from "@/core/api";
 import { Toast, ToastType } from "@/types/toast";
 import { Theme, THEME_CONFIG } from "@/core/config";
 
@@ -44,7 +44,7 @@ export interface AppState {
 
 /**
  * Application state store
- * 
+ *
  * Manages global application state including:
  * - Theme preferences
  * - Toast notifications
@@ -61,8 +61,9 @@ export const useAppStore = create<AppState>()(
 
         // Apply the theme to the document
         if (theme === "system") {
-          const systemTheme = window.matchMedia(THEME_CONFIG.SYSTEM_DARK_MODE_QUERY)
-            .matches
+          const systemTheme = window.matchMedia(
+            THEME_CONFIG.SYSTEM_DARK_MODE_QUERY
+          ).matches
             ? THEME_CONFIG.THEME_CLASSES.DARK
             : THEME_CONFIG.THEME_CLASSES.LIGHT;
           document.documentElement.className = systemTheme;
@@ -111,8 +112,8 @@ export const useAppStore = create<AppState>()(
         theme: state.theme,
         sidebarCollapsed: state.sidebarCollapsed,
       }),
-    },
-  ),
+    }
+  )
 );
 
 /**
@@ -132,30 +133,29 @@ export const selectToasts = (state: AppState): Toast[] => state.toasts;
 /**
  * Select sidebar collapsed state
  */
-export const selectSidebarCollapsed = (state: AppState): boolean => 
+export const selectSidebarCollapsed = (state: AppState): boolean =>
   state.sidebarCollapsed;
 
 /**
  * Select mobile sidebar open state
  */
-export const selectMobileSidebarOpen = (state: AppState): boolean => 
+export const selectMobileSidebarOpen = (state: AppState): boolean =>
   state.mobileSidebarOpen;
 
 /**
  * Select loading state
  */
-export const selectIsLoading = (state: AppState): boolean => 
-  state.isLoading;
+export const selectIsLoading = (state: AppState): boolean => state.isLoading;
 
 /**
  * Select loading text
  */
-export const selectLoadingText = (state: AppState): string | null => 
+export const selectLoadingText = (state: AppState): string | null =>
   state.loadingText;
 
 /**
  * Initialize theme listener to respond to system theme changes
- * 
+ *
  * @returns Cleanup function to remove event listeners
  */
 export const initThemeListener = () => {
@@ -186,8 +186,8 @@ export const initThemeListener = () => {
     const mediaQuery = window.matchMedia(THEME_CONFIG.SYSTEM_DARK_MODE_QUERY);
 
     const handleChange = (e: MediaQueryListEvent) => {
-      const newTheme = e.matches 
-        ? THEME_CONFIG.THEME_CLASSES.DARK 
+      const newTheme = e.matches
+        ? THEME_CONFIG.THEME_CLASSES.DARK
         : THEME_CONFIG.THEME_CLASSES.LIGHT;
       document.documentElement.className = newTheme;
     };
@@ -202,4 +202,4 @@ export const initThemeListener = () => {
   }
 
   return () => {}; // No cleanup needed for non-system themes
-}; 
+};

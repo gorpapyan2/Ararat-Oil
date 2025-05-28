@@ -20,7 +20,11 @@ import {
   SelectValue,
 } from "@/core/components/ui/primitives/select";
 import { tanksService } from "../services/tanksService";
-import { FuelTank, CreateTankRequest, UpdateTankRequest } from "../types/tanks.types";
+import {
+  FuelTank,
+  CreateTankRequest,
+  UpdateTankRequest,
+} from "../types/tanks.types";
 import { toast as sonnerToast } from "sonner";
 
 interface TankFormDialogProps {
@@ -46,9 +50,22 @@ export function TankFormDialog({
   // Define the form schema using zod
   const tankFormSchema = z.object({
     name: z.string().min(1, t("common.nameRequired", "Name is required")),
-    fuel_type_id: z.string().min(1, t("common.fuelTypeRequired", "Fuel type is required")),
-    capacity: z.coerce.number().positive(t("tanks.capacityPositive", "Capacity must be a positive number")),
-    current_level: z.coerce.number().nonnegative(t("tanks.levelNonNegative", "Current level must be a non-negative number")),
+    fuel_type_id: z
+      .string()
+      .min(1, t("common.fuelTypeRequired", "Fuel type is required")),
+    capacity: z.coerce
+      .number()
+      .positive(
+        t("tanks.capacityPositive", "Capacity must be a positive number")
+      ),
+    current_level: z.coerce
+      .number()
+      .nonnegative(
+        t(
+          "tanks.levelNonNegative",
+          "Current level must be a non-negative number"
+        )
+      ),
   });
 
   type TankFormValues = z.infer<typeof tankFormSchema>;
@@ -85,18 +102,18 @@ export function TankFormDialog({
       }
 
       await queryClient.invalidateQueries({ queryKey: ["tanks"] });
-      
+
       // Call onSuccess callback if provided
       if (onSuccess) {
         onSuccess();
       }
-      
+
       return true;
     } catch (error) {
       sonnerToast.error(t("common.error"), {
         description: tank
           ? t("tanks.tankUpdateFailed", "Failed to update tank")
-          : t("tanks.tankCreationFailed", "Failed to create tank")
+          : t("tanks.tankCreationFailed", "Failed to create tank"),
       });
       return false;
     } finally {
@@ -108,12 +125,18 @@ export function TankFormDialog({
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={tank ? t("tanks.editTank", "Edit Tank") : t("tanks.createTank", "Create Tank")}
+      title={
+        tank
+          ? t("tanks.editTank", "Edit Tank")
+          : t("tanks.createTank", "Create Tank")
+      }
       schema={tankFormSchema}
       defaultValues={defaultValues}
       onSubmit={onSubmit}
       isSubmitting={isSubmitting}
-      submitText={tank ? t("common.save", "Save") : t("common.create", "Create")}
+      submitText={
+        tank ? t("common.save", "Save") : t("common.create", "Create")
+      }
       cancelText={t("common.cancel", "Cancel")}
     >
       {({ control }) => (
@@ -144,7 +167,12 @@ export function TankFormDialog({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={t("common.selectFuelType", "Select fuel type")} />
+                      <SelectValue
+                        placeholder={t(
+                          "common.selectFuelType",
+                          "Select fuel type"
+                        )}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -167,12 +195,7 @@ export function TankFormDialog({
               <FormItem>
                 <FormLabel>{t("common.capacity", "Capacity")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    {...field}
-                  />
+                  <Input type="number" min="0" step="0.01" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -184,14 +207,11 @@ export function TankFormDialog({
             name="current_level"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("common.currentLevel", "Current Level")}</FormLabel>
+                <FormLabel>
+                  {t("common.currentLevel", "Current Level")}
+                </FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    {...field}
-                  />
+                  <Input type="number" min="0" step="0.01" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -201,4 +221,4 @@ export function TankFormDialog({
       )}
     </FormDialog>
   );
-} 
+}

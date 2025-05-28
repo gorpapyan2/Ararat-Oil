@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { FuelTank } from "../types/tanks.types";
 import { Progress } from "@/core/components/ui/primitives/progress";
-import { Skeleton } from '@/core/components/ui/skeleton';
+import { Skeleton } from "@/core/components/ui/skeleton";
 import { TankLevelEditor } from "./TankLevelEditor";
 import { Button } from "@/core/components/ui/button";
 import { TankHistory } from "./TankHistory";
@@ -75,7 +80,7 @@ export function TankList({
             tank.capacity > 0
               ? Math.min(
                   100,
-                  Math.round((tank.current_level / tank.capacity) * 100),
+                  Math.round((tank.current_level / tank.capacity) * 100)
                 )
               : 0;
 
@@ -96,7 +101,9 @@ export function TankList({
                 <CardTitle className="flex justify-between items-center">
                   <span>{tank.name}</span>
                   <span className="text-sm font-normal text-muted-foreground bg-muted px-2 py-1 rounded">
-                    {typeof tank.fuel_type === 'object' ? tank.fuel_type.name : tank.fuel_type}
+                    {typeof tank.fuel_type === "object"
+                      ? tank.fuel_type.name
+                      : tank.fuel_type}
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -151,19 +158,21 @@ export function TankList({
       </div>
 
       {/* Dialog for tank history */}
-      <Dialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedTank?.name} {t("common.history")}</DialogTitle>
+            <DialogTitle>
+              {selectedTank?.name} {t("common.history")}
+            </DialogTitle>
           </DialogHeader>
           {selectedTank && (
             <div>
               <div className="mb-2 font-medium text-muted-foreground">
                 {t("common.fuelType")}:{" "}
                 <span className="font-semibold">
-                  {typeof selectedTank.fuel_type === 'object' ? selectedTank.fuel_type.name : selectedTank.fuel_type}
+                  {typeof selectedTank.fuel_type === "object"
+                    ? selectedTank.fuel_type.name
+                    : selectedTank.fuel_type}
                 </span>
               </div>
               <TankHistory tankId={selectedTank.id} />
@@ -173,4 +182,4 @@ export function TankList({
       </Dialog>
     </>
   );
-} 
+}

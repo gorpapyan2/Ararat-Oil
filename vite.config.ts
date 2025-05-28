@@ -24,6 +24,35 @@ function getServerPort() {
   return 3006;
 }
 
+// Helper to determine the input based on mode
+function getInputForMode(mode: string): string | Record<string, string> {
+  if (mode === 'debug') {
+    return {
+      main: path.resolve(__dirname, 'index.html'),
+      debug: path.resolve(__dirname, 'src/main.debug.tsx')
+    };
+  }
+  if (mode === 'test') {
+    return {
+      main: path.resolve(__dirname, 'index.html'),
+      test: path.resolve(__dirname, 'src/test-main.tsx')
+    };
+  }
+  if (mode === 'minimal') {
+    return {
+      minimal: path.resolve(__dirname, 'index-minimal.html')
+    };
+  }
+  if (mode === 'bridge') {
+    return {
+      main: path.resolve(__dirname, 'index.html'),
+      bridge: path.resolve(__dirname, 'src/bridge-main.tsx')
+    };
+  }
+  // Default case for normal development mode
+  return path.resolve(__dirname, 'index.html');
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
   server: {
@@ -44,10 +73,8 @@ export default defineConfig(({ command, mode }) => ({
   base: '/',
   define: {
     // Add global module definition to avoid 'module is not defined' errors
-    'global': {},
-    'process.env': {},
-    // Fix for require not defined error
-    'require': 'window.require'
+    'global': 'globalThis',
+    'process.env': process.env,
   },
   css: {
     // Enable source maps for easier debugging
@@ -113,6 +140,10 @@ export default defineConfig(({ command, mode }) => ({
       'tailwindcss-animate',
       'recharts'
     ],
+    exclude: [
+      // Exclude Node.js utility scripts
+      'src/utils/component-audit.js'
+    ],
     esbuildOptions: {
       target: 'es2020',
       format: 'esm',
@@ -143,6 +174,10 @@ export default defineConfig(({ command, mode }) => ({
       defaultIsModuleExports: true,
     },
     rollupOptions: {
+      external: [
+        // Exclude Node.js utility scripts from the bundle
+        /.*component-audit\.js$/
+      ],
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
@@ -157,10 +192,7 @@ export default defineConfig(({ command, mode }) => ({
           'icon-vendor': ['@tabler/icons-react', 'lucide-react'],
         },
       },
-      input: mode === 'debug' ? {
-        main: path.resolve(__dirname, 'index.html'),
-        debug: path.resolve(__dirname, 'src/main.debug.tsx')
-      } : undefined,
+      input: getInputForMode(mode),
     },
     // Add CSS specific settings
     cssCodeSplit: true,

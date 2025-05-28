@@ -3,6 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  HeaderBreadcrumb 
-} from "@/core/components/ui/primitives/header-breadcrumb";
+export { HeaderBreadcrumb } from "@/core/components/ui/primitives/header-breadcrumb";

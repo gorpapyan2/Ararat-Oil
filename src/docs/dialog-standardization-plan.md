@@ -2,7 +2,7 @@
 
 This document outlines the implementation progress for standardizing dialog components across the application.
 
-## Current Status 
+## Current Status
 
 - [x] Created dialog primitives with focus management and accessibility features
 - [x] Created styled dialog components
@@ -17,14 +17,17 @@ This document outlines the implementation progress for standardizing dialog comp
 We've implemented a 3-layer architecture approach for dialog components:
 
 1. **Primitives Layer**: Basic accessible dialog components with focus management
+
    - Located in `src/components/ui/primitives/dialog.tsx`
    - Provides core functionality: focus trapping, keyboard navigation, ARIA attributes
 
 2. **Styled Layer**: Components with styling applied
+
    - Located in `src/components/ui/styled/dialog.tsx`
    - Applies consistent styling to primitives
 
-3. **Composed Layer**: Ready-to-use dialog patterns 
+3. **Composed Layer**: Ready-to-use dialog patterns
+
    - Located in `src/components/ui/composed/dialog.tsx`
    - Provides common dialog patterns: standard dialogs, confirmation dialogs, alert dialogs
 
@@ -35,6 +38,7 @@ We've implemented a 3-layer architecture approach for dialog components:
 ## Components Implemented
 
 ### Primitives:
+
 - [x] `DialogPrimitive` - Base dialog with accessibility features
 - [x] `AlertDialogPrimitive` - Base alert dialog
 - [x] `DialogTitlePrimitive` - Dialog title
@@ -44,8 +48,9 @@ We've implemented a 3-layer architecture approach for dialog components:
 - [x] `DialogClosePrimitive` - Dialog close button
 
 ### Styled Components:
+
 - [x] `Dialog` - Styled dialog
-- [x] `DialogTitle` - Styled dialog title 
+- [x] `DialogTitle` - Styled dialog title
 - [x] `DialogDescription` - Styled dialog description
 - [x] `DialogContent` - Styled dialog content
 - [x] `DialogFooter` - Styled dialog footer
@@ -55,12 +60,14 @@ We've implemented a 3-layer architecture approach for dialog components:
 - [x] `AlertDialogDescription` - Styled alert dialog description
 
 ### Composed Components:
+
 - [x] `StandardDialog` - General-purpose dialog
 - [x] `ConfirmDialog` - Dialog for confirming actions
 - [x] `AlertMessageDialog` - Dialog for alerts and messages
 - [x] `DeleteConfirmDialog` - Dialog for confirming deletions
 
 ### Hooks:
+
 - [x] `useDialog` - General dialog state management
 - [x] `useConfirmDialog` - Confirmation dialog state management
 - [x] `useAlertDialog` - Alert dialog state management with dynamic content
@@ -68,12 +75,14 @@ We've implemented a 3-layer architecture approach for dialog components:
 ## Features Implemented
 
 - [x] **Accessibility**
+
   - Focus management (trap focus, return focus)
   - ARIA attributes
   - Keyboard navigation (Escape to close, Tab trapping)
   - Screen reader support
 
 - [x] **Responsive Design**
+
   - Mobile-friendly layouts
   - Responsive actions footer
 
@@ -85,16 +94,19 @@ We've implemented a 3-layer architecture approach for dialog components:
 ## Migration Plan
 
 Phase 1: Critical Components (Next 2 weeks)
+
 - [ ] Migrate `SalesDialogs` to use standardized dialogs
 - [ ] Migrate `ExpensesDialogs` to use standardized dialogs
 - [ ] Migrate `DeleteConfirmation` components to use standardized `DeleteConfirmDialog`
 
 Phase 2: Secondary Components (Following 2 weeks)
+
 - [ ] Migrate remaining form-related dialogs
 - [ ] Migrate confirmation dialogs
 - [ ] Migrate alert dialogs
 
 Phase 3: Final Components (Final 2 weeks)
+
 - [ ] Migrate any custom dialogs
 - [ ] Deprecate old dialog components
 - [ ] Update tests and documentation
@@ -116,4 +128,4 @@ Phase 3: Final Components (Final 2 weeks)
 
 ## Examples
 
-See `src/examples/DialogExamples.tsx` for usage examples of all dialog components. 
+See `src/examples/DialogExamples.tsx` for usage examples of all dialog components.

@@ -17,7 +17,7 @@ import {
 } from "@/core/components/ui/form";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Button } from "@/core/components/ui/button";
-import { Textarea } from '@/core/components/ui/textarea';
+import { Textarea } from "@/core/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -34,7 +34,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/core/components/ui/alert-dialog';
+} from "@/core/components/ui/alert-dialog";
 
 // Types
 import { Expense } from "@/types";
@@ -146,7 +146,10 @@ export function ExpenseForm({
                     />
                   </FormControl>
                   <FormDescription>
-                    {t("finance.expenses.amountDesc", "Enter the expense amount")}
+                    {t(
+                      "finance.expenses.amountDesc",
+                      "Enter the expense amount"
+                    )}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -167,14 +170,20 @@ export function ExpenseForm({
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue
-                          placeholder={t("finance.expenses.selectCategory", "Select a category")}
+                          placeholder={t(
+                            "finance.expenses.selectCategory",
+                            "Select a category"
+                          )}
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {expenseCategories.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {t(`finance.expenses.categories.${category}`, category)}
+                          {t(
+                            `finance.expenses.categories.${category}`,
+                            category
+                          )}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -198,15 +207,26 @@ export function ExpenseForm({
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue
-                          placeholder={t("finance.expenses.selectStatus", "Select status")}
+                          placeholder={t(
+                            "finance.expenses.selectStatus",
+                            "Select status"
+                          )}
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="pending">{t("finance.paymentStatus.pending", "Pending")}</SelectItem>
-                      <SelectItem value="completed">{t("finance.paymentStatus.completed", "Completed")}</SelectItem>
-                      <SelectItem value="failed">{t("finance.paymentStatus.failed", "Failed")}</SelectItem>
-                      <SelectItem value="refunded">{t("finance.paymentStatus.refunded", "Refunded")}</SelectItem>
+                      <SelectItem value="pending">
+                        {t("finance.paymentStatus.pending", "Pending")}
+                      </SelectItem>
+                      <SelectItem value="completed">
+                        {t("finance.paymentStatus.completed", "Completed")}
+                      </SelectItem>
+                      <SelectItem value="failed">
+                        {t("finance.paymentStatus.failed", "Failed")}
+                      </SelectItem>
+                      <SelectItem value="refunded">
+                        {t("finance.paymentStatus.refunded", "Refunded")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -228,7 +248,10 @@ export function ExpenseForm({
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue
-                          placeholder={t("finance.expenses.selectMethod", "Select payment method")}
+                          placeholder={t(
+                            "finance.expenses.selectMethod",
+                            "Select payment method"
+                          )}
                         />
                       </SelectTrigger>
                     </FormControl>
@@ -254,7 +277,10 @@ export function ExpenseForm({
                   <FormLabel>{t("common.description")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={t("finance.expenses.descriptionPlaceholder", "Enter expense description")}
+                      placeholder={t(
+                        "finance.expenses.descriptionPlaceholder",
+                        "Enter expense description"
+                      )}
                       {...field}
                     />
                   </FormControl>
@@ -272,7 +298,10 @@ export function ExpenseForm({
                   <FormLabel>{t("common.notes")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={t("finance.expenses.notesPlaceholder", "Additional notes (optional)")}
+                      placeholder={t(
+                        "finance.expenses.notesPlaceholder",
+                        "Additional notes (optional)"
+                      )}
                       {...field}
                     />
                   </FormControl>
@@ -304,9 +333,14 @@ export function ExpenseForm({
       <AlertDialog open={isConfirmOpen} onOpenChange={onConfirmCancel}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("finance.expenses.confirmTitle")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("finance.expenses.confirmTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("finance.expenses.confirmDescription", "Are you sure you want to save this expense? This action cannot be undone.")}
+              {t(
+                "finance.expenses.confirmDescription",
+                "Are you sure you want to save this expense? This action cannot be undone."
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -319,4 +353,4 @@ export function ExpenseForm({
       </AlertDialog>
     </>
   );
-} 
+}

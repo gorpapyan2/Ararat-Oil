@@ -29,20 +29,20 @@ export interface User extends BaseEntity {
  * User role enum
  */
 export enum UserRole {
-  ADMIN = 'admin',
-  MANAGER = 'manager',
-  EMPLOYEE = 'employee',
-  READONLY = 'readonly',
+  ADMIN = "admin",
+  MANAGER = "manager",
+  EMPLOYEE = "employee",
+  READONLY = "readonly",
 }
 
 /**
  * User status enum
  */
 export enum UserStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  PENDING = 'pending',
-  SUSPENDED = 'suspended',
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  PENDING = "pending",
+  SUSPENDED = "suspended",
 }
 
 /**
@@ -50,9 +50,9 @@ export enum UserStatus {
  */
 export interface UserSettings {
   language: string;
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   notifications: boolean;
-  dashboard_layout?: Record<string, any>;
+  dashboard_layout?: Record<string, unknown>;
 }
 
 /**
@@ -104,18 +104,18 @@ export interface Transaction extends BaseEntity {
  * Transaction type enum
  */
 export enum TransactionType {
-  INCOME = 'income',
-  EXPENSE = 'expense',
+  INCOME = "income",
+  EXPENSE = "expense",
 }
 
 /**
  * Transaction status enum
  */
 export enum TransactionStatus {
-  COMPLETED = 'completed',
-  PENDING = 'pending',
-  CANCELLED = 'cancelled',
-  REFUNDED = 'refunded',
+  COMPLETED = "completed",
+  PENDING = "pending",
+  CANCELLED = "cancelled",
+  REFUNDED = "refunded",
 }
 
 /**
@@ -183,7 +183,7 @@ export interface TransactionSummary {
   id: string;
   amount: number;
   date: string;
-  type: 'sale' | 'expense';
+  type: "sale" | "expense";
 }
 
 /**
@@ -232,4 +232,4 @@ export interface FinancialDashboardData {
 export interface CategoryAmount {
   category: string;
   amount: number;
-} 
+}

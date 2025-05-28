@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   RadioGroup,
-  RadioGroupItem 
+  RadioGroupItem,
 } from "@/core/components/ui/primitives/radio-group";

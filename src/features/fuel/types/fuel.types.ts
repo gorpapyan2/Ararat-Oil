@@ -1,4 +1,4 @@
-export type FuelType = 'petrol' | 'diesel' | 'lpg' | 'cng';
+export type FuelType = "petrol" | "diesel" | "lpg" | "cng";
 
 export interface FuelTank {
   id: string;
@@ -6,7 +6,7 @@ export interface FuelTank {
   capacity: number;
   current_level: number;
   fuel_type: FuelType;
-  status: 'active' | 'maintenance' | 'inactive';
+  status: "active" | "maintenance" | "inactive";
   created_at: string;
   updated_at: string;
 }
@@ -33,8 +33,8 @@ export interface FuelSale {
   quantity_liters: number;
   price_per_liter: number;
   total_amount: number;
-  payment_method: 'cash' | 'card' | 'bank_transfer';
-  payment_status: 'pending' | 'completed' | 'failed';
+  payment_method: "cash" | "card" | "bank_transfer";
+  payment_status: "pending" | "completed" | "failed";
   sale_date: string;
   customer_name: string;
   created_at: string;
@@ -45,4 +45,4 @@ export interface FuelData {
   tanks: FuelTank[];
   supplies: FuelSupply[];
   sales: FuelSale[];
-} 
+}

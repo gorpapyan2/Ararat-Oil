@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   DatePicker,
-  type DatePickerProps 
-} from "@/core/components/ui/primitives/datepicker"; 
+  type DatePickerProps,
+} from "@/core/components/ui/primitives/datepicker";

@@ -1,6 +1,6 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { logger } from '@/utils/errorHandling';
-import { ErrorDisplay } from '@/core/components/ui/composed/error-handler';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { logger } from "@/utils/errorHandling";
+import { ErrorDisplay } from "@/core/components/ui/composed/error-handler";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -17,34 +17,37 @@ interface ErrorBoundaryState {
 /**
  * Enhanced Error Boundary component that catches JavaScript errors in child components,
  * logs them, and displays a fallback UI
- * 
+ *
  * Features:
  * - Customizable fallback UI
  * - Error reset functionality
  * - Error logging
  * - Error event callbacks
  */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
       hasError: false,
-      error: null
+      error: null,
     };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return {
       hasError: true,
-      error
+      error,
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log the error
-    logger.error('Error caught by ErrorBoundary:', {
+    logger.error("Error caught by ErrorBoundary:", {
       error,
-      componentStack: errorInfo.componentStack
+      componentStack: errorInfo.componentStack,
     });
 
     // Call the error handler if provided
@@ -62,7 +65,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // Reset the state
     this.setState({
       hasError: false,
-      error: null
+      error: null,
     });
   };
 
@@ -73,7 +76,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (hasError && error) {
       // If a custom fallback is provided, use it
       if (fallback) {
-        if (typeof fallback === 'function') {
+        if (typeof fallback === "function") {
           return fallback(error, this.resetErrorBoundary);
         }
         return fallback;
@@ -123,9 +126,9 @@ export function RouteErrorBoundary({ children }: { children: ReactNode }) {
  */
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
-  errorBoundaryProps: Omit<ErrorBoundaryProps, 'children'> = {}
+  errorBoundaryProps: Omit<ErrorBoundaryProps, "children"> = {}
 ): React.ComponentType<P> {
-  const displayName = Component.displayName || Component.name || 'Component';
+  const displayName = Component.displayName || Component.name || "Component";
 
   const ComponentWithErrorBoundary = (props: P) => {
     return (
@@ -138,4 +141,4 @@ export function withErrorBoundary<P extends object>(
   ComponentWithErrorBoundary.displayName = `withErrorBoundary(${displayName})`;
 
   return ComponentWithErrorBoundary;
-} 
+}

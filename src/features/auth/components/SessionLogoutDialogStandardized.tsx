@@ -1,8 +1,11 @@
-
 import { Button } from "@/core/components/ui/button";
-import { ConfirmDialog, ConfirmDialogProps } from "@/core/components/ui/composed/dialog";
+import {
+  ConfirmDialog,
+  ConfirmDialogProps,
+} from "@/core/components/ui/composed/dialog";
 
-interface SessionLogoutDialogStandardizedProps extends Omit<ConfirmDialogProps, 'children'> {
+interface SessionLogoutDialogStandardizedProps
+  extends Omit<ConfirmDialogProps, "children"> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;

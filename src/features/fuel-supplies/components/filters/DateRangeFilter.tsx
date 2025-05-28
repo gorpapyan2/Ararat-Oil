@@ -1,17 +1,12 @@
 import { CalendarIcon, Check } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
-import {
-  subDays,
-  startOfWeek,
-  startOfMonth,
-  format
-} from "date-fns";
+import { subDays, startOfWeek, startOfMonth, format } from "date-fns";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/core/components/ui/dropdown-menu';
+} from "@/core/components/ui/dropdown-menu";
 import { StandardDatePicker } from "@/shared/components/common/datepicker";
 
 interface DateRangeFilterProps {

@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   navigationMenuTriggerStyle,
   NavigationMenu,
   NavigationMenuList,
@@ -12,5 +12,5 @@ export {
   NavigationMenuTrigger,
   NavigationMenuLink,
   NavigationMenuIndicator,
-  NavigationMenuViewport 
+  NavigationMenuViewport,
 } from "@/core/components/ui/primitives/navigation-menu";

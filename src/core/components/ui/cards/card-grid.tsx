@@ -131,18 +131,12 @@ export const CardGroup = React.forwardRef<HTMLDivElement, CardGroupProps>(
           const joinedStyles = cn(
             "rounded-none border",
             index !== 0 &&
-              (direction === "horizontal"
-                ? "border-l-0"
-                : "border-t-0"),
+              (direction === "horizontal" ? "border-l-0" : "border-t-0"),
             // Add rounded corners to first and last elements
             index === 0 &&
-              (direction === "horizontal"
-                ? "rounded-l-lg"
-                : "rounded-t-lg"),
+              (direction === "horizontal" ? "rounded-l-lg" : "rounded-t-lg"),
             index === React.Children.count(children) - 1 &&
-              (direction === "horizontal"
-                ? "rounded-r-lg"
-                : "rounded-b-lg")
+              (direction === "horizontal" ? "rounded-r-lg" : "rounded-b-lg")
           );
 
           // Type-safe clone with proper typing for className and variant props
@@ -161,4 +155,4 @@ export const CardGroup = React.forwardRef<HTMLDivElement, CardGroupProps>(
   }
 );
 
-CardGroup.displayName = "CardGroup"; 
+CardGroup.displayName = "CardGroup";

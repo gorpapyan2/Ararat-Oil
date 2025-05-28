@@ -13,7 +13,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/core/components/ui/tabs';
+} from "@/core/components/ui/tabs";
 import {
   BarChart3,
   Building,
@@ -29,7 +29,7 @@ import {
   MetricCard,
   ActionCard,
   StatsCard,
-  SummaryCard
+  SummaryCard,
 } from "@/core/components/ui/composed/card";
 
 export function CardComponentsTester() {
@@ -54,7 +54,7 @@ export function CardComponentsTester() {
               trend={{
                 value: "12.5%",
                 positive: true,
-                label: "vs. last month"
+                label: "vs. last month",
               }}
               icon={<TrendingUp className="h-5 w-5" />}
               description="vs. last month"
@@ -73,7 +73,7 @@ export function CardComponentsTester() {
               trend={{
                 value: "8.2%",
                 positive: true,
-                label: "compared to last month"
+                label: "compared to last month",
               }}
               icon={<BarChart3 className="h-5 w-5" />}
               description="compared to last month"
@@ -85,7 +85,7 @@ export function CardComponentsTester() {
               trend={{
                 value: "3.1%",
                 positive: false,
-                label: "remaining capacity"
+                label: "remaining capacity",
               }}
               icon={<TrendingDown className="h-5 w-5" />}
               description="remaining capacity"
@@ -137,7 +137,11 @@ export function CardComponentsTester() {
                 { label: "Total Sales", value: "$12,345.67", color: "default" },
                 { label: "Transactions", value: "1,234", color: "default" },
                 { label: "Average Sale", value: "$45.67", color: "default" },
-                { label: "Customer Satisfaction", value: "4.8/5", color: "success" },
+                {
+                  label: "Customer Satisfaction",
+                  value: "4.8/5",
+                  color: "success",
+                },
               ]}
               action={{
                 label: "View Report",
@@ -160,9 +164,21 @@ export function CardComponentsTester() {
             <SummaryCard
               title="Staff Schedule"
               metrics={[
-                { label: "Morning Shift", value: "3 employees", color: "default" },
-                { label: "Afternoon Shift", value: "4 employees", color: "default" },
-                { label: "Night Shift", value: "2 employees", color: "warning" },
+                {
+                  label: "Morning Shift",
+                  value: "3 employees",
+                  color: "default",
+                },
+                {
+                  label: "Afternoon Shift",
+                  value: "4 employees",
+                  color: "default",
+                },
+                {
+                  label: "Night Shift",
+                  value: "2 employees",
+                  color: "warning",
+                },
                 { label: "On Leave", value: "1 employee", color: "muted" },
               ]}
               action={{
@@ -181,36 +197,52 @@ export function CardComponentsTester() {
             <Card>
               <CardHeader>
                 <CardTitle>Simple Card</CardTitle>
-                <CardDescription>A basic card with title and description</CardDescription>
+                <CardDescription>
+                  A basic card with title and description
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <p>This is the basic card component that provides the foundation for all other card variants.</p>
+                <p>
+                  This is the basic card component that provides the foundation
+                  for all other card variants.
+                </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>With Footer</CardTitle>
-                <CardDescription>Card with actions in the footer</CardDescription>
+                <CardDescription>
+                  Card with actions in the footer
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <p>Cards can include actions in a separate footer section for better visual hierarchy.</p>
+                <p>
+                  Cards can include actions in a separate footer section for
+                  better visual hierarchy.
+                </p>
               </CardContent>
               <CardFooter>
                 <Button size="sm">Action</Button>
               </CardFooter>
             </Card>
-            
+
             <Card>
               <CardHeader className="bg-muted/50">
                 <CardTitle>Custom Styling</CardTitle>
-                <CardDescription>Cards can be easily styled with utility classes</CardDescription>
+                <CardDescription>
+                  Cards can be easily styled with utility classes
+                </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <p>You can add custom backgrounds, borders, and spacing to cards.</p>
+                <p>
+                  You can add custom backgrounds, borders, and spacing to cards.
+                </p>
               </CardContent>
               <CardFooter className="bg-muted/30 justify-between">
-                <Button variant="ghost" size="sm">Cancel</Button>
+                <Button variant="ghost" size="sm">
+                  Cancel
+                </Button>
                 <Button size="sm">Submit</Button>
               </CardFooter>
             </Card>
@@ -228,31 +260,31 @@ export function CardComponentsTester() {
               description="Monthly revenue"
               icon={<BarChart3 className="h-5 w-5" />}
             />
-            
+
             <MetricCard
               title="New Users"
               value="1,234"
               trend={{
                 value: "12.5%",
                 positive: true,
-                label: "vs. last month"
+                label: "vs. last month",
               }}
               description="vs. last month"
               icon={<UserCircle className="h-5 w-5" />}
             />
-            
+
             <MetricCard
               title="Expenses"
               value="$12,543"
               trend={{
                 value: "3.2%",
                 positive: false,
-                label: "vs. last month"
+                label: "vs. last month",
               }}
               description="vs. last month"
               icon={<TrendingDown className="h-5 w-5" />}
             />
-            
+
             <MetricCard
               title="Active Users"
               value="3,456"
@@ -260,7 +292,7 @@ export function CardComponentsTester() {
               icon={<UserCircle className="h-5 w-5" />}
               className="border border-green-200 dark:border-green-900"
             />
-            
+
             <MetricCard
               title="Average Session"
               value="12m 34s"
@@ -290,7 +322,7 @@ export function CardComponentsTester() {
               actionLabel="Manage"
               onAction={() => alert("Manage security")}
             />
-            
+
             <ActionCard
               title="Payment Methods"
               description="Add or update payment methods"
@@ -298,7 +330,7 @@ export function CardComponentsTester() {
               actionLabel="Update"
               onAction={() => alert("Update payment methods")}
             />
-            
+
             <ActionCard
               title="User Profile"
               description="Update your personal information"
@@ -306,7 +338,7 @@ export function CardComponentsTester() {
               actionLabel="View"
               onAction={() => alert("View profile")}
             />
-            
+
             <ActionCard
               title="Account Settings"
               description="Manage your account preferences"
@@ -314,7 +346,7 @@ export function CardComponentsTester() {
               actionLabel="Settings"
               onAction={() => alert("Account settings")}
             />
-            
+
             <ActionCard
               title="Billing Information"
               description="Update your billing details"
@@ -323,7 +355,7 @@ export function CardComponentsTester() {
               onAction={() => alert("Update billing")}
               status="warning"
             />
-            
+
             <ActionCard
               title="Notifications"
               description="Manage your notification preferences"
@@ -345,57 +377,57 @@ export function CardComponentsTester() {
               value="$12,345"
               change={{
                 value: "12.3%",
-                direction: "up"
+                direction: "up",
               }}
               icon={<BarChart3 className="h-5 w-5" />}
             />
-            
+
             <StatsCard
               title="New Customers"
               value="231"
               change={{
                 value: "5.2%",
-                direction: "up"
+                direction: "up",
               }}
               icon={<UserCircle className="h-5 w-5" />}
             />
-            
+
             <StatsCard
               title="Refunds"
               value="$1,245"
               change={{
                 value: "2.1%",
-                direction: "down"
+                direction: "down",
               }}
               icon={<CreditCard className="h-5 w-5" />}
             />
-            
+
             <StatsCard
               title="Conversion Rate"
               value="3.2%"
               change={{
                 value: "0.5%",
-                direction: "up"
+                direction: "up",
               }}
               icon={<TrendingUp className="h-5 w-5" />}
             />
-            
+
             <StatsCard
               title="Average Order"
               value="$45.67"
               change={{
                 value: "1.1%",
-                direction: "neutral"
+                direction: "neutral",
               }}
               icon={<ShieldCheck className="h-5 w-5" />}
             />
-            
+
             <StatsCard
               title="Site Traffic"
               value="12,345"
               change={{
                 value: "10.5%",
-                direction: "up"
+                direction: "up",
               }}
               icon={<Calendar className="h-5 w-5" />}
             />
@@ -420,7 +452,7 @@ export function CardComponentsTester() {
                 onClick: () => alert("View Performance Details"),
               }}
             />
-            
+
             <SummaryCard
               title="Revenue Breakdown"
               metrics={[
@@ -434,7 +466,7 @@ export function CardComponentsTester() {
                 onClick: () => alert("Generate Revenue Report"),
               }}
             />
-            
+
             <SummaryCard
               title="Customer Segments"
               metrics={[
@@ -453,4 +485,4 @@ export function CardComponentsTester() {
       </TabsContent>
     </Tabs>
   );
-} 
+}

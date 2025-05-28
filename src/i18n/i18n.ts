@@ -22,12 +22,12 @@ i18n
       },
       en: {
         translation: enTranslation,
-      }
+      },
     },
     lng: "hy", // Set Armenian as the default language
     fallbackLng: "hy",
     supportedLngs: ["hy", "en"],
-    load: 'currentOnly',
+    load: "currentOnly",
     debug: process.env.NODE_ENV === "development",
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default

@@ -1,4 +1,11 @@
-import { salesApi, expensesApi, tanksApi, Expense, Sale, FuelTank } from "@/core/api";
+import {
+  salesApi,
+  expensesApi,
+  tanksApi,
+  Expense,
+  Sale,
+  FuelTank,
+} from "@/core/api";
 import type { DashboardData } from "../types";
 
 export async function fetchDashboardData(): Promise<DashboardData> {
@@ -9,8 +16,16 @@ export async function fetchDashboardData(): Promise<DashboardData> {
   ]);
 
   // Calculate totals
-  const totalSales = sales.data?.reduce((sum: number, sale: Sale) => sum + Number(sale.total_sales || 0), 0) || 0;
-  const totalExpenses = expenses.data?.reduce((sum: number, expense: Expense) => sum + Number(expense.amount || 0), 0) || 0;
+  const totalSales =
+    sales.data?.reduce(
+      (sum: number, sale: Sale) => sum + Number(sale.total_sales || 0),
+      0
+    ) || 0;
+  const totalExpenses =
+    expenses.data?.reduce(
+      (sum: number, expense: Expense) => sum + Number(expense.amount || 0),
+      0
+    ) || 0;
   const netProfit = totalSales - totalExpenses;
 
   // Calculate inventory value based on current tank levels
@@ -23,7 +38,8 @@ export async function fetchDashboardData(): Promise<DashboardData> {
   };
 
   const inventoryValue = tanks.data?.reduce((sum: number, tank: FuelTank) => {
-    const pricePerLiter = fuelPrices[tank.fuel_type as keyof typeof fuelPrices] || 500; // Default to petrol price if type unknown
+    const pricePerLiter =
+      fuelPrices[tank.fuel_type as keyof typeof fuelPrices] || 500; // Default to petrol price if type unknown
     return sum + tank.current_level * pricePerLiter;
   }, 0);
 
@@ -36,4 +52,4 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     netProfit,
     inventoryValue,
   };
-} 
+}

@@ -7,4 +7,4 @@ export {
   setupHookTest,
   setupErrorTest,
   setupMutationTest,
-} from './test-setup.impl'; 
+} from "./test-setup.impl";

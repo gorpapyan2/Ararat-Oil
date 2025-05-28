@@ -13,26 +13,22 @@ import {
   CardTitle,
 } from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/core/components/ui/primitives/radio-group";
-import { Label } from '@/core/components/ui/label';
-import { Separator } from '@/core/components/ui/separator';
-import { 
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/core/components/ui/primitives/radio-group";
+import { Label } from "@/core/components/ui/label";
+import { Separator } from "@/core/components/ui/separator";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/core/components/ui/primitives/select";
 
 // Icons
-import { 
-  SunMedium, 
-  Moon, 
-  Laptop, 
-  Layout, 
-  Type, 
-  PanelLeft
-} from "lucide-react";
+import { SunMedium, Moon, Laptop, Layout, Type, PanelLeft } from "lucide-react";
 
 // Theme options
 const themeOptions = [
@@ -65,10 +61,10 @@ const sidebarPositionOptions = [
 function AppearanceSettings() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  
+
   // Log render count in development
   useRenderCount("AppearanceSettings");
-  
+
   // State for appearance preferences
   const [theme, setTheme] = useState("system");
   const [layout, setLayout] = useState("default");
@@ -104,7 +100,7 @@ function AppearanceSettings() {
                 {t("settings.appearance.theme")}
               </h3>
             </div>
-            
+
             <RadioGroup
               value={theme}
               onValueChange={setTheme}
@@ -122,22 +118,24 @@ function AppearanceSettings() {
                     className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
                     {option.icon}
-                    <span className="mt-2">{t(`settings.appearance.themes.${option.id}`)}</span>
+                    <span className="mt-2">
+                      {t(`settings.appearance.themes.${option.id}`)}
+                    </span>
                   </Label>
                 </div>
               ))}
             </RadioGroup>
           </div>
-          
+
           <Separator />
-          
+
           {/* Layout and Typography */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium flex items-center gap-2">
               <Layout className="h-4 w-4 text-muted-foreground" />
               {t("settings.appearance.layoutAndTypography")}
             </h3>
-            
+
             <div className="grid gap-4 py-2 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="layout" className="flex items-center gap-2">
@@ -146,7 +144,9 @@ function AppearanceSettings() {
                 </Label>
                 <Select value={layout} onValueChange={setLayout}>
                   <SelectTrigger id="layout">
-                    <SelectValue placeholder={t("settings.appearance.selectLayout")} />
+                    <SelectValue
+                      placeholder={t("settings.appearance.selectLayout")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {layoutOptions.map((option) => (
@@ -157,7 +157,7 @@ function AppearanceSettings() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="fontSize" className="flex items-center gap-2">
                   <Type className="h-4 w-4 text-muted-foreground" />
@@ -165,7 +165,9 @@ function AppearanceSettings() {
                 </Label>
                 <Select value={fontSize} onValueChange={setFontSize}>
                   <SelectTrigger id="fontSize">
-                    <SelectValue placeholder={t("settings.appearance.selectFontSize")} />
+                    <SelectValue
+                      placeholder={t("settings.appearance.selectFontSize")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {fontSizeOptions.map((option) => (
@@ -176,15 +178,25 @@ function AppearanceSettings() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="sidebarPosition" className="flex items-center gap-2">
+                <Label
+                  htmlFor="sidebarPosition"
+                  className="flex items-center gap-2"
+                >
                   <PanelLeft className="h-4 w-4 text-muted-foreground" />
                   {t("settings.appearance.sidebarPosition")}
                 </Label>
-                <Select value={sidebarPosition} onValueChange={setSidebarPosition}>
+                <Select
+                  value={sidebarPosition}
+                  onValueChange={setSidebarPosition}
+                >
                   <SelectTrigger id="sidebarPosition">
-                    <SelectValue placeholder={t("settings.appearance.selectSidebarPosition")} />
+                    <SelectValue
+                      placeholder={t(
+                        "settings.appearance.selectSidebarPosition"
+                      )}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {sidebarPositionOptions.map((option) => (
@@ -195,7 +207,7 @@ function AppearanceSettings() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2 flex items-center">
                 <div className="flex items-center space-x-2">
                   <input
@@ -212,9 +224,9 @@ function AppearanceSettings() {
               </div>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           {/* Preview Section */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium">
@@ -228,9 +240,7 @@ function AppearanceSettings() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit">
-            {t("common.saveChanges")}
-          </Button>
+          <Button type="submit">{t("common.saveChanges")}</Button>
         </CardFooter>
       </Card>
     </form>
@@ -238,4 +248,4 @@ function AppearanceSettings() {
 }
 
 // Export a memoized version for better performance
-export default memo(AppearanceSettings); 
+export default memo(AppearanceSettings);

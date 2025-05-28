@@ -3,6 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  StandardizedForm 
-} from "@/core/components/ui/primitives/StandardizedForm";
+export { StandardizedForm } from "@/core/components/ui/primitives/StandardizedForm";

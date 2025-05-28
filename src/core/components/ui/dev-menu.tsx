@@ -3,6 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  DevMenu 
-} from "@/core/components/ui/primitives/dev-menu";
+export { DevMenu } from "@/core/components/ui/primitives/dev-menu";

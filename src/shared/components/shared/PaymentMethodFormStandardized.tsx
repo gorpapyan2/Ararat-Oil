@@ -8,24 +8,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { Separator } from '@/core/components/ui/separator';
+import { Separator } from "@/core/components/ui/separator";
 import { formatCurrency } from "@/shared/utils";
-import { 
-  FormInput, 
+import {
+  FormInput,
   FormSelect,
-  FormTextarea 
-} from '@/core/components/ui/composed/form-fields';
+  FormTextarea,
+} from "@/core/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 
 const paymentSchema = z.object({
-  payment_method: z.enum([
-    "cash",
-    "card",
-    "bank_transfer",
-    "mobile_payment",
-  ] as const, {
-    required_error: "Payment method is required"
-  }),
+  payment_method: z.enum(
+    ["cash", "card", "bank_transfer", "mobile_payment"] as const,
+    {
+      required_error: "Payment method is required",
+    }
+  ),
   payment_reference: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -65,10 +63,8 @@ export function PaymentMethodFormStandardized({
     },
   });
 
-  const { isSubmitting: isFormSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<PaymentFormData>(
-    form,
-    onSubmit
-  );
+  const { isSubmitting: isFormSubmitting, onSubmit: handleSubmit } =
+    useFormSubmitHandler<PaymentFormData>(form, onSubmit);
 
   const paymentMethodOptions = [
     { value: "cash", label: "Cash" },
@@ -152,10 +148,12 @@ export function PaymentMethodFormStandardized({
             className="w-full mt-4"
             disabled={isSubmitting || isFormSubmitting}
           >
-            {isSubmitting || isFormSubmitting ? "Processing..." : "Complete Payment"}
+            {isSubmitting || isFormSubmitting
+              ? "Processing..."
+              : "Complete Payment"}
           </Button>
         </form>
       </CardContent>
     </Card>
   );
-} 
+}

@@ -1,4 +1,4 @@
-import { SearchBar } from '@/core/components/ui/SearchBar';
+import { SearchBar } from "@/core/components/ui/SearchBar";
 import React from "react";
 
 interface SalesSearchBarProps {
@@ -15,4 +15,4 @@ export function SalesSearchBar({ value, onChange }: SalesSearchBarProps) {
       className="h-9 w-full"
     />
   );
-} 
+}

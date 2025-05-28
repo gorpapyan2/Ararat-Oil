@@ -7,7 +7,7 @@ import { supabase } from "@/core/api/supabase";
  */
 export async function safeQuery<T>(
   query: Promise<PostgrestSingleResponse<T>>,
-  errorMessage = "Database query failed",
+  errorMessage = "Database query failed"
 ): Promise<T | null> {
   try {
     const { data, error } = await query;
@@ -58,7 +58,9 @@ export async function fetchActiveShift(employeeId: string) {
   try {
     // Check for network connectivity first
     if (!navigator.onLine) {
-      console.warn("No internet connection. Using offline mode for active shift.");
+      console.warn(
+        "No internet connection. Using offline mode for active shift."
+      );
       // Try to get shift from localStorage if offline
       const cachedShift = localStorage.getItem(`activeShift_${employeeId}`);
       if (cachedShift) {
@@ -78,17 +80,23 @@ export async function fetchActiveShift(employeeId: string) {
       console.error("Error checking for any active shifts:", anyShiftError);
     } else if (anyActiveShift) {
       console.log("Found an active shift in the system:", anyActiveShift);
-      
+
       // If this shift belongs to the current employee, use it
       if (anyActiveShift.employee_id === employeeId) {
-        localStorage.setItem(`activeShift_${employeeId}`, JSON.stringify(anyActiveShift));
+        localStorage.setItem(
+          `activeShift_${employeeId}`,
+          JSON.stringify(anyActiveShift)
+        );
         return anyActiveShift;
       } else {
         // Otherwise, indicate there's an active shift for someone else
-        console.log("Active shift belongs to another employee:", anyActiveShift.employee_id);
+        console.log(
+          "Active shift belongs to another employee:",
+          anyActiveShift.employee_id
+        );
       }
     }
-    
+
     // Then check specifically for this employee's active shift
     const { data, error } = await supabase
       .from("shifts")
@@ -99,14 +107,14 @@ export async function fetchActiveShift(employeeId: string) {
 
     if (error) {
       console.error("Error fetching active shift:", error);
-      
+
       // Try to get shift from localStorage if there's an error
       const cachedShift = localStorage.getItem(`activeShift_${employeeId}`);
       if (cachedShift) {
         console.log("Using cached shift data during API error");
         return JSON.parse(cachedShift);
       }
-      
+
       return null;
     }
 
@@ -121,7 +129,7 @@ export async function fetchActiveShift(employeeId: string) {
     return data;
   } catch (error) {
     console.error("Error fetching active shift:", error);
-    
+
     // Try to use cached data in case of network failure
     try {
       const cachedShift = localStorage.getItem(`activeShift_${employeeId}`);
@@ -132,7 +140,7 @@ export async function fetchActiveShift(employeeId: string) {
     } catch (cacheError) {
       console.error("Error retrieving cached shift:", cacheError);
     }
-    
+
     return null;
   }
 }

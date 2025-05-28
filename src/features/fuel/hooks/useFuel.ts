@@ -1,20 +1,20 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fuelService } from '../services/fuelService';
-import type { FuelTank, FuelSupply, FuelSale } from '../types/fuel.types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fuelService } from "../services/fuelService";
+import type { FuelTank, FuelSupply, FuelSale } from "../types/fuel.types";
 
 export function useFuel() {
   const queryClient = useQueryClient();
 
   // Tanks
   const tanks = useQuery({
-    queryKey: ['tanks'],
+    queryKey: ["tanks"],
     queryFn: fuelService.getTanks,
   });
 
   const createTank = useMutation({
     mutationFn: fuelService.createTank,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tanks'] });
+      queryClient.invalidateQueries({ queryKey: ["tanks"] });
     },
   });
 
@@ -22,20 +22,20 @@ export function useFuel() {
     mutationFn: ({ id, data }: { id: string; data: Partial<FuelTank> }) =>
       fuelService.updateTank(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tanks'] });
+      queryClient.invalidateQueries({ queryKey: ["tanks"] });
     },
   });
 
   // Supplies
   const supplies = useQuery({
-    queryKey: ['supplies'],
+    queryKey: ["supplies"],
     queryFn: fuelService.getSupplies,
   });
 
   const createSupply = useMutation({
     mutationFn: fuelService.createSupply,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['supplies'] });
+      queryClient.invalidateQueries({ queryKey: ["supplies"] });
     },
   });
 
@@ -43,20 +43,20 @@ export function useFuel() {
     mutationFn: ({ id, data }: { id: string; data: Partial<FuelSupply> }) =>
       fuelService.updateSupply(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['supplies'] });
+      queryClient.invalidateQueries({ queryKey: ["supplies"] });
     },
   });
 
   // Sales
   const sales = useQuery({
-    queryKey: ['sales'],
+    queryKey: ["sales"],
     queryFn: fuelService.getSales,
   });
 
   const createSale = useMutation({
     mutationFn: fuelService.createSale,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ["sales"] });
     },
   });
 
@@ -64,7 +64,7 @@ export function useFuel() {
     mutationFn: ({ id, data }: { id: string; data: Partial<FuelSale> }) =>
       fuelService.updateSale(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ["sales"] });
     },
   });
 
@@ -87,4 +87,4 @@ export function useFuel() {
     createSale,
     updateSale,
   };
-} 
+}

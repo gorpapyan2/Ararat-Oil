@@ -1,9 +1,8 @@
-
 // Since we don't have the full file, I'm creating a minimal version that should work
-import React from 'react';
+import React from "react";
 import { StandardDialog } from "@/core/components/ui/primitives/dialog";
 import { Button } from "@/core/components/ui/button";
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from "react";
 
 interface ConfirmationDialogStandardizedProps {
   open: boolean;
@@ -49,16 +48,14 @@ export function ConfirmationDialogStandardized({
       <Button variant="outline" onClick={handleCancel}>
         {cancelText}
       </Button>
-      <Button onClick={handleConfirm}>
-        {confirmText}
-      </Button>
+      <Button onClick={handleConfirm}>{confirmText}</Button>
     </div>
   );
 
   return (
-    <StandardDialog 
-      open={open} 
-      onOpenChange={onOpenChange} 
+    <StandardDialog
+      open={open}
+      onOpenChange={onOpenChange}
       title={title}
       description={description}
       actions={actions}

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils";
 import { LucideIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/useResponsive";
-import { Separator } from '@/core/components/ui/separator';
+import { Separator } from "@/core/components/ui/separator";
 
 interface PageLayoutProps {
   children: React.ReactNode;

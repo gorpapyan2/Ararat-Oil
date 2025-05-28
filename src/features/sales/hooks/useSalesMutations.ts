@@ -50,7 +50,7 @@ export function useSalesMutations() {
     },
   });
   const updateMutation = useMutation({
-    mutationFn: (params: { id: string; updates: UpdateSaleRequest }) => 
+    mutationFn: (params: { id: string; updates: UpdateSaleRequest }) =>
       salesApi.updateSale(params.id, params.updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
@@ -121,4 +121,4 @@ export function useSalesMutations() {
     handleDelete,
     confirmDelete,
   };
-} 
+}

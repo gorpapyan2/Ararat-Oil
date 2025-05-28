@@ -1,5 +1,13 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import React from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 interface ConsumptionChartProps {
   data: Array<{
@@ -20,4 +28,4 @@ export default function ConsumptionChart({ data }: ConsumptionChartProps) {
       </LineChart>
     </ResponsiveContainer>
   );
-} 
+}

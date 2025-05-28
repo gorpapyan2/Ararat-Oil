@@ -5,22 +5,22 @@
  */
 
 // Import and re-export specifically to avoid naming conflicts
-import { 
+import {
   formatDate as formatDateUtil,
   formatCurrency,
   formatNumber,
   formatPercent,
-  getRelativeTime as getRelativeTimeUtil
-} from './formatting';
+  getRelativeTime as getRelativeTimeUtil,
+} from "./formatting";
 
-import { cn } from './cn';
+import { cn } from "./cn";
 
 // Export date utilities with preference for date.ts implementation
-import { formatDate, getRelativeTime } from './date';
+import { formatDate, getRelativeTime } from "./date";
 
 // Export other utilities
-export * from './deprecation';
-export * from './errorHandling';
+export * from "./deprecation";
+export * from "./errorHandling";
 
 // Export with disambiguated names
 export {
@@ -32,5 +32,5 @@ export {
   cn,
   // Provide alternative names for the formatting.ts versions if needed
   formatDateUtil,
-  getRelativeTimeUtil
-}; 
+  getRelativeTimeUtil,
+};

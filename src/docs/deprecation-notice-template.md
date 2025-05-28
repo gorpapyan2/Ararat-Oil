@@ -7,7 +7,7 @@
  * @deprecated This component is deprecated and will be removed in the next major version.
  * Please use the standardized version from the feature directory instead:
  * {@link import('@/features/feature-name/components/ComponentNameStandardized')}
- * 
+ *
  * Deprecation Date: [Date]
  * Planned Removal Date: [Date - typically 3-6 months later]
  * Migration Guide: [Link to documentation, if applicable]
@@ -23,11 +23,11 @@
  */
 export function DeprecatedComponent() {
   console.warn(
-    '[Deprecation Warning] DeprecatedComponent is deprecated. ' +
-    'Use ComponentNameStandardized from @/features/feature-name/components instead. ' +
-    'This component will be removed on [Removal Date].'
+    "[Deprecation Warning] DeprecatedComponent is deprecated. " +
+      "Use ComponentNameStandardized from @/features/feature-name/components instead. " +
+      "This component will be removed on [Removal Date]."
   );
-  
+
   // Component implementation
 }
 ```
@@ -38,8 +38,8 @@ export function DeprecatedComponent() {
 // At the beginning of the component function
 useEffect(() => {
   console.warn(
-    '[Deprecation Warning] ComponentName is deprecated and will be removed after [Removal Date]. ' +
-    'Please use ComponentNameStandardized from @/features/feature-name/components instead.'
+    "[Deprecation Warning] ComponentName is deprecated and will be removed after [Removal Date]. " +
+      "Please use ComponentNameStandardized from @/features/feature-name/components instead."
   );
 }, []);
 ```
@@ -50,7 +50,7 @@ For components that are imported in many places, creating a bridge component can
 
 ```typescript
 /**
- * @deprecated This component is a bridge to the standardized version. 
+ * @deprecated This component is a bridge to the standardized version.
  * Please update imports to use the standardized component directly:
  * {@link import('@/features/feature-name/components/ComponentNameStandardized')}
  */
@@ -63,7 +63,7 @@ export function DeprecatedComponent(props) {
     'Use ComponentNameStandardized from @/features/feature-name/components instead. ' +
     'This component will be removed on [Removal Date].'
   );
-  
+
   return <ComponentNameStandardized {...props} />;
 }
 ```
@@ -88,7 +88,7 @@ export function DeprecatedComponent(props) {
 Track deprecated components in a central document:
 
 ```markdown
-| Component | Deprecated On | Removal Date | Replacement | Status |
-|-----------|---------------|--------------|-------------|--------|
-| `ComponentName` | YYYY-MM-DD | YYYY-MM-DD | `@/features/feature-name/components/ComponentNameStandardized` | Deprecated |
-``` 
+| Component       | Deprecated On | Removal Date | Replacement                                                    | Status     |
+| --------------- | ------------- | ------------ | -------------------------------------------------------------- | ---------- |
+| `ComponentName` | YYYY-MM-DD    | YYYY-MM-DD   | `@/features/feature-name/components/ComponentNameStandardized` | Deprecated |
+```

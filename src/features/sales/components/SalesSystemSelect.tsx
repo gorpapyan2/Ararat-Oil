@@ -21,4 +21,4 @@ export function SalesSystemSelect({
       className="w-full"
     />
   );
-} 
+}

@@ -1,59 +1,57 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { DatePicker } from '@/core/components/ui/datepicker';
-import { useState } from 'react';
+import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
+import { DatePicker } from "@/core/components/ui/datepicker";
 
 const meta = {
-  title: 'UI/DatePicker',
+  title: "Components/DatePicker",
   component: DatePicker,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 } satisfies Meta<typeof DatePicker>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Helper components to avoid hook errors
+const DefaultStory = (args: React.ComponentProps<typeof DatePicker>) => {
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  return <DatePicker date={date} onDateChange={setDate} {...args} />;
+};
+
+const PlaceholderStory = (args: React.ComponentProps<typeof DatePicker>) => {
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  return (
+    <DatePicker
+      date={date}
+      onDateChange={setDate}
+      placeholder="Pick a date"
+      {...args}
+    />
+  );
+};
+
+const DisabledStory = (args: React.ComponentProps<typeof DatePicker>) => {
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  return (
+    <DatePicker
+      date={date}
+      onDateChange={setDate}
+      disabled={true}
+      {...args}
+    />
+  );
+};
+
 export const Default: Story = {
-  render: (args: any) => {
-    // @ts-ignore - This is a Storybook pattern
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    return (
-      <DatePicker 
-        date={date} 
-        onDateChange={setDate} 
-        {...args} 
-      />
-    );
-  },
+  render: DefaultStory,
 };
 
 export const WithPlaceholder: Story = {
-  render: (args: any) => {
-    // @ts-ignore - This is a Storybook pattern
-    const [date, setDate] = useState<Date | undefined>(undefined);
-    return (
-      <DatePicker 
-        date={date} 
-        onDateChange={setDate} 
-        placeholder="Select a date" 
-        {...args} 
-      />
-    );
-  },
+  render: PlaceholderStory,
 };
 
 export const Disabled: Story = {
-  render: (args: any) => {
-    // @ts-ignore - This is a Storybook pattern
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    return (
-      <DatePicker 
-        date={date} 
-        onDateChange={setDate} 
-        disabled={true} 
-        {...args} 
-      />
-    );
-  },
-}; 
+  render: DisabledStory,
+};

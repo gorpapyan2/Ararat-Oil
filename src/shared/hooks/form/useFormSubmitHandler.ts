@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UseFormReturn, FieldValues } from "react-hook-form";
-import { toast } from "@/shared/hooks/ui";
+import { useToast } from "@/shared/hooks/ui";
 
 /**
  * Options for form submission handler
@@ -10,32 +10,32 @@ export interface UseFormSubmitHandlerOptions {
    * Custom success message to show after submission
    */
   successMessage?: string;
-  
+
   /**
    * Custom error message to show when submission fails
    */
   errorMessage?: string;
-  
+
   /**
    * Whether to reset the form after successful submission
    */
   resetOnSuccess?: boolean;
-  
+
   /**
    * Callback to run after successful submission but before toast
    */
   onSuccess?: () => void;
-  
+
   /**
    * Callback to run when submission fails but before toast
    */
   onError?: (error: Error) => void;
-  
+
   /**
    * Whether to show success toasts
    */
   showSuccessToast?: boolean;
-  
+
   /**
    * Whether to show error toasts
    */
@@ -44,12 +44,12 @@ export interface UseFormSubmitHandlerOptions {
 
 /**
  * A utility function to create a form submission handler with loading state and error handling.
- * 
+ *
  * @param form The react-hook-form methods
  * @param onSubmit The function to call when the form is submitted
  * @param options Additional options for form submission
  * @returns A submit handler with loading state
- * 
+ *
  * @example
  * ```tsx
  * const form = useZodForm({ schema });
@@ -67,16 +67,17 @@ export function useFormSubmitHandler<TData extends FieldValues>(
   options: UseFormSubmitHandlerOptions = {}
 ) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const { toast } = useToast();
+
   const handleSubmit = form.handleSubmit(async (data) => {
     setIsSubmitting(true);
-    
+
     try {
       await onSubmit(data);
-      
+
       // Run success callback
       options.onSuccess?.();
-      
+
       // Show success toast if enabled
       if (options.showSuccessToast !== false && options.successMessage) {
         toast({
@@ -84,22 +85,25 @@ export function useFormSubmitHandler<TData extends FieldValues>(
           description: options.successMessage,
         });
       }
-      
+
       // Reset form if requested
       if (options.resetOnSuccess) {
         form.reset();
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      
+
       // Run error callback
       options.onError?.(error as Error);
-      
+
       // Show error toast if enabled
       if (options.showErrorToast !== false) {
         toast({
           title: "Error",
-          description: options.errorMessage || (error as Error).message || "An error occurred",
+          description:
+            options.errorMessage ||
+            (error as Error).message ||
+            "An error occurred",
           variant: "destructive",
         });
       }
@@ -107,7 +111,7 @@ export function useFormSubmitHandler<TData extends FieldValues>(
       setIsSubmitting(false);
     }
   });
-  
+
   return {
     handleSubmit,
     isSubmitting,

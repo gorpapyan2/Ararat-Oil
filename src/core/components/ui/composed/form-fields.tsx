@@ -2,27 +2,28 @@
  * Core form field components
  * These components wrap React Hook Form with standardized UI elements
  */
-import React from 'react';
-import { 
-  UseFormReturn, 
+import React from "react";
+import {
+  UseFormReturn,
   Controller,
   FieldPath,
-  FieldValues
-} from 'react-hook-form';
-import { cn } from '@/utils/cn';
+  FieldValues,
+  ControllerRenderProps,
+} from "react-hook-form";
+import { cn } from "@/utils/cn";
 import { Calendar } from "@/core/components/ui/primitives/calendar";
-import { format } from 'date-fns';
-import { FormProvider, useForm, useFormContext } from 'react-hook-form';
-import { Label } from '@/core/components/ui/primitives/label';
-import { Input } from '@/core/components/ui/primitives/input';
-import { 
-  FormControl, 
-  FormDescription, 
-  FormField, 
-  FormItem as PrimitiveFormItem, 
-  FormLabel, 
-  FormMessage 
-} from '@/core/components/ui/primitives/form';
+import { format } from "date-fns";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { Label } from "@/core/components/ui/primitives/label";
+import { Input } from "@/core/components/ui/primitives/input";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem as PrimitiveFormItem,
+  FormLabel,
+  FormMessage,
+} from "@/core/components/ui/primitives/form";
 
 interface FormItemProps {
   label?: string;
@@ -42,14 +43,11 @@ export const LegacyFormItem = ({
   children,
 }: FormItemProps & { children: React.ReactNode }) => {
   const id = React.useId();
-  
+
   return (
     <div className={cn("space-y-2", className)}>
       {label && (
-        <label 
-          htmlFor={id} 
-          className="block text-sm font-medium"
-        >
+        <label htmlFor={id} className="block text-sm font-medium">
           {label}
           {required && <span className="ml-1 text-red-500">*</span>}
         </label>
@@ -69,7 +67,7 @@ function BaseFormField({
   label,
   placeholder,
   description,
-  type = 'text',
+  type = "text",
   className,
   fieldClassName,
   labelClassName,
@@ -84,19 +82,20 @@ function BaseFormField({
   className?: string;
   fieldClassName?: string;
   labelClassName?: string;
-  renderInput?: (field: any) => React.ReactNode;
+  renderInput?: (field: ControllerRenderProps<FieldValues>) => React.ReactNode;
   required?: boolean;
 }) {
   const { control } = useFormContext();
-  
+
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <PrimitiveFormItem className={cn('space-y-2', className)}>
+        <PrimitiveFormItem className={cn("space-y-2", className)}>
           <FormLabel className={cn(labelClassName)}>
-            {label}{required && <span className="text-red-500 ml-1">*</span>}
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
           </FormLabel>
           <FormControl>
             {renderInput ? (
@@ -279,13 +278,16 @@ export function FormInput<
   placeholder,
   className,
 }: FormInputProps<TFieldValues, TName>) {
-  const { register, formState: { errors } } = form;
+  const {
+    register,
+    formState: { errors },
+  } = form;
   const error = errors[name]?.message as string | undefined;
-  
+
   return (
-    <LegacyFormItem 
-      label={label} 
-      description={description} 
+    <LegacyFormItem
+      label={label}
+      description={description}
       error={error}
       required={required}
       className={className}
@@ -325,13 +327,16 @@ export function FormSelect<
   placeholder,
   className,
 }: FormSelectProps<TFieldValues, TName>) {
-  const { register, formState: { errors } } = form;
+  const {
+    register,
+    formState: { errors },
+  } = form;
   const error = errors[name]?.message as string | undefined;
-  
+
   return (
-    <LegacyFormItem 
-      label={label} 
-      description={description} 
+    <LegacyFormItem
+      label={label}
+      description={description}
       error={error}
       required={required}
       className={className}
@@ -376,11 +381,14 @@ export function FormCheckbox<
   required,
   className,
 }: FormCheckboxProps<TFieldValues, TName>) {
-  const { register, formState: { errors } } = form;
+  const {
+    register,
+    formState: { errors },
+  } = form;
   const error = errors[name]?.message as string | undefined;
-  
+
   return (
-    <LegacyFormItem 
+    <LegacyFormItem
       error={error}
       className={cn("flex items-start space-x-2 space-y-0", className)}
     >
@@ -431,13 +439,16 @@ export function FormTextarea<
   rows = 4,
   className,
 }: FormTextareaProps<TFieldValues, TName>) {
-  const { register, formState: { errors } } = form;
+  const {
+    register,
+    formState: { errors },
+  } = form;
   const error = errors[name]?.message as string | undefined;
-  
+
   return (
-    <LegacyFormItem 
-      label={label} 
-      description={description} 
+    <LegacyFormItem
+      label={label}
+      description={description}
       error={error}
       required={required}
       className={className}
@@ -485,19 +496,39 @@ export function FormDatePicker<
   dateFormat = "PP",
   className,
 }: FormDatePickerProps<TFieldValues, TName>) {
-  // Import dynamically to avoid circular dependencies
-  const { FormStandardDatePicker } = require('@/shared/components/common/datepicker');
-  
+  // Use state to handle dynamic import
+  const [DatePickerComponent, setDatePickerComponent] = React.useState<React.ComponentType<Record<string, unknown>> | null>(null);
+
+  React.useEffect(() => {
+    // Dynamic import to avoid circular dependencies
+    import("@/shared/components/common/datepicker")
+      .then((module) => {
+        setDatePickerComponent(() => module.FormStandardDatePicker);
+      })
+      .catch((error) => {
+        console.error("Failed to load DatePicker component:", error);
+      });
+  }, []);
+
   // Log deprecation warning
   React.useEffect(() => {
     console.warn(
-      'FormDatePicker is deprecated and will be removed in a future version. ' +
-      'Please use FormStandardDatePicker from @/shared/components/common/datepicker instead.'
+      "FormDatePicker is deprecated and will be removed in a future version. " +
+        "Please use FormStandardDatePicker from @/shared/components/common/datepicker instead."
     );
   }, []);
 
+  if (!DatePickerComponent) {
+    // Loading fallback
+    return (
+      <div className="animate-pulse">
+        <div className="h-10 bg-gray-200 rounded"></div>
+      </div>
+    );
+  }
+
   return (
-    <FormStandardDatePicker
+    <DatePickerComponent
       name={name}
       control={form.control}
       label={label}
@@ -534,14 +565,17 @@ export function FormCurrencyInput<
   symbol = "$",
   className,
 }: FormCurrencyInputProps<TFieldValues, TName>) {
-  const { control, formState: { errors } } = form;
+  const {
+    control,
+    formState: { errors },
+  } = form;
   const error = errors[name]?.message as string | undefined;
-  
+
   return (
-    <LegacyFormItem 
-      label={label} 
-      description={description} 
-      error={error} 
+    <LegacyFormItem
+      label={label}
+      description={description}
+      error={error}
       required={required}
       className={className}
     >
@@ -558,9 +592,12 @@ export function FormCurrencyInput<
               type="number"
               placeholder={placeholder}
               className="w-full pl-7 pr-3 py-2 border rounded-md"
-              value={field.value ?? ''}
+              value={field.value ?? ""}
               onChange={(e) => {
-                const value = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                const value =
+                  e.target.value === ""
+                    ? undefined
+                    : parseFloat(e.target.value);
                 field.onChange(value);
               }}
               onBlur={field.onBlur}
@@ -580,7 +617,7 @@ export interface FormRadioGroupProps<
   name: TName;
   form: UseFormReturn<TFieldValues>;
   options: { value: string; label: string }[];
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: "horizontal" | "vertical";
 }
 
 export function FormRadioGroup<
@@ -593,24 +630,27 @@ export function FormRadioGroup<
   description,
   required,
   options,
-  orientation = 'horizontal',
+  orientation = "horizontal",
   className,
 }: FormRadioGroupProps<TFieldValues, TName>) {
-  const { register, formState: { errors } } = form;
+  const {
+    register,
+    formState: { errors },
+  } = form;
   const error = errors[name]?.message as string | undefined;
-  
+
   return (
-    <LegacyFormItem 
-      label={label} 
-      description={description} 
-      error={error} 
+    <LegacyFormItem
+      label={label}
+      description={description}
+      error={error}
       required={required}
       className={className}
     >
-      <div 
+      <div
         className={cn(
           "space-y-2",
-          orientation === 'horizontal' && "flex space-x-6 space-y-0"
+          orientation === "horizontal" && "flex space-x-6 space-y-0"
         )}
       >
         {options.map((option) => (
@@ -656,13 +696,16 @@ export function FormSwitch<
   switchLabel,
   className,
 }: FormSwitchProps<TFieldValues, TName>) {
-  const { control, formState: { errors } } = form;
+  const {
+    control,
+    formState: { errors },
+  } = form;
   const error = errors[name]?.message as string | undefined;
-  
+
   return (
-    <LegacyFormItem 
-      label={label} 
-      description={description} 
+    <LegacyFormItem
+      label={label}
+      description={description}
       error={error}
       className={className}
     >
@@ -671,7 +714,7 @@ export function FormSwitch<
         control={control}
         render={({ field }) => (
           <div className="flex items-center space-x-2">
-            <div 
+            <div
               role="checkbox"
               aria-checked={field.value}
               tabIndex={0}
@@ -681,13 +724,13 @@ export function FormSwitch<
               )}
               onClick={() => field.onChange(!field.value)}
               onKeyDown={(e) => {
-                if (e.key === ' ' || e.key === 'Enter') {
+                if (e.key === " " || e.key === "Enter") {
                   e.preventDefault();
                   field.onChange(!field.value);
                 }
               }}
             >
-              <span 
+              <span
                 className={cn(
                   "inline-block h-4 w-4 rounded-full bg-gray-50 transition-transform",
                   field.value ? "translate-x-6" : "translate-x-1"
@@ -705,4 +748,117 @@ export function FormSwitch<
 }
 
 // Re-export the FormProvider for convenience
-export { FormProvider }; 
+export { FormProvider };
+
+// Simplified versions for any form types
+export interface SimpleFormCurrencyInputProps extends FormItemProps {
+  name: string;
+  form: UseFormReturn<FieldValues>;
+  placeholder?: string;
+  symbol?: string;
+}
+
+export function SimpleFormCurrencyInput({
+  name,
+  form,
+  label,
+  description,
+  required,
+  placeholder,
+  symbol = "$",
+  className,
+}: SimpleFormCurrencyInputProps) {
+  const {
+    control,
+    formState: { errors },
+  } = form;
+  const error = errors[name]?.message as string | undefined;
+
+  return (
+    <LegacyFormItem
+      label={label}
+      description={description}
+      error={error}
+      required={required}
+      className={className}
+    >
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span className="text-gray-500">{symbol}</span>
+            </div>
+            <input
+              id={name}
+              type="number"
+              placeholder={placeholder}
+              className="w-full pl-7 pr-3 py-2 border rounded-md"
+              value={field.value ?? ""}
+              onChange={(e) => {
+                const value =
+                  e.target.value === ""
+                    ? undefined
+                    : parseFloat(e.target.value);
+                field.onChange(value);
+              }}
+              onBlur={field.onBlur}
+            />
+          </div>
+        )}
+      />
+    </LegacyFormItem>
+  );
+}
+
+export interface SimpleFormSelectProps extends FormItemProps {
+  name: string;
+  form: UseFormReturn<FieldValues>;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}
+
+export function SimpleFormSelect({
+  name,
+  form,
+  label,
+  description,
+  required,
+  options,
+  placeholder,
+  className,
+}: SimpleFormSelectProps) {
+  const {
+    register,
+    formState: { errors },
+  } = form;
+  const error = errors[name]?.message as string | undefined;
+
+  return (
+    <LegacyFormItem
+      label={label}
+      description={description}
+      error={error}
+      required={required}
+      className={className}
+    >
+      <select
+        id={name}
+        className="w-full px-3 py-2 border rounded-md"
+        {...register(name)}
+      >
+        {placeholder && (
+          <option value="" disabled>
+            {placeholder}
+          </option>
+        )}
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </LegacyFormItem>
+  );
+}

@@ -3,16 +3,30 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { cn } from "@/shared/utils";
 import { Button } from "@/core/components/ui/button";
 import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
-import { SkipToContent } from '@/core/components/ui/skip-to-content';
+import { SkipToContent } from "@/core/components/ui/skip-to-content";
 import { useIsMobile } from "@/hooks/useResponsive";
-import { useAuth } from '@/features/auth';
+import { useAuth } from "@/features/auth";
 import { Toaster } from "@/core/components/ui/toast";
-import { Sheet, SheetContent, SheetTrigger } from "@/core/components/ui/primitives/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/core/components/ui/primitives/sheet";
 import { useTranslation } from "react-i18next";
-import { ThemeSwitcher } from '@/core/components/ui/ThemeSwitcher';
+import { ThemeSwitcher } from "@/core/components/ui/ThemeSwitcher";
 import { IconLogout } from "@tabler/icons-react";
-import { DevMenu } from '@/core/components/ui/composed/dev-menu';
+import { DevMenu } from "@/core/components/ui/composed/dev-menu";
 import { useSidebarNavConfig } from "@/core/config";
+import { LucideIcon } from "lucide-react";
+import { Icon } from "@tabler/icons-react";
+
+// Define types for navigation items
+interface NavigationItem {
+  to: string;
+  icon: LucideIcon | Icon;
+  label: string;
+  children?: NavigationItem[];
+}
 
 type AdminShellProps = {
   children: React.ReactNode;
@@ -30,9 +44,9 @@ export function AdminShell({ children }: AdminShellProps) {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
@@ -69,10 +83,12 @@ export function AdminShell({ children }: AdminShellProps) {
     <div className="flex h-full w-full flex-col overflow-hidden">
       {/* Sidebar header */}
       <div className="flex h-14 items-center border-b px-4">
-        <div className={cn(
-          "flex items-center transition-all duration-300",
-          sidebarCollapsed ? "justify-center w-full" : "gap-2",
-        )}>
+        <div
+          className={cn(
+            "flex items-center transition-all duration-300",
+            sidebarCollapsed ? "justify-center w-full" : "gap-2"
+          )}
+        >
           {!sidebarCollapsed && (
             <span className="font-heading font-bold text-xl">Ararat Oil</span>
           )}
@@ -95,27 +111,29 @@ export function AdminShell({ children }: AdminShellProps) {
                 </h3>
               )}
               <div className="flex flex-col gap-1">
-                {items.map((item: any) => {
-                  const isItemActive = item.children 
+                {items.map((item: NavigationItem) => {
+                  const isItemActive = item.children
                     ? isActiveChild(item.to)
                     : isActive(item.to);
-                  
+
                   // Common styling for the nav item
                   const navItemClasses = cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
                     "hover:bg-primary/10",
                     isItemActive
                       ? "bg-primary/15 text-primary font-medium"
-                      : "text-foreground/80 hover:text-foreground",
+                      : "text-foreground/80 hover:text-foreground"
                   );
 
                   // Render the icon
                   const IconComponent = item.icon;
                   const renderedIcon = IconComponent ? (
-                    <div className={cn(
-                      "flex items-center justify-center min-w-[24px]",
-                      isItemActive && "text-primary"
-                    )}>
+                    <div
+                      className={cn(
+                        "flex items-center justify-center min-w-[24px]",
+                        isItemActive && "text-primary"
+                      )}
+                    >
                       <IconComponent size={20} />
                     </div>
                   ) : null;
@@ -129,7 +147,9 @@ export function AdminShell({ children }: AdminShellProps) {
                     >
                       {renderedIcon}
                       {!sidebarCollapsed && <span>{item.label}</span>}
-                      {sidebarCollapsed && <span className="sr-only">{item.label}</span>}
+                      {sidebarCollapsed && (
+                        <span className="sr-only">{item.label}</span>
+                      )}
                     </Link>
                   );
                 })}
@@ -142,10 +162,12 @@ export function AdminShell({ children }: AdminShellProps) {
       {/* Simplified footer */}
       <div className="border-t p-4 space-y-4">
         {/* Theme switcher */}
-        <div className={cn(
-          "flex items-center", 
-          sidebarCollapsed ? "justify-center" : "justify-between"
-        )}>
+        <div
+          className={cn(
+            "flex items-center",
+            sidebarCollapsed ? "justify-center" : "justify-between"
+          )}
+        >
           {!sidebarCollapsed && (
             <span className="text-sm text-muted-foreground">
               {t("common.theme")}
@@ -193,12 +215,12 @@ export function AdminShell({ children }: AdminShellProps) {
   const contentWithSidebar = (
     <div className="relative min-h-screen">
       <SkipToContent />
-      
+
       {/* Sidebar - desktop version */}
       <aside
         className={cn(
           "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card/50  transition-all md:block md:flex-col",
-          sidebarCollapsed ? "md:w-[70px]" : "md:w-[240px]",
+          sidebarCollapsed ? "md:w-[70px]" : "md:w-[240px]"
         )}
       >
         {renderSidebarContent()}
@@ -226,7 +248,7 @@ export function AdminShell({ children }: AdminShellProps) {
         id="main-content"
         className={cn(
           "flex min-h-screen flex-col bg-gray-50 transition-all",
-          sidebarCollapsed ? "md:pl-[70px]" : "md:pl-[240px]",
+          sidebarCollapsed ? "md:pl-[70px]" : "md:pl-[240px]"
         )}
         tabIndex={-1}
       >
@@ -242,11 +264,11 @@ export function AdminShell({ children }: AdminShellProps) {
           <div className="flex items-center gap-3">
             {/* Add DevMenu */}
             <DevMenu />
-            
+
             {/* User profile button placeholder */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="rounded-full hover:bg-primary/10 transition-colors"
             >
               <span className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium">

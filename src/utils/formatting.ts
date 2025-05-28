@@ -3,7 +3,7 @@
  * This file combines formatting functions that were previously duplicated across the codebase
  */
 
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 /**
  * Formats a date using the specified format string
@@ -11,16 +11,19 @@ import { format } from 'date-fns';
  * @param formatString The format string (defaults to standard date format)
  * @returns The formatted date string
  */
-export function formatDate(date: Date | string | null | undefined, formatString = 'dd/MM/yyyy'): string {
-  if (!date) return '';
-  
+export function formatDate(
+  date: Date | string | null | undefined,
+  formatString = "dd/MM/yyyy"
+): string {
+  if (!date) return "";
+
   try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return '';
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return "";
     return format(dateObj, formatString);
   } catch (error) {
-    console.error('Error formatting date:', error);
-    return '';
+    console.error("Error formatting date:", error);
+    return "";
   }
 }
 
@@ -31,22 +34,27 @@ export function formatDate(date: Date | string | null | undefined, formatString 
  * @param locale The locale (defaults to hy-AM)
  * @returns The formatted currency string
  */
-export function formatCurrency(amount: number | string | null | undefined, currency = 'AMD', locale = 'hy-AM'): string {
-  if (amount === null || amount === undefined || amount === '') return '';
-  
-  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  
-  if (isNaN(numericAmount)) return '';
-  
+export function formatCurrency(
+  amount: number | string | null | undefined,
+  currency = "AMD",
+  locale = "hy-AM"
+): string {
+  if (amount === null || amount === undefined || amount === "") return "";
+
+  const numericAmount =
+    typeof amount === "string" ? parseFloat(amount) : amount;
+
+  if (isNaN(numericAmount)) return "";
+
   try {
     return new Intl.NumberFormat(locale, {
-      style: 'currency',
+      style: "currency",
       currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(numericAmount);
   } catch (error) {
-    console.error('Error formatting currency:', error);
+    console.error("Error formatting currency:", error);
     return numericAmount.toString();
   }
 }
@@ -58,20 +66,24 @@ export function formatCurrency(amount: number | string | null | undefined, curre
  * @param locale The locale
  * @returns The formatted number string
  */
-export function formatNumber(value: number | string | null | undefined, decimals = 0, locale = 'hy-AM'): string {
-  if (value === null || value === undefined || value === '') return '';
-  
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
-  
-  if (isNaN(numericValue)) return '';
-  
+export function formatNumber(
+  value: number | string | null | undefined,
+  decimals = 0,
+  locale = "hy-AM"
+): string {
+  if (value === null || value === undefined || value === "") return "";
+
+  const numericValue = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(numericValue)) return "";
+
   try {
     return new Intl.NumberFormat(locale, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }).format(numericValue);
   } catch (error) {
-    console.error('Error formatting number:', error);
+    console.error("Error formatting number:", error);
     return numericValue.toString();
   }
 }
@@ -83,21 +95,25 @@ export function formatNumber(value: number | string | null | undefined, decimals
  * @param locale The locale
  * @returns The formatted percentage string
  */
-export function formatPercent(value: number | string | null | undefined, decimals = 0, locale = 'hy-AM'): string {
-  if (value === null || value === undefined || value === '') return '';
-  
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
-  
-  if (isNaN(numericValue)) return '';
-  
+export function formatPercent(
+  value: number | string | null | undefined,
+  decimals = 0,
+  locale = "hy-AM"
+): string {
+  if (value === null || value === undefined || value === "") return "";
+
+  const numericValue = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(numericValue)) return "";
+
   try {
     return new Intl.NumberFormat(locale, {
-      style: 'percent',
+      style: "percent",
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }).format(numericValue / 100);
   } catch (error) {
-    console.error('Error formatting percentage:', error);
+    console.error("Error formatting percentage:", error);
     return `${numericValue}%`;
   }
 }
@@ -108,45 +124,50 @@ export function formatPercent(value: number | string | null | undefined, decimal
  * @param locale The locale
  * @returns The relative time string
  */
-export function getRelativeTime(date: Date | string | null | undefined, locale = 'hy-AM'): string {
-  if (!date) return '';
-  
+export function getRelativeTime(
+  date: Date | string | null | undefined,
+  locale = "hy-AM"
+): string {
+  if (!date) return "";
+
   try {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) return '';
-    
-    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) return "";
+
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
     const now = new Date();
-    const diffInSeconds = Math.floor((dateObj.getTime() - now.getTime()) / 1000);
-    
+    const diffInSeconds = Math.floor(
+      (dateObj.getTime() - now.getTime()) / 1000
+    );
+
     if (Math.abs(diffInSeconds) < 60) {
-      return rtf.format(Math.floor(diffInSeconds), 'second');
+      return rtf.format(Math.floor(diffInSeconds), "second");
     }
-    
+
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     if (Math.abs(diffInMinutes) < 60) {
-      return rtf.format(diffInMinutes, 'minute');
+      return rtf.format(diffInMinutes, "minute");
     }
-    
+
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (Math.abs(diffInHours) < 24) {
-      return rtf.format(diffInHours, 'hour');
+      return rtf.format(diffInHours, "hour");
     }
-    
+
     const diffInDays = Math.floor(diffInHours / 24);
     if (Math.abs(diffInDays) < 30) {
-      return rtf.format(diffInDays, 'day');
+      return rtf.format(diffInDays, "day");
     }
-    
+
     const diffInMonths = Math.floor(diffInDays / 30);
     if (Math.abs(diffInMonths) < 12) {
-      return rtf.format(diffInMonths, 'month');
+      return rtf.format(diffInMonths, "month");
     }
-    
+
     const diffInYears = Math.floor(diffInDays / 365);
-    return rtf.format(diffInYears, 'year');
+    return rtf.format(diffInYears, "year");
   } catch (error) {
-    console.error('Error getting relative time:', error);
+    console.error("Error getting relative time:", error);
     return formatDate(date);
   }
-} 
+}

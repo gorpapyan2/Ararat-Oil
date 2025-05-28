@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card";
-import { Separator } from '@/core/components/ui/separator';
+import { Separator } from "@/core/components/ui/separator";
 import { Input } from "@/core/components/ui/primitives/input";
 import { AdvancedSearchInput } from "./AdvancedSearchInput";
 import { DateRangeFilter } from "./DateRangeFilter";
@@ -26,7 +26,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/core/components/ui/collapsible';
+} from "@/core/components/ui/collapsible";
 import {
   Sheet,
   SheetContent,
@@ -42,9 +42,14 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/core/components/ui/accordion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
-import { Badge } from '@/core/components/ui/badge';
+} from "@/core/components/ui/accordion";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/core/components/ui/tabs";
+import { Badge } from "@/core/components/ui/badge";
 
 interface FilterBarProps {
   filters: {

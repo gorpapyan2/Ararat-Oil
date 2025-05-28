@@ -1,15 +1,15 @@
 // Components
-export { LoginForm } from './components/LoginForm';
-export { RegisterForm } from './components/RegisterForm';
-export { AuthGuard } from './components/AuthGuard';
-export { AuthProvider } from './components/AuthProvider';
+export { LoginForm } from "./components/LoginForm";
+export { RegisterForm } from "./components/RegisterForm";
+export { AuthGuard } from "./components/AuthGuard";
+export { AuthProvider } from "./components/AuthProvider";
 
 // Hooks
-export { useAuth } from './hooks/useAuth';
-export { useAuthGuard } from './hooks/useAuthGuard';
+export { useAuth } from "./hooks/useAuth";
+export { useAuthGuard } from "./hooks/useAuthGuard";
 
 // Services
-export { authService } from './services/authService';
+export { authService } from "./services/authService";
 
 // Types
 export type {
@@ -22,7 +22,12 @@ export type {
   AuthResponse,
   AuthRole,
   AuthConfig,
-} from './types/auth.types';
+} from "./types/auth.types";
 
 // Utils
-export { isAuthenticated, hasRequiredRole, hasPermission, formatAuthError } from './utils/auth.utils'; 
+export {
+  isAuthenticated,
+  hasRequiredRole,
+  hasPermission,
+  formatAuthError,
+} from "./utils/auth.utils";

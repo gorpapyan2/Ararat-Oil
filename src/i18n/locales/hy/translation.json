@@ -601,7 +601,7 @@
       "viewAll": "Դիտել բոլորը",
       "fuelSupplyAdded": "Վառելիքի մատակարարում է ավելացվել",
       "paymentReceived": "Վճարումը ստացվել է",
-      "tankLevelUpdated": "Ամպոկի մակարդակը թարմացվել է", 
+      "tankLevelUpdated": "Ամպոկի մակարդակը թարմացվել է",
       "maintenanceScheduled": "Սպասարկումը պլանավորվել է",
       "statusCompleted": "Ավարտված",
       "statusWarning": "Զգուշացում",
@@ -649,7 +649,7 @@
       "description": "Կարգավորեք հավելվածի տեսքը",
       "theme": "Տեսք",
       "light": "Լուսավոր",
-      "dark": "Մուգ", 
+      "dark": "Մուգ",
       "system": "Համակարգային"
     },
     "notifications": {

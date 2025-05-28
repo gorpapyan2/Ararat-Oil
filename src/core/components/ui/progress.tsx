@@ -3,6 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  Progress 
-} from "@/core/components/ui/primitives/progress";
+export { Progress } from "@/core/components/ui/primitives/progress";

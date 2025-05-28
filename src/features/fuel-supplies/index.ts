@@ -1,26 +1,22 @@
 /**
  * Fuel Supplies Feature
- * 
+ *
  * This feature manages fuel supply records, including deliveries from providers,
  * quantity tracking, pricing, and inventory management.
  */
 
 // Re-export components
-export { FuelSuppliesManagerStandardized } from './components/FuelSuppliesManagerStandardized';
-export { FuelSuppliesFormStandardized } from './components/FuelSuppliesFormStandardized';
-export { FuelSuppliesTable } from './components/FuelSuppliesTable';
-export { ConfirmDeleteDialogStandardized } from './components/ConfirmDeleteDialogStandardized';
-export { ConfirmAddDialogStandardized } from './components/ConfirmAddDialogStandardized';
-export { FuelSuppliesSummary } from './components/summary/FuelSuppliesSummary';
+export { FuelSuppliesTable } from "./components/FuelSuppliesTable";
+export { FuelSuppliesSummary } from "./components/summary/FuelSuppliesSummary";
 
 // Re-export hooks
-export { useFuelSupplies } from './hooks/useFuelSupplies';
-export type { FuelSuppliesFilters } from './hooks/useFuelSupplies';
-export { useFuelSuppliesFilters } from './hooks/useFuelSuppliesFilters';
-export type { FuelSuppliesFilterState } from './hooks/useFuelSuppliesFilters';
+export { useFuelSupplies } from "./hooks/useFuelSupplies";
+export type { FuelSuppliesFilters } from "./hooks/useFuelSupplies";
+export { useFuelSuppliesFilters } from "./hooks/useFuelSuppliesFilters";
+export type { FuelSuppliesFilterState } from "./hooks/useFuelSuppliesFilters";
 
 // Re-export services
-export { fuelSuppliesService } from './services';
+export { fuelSuppliesService } from "./services";
 
 // Re-export utilities
 export {
@@ -28,12 +24,12 @@ export {
   calculateTotalCost,
   calculateExpectedVolume,
   calculateVolumeDiscrepancy,
-  isDiscrepancySignificant
-} from './utils/calculations';
+  isDiscrepancySignificant,
+} from "./utils/calculations";
 
 // Re-export types
-export type { 
+export type {
   FuelSupply,
   CreateFuelSupplyRequest,
-  UpdateFuelSupplyRequest
-} from './types'; 
+  UpdateFuelSupplyRequest,
+} from "./types";

@@ -54,7 +54,7 @@ export interface SuppliesFilters {
   page?: number;
   pageSize?: number;
   sortBy?: string;
-  sortDirection?: 'asc' | 'desc';
+  sortDirection?: "asc" | "desc";
 }
 
 export interface SuppliesSummary {
@@ -63,11 +63,14 @@ export interface SuppliesSummary {
   lastDelivery: string;
   currentTankLevel: number;
   tankCapacity: number;
-  byFuelType: Record<string, {
-    quantity: number;
-    cost: number;
-    averagePrice: number;
-  }>;
+  byFuelType: Record<
+    string,
+    {
+      quantity: number;
+      cost: number;
+      averagePrice: number;
+    }
+  >;
 }
 
 export const fuelSupplySchema = z.object({
@@ -87,4 +90,4 @@ export const fuelSupplySchema = z.object({
   payment_status: z.string().optional(),
 });
 
-export type FuelSupplyFormData = z.infer<typeof fuelSupplySchema>; 
+export type FuelSupplyFormData = z.infer<typeof fuelSupplySchema>;

@@ -107,4 +107,4 @@ export function InvoiceFormStandardized({
       )}
     </StandardDialog>
   );
-} 
+}

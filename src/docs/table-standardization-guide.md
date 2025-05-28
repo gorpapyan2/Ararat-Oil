@@ -48,7 +48,7 @@ Located in `src/components/ui/table.tsx`, these components apply our design syst
 ```tsx
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
   fullWidth?: boolean;
-  borderStyle?: 'default' | 'minimal' | 'none';
+  borderStyle?: "default" | "minimal" | "none";
   loading?: boolean;
 }
 ```
@@ -100,6 +100,7 @@ interface Column<T> {
 ```
 
 Features:
+
 - Data sorting by clicking column headers
 - Client-side filtering with instant results
 - Pagination with configurable page size
@@ -113,7 +114,13 @@ Features:
 A skeleton loader component for the DataTable:
 
 ```tsx
-function DataTableSkeleton({ columns = 3, rows = 5 }: { columns?: number; rows?: number })
+function DataTableSkeleton({
+  columns = 3,
+  rows = 5,
+}: {
+  columns?: number;
+  rows?: number;
+});
 ```
 
 ### Backwards Compatibility Layer
@@ -130,7 +137,14 @@ Located in `src/components/ui-custom/table.tsx`, these components maintain compa
 ### Basic Table
 
 ```tsx
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
 function BasicTable() {
   return (
@@ -162,19 +176,19 @@ function BasicTable() {
 ### DataTable with Sorting and Filtering
 
 ```tsx
-import { DataTable } from '@/components/ui/composed/data-table';
+import { DataTable } from "@/components/ui/composed/data-table";
 
 function SortableFilterableTable() {
   const data = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Developer' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Designer' },
+    { id: 1, name: "John Doe", email: "john@example.com", role: "Developer" },
+    { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Designer" },
     // ...more data
   ];
 
   const columns = [
-    { header: 'Name', accessorKey: 'name' },
-    { header: 'Email', accessorKey: 'email' },
-    { header: 'Role', accessorKey: 'role' },
+    { header: "Name", accessorKey: "name" },
+    { header: "Email", accessorKey: "email" },
+    { header: "Role", accessorKey: "role" },
   ];
 
   return (
@@ -192,28 +206,30 @@ function SortableFilterableTable() {
 ### Advanced DataTable with Custom Cells
 
 ```tsx
-import { DataTable } from '@/components/ui/composed/data-table';
-import { Badge } from '@/components/ui/badge';
+import { DataTable } from "@/components/ui/composed/data-table";
+import { Badge } from "@/components/ui/badge";
 
 function AdvancedDataTable() {
-  const data = [/* ...data */];
+  const data = [
+    /* ...data */
+  ];
 
   const columns = [
-    { header: 'Name', accessorKey: 'name' },
-    { header: 'Email', accessorKey: 'email' },
-    { 
-      header: 'Status', 
-      accessorKey: 'status',
+    { header: "Name", accessorKey: "name" },
+    { header: "Email", accessorKey: "email" },
+    {
+      header: "Status",
+      accessorKey: "status",
       cell: (row) => (
-        <Badge variant={row.status === 'active' ? 'success' : 'destructive'}>
+        <Badge variant={row.status === "active" ? "success" : "destructive"}>
           {row.status}
         </Badge>
-      ) 
+      ),
     },
-    { 
-      header: 'Last Login', 
-      accessorKey: 'lastLogin',
-      cell: (row) => new Date(row.lastLogin).toLocaleDateString() 
+    {
+      header: "Last Login",
+      accessorKey: "lastLogin",
+      cell: (row) => new Date(row.lastLogin).toLocaleDateString(),
     },
   ];
 
@@ -225,7 +241,7 @@ function AdvancedDataTable() {
       enableFiltering={true}
       enablePagination={true}
       pageSize={10}
-      onRowClick={(row) => console.log('Clicked row:', row)}
+      onRowClick={(row) => console.log("Clicked row:", row)}
     />
   );
 }
@@ -271,11 +287,11 @@ function MyDataTable() {
 
 Some props have been renamed or their behavior slightly adjusted:
 
-| Old Prop | New Prop | Notes |
-|----------|----------|-------|
-| `isSticky` | `stickyHeader` | On the `Table` component |
-| `isLoading` | `loading` | On the `Table` component |
-| `onClick` + `isClickable` | `onRowClick` | On `DataTable` for row clicks |
+| Old Prop                  | New Prop       | Notes                         |
+| ------------------------- | -------------- | ----------------------------- |
+| `isSticky`                | `stickyHeader` | On the `Table` component      |
+| `isLoading`               | `loading`      | On the `Table` component      |
+| `onClick` + `isClickable` | `onRowClick`   | On `DataTable` for row clicks |
 
 ## Testing
 
@@ -298,4 +314,4 @@ npm run test
 - Add column resizing capability
 - Implement row selection with checkboxes
 - Add export functionality (CSV, Excel)
-- Add custom filtering for specific column types 
+- Add custom filtering for specific column types

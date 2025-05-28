@@ -1,29 +1,34 @@
 /**
  * Employee Hooks - Refactored Version
- * 
+ *
  * This file demonstrates the migration from the old implementation to
  * the new standardized API hooks.
  */
 
-import { createResourceHooks } from '@/hooks/api';
-import { 
+import { createResourceHooks } from "@/hooks/api";
+import {
   getEmployees,
   getEmployeeById,
   createEmployee,
   updateEmployee,
   deleteEmployee,
-  getEmployeeSummary
-} from '../services';
-import type { Employee, EmployeeFormData, EmployeeFilters } from '../types/employees.types';
+  getEmployeeSummary,
+} from "../services";
+import type {
+  Employee,
+  EmployeeFormData,
+  EmployeeFilters,
+} from "../types/employees.types";
+import type { ResourceService } from "@/hooks/api/types";
 
 // Define the employee service implementation
-const employeeService = {
+const employeeService: ResourceService<Employee, EmployeeFilters, EmployeeFormData, EmployeeFormData> = {
   getList: getEmployees,
   getById: getEmployeeById,
   create: createEmployee,
   update: updateEmployee,
   delete: deleteEmployee,
-  getSummary: getEmployeeSummary
+  getSummary: getEmployeeSummary,
 };
 
 // Create all employee hooks with a single factory call
@@ -33,13 +38,18 @@ const {
   useCreate: useCreateEmployee,
   useUpdate: useUpdateEmployee,
   useDelete: useDeleteEmployee,
-  useSummary: useEmployeeSummary
-} = createResourceHooks<Employee, EmployeeFilters, EmployeeFormData, EmployeeFormData>({
-  resourceName: 'employees',
-  service: employeeService as any,
+  useSummary: useEmployeeSummary,
+} = createResourceHooks<
+  Employee,
+  EmployeeFilters,
+  EmployeeFormData,
+  EmployeeFormData
+>({
+  resourceName: "employees",
+  service: employeeService,
   options: {
     staleTime: 5 * 60 * 1000, // 5 minutes
-  }
+  },
 });
 
 /**
@@ -62,15 +72,15 @@ export function useEmployees(filters?: EmployeeFilters) {
     isLoading: employees.isLoading || (summary?.isLoading ?? false),
     isError: employees.isError || (summary?.isError ?? false),
     error: employees.error || (summary?.error ?? null),
-    
+
     // Mutation handlers
     createEmployee: createEmployeeMutation,
     updateEmployee: updateEmployeeMutation,
     deleteEmployee: deleteEmployeeMutation,
-    
+
     // Helper functions
     getEmployeeById: useEmployeeById,
-    
+
     // Refetch functions
     refetchEmployees: employees.refetch,
     refetchSummary: summary?.refetch,
@@ -84,5 +94,5 @@ export {
   useCreateEmployee,
   useUpdateEmployee,
   useDeleteEmployee,
-  useEmployeeSummary
-}; 
+  useEmployeeSummary,
+};

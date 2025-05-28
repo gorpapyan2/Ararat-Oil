@@ -6,14 +6,14 @@ import {
   FormMessage,
 } from "@/core/components/ui/form";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Control, useWatch } from "react-hook-form";
+import { Control, useWatch, FieldValues } from "react-hook-form";
 import { useMemo } from "react";
-import { FormCurrencyInput } from '@/core/components/ui/composed/form-fields';
-import { CurrencyInput } from '@/core/components/ui/currency-input';
+import { FormCurrencyInput } from "@/core/components/ui/composed/form-fields";
+import { CurrencyInput } from "@/core/components/ui/currency-input";
 import { useTranslation } from "react-i18next";
 
 interface QuantityAndPriceProps {
-  control: Control<any>;
+  control: Control<FieldValues>;
   totalCost: number;
   maxQuantity?: number;
   selectedTank?: { name: string; current_level: number; capacity: number };
@@ -135,12 +135,37 @@ export function QuantityAndPrice({
         />
       </div>
 
-      <FormCurrencyInput
+      <FormField
+        control={control}
         name="price_per_liter"
-        label={t("fuelSupplies.pricePerLiter")}
-        placeholder="0"
-        symbol="֏"
-        form={{ control } as any}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base font-medium">
+              {t("fuelSupplies.pricePerLiter")}
+            </FormLabel>
+            <FormControl>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <span className="text-gray-500">֏</span>
+                </div>
+                <Input
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder="0"
+                  className="pl-7"
+                  value={field.value === 0 ? "0" : field.value || ""}
+                  onChange={(e) => {
+                    const inputValue =
+                      e.target.value === "" ? 0 : e.target.valueAsNumber;
+                    field.onChange(isNaN(inputValue) ? 0 : inputValue);
+                  }}
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
       />
 
       <FormField

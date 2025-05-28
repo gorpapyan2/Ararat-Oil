@@ -22,13 +22,31 @@
       if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
         __REACT_DEVTOOLS_GLOBAL_HOOK__.inject = function() {};
       }
+      
+      // Debug rendering issues
+      window.addEventListener('load', function() {
+        console.log('Window loaded');
+        
+        setTimeout(() => {
+          const root = document.getElementById('root');
+          console.log('Root element:', root);
+          console.log('Root contents:', root ? root.innerHTML : 'empty');
+          
+          // If no content after 3 seconds, try rendering a simple message
+          if (root && (!root.innerHTML || root.innerHTML.trim() === '')) {
+            root.innerHTML = '<div style="padding: 20px; font-family: sans-serif;">' +
+              '<h1>Rendering Debug</h1>' +
+              '<p>The application failed to render. Check the console for errors.</p>' +
+              '</div>';
+          }
+        }, 3000);
+      });
     </script>
   </head>
 
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <!-- External script removed -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

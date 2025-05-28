@@ -61,9 +61,9 @@ export default function MyPage() {
         title="My Page"
         description="Page description"
         actions={
-          <CreateButton 
-            label="Add New" 
-            onClick={() => console.log('Create new item')} 
+          <CreateButton
+            label="Add New"
+            onClick={() => console.log("Create new item")}
           />
         }
       />
@@ -77,7 +77,11 @@ export default function MyPage() {
 
 ```tsx
 import { PageHeader } from "@/components/ui/page-header";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+} from "@/components/ui/breadcrumb";
 
 export default function MyPage() {
   return (
@@ -110,12 +114,12 @@ export default function MyPage() {
 For more complex layouts, you can use component composition:
 
 ```tsx
-import { 
+import {
   PageHeader,
   PageHeaderTitle,
   PageHeaderDescription,
   PageHeaderActions,
-  PageHeaderBreadcrumbs
+  PageHeaderBreadcrumbs,
 } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 
@@ -126,20 +130,23 @@ export default function MyPage() {
         <PageHeaderBreadcrumbs>
           <span>Home</span> / <span>Section</span> / <span>Current</span>
         </PageHeaderBreadcrumbs>
-        
-        <PageHeaderTitle>Custom Title with <span className="text-primary">Formatting</span></PageHeaderTitle>
-        
+
+        <PageHeaderTitle>
+          Custom Title with <span className="text-primary">Formatting</span>
+        </PageHeaderTitle>
+
         <PageHeaderDescription>
-          This is a longer description that may include <strong>formatted text</strong> 
+          This is a longer description that may include{" "}
+          <strong>formatted text</strong>
           or even <a href="#">links</a>.
         </PageHeaderDescription>
-        
+
         <PageHeaderActions>
           <Button variant="outline">Secondary Action</Button>
           <Button>Primary Action</Button>
         </PageHeaderActions>
       </PageHeader>
-      
+
       {/* Page content */}
     </div>
   );
@@ -167,16 +174,16 @@ export default function LoadingPage() {
 
 ### PageHeader Props
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `title` | `string` | The title text of the page |
-| `titleKey` | `string` | Translation key for the title |
-| `description` | `string` | The description text of the page |
-| `descriptionKey` | `string` | Translation key for the description |
-| `actions` | `React.ReactNode` | Actions to display in the header (usually buttons) |
-| `breadcrumbs` | `React.ReactNode` | Breadcrumbs navigation component |
-| `className` | `string` | Additional CSS classes to apply |
-| `children` | `React.ReactNode` | Alternative to props-based usage, for component composition |
+| Prop             | Type              | Description                                                 |
+| ---------------- | ----------------- | ----------------------------------------------------------- |
+| `title`          | `string`          | The title text of the page                                  |
+| `titleKey`       | `string`          | Translation key for the title                               |
+| `description`    | `string`          | The description text of the page                            |
+| `descriptionKey` | `string`          | Translation key for the description                         |
+| `actions`        | `React.ReactNode` | Actions to display in the header (usually buttons)          |
+| `breadcrumbs`    | `React.ReactNode` | Breadcrumbs navigation component                            |
+| `className`      | `string`          | Additional CSS classes to apply                             |
+| `children`       | `React.ReactNode` | Alternative to props-based usage, for component composition |
 
 ### Sub-Components
 
@@ -216,4 +223,4 @@ import { CreateButton } from "@/components/ui/create-button";
 - `SalesNew.tsx`: Simple usage with title, description, and a CreateButton
 - `Settings.tsx`: Uses translation keys for localization
 - `DashboardNew.tsx`: More complex example with breadcrumb navigation
-- `FuelManagement.tsx`: Example with a ButtonGroup in the actions area 
+- `FuelManagement.tsx`: Example with a ButtonGroup in the actions area

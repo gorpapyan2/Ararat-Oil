@@ -1,20 +1,24 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
   getEmployees,
   getEmployeeById as getEmployeeByIdService,
   createEmployee as createEmployeeService,
   updateEmployee as updateEmployeeService,
   deleteEmployee as deleteEmployeeService,
-  getEmployeeSummary as getEmployeeSummaryService
-} from '../services';
-import type { Employee, EmployeeFormData, EmployeeFilters } from '../types/employees.types';
+  getEmployeeSummary as getEmployeeSummaryService,
+} from "../services";
+import type {
+  Employee,
+  EmployeeFormData,
+  EmployeeFilters,
+} from "../types/employees.types";
 
 // Define query keys
 const QUERY_KEYS = {
-  employees: 'employees',
-  employeesList: (filters?: EmployeeFilters) => ['employees', filters],
-  employee: (id: string) => ['employee', id],
-  summary: 'employees-summary'
+  employees: "employees",
+  employeesList: (filters?: EmployeeFilters) => ["employees", filters],
+  employee: (id: string) => ["employee", id],
+  summary: "employees-summary",
 };
 
 /**
@@ -77,14 +81,6 @@ export function useEmployees(filters?: EmployeeFilters) {
     },
   });
 
-  // Hook for fetching a single employee by ID
-  const getEmployeeById = (id: string) => 
-    useQuery({
-      queryKey: QUERY_KEYS.employee(id),
-      queryFn: () => getEmployeeByIdService(id),
-      enabled: !!id,
-    });
-
   return {
     // Query results
     employees: employees.data || [],
@@ -94,17 +90,23 @@ export function useEmployees(filters?: EmployeeFilters) {
     isLoading: employees.isLoading || summary.isLoading,
     isError: employees.isError || summary.isError,
     error: employees.error || summary.error,
-    
+
     // Mutation handlers
     createEmployee,
     updateEmployee,
     deleteEmployee,
-    
-    // Helper functions
-    getEmployeeById,
-    
+
     // Refetch functions
     refetchEmployees: employees.refetch,
     refetchSummary: summary.refetch,
   };
-} 
+}
+
+// Separate custom hook for fetching a single employee by ID
+export function useEmployeeById(id: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.employee(id),
+    queryFn: () => getEmployeeByIdService(id),
+    enabled: !!id,
+  });
+}

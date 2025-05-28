@@ -1,5 +1,5 @@
-import { vi } from 'vitest';
-import { QueryClient } from '@tanstack/react-query';
+import { vi } from "vitest";
+import { QueryClient } from "@tanstack/react-query";
 
 /**
  * Creates a mock query client for testing
@@ -18,13 +18,13 @@ export function createMockQueryClient() {
  * Creates a standard mock for common hooks like useToast and useTranslation
  */
 export function createCommonMocks() {
-  vi.mock('@/hooks/useToast', () => ({
+  vi.mock("@/hooks/useToast", () => ({
     useToast: () => ({
       toast: vi.fn(),
     }),
   }));
 
-  vi.mock('react-i18next', () => ({
+  vi.mock("react-i18next", () => ({
     useTranslation: () => ({
       t: (key: string) => key,
       i18n: {
@@ -37,18 +37,18 @@ export function createCommonMocks() {
 /**
  * Common test setup for standard API hooks
  */
-export function setupApiHookTest(mockFetchResponse: any = {}) {
+export function setupApiHookTest(mockFetchResponse: Record<string, unknown> = {}) {
   const queryClient = createMockQueryClient();
   const mockFetch = vi.fn();
-  
-  vi.mock('@/core/api/client', () => ({
+
+  vi.mock("@/core/api/client", () => ({
     fetchFromApi: mockFetch,
   }));
-  
+
   mockFetch.mockResolvedValue(mockFetchResponse);
-  
+
   return {
     queryClient,
     mockFetch,
   };
-} 
+}

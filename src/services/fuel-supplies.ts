@@ -1,7 +1,7 @@
-import { FuelSupply, SuppliesFilters } from '@/features/supplies/types';
-import { supabase } from '@/services/supabase';
+import { FuelSupply, SuppliesFilters } from "@/features/supplies/types";
+import { supabase } from "@/services/supabase";
 
-const FUEL_SUPPLIES_FUNCTION = 'fuel-supplies';
+const FUEL_SUPPLIES_FUNCTION = "fuel-supplies";
 
 /**
  * Fetch all fuel supply records with related provider, tank, and employee details.
@@ -9,11 +9,16 @@ const FUEL_SUPPLIES_FUNCTION = 'fuel-supplies';
  * @returns {Promise<FuelSupply[]>}
  * @throws {Error} If fetching data fails
  */
-export async function fetchFuelSupplies(filters?: SuppliesFilters): Promise<FuelSupply[]> {
+export async function fetchFuelSupplies(
+  filters?: SuppliesFilters
+): Promise<FuelSupply[]> {
   try {
-    const { data, error } = await supabase.functions.invoke(FUEL_SUPPLIES_FUNCTION, {
-      body: { action: 'getAll', filters }
-    });
+    const { data, error } = await supabase.functions.invoke(
+      FUEL_SUPPLIES_FUNCTION,
+      {
+        body: { action: "getAll", filters },
+      }
+    );
 
     if (error) {
       throw error;
@@ -21,7 +26,7 @@ export async function fetchFuelSupplies(filters?: SuppliesFilters): Promise<Fuel
 
     return data as FuelSupply[];
   } catch (error) {
-    console.error('Error fetching fuel supplies:', error);
+    console.error("Error fetching fuel supplies:", error);
     throw error;
   }
 }
@@ -30,11 +35,16 @@ export async function fetchFuelSupplies(filters?: SuppliesFilters): Promise<Fuel
  * Create a new fuel supply record.
  * Uses Edge Function to handle business logic and related updates.
  */
-export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_at'>): Promise<FuelSupply> {
+export async function createFuelSupply(
+  supply: Omit<FuelSupply, "id" | "created_at">
+): Promise<FuelSupply> {
   try {
-    const { data, error } = await supabase.functions.invoke(FUEL_SUPPLIES_FUNCTION, {
-      body: { action: 'create', supply }
-    });
+    const { data, error } = await supabase.functions.invoke(
+      FUEL_SUPPLIES_FUNCTION,
+      {
+        body: { action: "create", supply },
+      }
+    );
 
     if (error) {
       throw error;
@@ -42,7 +52,7 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
 
     return data as FuelSupply;
   } catch (error) {
-    console.error('Error creating fuel supply:', error);
+    console.error("Error creating fuel supply:", error);
     throw error;
   }
 }
@@ -51,11 +61,17 @@ export async function createFuelSupply(supply: Omit<FuelSupply, 'id' | 'created_
  * Update an existing fuel supply record.
  * Uses Edge Function to handle business logic and related updates.
  */
-export async function updateFuelSupply(id: string, supply: Partial<FuelSupply>): Promise<FuelSupply> {
+export async function updateFuelSupply(
+  id: string,
+  supply: Partial<FuelSupply>
+): Promise<FuelSupply> {
   try {
-    const { data, error } = await supabase.functions.invoke(FUEL_SUPPLIES_FUNCTION, {
-      body: { action: 'update', id, supply }
-    });
+    const { data, error } = await supabase.functions.invoke(
+      FUEL_SUPPLIES_FUNCTION,
+      {
+        body: { action: "update", id, supply },
+      }
+    );
 
     if (error) {
       throw error;
@@ -63,7 +79,7 @@ export async function updateFuelSupply(id: string, supply: Partial<FuelSupply>):
 
     return data as FuelSupply;
   } catch (error) {
-    console.error('Error updating fuel supply:', error);
+    console.error("Error updating fuel supply:", error);
     throw error;
   }
 }
@@ -75,14 +91,14 @@ export async function updateFuelSupply(id: string, supply: Partial<FuelSupply>):
 export async function deleteFuelSupply(id: string): Promise<void> {
   try {
     const { error } = await supabase.functions.invoke(FUEL_SUPPLIES_FUNCTION, {
-      body: { action: 'delete', id }
+      body: { action: "delete", id },
     });
 
     if (error) {
       throw error;
     }
   } catch (error) {
-    console.error('Error deleting fuel supply:', error);
+    console.error("Error deleting fuel supply:", error);
     throw error;
   }
 }

@@ -1,16 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/primitives/alert";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/core/components/ui/primitives/alert";
 import { Button } from "@/core/components/ui/button";
-import { AlertCircle, RefreshCw, XCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { AlertCircle, RefreshCw, XCircle } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { cn } from "@/shared/utils";
-import { logger } from '@/utils/errorHandling';
+import { logger } from "@/utils/errorHandling";
 
 interface ErrorDisplayProps {
   title?: string;
   message?: string;
   error?: Error | unknown;
-  variant?: 'inline' | 'card' | 'full';
+  variant?: "inline" | "card" | "full";
   onRetry?: () => void;
   onDismiss?: () => void;
   className?: string;
@@ -20,46 +31,60 @@ interface ErrorDisplayProps {
  * A standardized error display component for showing errors consistently across the app
  */
 export function ErrorDisplay({
-  title = 'An error occurred',
-  message = 'There was an error processing your request.',
+  title = "An error occurred",
+  message = "There was an error processing your request.",
   error,
-  variant = 'inline',
+  variant = "inline",
   onRetry,
   onDismiss,
-  className
+  className,
 }: ErrorDisplayProps) {
   // Try to extract a user-friendly error message
-  const errorMessage = error instanceof Error 
-    ? error.message 
-    : typeof error === 'string' 
-      ? error 
-      : message;
+  const errorMessage =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : message;
 
   // Log the error to help with debugging
   useEffect(() => {
     if (error) {
-      logger.error('ErrorDisplay caught an error:', error);
+      logger.error("ErrorDisplay caught an error:", error);
     }
   }, [error]);
 
   // For inline variant (simplest)
-  if (variant === 'inline') {
+  if (variant === "inline") {
     return (
-      <Alert variant="destructive" className={cn("border-destructive/50", className)}>
+      <Alert
+        variant="destructive"
+        className={cn("border-destructive/50", className)}
+      >
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>{title}</AlertTitle>
         <AlertDescription>
           {errorMessage}
-          
+
           <div className="mt-3 flex gap-2">
             {onRetry && (
-              <Button size="sm" variant="outline" onClick={onRetry} className="h-7 px-2 text-xs">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onRetry}
+                className="h-7 px-2 text-xs"
+              >
                 <RefreshCw className="mr-1 h-3 w-3" />
                 Retry
               </Button>
             )}
             {onDismiss && (
-              <Button size="sm" variant="ghost" onClick={onDismiss} className="h-7 px-2 text-xs">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={onDismiss}
+                className="h-7 px-2 text-xs"
+              >
                 <XCircle className="mr-1 h-3 w-3" />
                 Dismiss
               </Button>
@@ -71,7 +96,7 @@ export function ErrorDisplay({
   }
 
   // For card variant (more detailed)
-  if (variant === 'card') {
+  if (variant === "card") {
     return (
       <Card className={cn("border-destructive/50", className)}>
         <CardHeader className="pb-2">
@@ -83,12 +108,14 @@ export function ErrorDisplay({
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">{errorMessage}</p>
-          
-          {process.env.NODE_ENV === 'development' && error instanceof Error && error.stack && (
-            <pre className="mt-2 max-h-[200px] overflow-auto rounded bg-muted p-2 text-xs">
-              {error.stack}
-            </pre>
-          )}
+
+          {process.env.NODE_ENV === "development" &&
+            error instanceof Error &&
+            error.stack && (
+              <pre className="mt-2 max-h-[200px] overflow-auto rounded bg-muted p-2 text-xs">
+                {error.stack}
+              </pre>
+            )}
         </CardContent>
         <CardFooter className="flex justify-end gap-2 pt-2">
           {onDismiss && (
@@ -122,7 +149,9 @@ export function ErrorDisplay({
             <CardDescription className="text-center">{message}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-center text-muted-foreground">{errorMessage}</p>
+            <p className="text-sm text-center text-muted-foreground">
+              {errorMessage}
+            </p>
           </CardContent>
           <CardFooter className="flex justify-center gap-4 pt-2">
             {onDismiss && (
@@ -164,16 +193,16 @@ export function AsyncStateHandler<T>({
   children: (data: T) => React.ReactNode;
 }) {
   if (loading) {
-    return loadingComponent || <div className="py-4 text-center">Loading...</div>;
+    return (
+      loadingComponent || <div className="py-4 text-center">Loading...</div>
+    );
   }
 
   if (error) {
-    return errorComponent || (
-      <ErrorDisplay 
-        error={error} 
-        onRetry={onRetry}
-        variant="inline"
-      />
+    return (
+      errorComponent || (
+        <ErrorDisplay error={error} onRetry={onRetry} variant="inline" />
+      )
     );
   }
 
@@ -182,4 +211,4 @@ export function AsyncStateHandler<T>({
   }
 
   return <>{children(data)}</>;
-} 
+}

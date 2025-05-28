@@ -1,14 +1,14 @@
 /**
  * Calendar primitive component for date selection
  */
-import React from 'react';
-import { cn } from '@/utils/cn';
-import { 
-  ChevronLeft, 
+import React from "react";
+import { cn } from "@/utils/cn";
+import {
+  ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
-} from 'lucide-react';
+  ChevronsRight,
+} from "lucide-react";
 import {
   addMonths,
   subMonths,
@@ -23,7 +23,7 @@ import {
   isSameMonth,
   isSameDay,
   isToday,
-} from 'date-fns';
+} from "date-fns";
 
 export interface DateRange {
   from: Date | undefined;
@@ -32,7 +32,7 @@ export interface DateRange {
 
 export interface CalendarProps {
   /** Mode of the calendar */
-  mode?: 'single' | 'range' | 'multiple';
+  mode?: "single" | "range" | "multiple";
   /** Selected date or dates */
   selected?: Date | Date[] | DateRange | undefined;
   /** Callback when a date is selected */
@@ -50,7 +50,7 @@ export interface CalendarProps {
 }
 
 export function Calendar({
-  mode = 'single',
+  mode = "single",
   selected,
   onSelect,
   initialFocus,
@@ -60,118 +60,129 @@ export function Calendar({
   className,
 }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = React.useState<Date>(
-    selected instanceof Date ? selected : 
-    (selected && !Array.isArray(selected) && selected.from) ? selected.from : 
-    new Date()
+    selected instanceof Date
+      ? selected
+      : selected && !Array.isArray(selected) && selected.from
+        ? selected.from
+        : new Date()
   );
 
   const goToPreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const goToNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const goToPreviousYear = () => setCurrentMonth(subYears(currentMonth, 1));
   const goToNextYear = () => setCurrentMonth(addYears(currentMonth, 1));
-  
+
   // Handle date selection based on mode
   const handleDateSelect = (date: Date) => {
     if (!onSelect) return;
-    
-    if (mode === 'single') {
+
+    if (mode === "single") {
       onSelect(date);
-    } 
-    else if (mode === 'multiple') {
+    } else if (mode === "multiple") {
       const datesArray = Array.isArray(selected) ? [...selected] : [];
-      const dateIndex = datesArray.findIndex(d => isSameDay(d, date));
-      
+      const dateIndex = datesArray.findIndex((d) => isSameDay(d, date));
+
       if (dateIndex >= 0) {
         datesArray.splice(dateIndex, 1);
       } else {
         datesArray.push(date);
       }
-      
+
       // Handle type casting for multiple dates mode
-      onSelect(datesArray[0] as any);
-    }
-    else if (mode === 'range') {
+      onSelect(datesArray[0] as Date);
+    } else if (mode === "range") {
       // Handle range selection
-      const currentRange = selected as DateRange || { from: undefined, to: undefined };
-      
+      const currentRange = (selected as DateRange) || {
+        from: undefined,
+        to: undefined,
+      };
+
       if (!currentRange.from) {
         onSelect({ from: date, to: undefined });
-      } 
-      else if (!currentRange.to) {
+      } else if (!currentRange.to) {
         // If selecting a date before the start date, swap them
         if (date < currentRange.from) {
           onSelect({ from: date, to: currentRange.from });
         } else {
           onSelect({ from: currentRange.from, to: date });
         }
-      } 
-      else {
+      } else {
         // Reset and start a new range
         onSelect({ from: date, to: undefined });
       }
     }
   };
-  
+
   // Generate days for the current month view
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
   const calendarStart = startOfWeek(monthStart);
   const calendarEnd = endOfWeek(monthEnd);
-  
+
   const calendarDays = eachDayOfInterval({
     start: calendarStart,
     end: calendarEnd,
   });
-  
+
   // Day names for header
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
   // Helper to check if a date is selected
   const isSelectedDate = (date: Date): boolean => {
     if (!selected) return false;
-    
+
     if (selected instanceof Date) {
       return isSameDay(date, selected);
     }
-    
+
     if (Array.isArray(selected)) {
-      return selected.some(selectedDate => isSameDay(date, selectedDate));
+      return selected.some((selectedDate) => isSameDay(date, selectedDate));
     }
-    
+
     const { from, to } = selected as DateRange;
     if (!from) return false;
     if (!to) return isSameDay(date, from);
-    
+
     const isAfterFrom = date >= from;
     const isBeforeTo = date <= to;
     return isAfterFrom && isBeforeTo;
   };
-  
+
   const isRangeStart = (date: Date): boolean => {
-    if (mode !== 'range' || !selected || selected instanceof Date || Array.isArray(selected)) {
+    if (
+      mode !== "range" ||
+      !selected ||
+      selected instanceof Date ||
+      Array.isArray(selected)
+    ) {
       return false;
     }
-    
+
     const { from } = selected as DateRange;
     return from ? isSameDay(date, from) : false;
   };
-  
+
   const isRangeEnd = (date: Date): boolean => {
-    if (mode !== 'range' || !selected || selected instanceof Date || Array.isArray(selected)) {
+    if (
+      mode !== "range" ||
+      !selected ||
+      selected instanceof Date ||
+      Array.isArray(selected)
+    ) {
       return false;
     }
-    
+
     const { from, to } = selected as DateRange;
     return from && to ? isSameDay(date, to) : false;
   };
-  
+
   // Generate multiple months if requested
   const months = [];
   for (let i = 0; i < numberOfMonths; i++) {
     const monthToRender = addMonths(currentMonth, i);
     months.push(monthToRender);
   }
-  
+
   return (
     <div className={cn("bg-10 rounded-md border", className)}>
       <div className="flex flex-col space-y-4">
@@ -197,11 +208,9 @@ export function Calendar({
                   </button>
                 </div>
               )}
-              
-              <h2 className="font-medium">
-                {format(month, 'MMMM yyyy')}
-              </h2>
-              
+
+              <h2 className="font-medium">{format(month, "MMMM yyyy")}</h2>
+
               {monthIndex === numberOfMonths - 1 && (
                 <div className="flex space-x-1">
                   <button
@@ -221,33 +230,32 @@ export function Calendar({
                 </div>
               )}
             </div>
-            
+
             {/* Days of week header */}
             <div className="grid grid-cols-7 mb-2">
-              {weekDays.map(day => (
-                <div 
-                  key={day} 
+              {weekDays.map((day) => (
+                <div
+                  key={day}
                   className="text-center text-xs font-medium text-muted-foreground"
                 >
                   {day}
                 </div>
               ))}
             </div>
-            
+
             {/* Calendar grid */}
             <div className="grid grid-cols-7 gap-1">
               {eachDayOfInterval({
                 start: startOfWeek(startOfMonth(month)),
-                end: endOfWeek(endOfMonth(month))
+                end: endOfWeek(endOfMonth(month)),
               }).map((day, i) => {
                 const isSelected = isSelectedDate(day);
                 const isCurrentMonth = isSameMonth(day, month);
-                const isDisabled = 
-                  (minDate && day < minDate) || 
-                  (maxDate && day > maxDate);
+                const isDisabled =
+                  (minDate && day < minDate) || (maxDate && day > maxDate);
                 const isStart = isRangeStart(day);
                 const isEnd = isRangeEnd(day);
-                
+
                 return (
                   <button
                     key={i}
@@ -264,7 +272,7 @@ export function Calendar({
                       !isDisabled && !isSelected && "hover:bg-30/20"
                     )}
                   >
-                    {format(day, 'd')}
+                    {format(day, "d")}
                   </button>
                 );
               })}
@@ -274,4 +282,4 @@ export function Calendar({
       </div>
     </div>
   );
-} 
+}

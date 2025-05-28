@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTankLevelChanges } from "../services";
 import { useTranslation } from "react-i18next";
-import { Skeleton } from '@/core/components/ui/skeleton';
+import { Skeleton } from "@/core/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/core/components/ui/table';
+} from "@/core/components/ui/table";
 import { format } from "date-fns";
 
 interface TankHistoryProps {
@@ -68,12 +68,20 @@ export function TankHistory({ tankId }: TankHistoryProps) {
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {change.change_type === "add" ? t("tanks.add") : t("tanks.subtract")}
+                  {change.change_type === "add"
+                    ? t("tanks.add")
+                    : t("tanks.subtract")}
                 </span>
               </TableCell>
-              <TableCell>{change.change_amount} {t("common.liters")}</TableCell>
-              <TableCell>{change.previous_level} {t("common.liters")}</TableCell>
-              <TableCell>{change.new_level} {t("common.liters")}</TableCell>
+              <TableCell>
+                {change.change_amount} {t("common.liters")}
+              </TableCell>
+              <TableCell>
+                {change.previous_level} {t("common.liters")}
+              </TableCell>
+              <TableCell>
+                {change.new_level} {t("common.liters")}
+              </TableCell>
               <TableCell className="max-w-[200px] truncate">
                 {change.reason || "-"}
               </TableCell>
@@ -83,4 +91,4 @@ export function TankHistory({ tankId }: TankHistoryProps) {
       </Table>
     </div>
   );
-} 
+}

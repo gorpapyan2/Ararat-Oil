@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { X } from 'lucide-react';
+import * as React from "react";
+import { X } from "lucide-react";
 
-import { cn } from '@/shared/utils';
+import { cn } from "@/shared/utils";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-} from '@/core/components/ui/styled/dialog';
+} from "@/core/components/ui/styled/dialog";
 import { Button, ButtonProps } from "@/core/components/ui/button";
 
 /**
@@ -39,9 +39,9 @@ export interface StandardDialogProps {
   /** Called when the open state changes */
   onOpenChange?: (open: boolean) => void;
   /** Optional custom width for the dialog */
-  width?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  width?: "sm" | "md" | "lg" | "xl" | "full";
   /** Optional custom height for the dialog */
-  height?: 'auto' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  height?: "auto" | "sm" | "md" | "lg" | "xl" | "full";
   /** Whether to show a close button in the header */
   showCloseButton?: boolean;
   /** Optional additional class names */
@@ -59,27 +59,27 @@ function StandardDialog({
   footer,
   isOpen,
   onOpenChange,
-  width = 'md',
-  height = 'auto',
+  width = "md",
+  height = "auto",
   showCloseButton = true,
   className,
 }: StandardDialogProps) {
   // Map width/height to specific classes
   const widthClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
-    full: 'max-w-full',
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl",
+    full: "max-w-full",
   };
 
   const heightClasses = {
-    auto: '',
-    sm: 'max-h-[300px]',
-    md: 'max-h-[500px]',
-    lg: 'max-h-[700px]',
-    xl: 'max-h-[900px]',
-    full: 'max-h-screen',
+    auto: "",
+    sm: "max-h-[300px]",
+    md: "max-h-[500px]",
+    lg: "max-h-[700px]",
+    xl: "max-h-[900px]",
+    full: "max-h-screen",
   };
 
   return (
@@ -89,7 +89,7 @@ function StandardDialog({
         className={cn(
           widthClasses[width],
           heightClasses[height],
-          'overflow-hidden flex flex-col',
+          "overflow-hidden flex flex-col",
           className
         )}
       >
@@ -196,7 +196,7 @@ function ConfirmDialog({
       onOpenChange(false);
     }
   };
-  
+
   // Handle cancel action
   const handleCancel = () => {
     if (onCancel) {
@@ -204,7 +204,7 @@ function ConfirmDialog({
     }
     onOpenChange(false);
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={className}>
@@ -212,7 +212,7 @@ function ConfirmDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        
+
         <DialogFooter className="mt-4">
           <Button
             variant="outline"
@@ -299,7 +299,7 @@ function AlertMessageDialog({
     warning: "secondary",
     danger: "destructive",
   };
-  
+
   return (
     <AlertDialog open={open}>
       <AlertDialogContent className={className}>
@@ -307,7 +307,7 @@ function AlertMessageDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
-        
+
         <AlertDialogFooter className="mt-4">
           <Button
             variant={buttonVariantMap[severity]}
@@ -399,7 +399,7 @@ function DeleteConfirmDialog({
       onOpenChange(false);
     }
   };
-  
+
   // Handle cancel action
   const handleCancel = () => {
     if (onCancel) {
@@ -407,7 +407,7 @@ function DeleteConfirmDialog({
     }
     onOpenChange(false);
   };
-  
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className={className}>
@@ -415,13 +415,9 @@ function DeleteConfirmDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
-        
+
         <AlertDialogFooter className="mt-4">
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
             {cancelText}
           </Button>
           <Button
@@ -441,5 +437,5 @@ export {
   StandardDialog,
   ConfirmDialog,
   AlertMessageDialog,
-  DeleteConfirmDialog
+  DeleteConfirmDialog,
 };

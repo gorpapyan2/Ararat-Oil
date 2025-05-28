@@ -2,7 +2,7 @@
  * Base dialog components for standardizing dialog implementations
  * This file provides shared dialog patterns to reduce duplication across the codebase
  */
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,9 +10,9 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/core/components/ui/primitives/dialog';
-import { Button } from '@/core/components/ui/primitives/button';
-import { cn } from '@/utils/cn';
+} from "@/core/components/ui/primitives/dialog";
+import { Button } from "@/core/components/ui/primitives/button";
+import { cn } from "@/utils/cn";
 
 /**
  * Props for StandardDialog component
@@ -55,8 +55,8 @@ export function StandardDialog({
   description,
   children,
   footer,
-  submitText = 'Save',
-  cancelText = 'Cancel',
+  submitText = "Save",
+  cancelText = "Cancel",
   onSubmit,
   isSubmitting,
   className,
@@ -64,16 +64,18 @@ export function StandardDialog({
 }: StandardDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('sm:max-w-[425px]', className)}>
+      <DialogContent className={cn("sm:max-w-[425px]", className)}>
         {title && (
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
-            {description && <DialogDescription>{description}</DialogDescription>}
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
           </DialogHeader>
         )}
-        
+
         <div className="py-4">{children}</div>
-        
+
         {footer || (
           <DialogFooter className="flex justify-end space-x-2">
             <Button
@@ -85,19 +87,11 @@ export function StandardDialog({
               {cancelText}
             </Button>
             {onSubmit ? (
-              <Button
-                type="button"
-                onClick={onSubmit}
-                disabled={isSubmitting}
-              >
+              <Button type="button" onClick={onSubmit} disabled={isSubmitting}>
                 {submitText}
               </Button>
             ) : (
-              <Button
-                type="submit"
-                form={formId}
-                disabled={isSubmitting}
-              >
+              <Button type="submit" form={formId} disabled={isSubmitting}>
                 {submitText}
               </Button>
             )}
@@ -129,7 +123,13 @@ export interface ConfirmDialogProps {
   /** Is the dialog in a loading/submitting state */
   isSubmitting?: boolean;
   /** Confirm button variant */
-  confirmVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  confirmVariant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
 }
 
 /**
@@ -141,11 +141,11 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText = "Confirm",
+  cancelText = "Cancel",
   onConfirm,
   isSubmitting,
-  confirmVariant = 'default',
+  confirmVariant = "default",
 }: ConfirmDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -153,9 +153,9 @@ export function ConfirmDialog({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        
+
         <div className="py-4">{message}</div>
-        
+
         <DialogFooter className="flex justify-end space-x-2">
           <Button
             type="button"
@@ -212,13 +212,14 @@ export function DeleteConfirmDialog({
   message,
   onConfirm,
   isSubmitting,
-  deleteText = 'Delete',
-  cancelText = 'Cancel',
+  deleteText = "Delete",
+  cancelText = "Cancel",
 }: DeleteConfirmDialogProps) {
   const displayMessage = message || (
     <p>
-      Are you sure you want to delete {itemName ? <strong>{itemName}</strong> : 'this item'}?
-      This action cannot be undone.
+      Are you sure you want to delete{" "}
+      {itemName ? <strong>{itemName}</strong> : "this item"}? This action cannot
+      be undone.
     </p>
   );
 
@@ -245,4 +246,4 @@ export {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-}; 
+};

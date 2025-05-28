@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   SearchBar,
-  type SearchBarProps 
+  type SearchBarProps,
 } from "@/core/components/ui/primitives/searchbar";

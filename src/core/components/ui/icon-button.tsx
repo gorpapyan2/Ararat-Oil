@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   IconButtonProps,
-  IconButton 
+  IconButton,
 } from "@/core/components/ui/primitives/icon-button";

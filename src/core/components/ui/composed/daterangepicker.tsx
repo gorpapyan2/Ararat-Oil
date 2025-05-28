@@ -1,6 +1,9 @@
-import * as React from 'react';
-import { StandardDatePicker, DateRange as StandardDateRange } from '@/shared/components/common/datepicker';
-import { cn } from '@/utils/cn';
+import * as React from "react";
+import {
+  StandardDatePicker,
+  DateRange as StandardDateRange,
+} from "@/shared/components/common/datepicker";
+import { cn } from "@/utils/cn";
 
 /**
  * DateRange type for from/to date selection
@@ -20,84 +23,84 @@ export interface DateRangePickerProps {
    * Selected date range value
    */
   value?: DateRange;
-  
+
   /**
    * Callback when date range changes
    */
   onChange?: (dateRange: DateRange | undefined) => void;
-  
+
   /**
    * Placeholder text when no date range is selected
    */
   placeholder?: string;
-  
+
   /**
    * Format string for displaying each date
    * @default "PP" (e.g., "Apr 29, 2021")
    */
   dateFormat?: string;
-  
+
   /**
    * Format string for the separator between dates
    * @default " - " (space, dash, space)
    */
   separator?: string;
-  
+
   /**
    * Disabled state
    */
   disabled?: boolean;
-  
+
   /**
    * Whether the field is required
    */
   required?: boolean;
-  
+
   /**
    * Custom CSS class
    */
   className?: string;
-  
+
   /**
    * Error state
    */
   error?: boolean;
-  
+
   /**
    * Error message to display
    */
   errorMessage?: string;
-  
+
   /**
    * Label for the date range picker
    */
   label?: string;
-  
+
   /**
    * Description text
    */
   description?: string;
-  
+
   /**
    * ID for the input field
    */
   id?: string;
-  
+
   /**
    * Name for the input field
    */
   name?: string;
-  
+
   /**
    * Minimum selectable date
    */
   minDate?: Date;
-  
+
   /**
    * Maximum selectable date
    */
   maxDate?: Date;
-  
+
   /**
    * Number of months to display
    * @default 2
@@ -107,7 +110,7 @@ export interface DateRangePickerProps {
 
 /**
  * DateRangePicker component for selecting a range of dates
- * 
+ *
  * @example
  * ```tsx
  * <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -115,7 +118,7 @@ export interface DateRangePickerProps {
  * ```
  * @deprecated Use StandardDatePicker with mode="range" instead
  */
-export const DateRangePicker = ({ 
+export const DateRangePicker = ({
   value,
   onChange,
   placeholder = "Select date range",
@@ -137,8 +140,8 @@ export const DateRangePicker = ({
   // Log deprecation warning
   React.useEffect(() => {
     console.warn(
-      'DateRangePicker is deprecated and will be removed in a future version. ' +
-      'Please use StandardDatePicker with mode="range" from @/shared/components/common/datepicker instead.'
+      "DateRangePicker is deprecated and will be removed in a future version. " +
+        'Please use StandardDatePicker with mode="range" from @/shared/components/common/datepicker instead.'
     );
   }, []);
 
@@ -163,4 +166,4 @@ export const DateRangePicker = ({
       numberOfMonths={numberOfMonths}
     />
   );
-}
+};

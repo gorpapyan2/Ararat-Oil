@@ -1,7 +1,11 @@
 import { useState, useCallback } from "react";
-import { useToast } from "@/hooks";
+import { useToast } from "./use-toast";
 
-export type ConfirmationVariant = "default" | "destructive" | "warning" | "info";
+export type ConfirmationVariant =
+  | "default"
+  | "destructive"
+  | "warning"
+  | "info";
 
 export interface ConfirmationOptions {
   title?: string;
@@ -17,7 +21,9 @@ interface UseConfirmationDialogOptions {
   defaultOptions?: Partial<ConfirmationOptions>;
 }
 
-export function useConfirmationDialog({ defaultOptions = {} }: UseConfirmationDialogOptions = {}) {
+export function useConfirmationDialog({
+  defaultOptions = {},
+}: UseConfirmationDialogOptions = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [options, setOptions] = useState<ConfirmationOptions>({
@@ -32,15 +38,18 @@ export function useConfirmationDialog({ defaultOptions = {} }: UseConfirmationDi
 
   const { toast } = useToast();
 
-  const openDialog = useCallback((customOptions?: Partial<ConfirmationOptions>) => {
-    if (customOptions) {
-      setOptions(prev => ({
-        ...prev,
-        ...customOptions
-      }));
-    }
-    setIsOpen(true);
-  }, []);
+  const openDialog = useCallback(
+    (customOptions?: Partial<ConfirmationOptions>) => {
+      if (customOptions) {
+        setOptions((prev) => ({
+          ...prev,
+          ...customOptions,
+        }));
+      }
+      setIsOpen(true);
+    },
+    []
+  );
 
   const closeDialog = useCallback(() => {
     setIsOpen(false);
@@ -56,10 +65,11 @@ export function useConfirmationDialog({ defaultOptions = {} }: UseConfirmationDi
     try {
       await options.onConfirm();
       closeDialog();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An error occurred during the operation";
       toast({
         title: "Error",
-        description: error.message || "An error occurred during the operation",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -82,4 +92,4 @@ export function useConfirmationDialog({ defaultOptions = {} }: UseConfirmationDi
     handleConfirm,
     handleCancel,
   };
-} 
+}

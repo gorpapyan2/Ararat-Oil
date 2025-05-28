@@ -1,11 +1,12 @@
-
 import { ReactNode, useCallback } from "react";
 import { useConfirmationDialog } from "@/hooks";
 import { ConfirmationOptions } from "@/hooks/useConfirmationDialog";
 import { ConfirmationDialogStandardized } from "./ConfirmationDialogStandardized";
 
 interface ConfirmationControllerProps {
-  children: (openConfirmation: (options: Partial<ConfirmationOptions>) => void) => ReactNode;
+  children: (
+    openConfirmation: (options: Partial<ConfirmationOptions>) => void
+  ) => ReactNode;
   defaultOptions?: Partial<ConfirmationOptions>;
 }
 

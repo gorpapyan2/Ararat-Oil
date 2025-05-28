@@ -6,57 +6,62 @@ import { DialogFooter } from "@/core/components/ui/primitives/dialog";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { cn } from "@/shared/utils";
-import { UseFormReturn } from "react-hook-form";
+import {
+  UseFormReturn,
+  Control,
+  FieldValues,
+} from "react-hook-form";
 
 /**
  * Props for FormDialog component
  */
-export interface FormDialogProps<TFormValues extends Record<string, any>> extends Omit<StandardDialogProps, 'actions' | 'children'> {
+export interface FormDialogProps<TFormValues extends FieldValues>
+  extends Omit<StandardDialogProps, "actions" | "children"> {
   /**
    * Form schema for validation
    */
   schema: z.ZodType<TFormValues>;
-  
+
   /**
    * Default values for the form
    */
   defaultValues: Partial<TFormValues>;
-  
+
   /**
    * Callback fired when the form is submitted
    * @returns Promise<boolean> indicating success or failure
    */
   onSubmit: (data: TFormValues) => Promise<boolean>;
-  
+
   /**
    * Form content render function
    */
-  children: (props: { control: any }) => React.ReactNode;
-  
+  children: (props: { control: Control<TFormValues> }) => React.ReactNode;
+
   /**
    * Text for the submit button
    * @default "Save"
    */
   submitText?: string;
-  
+
   /**
    * Text for the cancel button
    * @default "Cancel"
    */
   cancelText?: string;
-  
+
   /**
    * Whether the form is currently submitting
    * @default false
    */
   isSubmitting?: boolean;
-  
+
   /**
    * Whether to prevent closing the dialog when submitting
    * @default true
    */
   preventCloseOnSubmit?: boolean;
-  
+
   /**
    * Additional class name for the form
    */
@@ -65,10 +70,10 @@ export interface FormDialogProps<TFormValues extends Record<string, any>> extend
 
 /**
  * FormDialog component
- * 
+ *
  * A specialized dialog component for forms that combines StandardDialog with StandardForm
  * to create a consistent form dialog pattern throughout the application.
- * 
+ *
  * @example
  * ```tsx
  * <FormDialog
@@ -99,7 +104,7 @@ export interface FormDialogProps<TFormValues extends Record<string, any>> extend
  * </FormDialog>
  * ```
  */
-export function FormDialog<TFormValues extends Record<string, any>>({
+export function FormDialog<TFormValues extends FieldValues>({
   open,
   onOpenChange,
   title,
@@ -120,7 +125,7 @@ export function FormDialog<TFormValues extends Record<string, any>>({
   position = "center",
 }: FormDialogProps<TFormValues>) {
   const { t } = useTranslation();
-  
+
   // Handle form submission
   const handleSubmit = async (data: TFormValues) => {
     try {
@@ -162,22 +167,19 @@ export function FormDialog<TFormValues extends Record<string, any>>({
             >
               {cancelText || t("common.cancel", "Cancel")}
             </Button>
-            <Button 
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting 
-                ? t("common.saving", "Saving...") 
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting
+                ? t("common.saving", "Saving...")
                 : submitText || t("common.save", "Save")}
             </Button>
           </DialogFooter>
         }
         isSubmitting={isSubmitting}
       >
-        {(formProps: UseFormReturn<any>) => (
-          children({ control: formProps.control })
-        )}
+        {(methods: UseFormReturn<FieldValues>) =>
+          children({ control: methods.control as Control<TFormValues> })
+        }
       </StandardForm>
     </StandardDialog>
   );
-} 
+}

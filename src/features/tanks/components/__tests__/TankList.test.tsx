@@ -11,13 +11,14 @@ vi.mock("react-i18next", () => ({
 }));
 
 // Create a new QueryClient for each test
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
     },
-  },
-});
+  });
 
 describe("TankList", () => {
   const mockTanks = [
@@ -85,7 +86,9 @@ describe("TankList", () => {
     renderComponent();
     expect(screen.getByText("500")).toBeInTheDocument();
     expect(screen.getByText("100")).toBeInTheDocument();
-    expect(screen.getByText("common.liters", { exact: false })).toBeInTheDocument();
+    expect(
+      screen.getByText("common.liters", { exact: false })
+    ).toBeInTheDocument();
     expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByText("5%")).toBeInTheDocument();
   });
@@ -93,7 +96,7 @@ describe("TankList", () => {
   it("opens history dialog when clicking a tank card", async () => {
     renderComponent();
     fireEvent.click(screen.getByText("Tank 1"));
-    
+
     await waitFor(() => {
       expect(screen.getByText("Tank 1 history")).toBeInTheDocument();
     });
@@ -107,18 +110,18 @@ describe("TankList", () => {
   it("handles edit level button click", () => {
     renderComponent({ isEditMode: true });
     fireEvent.click(screen.getAllByText("tanks.editLevels")[0]);
-    
+
     // Check if TankLevelEditor is rendered
     expect(screen.getByLabelText("tanks.amount")).toBeInTheDocument();
   });
 
   it("applies correct progress bar colors based on level", () => {
     renderComponent();
-    
+
     // Tank 1: 50% - should be blue
     const tank1Progress = screen.getAllByRole("progressbar")[0];
     expect(tank1Progress).toHaveClass("bg-blue-500");
-    
+
     // Tank 2: 5% - should be red
     const tank2Progress = screen.getAllByRole("progressbar")[1];
     expect(tank2Progress).toHaveClass("bg-red-500");
@@ -127,18 +130,18 @@ describe("TankList", () => {
   it("handles edit complete callback", () => {
     const onEditComplete = vi.fn();
     renderComponent({ isEditMode: true, onEditComplete });
-    
+
     fireEvent.click(screen.getAllByText("tanks.editLevels")[0]);
     fireEvent.click(screen.getByText("common.cancel"));
-    
+
     expect(onEditComplete).toHaveBeenCalled();
   });
 
   it("disables click events in edit mode", () => {
     renderComponent({ isEditMode: true });
     fireEvent.click(screen.getByText("Tank 1"));
-    
+
     // History dialog should not be opened
     expect(screen.queryByText("Tank 1 history")).not.toBeInTheDocument();
   });
-}); 
+});

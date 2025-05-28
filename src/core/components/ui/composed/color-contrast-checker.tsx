@@ -24,7 +24,7 @@ export function ColorContrastChecker({
   const { ratio, passesAA } = checkColorContrast(
     foreground,
     background,
-    isLargeText,
+    isLargeText
   );
 
   const handleForegroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {

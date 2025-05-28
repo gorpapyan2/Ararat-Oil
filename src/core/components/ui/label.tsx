@@ -3,6 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  Label 
-} from "@/core/components/ui/primitives/label";
+export { Label } from "@/core/components/ui/primitives/label";

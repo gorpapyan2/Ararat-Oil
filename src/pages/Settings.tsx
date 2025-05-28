@@ -17,7 +17,7 @@ import { useBreadcrumbs } from "@/core/providers/BreadcrumbProvider";
 import { Settings as SettingsIcon } from "lucide-react";
 
 // Import our custom UI components
-import { PageHeader } from '@/core/components/ui/page-header';
+import { PageHeader } from "@/core/components/ui/page-header";
 import {
   Card,
   CardContent,
@@ -30,10 +30,19 @@ import {
 // Import UI components
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Label } from '@/core/components/ui/label';
-import { Separator } from '@/core/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
-import { Avatar, AvatarImage, AvatarFallback } from '@/core/components/ui/avatar';
+import { Label } from "@/core/components/ui/label";
+import { Separator } from "@/core/components/ui/separator";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/core/components/ui/tabs";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/core/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -41,12 +50,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/core/components/ui/primitives/select";
-import { Switch } from '@/core/components/ui/switch';
+import { Switch } from "@/core/components/ui/switch";
 import { useToast } from "@/hooks";
 import { useTheme } from "@/core/providers/theme-provider";
-import { useAuth } from '@/features/auth';
-import { ActionButton } from '@/core/components/ui/action-button';
-import { LoadingButton } from '@/core/components/ui/loading-button';
+import { useAuth } from "@/features/auth";
+import { ActionButton } from "@/core/components/ui/action-button";
+import { LoadingButton } from "@/core/components/ui/loading-button";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 export default function Settings() {
@@ -59,9 +68,9 @@ export default function Settings() {
   usePageBreadcrumbs({
     segments: [
       { name: "Dashboard", href: "/" },
-      { name: "Settings", href: "/settings", isCurrent: true }
+      { name: "Settings", href: "/settings", isCurrent: true },
     ],
-    title: "Settings"
+    title: "Settings",
   });
 
   // Set custom breadcrumbs for this page
@@ -75,10 +84,10 @@ export default function Settings() {
         name: t("common.settings"),
         href: "/settings",
         isCurrent: true,
-        icon: <SettingsIcon size={16} />
-      }
+        icon: <SettingsIcon size={16} />,
+      },
     ]);
-    
+
     // Clean up the breadcrumbs when component unmounts
     return () => {
       setBreadcrumbs([]);
@@ -294,7 +303,9 @@ export default function Settings() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium">{t("settings.profile.photo")}</h3>
+                    <h3 className="text-sm font-medium">
+                      {t("settings.profile.photo")}
+                    </h3>
                     <div className="flex gap-2">
                       <Button type="button" variant="outline" size="sm">
                         <IconCamera className="h-4 w-4 mr-2" />
@@ -313,7 +324,9 @@ export default function Settings() {
                 {/* Form Fields */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">{t("settings.profile.fullName")}</Label>
+                    <Label htmlFor="fullName">
+                      {t("settings.profile.fullName")}
+                    </Label>
                     <Input
                       id="fullName"
                       name="fullName"
@@ -348,7 +361,9 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="position">{t("settings.profile.position")}</Label>
+                    <Label htmlFor="position">
+                      {t("settings.profile.position")}
+                    </Label>
                     <Input
                       id="position"
                       name="position"
@@ -379,7 +394,7 @@ export default function Settings() {
                 >
                   {t("settings.profile.cancel")}
                 </Button>
-                <LoadingButton 
+                <LoadingButton
                   onClick={handleProfileSubmit}
                   type="submit"
                   initialLoading={profileForm.isLoading}
@@ -404,7 +419,9 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">{t("settings.appearance.theme")}</h3>
+                <h3 className="text-sm font-medium">
+                  {t("settings.appearance.theme")}
+                </h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div
                     className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer hover:border-primary ${theme === "light" ? "border-primary bg-primary/5" : ""}`}
@@ -413,7 +430,9 @@ export default function Settings() {
                     <div className="rounded-full bg-primary/10 p-2">
                       <IconSun className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium">{t("settings.appearance.light")}</span>
+                    <span className="text-sm font-medium">
+                      {t("settings.appearance.light")}
+                    </span>
                   </div>
 
                   <div
@@ -423,7 +442,9 @@ export default function Settings() {
                     <div className="rounded-full bg-primary/10 p-2">
                       <IconMoon className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium">{t("settings.appearance.dark")}</span>
+                    <span className="text-sm font-medium">
+                      {t("settings.appearance.dark")}
+                    </span>
                   </div>
 
                   <div
@@ -433,7 +454,9 @@ export default function Settings() {
                     <div className="rounded-full bg-primary/10 p-2">
                       <IconDeviceLaptop className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-sm font-medium">{t("settings.appearance.system")}</span>
+                    <span className="text-sm font-medium">
+                      {t("settings.appearance.system")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -441,7 +464,9 @@ export default function Settings() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">{t("settings.appearance.sidebar")}</h3>
+                <h3 className="text-sm font-medium">
+                  {t("settings.appearance.sidebar")}
+                </h3>
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="sidebarCollapsed" className="text-base">
@@ -582,7 +607,7 @@ export default function Settings() {
                 >
                   {t("settings.notifications.reset")}
                 </Button>
-                <LoadingButton 
+                <LoadingButton
                   onClick={handleNotificationSubmit}
                   type="submit"
                   initialLoading={notificationPrefs.isLoading}
@@ -609,7 +634,9 @@ export default function Settings() {
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword">{t("settings.security.currentPassword")}</Label>
+                    <Label htmlFor="currentPassword">
+                      {t("settings.security.currentPassword")}
+                    </Label>
                     <Input
                       id="currentPassword"
                       name="currentPassword"
@@ -624,7 +651,9 @@ export default function Settings() {
                   <Separator />
 
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">{t("settings.security.newPassword")}</Label>
+                    <Label htmlFor="newPassword">
+                      {t("settings.security.newPassword")}
+                    </Label>
                     <Input
                       id="newPassword"
                       name="newPassword"
@@ -640,7 +669,9 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">{t("settings.security.confirmPassword")}</Label>
+                    <Label htmlFor="confirmPassword">
+                      {t("settings.security.confirmPassword")}
+                    </Label>
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -668,7 +699,7 @@ export default function Settings() {
                 >
                   {t("settings.security.cancel")}
                 </Button>
-                <LoadingButton 
+                <LoadingButton
                   onClick={handlePasswordSubmit}
                   type="submit"
                   initialLoading={passwordForm.isLoading}
@@ -683,7 +714,9 @@ export default function Settings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t("settings.security.accountSecurityTitle")}</CardTitle>
+              <CardTitle>
+                {t("settings.security.accountSecurityTitle")}
+              </CardTitle>
               <CardDescription>
                 {t("settings.security.accountSecurityDescription")}
               </CardDescription>
@@ -691,12 +724,16 @@ export default function Settings() {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-medium">{t("settings.security.sessionManagementTitle")}</h3>
+                  <h3 className="text-base font-medium">
+                    {t("settings.security.sessionManagementTitle")}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {t("settings.security.sessionManagementDescription")}
                   </p>
                 </div>
-                <Button variant="outline">{t("settings.security.manageSessions")}</Button>
+                <Button variant="outline">
+                  {t("settings.security.manageSessions")}
+                </Button>
               </div>
 
               <Separator />
@@ -710,10 +747,12 @@ export default function Settings() {
                     {t("settings.security.dangerZoneDescription")}
                   </p>
                 </div>
-                <ActionButton 
+                <ActionButton
                   isDestructive
                   requireConfirmation
-                  confirmationMessage={t("settings.security.deleteAccountConfirmation")}
+                  confirmationMessage={t(
+                    "settings.security.deleteAccountConfirmation"
+                  )}
                   onClick={() => console.log("Delete account action")}
                 >
                   {t("settings.security.deleteAccount")}

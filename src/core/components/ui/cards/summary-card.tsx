@@ -57,22 +57,22 @@ export const SummaryCard = React.forwardRef<HTMLDivElement, SummaryCardProps>(
       >
         <CardHeader className="pb-2">
           <CardTitle size="lg">{title}</CardTitle>
-          {description && (
-            <CardDescription>{description}</CardDescription>
-          )}
+          {description && <CardDescription>{description}</CardDescription>}
         </CardHeader>
-        
+
         <CardContent>
           {/* If we have metrics array, render them */}
           {metrics && metrics.length > 0 && (
             <div className="space-y-3">
               {metrics.map((metric, index) => (
                 <div key={index} className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">{metric.label}</span>
-                  <span 
+                  <span className="text-sm text-muted-foreground">
+                    {metric.label}
+                  </span>
+                  <span
                     className={cn(
-                      "font-medium", 
-                      colorClasses[metric.color || 'default']
+                      "font-medium",
+                      colorClasses[metric.color || "default"]
                     )}
                   >
                     {metric.value}
@@ -81,11 +81,11 @@ export const SummaryCard = React.forwardRef<HTMLDivElement, SummaryCardProps>(
               ))}
             </div>
           )}
-          
+
           {/* If we have children, render those instead */}
           {children}
         </CardContent>
-        
+
         {/* Action button if provided */}
         {action && (
           <CardActions align="right">
@@ -109,16 +109,12 @@ export const SummaryCard = React.forwardRef<HTMLDivElement, SummaryCardProps>(
             </Button>
           </CardActions>
         )}
-        
+
         {/* Optional footer */}
-        {footer && (
-          <CardFooter bordered>
-            {footer}
-          </CardFooter>
-        )}
+        {footer && <CardFooter bordered>{footer}</CardFooter>}
       </Card>
     );
   }
 );
 
-SummaryCard.displayName = "SummaryCard"; 
+SummaryCard.displayName = "SummaryCard";

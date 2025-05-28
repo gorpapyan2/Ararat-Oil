@@ -3,6 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  ToastContainer 
-} from "@/core/components/ui/primitives/toast-container";
+export { ToastContainer } from "@/core/components/ui/primitives/toast-container";

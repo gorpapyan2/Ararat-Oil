@@ -53,7 +53,7 @@ describe("TankFormDialog", () => {
 
   it("renders create form when no tank is provided", async () => {
     renderComponent();
-    
+
     expect(screen.getByText("tanks.createTank")).toBeInTheDocument();
     expect(screen.getByLabelText("tanks.name")).toBeInTheDocument();
     expect(screen.getByLabelText("tanks.fuelType")).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe("TankFormDialog", () => {
 
   it("renders edit form when tank is provided", async () => {
     renderComponent({ tank: mockTank });
-    
+
     expect(screen.getByText("tanks.editTank")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Tank 1")).toBeInTheDocument();
     expect(screen.getByDisplayValue("1000")).toBeInTheDocument();
@@ -70,11 +70,11 @@ describe("TankFormDialog", () => {
 
   it("loads fuel types on mount", async () => {
     renderComponent();
-    
+
     await waitFor(() => {
       expect(tanksService.getFuelTypes).toHaveBeenCalled();
     });
-    
+
     expect(screen.getByText("Diesel")).toBeInTheDocument();
     expect(screen.getByText("Petrol")).toBeInTheDocument();
   });
@@ -84,7 +84,7 @@ describe("TankFormDialog", () => {
     (tanksService.createTank as any).mockResolvedValueOnce(mockResponse);
 
     renderComponent();
-    
+
     // Fill form
     fireEvent.change(screen.getByLabelText("tanks.name"), {
       target: { value: "New Tank" },
@@ -94,10 +94,10 @@ describe("TankFormDialog", () => {
     fireEvent.change(screen.getByLabelText("tanks.capacity"), {
       target: { value: "2000" },
     });
-    
+
     // Submit form
     fireEvent.click(screen.getByText("common.save"));
-    
+
     await waitFor(() => {
       expect(tanksService.createTank).toHaveBeenCalledWith({
         name: "New Tank",
@@ -113,7 +113,7 @@ describe("TankFormDialog", () => {
     (tanksService.updateTank as any).mockResolvedValueOnce(mockResponse);
 
     renderComponent({ tank: mockTank });
-    
+
     // Update form
     fireEvent.change(screen.getByLabelText("tanks.name"), {
       target: { value: "Updated Tank" },
@@ -121,10 +121,10 @@ describe("TankFormDialog", () => {
     fireEvent.change(screen.getByLabelText("tanks.capacity"), {
       target: { value: "1500" },
     });
-    
+
     // Submit form
     fireEvent.click(screen.getByText("common.save"));
-    
+
     await waitFor(() => {
       expect(tanksService.updateTank).toHaveBeenCalledWith("1", {
         name: "Updated Tank",
@@ -137,10 +137,10 @@ describe("TankFormDialog", () => {
 
   it("validates required fields", async () => {
     renderComponent();
-    
+
     // Try to submit without filling required fields
     fireEvent.click(screen.getByText("common.save"));
-    
+
     expect(screen.getByText("tanks.nameRequired")).toBeInTheDocument();
     expect(screen.getByText("tanks.fuelTypeRequired")).toBeInTheDocument();
     expect(screen.getByText("tanks.capacityRequired")).toBeInTheDocument();
@@ -148,14 +148,16 @@ describe("TankFormDialog", () => {
 
   it("validates capacity input", async () => {
     renderComponent();
-    
+
     // Try to submit with invalid capacity
     fireEvent.change(screen.getByLabelText("tanks.capacity"), {
       target: { value: "-100" },
     });
     fireEvent.click(screen.getByText("common.save"));
-    
-    expect(screen.getByText("tanks.capacityMustBePositive")).toBeInTheDocument();
+
+    expect(
+      screen.getByText("tanks.capacityMustBePositive")
+    ).toBeInTheDocument();
   });
 
   it("handles API error", async () => {
@@ -163,7 +165,7 @@ describe("TankFormDialog", () => {
     (tanksService.createTank as any).mockRejectedValueOnce(mockError);
 
     renderComponent();
-    
+
     // Fill form
     fireEvent.change(screen.getByLabelText("tanks.name"), {
       target: { value: "New Tank" },
@@ -173,10 +175,10 @@ describe("TankFormDialog", () => {
     fireEvent.change(screen.getByLabelText("tanks.capacity"), {
       target: { value: "2000" },
     });
-    
+
     // Submit form
     fireEvent.click(screen.getByText("common.save"));
-    
+
     await waitFor(() => {
       expect(screen.getByText("tanks.saveFailed")).toBeInTheDocument();
     });
@@ -193,4 +195,4 @@ describe("TankFormDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "close" }));
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
-}); 
+});

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Debug Page</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    #root {
+      border: 2px solid #ccc;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: white;
+    }
+    .test-app {
+      background-color: #e6f7ff;
+      border: 1px solid #91d5ff;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #1890ff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #40a9ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>React Debug Test Page</h1>
+  <p>This page uses direct React CDN without Vite or other bundlers.</p>
+  <div id="root">
+    <!-- React will render here -->
+    <div>Loading React application...</div>
+  </div>
+
+  <script type="text/babel">
+    // Simple React component
+    const App = () => {
+      const [count, setCount] = React.useState(0);
+      const [message, setMessage] = React.useState("Initial message");
+
+      React.useEffect(() => {
+        console.log("App mounted successfully");
+        setMessage("React is working correctly!");
+      }, []);
+
+      return (
+        <div className="test-app">
+          <h2>React Test Component</h2>
+          <p>{message}</p>
+          <p>Count: {count}</p>
+          <button onClick={() => setCount(count + 1)}>
+            Increment
+          </button>
+        </div>
+      );
+    };
+
+    // Render the app
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    
+    try {
+      console.log("Attempting to render React app...");
+      root.render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      );
+      console.log("Render call completed");
+    } catch (error) {
+      console.error("Error rendering React:", error);
+      rootElement.innerHTML = `
+        <div style="color: red; padding: 20px; border: 1px solid red;">
+          <h2>React Render Error</h2>
+          <p>${error.message}</p>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html> 

@@ -130,7 +130,9 @@ const TodoPage = () => {
                       />
                       <span
                         className={`${
-                          todo.completed ? "line-through text-muted-foreground" : ""
+                          todo.completed
+                            ? "line-through text-muted-foreground"
+                            : ""
                         }`}
                       >
                         {todo.text}
@@ -152,12 +154,15 @@ const TodoPage = () => {
         </CardContent>
         <CardFooter className="flex justify-between">
           <div className="text-sm text-muted-foreground">
-            {todos.filter((t) => t.completed).length} of {todos.length} completed
+            {todos.filter((t) => t.completed).length} of {todos.length}{" "}
+            completed
           </div>
           {todos.length > 0 && (
             <Button
               variant="outline"
-              onClick={() => setTodos((prev) => prev.filter((t) => !t.completed))}
+              onClick={() =>
+                setTodos((prev) => prev.filter((t) => !t.completed))
+              }
             >
               Clear completed
             </Button>
@@ -168,4 +173,4 @@ const TodoPage = () => {
   );
 };
 
-export default TodoPage; 
+export default TodoPage;

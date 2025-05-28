@@ -10,4 +10,4 @@ export interface DashboardData {
   totalExpenses: number;
   netProfit: number;
   inventoryValue: number;
-} 
+}

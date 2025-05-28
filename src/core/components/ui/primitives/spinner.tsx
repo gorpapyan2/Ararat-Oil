@@ -32,8 +32,8 @@ export const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
         ref={ref}
         className={cn(
           "animate-spin rounded-full",
-          useCurrentColor 
-            ? "border-current border-t-transparent" 
+          useCurrentColor
+            ? "border-current border-t-transparent"
             : "border-primary/30 border-t-primary",
           sizeClasses[size],
           className
@@ -54,7 +54,7 @@ export interface SpinnerWithTextProps extends SpinnerProps {
    * @default "Loading..."
    */
   text?: string;
-  
+
   /**
    * The position of the text relative to the spinner
    * @default "right"
@@ -62,11 +62,17 @@ export interface SpinnerWithTextProps extends SpinnerProps {
   textPosition?: "left" | "right";
 }
 
-export const SpinnerWithText = React.forwardRef<HTMLDivElement, SpinnerWithTextProps>(
-  ({ className, text = "Loading...", textPosition = "right", ...props }, ref) => {
+export const SpinnerWithText = React.forwardRef<
+  HTMLDivElement,
+  SpinnerWithTextProps
+>(
+  (
+    { className, text = "Loading...", textPosition = "right", ...props },
+    ref
+  ) => {
     return (
-      <div 
-        ref={ref} 
+      <div
+        ref={ref}
         className={cn(
           "inline-flex items-center gap-2",
           textPosition === "left" && "flex-row-reverse",
@@ -79,4 +85,4 @@ export const SpinnerWithText = React.forwardRef<HTMLDivElement, SpinnerWithTextP
     );
   }
 );
-SpinnerWithText.displayName = "SpinnerWithText"; 
+SpinnerWithText.displayName = "SpinnerWithText";

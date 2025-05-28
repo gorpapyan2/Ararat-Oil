@@ -1,7 +1,13 @@
 /**
  * Toast variant options
  */
-export type ToastVariant = "default" | "success" | "error" | "warning" | "info" | "destructive";
+export type ToastVariant =
+  | "default"
+  | "success"
+  | "error"
+  | "warning"
+  | "info"
+  | "destructive";
 
 /**
  * Toast notification options
@@ -11,38 +17,38 @@ export interface ToastOptions {
    * The title of the toast
    */
   title: string;
-  
+
   /**
    * Optional description for additional details
    */
   description?: string;
-  
+
   /**
    * Style variant for the toast
    */
   variant?: ToastVariant;
-  
+
   /**
    * Duration in milliseconds before auto-dismissing
    * Set to null to prevent auto-dismiss
    */
   duration?: number | null;
-  
+
   /**
    * Type alias for backward compatibility
    */
   type?: string;
-  
+
   /**
    * Message alias for description
    */
   message?: string;
-  
+
   /**
    * Optional action component or configuration
    */
-  action?: any;
-  
+  action?: React.ReactNode | { label: string; onClick: () => void };
+
   /**
    * Callback for open state changes
    */
@@ -57,12 +63,12 @@ export interface ToastReturn {
    * Unique identifier for the toast
    */
   id: string;
-  
+
   /**
    * Function to dismiss the toast
    */
   dismiss: () => void;
-  
+
   /**
    * Function to update the toast options
    */
@@ -71,22 +77,22 @@ export interface ToastReturn {
 
 /**
  * Hook for displaying toast notifications
- * 
+ *
  * This hook provides a standardized way to display toast notifications across the application.
  * It abstracts the underlying implementation to provide a consistent API.
- * 
+ *
  * @returns Functions for displaying and managing toast notifications
- * 
+ *
  * @example
  * ```tsx
  * const { toast, success, error } = useToast();
- * 
+ *
  * // Display a default toast
  * toast({ title: "Note", description: "This is a toast notification" });
- * 
+ *
  * // Display a success toast
  * success({ title: "Success", description: "Operation completed successfully" });
- * 
+ *
  * // Display an error toast
  * error({ title: "Error", description: "An error occurred" });
  * ```
@@ -101,10 +107,11 @@ export function useToast() {
     return {
       id: "placeholder-id",
       dismiss: () => console.log("Dismissing toast"),
-      update: (newOptions: Partial<ToastOptions>) => console.log("Updating toast", newOptions)
+      update: (newOptions: Partial<ToastOptions>) =>
+        console.log("Updating toast", newOptions),
     };
   };
-  
+
   /**
    * Dismiss all active toast notifications
    */
@@ -112,26 +119,26 @@ export function useToast() {
     console.log("DISMISS TOAST:", toastId || "all");
     // In a real implementation, this would dismiss toasts
   };
-  
+
   // Convenience methods for different toast types
-  const success = (options: Omit<ToastOptions, "variant">) => 
+  const success = (options: Omit<ToastOptions, "variant">) =>
     toast({ ...options, variant: "success" });
-    
-  const error = (options: Omit<ToastOptions, "variant">) => 
+
+  const error = (options: Omit<ToastOptions, "variant">) =>
     toast({ ...options, variant: "destructive" });
-    
-  const warning = (options: Omit<ToastOptions, "variant">) => 
+
+  const warning = (options: Omit<ToastOptions, "variant">) =>
     toast({ ...options, variant: "warning" });
-    
-  const info = (options: Omit<ToastOptions, "variant">) => 
+
+  const info = (options: Omit<ToastOptions, "variant">) =>
     toast({ ...options, variant: "info" });
-  
+
   return {
     toast,
     dismiss,
     success,
     error,
     warning,
-    info
+    info,
   };
 }

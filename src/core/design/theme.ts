@@ -292,4 +292,4 @@ export const shadows = {
   "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
   inner: "inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
   none: "none",
-}; 
+};

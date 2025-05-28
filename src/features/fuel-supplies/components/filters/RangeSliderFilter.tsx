@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Label } from '@/core/components/ui/label';
-import { Slider } from '@/core/components/ui/slider';
+import { Label } from "@/core/components/ui/label";
+import { Slider } from "@/core/components/ui/slider";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Button } from "@/core/components/ui/button";
 import { RotateCcw } from "lucide-react";
@@ -133,7 +133,7 @@ export function RangeSliderFilter({
             "absolute top-0 px-2 py-1 rounded-md text-xs bg-primary text-primary-foreground transform -translate-x-1/2 transition-all duration-200",
             isDragging && activeHandle === "min"
               ? "opacity-100 scale-100"
-              : "opacity-0 scale-90",
+              : "opacity-0 scale-90"
           )}
           style={{ left: `${minPercent}%` }}
         >
@@ -147,7 +147,7 @@ export function RangeSliderFilter({
             "absolute top-0 px-2 py-1 rounded-md text-xs bg-primary text-primary-foreground transform -translate-x-1/2 transition-all duration-200",
             isDragging && activeHandle === "max"
               ? "opacity-100 scale-100"
-              : "opacity-0 scale-90",
+              : "opacity-0 scale-90"
           )}
           style={{ left: `${maxPercent}%` }}
         >
@@ -164,9 +164,7 @@ export function RangeSliderFilter({
 
       <div className="flex items-center justify-between gap-4">
         <div className="flex flex-col flex-1">
-          <span className="text-xs text-muted-foreground mb-1">
-            Min
-          </span>
+          <span className="text-xs text-muted-foreground mb-1">Min</span>
           <Input
             type="text"
             value={localMin}
@@ -180,9 +178,7 @@ export function RangeSliderFilter({
           />
         </div>
         <div className="flex flex-col flex-1">
-          <span className="text-xs text-muted-foreground mb-1">
-            Max
-          </span>
+          <span className="text-xs text-muted-foreground mb-1">Max</span>
           <Input
             type="text"
             value={localMax}
@@ -200,13 +196,9 @@ export function RangeSliderFilter({
       {/* Selected range indicator */}
       <div className="flex justify-between items-center">
         <div className="text-sm font-medium">
-          <span className="text-primary">
-            {formatValue(value[0])}
-          </span>
+          <span className="text-primary">{formatValue(value[0])}</span>
           <span className="mx-2 text-muted-foreground">—</span>
-          <span className="text-primary">
-            {formatValue(value[1])}
-          </span>
+          <span className="text-primary">{formatValue(value[1])}</span>
         </div>
         {isCustomRange && (
           <span className="text-xs text-muted-foreground">

@@ -41,4 +41,4 @@ export function SalesFilters({
       </div>
     </section>
   );
-} 
+}

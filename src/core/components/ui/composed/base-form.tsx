@@ -2,11 +2,11 @@
  * Base form components for standardizing form implementations
  * This file provides shared form patterns to reduce duplication across the codebase
  */
-import React from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { 
+import React from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -14,18 +14,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/core/components/ui/primitives/form';
-import { Button } from '@/core/components/ui/primitives/button';
-import { cn } from '@/utils/cn';
-import type { StandardFormComponentProps, FormRowProps } from '../types/form-types';
+} from "@/core/components/ui/primitives/form";
+import { Button } from "@/core/components/ui/primitives/button";
+import { cn } from "@/utils/cn";
+import type {
+  StandardFormComponentProps,
+  FormRowProps,
+} from "../types/form-types";
 
 /**
  * Props for StandardForm component
  */
-export interface StandardFormProps<TSchema extends z.ZodType<any, any>> 
+export interface StandardFormProps<TSchema extends z.ZodType>
   extends StandardFormComponentProps<TSchema> {
   /** Children render prop receiving form methods */
-  children: React.ReactNode | ((methods: ReturnType<typeof useForm>) => React.ReactNode);
+  children:
+    | React.ReactNode
+    | ((methods: ReturnType<typeof useForm>) => React.ReactNode);
   /** Optional footer with submit/cancel buttons */
   footer?: React.ReactNode;
   /** Submit button text */
@@ -48,14 +53,14 @@ export interface StandardFormProps<TSchema extends z.ZodType<any, any>>
  * Standardized form component that handles common form patterns
  * Reduces duplication across form implementations
  */
-export function StandardForm<TSchema extends z.ZodType<any, any>>({
+export function StandardForm<TSchema extends z.ZodType>({
   schema,
   defaultValues,
   onSubmit,
   children,
   footer,
-  submitText = 'Submit',
-  cancelText = 'Cancel',
+  submitText = "Submit",
+  cancelText = "Cancel",
   className,
   wrapperClassName,
   isSubmitting,
@@ -65,7 +70,7 @@ export function StandardForm<TSchema extends z.ZodType<any, any>>({
 }: StandardFormProps<TSchema>) {
   const form = useForm<z.infer<TSchema>>({
     resolver: zodResolver(schema),
-    defaultValues: defaultValues as any,
+    defaultValues: defaultValues as z.infer<TSchema>,
     ...formOptions,
   });
 
@@ -73,21 +78,21 @@ export function StandardForm<TSchema extends z.ZodType<any, any>>({
     try {
       await onSubmit(values);
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error("Form submission error:", error);
     }
   });
 
   return (
-    <div className={cn('space-y-4', wrapperClassName)}>
+    <div className={cn("space-y-4", wrapperClassName)}>
       <FormProvider {...form}>
         <Form {...form}>
-          <form 
-            id={id} 
-            className={cn('space-y-4', className)} 
+          <form
+            id={id}
+            className={cn("space-y-4", className)}
             onSubmit={handleSubmit}
           >
-            {typeof children === 'function' ? children(form) : children}
-            
+            {typeof children === "function" ? children(form) : children}
+
             {footer || (
               <div className="flex justify-end space-x-2">
                 {onCancel && (
@@ -100,10 +105,7 @@ export function StandardForm<TSchema extends z.ZodType<any, any>>({
                     {cancelText}
                   </Button>
                 )}
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                >
+                <Button type="submit" disabled={isSubmitting}>
                   {submitText}
                 </Button>
               </div>
@@ -126,7 +128,7 @@ export function FormRow({
   className,
 }: FormRowProps) {
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {label && (
         <div className="flex items-center">
           <span className="text-sm font-medium">
@@ -144,11 +146,11 @@ export function FormRow({
 }
 
 // Re-export primitive form components for convenience and consistency
-export { 
+export {
   PrimitiveFormField as FormField,
   FormControl,
   FormDescription,
   FormItem,
   FormLabel,
   FormMessage,
-}; 
+};

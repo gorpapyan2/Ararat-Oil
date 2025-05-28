@@ -6,7 +6,7 @@ export interface CreateTankRequest {
   fuel_type_id: string;
   capacity: number;
   current_level: number;
-  status: 'active' | 'inactive' | 'maintenance';
+  status: "active" | "inactive" | "maintenance";
 }
 
 export interface UpdateTankRequest {
@@ -14,7 +14,7 @@ export interface UpdateTankRequest {
   fuel_type_id?: string;
   capacity?: number;
   current_level?: number;
-  status?: 'active' | 'inactive' | 'maintenance';
+  status?: "active" | "inactive" | "maintenance";
 }
 
 export const fetchTanks = async (): Promise<Tank[]> => {
@@ -42,7 +42,7 @@ export const fetchActiveTanks = async (): Promise<Tank[]> => {
       throw new Error(response.error.message);
     }
 
-    return (response.data || []).filter(tank => tank.status === 'active');
+    return (response.data || []).filter((tank) => tank.status === "active");
   } catch (err) {
     console.error("Failed to fetch active tanks:", err);
     throw err;
@@ -65,12 +65,17 @@ export const fetchTankById = async (id: string): Promise<Tank | null> => {
   }
 };
 
-export const fetchTankLevelChanges = async (tankId: string): Promise<TankLevelChange[]> => {
+export const fetchTankLevelChanges = async (
+  tankId: string
+): Promise<TankLevelChange[]> => {
   try {
     const response = await tanksApi.getLevelChanges(tankId);
 
     if (response.error) {
-      console.error(`Error fetching level changes for tank ${tankId}:`, response.error);
+      console.error(
+        `Error fetching level changes for tank ${tankId}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
 
@@ -97,7 +102,10 @@ export const createTank = async (tank: CreateTankRequest): Promise<Tank> => {
   }
 };
 
-export const updateTank = async (id: string, updates: UpdateTankRequest): Promise<Tank> => {
+export const updateTank = async (
+  id: string,
+  updates: UpdateTankRequest
+): Promise<Tank> => {
   try {
     const response = await tanksApi.update(id, updates);
 
@@ -128,16 +136,24 @@ export const deleteTank = async (id: string): Promise<void> => {
 };
 
 export const adjustTankLevel = async (
-  id: string, 
-  changeAmount: number, 
-  changeType: 'add' | 'subtract',
+  id: string,
+  changeAmount: number,
+  changeType: "add" | "subtract",
   reason?: string
 ): Promise<Tank> => {
   try {
-    const response = await tanksApi.adjustLevel(id, changeAmount, changeType, reason);
+    const response = await tanksApi.adjustLevel(
+      id,
+      changeAmount,
+      changeType,
+      reason
+    );
 
     if (response.error) {
-      console.error(`Error adjusting level for tank with ID ${id}:`, response.error);
+      console.error(
+        `Error adjusting level for tank with ID ${id}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
 
@@ -163,7 +179,7 @@ export const updateTankLevel = async (
   }
 
   const changeAmount = Math.abs(newLevel - currentTank.current_level);
-  const changeType = newLevel > currentTank.current_level ? 'add' : 'subtract';
+  const changeType = newLevel > currentTank.current_level ? "add" : "subtract";
 
   return adjustTankLevel(id, changeAmount, changeType, reason);
 };

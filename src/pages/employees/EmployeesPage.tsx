@@ -2,30 +2,34 @@ import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { employeeApi } from "@/core/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PageHeader } from '@/core/components/ui/page-header';
+import { PageHeader } from "@/core/components/ui/page-header";
 import { Button } from "@/core/components/ui/button";
-import { 
-  PlusIcon, 
-  PenSquareIcon, 
-  Trash2Icon, 
-  AlertCircle 
-} from "lucide-react";
-import { BreadcrumbItem, Breadcrumbs } from '@/core/components/ui/breadcrumbs';
-import { DataTable } from '@/core/components/ui/data-table';
+import { PlusIcon, PenSquareIcon, Trash2Icon, AlertCircle } from "lucide-react";
+import { BreadcrumbItem, Breadcrumbs } from "@/core/components/ui/breadcrumbs";
+import { DataTable } from "@/core/components/ui/data-table";
 import { EmployeeDialog } from "@/features/employees/components/EmployeeDialog";
-import { ConfirmDialog } from '@/core/components/ui/confirm-dialog';
+import { ConfirmDialog } from "@/core/components/ui/confirm-dialog";
 import { toast } from "sonner";
 import { formatDate } from "@/shared/utils";
 import { Employee } from "@/types";
-import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
-import { TableColumns } from '@/core/components/ui/data-table';
-import { Badge } from '@/core/components/ui/badge';
-import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/core/components/ui/alert";
+import { TableColumns } from "@/core/components/ui/data-table";
+import { Badge } from "@/core/components/ui/badge";
+import {
+  apiNamespaces,
+  getApiErrorMessage,
+  getApiSuccessMessage,
+  getApiActionLabel,
+} from "@/i18n/i18n";
 
 export function EmployeesPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  
+
   // State for dialogs
   const [employeeDialog, setEmployeeDialog] = useState<{
     open: boolean;
@@ -33,7 +37,7 @@ export function EmployeesPage() {
   }>({
     open: false,
   });
-  
+
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     data?: Employee;
@@ -68,9 +72,13 @@ export function EmployeesPage() {
         accessorKey: "status",
         header: t("employee.status"),
         cell: ({ row }) => (
-          <Badge variant={row.original.status === "active" ? "success" : "destructive"}>
-            {row.original.status === "active" 
-              ? t("employee.statusActive") 
+          <Badge
+            variant={
+              row.original.status === "active" ? "success" : "destructive"
+            }
+          >
+            {row.original.status === "active"
+              ? t("employee.statusActive")
               : t("employee.statusInactive")}
           </Badge>
         ),
@@ -104,93 +112,93 @@ export function EmployeesPage() {
     ],
     [t]
   );
-  
+
   // Query for employees
   const { data, isLoading, error } = useQuery({
     queryKey: ["employees"],
     queryFn: () => employeeApi.getEmployees(),
   });
-  
+
   // Create employee mutation
   const createMutation = useMutation({
     mutationFn: (employee: Omit<Employee, "id">) =>
       employeeApi.createEmployee(employee),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success(getApiSuccessMessage(apiNamespaces.employee, 'create'));
+      toast.success(getApiSuccessMessage(apiNamespaces.employee, "create"));
       setEmployeeDialog({ open: false });
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : getApiErrorMessage(apiNamespaces.employee, 'create')
+        error instanceof Error
+          ? error.message
+          : getApiErrorMessage(apiNamespaces.employee, "create")
       );
     },
   });
-  
+
   // Update employee mutation
   const updateMutation = useMutation({
     mutationFn: (employee: Employee) =>
       employeeApi.updateEmployee(employee.id, employee),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success(getApiSuccessMessage(apiNamespaces.employee, 'update'));
+      toast.success(getApiSuccessMessage(apiNamespaces.employee, "update"));
       setEmployeeDialog({ open: false });
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : getApiErrorMessage(apiNamespaces.employee, 'update')
+        error instanceof Error
+          ? error.message
+          : getApiErrorMessage(apiNamespaces.employee, "update")
       );
     },
   });
-  
+
   // Delete employee mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => employeeApi.deleteEmployee(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success(getApiSuccessMessage(apiNamespaces.employee, 'delete'));
+      toast.success(getApiSuccessMessage(apiNamespaces.employee, "delete"));
       setConfirmDialog({ open: false });
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error 
-          ? error.message 
-          : getApiErrorMessage(apiNamespaces.employee, 'delete')
+        error instanceof Error
+          ? error.message
+          : getApiErrorMessage(apiNamespaces.employee, "delete")
       );
     },
   });
-  
+
   // Handler functions
   const handleAddEmployee = () => {
     setEmployeeDialog({
       open: true,
     });
   };
-  
+
   const handleEditEmployee = (employee: Employee) => {
     setEmployeeDialog({
       open: true,
       data: employee,
     });
   };
-  
+
   const handleDeleteClick = (employee: Employee) => {
     setConfirmDialog({
       open: true,
       data: employee,
     });
   };
-  
+
   const handleConfirmDelete = () => {
     if (confirmDialog.data) {
       deleteMutation.mutate(confirmDialog.data.id);
     }
   };
-  
+
   const handleSaveEmployee = (employee: Employee | Omit<Employee, "id">) => {
     if ("id" in employee) {
       updateMutation.mutate(employee as Employee);
@@ -198,17 +206,23 @@ export function EmployeesPage() {
       createMutation.mutate(employee);
     }
   };
-  
+
   // Memoize the breadcrumb segments to prevent unnecessary re-renders
-  const breadcrumbSegments = useMemo(() => [
-    { name: t("navigation.dashboard"), href: "/" },
-    { name: t("navigation.employees"), href: "/employees" }
-  ], [t]);
+  const breadcrumbSegments = useMemo(
+    () => [
+      { name: t("navigation.dashboard"), href: "/" },
+      { name: t("navigation.employees"), href: "/employees" },
+    ],
+    [t]
+  );
 
   // Get page title and description from translations
   const pageTitle = useMemo(() => t("employee.pageTitle", "Employees"), [t]);
-  const pageDescription = useMemo(() => t("employee.pageDescription", "Manage station employees"), [t]);
-  
+  const pageDescription = useMemo(
+    () => t("employee.pageDescription", "Manage station employees"),
+    [t]
+  );
+
   return (
     <div className="container py-6 max-w-7xl mx-auto">
       <Breadcrumbs>
@@ -218,31 +232,28 @@ export function EmployeesPage() {
           </BreadcrumbItem>
         ))}
       </Breadcrumbs>
-      
+
       <div className="my-4">
-        <PageHeader 
-          title={pageTitle}
-          description={pageDescription}
-        >
+        <PageHeader title={pageTitle} description={pageDescription}>
           <Button onClick={handleAddEmployee}>
             <PlusIcon className="h-4 w-4 mr-2" />
-            {getApiActionLabel(apiNamespaces.employee, 'create')}
+            {getApiActionLabel(apiNamespaces.employee, "create")}
           </Button>
         </PageHeader>
       </div>
-      
+
       {error && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>{t("common.error")}</AlertTitle>
           <AlertDescription>
-            {error instanceof Error 
-              ? error.message 
-              : getApiErrorMessage(apiNamespaces.employee, 'fetch')}
+            {error instanceof Error
+              ? error.message
+              : getApiErrorMessage(apiNamespaces.employee, "fetch")}
           </AlertDescription>
         </Alert>
       )}
-      
+
       <DataTable
         columns={columns}
         data={data?.data || []}
@@ -250,7 +261,7 @@ export function EmployeesPage() {
         pagination
         noResultsMessage={t("employee.noEmployees")}
       />
-      
+
       <EmployeeDialog
         open={employeeDialog.open}
         employee={employeeDialog.data}
@@ -262,7 +273,7 @@ export function EmployeesPage() {
             : t("employee.addEmployee")
         }
       />
-      
+
       <ConfirmDialog
         open={confirmDialog.open}
         onOpenChange={(open) => setConfirmDialog({ open })}
@@ -272,4 +283,4 @@ export function EmployeesPage() {
       />
     </div>
   );
-} 
+}

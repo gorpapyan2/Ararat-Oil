@@ -1,6 +1,6 @@
 /**
  * Service for handling expense-related operations
- * 
+ *
  * This service has been updated to use standardized API methods from the core API.
  * - getAll -> getExpenses
  * - getById -> getExpenseById
@@ -35,14 +35,12 @@ export interface UpdateExpenseRequest {
   notes?: string;
 }
 
-export async function fetchExpenses(
-  filters?: { 
-    category?: string; 
-    start_date?: string; 
-    end_date?: string; 
-    payment_status?: string 
-  }
-): Promise<Expense[]> {
+export async function fetchExpenses(filters?: {
+  category?: string;
+  start_date?: string;
+  end_date?: string;
+  payment_status?: string;
+}): Promise<Expense[]> {
   try {
     const response = await expensesApi.getExpenses(filters);
 
@@ -59,7 +57,7 @@ export async function fetchExpenses(
 }
 
 export async function fetchExpenseById(id: string): Promise<Expense | null> {
-  try { 
+  try {
     const response = await expensesApi.getExpenseById(id);
 
     if (response.error) {
@@ -90,7 +88,9 @@ export async function fetchExpenseCategories(): Promise<string[]> {
   }
 }
 
-export async function createExpense(expense: CreateExpenseRequest): Promise<Expense> {
+export async function createExpense(
+  expense: CreateExpenseRequest
+): Promise<Expense> {
   try {
     const response = await expensesApi.createExpense(expense as any);
 
@@ -106,7 +106,10 @@ export async function createExpense(expense: CreateExpenseRequest): Promise<Expe
   }
 }
 
-export async function updateExpense(id: string, expense: UpdateExpenseRequest): Promise<Expense> {
+export async function updateExpense(
+  id: string,
+  expense: UpdateExpenseRequest
+): Promise<Expense> {
   try {
     const response = await expensesApi.updateExpense(id, expense as any);
 

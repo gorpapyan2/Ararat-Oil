@@ -1,1 +1,1 @@
-export * from './useFuelPrices'; 
+export * from "./useFuelPrices";

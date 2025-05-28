@@ -12,17 +12,13 @@ interface SalesFilterPanelProps {
   onFiltersChange?: (filters: SalesFiltersType) => void;
 }
 
-export const SalesFilterPanel: FC<SalesFilterPanelProps> = ({ 
+export const SalesFilterPanel: FC<SalesFilterPanelProps> = ({
   onClose,
-  onFiltersChange 
+  onFiltersChange,
 }) => {
   const { t } = useTranslation();
-  const { 
-    filters, 
-    updateFilters, 
-    resetFilters,
-    filterOptions 
-  } = useSalesFilters();
+  const { filters, updateFilters, resetFilters, filterOptions } =
+    useSalesFilters();
 
   // Pass filter changes to parent if provided
   const handleFiltersChange = (newFilters: Partial<SalesFiltersType>) => {
@@ -47,49 +43,49 @@ export const SalesFilterPanel: FC<SalesFilterPanelProps> = ({
       </div>
 
       <div className="space-y-6">
-        <SalesFilters 
-          search={filters.searchTerm || ''}
-          onSearchChange={(value: string) => handleFiltersChange({ searchTerm: value })}
+        <SalesFilters
+          search={filters.searchTerm || ""}
+          onSearchChange={(value: string) =>
+            handleFiltersChange({ searchTerm: value })
+          }
           date={filters.dateRange?.from}
-          onDateChange={(date: Date | undefined) => handleFiltersChange({ 
-            dateRange: date ? { from: date } : undefined 
-          })}
-          systemId={filters.fillingSystem || 'all'}
-          onSystemChange={(id: string) => handleFiltersChange({ fillingSystem: id })}
-          systems={[{ id: 'all', name: t('common.all') }]} // This should be populated with actual systems
+          onDateChange={(date: Date | undefined) =>
+            handleFiltersChange({
+              dateRange: date ? { from: date } : undefined,
+            })
+          }
+          systemId={filters.fillingSystem || "all"}
+          onSystemChange={(id: string) =>
+            handleFiltersChange({ fillingSystem: id })
+          }
+          systems={[{ id: "all", name: t("common.all") }]} // This should be populated with actual systems
         />
-        
-        <SalesRangesFilters 
-          litersRange={[
-            filters.minQuantity || 0, 
-            filters.maxQuantity || 0
-          ]}
-          onLitersRangeChange={([min, max]) => handleFiltersChange({ 
-            minQuantity: min || undefined, 
-            maxQuantity: max || undefined 
-          })}
-          priceRange={[
-            filters.minAmount || 0, 
-            filters.maxAmount || 0
-          ]}
-          onPriceRangeChange={([min, max]) => handleFiltersChange({ 
-            minAmount: min || undefined, 
-            maxAmount: max || undefined 
-          })}
+
+        <SalesRangesFilters
+          litersRange={[filters.minQuantity || 0, filters.maxQuantity || 0]}
+          onLitersRangeChange={([min, max]) =>
+            handleFiltersChange({
+              minQuantity: min || undefined,
+              maxQuantity: max || undefined,
+            })
+          }
+          priceRange={[filters.minAmount || 0, filters.maxAmount || 0]}
+          onPriceRangeChange={([min, max]) =>
+            handleFiltersChange({
+              minAmount: min || undefined,
+              maxAmount: max || undefined,
+            })
+          }
           totalSalesRange={[0, 0]} // This is deprecated but still required by component
           onTotalSalesRangeChange={() => {}} // No-op as we don't use this anymore
         />
 
         <div className="flex justify-end pt-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={resetFilters}
-          >
+          <Button variant="outline" size="sm" onClick={resetFilters}>
             {t("common.reset", "Reset")}
           </Button>
         </div>
       </div>
     </div>
   );
-}; 
+};

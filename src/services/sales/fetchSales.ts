@@ -6,7 +6,9 @@ export interface FetchSalesOptions {
   end_date?: string;
 }
 
-export const fetchSales = async (options?: FetchSalesOptions): Promise<Sale[]> => {
+export const fetchSales = async (
+  options?: FetchSalesOptions
+): Promise<Sale[]> => {
   try {
     const response = await salesApi.getSales(options);
 
@@ -16,26 +18,32 @@ export const fetchSales = async (options?: FetchSalesOptions): Promise<Sale[]> =
     }
 
     return response.data || [];
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Failed to fetch sales:", err);
-    throw new Error(err.message || "Failed to fetch sales data");
+    throw err instanceof Error ? err : new Error("Failed to fetch sales");
   }
 };
 
 export const fetchLatestSale = async (
-  fillingSystemId: string,
+  fillingSystemId: string
 ): Promise<Sale | null> => {
   try {
     const response = await salesApi.getLatestSale(fillingSystemId);
 
     if (response.error) {
-      console.error(`Error fetching latest sale for filling system ${fillingSystemId}:`, response.error);
+      console.error(
+        `Error fetching latest sale for filling system ${fillingSystemId}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
 
     return response.data || null;
-  } catch (err: any) {
-    console.error(`Failed to fetch latest sale for filling system ${fillingSystemId}:`, err);
-    throw new Error(err.message || "Failed to fetch latest sale");
+  } catch (err: unknown) {
+    console.error(
+      `Failed to fetch latest sale for filling system ${fillingSystemId}:`,
+      err
+    );
+    throw err instanceof Error ? err : new Error("Failed to fetch latest sale");
   }
 };

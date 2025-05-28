@@ -11,7 +11,7 @@ import { useAuth } from "@/features/auth";
 import { useEffect, useMemo } from "react";
 import { useToast } from "@/hooks";
 import { CardGrid, MetricCardProps } from "@/core/components/ui/composed/card";
-import { Skeleton } from '@/core/components/ui/skeleton';
+import { Skeleton } from "@/core/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { fetchDashboardData } from "../services/dashboard";
 import type { DashboardData } from "../types";
@@ -76,7 +76,8 @@ export function DashboardMetrics() {
         value: `${dashboardData.netProfit.toLocaleString()} ֏`,
         description: "+15% from last month",
         icon: dashboardData.netProfit >= 0 ? ArrowUp : ArrowDown,
-        iconColor: dashboardData.netProfit >= 0 ? "text-green-500" : "text-red-500",
+        iconColor:
+          dashboardData.netProfit >= 0 ? "text-green-500" : "text-red-500",
       },
       {
         title: t("dashboard.inventoryValue"),
@@ -92,11 +93,12 @@ export function DashboardMetrics() {
       <div className="p-4 border border-red-200 bg-red-50 rounded-md text-red-800">
         <h3 className="font-medium mb-1">Error loading dashboard data</h3>
         <p className="text-sm">
-          {error.message || "There was an error loading the dashboard metrics. Please try again later."}
+          {error.message ||
+            "There was an error loading the dashboard metrics. Please try again later."}
         </p>
       </div>
     );
   }
 
   return <CardGrid metrics={metrics} />;
-} 
+}

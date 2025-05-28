@@ -8,12 +8,12 @@ import {
   FormMessage,
 } from "@/core/components/ui/form";
 import { Button } from "@/core/components/ui/button";
-import { Calendar } from '@/core/components/ui/calendar';
+import { Calendar } from "@/core/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/core/components/ui/popover';
+} from "@/core/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -22,11 +22,11 @@ import {
   SelectValue,
 } from "@/core/components/ui/primitives/select";
 import { cn } from "@/shared/utils";
-import { Control } from "react-hook-form";
+import { Control, FieldValues } from "react-hook-form";
 import { PetrolProvider } from "@/types";
 
 interface DeliveryDateProviderProps {
-  control: Control<any>;
+  control: Control<FieldValues>;
   providers?: PetrolProvider[];
 }
 
@@ -51,7 +51,7 @@ export function DeliveryDateProvider({
                     variant="outline"
                     className={cn(
                       "w-full pl-3 text-left font-normal",
-                      !field.value && "text-muted-foreground",
+                      !field.value && "text-muted-foreground"
                     )}
                   >
                     {field.value ? (
@@ -66,9 +66,9 @@ export function DeliveryDateProvider({
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={new Date(field.value)}
-                  onSelect={(date) =>
-                    field.onChange(format(date || new Date(), "yyyy-MM-dd"))
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date: Date | undefined) =>
+                    field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                   }
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}

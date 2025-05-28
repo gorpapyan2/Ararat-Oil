@@ -11,13 +11,13 @@ interface ToastContainerProps {
   position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
 }
 
-export function ToastContainer({ 
-  className, 
-  position = "bottom-right" 
+export function ToastContainer({
+  className,
+  position = "bottom-right",
 }: ToastContainerProps) {
   // Use our consolidated hook to access toasts
   const { dismiss } = useToast();
-  
+
   // Use selector to access toasts from store
   const toasts = useAppStore(selectToasts);
 
@@ -51,7 +51,7 @@ export function ToastContainer({
       className={cn(
         "fixed z-50 p-4 space-y-4 max-h-screen overflow-hidden pointer-events-none",
         positionClasses[position],
-        className,
+        className
       )}
       role="region"
       aria-label="Notifications"
@@ -60,7 +60,11 @@ export function ToastContainer({
         {toasts.map((toast) => (
           <motion.div
             key={toast.id}
-            initial={{ opacity: 0, y: position.startsWith("top") ? -50 : 50, scale: 0.8 }}
+            initial={{
+              opacity: 0,
+              y: position.startsWith("top") ? -50 : 50,
+              scale: 0.8,
+            }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
             className={cn(
@@ -73,7 +77,7 @@ export function ToastContainer({
               toast.type === "warning" &&
                 "bg-amber-600/90 border-amber-500 text-white",
               toast.type === "info" &&
-                "bg-primary/90 border-primary/70 text-white",
+                "bg-primary/90 border-primary/70 text-white"
             )}
             role="alert"
             aria-atomic="true"
@@ -92,11 +96,7 @@ export function ToastContainer({
               <p className={cn("text-sm", toast.title && "mt-1")}>
                 {toast.message || toast.description}
               </p>
-              {toast.action && (
-                <div className="mt-2">
-                  {toast.action}
-                </div>
-              )}
+              {toast.action && <div className="mt-2">{toast.action}</div>}
             </div>
 
             <button

@@ -22,8 +22,8 @@ export const createSale = async (data: CreateSaleRequest): Promise<Sale> => {
     }
 
     return response.data!;
-  } catch (err: any) {
-    console.error("Failed to create sale:", err);
-    throw new Error(err.message || "Failed to create sale");
+  } catch (err: unknown) {
+    console.error("Error creating sale:", err);
+    throw err instanceof Error ? err : new Error("Failed to create sale");
   }
 };

@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { SuppliesFilters } from '../types';
+import { create } from "zustand";
+import { SuppliesFilters } from "../types";
 
 interface SuppliesFiltersState extends SuppliesFilters {
   setSearch: (search: string) => void;
@@ -15,15 +15,15 @@ interface SuppliesFiltersState extends SuppliesFilters {
   setMaxTotal: (total: number | undefined) => void;
   setPage: (page: number) => void;
   setPageSize: (size: number) => void;
-  setSort: (sortBy: string, direction: 'asc' | 'desc') => void;
+  setSort: (sortBy: string, direction: "asc" | "desc") => void;
   resetFilters: () => void;
 }
 
 const initialState: SuppliesFilters = {
   page: 1,
   pageSize: 25,
-  sortBy: 'delivery_date',
-  sortDirection: 'desc',
+  sortBy: "delivery_date",
+  sortDirection: "desc",
 };
 
 export const useSuppliesFilters = create<SuppliesFiltersState>((set) => ({
@@ -44,4 +44,4 @@ export const useSuppliesFilters = create<SuppliesFiltersState>((set) => ({
   setPageSize: (pageSize) => set({ pageSize }),
   setSort: (sortBy, sortDirection) => set({ sortBy, sortDirection }),
   resetFilters: () => set(initialState),
-})); 
+}));

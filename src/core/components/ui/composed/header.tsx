@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { LanguageSwitcher } from '@/core/components/ui/language-switcher';
+import { LanguageSwitcher } from "@/core/components/ui/language-switcher";
 import { useIsMobile } from "@/hooks/useResponsive";
 import { Bell, HelpCircle, Settings } from "lucide-react";
 import { cn } from "@/shared/utils";
@@ -19,7 +19,7 @@ export function Header({ className }: HeaderProps) {
       className={cn(
         "h-16 shrink-0 border-b bg-gray-50/95  bg-gray-50/60",
         "flex items-center justify-between px-4",
-        className,
+        className
       )}
     >
       <div className="flex-1">

@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
@@ -18,5 +18,5 @@ export {
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuRadioGroup 
+  ContextMenuRadioGroup,
 } from "@/core/components/ui/primitives/context-menu";

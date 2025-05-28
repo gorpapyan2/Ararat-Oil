@@ -3,8 +3,8 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   Avatar,
   AvatarImage,
-  AvatarFallback 
+  AvatarFallback,
 } from "@/core/components/ui/primitives/avatar";

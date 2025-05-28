@@ -2,8 +2,12 @@
 
 import * as React from "react";
 import { X } from "lucide-react";
-import { Badge } from '@/core/components/ui/badge';
-import { Command, CommandGroup, CommandItem } from '@/core/components/ui/command';
+import { Badge } from "@/core/components/ui/badge";
+import {
+  Command,
+  CommandGroup,
+  CommandItem,
+} from "@/core/components/ui/command";
 import { Command as CommandPrimitive } from "cmdk";
 import { cn } from "@/shared/utils";
 
@@ -156,4 +160,4 @@ export function MultiSelect({
       </Command>
     </div>
   );
-} 
+}

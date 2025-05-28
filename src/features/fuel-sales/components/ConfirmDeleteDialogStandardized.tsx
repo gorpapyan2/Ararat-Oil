@@ -25,7 +25,7 @@ export function ConfirmDeleteDialogStandardized({
         onClick={() => onOpenChange(false)}
         disabled={isLoading}
       >
-        {t('common.cancel')}
+        {t("common.cancel")}
       </Button>
       <Button
         type="button"
@@ -33,7 +33,7 @@ export function ConfirmDeleteDialogStandardized({
         onClick={onConfirm}
         disabled={isLoading}
       >
-        {isLoading ? t('common.deleting') : t('common.delete')}
+        {isLoading ? t("common.deleting") : t("common.delete")}
       </Button>
     </div>
   );
@@ -42,13 +42,13 @@ export function ConfirmDeleteDialogStandardized({
     <StandardDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={t('fuel.sales.delete.title')}
-      description={t('fuel.sales.delete.description')}
+      title={t("fuel.sales.delete.title")}
+      description={t("fuel.sales.delete.description")}
       actions={dialogActions}
     >
       <div className="text-sm text-muted-foreground">
-        {t('fuel.sales.delete.confirmation')}
+        {t("fuel.sales.delete.confirmation")}
       </div>
     </StandardDialog>
   );
-} 
+}

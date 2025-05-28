@@ -1,5 +1,9 @@
-export type PaymentMethod = 'cash' | 'card' | 'bank_transfer' | 'mobile_payment';
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type PaymentMethod =
+  | "cash"
+  | "card"
+  | "bank_transfer"
+  | "mobile_payment";
+export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
 
 export interface Transaction {
   id: string;
@@ -46,4 +50,25 @@ export interface FinanceData {
   transactions: Transaction[];
   expenses: Expense[];
   profitLoss: ProfitLoss[];
-} 
+}
+
+// Filter interfaces
+export interface ExpenseFilters {
+  category?: string;
+  payment_status?: PaymentStatus;
+  date_from?: string;
+  date_to?: string;
+  min_amount?: number;
+  max_amount?: number;
+  employee_id?: string;
+}
+
+export interface TransactionFilters {
+  payment_method?: PaymentMethod;
+  payment_status?: PaymentStatus;
+  date_from?: string;
+  date_to?: string;
+  min_amount?: number;
+  max_amount?: number;
+  employee_id?: string;
+}

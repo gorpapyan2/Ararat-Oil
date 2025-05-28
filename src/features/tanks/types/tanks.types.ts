@@ -11,6 +11,7 @@ export interface FuelTank {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  [key: string]: unknown;
 }
 
 export interface TankLevelChange {
@@ -19,7 +20,7 @@ export interface TankLevelChange {
   previous_level: number;
   new_level: number;
   change_amount: number;
-  change_type: 'add' | 'subtract';
+  change_type: "add" | "subtract";
   reason?: string;
   created_at: string;
   created_by: string;
@@ -43,7 +44,7 @@ export interface UpdateTankRequest {
 
 export interface TankLevelAdjustment {
   change_amount: number;
-  change_type: 'add' | 'subtract';
+  change_type: "add" | "subtract";
   reason?: string;
 }
 
@@ -61,4 +62,4 @@ export interface FuelType {
   name: string;
   code?: string;
   description?: string;
-} 
+}

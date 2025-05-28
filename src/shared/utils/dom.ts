@@ -16,25 +16,25 @@ export function cn(...inputs: ClassValue[]): string {
 /**
  * Generates a unique ID with optional prefix
  */
-export function generateId(prefix = 'id'): string {
+export function generateId(prefix = "id"): string {
   return `${prefix}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 /**
  * Debounces a function to limit how often it can be called
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  
-  return function(...args: Parameters<T>): void {
+
+  return function (...args: Parameters<T>): void {
     const later = (): void => {
       timeout = null;
       func(...args);
     };
-    
+
     if (timeout !== null) {
       clearTimeout(timeout);
     }
@@ -46,7 +46,7 @@ export function debounce<T extends (...args: any[]) => any>(
  * Pauses execution for the specified number of milliseconds
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -59,7 +59,7 @@ export function sleep(ms: number): Promise<void> {
 export function checkColorContrast(
   foreground: string,
   background: string,
-  isLargeText = false,
+  isLargeText = false
 ): { ratio: string; passesAA: boolean } {
   // Convert colors to RGB
   const getRGB = (color: string) => {
@@ -114,4 +114,4 @@ export function checkColorContrast(
     ratio: ratio.toFixed(2),
     passesAA,
   };
-} 
+}

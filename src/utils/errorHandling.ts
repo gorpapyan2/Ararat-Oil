@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 interface LogMessage {
   id: string;
@@ -38,7 +38,7 @@ class Logger {
   private maxLogs: number = 100;
   private consoleEnabled: boolean = true;
   private filterPatterns: RegExp[] = [];
-  
+
   constructor() {
     this.setupConsoleOverrides();
   }
@@ -79,28 +79,28 @@ class Logger {
    * Log a debug message
    */
   public debug(message: string, details?: unknown): string {
-    return this.log('debug', message, details);
+    return this.log("debug", message, details);
   }
 
   /**
    * Log an info message
    */
   public info(message: string, details?: unknown): string {
-    return this.log('info', message, details);
+    return this.log("info", message, details);
   }
 
   /**
    * Log a warning message
    */
   public warn(message: string, details?: unknown): string {
-    return this.log('warn', message, details);
+    return this.log("warn", message, details);
   }
 
   /**
    * Log an error message
    */
   public error(message: string, details?: unknown): string {
-    return this.log('error', message, details);
+    return this.log("error", message, details);
   }
 
   /**
@@ -121,7 +121,7 @@ class Logger {
    * Get logs of a specific level
    */
   public getLogsByLevel(level: LogLevel): LogMessage[] {
-    return this.logs.filter(log => log.level === level);
+    return this.logs.filter((log) => log.level === level);
   }
 
   /**
@@ -130,9 +130,9 @@ class Logger {
   private log(level: LogLevel, message: string, details?: unknown): string {
     const id = uuidv4();
     const timestamp = new Date().toISOString();
-    
+
     // Check if this error should be filtered
-    if (level === 'error' || level === 'warn') {
+    if (level === "error" || level === "warn") {
       const messageString = String(message);
       if (this.shouldFilterError(messageString)) {
         // Still track internally but don't console log
@@ -144,16 +144,16 @@ class Logger {
 
     // Log to console if enabled
     if (this.consoleEnabled) {
-      if (level === 'debug') console.debug(message, details ?? '');
-      if (level === 'info') console.info(message, details ?? '');
-      if (level === 'warn') console.warn(message, details ?? '');
-      if (level === 'error') console.error(message, details ?? '');
+      if (level === "debug") console.debug(message, details ?? "");
+      if (level === "info") console.info(message, details ?? "");
+      if (level === "warn") console.warn(message, details ?? "");
+      if (level === "error") console.error(message, details ?? "");
     }
 
     // Track internally
     const logEntry: LogMessage = { id, timestamp, level, message, details };
     this.addLogEntry(logEntry);
-    
+
     return id;
   }
 
@@ -162,7 +162,7 @@ class Logger {
    */
   private addLogEntry(entry: LogMessage): void {
     this.logs.push(entry);
-    
+
     // Remove oldest logs if exceeding max
     if (this.logs.length > this.maxLogs) {
       this.logs = this.logs.slice(-this.maxLogs);
@@ -173,7 +173,7 @@ class Logger {
    * Check if an error message should be filtered
    */
   private shouldFilterError(message: string): boolean {
-    return this.filterPatterns.some(pattern => pattern.test(message));
+    return this.filterPatterns.some((pattern) => pattern.test(message));
   }
 
   /**
@@ -184,56 +184,80 @@ class Logger {
     const originalConsoleWarn = console.warn;
 
     // Override console.error
-    console.error = (...args: any[]) => {
-      const message = args[0]?.toString() || 'Error';
+    console.error = (...args: unknown[]) => {
+      const message = args[0]?.toString() || "Error";
       const details = args.length > 1 ? args.slice(1) : undefined;
-      
+
       // Check if this error should be filtered
       if (this.shouldFilterError(message)) {
         // Still track internally but don't console log
         const id = uuidv4();
         const timestamp = new Date().toISOString();
-        const logEntry: LogMessage = { id, timestamp, level: 'error', message, details };
+        const logEntry: LogMessage = {
+          id,
+          timestamp,
+          level: "error",
+          message,
+          details,
+        };
         this.addLogEntry(logEntry);
         return;
       }
-      
+
       // Call original console.error
       if (this.consoleEnabled) {
         originalConsoleError.apply(console, args);
       }
-      
+
       // Track internally - without calling console.error again
       const id = uuidv4();
       const timestamp = new Date().toISOString();
-      const logEntry: LogMessage = { id, timestamp, level: 'error', message, details };
+      const logEntry: LogMessage = {
+        id,
+        timestamp,
+        level: "error",
+        message,
+        details,
+      };
       this.addLogEntry(logEntry);
     };
 
     // Override console.warn
-    console.warn = (...args: any[]) => {
-      const message = args[0]?.toString() || 'Warning';
+    console.warn = (...args: unknown[]) => {
+      const message = args[0]?.toString() || "Warning";
       const details = args.length > 1 ? args.slice(1) : undefined;
-      
+
       // Check if this warning should be filtered
       if (this.shouldFilterError(message)) {
         // Still track internally but don't console log
         const id = uuidv4();
         const timestamp = new Date().toISOString();
-        const logEntry: LogMessage = { id, timestamp, level: 'warn', message, details };
+        const logEntry: LogMessage = {
+          id,
+          timestamp,
+          level: "warn",
+          message,
+          details,
+        };
         this.addLogEntry(logEntry);
         return;
       }
-      
+
       // Call original console.warn
       if (this.consoleEnabled) {
         originalConsoleWarn.apply(console, args);
       }
-      
+
       // Track internally - without calling console.warn again
       const id = uuidv4();
       const timestamp = new Date().toISOString();
-      const logEntry: LogMessage = { id, timestamp, level: 'warn', message, details };
+      const logEntry: LogMessage = {
+        id,
+        timestamp,
+        level: "warn",
+        message,
+        details,
+      };
       this.addLogEntry(logEntry);
     };
   }
@@ -243,7 +267,7 @@ class Logger {
 export const logger = new Logger();
 
 // By default, filter common React warnings in production
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   logger.filterReactWarnings(true);
 }
 
@@ -265,23 +289,23 @@ export function createAppError(
   options?: {
     cause?: Error | unknown;
     code?: string;
-    context?: Record<string, any>;
+    context?: Record<string, unknown>;
   }
 ): Error {
   const error = new Error(message);
-  
+
   if (options?.cause) {
-    (error as any).cause = options.cause;
+    (error as Error & { cause?: unknown }).cause = options.cause;
   }
-  
+
   if (options?.code) {
-    (error as any).code = options.code;
+    (error as Error & { code?: string }).code = options.code;
   }
-  
+
   if (options?.context) {
-    (error as any).context = options.context;
+    (error as Error & { context?: Record<string, unknown> }).context = options.context;
   }
-  
+
   return error;
 }
 
@@ -295,13 +319,14 @@ export async function withErrorHandling<T>(
   try {
     return await fn();
   } catch (error) {
-    const formattedError = error instanceof Error ? error : new Error(String(error));
-    logger.error('Caught error in withErrorHandling', formattedError);
-    
+    const formattedError =
+      error instanceof Error ? error : new Error(String(error));
+    logger.error("Caught error in withErrorHandling", formattedError);
+
     if (errorHandler) {
       errorHandler(formattedError);
     }
-    
+
     return undefined;
   }
 }
@@ -312,10 +337,10 @@ export async function withErrorHandling<T>(
  */
 export function useClearConsoleOnNavigation() {
   const location = useLocation();
-  
+
   useEffect(() => {
     return () => {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         // Only clear in development to avoid affecting production debugging
         console.clear();
       }
@@ -328,26 +353,28 @@ export function useClearConsoleOnNavigation() {
  * This helps identify problematic import cycles that can cause issues
  */
 export function detectCircularDependencies() {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     const loadedModules = new Set<string>();
     const moduleStack: string[] = [];
-    
+
     // This is a simplistic check and would need to be expanded
     // to be more effective in a real implementation
     return function trackModule(moduleName: string) {
       if (moduleStack.includes(moduleName)) {
-        console.warn(`[CIRCULAR DEPENDENCY] Detected cycle: ${moduleStack.join(' -> ')} -> ${moduleName}`);
+        console.warn(
+          `[CIRCULAR DEPENDENCY] Detected cycle: ${moduleStack.join(" -> ")} -> ${moduleName}`
+        );
       }
-      
+
       moduleStack.push(moduleName);
       loadedModules.add(moduleName);
-      
+
       return () => {
         moduleStack.pop();
       };
     };
   }
-  
+
   return () => () => {};
 }
 
@@ -357,7 +384,7 @@ export function detectCircularDependencies() {
  */
 export function createSafeEffectCleanup(cleanup: () => void) {
   let isMounted = true;
-  
+
   return () => {
     if (isMounted) {
       cleanup();
@@ -371,16 +398,18 @@ export function createSafeEffectCleanup(cleanup: () => void) {
  * @param componentName The name of the component to monitor
  */
 export function monitorRenders(componentName: string) {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     const renderCount = { count: 0 };
-    
+
     return () => {
       renderCount.count++;
       if (renderCount.count > 5) {
-        console.warn(`[PERFORMANCE] Component "${componentName}" has rendered ${renderCount.count} times`);
+        console.warn(
+          `[PERFORMANCE] Component "${componentName}" has rendered ${renderCount.count} times`
+        );
       }
     };
   }
-  
+
   return () => {};
-} 
+}

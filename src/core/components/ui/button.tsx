@@ -12,4 +12,4 @@ export {
   type ButtonPrimitiveProps,
   type AnchorButtonPrimitiveProps,
   type LoadingSpinnerPrimitiveProps,
-} from "@/core/components/ui/primitives/button"; 
+} from "@/core/components/ui/primitives/button";

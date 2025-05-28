@@ -2,7 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/shared/utils";
 import { ChevronRight, Home } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/core/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface BreadcrumbProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -16,21 +21,24 @@ interface BreadcrumbProps extends React.HTMLAttributes<HTMLDivElement> {
   maxItems?: number;
 }
 
-export function Breadcrumb({ 
-  segments, 
-  className, 
+export function Breadcrumb({
+  segments,
+  className,
   separator,
   maxItems = 3,
-  ...props 
+  ...props
 }: BreadcrumbProps) {
   // Show only the first and last few segments on small screens to prevent overflow
-  const visibleSegments = segments.length > maxItems
-    ? [...segments.slice(0, 1), ...segments.slice(-Math.max(1, maxItems - 1))] 
-    : segments;
-  
+  const visibleSegments =
+    segments.length > maxItems
+      ? [...segments.slice(0, 1), ...segments.slice(-Math.max(1, maxItems - 1))]
+      : segments;
+
   const hasHiddenSegments = segments.length > maxItems;
-  const hiddenSegments = hasHiddenSegments ? segments.slice(1, -Math.max(1, maxItems - 1)) : [];
-  
+  const hiddenSegments = hasHiddenSegments
+    ? segments.slice(1, -Math.max(1, maxItems - 1))
+    : [];
+
   // Animation variants
   const containerVariants = {
     initial: {
@@ -40,37 +48,37 @@ export function Breadcrumb({
       opacity: 1,
       transition: {
         staggerChildren: 0.05,
-        when: "beforeChildren"
-      }
+        when: "beforeChildren",
+      },
     },
     exit: {
       opacity: 0,
       transition: {
         staggerChildren: 0.05,
-        staggerDirection: -1
-      }
-    }
+        staggerDirection: -1,
+      },
+    },
   };
 
   const itemVariants = {
     initial: {
       opacity: 0,
-      x: -5
+      x: -5,
     },
     animate: {
       opacity: 1,
       x: 0,
       transition: {
-        duration: 0.2
-      }
+        duration: 0.2,
+      },
     },
     exit: {
       opacity: 0,
       x: 5,
       transition: {
-        duration: 0.1
-      }
-    }
+        duration: 0.1,
+      },
+    },
   };
 
   // Safely render an icon or use a default Home icon
@@ -85,14 +93,10 @@ export function Breadcrumb({
       {separator || <ChevronRight className="h-4 w-4" aria-hidden="true" />}
     </span>
   );
-  
+
   return (
-    <nav 
-      className={cn("flex", className)} 
-      aria-label="Breadcrumb" 
-      {...props}
-    >
-      <motion.ol 
+    <nav className={cn("flex", className)} aria-label="Breadcrumb" {...props}>
+      <motion.ol
         className="inline-flex items-center flex-nowrap overflow-x-auto max-w-full scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent hover:scrollbar-thumb-muted/20"
         variants={containerVariants}
         initial="initial"
@@ -101,8 +105,8 @@ export function Breadcrumb({
       >
         {/* Always render the first segment (usually Home) */}
         {segments.length > 0 && (
-          <motion.li 
-            key={segments[0].href} 
+          <motion.li
+            key={segments[0].href}
             className="inline-flex items-center shrink-0"
             variants={itemVariants}
           >
@@ -115,14 +119,16 @@ export function Breadcrumb({
               aria-label={segments[0].name}
             >
               {renderIcon(segments[0].icon)}
-              <span className="sr-only md:not-sr-only md:ml-1.5">{segments[0].name}</span>
+              <span className="sr-only md:not-sr-only md:ml-1.5">
+                {segments[0].name}
+              </span>
             </Link>
           </motion.li>
         )}
 
         {/* Show ellipsis for hidden segments with tooltip */}
         {hasHiddenSegments && (
-          <motion.li 
+          <motion.li
             className="inline-flex items-center shrink-0"
             variants={itemVariants}
           >
@@ -134,13 +140,19 @@ export function Breadcrumb({
                     •••
                   </span>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" align="start" className="max-w-xs p-2">
+                <TooltipContent
+                  side="bottom"
+                  align="start"
+                  className="max-w-xs p-2"
+                >
                   <div className="flex flex-col space-y-1 text-xs">
-                    <p className="text-muted-foreground font-medium pb-1 border-b">Hidden paths</p>
+                    <p className="text-muted-foreground font-medium pb-1 border-b">
+                      Hidden paths
+                    </p>
                     {hiddenSegments.map((segment) => (
-                      <Link 
+                      <Link
                         key={segment.href}
-                        to={segment.href} 
+                        to={segment.href}
                         className="hover:text-foreground text-muted-foreground py-1 px-2 rounded hover:bg-muted/50 transition-colors"
                       >
                         {segment.name}
@@ -156,8 +168,8 @@ export function Breadcrumb({
         {/* Show the visible segments after the first one */}
         <AnimatePresence mode="wait">
           {visibleSegments.slice(hasHiddenSegments ? 0 : 1).map((segment) => (
-            <motion.li 
-              key={segment.href} 
+            <motion.li
+              key={segment.href}
               className="inline-flex items-center shrink-0"
               variants={itemVariants}
               layout

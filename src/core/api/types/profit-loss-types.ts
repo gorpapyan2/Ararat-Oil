@@ -10,4 +10,4 @@ export interface ApiProfitLoss {
   created_at: string;
   updated_at: string;
   notes?: string;
-} 
+}

@@ -34,16 +34,19 @@ Migrating to standardized dialogs offers several advantages:
 The migration process can be implemented at different levels:
 
 1. **Basic Standardization**: Replace the dialog component with StandardDialog
+
    - Minimal changes to the existing component
    - Quick implementation
    - Limited code reduction
 
 2. **Enhanced Standardization**: Use StandardDialog with react-hook-form
+
    - Improved form validation
    - Better UX through improved error handling
    - Moderate code reduction
 
 3. **Advanced Standardization**: Implement a custom dialog hook
+
    - Full state management abstraction
    - Simplified parent components
    - Maximal code reduction and reusability
@@ -60,6 +63,7 @@ The migration process can be implemented at different levels:
 ### 1. Basic Standardization
 
 1. Import the StandardDialog component:
+
    ```tsx
    import { StandardDialog } from "@/components/ui/dialog";
    ```
@@ -67,6 +71,7 @@ The migration process can be implemented at different levels:
 2. Replace your existing Dialog components:
 
    Before:
+
    ```tsx
    <Dialog open={open} onOpenChange={onOpenChange}>
      <DialogContent className="sm:max-w-[425px]">
@@ -85,6 +90,7 @@ The migration process can be implemented at different levels:
    ```
 
    After:
+
    ```tsx
    <StandardDialog
      open={open}
@@ -93,7 +99,9 @@ The migration process can be implemented at different levels:
      description="Make changes to your item."
      maxWidth="sm:max-w-[425px]"
      actions={
-       <Button type="submit" form="edit-form">Save changes</Button>
+       <Button type="submit" form="edit-form">
+         Save changes
+       </Button>
      }
    >
      <form id="edit-form" onSubmit={handleSubmit}>
@@ -105,6 +113,7 @@ The migration process can be implemented at different levels:
 ### 2. Enhanced Standardization
 
 1. Add Zod schema for validation:
+
    ```tsx
    import { z } from "zod";
    import { useForm } from "react-hook-form";
@@ -123,12 +132,12 @@ The migration process can be implemented at different levels:
        resolver: zodResolver(formSchema),
        defaultValues: item || { name: "", price: 0 },
      });
-     
+
      const handleSubmit = form.handleSubmit((data) => {
        onSubmit(data);
        onOpenChange(false);
      });
-     
+
      const formActions = (
        <>
          <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -139,7 +148,7 @@ The migration process can be implemented at different levels:
          </Button>
        </>
      );
-     
+
      return (
        <StandardDialog
          open={open}
@@ -165,7 +174,7 @@ The migration process can be implemented at different levels:
    import { useState, useCallback } from "react";
    import { z } from "zod";
    import { Item } from "@/types";
-   
+
    export function useItemDialog({
      onCreateSuccess,
      onUpdateSuccess,
@@ -176,24 +185,24 @@ The migration process can be implemented at different levels:
      const [isOpen, setIsOpen] = useState(false);
      const [selectedItem, setSelectedItem] = useState<Item | null>(null);
      const [isSubmitting, setIsSubmitting] = useState(false);
-     
+
      const openCreate = useCallback(() => {
        setSelectedItem(null);
        setIsOpen(true);
      }, []);
-     
+
      const openEdit = useCallback((item: Item) => {
        setSelectedItem(item);
        setIsOpen(true);
      }, []);
-     
+
      const onOpenChange = useCallback((open: boolean) => {
        setIsOpen(open);
        if (!open) {
          setSelectedItem(null);
        }
      }, []);
-     
+
      const handleSubmit = useCallback(
        async (data: z.infer<typeof formSchema>) => {
          setIsSubmitting(true);
@@ -214,7 +223,7 @@ The migration process can be implemented at different levels:
        },
        [selectedItem, onCreateSuccess, onUpdateSuccess]
      );
-     
+
      return {
        isOpen,
        selectedItem,
@@ -233,19 +242,11 @@ The migration process can be implemented at different levels:
    // ItemDialogHooked.tsx
    import { useItemDialog } from "@/hooks/useItemDialog";
    import { StandardDialog } from "@/components/ui/dialog";
-   
-   export function ItemDialogHooked({
-     onCreateSuccess,
-     onUpdateSuccess,
-   }) {
-     const {
-       isOpen,
-       selectedItem,
-       isSubmitting,
-       onOpenChange,
-       handleSubmit,
-     } = useItemDialog({ onCreateSuccess, onUpdateSuccess });
-     
+
+   export function ItemDialogHooked({ onCreateSuccess, onUpdateSuccess }) {
+     const { isOpen, selectedItem, isSubmitting, onOpenChange, handleSubmit } =
+       useItemDialog({ onCreateSuccess, onUpdateSuccess });
+
      const formActions = (
        <>
          <Button
@@ -255,16 +256,12 @@ The migration process can be implemented at different levels:
          >
            Cancel
          </Button>
-         <Button
-           type="submit"
-           form="item-form"
-           disabled={isSubmitting}
-         >
+         <Button type="submit" form="item-form" disabled={isSubmitting}>
            {isSubmitting ? "Saving..." : "Save changes"}
          </Button>
        </>
      );
-     
+
      return (
        <StandardDialog
          open={isOpen}
@@ -337,6 +334,7 @@ The first level replaces the original dialog structure with the `StandardDialog`
 ```
 
 Key improvements:
+
 - Simplified component structure
 - Added standard description
 - Unified action buttons location
@@ -353,8 +351,8 @@ const employeeSchema = z.object({
   salary: z.coerce.number().min(0, "Salary must be a positive number"),
   status: z.enum(["active", "inactive", "on_leave"]),
   contact: z.string().email("Invalid email address").or(z.string().length(0)),
-  hire_date: z.string().refine(date => !isNaN(Date.parse(date)), {
-    message: "Please enter a valid date"
+  hire_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Please enter a valid date",
   }),
 });
 
@@ -373,6 +371,7 @@ const form = useForm<z.infer<typeof employeeSchema>>({
 ```
 
 Key improvements:
+
 - Type-safe form handling
 - Client-side validation with clear error messages
 - Form state management
@@ -391,21 +390,23 @@ export function useEmployeeDialog({
   onUpdateSuccess?: (employee: Employee) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const openCreate = useCallback(() => {
     setSelectedEmployee(null);
     setIsOpen(true);
   }, []);
-  
+
   const openEdit = useCallback((employee: Employee) => {
     setSelectedEmployee(employee);
     setIsOpen(true);
   }, []);
-  
+
   // Additional state management and submission handling...
-  
+
   return {
     isOpen,
     selectedEmployee,
@@ -418,15 +419,12 @@ export function useEmployeeDialog({
 }
 
 // In EmployeeDialogHooked.tsx
-export function EmployeeDialogHooked({
-  onCreateSuccess,
-  onUpdateSuccess,
-}) {
+export function EmployeeDialogHooked({ onCreateSuccess, onUpdateSuccess }) {
   const employeeDialog = useEmployeeDialog({
     onCreateSuccess,
     onUpdateSuccess,
   });
-  
+
   // Dialog and form implementation...
 }
 
@@ -434,10 +432,8 @@ export function EmployeeDialogHooked({
 function EmployeeManager() {
   return (
     <div>
-      <Button onClick={employeeDialog.openCreate}>
-        Create Employee
-      </Button>
-      <EmployeeDialogHooked 
+      <Button onClick={employeeDialog.openCreate}>Create Employee</Button>
+      <EmployeeDialogHooked
         onCreateSuccess={handleEmployeeCreated}
         onUpdateSuccess={handleEmployeeUpdated}
       />
@@ -447,6 +443,7 @@ function EmployeeManager() {
 ```
 
 Key improvements:
+
 - Complete separation of concerns
 - Reusable dialog state management
 - Simplified parent components
@@ -495,9 +492,9 @@ const {
   openCreate,
   openEdit,
   handleSubmit,
-} = useCategoryDialog({ 
+} = useCategoryDialog({
   onCreateSuccess: refetchCategories,
-  onUpdateSuccess: refetchCategories, 
+  onUpdateSuccess: refetchCategories,
 });
 
 // Dialog usage
@@ -511,7 +508,7 @@ const {
   <form id="category-form" onSubmit={form.handleSubmit(handleSubmit)}>
     {/* Form fields */}
   </form>
-</StandardDialog>
+</StandardDialog>;
 ```
 
 ### Example 3: EmployeeDialog
@@ -602,11 +599,13 @@ The `LoginDialogStandardized` component and `LoginController` demonstrate authen
 ### Common Issues
 
 1. **Form Submission Problems**
+
    - Ensure the form has a unique ID
    - Connect the submit button to the form using the `form` attribute
    - Verify that the form submit handler is correctly defined
 
 2. **Dialog Not Closing After Submission**
+
    - Check that `onOpenChange(false)` is called after successful submission
    - In hooks, verify the state update logic in the submit handler
 
@@ -620,7 +619,7 @@ If you encounter issues during migration, please:
 
 1. Check this guide for common solutions
 2. Review the examples in the `src/examples` directory
-3. Consult the Standard Dialog API Reference document 
+3. Consult the Standard Dialog API Reference document
 
 ## Advanced Use Cases
 
@@ -653,43 +652,38 @@ export function SalesController({
   onDeleteSuccess,
   className,
 }: SalesControllerProps) {
-  const {
-    openCreateDialog,
-    openEditDialog,
-    openDeleteDialog,
-  } = useSalesDialog({
-    onCreateSuccess,
-    onUpdateSuccess,
-    onDeleteSuccess,
-  });
-  
+  const { openCreateDialog, openEditDialog, openDeleteDialog } = useSalesDialog(
+    {
+      onCreateSuccess,
+      onUpdateSuccess,
+      onDeleteSuccess,
+    }
+  );
+
   return (
     <>
       {/* Create Button */}
       {showCreateButton && (
-        <Button 
-          onClick={openCreateDialog}
-          className={className}
-        >
+        <Button onClick={openCreateDialog} className={className}>
           <Plus className="h-4 w-4 mr-2" />
           New Entity
         </Button>
       )}
-      
+
       {/* Action Buttons for each entity */}
-      {sales.map(sale => (
+      {sales.map((sale) => (
         <div key={sale.id} className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => openEditDialog(sale)}
           >
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
-          <Button 
-            variant="destructive" 
-            size="sm" 
+          <Button
+            variant="destructive"
+            size="sm"
             onClick={() => openDeleteDialog(sale)}
           >
             <Trash2 className="h-4 w-4 mr-2" />
@@ -697,7 +691,7 @@ export function SalesController({
           </Button>
         </div>
       ))}
-      
+
       {/* The dialogs */}
       <SalesDialogsHooked
         onCreateSuccess={onCreateSuccess}
@@ -716,27 +710,27 @@ function EntityManager() {
   const handleEntityCreated = () => {
     queryClient.invalidateQueries({ queryKey: ["entities"] });
   };
-  
+
   const handleEntityUpdated = () => {
     queryClient.invalidateQueries({ queryKey: ["entities"] });
   };
-  
+
   const handleEntityDeleted = () => {
     queryClient.invalidateQueries({ queryKey: ["entities"] });
   };
-  
+
   return (
     <div>
       <h1>Entity Management</h1>
-      
+
       {/* Create button */}
-      <SalesController 
+      <SalesController
         showCreateButton={true}
         onCreateSuccess={handleEntityCreated}
         onUpdateSuccess={handleEntityUpdated}
         onDeleteSuccess={handleEntityDeleted}
       />
-      
+
       {/* Data table with row actions */}
       <EntityDataTable
         columns={columns}
@@ -790,7 +784,13 @@ interface TankControllerProps {
   onSuccess?: () => void;
   className?: string;
   buttonText?: string;
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
+  variant?:
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | "destructive";
   size?: "default" | "sm" | "lg" | "icon";
   showIcon?: boolean;
 }
@@ -803,11 +803,11 @@ export function TankController({
   size = "default",
   showIcon = true,
 }: TankControllerProps) {
-  const { 
+  const {
     openDialog,
     // Other properties from the hook
   } = useTankDialog({
-    onSuccess
+    onSuccess,
   });
 
   return (
@@ -829,12 +829,14 @@ export function TankController({
 ```
 
 In this pattern, we:
+
 1. Create a controller that manages both a form dialog and a confirmation dialog
 2. Use a specialized hook (`useTankDialog`) that handles the multi-step flow
 3. Keep all logic contained within the hook to maintain clean components
 4. Allow for customizing the trigger button with various props
 
 This approach is particularly useful for:
+
 1. Critical operations that require confirmation
 2. Multi-step forms that have a final review step
 3. Operations with complex validation logic that spans across steps
@@ -846,18 +848,18 @@ function TanksPage() {
   const refetchTanks = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
   }, [queryClient]);
-  
+
   return (
     <div>
       <h1>Fuel Tanks</h1>
-      
-      <TankController 
+
+      <TankController
         onSuccess={refetchTanks}
         buttonText="Add New Fuel Tank"
         variant="default"
         size="default"
       />
-      
+
       {/* Rest of the page */}
     </div>
   );
@@ -881,6 +883,7 @@ function TanksPage() {
 4. **Table Integration**: Use controllers with the `renderRowActions` pattern
 
 See the full examples:
+
 - `src/components/sales/SalesController.tsx`
 - `src/components/tanks/TankController.tsx`
 - `src/components/employees/EmployeeController.tsx`
@@ -898,53 +901,71 @@ function BasicMultiStepDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
-  
+
   // Get step title and description
   const getStepInfo = (step) => {
     switch (step) {
-      case 1: return { title: "Step 1", description: "First step description" };
-      case 2: return { title: "Step 2", description: "Second step description" };
-      case 3: return { title: "Step 3", description: "Final step description" };
-      default: return { title: "", description: "" };
+      case 1:
+        return { title: "Step 1", description: "First step description" };
+      case 2:
+        return { title: "Step 2", description: "Second step description" };
+      case 3:
+        return { title: "Step 3", description: "Final step description" };
+      default:
+        return { title: "", description: "" };
     }
   };
-  
+
   // Render step content based on current step
   const renderStepContent = (step) => {
     switch (step) {
-      case 1: return <StepOneContent onSubmit={handleStepOneSubmit} />;
-      case 2: return <StepTwoContent onSubmit={handleStepTwoSubmit} />;
-      case 3: return <StepThreeContent onSubmit={handleStepThreeSubmit} />;
-      default: return null;
+      case 1:
+        return <StepOneContent onSubmit={handleStepOneSubmit} />;
+      case 2:
+        return <StepTwoContent onSubmit={handleStepTwoSubmit} />;
+      case 3:
+        return <StepThreeContent onSubmit={handleStepThreeSubmit} />;
+      default:
+        return null;
     }
   };
-  
+
   // Actions for each step (back/next buttons)
   const getStepActions = (step) => {
     switch (step) {
       case 1:
         return (
-          <Button type="submit" form="step1-form">Next</Button>
+          <Button type="submit" form="step1-form">
+            Next
+          </Button>
         );
       case 2:
         return (
           <>
-            <Button variant="outline" onClick={() => setCurrentStep(1)}>Back</Button>
-            <Button type="submit" form="step2-form">Next</Button>
+            <Button variant="outline" onClick={() => setCurrentStep(1)}>
+              Back
+            </Button>
+            <Button type="submit" form="step2-form">
+              Next
+            </Button>
           </>
         );
       case 3:
         return (
           <>
-            <Button variant="outline" onClick={() => setCurrentStep(2)}>Back</Button>
-            <Button type="submit" form="step3-form">Submit</Button>
+            <Button variant="outline" onClick={() => setCurrentStep(2)}>
+              Back
+            </Button>
+            <Button type="submit" form="step3-form">
+              Submit
+            </Button>
           </>
         );
       default:
         return null;
     }
   };
-  
+
   // Handle dialog close
   const handleOpenChange = (open) => {
     if (!open) {
@@ -954,7 +975,7 @@ function BasicMultiStepDialog() {
     }
     setIsOpen(open);
   };
-  
+
   return (
     <StandardDialog
       open={isOpen}
@@ -970,13 +991,13 @@ function BasicMultiStepDialog() {
           <div>{currentStep * 33}%</div>
         </div>
         <div className="h-2 w-full bg-gray-200 rounded-full">
-          <div 
-            className="h-2 bg-primary rounded-full" 
+          <div
+            className="h-2 bg-primary rounded-full"
             style={{ width: `${currentStep * 33}%` }}
           />
         </div>
       </div>
-      
+
       {/* Step content */}
       {renderStepContent(currentStep)}
     </StandardDialog>
@@ -995,37 +1016,40 @@ function useMultiStepDialog(totalSteps = 3) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const nextStep = useCallback(() => {
     if (currentStep < totalSteps) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
     }
   }, [currentStep, totalSteps]);
-  
+
   const prevStep = useCallback(() => {
     if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep((prev) => prev - 1);
     }
   }, [currentStep]);
-  
+
   const updateFormData = useCallback((data) => {
-    setFormData(prev => ({ ...prev, ...data }));
+    setFormData((prev) => ({ ...prev, ...data }));
   }, []);
-  
+
   const reset = useCallback(() => {
     setCurrentStep(1);
     setFormData({});
     setIsSubmitting(false);
   }, []);
-  
-  const handleOpenChange = useCallback((open) => {
-    if (!open) {
-      // Reset when dialog closes
-      reset();
-    }
-    dialog.onOpenChange(open);
-  }, [dialog, reset]);
-  
+
+  const handleOpenChange = useCallback(
+    (open) => {
+      if (!open) {
+        // Reset when dialog closes
+        reset();
+      }
+      dialog.onOpenChange(open);
+    },
+    [dialog, reset]
+  );
+
   return {
     isOpen: dialog.isOpen,
     currentStep,
@@ -1051,13 +1075,13 @@ Using the hook in a component:
 ```tsx
 function MultiStepDialogWithHook() {
   const dialog = useMultiStepDialog(3);
-  
+
   // The rest of your implementation...
-  
+
   return (
     <>
       <Button onClick={dialog.open}>Open Dialog</Button>
-      
+
       <StandardDialog
         open={dialog.isOpen}
         onOpenChange={dialog.onOpenChange}
@@ -1068,17 +1092,19 @@ function MultiStepDialogWithHook() {
         {/* Progress indicator */}
         <div className="mb-4">
           <div className="flex justify-between">
-            <div>Step {dialog.currentStep} of {dialog.totalSteps}</div>
+            <div>
+              Step {dialog.currentStep} of {dialog.totalSteps}
+            </div>
             <div>{dialog.progress}%</div>
           </div>
           <div className="h-2 w-full bg-gray-200 rounded-full">
-            <div 
-              className="h-2 bg-primary rounded-full" 
+            <div
+              className="h-2 bg-primary rounded-full"
               style={{ width: `${dialog.progress}%` }}
             />
           </div>
         </div>
-        
+
         {/* Step content */}
         {renderStepContent(dialog.currentStep)}
       </StandardDialog>
@@ -1091,7 +1117,7 @@ function MultiStepDialogWithHook() {
 
 1. **Form Data Persistence**: Preserve form data between steps
 2. **Validation per Step**: Validate each step before allowing the user to proceed
-3. **Progress Indicator**: Show clear visual indication of progress 
+3. **Progress Indicator**: Show clear visual indication of progress
 4. **Back Navigation**: Allow users to go back to previous steps without losing data
 5. **Reset on Close**: Reset the entire form when the dialog is closed without completion
 6. **Loading States**: Show loading indicators during final submission
@@ -1109,26 +1135,23 @@ For dialogs that need to open other dialogs, ensure proper focus management:
 function NestedDialogExample() {
   const parentDialog = useDialog();
   const childDialog = useDialog();
-  
+
   return (
     <>
       <Button onClick={parentDialog.open} ref={parentDialog.triggerRef}>
         Open Parent Dialog
       </Button>
-      
+
       <StandardDialog
         open={parentDialog.isOpen}
         onOpenChange={parentDialog.onOpenChange}
         title="Parent Dialog"
         description="This dialog can open a child dialog"
       >
-        <Button 
-          onClick={childDialog.open} 
-          ref={childDialog.triggerRef}
-        >
+        <Button onClick={childDialog.open} ref={childDialog.triggerRef}>
           Open Child Dialog
         </Button>
-        
+
         <StandardDialog
           open={childDialog.isOpen}
           onOpenChange={childDialog.onOpenChange}
@@ -1144,6 +1167,7 @@ function NestedDialogExample() {
 ```
 
 Key considerations for nested dialogs:
+
 1. Use the `triggerRef` to maintain proper focus management
 2. Ensure child dialogs are rendered within the parent dialog
-3. Close child dialogs when parent dialogs close 
+3. Close child dialogs when parent dialogs close

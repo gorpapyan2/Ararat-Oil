@@ -1,17 +1,17 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
-import { 
-  Smartphone, 
-  MessageSquare, 
+import {
+  Smartphone,
+  MessageSquare,
   PlusCircle,
   Settings,
   Grid,
@@ -20,7 +20,7 @@ import {
   Layout,
   Bell,
   Square,
-  MousePointerClick
+  MousePointerClick,
 } from "lucide-react";
 
 interface DevToolItem {
@@ -66,7 +66,7 @@ export function DevToolsMenu() {
           Testing and documentation tools for the codebase cleanup project
         </p>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {devTools.map((tool) => (
           <Card key={tool.path} className="hover:shadow-md transition-shadow">
@@ -86,16 +86,17 @@ export function DevToolsMenu() {
             </CardFooter>
           </Card>
         ))}
-        
+
         <Card className="border-dashed border-2 hover:border-primary/50 transition-colors">
           <CardContent className="flex flex-col items-center justify-center h-[200px]">
             <Sparkles className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-center text-muted-foreground">
-              More development tools will be added as the cleanup project progresses
+              More development tools will be added as the cleanup project
+              progresses
             </p>
           </CardContent>
         </Card>
       </div>
     </div>
   );
-} 
+}

@@ -1,81 +1,99 @@
-import { useState } from 'react';
-import { z } from 'zod';
-import { useAuth } from '../hooks/useAuth';
-import { formatAuthError } from '../utils/auth.utils';
-import type { RegisterCredentials } from '../types/auth.types';
-import { useTranslation } from 'react-i18next';
-import { StandardForm } from '@/core/components/ui/composed/base-form';
+import { useState } from "react";
+import { z } from "zod";
+import { useAuth } from "../hooks/useAuth";
+import { formatAuthError } from "../utils/auth.utils";
+import type { RegisterCredentials } from "../types/auth.types";
+import { useTranslation } from "react-i18next";
+import { StandardForm } from "@/core/components/ui/composed/base-form";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/core/components/ui/primitives/form';
-import { Input } from '@/core/components/ui/primitives/input';
-import { Alert, AlertDescription } from '@/core/components/ui/primitives/alert';
-import { Control, FieldValues } from 'react-hook-form';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-
-// Define the register schema using zod
-const createRegisterSchema = () => {
-  const { t } = useTranslation();
-  
-  return z.object({
-    email: z.string({
-      required_error: t('auth.emailRequired', 'Email is required')
-    }).email(t('auth.invalidEmail', 'Invalid email address')),
-    firstName: z.string({
-      required_error: t('auth.firstNameRequired', 'First name is required')
-    }).min(2, t('auth.firstNameMinLength', 'First name must be at least 2 characters')),
-    lastName: z.string({
-      required_error: t('auth.lastNameRequired', 'Last name is required')
-    }).min(2, t('auth.lastNameMinLength', 'Last name must be at least 2 characters')),
-    password: z.string({
-      required_error: t('auth.passwordRequired', 'Password is required')
-    }).min(6, t('auth.passwordMinLength', 'Password must be at least 6 characters')),
-    confirmPassword: z.string({
-      required_error: t('auth.confirmPasswordRequired', 'Please confirm your password')
-    }),
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: t("auth.passwordsDontMatch", "Passwords don't match"),
-    path: ["confirmPassword"],
-  });
-};
-
-// Type for the form values based on the schema
-type RegisterFormData = z.infer<ReturnType<typeof createRegisterSchema>>;
+} from "@/core/components/ui/primitives/form";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Alert, AlertDescription } from "@/core/components/ui/primitives/alert";
+import { Control, FieldValues } from "react-hook-form";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 export function RegisterForm() {
   const { t } = useTranslation();
   const { register: registerUser, isLoading } = useAuth();
   const [authError, setAuthError] = useState<string | null>(null);
-  
-  // Create schema
-  const registerSchema = createRegisterSchema();
-  
+
+  // Create schema inside the component where hooks can be called
+  const registerSchema = z
+    .object({
+      email: z
+        .string({
+          required_error: t("auth.emailRequired", "Email is required"),
+        })
+        .email(t("auth.invalidEmail", "Invalid email address")),
+      firstName: z
+        .string({
+          required_error: t("auth.firstNameRequired", "First name is required"),
+        })
+        .min(
+          2,
+          t(
+            "auth.firstNameMinLength",
+            "First name must be at least 2 characters"
+          )
+        ),
+      lastName: z
+        .string({
+          required_error: t("auth.lastNameRequired", "Last name is required"),
+        })
+        .min(
+          2,
+          t("auth.lastNameMinLength", "Last name must be at least 2 characters")
+        ),
+      password: z
+        .string({
+          required_error: t("auth.passwordRequired", "Password is required"),
+        })
+        .min(
+          6,
+          t("auth.passwordMinLength", "Password must be at least 6 characters")
+        ),
+      confirmPassword: z.string({
+        required_error: t(
+          "auth.confirmPasswordRequired",
+          "Please confirm your password"
+        ),
+      }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("auth.passwordsDontMatch", "Passwords don't match"),
+      path: ["confirmPassword"],
+    });
+
+  // Type for the form values based on the schema
+  type RegisterFormData = z.infer<typeof registerSchema>;
+
   // Default values
   const defaultValues = {
-    email: '',
-    firstName: '',
-    lastName: '',
-    password: '',
-    confirmPassword: '',
+    email: "",
+    firstName: "",
+    lastName: "",
+    password: "",
+    confirmPassword: "",
   };
-  
+
   // Submit handler
   const handleSubmit = async (data: RegisterFormData) => {
     setAuthError(null);
-    
+
     try {
       const credentials: RegisterCredentials = {
         email: data.email,
         password: data.password,
-        first_name: data.firstName,
-        last_name: data.lastName,
-        confirm_password: data.confirmPassword,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        confirmPassword: data.confirmPassword,
       };
-      
+
       await registerUser(credentials);
       return true;
     } catch (error) {
@@ -89,7 +107,11 @@ export function RegisterForm() {
       schema={registerSchema}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}
-      submitText={isLoading ? t('auth.creatingAccount', 'Creating account...') : t('auth.createAccount', 'Create account')}
+      submitText={
+        isLoading
+          ? t("auth.creatingAccount", "Creating account...")
+          : t("auth.createAccount", "Create account")
+      }
       className="space-y-4"
     >
       {({ control }) => (
@@ -100,13 +122,13 @@ export function RegisterForm() {
               <AlertDescription>{authError}</AlertDescription>
             </Alert>
           )}
-          
+
           <FormField
             control={control as Control<FieldValues>}
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('auth.email', 'Email')}</FormLabel>
+                <FormLabel>{t("auth.email", "Email")}</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
                 </FormControl>
@@ -114,14 +136,14 @@ export function RegisterForm() {
               </FormItem>
             )}
           />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={control as Control<FieldValues>}
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('auth.firstName', 'First Name')}</FormLabel>
+                  <FormLabel>{t("auth.firstName", "First Name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -129,13 +151,13 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={control as Control<FieldValues>}
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('auth.lastName', 'Last Name')}</FormLabel>
+                  <FormLabel>{t("auth.lastName", "Last Name")}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -144,13 +166,13 @@ export function RegisterForm() {
               )}
             />
           </div>
-          
+
           <FormField
             control={control as Control<FieldValues>}
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('auth.password', 'Password')}</FormLabel>
+                <FormLabel>{t("auth.password", "Password")}</FormLabel>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>
@@ -158,13 +180,15 @@ export function RegisterForm() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={control as Control<FieldValues>}
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('auth.confirmPassword', 'Confirm Password')}</FormLabel>
+                <FormLabel>
+                  {t("auth.confirmPassword", "Confirm Password")}
+                </FormLabel>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>
@@ -176,4 +200,4 @@ export function RegisterForm() {
       )}
     </StandardForm>
   );
-} 
+}

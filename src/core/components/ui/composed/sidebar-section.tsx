@@ -18,19 +18,16 @@ export function SidebarSection({
   id,
 }: SidebarSectionProps) {
   const { t } = useTranslation();
-  const sectionId = id || title?.toLowerCase().replace(/\s+/g, '-');
-  
+  const sectionId = id || title?.toLowerCase().replace(/\s+/g, "-");
+
   return (
-    <div 
-      className={cn(
-        "py-2 transition-all duration-300 ease-in-out",
-        className
-      )}
+    <div
+      className={cn("py-2 transition-all duration-300 ease-in-out", className)}
       role="group"
       aria-labelledby={sectionId ? `sidebar-section-${sectionId}` : undefined}
     >
       {title && !collapsed && (
-        <h3 
+        <h3
           id={sectionId ? `sidebar-section-${sectionId}` : undefined}
           className={cn(
             "px-4 mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wider",
@@ -40,7 +37,7 @@ export function SidebarSection({
           {t(title)}
         </h3>
       )}
-      <div 
+      <div
         className={cn(
           "space-y-1 px-2",
           "transition-all duration-300 ease-in-out",

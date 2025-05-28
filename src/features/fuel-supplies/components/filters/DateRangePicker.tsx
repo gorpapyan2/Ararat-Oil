@@ -1,12 +1,12 @@
 import React from "react";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
-import { Calendar } from '@/core/components/ui/calendar';
+import { Calendar } from "@/core/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/core/components/ui/popover';
+} from "@/core/components/ui/popover";
 import {
   format,
   subDays,
@@ -21,8 +21,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from '@/core/components/ui/dropdown-menu';
-import { Label } from '@/core/components/ui/label';
+} from "@/core/components/ui/dropdown-menu";
+import { Label } from "@/core/components/ui/label";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils";
 import { DateRange } from "@/core/components/ui/primitives/calendar";
@@ -111,7 +111,7 @@ export function DateRangePicker({
   // Handle the calendar selection
   const handleCalendarSelect = (value: DateRange | undefined) => {
     if (!value) return;
-    
+
     onDateRangeChange([value.from, value.to]);
     if (value.from && value.to) {
       setIsCalendarOpen(false);
@@ -130,7 +130,7 @@ export function DateRangePicker({
               variant="outline"
               className={cn(
                 "w-full justify-start text-left font-normal bg-50/20 border-50/20 hover:bg-80/20 transition-colors",
-                !startDate && !endDate && "text-muted-foreground",
+                !startDate && !endDate && "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -138,7 +138,7 @@ export function DateRangePicker({
                 ? formatDateRange()
                 : t("common.selectDateRange")}
             </Button>
-          </PopoverTrigger> 
+          </PopoverTrigger>
           <PopoverContent
             className="w-auto p-0 border border-40/20 shadow-md"
             align="start"
@@ -146,7 +146,9 @@ export function DateRangePicker({
             <Calendar
               mode="range"
               selected={calendarValue}
-              onSelect={handleCalendarSelect as (value: DateRange | undefined) => void}
+              onSelect={
+                handleCalendarSelect as (value: DateRange | undefined) => void
+              }
               initialFocus={true}
               numberOfMonths={2}
               className="p-3"

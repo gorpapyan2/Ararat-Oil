@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   LoadingButtonProps,
-  LoadingButton 
+  LoadingButton,
 } from "@/core/components/ui/primitives/loading-button";

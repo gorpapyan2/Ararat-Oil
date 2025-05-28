@@ -21,5 +21,5 @@ export const supabase = createClient<Database>(
         Accept: "application/json",
       },
     },
-  },
+  }
 );

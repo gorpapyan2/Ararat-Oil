@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/core/components/ui/button";
 import {
   DropdownMenu,
@@ -10,24 +9,48 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/core/components/ui/primitives/dropdown-menu";
-import { 
-  Code, 
-  Database, 
-  RefreshCw, 
-  Layers, 
-  PanelTop, 
-  Layout, 
-  Bell
-} from 'lucide-react';
+import {
+  Code,
+  Database,
+  RefreshCw,
+  Layers,
+  PanelTop,
+  Layout,
+  Bell,
+} from "lucide-react";
 
 export function DevMenu() {
   const devPages = [
-    { name: 'Dev Tools Home', path: '/dev', icon: <Code className="h-4 w-4 mr-2" /> },
-    { name: 'Connection Info', path: '/dev/connection-info', icon: <Database className="h-4 w-4 mr-2" /> },
-    { name: 'Toast Tester', path: '/dev/toast-test', icon: <Bell className="h-4 w-4 mr-2" /> },
-    { name: 'Responsive Test', path: '/dev/responsive-test', icon: <Layout className="h-4 w-4 mr-2" /> },
-    { name: 'Card Components', path: '/dev/card-components', icon: <Layers className="h-4 w-4 mr-2" /> },
-    { name: 'Button Components', path: '/dev/button-components', icon: <PanelTop className="h-4 w-4 mr-2" /> },
+    {
+      name: "Dev Tools Home",
+      path: "/dev",
+      icon: <Code className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "Connection Info",
+      path: "/dev/connection-info",
+      icon: <Database className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "Toast Tester",
+      path: "/dev/toast-test",
+      icon: <Bell className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "Responsive Test",
+      path: "/dev/responsive-test",
+      icon: <Layout className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "Card Components",
+      path: "/dev/card-components",
+      icon: <Layers className="h-4 w-4 mr-2" />,
+    },
+    {
+      name: "Button Components",
+      path: "/dev/button-components",
+      icon: <PanelTop className="h-4 w-4 mr-2" />,
+    },
   ];
 
   return (
@@ -52,4 +75,4 @@ export function DevMenu() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-} 
+}

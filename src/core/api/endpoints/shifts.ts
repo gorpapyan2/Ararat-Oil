@@ -1,12 +1,12 @@
 /**
  * Shifts API
- * 
+ *
  * This file provides API functions for working with shifts data.
  */
 
-import { fetchFromFunction, ApiResponse } from '../client';
-import { API_ENDPOINTS } from '@/core/config/api';
-import type { Shift, ShiftPaymentMethod } from '../types';
+import { fetchFromFunction, ApiResponse } from "../client";
+import { API_ENDPOINTS } from "@/core/config/api";
+import type { Shift, ShiftPaymentMethod } from "../types";
 
 const ENDPOINT = API_ENDPOINTS.FUNCTIONS.SHIFTS;
 
@@ -34,7 +34,9 @@ export async function getActiveShift(): Promise<ApiResponse<Shift>> {
 /**
  * Fetches the active shift for a specific user
  */
-export async function getActiveShiftForUser(userId: string): Promise<ApiResponse<Shift>> {
+export async function getActiveShiftForUser(
+  userId: string
+): Promise<ApiResponse<Shift>> {
   return fetchFromFunction<Shift>(`${ENDPOINT}/active/${userId}`);
 }
 
@@ -51,19 +53,21 @@ export async function getSystemActiveShift(): Promise<ApiResponse<Shift>> {
 export async function getShiftSalesTotal(
   shiftId: string
 ): Promise<ApiResponse<{ total: number }>> {
-  return fetchFromFunction<{ total: number }>(`${ENDPOINT}/${shiftId}/sales-total`);
+  return fetchFromFunction<{ total: number }>(
+    `${ENDPOINT}/${shiftId}/sales-total`
+  );
 }
 
 /**
  * Starts a new shift
  */
 export async function startShift(
-  openingCash: number, 
+  openingCash: number,
   employeeIds?: string[]
 ): Promise<ApiResponse<Shift>> {
   return fetchFromFunction<Shift>(ENDPOINT, {
-    method: 'POST',
-    body: { openingCash, employeeIds }
+    method: "POST",
+    body: { openingCash, employeeIds },
   });
 }
 
@@ -71,13 +75,13 @@ export async function startShift(
  * Closes a shift
  */
 export async function closeShift(
-  id: string, 
-  closingCash: number, 
-  paymentMethods?: any[]
+  id: string,
+  closingCash: number,
+  paymentMethods?: ShiftPaymentMethod[]
 ): Promise<ApiResponse<Shift>> {
   return fetchFromFunction<Shift>(`${ENDPOINT}/${id}/close`, {
-    method: 'POST',
-    body: { closingCash, paymentMethods }
+    method: "POST",
+    body: { closingCash, paymentMethods },
   });
 }
 
@@ -86,20 +90,20 @@ export async function closeShift(
  */
 export async function getShiftPaymentMethods(
   id: string
-): Promise<ApiResponse<any[]>> {
-  return fetchFromFunction<any[]>(`${ENDPOINT}/${id}/payment-methods`);
+): Promise<ApiResponse<ShiftPaymentMethod[]>> {
+  return fetchFromFunction<ShiftPaymentMethod[]>(`${ENDPOINT}/${id}/payment-methods`);
 }
 
 /**
  * Adds payment methods to a shift
  */
 export async function addShiftPaymentMethods(
-  id: string, 
-  methods: any[]
-): Promise<ApiResponse<any[]>> {
-  return fetchFromFunction<any[]>(`${ENDPOINT}/${id}/payment-methods`, {
-    method: 'POST',
-    body: methods
+  id: string,
+  methods: ShiftPaymentMethod[]
+): Promise<ApiResponse<ShiftPaymentMethod[]>> {
+  return fetchFromFunction<ShiftPaymentMethod[]>(`${ENDPOINT}/${id}/payment-methods`, {
+    method: "POST",
+    body: methods,
   });
 }
 
@@ -109,15 +113,20 @@ export async function addShiftPaymentMethods(
 export async function deleteShiftPaymentMethods(
   id: string
 ): Promise<ApiResponse<{ success: boolean }>> {
-  return fetchFromFunction<{ success: boolean }>(`${ENDPOINT}/${id}/payment-methods`, {
-    method: 'DELETE'
-  });
+  return fetchFromFunction<{ success: boolean }>(
+    `${ENDPOINT}/${id}/payment-methods`,
+    {
+      method: "DELETE",
+    }
+  );
 }
 
 /**
  * Fetches shifts count
  */
-export async function getShiftsCount(): Promise<ApiResponse<{ count: number }>> {
+export async function getShiftsCount(): Promise<
+  ApiResponse<{ count: number }>
+> {
   return fetchFromFunction<{ count: number }>(`${ENDPOINT}/count`);
 }
 
@@ -136,5 +145,5 @@ export const shiftsApi = {
   getShiftPaymentMethods,
   addShiftPaymentMethods,
   deleteShiftPaymentMethods,
-  getShiftsCount
-}; 
+  getShiftsCount,
+};

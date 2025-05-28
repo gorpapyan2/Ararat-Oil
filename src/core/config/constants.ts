@@ -1,6 +1,6 @@
 /**
  * Application Constants
- * 
+ *
  * This file contains application-wide constants that are used throughout the codebase.
  * These values should not change at runtime.
  */
@@ -19,7 +19,7 @@ export const PAGINATION = {
  */
 export const TIMEOUTS = {
   API_REQUEST: 30000, // 30 seconds
-  DEBOUNCE: 300,      // 300ms
+  DEBOUNCE: 300, // 300ms
   TOAST_DEFAULT: 5000, // 5 seconds
   SESSION_EXPIRY: 3600000, // 1 hour
 };
@@ -28,19 +28,19 @@ export const TIMEOUTS = {
  * Local storage keys
  */
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: 'auth_token',
-  USER_PREFERENCES: 'user_preferences',
-  THEME: 'app_theme',
-  LANGUAGE: 'app_language',
+  AUTH_TOKEN: "auth_token",
+  USER_PREFERENCES: "user_preferences",
+  THEME: "app_theme",
+  LANGUAGE: "app_language",
 };
 
 /**
  * Date formats
  */
 export const DATE_FORMATS = {
-  DISPLAY: 'MMM dd, yyyy',
-  API: 'yyyy-MM-dd',
-  DATETIME_DISPLAY: 'MMM dd, yyyy HH:mm',
+  DISPLAY: "MMM dd, yyyy",
+  API: "yyyy-MM-dd",
+  DATETIME_DISPLAY: "MMM dd, yyyy HH:mm",
   DATETIME_API: 'yyyy-MM-dd"T"HH:mm:ss.SSS"Z"',
 };
 
@@ -48,11 +48,11 @@ export const DATE_FORMATS = {
  * Application routes
  */
 export const ROUTES = {
-  HOME: '/',
-  LOGIN: '/login',
-  DASHBOARD: '/dashboard',
-  SETTINGS: '/settings',
-  PROFILE: '/profile',
+  HOME: "/",
+  LOGIN: "/login",
+  DASHBOARD: "/dashboard",
+  SETTINGS: "/settings",
+  PROFILE: "/profile",
 };
 
 /**
@@ -75,4 +75,4 @@ export const HTTP_STATUS = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   INTERNAL_SERVER_ERROR: 500,
-}; 
+};

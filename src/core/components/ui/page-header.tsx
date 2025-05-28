@@ -1,26 +1,40 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { cn } from '@/utils/cn';
+import { cn } from "@/utils/cn";
 
 export interface PageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  // Add specific props here
+  title?: string;
+  description?: string;
+  actions?: React.ReactNode;
 }
 
 /**
- * PageHeader component
- * 
- * @placeholder This is a placeholder component that needs proper implementation
+ * PageHeader component for consistent page layouts
  */
-export function PageHeader({ className, ...props }: PageHeaderProps) {
+export function PageHeader({ 
+  className, 
+  title, 
+  description, 
+  actions, 
+  children,
+  ...props 
+}: PageHeaderProps) {
   return (
-    <div 
-      className={cn('-page-header', className)}
-      {...props}
-    >
-      {/* Placeholder for PageHeader implementation */}
-      <div className="p-4 border border-dashed border-gray-300 rounded-md text-center text-gray-500">
-        PageHeader (Placeholder)
+    <div className={cn("flex items-center justify-between space-y-2", className)} {...props}>
+      <div className="space-y-1">
+        {title && (
+          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        )}
+        {description && (
+          <p className="text-muted-foreground">{description}</p>
+        )}
+        {children}
       </div>
+      {actions && (
+        <div className="flex items-center space-x-2">
+          {actions}
+        </div>
+      )}
     </div>
   );
 }

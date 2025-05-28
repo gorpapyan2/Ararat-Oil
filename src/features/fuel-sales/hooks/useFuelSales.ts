@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getFuelSales,
   getFuelSaleById,
@@ -7,17 +7,25 @@ import {
   deleteFuelSale,
   getLatestFuelSale,
   getFuelSalesCount,
-  getFuelSalesSummary
-} from '../services';
-import { FuelSale, FuelSaleFormData, FuelSaleFilters, FuelSaleSummary } from '../types';
+  getFuelSalesSummary,
+} from "../services";
+import {
+  FuelSale,
+  FuelSaleFormData,
+  FuelSaleFilters,
+  FuelSaleSummary,
+} from "../types";
 
 // Define query keys
 const QUERY_KEYS = {
-  fuelSales: 'fuel-sales',
-  fuelSaleById: (id: string) => ['fuel-sale', id],
-  latestFuelSale: (fillingSystemId: string) => ['latest-fuel-sale', fillingSystemId],
-  fuelSalesCount: 'fuel-sales-count',
-  fuelSalesSummary: 'fuel-sales-summary',
+  fuelSales: "fuel-sales",
+  fuelSaleById: (id: string) => ["fuel-sale", id],
+  latestFuelSale: (fillingSystemId: string) => [
+    "latest-fuel-sale",
+    fillingSystemId,
+  ],
+  fuelSalesCount: "fuel-sales-count",
+  fuelSalesSummary: "fuel-sales-summary",
 };
 
 /**
@@ -65,7 +73,10 @@ export function useFuelSalesCount() {
 /**
  * Hook for fetching sales summary
  */
-export function useFuelSalesSummary(dateRange?: { start: string; end: string }) {
+export function useFuelSalesSummary(dateRange?: {
+  start: string;
+  end: string;
+}) {
   return useQuery<FuelSaleSummary>({
     queryKey: [QUERY_KEYS.fuelSalesSummary, dateRange],
     queryFn: () => getFuelSalesSummary(dateRange),
@@ -77,14 +88,16 @@ export function useFuelSalesSummary(dateRange?: { start: string; end: string }) 
  */
 export function useCreateFuelSale() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: FuelSaleFormData) => createFuelSale(data),
     onSuccess: () => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSales] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSalesCount] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSalesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.fuelSalesSummary],
+      });
     },
   });
 }
@@ -94,16 +107,25 @@ export function useCreateFuelSale() {
  */
 export function useUpdateFuelSale() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<FuelSaleFormData> }) => 
-      updateFuelSale(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<FuelSaleFormData>;
+    }) => updateFuelSale(id, data),
     onSuccess: (_, variables) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSales] });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.fuelSaleById(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.fuelSaleById(variables.id),
+      });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSalesCount] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSalesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.fuelSalesSummary],
+      });
     },
   });
 }
@@ -113,14 +135,16 @@ export function useUpdateFuelSale() {
  */
 export function useDeleteFuelSale() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (id: string) => deleteFuelSale(id),
     onSuccess: () => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSales] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSalesCount] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.fuelSalesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.fuelSalesSummary],
+      });
     },
   });
-} 
+}

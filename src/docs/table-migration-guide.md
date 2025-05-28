@@ -15,8 +15,16 @@ We've implemented a comprehensive 3-layer architecture for table components:
 ## 1. Basic Table Components Migration
 
 ### Before:
+
 ```tsx
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui-custom/table";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui-custom/table";
 
 function MyTable() {
   return (
@@ -39,8 +47,16 @@ function MyTable() {
 ```
 
 ### After:
+
 ```tsx
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
 function MyTable() {
   return (
@@ -69,6 +85,7 @@ The API for the basic components is largely the same, so in most cases, you'll o
 If you're using the now-deprecated `MobileAwareDataTable`, migrate to the new `DataTable` component which has better mobile support, sorting, filtering, and pagination built-in.
 
 ### Before:
+
 ```tsx
 import { MobileAwareDataTable } from "@/components/ui/mobile-aware-data-table";
 
@@ -103,20 +120,23 @@ function MyPage() {
 ```
 
 ### After:
+
 ```tsx
 import { DataTable } from "@/components/ui/composed/data-table";
 
 function MyPage() {
   const columns = [
     { header: "Name", accessorKey: "name" },
-    { header: "Email", accessorKey: "email", 
+    {
+      header: "Email",
+      accessorKey: "email",
       // Custom cell renderer for mobile view
       cell: (row) => (
         <div className="md:hidden">
           <div className="font-medium">{row.name}</div>
           <div className="text-sm text-muted-foreground">{row.email}</div>
         </div>
-      )
+      ),
     },
     // ... other columns
   ];
@@ -142,12 +162,14 @@ function MyPage() {
 1. **Import Path**: Use `@/components/ui/composed/data-table` instead of `@/components/ui/mobile-aware-data-table`
 
 2. **Props Changes**:
+
    - `mobileCardRenderer` → Use custom `cell` renderers with responsive classes
    - `enableExport` → Not directly supported (implement your own export button)
    - `isLoading` → `loading`
    - `title` → `caption` (appears as a table caption rather than a header)
 
 3. **Mobile Handling**: Instead of using a separate card renderer, you can:
+
    - Use responsive utility classes in cell renderers
    - Apply different styles using media queries
    - Take advantage of the built-in responsive behavior
@@ -162,6 +184,7 @@ function MyPage() {
 If you have complex custom DataTable implementations, consider using the new DataTable component which offers flexibility and powerful features.
 
 ### Before (custom implementation):
+
 ```tsx
 import { Table } from "@/components/ui-custom/table";
 import { useState } from "react";
@@ -171,25 +194,25 @@ function MyDataTable({ data }) {
   const [sortDirection, setSortDirection] = useState("asc");
   const [filteredData, setFilteredData] = useState(data);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Custom sorting logic
   const handleSort = (field) => {
     // ... sorting implementation
   };
-  
+
   // Custom filtering logic
   const handleFilter = (e) => {
     setSearchTerm(e.target.value);
     // ... filtering implementation
   };
-  
+
   return (
     <div>
-      <input 
-        type="text" 
-        value={searchTerm} 
-        onChange={handleFilter} 
-        placeholder="Search..." 
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleFilter}
+        placeholder="Search..."
       />
       <Table>
         {/* ... table implementation with custom sorting/filtering */}
@@ -200,24 +223,25 @@ function MyDataTable({ data }) {
 ```
 
 ### After:
+
 ```tsx
 import { DataTable } from "@/components/ui/composed/data-table";
 
 function MyDataTable({ data }) {
   const columns = [
-    { 
-      header: "Name", 
+    {
+      header: "Name",
       accessorKey: "name",
       enableSorting: true,
     },
-    { 
-      header: "Email", 
+    {
+      header: "Email",
       accessorKey: "email",
       enableSorting: true,
     },
     // ... other columns
   ];
-  
+
   return (
     <DataTable
       data={data}
@@ -235,13 +259,14 @@ The new DataTable component handles sorting, filtering, and pagination automatic
 ## 4. Advanced Features
 
 ### Column Definition:
+
 ```tsx
 const columns = [
   {
     header: "Name",
     accessorKey: "name",
     enableSorting: true,
-    cell: (row) => <span className="font-bold">{row.name}</span>
+    cell: (row) => <span className="font-bold">{row.name}</span>,
   },
   {
     header: "Status",
@@ -250,20 +275,18 @@ const columns = [
       <Badge variant={row.status === "active" ? "success" : "destructive"}>
         {row.status}
       </Badge>
-    )
+    ),
   },
   {
     header: "Actions",
     id: "actions",
-    cell: (row) => (
-      <Button onClick={() => handleAction(row)}>Edit</Button>
-    )
+    cell: (row) => <Button onClick={() => handleAction(row)}>Edit</Button>,
   },
   {
     header: "Created At",
     accessorKey: "createdAt",
-    cell: (row) => new Date(row.createdAt).toLocaleDateString()
-  }
+    cell: (row) => new Date(row.createdAt).toLocaleDateString(),
+  },
 ];
 ```
 
@@ -277,8 +300,8 @@ const columns = [
     footer: (data) => {
       const total = data.reduce((acc, item) => acc + item.amount, 0);
       return `Total: ${total.toFixed(2)}`;
-    }
-  }
+    },
+  },
 ];
 ```
 
@@ -298,11 +321,16 @@ const [totalCount, setTotalCount] = useState(0);
 // Fetch data from API when params change
 useEffect(() => {
   // Your API fetching logic
-  fetchData({ page, pageSize, sortField, sortDirection, filter: filterValue })
-    .then(response => {
-      setData(response.data);
-      setTotalCount(response.total);
-    });
+  fetchData({
+    page,
+    pageSize,
+    sortField,
+    sortDirection,
+    filter: filterValue,
+  }).then((response) => {
+    setData(response.data);
+    setTotalCount(response.total);
+  });
 }, [page, pageSize, sortField, sortDirection, filterValue]);
 
 // Pass the server-side options to DataTable
@@ -329,7 +357,7 @@ useEffect(() => {
   enableSorting={true}
   enableFiltering={true}
   enablePagination={true}
-/>
+/>;
 ```
 
 ### Export Functionality:
@@ -338,13 +366,13 @@ The DataTable now supports CSV export with customizable options:
 
 ```tsx
 const columns = [
-  { 
-    header: "Name", 
-    accessorKey: "name" 
+  {
+    header: "Name",
+    accessorKey: "name",
   },
-  { 
-    header: "Email", 
-    accessorKey: "email" 
+  {
+    header: "Email",
+    accessorKey: "email",
   },
   {
     header: "Created At",
@@ -353,15 +381,15 @@ const columns = [
     // Format for export
     exportFormatter: (value) => new Date(value).toISOString(),
     // Include in export (default is true)
-    includeInExport: true
+    includeInExport: true,
   },
   {
     header: "Actions",
     accessorKey: "id",
     cell: (row) => <Button>Edit</Button>,
     // Exclude from export
-    includeInExport: false
-  }
+    includeInExport: false,
+  },
 ];
 
 <DataTable
@@ -374,9 +402,9 @@ const columns = [
     // Optional custom export handler
     onExport: (dataToExport, columnsToExport) => {
       // Custom export logic
-    }
+    },
   }}
-/>
+/>;
 ```
 
 ### Row Selection with Batch Actions:
@@ -400,18 +428,18 @@ The DataTable now supports row selection with batch actions:
         icon: <Trash2 className="h-4 w-4" />,
         onClick: (selectedRows) => {
           deleteUsers(selectedRows);
-        }
+        },
       },
       {
         label: "Archive",
         icon: <Archive className="h-4 w-4" />,
         onClick: (selectedRows) => {
           archiveUsers(selectedRows);
-        }
-      }
+        },
+      },
     ],
     // Control which rows can be selected
-    canSelectRow: (row) => row.status !== "locked"
+    canSelectRow: (row) => row.status !== "locked",
   }}
 />
 ```
@@ -421,75 +449,81 @@ The DataTable now supports row selection with batch actions:
 When migrating, be sure to update your tests. Here's a simple example:
 
 ```tsx
-import { render, screen } from '@testing-library/react';
-import { DataTable } from '@/components/ui/composed/data-table';
+import { render, screen } from "@testing-library/react";
+import { DataTable } from "@/components/ui/composed/data-table";
 
-test('DataTable renders with data', () => {
-  const data = [{ id: 1, name: 'Test User' }];
-  const columns = [{ header: 'Name', accessorKey: 'name' }];
-  
+test("DataTable renders with data", () => {
+  const data = [{ id: 1, name: "Test User" }];
+  const columns = [{ header: "Name", accessorKey: "name" }];
+
   render(<DataTable data={data} columns={columns} />);
-  
-  expect(screen.getByText('Test User')).toBeInTheDocument();
+
+  expect(screen.getByText("Test User")).toBeInTheDocument();
 });
 ```
 
 For testing the advanced features:
 
 ```tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { DataTable } from '@/components/ui/composed/data-table';
+import { render, screen, fireEvent } from "@testing-library/react";
+import { DataTable } from "@/components/ui/composed/data-table";
 
-test('DataTable handles server-side pagination', () => {
+test("DataTable handles server-side pagination", () => {
   const handlePaginationChange = jest.fn();
-  const data = [/* test data */];
-  const columns = [/* test columns */];
-  
+  const data = [
+    /* test data */
+  ];
+  const columns = [
+    /* test columns */
+  ];
+
   render(
-    <DataTable 
-      data={data} 
-      columns={columns} 
+    <DataTable
+      data={data}
+      columns={columns}
       enablePagination={true}
       serverSide={{
         enabled: true,
         totalCount: 100,
-        onPaginationChange: handlePaginationChange
+        onPaginationChange: handlePaginationChange,
       }}
     />
   );
-  
+
   // Click on next page button
-  fireEvent.click(screen.getByText('2'));
-  
+  fireEvent.click(screen.getByText("2"));
+
   // Check if handler was called with correct arguments
   expect(handlePaginationChange).toHaveBeenCalledWith(2, 10);
 });
 
-test('DataTable handles row selection', () => {
+test("DataTable handles row selection", () => {
   const handleSelectionChange = jest.fn();
   const data = [
-    { id: 1, name: 'User 1' },
-    { id: 2, name: 'User 2' },
+    { id: 1, name: "User 1" },
+    { id: 2, name: "User 2" },
   ];
-  const columns = [{ header: 'Name', accessorKey: 'name' }];
-  
+  const columns = [{ header: "Name", accessorKey: "name" }];
+
   render(
-    <DataTable 
-      data={data} 
+    <DataTable
+      data={data}
       columns={columns}
       selectionOptions={{
         enabled: true,
-        onSelectionChange: handleSelectionChange
+        onSelectionChange: handleSelectionChange,
       }}
     />
   );
-  
+
   // Find and click the first row's checkbox
-  const checkbox = screen.getAllByRole('checkbox')[1]; // First checkbox after the "select all"
+  const checkbox = screen.getAllByRole("checkbox")[1]; // First checkbox after the "select all"
   fireEvent.click(checkbox);
-  
+
   // Check if handler was called with selected rows
-  expect(handleSelectionChange).toHaveBeenCalledWith([{ id: 1, name: 'User 1' }]);
+  expect(handleSelectionChange).toHaveBeenCalledWith([
+    { id: 1, name: "User 1" },
+  ]);
 });
 ```
 

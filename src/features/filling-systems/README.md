@@ -27,11 +27,11 @@ filling-systems/
 ### Importing Components
 
 ```tsx
-import { 
+import {
   FillingSystemManagerStandardized,
   FillingSystemFormStandardized,
-  TankDiagnostics 
-} from '@/features/filling-systems';
+  TankDiagnostics,
+} from "@/features/filling-systems";
 ```
 
 ### Using the Manager Component
@@ -39,15 +39,17 @@ import {
 The `FillingSystemManagerStandardized` component is the main entry point for managing filling systems:
 
 ```tsx
-import { FillingSystemManagerStandardized } from '@/features/filling-systems';
+import { FillingSystemManagerStandardized } from "@/features/filling-systems";
 
 function MyPage() {
   return (
     <div>
       <h1>Filling Systems Management</h1>
-      <FillingSystemManagerStandardized onRenderAction={(action) => {
-        // Handle action rendering
-      }} />
+      <FillingSystemManagerStandardized
+        onRenderAction={(action) => {
+          // Handle action rendering
+        }}
+      />
     </div>
   );
 }
@@ -56,17 +58,17 @@ function MyPage() {
 ### Using the Custom Hook
 
 ```tsx
-import { useFillingSystem } from '@/features/filling-systems';
+import { useFillingSystem } from "@/features/filling-systems";
 
 function MyComponent() {
-  const { 
+  const {
     getFillingSystemsQuery,
     getFillingSystemQuery,
     createFillingSystem,
     updateFillingSystem,
-    deleteFillingSystem
+    deleteFillingSystem,
   } = useFillingSystem();
-  
+
   // Use these functions to interact with filling systems
 }
 ```
@@ -86,11 +88,12 @@ The feature exports several TypeScript interfaces:
 This feature uses the API translation helpers for internationalization:
 
 ```tsx
-import { apiNamespaces, getApiActionLabel } from '@/i18n/i18n';
+import { apiNamespaces, getApiActionLabel } from "@/i18n/i18n";
 
 // Get translated title
-const title = t("fillingSystems.title") || 
-  getApiActionLabel(apiNamespaces.fillingSystems, 'list');
+const title =
+  t("fillingSystems.title") ||
+  getApiActionLabel(apiNamespaces.fillingSystems, "list");
 ```
 
 ## Diagnostics
@@ -98,7 +101,7 @@ const title = t("fillingSystems.title") ||
 The feature includes a diagnostics tool that can help identify issues with tank associations:
 
 ```tsx
-import { TankDiagnostics } from '@/features/filling-systems';
+import { TankDiagnostics } from "@/features/filling-systems";
 
 function DiagnosticsPage() {
   return (
@@ -108,4 +111,4 @@ function DiagnosticsPage() {
     </div>
   );
 }
-``` 
+```

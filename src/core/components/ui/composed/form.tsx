@@ -1,46 +1,42 @@
-import * as React from 'react';
-import { cn } from '@/utils/cn';
-import { 
-  useForm, 
-  UseFormReturn, 
-  FieldValues, 
-  SubmitHandler, 
+import * as React from "react";
+import { cn } from "@/utils/cn";
+import {
+  useForm,
+  UseFormReturn,
+  FieldValues,
+  SubmitHandler,
   UseFormProps,
   FieldPath,
   FieldErrors,
   Controller,
   ControllerProps,
-  ControllerRenderProps
-} from 'react-hook-form';
-import { Label } from '@/core/components/ui/label';
+  ControllerRenderProps,
+} from "react-hook-form";
+import { Label } from "@/core/components/ui/label";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Checkbox } from '@/core/components/ui/checkbox';
-import { RadioGroup } from '@/core/components/ui/radiogroup';
+import { Checkbox } from "@/core/components/ui/checkbox";
+import { RadioGroup } from "@/core/components/ui/radiogroup";
 import { Select } from "@/core/components/ui/primitives/select";
-import { Textarea } from '@/core/components/ui/textarea';
+import { Textarea } from "@/core/components/ui/textarea";
 
 /**
  * Base props for all Form Field components
  */
 interface FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > {
   name: TName;
   form: UseFormReturn<TFieldValues>;
 }
 
-const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue
-);
+// Create a properly typed context that can handle generic types
+const FormFieldContext = React.createContext<FormFieldContextValue<FieldValues, FieldPath<FieldValues>> | null>(null);
 
 /**
  * Form component that provides context for form fields
  */
-const Form = <
-  TFieldValues extends FieldValues = FieldValues,
-  TContext = any,
->({
+const Form = <TFieldValues extends FieldValues = FieldValues, TContext = unknown>({
   children,
   className,
   onSubmit,
@@ -54,9 +50,10 @@ const Form = <
   formProps?: UseFormProps<TFieldValues, TContext>;
   form?: UseFormReturn<TFieldValues>;
 } & Omit<React.FormHTMLAttributes<HTMLFormElement>, "onSubmit">) => {
-  // Create form if not provided
-  const formInstance = form || useForm<TFieldValues>({ ...formProps });
-  
+  // Always call useForm, but use provided form if available
+  const defaultForm = useForm<TFieldValues>({ ...formProps });
+  const formInstance = form || defaultForm;
+
   return (
     <form
       className={cn("space-y-6", className)}
@@ -83,8 +80,10 @@ const FormField = <
   form: UseFormReturn<TFieldValues>;
   children: React.ReactNode;
 }) => {
+  const contextValue = { name, form } as FormFieldContextValue<TFieldValues, TName>;
+  
   return (
-    <FormFieldContext.Provider value={{ name, form }}>
+    <FormFieldContext.Provider value={contextValue}>
       {children}
     </FormFieldContext.Provider>
   );
@@ -93,8 +92,11 @@ const FormField = <
 /**
  * Hook to get the current form field context
  */
-const useFormField = () => {
-  const context = React.useContext(FormFieldContext);
+const useFormField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>() => {
+  const context = React.useContext(FormFieldContext) as FormFieldContextValue<TFieldValues, TName> | null;
   if (!context) {
     throw new Error("useFormField must be used within a FormField");
   }
@@ -127,38 +129,36 @@ interface FormLabelProps extends React.ComponentPropsWithoutRef<typeof Label> {
   optional?: boolean;
 }
 
-const FormLabel = React.forwardRef<React.ElementRef<typeof Label>, FormLabelProps>(
-  ({ className, optional, children, ...props }, ref) => {
-    return (
-      <Label
-        ref={ref}
-        className={cn(className)}
-        {...props}
-      >
-        {children}
-        {optional && <span className="ml-1 text-muted-foreground text-xs">(Optional)</span>}
-      </Label>
-    );
-  }
-);
+const FormLabel = React.forwardRef<
+  React.ElementRef<typeof Label>,
+  FormLabelProps
+>(({ className, optional, children, ...props }, ref) => {
+  return (
+    <Label ref={ref} className={cn(className)} {...props}>
+      {children}
+      {optional && (
+        <span className="ml-1 text-muted-foreground text-xs">(Optional)</span>
+      )}
+    </Label>
+  );
+});
 FormLabel.displayName = "FormLabel";
 
 /**
  * FormDescription component for providing additional context
  */
-interface FormDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
-
-const FormDescription = React.forwardRef<HTMLParagraphElement, FormDescriptionProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <p
-        ref={ref}
-        className={cn("text-xs text-muted-foreground", className)}
-        {...props}
-      />
-    );
-  }
-);
+const FormDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => {
+  return (
+    <p
+      ref={ref}
+      className={cn("text-xs text-muted-foreground", className)}
+      {...props}
+    />
+  );
+});
 FormDescription.displayName = "FormDescription";
 
 /**
@@ -198,8 +198,12 @@ interface FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > {
-  children: (props: { field: ControllerRenderProps<TFieldValues, TName> }) => React.ReactNode;
-  render?: (props: { field: ControllerRenderProps<TFieldValues, TName> }) => React.ReactNode;
+  children?: (props: {
+    field: ControllerRenderProps<TFieldValues, TName>;
+  }) => React.ReactElement;
+  render?: (props: {
+    field: ControllerRenderProps<TFieldValues, TName>;
+  }) => React.ReactElement;
 }
 
 const FormControl = <
@@ -209,13 +213,19 @@ const FormControl = <
   children,
   render,
 }: FormControlProps<TFieldValues, TName>) => {
-  const { name, form } = useFormField() as FormFieldContextValue<TFieldValues, TName>;
-  
+  const { name, form } = useFormField<TFieldValues, TName>();
+
   return (
     <Controller
       control={form.control}
       name={name}
-      render={({ field }) => ((render || children)({ field }))}
+      render={({ field }) => {
+        const renderFn = render || children;
+        if (!renderFn) {
+          throw new Error("FormControl requires either children or render prop");
+        }
+        return renderFn({ field });
+      }}
     />
   );
 };

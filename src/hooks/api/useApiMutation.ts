@@ -1,19 +1,16 @@
 /**
  * useApiMutation - Standardized hook for data mutation operations
- * 
+ *
  * This hook wraps React Query's useMutation with standardized options and patterns
  * to ensure consistent data mutation and cache invalidation across the application.
  */
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  UseApiMutationOptions, 
-  UseApiMutationResult 
-} from './types';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { UseApiMutationOptions, UseApiMutationResult } from "./types";
 
 /**
  * Hook for making standardized API mutations with built-in cache invalidation
- * 
+ *
  * @example
  * ```tsx
  * const createEmployee = useApiMutation({
@@ -24,7 +21,7 @@ import {
  *     toast.success('Employee created successfully');
  *   }
  * });
- * 
+ *
  * // Usage in component
  * const handleSubmit = (data) => {
  *   createEmployee.mutate(data);
@@ -36,27 +33,30 @@ export function useApiMutation<TData, TVariables, TError = Error>({
   invalidateQueries = [],
   onSuccessCallback,
   ...options
-}: UseApiMutationOptions<TData, TVariables, TError>): UseApiMutationResult<TData, TVariables> {
+}: UseApiMutationOptions<TData, TVariables, TError>): UseApiMutationResult<
+  TData,
+  TVariables
+> {
   const queryClient = useQueryClient();
-  
+
   const mutation = useMutation<TData, TError, TVariables>({
     mutationFn,
-    
+
     // Standard success handler with cache invalidation
     onSuccess: (data, variables, context) => {
       // Invalidate specified queries
-      invalidateQueries.forEach(queryKey => {
+      invalidateQueries.forEach((queryKey) => {
         // Normalize the query key to ensure it's always an array
         const normalizedKey = Array.isArray(queryKey) ? queryKey : [queryKey];
         queryClient.invalidateQueries({ queryKey: normalizedKey });
       });
-      
+
       // Call custom success handler if provided
       if (onSuccessCallback) {
         onSuccessCallback(data, variables, context, queryClient);
       }
     },
-    
+
     ...options,
   });
 
@@ -79,13 +79,9 @@ export function useApiMutation<TData, TVariables, TError = Error>({
  */
 export function useApiMutationSimple<TData, TVariables, TError = Error>(
   options: UseApiMutationOptions<TData, TVariables, TError>
-): [
-  (variables: TVariables) => void,
-  boolean,
-  Error | null
-] {
+): [(variables: TVariables) => void, boolean, Error | null] {
   const result = useApiMutation<TData, TVariables, TError>(options);
   return [result.mutate, result.isLoading, result.error];
 }
 
-export default useApiMutation; 
+export default useApiMutation;

@@ -17,20 +17,23 @@ Our Card component system is organized into three layers:
 The standard Card component with multiple variants:
 
 ```tsx
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 
 <Card variant="default">
   <CardHeader>
     <CardTitle>Card Title</CardTitle>
     <CardDescription>Card description goes here</CardDescription>
   </CardHeader>
-  <CardContent>
-    Main content goes here
-  </CardContent>
-  <CardFooter>
-    Footer content
-  </CardFooter>
-</Card>
+  <CardContent>Main content goes here</CardContent>
+  <CardFooter>Footer content</CardFooter>
+</Card>;
 ```
 
 ### Card Variants
@@ -88,10 +91,10 @@ import { StatsCard } from "@/components/ui/composed/cards";
   value="$45,231"
   change={{
     value: "12%",
-    direction: "up" // "up", "down", or "neutral"
+    direction: "up", // "up", "down", or "neutral"
   }}
   icon={<TrendingUpIcon />}
-/>
+/>;
 ```
 
 ### MetricCard
@@ -109,10 +112,10 @@ import { MetricCard } from "@/components/ui/composed/cards";
   trend={{
     value: "23%",
     positive: true,
-    label: "vs last month"
+    label: "vs last month",
   }}
   loading={false}
-/>
+/>;
 ```
 
 ### ActionCard
@@ -129,7 +132,7 @@ import { ActionCard } from "@/components/ui/composed/cards";
   actionLabel="View details"
   onAction={() => console.log("Action clicked")}
   icon={<ServerIcon />}
-/>
+/>;
 ```
 
 ### SummaryCard
@@ -144,13 +147,13 @@ import { SummaryCard } from "@/components/ui/composed/cards";
   metrics={[
     { label: "Total Sales", value: "$12,345", color: "default" },
     { label: "Revenue", value: "$9,876", color: "success" },
-    { label: "Refunds", value: "$1,234", color: "danger" }
+    { label: "Refunds", value: "$1,234", color: "danger" },
   ]}
   action={{
     label: "View Report",
-    onClick: () => console.log("Action clicked")
+    onClick: () => console.log("Action clicked"),
   }}
-/>
+/>;
 ```
 
 ### CardGrid
@@ -165,9 +168,9 @@ import { CardGrid } from "@/components/ui/composed/cards";
     { title: "Sales", value: "$12,345", icon: <DollarSignIcon /> },
     { title: "Customers", value: "1,234", icon: <UsersIcon /> },
     { title: "Orders", value: "567", icon: <PackageIcon /> },
-    { title: "Revenue", value: "$9,876", icon: <TrendingUpIcon /> }
+    { title: "Revenue", value: "$9,876", icon: <TrendingUpIcon /> },
   ]}
-/>
+/>;
 ```
 
 ## Best Practices
@@ -203,4 +206,4 @@ Please update your imports to use the new standardized components:
 + import { CardGrid } from "@/components/ui/composed/cards";
 ```
 
-The new components maintain backwards compatibility with the same props and API as the previous versions, but provide additional features and better organization. 
+The new components maintain backwards compatibility with the same props and API as the previous versions, but provide additional features and better organization.

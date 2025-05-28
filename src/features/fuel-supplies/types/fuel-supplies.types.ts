@@ -42,4 +42,4 @@ export interface FuelSupplySummary {
   totalCost: number;
   averagePrice: number;
   supplyCount: number;
-} 
+}

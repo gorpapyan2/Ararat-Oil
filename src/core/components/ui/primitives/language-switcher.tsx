@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/core/components/ui/dropdown-menu';
+} from "@/core/components/ui/dropdown-menu";
 import { Check, Globe } from "lucide-react";
 
 interface LanguageSwitcherProps {
@@ -59,7 +59,7 @@ export function LanguageSwitcher({
               onClick={() => changeLanguage(lang.code)}
               className={cn(
                 "flex items-center gap-2 cursor-pointer",
-                currentLanguage === lang.code && "font-medium",
+                currentLanguage === lang.code && "font-medium"
               )}
             >
               {currentLanguage === lang.code && <Check className="h-4 w-4" />}
@@ -84,7 +84,7 @@ export function LanguageSwitcher({
             className={cn(
               "min-h-[36px] transition-all duration-200",
               collapsed ? "w-10 p-0" : "min-w-[80px]",
-              className,
+              className
             )}
             aria-label={t("common.changeLanguage")}
           >
@@ -107,7 +107,7 @@ export function LanguageSwitcher({
               onClick={() => changeLanguage(lang.code)}
               className={cn(
                 "flex items-center gap-2 cursor-pointer",
-                currentLanguage === lang.code && "font-medium",
+                currentLanguage === lang.code && "font-medium"
               )}
             >
               {currentLanguage === lang.code && <Check className="h-4 w-4" />}

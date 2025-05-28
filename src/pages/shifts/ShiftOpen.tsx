@@ -3,30 +3,68 @@ import { useNavigate } from "react-router-dom";
 import { useShift } from "@/hooks/useShift";
 import { useTranslation } from "react-i18next";
 import { PageLayout } from "@/layouts/PageLayout";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { Button, ButtonLink } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Label } from '@/core/components/ui/label';
+import { Label } from "@/core/components/ui/label";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
-import { ArrowLeft, AlertCircle, CheckCircle2, CalendarClock, DollarSign, Clock, Receipt, Users } from "lucide-react";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/core/components/ui/form";
-import { Separator } from '@/core/components/ui/separator';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/core/components/ui/alert";
+import {
+  ArrowLeft,
+  AlertCircle,
+  CheckCircle2,
+  CalendarClock,
+  DollarSign,
+  Clock,
+  Receipt,
+  Users,
+} from "lucide-react";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/core/components/ui/form";
+import { Separator } from "@/core/components/ui/separator";
 import { employeesApi, Employee } from "@/core/api";
 import { FuelType } from "@/types";
-import { MultiSelect } from '@/core/components/ui/multi-select';
+import { MultiSelect } from "@/core/components/ui/multi-select";
 import { fuelPricesApi } from "@/core/api";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/ui/accordion';
-import { Checkbox } from '@/core/components/ui/checkbox';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/core/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/core/components/ui/accordion";
+import { Checkbox } from "@/core/components/ui/checkbox";
 
 // Define form schema with Zod
 const openShiftSchema = z.object({
   openingCash: z.preprocess(
     (val) => (val === "" ? 0 : Number(val)),
-    z.number()
+    z
+      .number()
       .nonnegative("Opening cash amount cannot be negative")
       .default(100000)
   ),
@@ -64,7 +102,9 @@ export default function ShiftOpen() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [activeEmployees, setActiveEmployees] = useState<Employee[]>([]);
-  const [currentFuelPrices, setCurrentFuelPrices] = useState<Record<FuelType, number>>({
+  const [currentFuelPrices, setCurrentFuelPrices] = useState<
+    Record<FuelType, number>
+  >({
     diesel: 0,
     gas: 0,
     petrol_regular: 0,
@@ -115,17 +155,28 @@ export default function ShiftOpen() {
           throw new Error(response.error.message);
         }
         const prices = response.data || [];
-        
-        setCurrentFuelPrices(prices.reduce((acc, price) => {
-          acc[price.fuel_type as FuelType] = price.price_per_liter;
-          return acc;
-        }, {} as Record<FuelType, number>));
-        
+
+        setCurrentFuelPrices(
+          prices.reduce(
+            (acc, price) => {
+              acc[price.fuel_type as FuelType] = price.price_per_liter;
+              return acc;
+            },
+            {} as Record<FuelType, number>
+          )
+        );
+
         // Update form values with current fuel prices
-        form.setValue("fuelPrices", prices.reduce((acc, price) => {
-          acc[price.fuel_type as FuelType] = price.price_per_liter;
-          return acc;
-        }, {} as Record<FuelType, number>));
+        form.setValue(
+          "fuelPrices",
+          prices.reduce(
+            (acc, price) => {
+              acc[price.fuel_type as FuelType] = price.price_per_liter;
+              return acc;
+            },
+            {} as Record<FuelType, number>
+          )
+        );
       } catch (error) {
         console.error("Failed to load fuel prices:", error);
       }
@@ -136,12 +187,12 @@ export default function ShiftOpen() {
 
   // Redirect to shifts page if already has an active shift (moved to useEffect)
   useEffect(() => {
-    console.log("ShiftOpen: Checking for active shift, state:", { 
-      activeShift: activeShift ? "exists" : "not found", 
-      success, 
-      isLoading 
+    console.log("ShiftOpen: Checking for active shift, state:", {
+      activeShift: activeShift ? "exists" : "not found",
+      success,
+      isLoading,
     });
-    
+
     // Only redirect if we have an active shift, are not in success state, and not in loading state
     if (activeShift && !success && !isLoading) {
       console.log("ShiftOpen: Active shift found, redirecting to shifts page");
@@ -153,43 +204,45 @@ export default function ShiftOpen() {
   const onSubmit = async (data: OpenShiftFormValues) => {
     try {
       setError(null);
-      
+
       // If updating fuel prices is checked, update them before starting shift
       if (data.updateFuelPrices) {
         try {
-          const updates: Record<string, number> = data.fuelPrices as any;
-          
+          const updates: Record<string, number> = data.fuelPrices as Record<string, number>;
+
           for (const [type, price] of Object.entries(updates)) {
             await fuelPricesApi.update(type, {
               price_per_liter: price,
-              effective_date: new Date().toISOString()
+              effective_date: new Date().toISOString(),
             });
           }
-        } catch (priceError: any) {
+        } catch (priceError: unknown) {
           console.error("Error updating fuel prices:", priceError);
           // Continue with shift creation even if fuel price update fails
         }
       }
-      
+
       // Start the shift with selected employees
       await beginShift(data.openingCash, data.employeeIds);
       setSuccess(true);
-      
+
       // Redirect after successful shift start
       setTimeout(() => {
         navigate("/finance/shifts");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error starting shift:", error);
-      
+
       // Set a more specific error message based on the error
-      if (error.message?.includes("active shift")) {
+      if (error instanceof Error && error.message?.includes("active shift")) {
         // This is our custom error from the useShift hook
         setError(error.message);
       } else if (!navigator.onLine) {
-        setError("Cannot start shift while offline. Please check your internet connection.");
+        setError(
+          "Cannot start shift while offline. Please check your internet connection."
+        );
       } else {
-        setError(error.message || "Failed to start shift. Please try again.");
+        setError(error instanceof Error ? error.message : "Failed to start shift. Please try again.");
       }
     }
   };
@@ -214,11 +267,11 @@ export default function ShiftOpen() {
   }
 
   return (
-    <PageLayout 
+    <PageLayout
       titleKey="shifts.openShift"
       descriptionKey="shifts.startShiftDescription"
       action={
-        <ButtonLink 
+        <ButtonLink
           href="/finance/shifts"
           variant="outline"
           startIcon={<ArrowLeft className="h-4 w-4" />}
@@ -235,7 +288,7 @@ export default function ShiftOpen() {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
+
         <div className="grid md:grid-cols-2 gap-6">
           <Card className="border border-muted h-fit">
             <CardHeader>
@@ -244,67 +297,93 @@ export default function ShiftOpen() {
                 {t("shifts.shiftOverview")}
               </CardTitle>
               <CardDescription>
-                {t("shifts.shiftOverviewDescription", "What opening a shift means for your business")}
+                {t(
+                  "shifts.shiftOverviewDescription",
+                  "What opening a shift means for your business"
+                )}
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <div className="flex items-start space-x-3">
                 <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <div className="text-sm font-medium">{t("shifts.trackingTime")}</div>
+                  <div className="text-sm font-medium">
+                    {t("shifts.trackingTime")}
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    {t("shifts.trackingTimeDescription", "Records when your business operations begin")}
+                    {t(
+                      "shifts.trackingTimeDescription",
+                      "Records when your business operations begin"
+                    )}
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
                 <DollarSign className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <div className="text-sm font-medium">{t("shifts.trackingCash")}</div>
+                  <div className="text-sm font-medium">
+                    {t("shifts.trackingCash")}
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    {t("shifts.trackingCashDescription", "Records your opening cash amount for reconciliation")}
+                    {t(
+                      "shifts.trackingCashDescription",
+                      "Records your opening cash amount for reconciliation"
+                    )}
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
                 <Receipt className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <div className="text-sm font-medium">{t("shifts.salesTracking")}</div>
+                  <div className="text-sm font-medium">
+                    {t("shifts.salesTracking")}
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    {t("shifts.salesTrackingDescription", "All sales during this period will be linked to this shift")}
+                    {t(
+                      "shifts.salesTrackingDescription",
+                      "All sales during this period will be linked to this shift"
+                    )}
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
                 <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <div className="text-sm font-medium">{t("employees.title")}</div>
+                  <div className="text-sm font-medium">
+                    {t("employees.title")}
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    {t("Select active employees that will work during this shift")}
+                    {t(
+                      "Select active employees that will work during this shift"
+                    )}
                   </div>
                 </div>
               </div>
-              
+
               <Separator className="my-2" />
-              
+
               <div className="text-sm text-muted-foreground">
-                {t("shifts.onlyOneShiftNote", "Note: Only one shift can be active at a time in the system.")}
+                {t(
+                  "shifts.onlyOneShiftNote",
+                  "Note: Only one shift can be active at a time in the system."
+                )}
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="border border-muted">
             <CardHeader>
               <CardTitle>{t("shifts.openShift")}</CardTitle>
               <CardDescription>
-                {t("shifts.startShiftDescription") || "Start a new shift with an opening cash amount."}
+                {t("shifts.startShiftDescription") ||
+                  "Start a new shift with an opening cash amount."}
               </CardDescription>
             </CardHeader>
-            
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <CardContent>
@@ -317,7 +396,7 @@ export default function ShiftOpen() {
                         {t("shifts.fuelPrices")}
                       </TabsTrigger>
                     </TabsList>
-                    
+
                     <TabsContent value="basics" className="space-y-6">
                       <FormField
                         control={form.control}
@@ -327,25 +406,36 @@ export default function ShiftOpen() {
                             <FormLabel>{t("shifts.openingCash")}</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">֏</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                  ֏
+                                </span>
                                 <Input
                                   type="number"
                                   placeholder="Enter opening cash amount"
                                   className="pl-8"
                                   {...field}
                                   min={0}
-                                  onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value === ""
+                                        ? 0
+                                        : Number(e.target.value)
+                                    )
+                                  }
                                 />
                               </div>
                             </FormControl>
                             <div className="text-xs text-muted-foreground mt-1">
-                              {t("shifts.openingCashHint", "Enter the amount of cash you have at the start of this shift")}
+                              {t(
+                                "shifts.openingCashHint",
+                                "Enter the amount of cash you have at the start of this shift"
+                              )}
                             </div>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name="employeeIds"
@@ -357,15 +447,21 @@ export default function ShiftOpen() {
                             <FormControl>
                               <MultiSelect
                                 placeholder="Select employees..."
-                                options={activeEmployees.map(emp => ({
+                                options={activeEmployees.map((emp) => ({
                                   value: emp.id,
-                                  label: emp.name
+                                  label: emp.name,
                                 }))}
-                                value={field.value.map(id => ({
+                                value={field.value.map((id) => ({
                                   value: id,
-                                  label: activeEmployees.find(emp => emp.id === id)?.name || id
+                                  label:
+                                    activeEmployees.find((emp) => emp.id === id)
+                                      ?.name || id,
                                 }))}
-                                onChange={(selected) => field.onChange(selected.map(item => item.value))}
+                                onChange={(selected) =>
+                                  field.onChange(
+                                    selected.map((item) => item.value)
+                                  )
+                                }
                               />
                             </FormControl>
                             <div className="text-xs text-muted-foreground mt-1">
@@ -376,7 +472,7 @@ export default function ShiftOpen() {
                         )}
                       />
                     </TabsContent>
-                    
+
                     <TabsContent value="fuel">
                       <div className="space-y-4">
                         <FormField
@@ -403,8 +499,16 @@ export default function ShiftOpen() {
                         />
 
                         {form.watch("updateFuelPrices") && (
-                          <Accordion type="single" collapsible defaultValue="fuel-prices" className="w-full">
-                            <AccordionItem value="fuel-prices" className="border rounded-md">
+                          <Accordion
+                            type="single"
+                            collapsible
+                            defaultValue="fuel-prices"
+                            className="w-full"
+                          >
+                            <AccordionItem
+                              value="fuel-prices"
+                              className="border rounded-md"
+                            >
                               <AccordionTrigger className="px-4">
                                 {t("shifts.setTodayFuelPrices")}
                               </AccordionTrigger>
@@ -415,17 +519,27 @@ export default function ShiftOpen() {
                                     name="fuelPrices.petrol"
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>{t("common.petrol")}</FormLabel>
+                                        <FormLabel>
+                                          {t("common.petrol")}
+                                        </FormLabel>
                                         <FormControl>
                                           <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">֏</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                              ֏
+                                            </span>
                                             <Input
                                               type="number"
                                               className="pl-8"
                                               {...field}
                                               min={0}
                                               step={1}
-                                              onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+                                              onChange={(e) =>
+                                                field.onChange(
+                                                  e.target.value === ""
+                                                    ? 0
+                                                    : Number(e.target.value)
+                                                )
+                                              }
                                             />
                                           </div>
                                         </FormControl>
@@ -433,23 +547,33 @@ export default function ShiftOpen() {
                                       </FormItem>
                                     )}
                                   />
-                                  
+
                                   <FormField
                                     control={form.control}
                                     name="fuelPrices.diesel"
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>{t("common.diesel")}</FormLabel>
+                                        <FormLabel>
+                                          {t("common.diesel")}
+                                        </FormLabel>
                                         <FormControl>
                                           <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">֏</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                              ֏
+                                            </span>
                                             <Input
                                               type="number"
                                               className="pl-8"
                                               {...field}
                                               min={0}
                                               step={1}
-                                              onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+                                              onChange={(e) =>
+                                                field.onChange(
+                                                  e.target.value === ""
+                                                    ? 0
+                                                    : Number(e.target.value)
+                                                )
+                                              }
                                             />
                                           </div>
                                         </FormControl>
@@ -457,7 +581,7 @@ export default function ShiftOpen() {
                                       </FormItem>
                                     )}
                                   />
-                                  
+
                                   <FormField
                                     control={form.control}
                                     name="fuelPrices.gas"
@@ -466,14 +590,22 @@ export default function ShiftOpen() {
                                         <FormLabel>{t("common.gas")}</FormLabel>
                                         <FormControl>
                                           <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">֏</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                              ֏
+                                            </span>
                                             <Input
                                               type="number"
                                               className="pl-8"
                                               {...field}
                                               min={0}
                                               step={1}
-                                              onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+                                              onChange={(e) =>
+                                                field.onChange(
+                                                  e.target.value === ""
+                                                    ? 0
+                                                    : Number(e.target.value)
+                                                )
+                                              }
                                             />
                                           </div>
                                         </FormControl>
@@ -481,7 +613,7 @@ export default function ShiftOpen() {
                                       </FormItem>
                                     )}
                                   />
-                                  
+
                                   <FormField
                                     control={form.control}
                                     name="fuelPrices.cng"
@@ -490,14 +622,22 @@ export default function ShiftOpen() {
                                         <FormLabel>{t("common.cng")}</FormLabel>
                                         <FormControl>
                                           <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">֏</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                              ֏
+                                            </span>
                                             <Input
                                               type="number"
                                               className="pl-8"
                                               {...field}
                                               min={0}
                                               step={1}
-                                              onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+                                              onChange={(e) =>
+                                                field.onChange(
+                                                  e.target.value === ""
+                                                    ? 0
+                                                    : Number(e.target.value)
+                                                )
+                                              }
                                             />
                                           </div>
                                         </FormControl>
@@ -505,23 +645,33 @@ export default function ShiftOpen() {
                                       </FormItem>
                                     )}
                                   />
-                                  
+
                                   <FormField
                                     control={form.control}
                                     name="fuelPrices.kerosene"
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>{t("common.kerosene")}</FormLabel>
+                                        <FormLabel>
+                                          {t("common.kerosene")}
+                                        </FormLabel>
                                         <FormControl>
                                           <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">֏</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                              ֏
+                                            </span>
                                             <Input
                                               type="number"
                                               className="pl-8"
                                               {...field}
                                               min={0}
                                               step={1}
-                                              onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+                                              onChange={(e) =>
+                                                field.onChange(
+                                                  e.target.value === ""
+                                                    ? 0
+                                                    : Number(e.target.value)
+                                                )
+                                              }
                                             />
                                           </div>
                                         </FormControl>
@@ -538,19 +688,15 @@ export default function ShiftOpen() {
                     </TabsContent>
                   </Tabs>
                 </CardContent>
-                
+
                 <CardFooter className="flex justify-between border-t p-4">
-                  <ButtonLink
-                    href="/finance/shifts"
-                    variant="outline"
-                  >
+                  <ButtonLink href="/finance/shifts" variant="outline">
                     {t("common.cancel")}
                   </ButtonLink>
-                  <Button 
-                    type="submit" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? t("common.processing") : t("shifts.startShift")}
+                  <Button type="submit" disabled={isLoading}>
+                    {isLoading
+                      ? t("common.processing")
+                      : t("shifts.startShift")}
                   </Button>
                 </CardFooter>
               </form>
@@ -560,4 +706,4 @@ export default function ShiftOpen() {
       </div>
     </PageLayout>
   );
-} 
+}

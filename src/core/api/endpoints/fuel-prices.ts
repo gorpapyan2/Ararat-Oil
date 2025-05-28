@@ -1,13 +1,28 @@
-import { fetchFromFunction, ApiResponse } from '../client';
-import type { FuelPrice } from '../types';
+import { fetchFromFunction, ApiResponse } from "../client";
+import type { FuelPrice } from "../types";
+
+/**
+ * Query parameters for fuel prices
+ */
+export interface FuelPricesQueryParams {
+  fuel_type?: string;
+  fuel_type_id?: string;
+  status?: string;
+  effective_date_from?: string;
+  effective_date_to?: string;
+  limit?: number;
+  offset?: number;
+}
 
 /**
  * Get all fuel prices with optional filtering by fuel type
  * @param params Optional query parameters
  * @returns ApiResponse with array of fuel prices
  */
-export async function getFuelPrices(params?: any): Promise<ApiResponse<FuelPrice[]>> {
-  return fetchFromFunction('fuel-prices', {
+export async function getFuelPrices(
+  params?: FuelPricesQueryParams
+): Promise<ApiResponse<FuelPrice[]>> {
+  return fetchFromFunction("fuel-prices", {
     queryParams: params,
   });
 }
@@ -17,7 +32,9 @@ export async function getFuelPrices(params?: any): Promise<ApiResponse<FuelPrice
  * @param id The fuel price ID
  * @returns ApiResponse with the fuel price data
  */
-export async function getFuelPriceById(id: string): Promise<ApiResponse<FuelPrice>> {
+export async function getFuelPriceById(
+  id: string
+): Promise<ApiResponse<FuelPrice>> {
   return fetchFromFunction(`fuel-prices/${id}`);
 }
 
@@ -26,8 +43,12 @@ export async function getFuelPriceById(id: string): Promise<ApiResponse<FuelPric
  * @param data The fuel price data to create
  * @returns ApiResponse with the created fuel price
  */
-export async function createFuelPrice(data: { fuel_type: string; price_per_liter: number; effective_date: string }): Promise<ApiResponse<FuelPrice>> {
-  return fetchFromFunction('fuel-prices', { method: 'POST', body: data });
+export async function createFuelPrice(data: {
+  fuel_type: string;
+  price_per_liter: number;
+  effective_date: string;
+}): Promise<ApiResponse<FuelPrice>> {
+  return fetchFromFunction("fuel-prices", { method: "POST", body: data });
 }
 
 /**
@@ -36,8 +57,16 @@ export async function createFuelPrice(data: { fuel_type: string; price_per_liter
  * @param data The updated fuel price data
  * @returns ApiResponse with the updated fuel price
  */
-export async function updateFuelPrice(id: string, data: Partial<{ fuel_type: string; price_per_liter: number; effective_date: string; status?: string }>): Promise<ApiResponse<FuelPrice>> {
-  return fetchFromFunction(`fuel-prices/${id}`, { method: 'PUT', body: data });
+export async function updateFuelPrice(
+  id: string,
+  data: Partial<{
+    fuel_type: string;
+    price_per_liter: number;
+    effective_date: string;
+    status?: string;
+  }>
+): Promise<ApiResponse<FuelPrice>> {
+  return fetchFromFunction(`fuel-prices/${id}`, { method: "PUT", body: data });
 }
 
 /**
@@ -46,7 +75,7 @@ export async function updateFuelPrice(id: string, data: Partial<{ fuel_type: str
  * @returns ApiResponse with success status
  */
 export async function deleteFuelPrice(id: string): Promise<ApiResponse<void>> {
-  return fetchFromFunction(`fuel-prices/${id}`, { method: 'DELETE' });
+  return fetchFromFunction(`fuel-prices/${id}`, { method: "DELETE" });
 }
 
 /**
@@ -57,5 +86,5 @@ export const fuelPricesApi = {
   getFuelPriceById,
   createFuelPrice,
   updateFuelPrice,
-  deleteFuelPrice
-}; 
+  deleteFuelPrice,
+};

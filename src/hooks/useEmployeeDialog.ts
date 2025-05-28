@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from 'react';
-import { Employee } from '@/types';
-import { toast } from '@/hooks';
+import { useState, useCallback, useRef } from "react";
+import { Employee } from "@/types";
+import { toast } from "./use-toast";
 
 /**
  * Custom hook for managing EmployeeDialog state and data handling
@@ -11,10 +11,12 @@ export function useEmployeeDialog(options?: {
 }) {
   // Dialog state
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const triggerRef = useRef<HTMLElement>(null);
-  
+
   /**
    * Open dialog to create a new employee
    */
@@ -22,7 +24,7 @@ export function useEmployeeDialog(options?: {
     setSelectedEmployee(null);
     setIsOpen(true);
   }, []);
-  
+
   /**
    * Open dialog to edit an existing employee
    */
@@ -30,7 +32,7 @@ export function useEmployeeDialog(options?: {
     setSelectedEmployee(employee);
     setIsOpen(true);
   }, []);
-  
+
   /**
    * Close the dialog
    */
@@ -41,7 +43,7 @@ export function useEmployeeDialog(options?: {
       setSelectedEmployee(null);
     }, 300);
   }, []);
-  
+
   /**
    * Handle dialog open state change
    */
@@ -54,7 +56,7 @@ export function useEmployeeDialog(options?: {
       }, 300);
     }
   }, []);
-  
+
   /**
    * Handle form submission
    */
@@ -62,22 +64,22 @@ export function useEmployeeDialog(options?: {
     async (formData: Partial<Employee>) => {
       try {
         setIsSubmitting(true);
-        
+
         if (selectedEmployee) {
           // Update existing employee
           const updatedEmployee = {
             ...selectedEmployee,
             ...formData,
           };
-          
+
           // Here you would typically make an API call to update the employee
           // await updateEmployee(updatedEmployee);
-          
+
           toast({
             title: "Employee updated",
             description: `Successfully updated ${updatedEmployee.name}.`,
           });
-          
+
           if (options?.onUpdateSuccess) {
             options.onUpdateSuccess(updatedEmployee as Employee);
           }
@@ -89,38 +91,38 @@ export function useEmployeeDialog(options?: {
             updated_at: new Date().toISOString(),
             ...formData,
           } as Employee;
-          
+
           // Here you would typically make an API call to create the employee
           // await createEmployee(newEmployee);
-          
+
           toast({
             title: "Employee created",
             description: `Successfully added ${newEmployee.name}.`,
           });
-          
+
           if (options?.onCreateSuccess) {
             options.onCreateSuccess(newEmployee);
           }
         }
-        
+
         // Close dialog
         setIsOpen(false);
-        
+
         // Optional: Reset selected employee after a delay
         setTimeout(() => {
           setSelectedEmployee(null);
         }, 300);
-        
+
         return true;
       } catch (error) {
-        console.error('Error submitting employee form:', error);
-        
+        console.error("Error submitting employee form:", error);
+
         toast({
           title: "Error",
           description: `Failed to ${selectedEmployee ? "update" : "create"} employee.`,
           variant: "destructive",
         });
-        
+
         return false;
       } finally {
         setIsSubmitting(false);
@@ -128,7 +130,7 @@ export function useEmployeeDialog(options?: {
     },
     [selectedEmployee, options]
   );
-  
+
   return {
     isOpen,
     setIsOpen,
@@ -142,4 +144,4 @@ export function useEmployeeDialog(options?: {
     handleSubmit,
     triggerRef,
   };
-} 
+}

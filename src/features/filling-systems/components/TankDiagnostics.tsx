@@ -1,17 +1,30 @@
 import { useState } from "react";
 import { Button } from "@/core/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
-import { tanksApi } from "@/core/api";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { tanksApi } from "@/core/api/endpoints/tanks";
 import { useTranslation } from "react-i18next";
 import { useFillingSystem } from "../hooks/useFillingSystem";
+import type { Tank } from "@/core/api/types";
+
+interface FillingSystemDiagnostic {
+  id: string;
+  name: string;
+  tank_id?: string;
+  [key: string]: unknown;
+}
 
 export function TankDiagnostics() {
   const { t } = useTranslation();
   const { validateTankIds } = useFillingSystem();
   const [isOpen, setIsOpen] = useState(false);
-  const [tanks, setTanks] = useState<any[]>([]);
-  const [fillingSystems, setFillingSystems] = useState<any[]>([]);
+  const [tanks, setTanks] = useState<Tank[]>([]);
+  const [fillingSystems, setFillingSystems] = useState<FillingSystemDiagnostic[]>([]);
   const [loading, setLoading] = useState(false);
   const [validationResults, setValidationResults] = useState<
     Record<string, boolean>
@@ -39,8 +52,8 @@ export function TankDiagnostics() {
       // Validate tank IDs
       if (systems && systems.length > 0) {
         const tankIds = systems
-          .map((system: any) => system.tank_id)
-          .filter((id: string) => id != null && id !== "");
+          .map((system: FillingSystemDiagnostic) => system.tank_id)
+          .filter((id: string | undefined): id is string => id != null && id !== "");
 
         // Use validateTankIds function from our hook
         const validations = await validateTankIds(tankIds);
@@ -59,19 +72,26 @@ export function TankDiagnostics() {
   };
 
   // Get translated text or fallback to default values
-  const showDiagnostics = t("fillingSystems.showDiagnostics") || "Show Diagnostics";
-  const hideDiagnostics = t("fillingSystems.hideDiagnostics") || "Hide Diagnostics";
-  const runDiagnosticsText = t("fillingSystems.runTankDiagnostics") || "Run Tank Diagnostics";
+  const showDiagnostics =
+    t("fillingSystems.showDiagnostics") || "Show Diagnostics";
+  const hideDiagnostics =
+    t("fillingSystems.hideDiagnostics") || "Hide Diagnostics";
+  const runDiagnosticsText =
+    t("fillingSystems.runTankDiagnostics") || "Run Tank Diagnostics";
   const runningText = t("common.running") || "Running...";
   const fuelTanksText = t("fillingSystems.fuelTanks") || "Fuel Tanks";
-  const fillingSystemsText = t("fillingSystems.fillingSystems") || "Filling Systems";
-  const validationResultsText = t("fillingSystems.tankIdValidationResults") || "Tank ID Validation Results";
+  const fillingSystemsText =
+    t("fillingSystems.fillingSystems") || "Filling Systems";
+  const validationResultsText =
+    t("fillingSystems.tankIdValidationResults") || "Tank ID Validation Results";
   const systemNameText = t("fillingSystems.systemName") || "System Name";
   const tankIdText = t("fillingSystems.tankId") || "Tank ID";
   const tankExistsText = t("fillingSystems.tankExists") || "Tank Exists";
   const problemText = t("fillingSystems.problem") || "Problem";
-  const noTankIdText = t("fillingSystems.noTankIdAssigned") || "No tank ID assigned";
-  const tankNotExistText = t("fillingSystems.tankIdNotExist") || "Tank ID does not exist in database";
+  const noTankIdText =
+    t("fillingSystems.noTankIdAssigned") || "No tank ID assigned";
+  const tankNotExistText =
+    t("fillingSystems.tankIdNotExist") || "Tank ID does not exist in database";
   const yesText = t("common.yes") || "Yes";
   const noText = t("common.no") || "No";
 
@@ -98,7 +118,9 @@ export function TankDiagnostics() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>{fuelTanksText} ({tanks.length})</CardTitle>
+                <CardTitle>
+                  {fuelTanksText} ({tanks.length})
+                </CardTitle>
               </CardHeader>
               <CardContent className="max-h-96 overflow-auto">
                 <pre className="text-xs">{JSON.stringify(tanks, null, 2)}</pre>
@@ -107,7 +129,9 @@ export function TankDiagnostics() {
 
             <Card>
               <CardHeader>
-                <CardTitle>{fillingSystemsText} ({fillingSystems.length})</CardTitle>
+                <CardTitle>
+                  {fillingSystemsText} ({fillingSystems.length})
+                </CardTitle>
               </CardHeader>
               <CardContent className="max-h-96 overflow-auto">
                 <pre className="text-xs">
@@ -131,7 +155,7 @@ export function TankDiagnostics() {
                     </tr>
                   </thead>
                   <tbody>
-                    {fillingSystems.map((system: any) => {
+                    {fillingSystems.map((system: FillingSystemDiagnostic) => {
                       const tankExists = system.tank_id
                         ? validationResults[system.tank_id]
                         : false;
@@ -170,4 +194,4 @@ export function TankDiagnostics() {
       )}
     </div>
   );
-} 
+}

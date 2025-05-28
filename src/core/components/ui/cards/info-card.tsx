@@ -1,5 +1,11 @@
 import React from "react";
-import { Info, CheckCircle, AlertTriangle, AlertCircle, HelpCircle } from "lucide-react";
+import {
+  Info,
+  CheckCircle,
+  AlertTriangle,
+  AlertCircle,
+  HelpCircle,
+} from "lucide-react";
 import { cn } from "@/shared/utils";
 import { InfoCardProps } from "./types";
 import {
@@ -33,17 +39,24 @@ export const InfoCard = React.forwardRef<HTMLDivElement, InfoCardProps>(
     const typeClasses = {
       default: "bg-card border",
       info: "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-300",
-      success: "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 text-green-900 dark:text-green-300",
-      warning: "bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-300",
-      error: "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-900 dark:text-red-300",
+      success:
+        "bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 text-green-900 dark:text-green-300",
+      warning:
+        "bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-300",
+      error:
+        "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-900 dark:text-red-300",
     };
 
     // Default icons if none provided
     const defaultIcons = {
       default: <HelpCircle className="h-5 w-5" />,
       info: <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
-      success: <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />,
-      warning: <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />,
+      success: (
+        <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+      ),
+      warning: (
+        <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+      ),
       error: <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />,
     };
 
@@ -53,11 +66,7 @@ export const InfoCard = React.forwardRef<HTMLDivElement, InfoCardProps>(
     return (
       <Card
         ref={ref}
-        className={cn(
-          "overflow-hidden",
-          typeClasses[type],
-          className
-        )}
+        className={cn("overflow-hidden", typeClasses[type], className)}
         variant="ghost"
         isLoading={isLoading}
         {...props}
@@ -65,9 +74,7 @@ export const InfoCard = React.forwardRef<HTMLDivElement, InfoCardProps>(
         <CardHeader className="pb-2">
           <div className="flex items-start">
             {displayIcon && (
-              <div className="mr-3 mt-0.5 flex-shrink-0">
-                {displayIcon}
-              </div>
+              <div className="mr-3 mt-0.5 flex-shrink-0">{displayIcon}</div>
             )}
             <div>
               <CardTitle size="sm">{title}</CardTitle>
@@ -79,13 +86,13 @@ export const InfoCard = React.forwardRef<HTMLDivElement, InfoCardProps>(
             </div>
           </div>
         </CardHeader>
-        
+
         {children && (
           <CardContent padded className="pl-11">
             {children}
           </CardContent>
         )}
-        
+
         {actions && (
           <CardActions align="right" className="pl-11">
             {actions}
@@ -96,4 +103,4 @@ export const InfoCard = React.forwardRef<HTMLDivElement, InfoCardProps>(
   }
 );
 
-InfoCard.displayName = "InfoCard"; 
+InfoCard.displayName = "InfoCard";

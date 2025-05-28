@@ -13,28 +13,28 @@ import {
   CardTitle,
 } from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
-import { Switch } from '@/core/components/ui/switch';
-import { Label } from '@/core/components/ui/label';
-import { Separator } from '@/core/components/ui/separator';
+import { Switch } from "@/core/components/ui/switch";
+import { Label } from "@/core/components/ui/label";
+import { Separator } from "@/core/components/ui/separator";
 
 // Icons
-import { 
-  Bell, 
-  Mail, 
-  MessageSquare, 
-  AlertCircle, 
+import {
+  Bell,
+  Mail,
+  MessageSquare,
+  AlertCircle,
   Calendar,
   UserPlus,
-  Lock
+  Lock,
 } from "lucide-react";
 
 function NotificationSettings() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  
+
   // Log render count in development
   useRenderCount("NotificationSettings");
-  
+
   // Notification states
   const [notifications, setNotifications] = useState({
     // Email notifications
@@ -42,14 +42,14 @@ function NotificationSettings() {
     emailSecurity: true,
     emailMarketing: false,
     emailNewsletter: true,
-    
+
     // System notifications
     pushAll: true,
     pushMessages: true,
     pushSecurity: true,
     pushReminders: true,
     pushMentions: true,
-    
+
     // Sound settings
     soundEnabled: true,
     soundMessages: true,
@@ -57,12 +57,13 @@ function NotificationSettings() {
   });
 
   // Update notification setting
-  const updateNotification = (key: keyof typeof notifications) => (checked: boolean) => {
-    setNotifications({
-      ...notifications,
-      [key]: checked
-    });
-  };
+  const updateNotification =
+    (key: keyof typeof notifications) => (checked: boolean) => {
+      setNotifications({
+        ...notifications,
+        [key]: checked,
+      });
+    };
 
   // Handle form submission
   const handleSave = (e: React.FormEvent) => {
@@ -70,7 +71,8 @@ function NotificationSettings() {
     // TODO: Save to backend
     toast({
       title: "Notifications updated",
-      description: "Your notification preferences have been updated successfully.",
+      description:
+        "Your notification preferences have been updated successfully.",
     });
   };
 
@@ -92,10 +94,13 @@ function NotificationSettings() {
                 {t("settings.notifications.emailNotifications")}
               </h3>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="emailSystem" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="emailSystem"
+                  className="flex flex-col space-y-1"
+                >
                   <span>{t("settings.notifications.systemEmails")}</span>
                   <span className="font-normal text-xs text-muted-foreground">
                     {t("settings.notifications.systemEmailsDescription")}
@@ -107,9 +112,12 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("emailSystem")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="emailSecurity" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="emailSecurity"
+                  className="flex flex-col space-y-1"
+                >
                   <span>{t("settings.notifications.securityEmails")}</span>
                   <span className="font-normal text-xs text-muted-foreground">
                     {t("settings.notifications.securityEmailsDescription")}
@@ -121,9 +129,12 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("emailSecurity")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="emailMarketing" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="emailMarketing"
+                  className="flex flex-col space-y-1"
+                >
                   <span>{t("settings.notifications.marketingEmails")}</span>
                   <span className="font-normal text-xs text-muted-foreground">
                     {t("settings.notifications.marketingEmailsDescription")}
@@ -135,9 +146,12 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("emailMarketing")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="emailNewsletter" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="emailNewsletter"
+                  className="flex flex-col space-y-1"
+                >
                   <span>{t("settings.notifications.newsletterEmails")}</span>
                   <span className="font-normal text-xs text-muted-foreground">
                     {t("settings.notifications.newsletterEmailsDescription")}
@@ -151,9 +165,9 @@ function NotificationSettings() {
               </div>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           {/* System Notifications */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -162,7 +176,7 @@ function NotificationSettings() {
                 {t("settings.notifications.pushNotifications")}
               </h3>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex items-center justify-between space-x-2">
                 <Label htmlFor="pushAll" className="flex flex-col space-y-1">
@@ -180,15 +194,20 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("pushAll")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="pushMessages" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="pushMessages"
+                  className="flex flex-col space-y-1"
+                >
                   <span className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
                     {t("settings.notifications.messageNotifications")}
                   </span>
                   <span className="font-normal text-xs text-muted-foreground">
-                    {t("settings.notifications.messageNotificationsDescription")}
+                    {t(
+                      "settings.notifications.messageNotificationsDescription"
+                    )}
                   </span>
                 </Label>
                 <Switch
@@ -197,15 +216,20 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("pushMessages")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="pushSecurity" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="pushSecurity"
+                  className="flex flex-col space-y-1"
+                >
                   <span className="flex items-center gap-2">
                     <Lock className="h-4 w-4" />
                     {t("settings.notifications.securityNotifications")}
                   </span>
                   <span className="font-normal text-xs text-muted-foreground">
-                    {t("settings.notifications.securityNotificationsDescription")}
+                    {t(
+                      "settings.notifications.securityNotificationsDescription"
+                    )}
                   </span>
                 </Label>
                 <Switch
@@ -214,15 +238,20 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("pushSecurity")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="pushReminders" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="pushReminders"
+                  className="flex flex-col space-y-1"
+                >
                   <span className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     {t("settings.notifications.reminderNotifications")}
                   </span>
                   <span className="font-normal text-xs text-muted-foreground">
-                    {t("settings.notifications.reminderNotificationsDescription")}
+                    {t(
+                      "settings.notifications.reminderNotificationsDescription"
+                    )}
                   </span>
                 </Label>
                 <Switch
@@ -231,15 +260,20 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("pushReminders")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="pushMentions" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="pushMentions"
+                  className="flex flex-col space-y-1"
+                >
                   <span className="flex items-center gap-2">
                     <UserPlus className="h-4 w-4" />
                     {t("settings.notifications.mentionNotifications")}
                   </span>
                   <span className="font-normal text-xs text-muted-foreground">
-                    {t("settings.notifications.mentionNotificationsDescription")}
+                    {t(
+                      "settings.notifications.mentionNotificationsDescription"
+                    )}
                   </span>
                 </Label>
                 <Switch
@@ -250,9 +284,9 @@ function NotificationSettings() {
               </div>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           {/* Sound Settings */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -260,10 +294,13 @@ function NotificationSettings() {
                 {t("settings.notifications.soundSettings")}
               </h3>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="soundEnabled" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="soundEnabled"
+                  className="flex flex-col space-y-1"
+                >
                   <span>{t("settings.notifications.enableSounds")}</span>
                   <span className="font-normal text-xs text-muted-foreground">
                     {t("settings.notifications.enableSoundsDescription")}
@@ -275,9 +312,12 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("soundEnabled")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="soundMessages" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="soundMessages"
+                  className="flex flex-col space-y-1"
+                >
                   <span>{t("settings.notifications.messageSounds")}</span>
                   <span className="font-normal text-xs text-muted-foreground">
                     {t("settings.notifications.messageSoundsDescription")}
@@ -290,9 +330,12 @@ function NotificationSettings() {
                   onCheckedChange={updateNotification("soundMessages")}
                 />
               </div>
-              
+
               <div className="flex items-center justify-between space-x-2">
-                <Label htmlFor="soundNotifications" className="flex flex-col space-y-1">
+                <Label
+                  htmlFor="soundNotifications"
+                  className="flex flex-col space-y-1"
+                >
                   <span>{t("settings.notifications.notificationSounds")}</span>
                   <span className="font-normal text-xs text-muted-foreground">
                     {t("settings.notifications.notificationSoundsDescription")}
@@ -309,9 +352,7 @@ function NotificationSettings() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit">
-            {t("common.saveChanges")}
-          </Button>
+          <Button type="submit">{t("common.saveChanges")}</Button>
         </CardFooter>
       </Card>
     </form>
@@ -319,4 +360,4 @@ function NotificationSettings() {
 }
 
 // Export a memoized version for better performance
-export default memo(NotificationSettings); 
+export default memo(NotificationSettings);

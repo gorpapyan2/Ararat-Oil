@@ -1,6 +1,6 @@
 /**
  * Fuel Prices Type Definitions
- * 
+ *
  * This file contains types specific to the fuel prices feature
  */
 
@@ -13,7 +13,7 @@ export interface FuelPrice {
   fuel_type_id?: string;
   price_per_liter: number;
   effective_date: string;
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
   created_at: string;
   updated_at: string;
 }
@@ -25,7 +25,7 @@ export interface FuelPriceFormData {
   fuel_type: string;
   price_per_liter: number;
   effective_date: string;
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
 }
 
 /**
@@ -37,7 +37,7 @@ export interface FuelPriceFilters {
     start: string;
     end: string;
   };
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
 }
 
 /**
@@ -50,4 +50,4 @@ export interface FuelPriceSummary {
     last_7d: number;
     last_30d: number;
   };
-} 
+}

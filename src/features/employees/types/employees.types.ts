@@ -1,7 +1,7 @@
-import type { Database } from '@/types/supabase';
+import type { Database } from "@/types/supabase";
 
 // Type for database employees shape
-export type DbEmployee = Database['public']['Tables']['employees']['Row'];
+export type DbEmployee = Database["public"]["Tables"]["employees"]["Row"];
 
 // Employee domain model
 export interface Employee {
@@ -14,14 +14,17 @@ export interface Employee {
   department: string;
   hire_date: string;
   salary: number;
-  status: 'active' | 'inactive' | 'on_leave';
+  status: "active" | "inactive" | "on_leave";
   notes: string;
   created_at: string;
   updated_at: string;
 }
 
 // Form data for creating/updating employees
-export type EmployeeFormData = Omit<Employee, 'id' | 'created_at' | 'updated_at'>;
+export type EmployeeFormData = Omit<
+  Employee,
+  "id" | "created_at" | "updated_at"
+>;
 
 // Filter options for employee queries
 export interface EmployeeFilters {
@@ -39,4 +42,4 @@ export interface EmployeeSummary {
     name: string;
     count: number;
   }>;
-} 
+}

@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   ToggleGroup,
-  ToggleGroupItem 
+  ToggleGroupItem,
 } from "@/core/components/ui/primitives/toggle-group";

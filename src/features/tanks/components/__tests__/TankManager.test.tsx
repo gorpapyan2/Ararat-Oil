@@ -42,21 +42,21 @@ describe("TankManager", () => {
   const setup = () => {
     // Use the shared test utility
     const { renderWithProviders, mockTranslation } = setupComponentWrapper();
-    
+
     beforeEach(() => {
       vi.clearAllMocks();
       (tanksService.getTanks as any).mockResolvedValue(mockTanks);
       (tanksService.getFuelTypes as any).mockResolvedValue(mockFuelTypes);
       mockTranslation.mockImplementation((key) => key);
     });
-    
+
     const renderComponent = (props = {}) => {
       return renderWithProviders(<TankManager {...props} />);
     };
-    
+
     return { renderComponent };
   };
-  
+
   const { renderComponent } = setup();
 
   it("renders loading state initially", () => {
@@ -99,7 +99,9 @@ describe("TankManager", () => {
   });
 
   it("handles error state", async () => {
-    (tanksService.getTanks as any).mockRejectedValue(new Error("Failed to fetch"));
+    (tanksService.getTanks as any).mockRejectedValue(
+      new Error("Failed to fetch")
+    );
     renderComponent();
 
     await waitFor(() => {
@@ -123,4 +125,4 @@ describe("TankManager", () => {
 
     vi.useRealTimers();
   });
-}); 
+});

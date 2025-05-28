@@ -2,10 +2,10 @@
  * Shared test setup utilities for standardizing test code across the codebase
  * This file provides common test setup functions to reduce duplication in test files
  */
-import { vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { vi } from "vitest";
+import { renderHook } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
 
 /**
  * Create a QueryClient for testing
@@ -40,19 +40,19 @@ export function setupHookTest() {
   const mockFetch = vi.fn();
 
   // Mock API client module
-  vi.mock('@/core/api/client', () => ({
+  vi.mock("@/core/api/client", () => ({
     fetchFromApi: mockFetch,
   }));
 
   // Mock toast notifications
-  vi.mock('@/hooks/useToast', () => ({
+  vi.mock("@/hooks/useToast", () => ({
     useToast: () => ({
       toast: vi.fn(),
     }),
   }));
 
   // Mock translations
-  vi.mock('react-i18next', () => ({
+  vi.mock("react-i18next", () => ({
     useTranslation: () => ({
       t: (key: string) => key,
       i18n: {
@@ -90,20 +90,20 @@ export function setupErrorTest() {
   const mockError = vi.fn();
 
   // Mock API client module
-  vi.mock('@/core/api/client', () => ({
+  vi.mock("@/core/api/client", () => ({
     fetchFromApi: mockFetch,
   }));
 
   // Mock toast notifications
   const mockToast = vi.fn();
-  vi.mock('@/hooks/useToast', () => ({
+  vi.mock("@/hooks/useToast", () => ({
     useToast: () => ({
       toast: mockToast,
     }),
   }));
 
   // Mock translations
-  vi.mock('react-i18next', () => ({
+  vi.mock("react-i18next", () => ({
     useTranslation: () => ({
       t: (key: string) => key,
       i18n: {
@@ -142,13 +142,13 @@ export function setupMutationTest() {
   const mockMutate = vi.fn();
 
   // Mock API client module
-  vi.mock('@/core/api/client', () => ({
+  vi.mock("@/core/api/client", () => ({
     fetchFromApi: mockMutate,
   }));
 
   // Mock toast notifications
   const mockToast = vi.fn();
-  vi.mock('@/hooks/useToast', () => ({
+  vi.mock("@/hooks/useToast", () => ({
     useToast: () => ({
       toast: mockToast,
     }),
@@ -170,4 +170,4 @@ export function setupMutationTest() {
     mockToast,
     renderTestHook,
   };
-} 
+}

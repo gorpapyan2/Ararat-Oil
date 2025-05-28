@@ -8,7 +8,8 @@ import { Slot } from "@radix-ui/react-slot";
  * Props for the ButtonPrimitive component.
  * This is the basic button without styling.
  */
-export interface ButtonPrimitiveProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonPrimitiveProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * Forward ref to the root button element
    */
@@ -19,18 +20,20 @@ export interface ButtonPrimitiveProps extends React.ButtonHTMLAttributes<HTMLBut
  * Base primitive Button component
  * Handles basic button functionality without styling
  */
-export const ButtonPrimitive = React.forwardRef<HTMLButtonElement, ButtonPrimitiveProps>(
-  ({ className, ...props }, ref) => {
-    return <button ref={ref} className={className} {...props} />;
-  }
-);
+export const ButtonPrimitive = React.forwardRef<
+  HTMLButtonElement,
+  ButtonPrimitiveProps
+>(({ className, ...props }, ref) => {
+  return <button ref={ref} className={className} {...props} />;
+});
 ButtonPrimitive.displayName = "ButtonPrimitive";
 
 /**
  * Props for the AnchorButtonPrimitive component.
  * This is for link elements that should look like buttons.
  */
-export interface AnchorButtonPrimitiveProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface AnchorButtonPrimitiveProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   /**
    * Forward ref to the root anchor element
    */
@@ -41,17 +44,19 @@ export interface AnchorButtonPrimitiveProps extends React.AnchorHTMLAttributes<H
  * Base primitive Anchor Button component
  * For creating anchor links styled as buttons
  */
-export const AnchorButtonPrimitive = React.forwardRef<HTMLAnchorElement, AnchorButtonPrimitiveProps>(
-  ({ className, ...props }, ref) => {
-    return <a ref={ref} className={className} {...props} />;
-  }
-);
+export const AnchorButtonPrimitive = React.forwardRef<
+  HTMLAnchorElement,
+  AnchorButtonPrimitiveProps
+>(({ className, ...props }, ref) => {
+  return <a ref={ref} className={className} {...props} />;
+});
 AnchorButtonPrimitive.displayName = "AnchorButtonPrimitive";
 
 /**
  * Props for the LoadingSpinnerPrimitive component.
  */
-export interface LoadingSpinnerPrimitiveProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface LoadingSpinnerPrimitiveProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Forward ref to the root spinner element
    */
@@ -61,19 +66,20 @@ export interface LoadingSpinnerPrimitiveProps extends React.HTMLAttributes<HTMLD
 /**
  * Base primitive Loading Spinner component for buttons
  */
-export const LoadingSpinnerPrimitive = React.forwardRef<HTMLDivElement, LoadingSpinnerPrimitiveProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        role="status"
-        aria-label="Loading"
-        className={className}
-        {...props}
-      />
-    );
-  }
-);
+export const LoadingSpinnerPrimitive = React.forwardRef<
+  HTMLDivElement,
+  LoadingSpinnerPrimitiveProps
+>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      role="status"
+      aria-label="Loading"
+      className={className}
+      {...props}
+    />
+  );
+});
 LoadingSpinnerPrimitive.displayName = "LoadingSpinnerPrimitive";
 
 /**
@@ -85,9 +91,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-gray-50 hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline:
+          "border border-input bg-gray-50 hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
@@ -155,4 +164,4 @@ export const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
 );
 ButtonLink.displayName = "ButtonLink";
 
-export { buttonVariants }; 
+export { buttonVariants };

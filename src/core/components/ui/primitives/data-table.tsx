@@ -11,36 +11,49 @@ import {
   type ColumnFiltersState,
   type PaginationState,
   type RowSelectionState,
+  type Cell,
+  type Header,
+  type CellContext,
 } from "@tanstack/react-table";
-import { Download, ChevronDown, ChevronUp, Check, FilterX, Filter } from "lucide-react";
+import {
+  Download,
+  ChevronDown,
+  ChevronUp,
+  Check,
+  FilterX,
+  Filter,
+} from "lucide-react";
 
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Checkbox } from '@/core/components/ui/checkbox';
-import { 
-  Table, 
-  TableHeader, 
-  TableBody, 
-  TableHead, 
-  TableRow, 
-  TableCell, 
-  TableFooter
-} from '@/core/components/ui/table';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import { Checkbox } from "@/core/components/ui/checkbox";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableFooter,
+} from "@/core/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/core/components/ui/primitives/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/core/components/ui/dropdown-menu';
+} from "@/core/components/ui/dropdown-menu";
 import { DebouncedSearch } from "@/shared/components/unified/DebouncedSearch";
-import { SearchHighlighter, highlightCellContent } from "@/shared/components/unified/SearchHighlighter";
+import {
+  SearchHighlighter,
+  highlightCellContent,
+} from "@/shared/components/unified/SearchHighlighter";
 
 export type SortDirection = "asc" | "desc" | false;
 
@@ -84,9 +97,9 @@ export interface DataTableProps<TData, TValue> {
   className?: string;
   "aria-label"?: string;
   "aria-describedby"?: string;
-  getRowProps?: (row: TData, index: number) => Record<string, any>;
-  getCellProps?: (cell: any) => Record<string, any>;
-  getHeaderProps?: (header: any) => Record<string, any>;
+  getRowProps?: (row: TData, index: number) => Record<string, unknown>;
+  getCellProps?: (cell: Cell<TData, unknown>) => Record<string, unknown>;
+  getHeaderProps?: (header: Header<TData, unknown>) => Record<string, unknown>;
   highlightSearchResults?: boolean;
   searchDebounceMs?: number;
 }
@@ -135,7 +148,8 @@ export function DataTable<TData, TValue>({
   searchDebounceMs = 300,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialFilters);
+  const [columnFilters, setColumnFilters] =
+    useState<ColumnFiltersState>(initialFilters);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -145,13 +159,16 @@ export function DataTable<TData, TValue>({
   const [selectedBatchAction, setSelectedBatchAction] = useState<string>("");
 
   // Create selection column if enabled
-  const selectionColumn: ColumnDef<TData, any> = {
+  const selectionColumn: ColumnDef<TData, unknown> = {
     id: "select",
     header: ({ table }) => (
       <div className="w-12">
         <IndeterminateCheckbox
           checked={table.getIsAllPageRowsSelected()}
-          indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
+          indeterminate={
+            table.getIsSomePageRowsSelected() &&
+            !table.getIsAllPageRowsSelected()
+          }
           onChange={(checked) => table.toggleAllPageRowsSelected(!!checked)}
         />
       </div>
@@ -166,7 +183,7 @@ export function DataTable<TData, TValue>({
     ),
     enableSorting: false,
     enableHiding: false,
-    size: 40
+    size: 40,
   };
 
   // Add selection column if selection is enabled
@@ -216,16 +233,16 @@ export function DataTable<TData, TValue>({
     }
 
     // Clone the columns and add search highlighting
-    return columns.map(column => {
+    return columns.map((column) => {
       // Only modify columns that have cells we can highlight
-      if (!column.cell || column.id === 'actions' || column.id === 'select') {
+      if (!column.cell || column.id === "actions" || column.id === "select") {
         return column;
       }
 
       // Create a new cell renderer that wraps the original with highlighting
       const originalCell = column.cell;
-      const highlightedCell = (props: any) => {
-        const originalContent = originalCell(props);
+      const highlightedCell = (props: CellContext<TData, unknown>) => {
+        const originalContent = originalCell?.(props);
         return highlightCellContent(originalContent, globalFilter);
       };
 
@@ -256,16 +273,22 @@ export function DataTable<TData, TValue>({
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: !serverSide?.enabled ? getSortedRowModel() : undefined,
-    getFilteredRowModel: !serverSide?.enabled ? getFilteredRowModel() : undefined,
-    getPaginationRowModel: !serverSide?.enabled ? getPaginationRowModel() : undefined,
+    getFilteredRowModel: !serverSide?.enabled
+      ? getFilteredRowModel()
+      : undefined,
+    getPaginationRowModel: !serverSide?.enabled
+      ? getPaginationRowModel()
+      : undefined,
     manualPagination: serverSide?.enabled,
     manualSorting: serverSide?.enabled,
     manualFiltering: serverSide?.enabled,
-    pageCount: serverSide?.enabled ? Math.ceil(serverSide.totalRows / pagination.pageSize) : undefined,
+    pageCount: serverSide?.enabled
+      ? Math.ceil(serverSide.totalRows / pagination.pageSize)
+      : undefined,
   });
 
   // Debug table row models
-  console.log('DataTable row models:', {
+  console.log("DataTable row models:", {
     dataLength: data.length,
     allRowsLength: table.getRowModel().rows.length,
     hasServerSide: Boolean(serverSide?.enabled),
@@ -298,11 +321,15 @@ export function DataTable<TData, TValue>({
             .map((col) => {
               const accessorKey = "accessorKey" in col ? col.accessorKey : "";
               const key = typeof accessorKey === "string" ? accessorKey : "";
-              let value = key ? (row as any)[key] : "";
+              let value = key ? (row as Record<string, unknown>)[key] : "";
               // Escape quotes and commas in the value
               if (typeof value === "string") {
                 value = value.replace(/"/g, '""');
-                if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+                if (
+                  value.includes(",") ||
+                  value.includes('"') ||
+                  value.includes("\n")
+                ) {
                   value = `"${value}"`;
                 }
               }
@@ -328,11 +355,7 @@ export function DataTable<TData, TValue>({
 
   // Handle batch action
   const handleBatchAction = useCallback(() => {
-    if (
-      selection?.enabled &&
-      selection.onBatchAction &&
-      selectedBatchAction
-    ) {
+    if (selection?.enabled && selection.onBatchAction && selectedBatchAction) {
       const selectedRows = table
         .getSelectedRowModel()
         .flatRows.map((row) => row.original);
@@ -351,11 +374,14 @@ export function DataTable<TData, TValue>({
   }, [table, globalFilter]);
 
   return (
-    <div className={`space-y-4 ${className}`} aria-describedby={ariaDescribedby}>
+    <div
+      className={`space-y-4 ${className}`}
+      aria-describedby={ariaDescribedby}
+    >
       {/* Table Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         {title && <h2 className="text-lg font-semibold">{title}</h2>}
-        
+
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           {/* Global Filter - replaced with DebouncedSearch */}
           <div className="relative w-full sm:w-auto">
@@ -388,7 +414,11 @@ export function DataTable<TData, TValue>({
 
       {/* Selection Actions */}
       {selection?.enabled && Object.keys(rowSelection).length > 0 && (
-        <div className="flex items-center gap-2 bg-muted p-2 rounded-md" role="region" aria-live="polite">
+        <div
+          className="flex items-center gap-2 bg-muted p-2 rounded-md"
+          role="region"
+          aria-live="polite"
+        >
           <span className="text-sm font-medium">
             {Object.keys(rowSelection).length} selected
           </span>
@@ -425,12 +455,12 @@ export function DataTable<TData, TValue>({
       <div className="rounded-md border relative">
         {/* Loading Overlay */}
         {loading && (
-          <div 
-            className="absolute inset-0 bg-gray-50/70 dark:bg-gray-950/70 z-10 flex items-center justify-center" 
+          <div
+            className="absolute inset-0 bg-gray-50/70 dark:bg-gray-950/70 z-10 flex items-center justify-center"
             aria-live="polite"
             aria-atomic="true"
           >
-            <div 
+            <div
               className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
               role="status"
               aria-label="Loading"
@@ -444,12 +474,14 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   const customHeaderProps = getHeaderProps(header);
-                  
+
                   return (
-                    <TableHead 
+                    <TableHead
                       key={header.id}
                       {...customHeaderProps}
-                      sortDirection={header.column.getIsSorted() as "asc" | "desc" | null}
+                      sortDirection={
+                        header.column.getIsSorted() as "asc" | "desc" | null
+                      }
                       sortable={header.column.getCanSort()}
                     >
                       {header.isPlaceholder ? null : (
@@ -460,7 +492,9 @@ export function DataTable<TData, TValue>({
                               : ""
                           }
                           onClick={header.column.getToggleSortingHandler()}
-                          role={header.column.getCanSort() ? "button" : undefined}
+                          role={
+                            header.column.getCanSort() ? "button" : undefined
+                          }
                           tabIndex={header.column.getCanSort() ? 0 : undefined}
                           aria-label={
                             header.column.getCanSort()
@@ -468,13 +502,16 @@ export function DataTable<TData, TValue>({
                                   header.column.getIsSorted() === "asc"
                                     ? "sorted ascending"
                                     : header.column.getIsSorted() === "desc"
-                                    ? "sorted descending"
-                                    : "not sorted"
+                                      ? "sorted descending"
+                                      : "not sorted"
                                 }`
                               : undefined
                           }
                           onKeyDown={(e) => {
-                            if (header.column.getCanSort() && (e.key === 'Enter' || e.key === ' ')) {
+                            if (
+                              header.column.getCanSort() &&
+                              (e.key === "Enter" || e.key === " ")
+                            ) {
                               e.preventDefault();
                               header.column.toggleSorting();
                             }
@@ -511,7 +548,7 @@ export function DataTable<TData, TValue>({
               return rows?.length ? (
                 rows.map((row, rowIndex) => {
                   const customRowProps = getRowProps(row.original, rowIndex);
-                  
+
                   return (
                     <TableRow
                       key={row.id}
@@ -520,7 +557,7 @@ export function DataTable<TData, TValue>({
                     >
                       {row.getVisibleCells().map((cell) => {
                         const customCellProps = getCellProps(cell);
-                        
+
                         return (
                           <TableCell key={cell.id} {...customCellProps}>
                             {flexRender(
@@ -587,7 +624,11 @@ export function DataTable<TData, TValue>({
             entries
           </p>
         </div>
-        <div className="flex items-center gap-2" role="navigation" aria-label="Table pagination">
+        <div
+          className="flex items-center gap-2"
+          role="navigation"
+          aria-label="Table pagination"
+        >
           <span className="text-sm">Page size:</span>
           <Select
             value={String(pagination.pageSize)}
@@ -625,7 +666,11 @@ export function DataTable<TData, TValue>({
             >
               {"<"}
             </Button>
-            <span className="text-sm mx-2" aria-live="polite" aria-atomic="true">
+            <span
+              className="text-sm mx-2"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               Page{" "}
               <strong>
                 {pagination.pageIndex + 1} of {table.getPageCount()}
@@ -654,4 +699,4 @@ export function DataTable<TData, TValue>({
       </div>
     </div>
   );
-} 
+}

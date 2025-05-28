@@ -1,4 +1,4 @@
-import type { User } from '@supabase/supabase-js'
+import type { User, Session } from "@supabase/supabase-js";
 
 export interface AuthUser extends User {
   role?: string;
@@ -7,7 +7,7 @@ export interface AuthUser extends User {
 
 export interface AuthState {
   user: User | null;
-  session: any | null;
+  session: Session | null;
   isLoading: boolean;
   error: AuthError | null;
 }
@@ -43,13 +43,13 @@ export interface AuthError {
 
 export interface AuthResponse {
   user: User | null;
-  session: any | null;
+  session: Session | null;
   error: AuthError | null;
 }
 
-export type AuthRole = 'admin' | 'manager' | 'employee' | 'user';
+export type AuthRole = "admin" | "manager" | "employee" | "user";
 
 export interface AuthConfig {
   requiredRole?: string;
   redirectTo?: string;
-} 
+}

@@ -13,13 +13,15 @@ interface FillingSystemManagerStandardizedProps {
   onRenderAction?: (actionElement: React.ReactNode) => void;
 }
 
-export function FillingSystemManagerStandardized({ onRenderAction }: FillingSystemManagerStandardizedProps) {
+export function FillingSystemManagerStandardized({
+  onRenderAction,
+}: FillingSystemManagerStandardizedProps) {
   // Use dialog hook for managing the form dialog
   const formDialog = useDialog();
-  
+
   // Use the custom hook for filling systems
   const { useFillingSystemsQuery } = useFillingSystem();
-  
+
   // Query for filling systems data
   const {
     data: fillingSystemsResponse,
@@ -28,9 +30,12 @@ export function FillingSystemManagerStandardized({ onRenderAction }: FillingSyst
   } = useFillingSystemsQuery();
 
   // Memoize the action element
-  const actionElement = useMemo(() => (
-    <FillingSystemHeader onAddNew={formDialog.open} showAddButton={false} />
-  ), [formDialog.open]);
+  const actionElement = useMemo(
+    () => (
+      <FillingSystemHeader onAddNew={formDialog.open} showAddButton={false} />
+    ),
+    [formDialog.open]
+  );
 
   // Call the onRenderAction prop with the memoized action element if provided
   React.useEffect(() => {
@@ -45,16 +50,19 @@ export function FillingSystemManagerStandardized({ onRenderAction }: FillingSyst
       return [];
     }
     // Map the API response to our feature's FillingSystem type
-    return fillingSystemsResponse.map(apiSystem => ({
-      id: apiSystem.id,
-      name: apiSystem.name,
-      status: apiSystem.status || 'active',
-      type: 'standard', // Add default type since it's not in the API response
-      tank_id: apiSystem.tank_id,
-      location: apiSystem.location,
-      created_at: apiSystem.created_at,
-      updated_at: apiSystem.updated_at
-    } as FillingSystem));
+    return fillingSystemsResponse.map(
+      (apiSystem) =>
+        ({
+          id: apiSystem.id,
+          name: apiSystem.name,
+          status: apiSystem.status || "active",
+          type: "standard", // Add default type since it's not in the API response
+          tank_id: apiSystem.tank_id,
+          location: apiSystem.location,
+          created_at: apiSystem.created_at,
+          updated_at: apiSystem.updated_at,
+        }) as FillingSystem
+    );
   }, [fillingSystemsResponse]);
 
   // Memoize the delete handler
@@ -86,4 +94,4 @@ export function FillingSystemManagerStandardized({ onRenderAction }: FillingSyst
       <TankDiagnostics />
     </div>
   );
-} 
+}

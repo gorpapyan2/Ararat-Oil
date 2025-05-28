@@ -8,12 +8,19 @@ interface ShiftControlProps {
   isShiftOpen: boolean;
 }
 
-export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen }: ShiftControlProps) {
+export function ShiftControl({
+  onShiftStart,
+  onShiftEnd,
+  isShiftOpen,
+}: ShiftControlProps) {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   // Add console log to debug component props
   useEffect(() => {
-    console.log("ShiftControl component props:", { isShiftOpen, dialogOpen: isOpen });
+    console.log("ShiftControl component props:", {
+      isShiftOpen,
+      dialogOpen: isOpen,
+    });
   }, [isShiftOpen, isOpen]);
 
   return (
@@ -21,7 +28,7 @@ export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen }: ShiftCon
       <Button variant="outline" onClick={() => setIsOpen(true)}>
         {isShiftOpen ? "Close Shift" : "Open Shift"}
       </Button>
-      
+
       <StandardDialog
         open={isOpen}
         onOpenChange={setIsOpen}
@@ -31,23 +38,27 @@ export function ShiftControl({ onShiftStart, onShiftEnd, isShiftOpen }: ShiftCon
             <Button variant="secondary" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => {
-              setIsOpen(false);
-              if (isShiftOpen) {
-                onShiftEnd();
-              } else {
-                onShiftStart();
-              }
-            }}>
+            <Button
+              onClick={() => {
+                setIsOpen(false);
+                if (isShiftOpen) {
+                  onShiftEnd();
+                } else {
+                  onShiftStart();
+                }
+              }}
+            >
               {isShiftOpen ? "Close Shift" : "Open Shift"}
             </Button>
           </div>
         }
       >
         <div className="flex flex-col space-y-4">
-          <p>Are you sure you want to {isShiftOpen ? "close" : "open"} the shift?</p>
+          <p>
+            Are you sure you want to {isShiftOpen ? "close" : "open"} the shift?
+          </p>
         </div>
       </StandardDialog>
     </div>
   );
-} 
+}

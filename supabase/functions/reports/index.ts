@@ -13,6 +13,13 @@ import {
 type ReportType = 'sales' | 'expenses' | 'inventory' | 'fuel_supply' | 'fuel_consumption';
 type TimeFrame = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
+// Add interface for consumption data
+interface ConsumptionByFuelType {
+  fuel_type: string;
+  quantity: number;
+  total_sales?: number;
+}
+
 // Handle reports operations
 Deno.serve(async (req: Request) => {
   // Handle CORS
@@ -80,7 +87,7 @@ Deno.serve(async (req: Request) => {
         timeframe: TimeFrame;
         start_date?: string;
         end_date?: string;
-        filters?: Record<string, any>;
+        filters?: Record<string, string | number | boolean>;
         groupBy?: string[];
       }>(req);
       
@@ -516,7 +523,7 @@ async function generateFuelConsumptionReport(
     
     // Calculate total consumption
     let totalConsumption = 0;
-    (byFuelType || []).forEach((item: any) => {
+    (byFuelType || []).forEach((item: ConsumptionByFuelType) => {
       totalConsumption += item.quantity || 0;
     });
     
@@ -545,7 +552,7 @@ async function generateCustomReport(params: {
   timeframe: TimeFrame;
   start_date?: string;
   end_date?: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, string | number | boolean>;
   groupBy?: string[];
 }): Promise<Response> {
   try {

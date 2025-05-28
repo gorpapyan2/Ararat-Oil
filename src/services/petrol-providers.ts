@@ -17,7 +17,9 @@ export interface UpdateProviderRequest {
  * @param options Optional parameters for filtering providers
  * @returns Array of petrol providers
  */
-export async function fetchPetrolProviders(options: { activeOnly?: boolean } = {}): Promise<PetrolProvider[]> {
+export async function fetchPetrolProviders(
+  options: { activeOnly?: boolean } = {}
+): Promise<PetrolProvider[]> {
   try {
     const response = await petrolProvidersApi.getAll();
 
@@ -28,7 +30,7 @@ export async function fetchPetrolProviders(options: { activeOnly?: boolean } = {
 
     // Filter active providers only if requested
     if (options.activeOnly) {
-      return (response.data || []).filter(provider => provider.is_active);
+      return (response.data || []).filter((provider) => provider.is_active);
     }
 
     return response.data || [];
@@ -38,12 +40,17 @@ export async function fetchPetrolProviders(options: { activeOnly?: boolean } = {
   }
 }
 
-export async function fetchPetrolProviderById(id: string): Promise<PetrolProvider | null> {
+export async function fetchPetrolProviderById(
+  id: string
+): Promise<PetrolProvider | null> {
   try {
     const response = await petrolProvidersApi.getById(id);
 
     if (response.error) {
-      console.error(`Error fetching petrol provider with ID ${id}:`, response.error);
+      console.error(
+        `Error fetching petrol provider with ID ${id}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
 
@@ -80,7 +87,10 @@ export async function updatePetrolProvider(
     const response = await petrolProvidersApi.update(id, provider);
 
     if (response.error) {
-      console.error(`Error updating petrol provider with ID ${id}:`, response.error);
+      console.error(
+        `Error updating petrol provider with ID ${id}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
 
@@ -96,7 +106,10 @@ export async function deletePetrolProvider(id: string): Promise<void> {
     const response = await petrolProvidersApi.delete(id);
 
     if (response.error) {
-      console.error(`Error deleting petrol provider with ID ${id}:`, response.error);
+      console.error(
+        `Error deleting petrol provider with ID ${id}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
   } catch (err) {
@@ -109,7 +122,7 @@ export async function createSampleProvider(): Promise<PetrolProvider> {
   const sampleProvider: CreateProviderRequest = {
     name: "Sample Provider",
     contact: "sample@example.com",
-    is_active: true
+    is_active: true,
   };
   return createPetrolProvider(sampleProvider);
 }

@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   Select,
   SelectGroup,
   SelectValue,
@@ -13,5 +13,5 @@ export {
   SelectItem,
   SelectSeparator,
   SelectScrollUpButton,
-  SelectScrollDownButton 
+  SelectScrollDownButton,
 } from "@/core/components/ui/primitives/select";

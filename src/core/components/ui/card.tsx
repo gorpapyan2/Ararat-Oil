@@ -24,4 +24,4 @@ export {
   type CardContentPrimitiveProps,
   type CardMediaPrimitiveProps,
   type CardActionsPrimitiveProps,
-} from "@/core/components/ui/primitives/card"; 
+} from "@/core/components/ui/primitives/card";

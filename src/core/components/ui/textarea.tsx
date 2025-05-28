@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { cn } from '@/utils/cn';
+import * as React from "react";
+import { cn } from "@/utils/cn";
 
 export interface TextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -7,22 +7,22 @@ export interface TextareaProps
    * Error state, applies error styling
    */
   error?: boolean;
-  
+
   /**
    * Error message to display
    */
   errorMessage?: string;
-  
+
   /**
    * Custom resize behavior
    */
-  resize?: 'none' | 'vertical' | 'horizontal' | 'both';
-  
+  resize?: "none" | "vertical" | "horizontal" | "both";
+
   /**
    * Auto grow height based on content
    */
   autoGrow?: boolean;
-  
+
   /**
    * Maximum height when autoGrow is enabled (in pixels)
    */
@@ -31,7 +31,7 @@ export interface TextareaProps
 
 /**
  * Textarea component for multiline text input
- * 
+ *
  * @example
  * ```tsx
  * <Textarea placeholder="Enter your message" />
@@ -41,43 +41,46 @@ export interface TextareaProps
  * ```
  */
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ 
-    className, 
-    error, 
-    errorMessage, 
-    resize = 'vertical',
-    autoGrow,
-    maxHeight = 500,
-    onChange,
-    ...props 
-  }, ref) => {
+  (
+    {
+      className,
+      error,
+      errorMessage,
+      resize = "vertical",
+      autoGrow,
+      maxHeight = 500,
+      onChange,
+      ...props
+    },
+    ref
+  ) => {
     const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
     const combinedRef = useCombinedRefs(ref, textareaRef);
-    
+
     // Auto resize textarea based on content height
     const adjustHeight = React.useCallback(() => {
       const textarea = textareaRef.current;
       if (!textarea || !autoGrow) return;
-      
+
       // Reset height to auto to get the correct scrollHeight
-      textarea.style.height = 'auto';
-      
+      textarea.style.height = "auto";
+
       // Calculate new height (capped at maxHeight)
       const newHeight = Math.min(textarea.scrollHeight, maxHeight);
       textarea.style.height = `${newHeight}px`;
     }, [autoGrow, maxHeight]);
-    
+
     // Handle changes to resize the textarea
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (onChange) onChange(e);
       if (autoGrow) adjustHeight();
     };
-    
+
     // Adjust height on initial render and when props change
     React.useEffect(() => {
       if (autoGrow) adjustHeight();
     }, [autoGrow, adjustHeight, props.value, props.defaultValue]);
-    
+
     return (
       <div className="w-full">
         <textarea
@@ -88,10 +91,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             "disabled:cursor-not-allowed disabled:opacity-50",
             {
               "border-destructive focus-visible:ring-destructive": error,
-              "resize-none": resize === 'none',
-              "resize-y": resize === 'vertical',
-              "resize-x": resize === 'horizontal',
-              "resize": resize === 'both',
+              "resize-none": resize === "none",
+              "resize-y": resize === "vertical",
+              "resize-x": resize === "horizontal",
+              resize: resize === "both",
             },
             className
           )}
@@ -114,17 +117,20 @@ Textarea.displayName = "Textarea";
 function useCombinedRefs<T>(
   ...refs: Array<React.Ref<T> | undefined>
 ): React.RefCallback<T> {
-  return React.useCallback((element: T) => {
-    refs.forEach((ref) => {
-      if (!ref) return;
-      
-      if (typeof ref === 'function') {
-        ref(element);
-      } else {
-        (ref as React.MutableRefObject<T>).current = element;
-      }
-    });
-  }, [refs]);
+  return React.useCallback(
+    (element: T) => {
+      refs.forEach((ref) => {
+        if (!ref) return;
+
+        if (typeof ref === "function") {
+          ref(element);
+        } else {
+          (ref as React.MutableRefObject<T>).current = element;
+        }
+      });
+    },
+    [refs]
+  );
 }
 
 export { Textarea };

@@ -25,7 +25,7 @@ export function FillingSystemList({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [systemToDelete, setSystemToDelete] = useState<FillingSystem | null>(
-    null,
+    null
   );
 
   // Fetch tanks to associate with filling systems
@@ -36,7 +36,9 @@ export function FillingSystemList({
 
   // Get tank details for a given tank ID
   const getTankDetails = (tankId: string): FuelTank | undefined => {
-    return tanks?.data?.find((tank) => tank.id === tankId) as FuelTank | undefined;
+    return tanks?.data?.find((tank) => tank.id === tankId) as
+      | FuelTank
+      | undefined;
   };
 
   const openDeleteConfirm = (system: FillingSystem) => {
@@ -83,8 +85,12 @@ export function FillingSystemList({
         <table className="w-full table-fixed">
           <thead className="bg-muted">
             <tr>
-              <th className="p-3 text-left font-medium">{t("fillingSystems.systemName")}</th>
-              <th className="p-3 text-left font-medium">{t("fillingSystems.connectedTank")}</th>
+              <th className="p-3 text-left font-medium">
+                {t("fillingSystems.systemName")}
+              </th>
+              <th className="p-3 text-left font-medium">
+                {t("fillingSystems.connectedTank")}
+              </th>
               <th className="p-3 text-center w-24">{t("common.actions")}</th>
             </tr>
           </thead>
@@ -93,22 +99,20 @@ export function FillingSystemList({
               <tr key={system.id} className="border-t">
                 <td className="p-3">{system.name}</td>
                 <td className="p-3">
-                  {system.tank_id ? (
-                    (() => {
-                      const tank = getTankDetails(system.tank_id);
-                      if (!tank) return t("common.unknown");
-                      return (
-                        <span className="flex items-center">
-                          {tank.name}
-                          <span className="ml-2 text-xs text-muted-foreground">
-                            ({tank.fuel_type_id})
+                  {system.tank_id
+                    ? (() => {
+                        const tank = getTankDetails(system.tank_id);
+                        if (!tank) return t("common.unknown");
+                        return (
+                          <span className="flex items-center">
+                            {tank.name}
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              ({tank.fuel_type_id})
+                            </span>
                           </span>
-                        </span>
-                      );
-                    })()
-                  ) : (
-                    t("common.unknown")
-                  )}
+                        );
+                      })()
+                    : t("common.unknown")}
                 </td>
                 <td className="p-3 text-center">
                   <Button
@@ -136,4 +140,4 @@ export function FillingSystemList({
       )}
     </>
   );
-} 
+}

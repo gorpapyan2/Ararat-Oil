@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getTanks,
   getTankById,
@@ -7,16 +7,22 @@ import {
   updateTank,
   deleteTank,
   getFuelTypes,
-  adjustTankLevel
-} from '../services';
-import type { FuelTank, TankLevelChange, CreateTankRequest, UpdateTankRequest, FuelType } from '../types/tanks.types';
+  adjustTankLevel,
+} from "../services";
+import type {
+  FuelTank,
+  TankLevelChange,
+  CreateTankRequest,
+  UpdateTankRequest,
+  FuelType,
+} from "../types/tanks.types";
 
 // Define query keys as array strings for consistency
 const QUERY_KEYS = {
-  tanks: ['tanks'],
-  tank: (id: string) => ['tank', id],
-  levelChanges: (tankId: string) => ['tank-level-changes', tankId],
-  fuelTypes: ['fuel-types']
+  tanks: ["tanks"],
+  tank: (id: string) => ["tank", id],
+  levelChanges: (tankId: string) => ["tank-level-changes", tankId],
+  fuelTypes: ["fuel-types"],
 };
 
 /**
@@ -79,15 +85,11 @@ export function useTankMutations() {
   const queryClient = useQueryClient();
 
   // Create tank mutation
-  const createTankMutation = useMutation<
-    FuelTank,
-    Error,
-    CreateTankRequest
-  >({
+  const createTankMutation = useMutation<FuelTank, Error, CreateTankRequest>({
     mutationFn: createTank,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tanks });
-    }
+    },
   });
 
   // Update tank mutation
@@ -99,55 +101,53 @@ export function useTankMutations() {
     mutationFn: ({ id, data }) => updateTank(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tanks });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tank(variables.id) });
-    }
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.tank(variables.id),
+      });
+    },
   });
 
   // Delete tank mutation
-  const deleteTankMutation = useMutation<
-    boolean,
-    Error,
-    string
-  >({
+  const deleteTankMutation = useMutation<boolean, Error, string>({
     mutationFn: deleteTank,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tanks });
-    }
+    },
   });
 
   // Adjust tank level mutation
   const adjustTankLevelMutation = useMutation<
     TankLevelChange,
     Error,
-    { 
-      tankId: string; 
-      changeAmount: number; 
-      changeType: 'add' | 'subtract'; 
-      reason?: string 
+    {
+      tankId: string;
+      changeAmount: number;
+      changeType: "add" | "subtract";
+      reason?: string;
     }
   >({
-    mutationFn: ({ 
-      tankId, 
-      changeAmount, 
-      changeType, 
-      reason 
-    }) => adjustTankLevel(tankId, {
-      change_amount: changeAmount,
-      change_type: changeType,
-      reason
-    }),
+    mutationFn: ({ tankId, changeAmount, changeType, reason }) =>
+      adjustTankLevel(tankId, {
+        change_amount: changeAmount,
+        change_type: changeType,
+        reason,
+      }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tanks });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tank(variables.tankId) });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.levelChanges(variables.tankId) });
-    }
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.tank(variables.tankId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.levelChanges(variables.tankId),
+      });
+    },
   });
 
   return {
     createTank: createTankMutation,
     updateTank: updateTankMutation,
     deleteTank: deleteTankMutation,
-    adjustTankLevel: adjustTankLevelMutation
+    adjustTankLevel: adjustTankLevelMutation,
   };
 }
 
@@ -159,39 +159,39 @@ export function useTanksManager() {
   const tanksQuery = useTanks();
   const fuelTypesQuery = useFuelTypes();
   const mutations = useTankMutations();
-  
+
   // Compute combined loading state
   const isLoading = tanksQuery.isLoading || fuelTypesQuery.isLoading;
-  
+
   // Compute combined error state
   const error = tanksQuery.error || fuelTypesQuery.error;
-  
+
   return {
     // Data properties
     tanks: tanksQuery.data || [],
     fuelTypes: fuelTypesQuery.data || [],
-    
+
     // Combined states
     isLoading,
     error,
-    
+
     // Individual states
     isLoadingTanks: tanksQuery.isLoading,
     isLoadingFuelTypes: fuelTypesQuery.isLoading,
     tanksError: tanksQuery.error,
     fuelTypesError: fuelTypesQuery.error,
-    
+
     // Mutations
     ...mutations,
-    
+
     // Refetch functions
     refetchTanks: tanksQuery.refetch,
     refetchFuelTypes: fuelTypesQuery.refetch,
-    
+
     // Refetch all
     refetchAll: () => {
       tanksQuery.refetch();
       fuelTypesQuery.refetch();
-    }
+    },
   };
-} 
+}

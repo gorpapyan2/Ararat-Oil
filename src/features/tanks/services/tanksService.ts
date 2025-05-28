@@ -1,4 +1,4 @@
-import { supabase } from '@/services/supabase';
+import { supabase } from "@/services/supabase";
 import type {
   FuelTank,
   TankLevelChange,
@@ -6,29 +6,29 @@ import type {
   UpdateTankRequest,
   TankLevelAdjustment,
   TankSummary,
-} from '../types/tanks.types';
+} from "../types/tanks.types";
 
 const EDGE_FUNCTION_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/tanks`;
 
 export const tanksService = {
   async getTanks() {
     try {
-      const { data, error } = await supabase.functions.invoke('tanks/tanks', {
-        method: 'GET',
+      const { data, error } = await supabase.functions.invoke("tanks/tanks", {
+        method: "GET",
       });
 
       if (error) throw error;
       return data.tanks as FuelTank[];
     } catch (error) {
-      console.error('Error fetching tanks:', error);
+      console.error("Error fetching tanks:", error);
       throw error;
     }
   },
 
   async getTankById(id: string) {
     try {
-      const { data, error } = await supabase.functions.invoke('tanks/tank', {
-        method: 'GET',
+      const { data, error } = await supabase.functions.invoke("tanks/tank", {
+        method: "GET",
         body: { id },
       });
 
@@ -42,23 +42,23 @@ export const tanksService = {
 
   async createTank(tank: CreateTankRequest) {
     try {
-      const { data, error } = await supabase.functions.invoke('tanks/tanks', {
-        method: 'POST',
+      const { data, error } = await supabase.functions.invoke("tanks/tanks", {
+        method: "POST",
         body: tank,
       });
 
       if (error) throw error;
       return data.tank as FuelTank;
     } catch (error) {
-      console.error('Error creating tank:', error);
+      console.error("Error creating tank:", error);
       throw error;
     }
   },
 
   async updateTank(id: string, updates: UpdateTankRequest) {
     try {
-      const { data, error } = await supabase.functions.invoke('tanks/tank', {
-        method: 'PUT',
+      const { data, error } = await supabase.functions.invoke("tanks/tank", {
+        method: "PUT",
         body: { id, ...updates },
       });
 
@@ -72,8 +72,8 @@ export const tanksService = {
 
   async deleteTank(id: string) {
     try {
-      const { error } = await supabase.functions.invoke('tanks/tank', {
-        method: 'DELETE',
+      const { error } = await supabase.functions.invoke("tanks/tank", {
+        method: "DELETE",
         body: { id },
       });
 
@@ -87,10 +87,13 @@ export const tanksService = {
 
   async getTankLevelChanges(tankId: string) {
     try {
-      const { data, error } = await supabase.functions.invoke('tanks/level-changes', {
-        method: 'GET',
-        body: { tankId },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "tanks/level-changes",
+        {
+          method: "GET",
+          body: { tankId },
+        }
+      );
 
       if (error) throw error;
       return data.levelChanges as TankLevelChange[];
@@ -102,10 +105,13 @@ export const tanksService = {
 
   async adjustTankLevel(tankId: string, adjustment: TankLevelAdjustment) {
     try {
-      const { data, error } = await supabase.functions.invoke('tanks/level-changes', {
-        method: 'POST',
-        body: { tankId, ...adjustment },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "tanks/level-changes",
+        {
+          method: "POST",
+          body: { tankId, ...adjustment },
+        }
+      );
 
       if (error) throw error;
       return data.levelChange as TankLevelChange;
@@ -117,29 +123,32 @@ export const tanksService = {
 
   async getSummary() {
     try {
-      const { data, error } = await supabase.functions.invoke('tanks/summary', {
-        method: 'GET',
+      const { data, error } = await supabase.functions.invoke("tanks/summary", {
+        method: "GET",
       });
 
       if (error) throw error;
       return data.summary as TankSummary;
     } catch (error) {
-      console.error('Error fetching tanks summary:', error);
+      console.error("Error fetching tanks summary:", error);
       throw error;
     }
   },
 
   async getFuelTypes() {
     try {
-      const { data, error } = await supabase.functions.invoke('tanks/fuel-types', {
-        method: 'GET',
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "tanks/fuel-types",
+        {
+          method: "GET",
+        }
+      );
 
       if (error) throw error;
       return data.fuelTypes as { id: string; name: string }[];
     } catch (error) {
-      console.error('Error fetching fuel types:', error);
+      console.error("Error fetching fuel types:", error);
       throw error;
     }
   },
-}; 
+};

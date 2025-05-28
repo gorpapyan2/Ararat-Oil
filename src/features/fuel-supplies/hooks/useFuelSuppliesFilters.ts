@@ -22,7 +22,7 @@ export function useFuelSuppliesFilters() {
     providerId: "all",
     tankId: "all",
     fuelType: "all",
-    paymentStatus: "all"
+    paymentStatus: "all",
   });
 
   // Fetch all supplies for client-side filtering
@@ -32,12 +32,15 @@ export function useFuelSuppliesFilters() {
   });
 
   // Update a specific filter or multiple filters
-  const updateFilters = useCallback((newFilters: Partial<FuelSuppliesFilterState>) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters
-    }));
-  }, []);
+  const updateFilters = useCallback(
+    (newFilters: Partial<FuelSuppliesFilterState>) => {
+      setFilters((prev) => ({
+        ...prev,
+        ...newFilters,
+      }));
+    },
+    []
+  );
 
   // Reset all filters to default values
   const resetFilters = useCallback(() => {
@@ -46,7 +49,7 @@ export function useFuelSuppliesFilters() {
       providerId: "all",
       tankId: "all",
       fuelType: "all",
-      paymentStatus: "all"
+      paymentStatus: "all",
     });
   }, []);
 
@@ -55,14 +58,21 @@ export function useFuelSuppliesFilters() {
     return supplies.filter((supply) => {
       // Search term filter (check provider name, tank name, and comments)
       const matchesSearch = filters.searchTerm
-        ? supply.provider?.name?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-          supply.tank?.name?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-          supply.comments?.toLowerCase().includes(filters.searchTerm.toLowerCase())
+        ? supply.provider?.name
+            ?.toLowerCase()
+            .includes(filters.searchTerm.toLowerCase()) ||
+          supply.tank?.name
+            ?.toLowerCase()
+            .includes(filters.searchTerm.toLowerCase()) ||
+          supply.comments
+            ?.toLowerCase()
+            .includes(filters.searchTerm.toLowerCase())
         : true;
 
       // Provider filter
       const matchesProvider =
-        filters.providerId === "all" || supply.provider_id === filters.providerId;
+        filters.providerId === "all" ||
+        supply.provider_id === filters.providerId;
 
       // Tank filter
       const matchesTank =
@@ -71,25 +81,28 @@ export function useFuelSuppliesFilters() {
       // Fuel type filter
       const matchesFuelType =
         filters.fuelType === "all" ||
-        supply.tank?.fuel_type?.toLowerCase() === filters.fuelType.toLowerCase();
+        supply.tank?.fuel_type?.toLowerCase() ===
+          filters.fuelType.toLowerCase();
 
       // Payment status filter
-      const matchesPaymentStatus = 
-        filters.paymentStatus === "all" || 
+      const matchesPaymentStatus =
+        filters.paymentStatus === "all" ||
         supply.payment_status === filters.paymentStatus;
 
       // Date range filter
-      const matchesDateRange = !filters.dateRange || (
-        new Date(supply.delivery_date) >= filters.dateRange.from &&
-        new Date(supply.delivery_date) <= filters.dateRange.to
-      );
+      const matchesDateRange =
+        !filters.dateRange ||
+        (new Date(supply.delivery_date) >= filters.dateRange.from &&
+          new Date(supply.delivery_date) <= filters.dateRange.to);
 
-      return matchesSearch && 
-             matchesProvider && 
-             matchesTank && 
-             matchesFuelType && 
-             matchesPaymentStatus &&
-             matchesDateRange;
+      return (
+        matchesSearch &&
+        matchesProvider &&
+        matchesTank &&
+        matchesFuelType &&
+        matchesPaymentStatus &&
+        matchesDateRange
+      );
     });
   }, [supplies, filters]);
 
@@ -100,17 +113,20 @@ export function useFuelSuppliesFilters() {
     const fuelTypes = new Map();
     const paymentStatuses = new Map();
 
-    supplies.forEach(supply => {
+    supplies.forEach((supply) => {
       if (supply.provider_id && supply.provider?.name) {
         providers.set(supply.provider_id, supply.provider.name);
       }
-      
+
       if (supply.tank_id && supply.tank?.name) {
         tanks.set(supply.tank_id, supply.tank.name);
       }
-      
+
       if (supply.tank?.fuel_type) {
-        fuelTypes.set(supply.tank.fuel_type.toLowerCase(), supply.tank.fuel_type);
+        fuelTypes.set(
+          supply.tank.fuel_type.toLowerCase(),
+          supply.tank.fuel_type
+        );
       }
 
       if (supply.payment_status) {
@@ -119,10 +135,18 @@ export function useFuelSuppliesFilters() {
     });
 
     return {
-      providers: Array.from(providers.entries()).map(([id, name]) => ({ id, name })),
+      providers: Array.from(providers.entries()).map(([id, name]) => ({
+        id,
+        name,
+      })),
       tanks: Array.from(tanks.entries()).map(([id, name]) => ({ id, name })),
-      fuelTypes: Array.from(fuelTypes.entries()).map(([id, name]) => ({ id, name })),
-      paymentStatuses: Array.from(paymentStatuses.entries()).map(([id, name]) => ({ id, name }))
+      fuelTypes: Array.from(fuelTypes.entries()).map(([id, name]) => ({
+        id,
+        name,
+      })),
+      paymentStatuses: Array.from(paymentStatuses.entries()).map(
+        ([id, name]) => ({ id, name })
+      ),
     };
   }, [supplies]);
 
@@ -133,6 +157,6 @@ export function useFuelSuppliesFilters() {
     supplies,
     filteredSupplies,
     filterOptions,
-    isLoading
+    isLoading,
   };
-} 
+}

@@ -58,7 +58,7 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
         />
       </div>
     );
-  },
+  }
 );
 
 CurrencyInput.displayName = "CurrencyInput";

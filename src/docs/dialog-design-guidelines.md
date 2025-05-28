@@ -30,6 +30,7 @@ Our application uses several types of dialogs, each with a specific purpose:
 Use dialogs sparingly and intentionally:
 
 ✅ **Appropriate Uses**:
+
 - Capturing user input that requires immediate attention
 - Confirming destructive or significant actions
 - Displaying critical information that requires acknowledgment
@@ -37,6 +38,7 @@ Use dialogs sparingly and intentionally:
 - Displaying more information without navigating away
 
 ❌ **Avoid Using Dialogs For**:
+
 - Complex multi-step workflows (consider a dedicated page)
 - Displaying non-critical information
 - Replacing navigation (use pages instead)
@@ -48,11 +50,13 @@ Use dialogs sparingly and intentionally:
 Every dialog should maintain this structure:
 
 1. **Header**:
+
    - Clear, concise title that describes the purpose
    - Optional description for additional context
    - Optional close button (X)
 
 2. **Content Area**:
+
    - Main content of the dialog
    - Appropriately spaced from the header and footer
    - Scrollable if content exceeds maximum height
@@ -78,12 +82,14 @@ Keep dialog content focused and minimal:
 Button guidelines for dialogs:
 
 - **Button Order**:
+
   - Destructive or high-impact actions on the right
   - Cancel or back buttons on the left
   - Primary action buttons with accent color
   - Secondary action buttons with neutral styling
 
 - **Button Labels**:
+
   - Use verb-noun format for clarity: "Save Changes" not just "Save"
   - Be specific about the action: "Delete Item" not just "Delete"
   - Avoid vague terms like "OK" or "Yes" when possible
@@ -98,12 +104,14 @@ Button guidelines for dialogs:
 Guidelines for dialogs containing forms:
 
 - **Validation**:
+
   - Use inline validation with clear error messages
   - Show validation errors next to the relevant fields
   - Validate on blur or submit, not on every keystroke
   - Use Zod schemas for consistent validation
 
 - **Field Layout**:
+
   - Organize fields logically in a single column when possible
   - Group related fields with appropriate spacing
   - Use appropriate field widths based on expected input length
@@ -119,11 +127,13 @@ Guidelines for dialogs containing forms:
 Handling errors in dialogs:
 
 - **Form Errors**:
+
   - Display validation errors inline next to the relevant fields
   - Use clear, actionable error messages
   - Show a summary of errors at the top for accessibility if many errors exist
 
 - **Submission Errors**:
+
   - Display submission errors at the top of the form
   - Include specific details about what went wrong
   - Provide guidance on how to resolve the issue
@@ -139,16 +149,19 @@ Handling errors in dialogs:
 All dialogs must follow these accessibility guidelines:
 
 - **Focus Management**:
+
   - Trap focus within the dialog when open
   - Return focus to the triggering element when closed
   - Auto-focus the first interactive element or the close button
 
 - **Keyboard Navigation**:
+
   - Support Escape key to close
   - Support Tab key to navigate through focusable elements
   - Add appropriate keyboard shortcuts for common actions
 
 - **Screen Readers**:
+
   - Use appropriate ARIA attributes (role, aria-labelledby, aria-describedby)
   - Ensure proper heading structure
   - Announce errors and changes appropriately
@@ -163,18 +176,21 @@ All dialogs must follow these accessibility guidelines:
 Consistent visual design for dialogs:
 
 - **Width**: Standard dialog widths should be used:
+
   - Small: `sm:max-w-[425px]`
   - Medium: `sm:max-w-[525px]`
   - Large: `sm:max-w-[640px]`
   - Extra Large: `sm:max-w-[800px]`
 
 - **Spacing**:
+
   - Consistent padding around content: `p-6`
   - Space between header and content: `mt-6`
   - Space between content and footer: `mt-6`
   - Space between footer buttons: `ml-2`
 
 - **Elevation and Borders**:
+
   - Use standard border-radius
   - Consistent shadow for elevation
   - Optional dividers between sections
@@ -286,4 +302,4 @@ Consistent visual design for dialogs:
 5. **Accessibility**: Ensure all dialogs are fully accessible to all users
 6. **Error Handling**: Provide clear error messages and recovery paths
 7. **Progressive Disclosure**: Show additional options only when needed
-8. **Context Preservation**: Maintain context and state during dialog interactions 
+8. **Context Preservation**: Maintain context and state during dialog interactions

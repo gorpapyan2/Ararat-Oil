@@ -19,4 +19,4 @@ export interface ApiSale {
   notes?: string;
   created_at: string;
   updated_at: string | null;
-} 
+}

@@ -16,4 +16,4 @@ export {
   type ToastProps,
   type ToastActionElement,
   type ToasterProps,
-} from "@/core/components/ui/primitives/toast"; 
+} from "@/core/components/ui/primitives/toast";

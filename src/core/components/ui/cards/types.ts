@@ -86,7 +86,8 @@ export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Card Title Props
  */
-export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+export interface CardTitleProps
+  extends React.HTMLAttributes<HTMLHeadingElement> {
   /**
    * Title size
    * @default "default"
@@ -97,13 +98,14 @@ export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement>
    * HTML heading level (h1-h6)
    * @default 'h3'
    */
-  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
 /**
  * Card Description Props
  */
-export interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
+export interface CardDescriptionProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {
   /**
    * Description size
    * @default "default"
@@ -344,4 +346,4 @@ export interface InfoCardProps extends CardBaseProps {
    * Actions for the card
    */
   actions?: React.ReactNode;
-} 
+}

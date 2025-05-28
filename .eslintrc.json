@@ -1,43 +1,60 @@
 {
   "extends": [
     "eslint:recommended",
+    "@typescript-eslint/recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react-hooks/recommended"
+    "prettier"
   ],
+  "plugins": ["react", "@typescript-eslint", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
-    },
-    "ecmaVersion": "latest",
-    "sourceType": "module"
-  },
-  "plugins": [
-    "react",
-    "react-hooks",
-    "@typescript-eslint",
-    "react-refresh"
-  ],
-  "rules": {
-    "react/react-in-jsx-scope": "off",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "react-refresh/only-export-components": "warn",
-    "@typescript-eslint/no-empty-object-type": "warn"
+    }
   },
   "settings": {
     "react": {
       "version": "detect"
     }
   },
-  "overrides": [
-    {
-      "files": ["*.stories.tsx"],
-      "rules": {
-        "react-hooks/rules-of-hooks": "off"
-      }
-    }
-  ]
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    ".next/",
+    "build/",
+    "coverage/",
+    "public/",
+    "backup/",
+    "**/backup*/",
+    "**/*.d.ts",
+    "**/stories/**",
+    "**/supabase/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
+    "*.config.js",
+    "*.config.ts",
+    ".eslintrc.js"
+  ],
+  "rules": {
+    "prettier/prettier": "error",
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "no-prototype-builtins": "error",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true
+  }
 } 

@@ -26,13 +26,14 @@ vi.mock("@/hooks", () => ({
 }));
 
 // Create a new QueryClient for each test
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
     },
-  },
-});
+  });
 
 describe("TankLevelEditor", () => {
   const mockTank = {
@@ -86,18 +87,18 @@ describe("TankLevelEditor", () => {
     (tanksService.adjustTankLevel as any).mockResolvedValueOnce(mockResponse);
 
     renderComponent();
-    
+
     // Select "Add" option
     fireEvent.click(screen.getByLabelText("add"));
-    
+
     // Enter amount
     fireEvent.change(screen.getByLabelText("tanks.amount"), {
       target: { value: "100" },
     });
-    
+
     // Submit form
     fireEvent.click(screen.getByText("common.save"));
-    
+
     await waitFor(() => {
       expect(tanksService.adjustTankLevel).toHaveBeenCalledWith("1", {
         change_amount: 100,
@@ -113,18 +114,18 @@ describe("TankLevelEditor", () => {
     (tanksService.adjustTankLevel as any).mockResolvedValueOnce(mockResponse);
 
     renderComponent();
-    
+
     // Select "Subtract" option
     fireEvent.click(screen.getByLabelText("subtract"));
-    
+
     // Enter amount
     fireEvent.change(screen.getByLabelText("tanks.amount"), {
       target: { value: "50" },
     });
-    
+
     // Submit form
     fireEvent.click(screen.getByText("common.save"));
-    
+
     await waitFor(() => {
       expect(tanksService.adjustTankLevel).toHaveBeenCalledWith("1", {
         change_amount: 50,
@@ -145,10 +146,10 @@ describe("TankLevelEditor", () => {
     }));
 
     renderComponent();
-    
+
     // Try to submit without amount
     fireEvent.click(screen.getByText("common.save"));
-    
+
     // Try to submit with negative amount
     fireEvent.change(screen.getByLabelText("tanks.amount"), {
       target: { value: "-10" },
@@ -161,7 +162,7 @@ describe("TankLevelEditor", () => {
     (tanksService.adjustTankLevel as any).mockRejectedValueOnce(mockError);
 
     renderComponent();
-    
+
     // Enter amount and submit
     fireEvent.change(screen.getByLabelText("tanks.amount"), {
       target: { value: "100" },
@@ -177,12 +178,12 @@ describe("TankLevelEditor", () => {
 
   it("updates preview when amount changes", () => {
     renderComponent();
-    
+
     // Enter amount
     fireEvent.change(screen.getByLabelText("tanks.amount"), {
       target: { value: "100" },
     });
-    
+
     // Check preview
     expect(screen.getByText("600 liters")).toBeInTheDocument();
     expect(screen.getByText("60%")).toBeInTheDocument();
@@ -190,18 +191,18 @@ describe("TankLevelEditor", () => {
 
   it("updates preview when adjustment type changes", () => {
     renderComponent();
-    
+
     // Enter amount
     fireEvent.change(screen.getByLabelText("tanks.amount"), {
       target: { value: "100" },
     });
-    
+
     // Change to remove fuel
     fireEvent.click(screen.getByLabelText("tanks.adjustmentType"));
     fireEvent.click(screen.getByText("tanks.removeFuel"));
-    
+
     // Check preview
     expect(screen.getByText("400 liters")).toBeInTheDocument();
     expect(screen.getByText("40%")).toBeInTheDocument();
   });
-}); 
+});

@@ -1,20 +1,20 @@
-import * as React from "react"
-import { CalendarIcon } from "@radix-ui/react-icons"
-import { addDays, format } from "date-fns"
-import { DateRange } from "react-day-picker"
-import { cn } from "@/shared/utils"
-import { Button } from "@/core/components/ui/primitives/button"
-import { Calendar } from '@/core/components/ui/calendar'
+import * as React from "react";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { addDays, format } from "date-fns";
+import { DateRange } from "react-day-picker";
+import { cn } from "@/shared/utils";
+import { Button } from "@/core/components/ui/primitives/button";
+import { Calendar } from "@/core/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/core/components/ui/popover'
+} from "@/core/components/ui/popover";
 
 interface DateRangePickerProps {
-  value?: DateRange
-  onChange?: (date: DateRange | undefined) => void
-  className?: string
+  value?: DateRange;
+  onChange?: (date: DateRange | undefined) => void;
+  className?: string;
 }
 
 export function DateRangePicker({
@@ -61,5 +61,5 @@ export function DateRangePicker({
         </PopoverContent>
       </Popover>
     </div>
-  )
-} 
+  );
+}

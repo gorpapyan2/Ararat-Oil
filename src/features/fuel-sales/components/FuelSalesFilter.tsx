@@ -3,8 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/core/api/supabase";
 import { Card, CardContent } from "@/core/components/ui/card";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/primitives/select";
-import { DateRangePicker } from '@/core/components/ui/date-range-picker';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/core/components/ui/primitives/select";
+import { DateRangePicker } from "@/core/components/ui/date-range-picker";
 import type { FuelSaleFilters } from "../types/fuel-sales.types";
 
 interface FuelTank {
@@ -20,10 +26,10 @@ interface FuelSalesFilterProps {
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
   const { data, error } = await supabase
-    .from('fuel_tanks')
-    .select('id, name, fuel_type')
-    .order('name');
-  
+    .from("fuel_tanks")
+    .select("id, name, fuel_type")
+    .order("name");
+
   if (error) throw error;
   return data;
 }
@@ -37,33 +43,45 @@ export function FuelSalesFilter({
     queryFn: fetchFuelTanks,
   });
 
-  const handleDateRangeChange = useCallback((range: { from: Date; to: Date } | undefined) => {
-    onFiltersChange({
-      ...filters,
-      dateRange: range,
-    });
-  }, [filters, onFiltersChange]);
+  const handleDateRangeChange = useCallback(
+    (range: { from: Date; to: Date } | undefined) => {
+      onFiltersChange({
+        ...filters,
+        dateRange: range,
+      });
+    },
+    [filters, onFiltersChange]
+  );
 
-  const handleTankChange = useCallback((value: string) => {
-    onFiltersChange({
-      ...filters,
-      tankId: value || undefined,
-    });
-  }, [filters, onFiltersChange]);
+  const handleTankChange = useCallback(
+    (value: string) => {
+      onFiltersChange({
+        ...filters,
+        tankId: value || undefined,
+      });
+    },
+    [filters, onFiltersChange]
+  );
 
-  const handlePaymentStatusChange = useCallback((value: string) => {
-    onFiltersChange({
-      ...filters,
-      paymentStatus: value || undefined,
-    });
-  }, [filters, onFiltersChange]);
+  const handlePaymentStatusChange = useCallback(
+    (value: string) => {
+      onFiltersChange({
+        ...filters,
+        paymentStatus: value || undefined,
+      });
+    },
+    [filters, onFiltersChange]
+  );
 
-  const handleSearchChange = useCallback((value: string) => {
-    onFiltersChange({
-      ...filters,
-      searchQuery: value || undefined,
-    });
-  }, [filters, onFiltersChange]);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      onFiltersChange({
+        ...filters,
+        searchQuery: value || undefined,
+      });
+    },
+    [filters, onFiltersChange]
+  );
 
   return (
     <Card>
@@ -79,10 +97,7 @@ export function FuelSalesFilter({
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Tank</label>
-            <Select
-              value={filters.tankId}
-              onValueChange={handleTankChange}
-            >
+            <Select value={filters.tankId} onValueChange={handleTankChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select tank" />
               </SelectTrigger>
@@ -127,4 +142,4 @@ export function FuelSalesFilter({
       </CardContent>
     </Card>
   );
-} 
+}

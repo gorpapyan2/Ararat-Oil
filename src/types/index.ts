@@ -1,22 +1,44 @@
 // Re-export all types from this central location
 
 // Export supabase types from their canonical location
-export * from '@/integrations/supabase/types';
+export * from "@/integrations/supabase/types";
 
 // Employee status enum
-export type EmployeeStatus = 'active' | 'inactive' | 'on_leave';
+export type EmployeeStatus = "active" | "inactive" | "on_leave";
 
 // Expense category enum
-export type ExpenseCategory = 'utilities' | 'supplies' | 'maintenance' | 'salary' | 'other';
+export type ExpenseCategory =
+  | "utilities"
+  | "supplies"
+  | "maintenance"
+  | "salary"
+  | "other";
 
 // Payment status enum
-export type PaymentStatus = 'pending' | 'completed' | 'cancelled' | 'paid' | 'failed' | 'refunded';
+export type PaymentStatus =
+  | "pending"
+  | "completed"
+  | "cancelled"
+  | "paid"
+  | "failed"
+  | "refunded";
 
 // Payment method enum
-export type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'mobile_payment' | 'card' | 'bank_transfer' | 'other';
+export type PaymentMethod =
+  | "cash"
+  | "credit_card"
+  | "debit_card"
+  | "mobile_payment"
+  | "card"
+  | "bank_transfer"
+  | "other";
 
 // Fuel type code enum
-export type FuelTypeCode = 'diesel' | 'gas' | 'petrol_regular' | 'petrol_premium';
+export type FuelTypeCode =
+  | "diesel"
+  | "gas"
+  | "petrol_regular"
+  | "petrol_premium";
 
 // Basic entity types
 export interface Employee {
@@ -234,7 +256,7 @@ export interface FuelManagementSummary {
       capacity: number;
       current_level: number;
       fuel_type_id?: string;
-      status?: 'active' | 'inactive' | 'maintenance' | string;
+      status?: "active" | "inactive" | "maintenance" | string;
     }>;
     byType: Record<string, number>;
   };

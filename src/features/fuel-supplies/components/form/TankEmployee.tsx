@@ -12,11 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/core/components/ui/primitives/select";
-import { Control } from "react-hook-form";
+import { Control, FieldValues } from "react-hook-form";
 import { Employee, FuelTank } from "@/types";
 
 interface TankEmployeeProps {
-  control: Control<any>;
+  control: Control<FieldValues>;
   tanks?: FuelTank[];
   employees?: Employee[];
 }
@@ -40,7 +40,7 @@ export function TankEmployee({ control, tanks, employees }: TankEmployeeProps) {
               <SelectContent>
                 {tanks?.map((tank) => (
                   <SelectItem key={tank.id} value={tank.id}>
-                    {tank.name} ({tank.fuel_type})
+                    {tank.name} ({typeof tank.fuel_type === 'string' ? tank.fuel_type : tank.fuel_type?.name || 'Unknown'})
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -6,7 +6,7 @@ export interface Toast {
   id: string;
   title?: string;
   description?: string;
-  message: string; 
+  message: string;
   duration: number;
   type: ToastType;
   action?: React.ReactNode;

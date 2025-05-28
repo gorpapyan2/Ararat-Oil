@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   FormInputProps,
   FormInput,
   FormSelectProps,
@@ -20,5 +20,5 @@ export {
   FormCurrencyInput,
   FormDatePickerProps,
   FormDatePicker,
-  CustomFormField 
+  CustomFormField,
 } from "@/core/components/ui/primitives/form-fields";

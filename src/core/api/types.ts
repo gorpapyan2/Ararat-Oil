@@ -1,6 +1,6 @@
 /**
  * API Types
- * 
+ *
  * This file contains type definitions for the API client.
  */
 
@@ -71,7 +71,7 @@ export interface Tank {
   capacity: number;
   current_level: number;
   fuel_type_id: string;
-  status: 'active' | 'inactive' | 'maintenance';
+  status: "active" | "inactive" | "maintenance";
   created_at: string;
   updated_at: string;
 }
@@ -81,7 +81,7 @@ export interface TankCreate {
   capacity: number;
   current_level: number;
   fuel_type_id: string;
-  status: 'active' | 'inactive' | 'maintenance';
+  status: "active" | "inactive" | "maintenance";
 }
 
 export interface TankUpdate {
@@ -89,7 +89,7 @@ export interface TankUpdate {
   capacity?: number;
   current_level?: number;
   fuel_type_id?: string;
-  status?: 'active' | 'inactive' | 'maintenance';
+  status?: "active" | "inactive" | "maintenance";
 }
 
 // Fuel Type Types
@@ -98,7 +98,7 @@ export interface FuelType {
   name: string;
   color: string;
   price_per_liter: number;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   created_at: string;
   updated_at: string;
 }
@@ -107,14 +107,14 @@ export interface FuelTypeCreate {
   name: string;
   color: string;
   price_per_liter: number;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
 }
 
 export interface FuelTypeUpdate {
   name?: string;
   color?: string;
   price_per_liter?: number;
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
 }
 
 // Filling System Types
@@ -123,7 +123,7 @@ export interface FillingSystem {
   name: string;
   location: string;
   tank_ids: string[];
-  status: 'active' | 'inactive' | 'maintenance';
+  status: "active" | "inactive" | "maintenance";
   created_at: string;
   updated_at: string;
 }
@@ -132,20 +132,20 @@ export interface FillingSystemCreate {
   name: string;
   location: string;
   tank_ids: string[];
-  status: 'active' | 'inactive' | 'maintenance';
+  status: "active" | "inactive" | "maintenance";
 }
 
 export interface FillingSystemUpdate {
   name?: string;
   location?: string;
   tank_ids?: string[];
-  status?: 'active' | 'inactive' | 'maintenance';
+  status?: "active" | "inactive" | "maintenance";
 }
 
 // Transaction Types
 export interface Transaction {
   id: string;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   amount: number;
   description: string;
   entity_type: string;
@@ -163,7 +163,7 @@ export interface Employee {
   contact: string;
   salary: number;
   hire_date: string;
-  status: 'active' | 'inactive' | 'on_leave' | string;
+  status: "active" | "inactive" | "on_leave" | string;
   department?: string;
   created_at: string;
   updated_at: string;
@@ -190,7 +190,7 @@ export interface Expense {
   category: string;
   amount: number;
   description: string;
-  payment_status: 'paid' | 'pending' | 'cancelled';
+  payment_status: "paid" | "pending" | "cancelled";
   payment_date?: string;
   receipt_number?: string;
   created_by: string;
@@ -288,7 +288,7 @@ export interface PetrolProvider {
   email: string;
   phone: string;
   address: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   created_at: string;
   updated_at: string;
 }
@@ -299,7 +299,7 @@ export interface PetrolProviderCreate {
   email: string;
   phone: string;
   address: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
 }
 
 export interface PetrolProviderUpdate {
@@ -308,5 +308,5 @@ export interface PetrolProviderUpdate {
   email?: string;
   phone?: string;
   address?: string;
-  status?: 'active' | 'inactive';
-} 
+  status?: "active" | "inactive";
+}

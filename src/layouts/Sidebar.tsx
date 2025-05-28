@@ -1,13 +1,16 @@
 import { cn } from "@/shared/utils";
-import { useAuth } from '@/features/auth';
+import { useAuth } from "@/features/auth";
 import { SidebarLogo } from "@/shared/components/sidebar/SidebarLogo";
-import { SidebarNavSection, type NavItemConfig } from "@/shared/components/sidebar/SidebarNavSection";
+import {
+  SidebarNavSection,
+  type NavItemConfig,
+} from "@/shared/components/sidebar/SidebarNavSection";
 import { SidebarFooter } from "@/shared/components/sidebar/SidebarFooter";
 import { useSidebarNavConfig } from "@/core/config";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ThemeSwitcher } from '@/core/components/ui/ThemeSwitcher';
+import { ThemeSwitcher } from "@/core/components/ui/ThemeSwitcher";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 interface SidebarProps {
@@ -30,21 +33,20 @@ export function Sidebar({
   const navConfig = useSidebarNavConfig();
 
   const collapsed = externalCollapsed !== undefined ? externalCollapsed : false;
-  
+
   // Store expanded sections to localStorage
-  const [expandedSections, setExpandedSections] = useLocalStorage<Record<string, boolean>>(
-    "sidebarExpandedSections", 
-    {}
-  );
+  const [expandedSections, setExpandedSections] = useLocalStorage<
+    Record<string, boolean>
+  >("sidebarExpandedSections", {});
 
   // Toggle expanded section
   const handleToggleSection = (path: string) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [path]: !prev[path]
+      [path]: !prev[path],
     }));
   };
-  
+
   // Reset expanded sections on mobile when sidebar closes
   useEffect(() => {
     if (isMobile && !isOpen) {
@@ -59,26 +61,26 @@ export function Sidebar({
   // Animation variants
   const sidebarVariants = {
     expanded: { width: "240px" },
-    collapsed: { width: "70px" }
+    collapsed: { width: "70px" },
   };
-  
+
   return (
     <motion.aside
       className={cn(
         "flex flex-col border-r bg-card/50  bg-gray-50/60",
         "fixed top-0 left-0 h-screen z-30 transition-colors duration-300",
         isMobile && "z-50 shadow-lg",
-        isMobile && !isOpen && "transform -translate-x-full",
+        isMobile && !isOpen && "transform -translate-x-full"
       )}
       role="navigation"
       aria-label={t("common.mainNavigation")}
       initial={false}
       animate={collapsed ? "collapsed" : "expanded"}
       variants={sidebarVariants}
-      transition={{ 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 30 
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
       }}
     >
       <SidebarLogo collapsed={collapsed} />
@@ -107,10 +109,12 @@ export function Sidebar({
 
       <div className="bg-card/50  bg-gray-50/60 border-t">
         {/* Theme switcher */}
-        <div className={cn(
-          "flex items-center p-3", 
-          collapsed ? "justify-center" : "justify-between"
-        )}>
+        <div
+          className={cn(
+            "flex items-center p-3",
+            collapsed ? "justify-center" : "justify-between"
+          )}
+        >
           {!collapsed && (
             <span className="text-sm text-muted-foreground">
               {t("common.theme")}

@@ -32,4 +32,4 @@ export type CreateFuelSupplyRequest = Omit<
   "id" | "provider" | "tank" | "employee" | "created_at" | "updated_at"
 >;
 
-export type UpdateFuelSupplyRequest = Partial<CreateFuelSupplyRequest>; 
+export type UpdateFuelSupplyRequest = Partial<CreateFuelSupplyRequest>;

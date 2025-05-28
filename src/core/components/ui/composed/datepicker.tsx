@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { StandardDatePicker } from '@/shared/components/common/datepicker';
-import { cn } from '@/utils/cn';
+import * as React from "react";
+import { StandardDatePicker } from "@/shared/components/common/datepicker";
+import { cn } from "@/utils/cn";
 
 /**
  * DatePicker component props
@@ -11,73 +11,73 @@ export interface DatePickerProps {
    * Selected date value
    */
   value?: Date;
-  
+
   /**
    * Callback when date changes
    */
   onChange?: (date: Date | undefined) => void;
-  
+
   /**
    * Placeholder text when no date is selected
    */
   placeholder?: string;
-  
+
   /**
    * Format string for displaying the date
    * @default "PPP" (e.g., "April 29, 2021")
    */
   dateFormat?: string;
-  
+
   /**
    * Disabled state
    */
   disabled?: boolean;
-  
+
   /**
    * Whether the field is required
    */
   required?: boolean;
-  
+
   /**
    * Custom CSS class
    */
   className?: string;
-  
+
   /**
    * Error state
    */
   error?: boolean;
-  
+
   /**
    * Error message to display
    */
   errorMessage?: string;
-  
+
   /**
    * Label for the date picker
    */
   label?: string;
-  
+
   /**
    * Description text
    */
   description?: string;
-  
+
   /**
    * ID for the input field
    */
   id?: string;
-  
+
   /**
    * Name for the input field
    */
   name?: string;
-  
+
   /**
    * Minimum selectable date
    */
   minDate?: Date;
-  
+
   /**
    * Maximum selectable date
    */
@@ -86,7 +86,7 @@ export interface DatePickerProps {
 
 /**
  * DatePicker component that combines a Calendar with a Popover
- * 
+ *
  * @example
  * ```tsx
  * <DatePicker value={date} onChange={setDate} />
@@ -94,7 +94,7 @@ export interface DatePickerProps {
  * ```
  * @deprecated Use StandardDatePicker instead
  */
-export function DatePicker({ 
+export function DatePicker({
   value,
   onChange,
   placeholder = "Select date",
@@ -114,8 +114,8 @@ export function DatePicker({
   // Log deprecation warning
   React.useEffect(() => {
     console.warn(
-      'DatePicker is deprecated and will be removed in a future version. ' +
-      'Please use StandardDatePicker from @/shared/components/common/datepicker instead.'
+      "DatePicker is deprecated and will be removed in a future version. " +
+        "Please use StandardDatePicker from @/shared/components/common/datepicker instead."
     );
   }, []);
 

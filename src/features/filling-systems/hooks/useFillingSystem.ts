@@ -1,27 +1,31 @@
 /**
  * useFillingSystem Hook
- * 
+ *
  * Custom hook for working with filling systems data using React Query
  */
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks';
-import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage } from '@/i18n/i18n';
-import { useTranslation } from 'react-i18next';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import {
+  apiNamespaces,
+  getApiErrorMessage,
+  getApiSuccessMessage,
+} from "@/i18n/i18n";
+import { useTranslation } from "react-i18next";
 
-import { 
-  getFillingSystemsWithFilters, 
-  getFillingSystemById, 
-  createFillingSystem as createFillingSystemService, 
+import {
+  getFillingSystemsWithFilters,
+  getFillingSystemById,
+  createFillingSystem as createFillingSystemService,
   updateFillingSystem as updateFillingSystemService,
   deleteFillingSystem as deleteFillingSystemService,
-  validateTankIds as validateTankIdsService
-} from '../services';
-import type { 
-  FillingSystem, 
-  CreateFillingSystemRequest, 
+  validateTankIds as validateTankIdsService,
+} from "../services";
+import type {
+  FillingSystem,
+  CreateFillingSystemRequest,
   UpdateFillingSystemRequest,
-  FillingSystemFilters
-} from '../types';
+  FillingSystemFilters,
+} from "../types";
 
 /**
  * Hook for managing filling systems with React Query
@@ -36,7 +40,7 @@ export const useFillingSystem = () => {
    */
   const useFillingSystemsQuery = (filters?: FillingSystemFilters) => {
     return useQuery({
-      queryKey: ['filling-systems', filters],
+      queryKey: ["filling-systems", filters],
       queryFn: () => getFillingSystemsWithFilters(filters),
     });
   };
@@ -46,7 +50,7 @@ export const useFillingSystem = () => {
    */
   const useFillingSystemByIdQuery = (id: string) => {
     return useQuery({
-      queryKey: ['filling-system', id],
+      queryKey: ["filling-system", id],
       queryFn: () => getFillingSystemById(id),
       enabled: !!id,
     });
@@ -57,19 +61,28 @@ export const useFillingSystem = () => {
    */
   const useCreateFillingSystemMutation = () => {
     return useMutation({
-      mutationFn: (data: CreateFillingSystemRequest) => createFillingSystemService(data),
+      mutationFn: (data: CreateFillingSystemRequest) =>
+        createFillingSystemService(data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['filling-systems'] });
+        queryClient.invalidateQueries({ queryKey: ["filling-systems"] });
         toast({
-          title: t('common.success'),
-          description: getApiSuccessMessage(apiNamespaces.fillingSystems, 'create', 'filling system'),
+          title: t("common.success"),
+          description: getApiSuccessMessage(
+            apiNamespaces.fillingSystems,
+            "create",
+            "filling system"
+          ),
         });
       },
       onError: (error) => {
         toast({
-          title: t('common.error'),
-          description: getApiErrorMessage(apiNamespaces.fillingSystems, 'create', 'filling system'),
-          variant: 'destructive',
+          title: t("common.error"),
+          description: getApiErrorMessage(
+            apiNamespaces.fillingSystems,
+            "create",
+            "filling system"
+          ),
+          variant: "destructive",
         });
       },
     });
@@ -80,20 +93,33 @@ export const useFillingSystem = () => {
    */
   const useUpdateFillingSystemMutation = () => {
     return useMutation({
-      mutationFn: ({ id, data }: { id: string; data: UpdateFillingSystemRequest }) => 
-        updateFillingSystemService(id, data),
+      mutationFn: ({
+        id,
+        data,
+      }: {
+        id: string;
+        data: UpdateFillingSystemRequest;
+      }) => updateFillingSystemService(id, data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['filling-systems'] });
+        queryClient.invalidateQueries({ queryKey: ["filling-systems"] });
         toast({
-          title: t('common.success'),
-          description: getApiSuccessMessage(apiNamespaces.fillingSystems, 'update', 'filling system'),
+          title: t("common.success"),
+          description: getApiSuccessMessage(
+            apiNamespaces.fillingSystems,
+            "update",
+            "filling system"
+          ),
         });
       },
       onError: (error) => {
         toast({
-          title: t('common.error'),
-          description: getApiErrorMessage(apiNamespaces.fillingSystems, 'update', 'filling system'),
-          variant: 'destructive',
+          title: t("common.error"),
+          description: getApiErrorMessage(
+            apiNamespaces.fillingSystems,
+            "update",
+            "filling system"
+          ),
+          variant: "destructive",
         });
       },
     });
@@ -106,17 +132,25 @@ export const useFillingSystem = () => {
     return useMutation({
       mutationFn: (id: string) => deleteFillingSystemService(id),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['filling-systems'] });
+        queryClient.invalidateQueries({ queryKey: ["filling-systems"] });
         toast({
-          title: t('common.success'),
-          description: getApiSuccessMessage(apiNamespaces.fillingSystems, 'delete', 'filling system'),
+          title: t("common.success"),
+          description: getApiSuccessMessage(
+            apiNamespaces.fillingSystems,
+            "delete",
+            "filling system"
+          ),
         });
       },
       onError: (error) => {
         toast({
-          title: t('common.error'),
-          description: getApiErrorMessage(apiNamespaces.fillingSystems, 'delete', 'filling system'),
-          variant: 'destructive',
+          title: t("common.error"),
+          description: getApiErrorMessage(
+            apiNamespaces.fillingSystems,
+            "delete",
+            "filling system"
+          ),
+          variant: "destructive",
         });
       },
     });
@@ -130,7 +164,7 @@ export const useFillingSystem = () => {
     try {
       return await validateTankIdsService(tankIds);
     } catch (error) {
-      console.error('Failed to validate tank IDs:', error);
+      console.error("Failed to validate tank IDs:", error);
       return { valid: false, invalidIds: tankIds };
     }
   };
@@ -141,6 +175,6 @@ export const useFillingSystem = () => {
     useCreateFillingSystemMutation,
     useUpdateFillingSystemMutation,
     useDeleteFillingSystemMutation,
-    validateTankIds
+    validateTankIds,
   };
-}; 
+};

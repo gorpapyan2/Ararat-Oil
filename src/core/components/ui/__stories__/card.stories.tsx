@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from "@storybook/react";
 import {
   Card,
   CardContent,
@@ -6,27 +6,27 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/core/components/ui/card';
-import { Button } from '@/core/components/ui/primitives/button';
+} from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/primitives/button";
 
 /**
  * Card component for displaying grouped content
  * Follows the Ararat OIL olive-lime color palette (#000000, #3E432E, #616F39, #A7D129)
  */
 const meta = {
-  title: 'Core/UI/Card',
+  title: "Core/UI/Card",
   component: Card,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 } satisfies Meta<typeof Card>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Basic: Story = {
-  render: (args: any) => (
+  render: (args: React.ComponentProps<typeof Card>) => (
     <Card className="w-[350px]" {...args}>
       <CardHeader>
         <CardTitle>Card Title</CardTitle>
@@ -43,7 +43,7 @@ export const Basic: Story = {
 };
 
 export const WithActions: Story = {
-  render: (args: any) => (
+  render: (args: React.ComponentProps<typeof Card>) => (
     <Card className="w-[350px]" {...args}>
       <CardHeader>
         <CardTitle>Account Summary</CardTitle>
@@ -66,7 +66,9 @@ export const WithActions: Story = {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="outline" size="sm">Cancel</Button>
+        <Button variant="outline" size="sm">
+          Cancel
+        </Button>
         <Button size="sm">Submit</Button>
       </CardFooter>
     </Card>

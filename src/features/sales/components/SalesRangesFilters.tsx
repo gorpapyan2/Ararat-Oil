@@ -16,7 +16,7 @@ const handleRangeChange = (
   idx: number,
   value: string,
   range: [number, number],
-  setRange: (r: [number, number]) => void,
+  setRange: (r: [number, number]) => void
 ) => {
   const newVal = value === "" ? 0 : Number(value);
   const updated: [number, number] = [...range] as [number, number];
@@ -62,7 +62,7 @@ export function SalesRangesFilters({
                 0,
                 e.target.value,
                 litersRange,
-                onLitersRangeChange,
+                onLitersRangeChange
               )
             }
           />
@@ -81,7 +81,7 @@ export function SalesRangesFilters({
                 1,
                 e.target.value,
                 litersRange,
-                onLitersRangeChange,
+                onLitersRangeChange
               )
             }
           />
@@ -105,7 +105,7 @@ export function SalesRangesFilters({
                 0,
                 e.target.value,
                 priceRange,
-                onPriceRangeChange,
+                onPriceRangeChange
               )
             }
           />
@@ -124,7 +124,7 @@ export function SalesRangesFilters({
                 1,
                 e.target.value,
                 priceRange,
-                onPriceRangeChange,
+                onPriceRangeChange
               )
             }
           />
@@ -148,7 +148,7 @@ export function SalesRangesFilters({
                 0,
                 e.target.value,
                 totalSalesRange,
-                onTotalSalesRangeChange,
+                onTotalSalesRangeChange
               )
             }
           />
@@ -167,7 +167,7 @@ export function SalesRangesFilters({
                 1,
                 e.target.value,
                 totalSalesRange,
-                onTotalSalesRangeChange,
+                onTotalSalesRangeChange
               )
             }
           />
@@ -175,4 +175,4 @@ export function SalesRangesFilters({
       </div>
     </section>
   );
-} 
+}

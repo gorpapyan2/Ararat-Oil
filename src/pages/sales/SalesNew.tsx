@@ -1,14 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  IconCurrencyDollar,
-  IconPlus,
-} from "@tabler/icons-react";
+import { IconCurrencyDollar, IconPlus } from "@tabler/icons-react";
 
 // Import our custom UI components
-import { PageHeader } from '@/core/components/ui/page-header';
-import { CreateButton } from '@/core/components/ui/create-button';
+import { PageHeader } from "@/core/components/ui/page-header";
+import { CreateButton } from "@/core/components/ui/create-button";
 import {
   Card,
   CardContent,
@@ -23,15 +20,16 @@ import {
   useSalesMutations,
   SalesDialogsStandardized,
   ShiftControl,
-  SalesTable
+  SalesTable,
 } from "@/features/sales";
 
 // Import necessary services
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createSale } from '@/features/sales/services';
+import { createSale } from "@/features/sales/services";
 import { useToast } from "@/hooks";
 import { useShift } from "@/hooks/useShift";
 import { Sale } from "@/types";
+import { SalesFilters } from '@/features/sales/types';
 
 export default function SalesNew() {
   const { t } = useTranslation();
@@ -60,27 +58,27 @@ export default function SalesNew() {
 
   // Define handlers for shift operations
   const handleShiftStart = () => {
-    navigate('/finance/shifts/open');
+    navigate("/finance/shifts/open");
   };
 
   const handleShiftEnd = () => {
-    navigate('/finance/shifts/close');
+    navigate("/finance/shifts/close");
   };
 
   // Remove create sale mutation and use navigation instead
   const handleCreateSale = () => {
-    navigate('/sales/create');
+    navigate("/sales/create");
   };
 
   // Calculate summary metrics
   const totalSalesAmount = filteredSales.reduce(
-    (sum, sale) => sum + (sale.total_sales || 0),
-    0,
+    (sum: number, sale: Sale) => sum + (sale.total_sales || 0),
+    0
   );
 
   const totalLiters = filteredSales.reduce(
-    (sum, sale) => sum + (sale.quantity || 0),
-    0,
+    (sum: number, sale: Sale) => sum + (sale.quantity || 0),
+    0
   );
 
   const averagePrice = totalLiters > 0 ? totalSalesAmount / totalLiters : 0;
@@ -95,7 +93,7 @@ export default function SalesNew() {
   const handleViewSale = (sale: Sale) => {
     // If creating a new sale, navigate to the create page
     if (!sale.id) {
-      navigate('/sales/create');
+      navigate("/sales/create");
     } else {
       // For existing sales, open the edit dialog
       setSelectedSale(sale);
@@ -106,7 +104,7 @@ export default function SalesNew() {
   // Extract unique fuel types for filtering
   const fuelTypeCategories = useMemo(() => {
     const uniqueFuelTypes = Array.from(
-      new Set(filteredSales.map((sale) => sale.fuel_type)),
+      new Set(filteredSales.map((sale) => sale.fuel_type))
     )
       .filter(Boolean)
       .sort();
@@ -118,7 +116,7 @@ export default function SalesNew() {
   }, [filteredSales]);
 
   // Handle filters change
-  const handleFiltersChange = (filters: any) => {
+  const handleFiltersChange = (filters: SalesFilters) => {
     // Handle filter changes here
     console.log("Filters changed:", filters);
   };
@@ -157,7 +155,7 @@ export default function SalesNew() {
         />
       </div>
 
-      <ShiftControl 
+      <ShiftControl
         onShiftStart={handleShiftStart}
         onShiftEnd={handleShiftEnd}
         isShiftOpen={!!activeShift}
@@ -172,7 +170,7 @@ export default function SalesNew() {
             sales={filteredSales}
             isLoading={isLoading}
             onEdit={(id) => {
-              const sale = filteredSales.find(s => s.id === id);
+              const sale = filteredSales.find((s) => s.id === id);
               if (sale) handleEdit(sale);
             }}
             onDelete={handleDelete}

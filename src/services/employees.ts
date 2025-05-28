@@ -21,7 +21,9 @@ export interface UpdateEmployeeRequest {
   department?: string;
 }
 
-export const fetchEmployees = async (options?: { status?: EmployeeStatus }): Promise<Employee[]> => {
+export const fetchEmployees = async (options?: {
+  status?: EmployeeStatus;
+}): Promise<Employee[]> => {
   try {
     const response = await employeesApi.getAll(options);
 
@@ -53,7 +55,9 @@ export const fetchActiveEmployees = async (): Promise<Employee[]> => {
   }
 };
 
-export const fetchEmployeeById = async (id: string): Promise<Employee | null> => {
+export const fetchEmployeeById = async (
+  id: string
+): Promise<Employee | null> => {
   try {
     const response = await employeesApi.getById(id);
 

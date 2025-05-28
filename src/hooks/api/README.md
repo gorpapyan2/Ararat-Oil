@@ -10,10 +10,10 @@ A standardized hook for data fetching operations.
 
 ```tsx
 const employees = useApiQuery({
-  queryKey: ['employees', filters],
+  queryKey: ["employees", filters],
   queryFn: () => employeeService.getEmployees(filters),
   filters,
-  staleTime: 5 * 60 * 1000 // 5 minutes
+  staleTime: 5 * 60 * 1000, // 5 minutes
 });
 
 // Use the standardized result
@@ -29,11 +29,11 @@ A standardized hook for data mutation operations with built-in cache invalidatio
 ```tsx
 const createEmployee = useApiMutation({
   mutationFn: (data) => employeeService.createEmployee(data),
-  invalidateQueries: ['employees'],
+  invalidateQueries: ["employees"],
   onSuccessCallback: (data, variables, context, queryClient) => {
     // Additional success handling
-    toast.success('Employee created successfully');
-  }
+    toast.success("Employee created successfully");
+  },
 });
 
 // Usage in component
@@ -48,15 +48,16 @@ A standardized hook for paginated data fetching.
 
 ```tsx
 const productsQuery = useApiInfiniteQuery({
-  queryKey: ['products', filters],
-  queryFn: (pageParam) => productService.getProducts({ ...filters, page: pageParam }),
+  queryKey: ["products", filters],
+  queryFn: (pageParam) =>
+    productService.getProducts({ ...filters, page: pageParam }),
   filters,
   getNextPageParam: (lastPage) => lastPage.nextPage || undefined,
 });
 
 return (
-  <ProductList 
-    data={productsQuery.flatData} 
+  <ProductList
+    data={productsQuery.flatData}
     hasMore={productsQuery.hasNextPage}
     loadMore={productsQuery.loadMore}
     isLoadingMore={productsQuery.isFetchingNextPage}
@@ -76,7 +77,7 @@ const employeeService = {
   create: createEmployee,
   update: updateEmployee,
   delete: deleteEmployee,
-  getSummary: getEmployeeSummary
+  getSummary: getEmployeeSummary,
 };
 
 // Create hooks using the factory
@@ -86,10 +87,10 @@ const {
   useCreate: useCreateEmployee,
   useUpdate: useUpdateEmployee,
   useDelete: useDeleteEmployee,
-  useSummary: useEmployeeSummary
+  useSummary: useEmployeeSummary,
 } = createResourceHooks({
-  resourceName: 'employees',
-  service: employeeService
+  resourceName: "employees",
+  service: employeeService,
 });
 ```
 
@@ -99,13 +100,13 @@ The `cache-utils.ts` file provides standardized utilities for managing the React
 
 ```tsx
 // Create standard query keys
-const keys = createQueryKeys('employees');
+const keys = createQueryKeys("employees");
 
 // Standard cache invalidation helpers
-const invalidations = createInvalidations(queryClient, 'employees');
+const invalidations = createInvalidations(queryClient, "employees");
 invalidations.invalidateAll(); // Invalidate all employee-related queries
 ```
 
 ## Migration Guide
 
-For detailed instructions on migrating existing feature hooks to the new system, please refer to the `docs/feature-hook-refactoring-guide.md` documentation. 
+For detailed instructions on migrating existing feature hooks to the new system, please refer to the `docs/feature-hook-refactoring-guide.md` documentation.

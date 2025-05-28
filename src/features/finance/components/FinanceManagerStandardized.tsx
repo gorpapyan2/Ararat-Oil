@@ -1,6 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/core/components/ui/tabs";
 import { TransactionDialogStandardized } from "./TransactionDialogStandardized";
 import { ExpenseManagerStandardized } from "./ExpenseManagerStandardized";
 import { ProfitLossManagerStandardized } from "./ProfitLossManagerStandardized";
@@ -10,7 +15,8 @@ import type { Transaction } from "../types/finance.types";
 export function FinanceManagerStandardized() {
   const { t } = useTranslation();
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
 
   const {
     transactions,
@@ -77,17 +83,28 @@ export function FinanceManagerStandardized() {
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="font-semibold">{transaction.description}</h3>
+                      <h3 className="font-semibold">
+                        {transaction.description}
+                      </h3>
                       <p className="text-sm text-muted-foreground">
-                        {t("finance.transactions.paymentMethod", "Payment Method")}: {transaction.payment_method}
+                        {t(
+                          "finance.transactions.paymentMethod",
+                          "Payment Method"
+                        )}
+                        : {transaction.payment_method}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {t("finance.transactions.paymentStatus", "Payment Status")}: {transaction.payment_status}
+                        {t(
+                          "finance.transactions.paymentStatus",
+                          "Payment Status"
+                        )}
+                        : {transaction.payment_status}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">
-                        {t("finance.transactions.amount", "Amount")}: {transaction.amount}
+                        {t("finance.transactions.amount", "Amount")}:{" "}
+                        {transaction.amount}
                       </p>
                     </div>
                   </div>
@@ -119,4 +136,4 @@ export function FinanceManagerStandardized() {
       />
     </div>
   );
-} 
+}

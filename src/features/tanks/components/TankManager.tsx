@@ -49,7 +49,7 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
   }, [handleRefetch]);
 
   // Ensure we have an array even if the fetched data is undefined
-  const tanksData = useMemo(() => Array.isArray(tanks) ? tanks : [], [tanks]);
+  const tanksData = useMemo(() => (Array.isArray(tanks) ? tanks : []), [tanks]);
 
   // Create action buttons - memoize to prevent recreation on every render
   const actionButtons = useMemo(
@@ -97,4 +97,4 @@ export function TankManager({ onRenderAction }: TankManagerProps) {
       />
     </div>
   );
-} 
+}

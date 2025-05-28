@@ -3,7 +3,7 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   Calendar,
-  type CalendarProps 
+  type CalendarProps,
 } from "@/core/components/ui/primitives/calendar";

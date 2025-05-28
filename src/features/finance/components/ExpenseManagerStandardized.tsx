@@ -57,10 +57,12 @@ export function ExpenseManagerStandardized({
                 <div>
                   <h3 className="font-semibold">{expense.description}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {t("finance.expenses.category", "Category")}: {expense.category}
+                    {t("finance.expenses.category", "Category")}:{" "}
+                    {expense.category}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {t("finance.expenses.date", "Date")}: {new Date(expense.date).toLocaleDateString()}
+                    {t("finance.expenses.date", "Date")}:{" "}
+                    {new Date(expense.date).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="text-right">
@@ -81,4 +83,4 @@ export function ExpenseManagerStandardized({
       />
     </div>
   );
-} 
+}

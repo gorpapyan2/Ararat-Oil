@@ -32,8 +32,12 @@ Enable sorting, filtering, and pagination for client-side data:
 import { DataTable } from "@/components/ui/composed/data-table";
 
 function EnhancedTable() {
-  const data = [/* ... data array ... */];
-  const columns = [/* ... columns ... */];
+  const data = [
+    /* ... data array ... */
+  ];
+  const columns = [
+    /* ... columns ... */
+  ];
 
   return (
     <DataTable
@@ -85,7 +89,7 @@ function ServerSideTable() {
           sortDirection,
           filter: filterValue,
         });
-        
+
         setData(response.data);
         setTotalCount(response.total);
       } catch (error) {
@@ -105,7 +109,10 @@ function ServerSideTable() {
   };
 
   // Handle server-side sort changes
-  const handleSortChange = (column: string | null, direction: SortDirection) => {
+  const handleSortChange = (
+    column: string | null,
+    direction: SortDirection
+  ) => {
     setSortField(column);
     setSortDirection(direction);
   };
@@ -147,21 +154,23 @@ Enable CSV export functionality with custom options:
 import { DataTable } from "@/components/ui/composed/data-table";
 
 function ExportableTable() {
-  const data = [/* ... data array ... */];
-  
+  const data = [
+    /* ... data array ... */
+  ];
+
   const columns = [
-    { 
-      header: "Name", 
-      accessorKey: "name", 
+    {
+      header: "Name",
+      accessorKey: "name",
       // Include in export (default is true)
-      includeInExport: true, 
+      includeInExport: true,
     },
-    { 
-      header: "Email", 
-      accessorKey: "email" 
+    {
+      header: "Email",
+      accessorKey: "email",
     },
-    { 
-      header: "Created At", 
+    {
+      header: "Created At",
       accessorKey: "createdAt",
       // Format date for display
       cell: (row) => new Date(row.createdAt).toLocaleDateString(),
@@ -171,9 +180,7 @@ function ExportableTable() {
     {
       header: "Actions",
       accessorKey: "id",
-      cell: (row) => (
-        <button onClick={() => handleEdit(row.id)}>Edit</button>
-      ),
+      cell: (row) => <button onClick={() => handleEdit(row.id)}>Edit</button>,
       // Exclude action column from export
       includeInExport: false,
     },
@@ -184,7 +191,7 @@ function ExportableTable() {
     // Implement custom export logic here
     console.log("Exporting data:", data);
     console.log("Using columns:", columns);
-    
+
     // Example: Convert to different format, send to server, etc.
   };
 
@@ -214,8 +221,12 @@ import { useToast } from "@/hooks";
 
 function SelectableTable() {
   const { toast } = useToast();
-  const data = [/* ... data array ... */];
-  const columns = [/* ... columns ... */];
+  const data = [
+    /* ... data array ... */
+  ];
+  const columns = [
+    /* ... columns ... */
+  ];
 
   // Batch action handlers
   const handleDelete = (selectedRows) => {
@@ -300,7 +311,7 @@ function AdvancedTable() {
   const [data, setData] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  
+
   // Server-side state
   const [queryParams, setQueryParams] = useState({
     page: 1,
@@ -314,8 +325,8 @@ function AdvancedTable() {
     { header: "Name", accessorKey: "name", enableSorting: true },
     { header: "Email", accessorKey: "email", enableSorting: true },
     { header: "Role", accessorKey: "role" },
-    { 
-      header: "Created At", 
+    {
+      header: "Created At",
       accessorKey: "createdAt",
       cell: (row) => new Date(row.createdAt).toLocaleDateString(),
       exportFormatter: (value) => new Date(value).toISOString(),
@@ -349,7 +360,7 @@ function AdvancedTable() {
   const handleDelete = async (selectedRows) => {
     setLoading(true);
     try {
-      await deleteUsers(selectedRows.map(row => row.id));
+      await deleteUsers(selectedRows.map((row) => row.id));
       toast({
         title: "Success",
         description: `Deleted ${selectedRows.length} users`,
@@ -375,7 +386,7 @@ function AdvancedTable() {
       title: "Sending email",
       description: `Emailing ${selectedRows.length} users`,
     });
-    emailUsers(selectedRows.map(row => row.email));
+    emailUsers(selectedRows.map((row) => row.email));
   };
 
   return (
@@ -388,27 +399,24 @@ function AdvancedTable() {
       enablePagination={true}
       pageSize={queryParams.pageSize}
       noResultsMessage="No users found"
-      
       // Server-side options
       serverSide={{
         enabled: true,
         totalCount,
-        onPaginationChange: (page, pageSize) => 
-          setQueryParams(prev => ({ ...prev, page, pageSize })),
-        onSortChange: (sortField, sortDirection) => 
-          setQueryParams(prev => ({ ...prev, sortField, sortDirection })),
-        onFilterChange: (filter) => 
-          setQueryParams(prev => ({ ...prev, filter, page: 1 })),
+        onPaginationChange: (page, pageSize) =>
+          setQueryParams((prev) => ({ ...prev, page, pageSize })),
+        onSortChange: (sortField, sortDirection) =>
+          setQueryParams((prev) => ({ ...prev, sortField, sortDirection })),
+        onFilterChange: (filter) =>
+          setQueryParams((prev) => ({ ...prev, filter, page: 1 })),
         filterDebounce: 500,
       }}
-      
       // Export options
       exportOptions={{
         enabled: true,
         filename: "users-export.csv",
         exportAll: true,
       }}
-      
       // Selection options
       selectionOptions={{
         enabled: true,
@@ -434,16 +442,19 @@ function AdvancedTable() {
 ## Best Practices
 
 1. **Server-Side Performance**:
+
    - Use debouncing for filtering to reduce unnecessary API calls
    - Keep track of total count to properly calculate pagination
    - Reset to page 1 when filter or sort changes
 
 2. **Export Customization**:
+
    - Use `includeInExport` to control which columns are exported
    - Provide `exportFormatter` for columns that need special formatting
    - Consider using `exportAll: true` for large datasets
 
 3. **Row Selection**:
+
    - Use `canSelectRow` to disable selection for specific rows
    - Implement batch actions that make sense for your data
    - Clear selection when making changes that affect the data
@@ -451,4 +462,4 @@ function AdvancedTable() {
 4. **Accessibility**:
    - The DataTable includes proper ARIA attributes for accessibility
    - Keyboard navigation is supported for both table and selection controls
-   - Use descriptive labels for batch actions 
+   - Use descriptive labels for batch actions

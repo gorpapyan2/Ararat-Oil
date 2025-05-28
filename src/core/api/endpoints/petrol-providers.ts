@@ -1,36 +1,46 @@
 /**
  * Petrol Providers API
- * 
+ *
  * This file provides API functions for working with petrol providers data.
  */
 
-import { fetchFromFunction, ApiResponse } from '../client';
-import { API_ENDPOINTS } from '@/core/config/api';
-import type { PetrolProvider, PetrolProviderCreate, PetrolProviderUpdate } from '../types';
+import { fetchFromFunction, ApiResponse } from "../client";
+import { API_ENDPOINTS } from "@/core/config/api";
+import type {
+  PetrolProvider,
+  PetrolProviderCreate,
+  PetrolProviderUpdate,
+} from "../types";
 
 const ENDPOINT = API_ENDPOINTS.FUNCTIONS.PETROL_PROVIDERS;
 
 /**
  * Fetches all petrol providers
  */
-export async function getPetrolProviders(): Promise<ApiResponse<PetrolProvider[]>> {
+export async function getPetrolProviders(): Promise<
+  ApiResponse<PetrolProvider[]>
+> {
   return fetchFromFunction<PetrolProvider[]>(ENDPOINT);
 }
 
 /**
  * Fetches a petrol provider by ID
  */
-export async function getPetrolProviderById(id: string): Promise<ApiResponse<PetrolProvider>> {
+export async function getPetrolProviderById(
+  id: string
+): Promise<ApiResponse<PetrolProvider>> {
   return fetchFromFunction<PetrolProvider>(`${ENDPOINT}/${id}`);
 }
 
 /**
  * Creates a new petrol provider
  */
-export async function createPetrolProvider(data: PetrolProviderCreate): Promise<ApiResponse<PetrolProvider>> {
+export async function createPetrolProvider(
+  data: PetrolProviderCreate
+): Promise<ApiResponse<PetrolProvider>> {
   return fetchFromFunction<PetrolProvider>(ENDPOINT, {
-    method: 'POST',
-    body: data
+    method: "POST",
+    body: data,
   });
 }
 
@@ -38,21 +48,23 @@ export async function createPetrolProvider(data: PetrolProviderCreate): Promise<
  * Updates a petrol provider by ID
  */
 export async function updatePetrolProvider(
-  id: string, 
+  id: string,
   data: PetrolProviderUpdate
 ): Promise<ApiResponse<PetrolProvider>> {
   return fetchFromFunction<PetrolProvider>(`${ENDPOINT}/${id}`, {
-    method: 'PUT',
-    body: data
+    method: "PUT",
+    body: data,
   });
 }
 
 /**
  * Deletes a petrol provider by ID
  */
-export async function deletePetrolProvider(id: string): Promise<ApiResponse<{ success: boolean }>> {
+export async function deletePetrolProvider(
+  id: string
+): Promise<ApiResponse<{ success: boolean }>> {
   return fetchFromFunction<{ success: boolean }>(`${ENDPOINT}/${id}`, {
-    method: 'DELETE'
+    method: "DELETE",
   });
 }
 
@@ -64,5 +76,5 @@ export const petrolProvidersApi = {
   getPetrolProviderById,
   createPetrolProvider,
   updatePetrolProvider,
-  deletePetrolProvider
-}; 
+  deletePetrolProvider,
+};

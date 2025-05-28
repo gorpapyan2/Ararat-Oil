@@ -1,5 +1,5 @@
-import { ApiEmployee } from '../types/employee-types';
-import { Employee, EmployeeStatus } from '@/types';
+import { ApiEmployee } from "../types/employee-types";
+import { Employee, EmployeeStatus } from "@/types";
 
 /**
  * Converts API employee data format to the application's employee data format
@@ -8,7 +8,7 @@ function fromApiData(data: ApiEmployee): Employee;
 function fromApiData(data: ApiEmployee[]): Employee[];
 function fromApiData(data: ApiEmployee | ApiEmployee[]): Employee | Employee[] {
   if (Array.isArray(data)) {
-    return data.map(item => fromApiData(item));
+    return data.map((item) => fromApiData(item));
   }
 
   return {
@@ -20,7 +20,7 @@ function fromApiData(data: ApiEmployee | ApiEmployee[]): Employee | Employee[] {
     hire_date: data.hire_date,
     status: data.status as EmployeeStatus,
     created_at: data.created_at,
-    updated_at: data.updated_at || null
+    updated_at: data.updated_at || null,
   };
 }
 
@@ -31,7 +31,7 @@ function toApiData(data: Employee): ApiEmployee;
 function toApiData(data: Employee[]): ApiEmployee[];
 function toApiData(data: Employee | Employee[]): ApiEmployee | ApiEmployee[] {
   if (Array.isArray(data)) {
-    return data.map(item => toApiData(item));
+    return data.map((item) => toApiData(item));
   }
 
   return {
@@ -42,17 +42,17 @@ function toApiData(data: Employee | Employee[]): ApiEmployee | ApiEmployee[] {
     salary: data.salary,
     hire_date: data.hire_date,
     status: data.status,
-    department: '',
+    department: "",
     created_at: data.created_at,
-    updated_at: data.updated_at || null
+    updated_at: data.updated_at || null,
   };
 }
 
 export const employeeAdapter = {
   fromApiData,
-  toApiData
+  toApiData,
 };
 
 // Export old function names for backward compatibility
 export const adaptApiEmployeeToAppEmployee = fromApiData;
-export const adaptAppEmployeeToApiEmployee = toApiData; 
+export const adaptAppEmployeeToApiEmployee = toApiData;

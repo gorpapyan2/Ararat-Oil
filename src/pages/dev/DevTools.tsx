@@ -1,48 +1,54 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
+import React from "react";
+import { Link } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
-import { 
-  Code, 
-  Database, 
-  Bell, 
-  Layout, 
-  Layers,
-  PanelTop 
-} from 'lucide-react';
+import { Code, Database, Bell, Layout, Layers, PanelTop } from "lucide-react";
 
 export default function DevTools() {
   const devPages = [
-    { 
-      name: 'Connection Info', 
-      path: '/dev/connection-info', 
+    {
+      name: "Connection Info",
+      path: "/dev/connection-info",
       icon: <Database className="h-5 w-5" />,
-      description: 'Check Supabase connection status and manage data synchronization'
+      description:
+        "Check Supabase connection status and manage data synchronization",
     },
-    { 
-      name: 'Toast Tester', 
-      path: '/dev/toast-test', 
+    {
+      name: "Toast Tester",
+      path: "/dev/toast-test",
       icon: <Bell className="h-5 w-5" />,
-      description: 'Test different toast notification styles and behaviors'
+      description: "Test different toast notification styles and behaviors",
     },
-    { 
-      name: 'Responsive Test', 
-      path: '/dev/responsive-test', 
+    {
+      name: "Responsive Test",
+      path: "/dev/responsive-test",
       icon: <Layout className="h-5 w-5" />,
-      description: 'Test responsive layouts and breakpoints'
+      description: "Test responsive layouts and breakpoints",
     },
-    { 
-      name: 'Card Components', 
-      path: '/dev/card-components', 
+    {
+      name: "Card Components",
+      path: "/dev/card-components",
       icon: <Layers className="h-5 w-5" />,
-      description: 'Explore different card component variations'
+      description: "Explore different card component variations",
     },
-    { 
-      name: 'Button Components', 
-      path: '/dev/button-components', 
+    {
+      name: "Button Components",
+      path: "/dev/button-components",
       icon: <PanelTop className="h-5 w-5" />,
-      description: 'Explore button component variations and styles'
+      description: "Explore button component variations and styles",
+    },
+    {
+      name: "Hooks Showcase",
+      path: "/dev/hooks-showcase",
+      icon: <Code className="h-5 w-5" />,
+      description:
+        "Demonstration of our refactored hooks architecture with examples",
     },
   ];
 

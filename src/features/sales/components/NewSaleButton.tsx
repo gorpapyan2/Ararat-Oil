@@ -1,14 +1,14 @@
 import { Button } from "@/core/components/ui/button";
-import { StandardDialog } from "@/core/components/ui/composed/dialog";
-import { DialogContent } from '@/core/components/ui/styled/dialog';
-import { SalesFormStandardized } from "./SalesFormStandardized";
+import { StandardDialog } from "@/shared/components/common/dialog/StandardDialog";
+import { SalesFormStandardized, SalesFormData } from "./SalesFormStandardized";
 import { useState, useRef } from "react";
 import { salesApi } from "@/core/api";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import React from "react";
-import { CreateButton } from '@/core/components/ui/create-button';
+import { CreateButton } from "@/core/components/ui/create-button";
+import { Sale } from "@/core/api/types";
 
 interface NewSaleButtonProps {
   className?: string;
@@ -20,9 +20,21 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
   const queryClient = useQueryClient();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const handleSubmit = async (data: any): Promise<boolean> => {
+  const handleSubmit = async (data: SalesFormData): Promise<boolean> => {
     try {
-      await salesApi.createSale(data);
+      // Map form data to API format
+      const saleData: Omit<Sale, "id" | "created_at" | "updated_at"> = {
+        filling_system_id: data.filling_system_id,
+        fuel_type_id: "1", // This should come from the filling system
+        quantity: data.quantity,
+        price_per_liter: data.unit_price,
+        total_price: data.total_sales || 0,
+        payment_method: "cash", // This should come from the form
+        employee_id: "1", // This should come from the current user
+        shift_id: data.shift_id,
+      };
+
+      await salesApi.createSale(saleData);
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
       queryClient.invalidateQueries({ queryKey: ["latest-sale"] });
@@ -34,10 +46,10 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
 
       setIsOpen(false);
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to create sale",
+        description: error instanceof Error ? error.message : "Failed to create sale",
         variant: "destructive",
       });
       console.error("Error creating sale:", error);
@@ -47,7 +59,7 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
 
   return (
     <>
-      <CreateButton 
+      <CreateButton
         ref={triggerRef}
         label="Add Sale"
         className={className}
@@ -57,13 +69,9 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
         open={isOpen}
         onOpenChange={setIsOpen}
         title="Add New Sale"
-        triggerRef={triggerRef}
-        maxWidth="sm:max-w-lg"
       >
-        <DialogContent>
-          <SalesFormStandardized onSubmit={handleSubmit} />
-        </DialogContent>
+        <SalesFormStandardized onSubmit={handleSubmit} />
       </StandardDialog>
     </>
   );
-} 
+}

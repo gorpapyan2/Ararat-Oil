@@ -1,6 +1,11 @@
-import { fetchFromFunction, ApiResponse } from '../client';
-import type { ProfitLoss, FinancialDashboard, RevenueData, ExpensesData } from '../types';
-import { API_ENDPOINTS } from '@/core/config/api';
+import { fetchFromFunction, ApiResponse } from "../client";
+import type {
+  ProfitLoss,
+  FinancialDashboard,
+  RevenueData,
+  ExpensesData,
+} from "../types";
+import { API_ENDPOINTS } from "@/core/config/api";
 
 const ENDPOINT = API_ENDPOINTS.FUNCTIONS.FINANCIALS;
 
@@ -8,7 +13,9 @@ const ENDPOINT = API_ENDPOINTS.FUNCTIONS.FINANCIALS;
  * Get profit and loss data
  * @returns ApiResponse with profit and loss data
  */
-export async function getFinancialProfitLoss(): Promise<ApiResponse<ProfitLoss[]>> {
+export async function getFinancialProfitLoss(): Promise<
+  ApiResponse<ProfitLoss[]>
+> {
   return fetchFromFunction<ProfitLoss[]>(`${ENDPOINT}/profit-loss`);
 }
 
@@ -17,9 +24,11 @@ export async function getFinancialProfitLoss(): Promise<ApiResponse<ProfitLoss[]
  * @param period Optional time period filter
  * @returns ApiResponse with revenue data
  */
-export async function getFinancialRevenue(period?: string): Promise<ApiResponse<RevenueData>> {
-  return fetchFromFunction<RevenueData>(`${ENDPOINT}/revenue`, { 
-    queryParams: period ? { period } : undefined
+export async function getFinancialRevenue(
+  period?: string
+): Promise<ApiResponse<RevenueData>> {
+  return fetchFromFunction<RevenueData>(`${ENDPOINT}/revenue`, {
+    queryParams: period ? { period } : undefined,
   });
 }
 
@@ -28,9 +37,11 @@ export async function getFinancialRevenue(period?: string): Promise<ApiResponse<
  * @param period Optional time period filter
  * @returns ApiResponse with expenses data
  */
-export async function getFinancialExpenses(period?: string): Promise<ApiResponse<ExpensesData>> {
-  return fetchFromFunction<ExpensesData>(`${ENDPOINT}/expenses`, { 
-    queryParams: period ? { period } : undefined
+export async function getFinancialExpenses(
+  period?: string
+): Promise<ApiResponse<ExpensesData>> {
+  return fetchFromFunction<ExpensesData>(`${ENDPOINT}/expenses`, {
+    queryParams: period ? { period } : undefined,
   });
 }
 
@@ -38,7 +49,9 @@ export async function getFinancialExpenses(period?: string): Promise<ApiResponse
  * Get financial dashboard data
  * @returns ApiResponse with financial dashboard data
  */
-export async function getFinancialDashboard(): Promise<ApiResponse<FinancialDashboard>> {
+export async function getFinancialDashboard(): Promise<
+  ApiResponse<FinancialDashboard>
+> {
   return fetchFromFunction<FinancialDashboard>(`${ENDPOINT}/dashboard`);
 }
 
@@ -46,11 +59,13 @@ export async function getFinancialDashboard(): Promise<ApiResponse<FinancialDash
  * Get finance overview data
  * @returns ApiResponse with finance overview data
  */
-export async function getFinanceOverview(): Promise<ApiResponse<{
-  total_sales: number;
-  total_expenses: number;
-  net_profit: number;
-}>> {
+export async function getFinanceOverview(): Promise<
+  ApiResponse<{
+    total_sales: number;
+    total_expenses: number;
+    net_profit: number;
+  }>
+> {
   return fetchFromFunction<{
     total_sales: number;
     total_expenses: number;
@@ -66,5 +81,5 @@ export const financialsApi = {
   getRevenue: getFinancialRevenue,
   getExpenses: getFinancialExpenses,
   getDashboard: getFinancialDashboard,
-  getFinanceOverview
-}; 
+  getFinanceOverview,
+};

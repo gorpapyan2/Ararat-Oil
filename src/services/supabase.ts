@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/supabase';
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 
 // Set up ENV configs for Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -12,65 +12,73 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Configure the Supabase client with better network handling
-const supabaseClient = createClient<Database>(
-  supabaseUrl,
-  supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-    },
-    global: {
-      // Add fetch options with longer timeout
-      fetch: (url, options) => {
-        const fetchOptions = {
-          ...options,
-          // Longer timeout for slower connections
-          timeout: 30000,  // 30 seconds
-        };
-        
-        return fetch(url, fetchOptions);
-      },
-    },
-    // Improved retry configuration
-    db: {
-      schema: "public",
-    },
-    // Add custom fetch handler to simulate retries
-    realtime: {
-      params: {
-        eventsPerSecond: 10,
-      },
-    },
-  }
-);
+const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+  },
+  global: {
+    // Add fetch options with longer timeout
+    fetch: (url, options) => {
+      const fetchOptions = {
+        ...options,
+        // Longer timeout for slower connections
+        timeout: 30000, // 30 seconds
+      };
 
-// Add error event listener to detect network issues
-window.addEventListener('offline', () => {
-  console.warn('Connection lost. App will operate in offline mode.');
+      return fetch(url, fetchOptions);
+    },
+  },
+  // Improved retry configuration
+  db: {
+    schema: "public",
+  },
+  // Add custom fetch handler to simulate retries
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
 });
 
-window.addEventListener('online', () => {
-  console.log('Connection restored. Reconnecting to Supabase...');
+// Add error event listener to detect network issues
+window.addEventListener("offline", () => {
+  console.warn("Connection lost. App will operate in offline mode.");
+});
+
+window.addEventListener("online", () => {
+  console.log("Connection restored. Reconnecting to Supabase...");
   // We can trigger any reconnection logic here if needed
 });
 
 // Helper to check if a network error occurred
-export const isNetworkError = (error: any): boolean => {
-  return (
-    error?.message?.includes('Failed to fetch') || 
-    error?.message?.includes('Network Error') ||
-    error?.message?.includes('NetworkError') ||
-    error?.name === 'TypeError' && error?.message?.includes('fetch')
-  );
+export const isNetworkError = (error: unknown): boolean => {
+  if (error && typeof error === 'object' && 'message' in error) {
+    const message = (error as { message: string }).message;
+    return (
+      message?.includes("Failed to fetch") ||
+      message?.includes("Network Error") ||
+      message?.includes("NetworkError")
+    );
+  }
+  
+  if (error && typeof error === 'object' && 'name' in error && 'message' in error) {
+    const errorObj = error as { name: string; message: string };
+    return errorObj.name === "TypeError" && errorObj.message?.includes("fetch");
+  }
+  
+  return false;
 };
 
 // Check Supabase connection on import
 (async function checkSupabaseConnection() {
   try {
     console.log("Checking Supabase connection...");
-    const { data, error } = await supabaseClient.from('petrol_providers').select('count').limit(1);
-    
+    const { data, error } = await supabaseClient
+      .from("petrol_providers")
+      .select("count")
+      .limit(1);
+
     if (error) {
       console.error("Supabase connection error:", error);
     } else {
@@ -82,7 +90,7 @@ export const isNetworkError = (error: any): boolean => {
 })();
 
 // Re-export all types from types directory
-export * from "@/types";
+export * from "@/core/api/types";
 
 // Re-export service functions with more specific exports to avoid naming conflicts
 export {
@@ -90,7 +98,7 @@ export {
   fetchExpenseCategories,
   createExpense,
   updateExpense,
-  deleteExpense
+  deleteExpense,
 } from "./expenses";
 
 // Explicitly rename the fetchExpenses export from expenses.ts to avoid naming conflicts
@@ -101,14 +109,11 @@ export {
   fetchProfitLoss,
   fetchRevenue,
   fetchExpenses as fetchFinancialExpenses,
-  fetchFinancialDashboard
+  fetchFinancialDashboard,
 } from "./financials";
 
 // Export sales functions from the sales modules
-export {
-  fetchSales,
-  fetchLatestSale
-} from "./sales";
+export { fetchSales, fetchLatestSale } from "./sales";
 
 export {
   fetchActiveTanks,
@@ -120,7 +125,7 @@ export {
   adjustTankLevel,
   fetchFuelTanks,
   createFuelTank,
-  updateTankLevel
+  updateTankLevel,
 } from "./tanks";
 
 // Specify the exports for the remaining modules

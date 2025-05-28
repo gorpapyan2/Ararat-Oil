@@ -13,22 +13,23 @@ Follow these steps to migrate your existing button implementations:
 
 ## Button Component Selection
 
-| If your button... | Use this component | Example |
-|-------------------|-------------------|---------|
-| Is a basic button | `Button` | `<Button>Submit</Button>` |
-| Only contains an icon | `IconButton` | `<IconButton icon={<SearchIcon />} ariaLabel="Search" />` |
-| Creates or adds new items | `CreateButton` | `<CreateButton label="Add User" />` |
-| Performs async operations | `LoadingButton` | `<LoadingButton onClick={handleSave}>Save</LoadingButton>` |
-| Performs destructive actions | `ActionButton` | `<ActionButton isDestructive onClick={handleDelete}>Delete</ActionButton>` |
-| Is actually a link | `ButtonLink` | `<ButtonLink href="/docs">Documentation</ButtonLink>` |
+| If your button...            | Use this component | Example                                                                    |
+| ---------------------------- | ------------------ | -------------------------------------------------------------------------- |
+| Is a basic button            | `Button`           | `<Button>Submit</Button>`                                                  |
+| Only contains an icon        | `IconButton`       | `<IconButton icon={<SearchIcon />} ariaLabel="Search" />`                  |
+| Creates or adds new items    | `CreateButton`     | `<CreateButton label="Add User" />`                                        |
+| Performs async operations    | `LoadingButton`    | `<LoadingButton onClick={handleSave}>Save</LoadingButton>`                 |
+| Performs destructive actions | `ActionButton`     | `<ActionButton isDestructive onClick={handleDelete}>Delete</ActionButton>` |
+| Is actually a link           | `ButtonLink`       | `<ButtonLink href="/docs">Documentation</ButtonLink>`                      |
 
 ## Migration Examples
 
 ### Example 1: Basic Button
 
 **Before:**
+
 ```tsx
-<button 
+<button
   className="bg-blue-500 hover:bg-blue-600 text-white rounded-md px-4 py-2"
   onClick={handleClick}
 >
@@ -37,22 +38,21 @@ Follow these steps to migrate your existing button implementations:
 ```
 
 **After:**
+
 ```tsx
 import { Button } from "@/components/ui/button";
 
-<Button 
-  variant="default"
-  onClick={handleClick}
->
+<Button variant="default" onClick={handleClick}>
   Submit
-</Button>
+</Button>;
 ```
 
 ### Example 2: Icon Button
 
 **Before:**
+
 ```tsx
-<button 
+<button
   className="p-2 hover:bg-gray-100 rounded-full"
   onClick={handleSearch}
   aria-label="Search"
@@ -62,23 +62,25 @@ import { Button } from "@/components/ui/button";
 ```
 
 **After:**
+
 ```tsx
 import { IconButton } from "@/components/ui/icon-button";
 import { SearchIcon } from "lucide-react";
 
-<IconButton 
+<IconButton
   icon={<SearchIcon className="h-4 w-4" />}
   ariaLabel="Search"
   variant="ghost"
   onClick={handleSearch}
-/>
+/>;
 ```
 
 ### Example 3: Create Button
 
 **Before:**
+
 ```tsx
-<button 
+<button
   className="flex items-center bg-green-500 hover:bg-green-600 text-white rounded-md px-4 py-2"
   onClick={handleAdd}
 >
@@ -88,22 +90,21 @@ import { SearchIcon } from "lucide-react";
 ```
 
 **After:**
+
 ```tsx
 import { CreateButton } from "@/components/ui/create-button";
 
-<CreateButton 
-  label="Add User"
-  onClick={handleAdd}
-/>
+<CreateButton label="Add User" onClick={handleAdd} />;
 ```
 
 ### Example 4: Loading Button
 
 **Before:**
+
 ```tsx
 function SaveButton() {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
@@ -112,9 +113,9 @@ function SaveButton() {
       setIsLoading(false);
     }
   };
-  
+
   return (
-    <button 
+    <button
       className="bg-blue-500 hover:bg-blue-600 text-white rounded-md px-4 py-2 disabled:opacity-50"
       onClick={handleSave}
       disabled={isLoading}
@@ -125,7 +126,7 @@ function SaveButton() {
           Saving...
         </>
       ) : (
-        'Save'
+        "Save"
       )}
     </button>
   );
@@ -133,6 +134,7 @@ function SaveButton() {
 ```
 
 **After:**
+
 ```tsx
 import { LoadingButton } from "@/components/ui/loading-button";
 
@@ -140,12 +142,9 @@ function SaveButton() {
   const handleSave = async () => {
     await saveData();
   };
-  
+
   return (
-    <LoadingButton
-      onClick={handleSave}
-      loadingText="Saving..."
-    >
+    <LoadingButton onClick={handleSave} loadingText="Saving...">
       Save
     </LoadingButton>
   );
@@ -155,6 +154,7 @@ function SaveButton() {
 ### Example 5: Dangerous Actions
 
 **Before:**
+
 ```tsx
 function DeleteButton() {
   const handleDelete = () => {
@@ -162,9 +162,9 @@ function DeleteButton() {
       deleteItem();
     }
   };
-  
+
   return (
-    <button 
+    <button
       className="bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-2"
       onClick={handleDelete}
     >
@@ -175,6 +175,7 @@ function DeleteButton() {
 ```
 
 **After:**
+
 ```tsx
 import { ActionButton } from "@/components/ui/action-button";
 
@@ -182,7 +183,7 @@ function DeleteButton() {
   const handleDelete = () => {
     deleteItem();
   };
-  
+
   return (
     <ActionButton
       isDestructive
@@ -198,8 +199,9 @@ function DeleteButton() {
 ### Example 6: Button Links
 
 **Before:**
+
 ```tsx
-<a 
+<a
   href="/documentation"
   className="bg-gray-200 hover:bg-gray-300 rounded-md px-4 py-2"
 >
@@ -208,15 +210,13 @@ function DeleteButton() {
 ```
 
 **After:**
+
 ```tsx
 import { ButtonLink } from "@/components/ui/button";
 
-<ButtonLink 
-  href="/documentation"
-  variant="secondary"
->
+<ButtonLink href="/documentation" variant="secondary">
   View Documentation
-</ButtonLink>
+</ButtonLink>;
 ```
 
 ## Common Migration Issues
@@ -224,6 +224,7 @@ import { ButtonLink } from "@/components/ui/button";
 ### 1. Handling Complex Buttons
 
 For buttons with complex requirements, you can:
+
 - Use the base `Button` component with custom props
 - Compose multiple components together
 - Extend the existing components by creating a new specialized component
@@ -247,7 +248,7 @@ Only include custom classes that modify the base styling. Most styling needs are
 All standard event handlers work as expected with the new components:
 
 ```tsx
-<Button 
+<Button
   onClick={handleClick}
   onMouseEnter={handleMouseEnter}
   onFocus={handleFocus}
@@ -258,7 +259,7 @@ All standard event handlers work as expected with the new components:
 
 ## Compatibility Layer (Optional)
 
-If you need to maintain backward compatibility temporarily, consider creating wrapper components that use the new standardized components internally. 
+If you need to maintain backward compatibility temporarily, consider creating wrapper components that use the new standardized components internally.
 
 ## Button Selection Guide
 
@@ -267,13 +268,15 @@ To help you choose the right button component for different use cases, follow th
 ### When to use each button type:
 
 1. **Button**: Use for general actions when none of the specialized buttons below are applicable.
+
    ```tsx
    <Button variant="default">Submit</Button>
    ```
 
 2. **IconButton**: Use for icon-only buttons where the icon itself conveys the meaning.
+
    ```tsx
-   <IconButton 
+   <IconButton
      icon={<SearchIcon className="h-4 w-4" />}
      ariaLabel="Search"
      variant="ghost"
@@ -281,9 +284,12 @@ To help you choose the right button component for different use cases, follow th
    ```
 
 3. **LoadingButton**: Use for buttons that trigger asynchronous operations.
+
    ```tsx
-   <LoadingButton 
-     onClick={async () => { await saveData(); }}
+   <LoadingButton
+     onClick={async () => {
+       await saveData();
+     }}
      loadingText="Saving..."
    >
      Save
@@ -291,13 +297,15 @@ To help you choose the right button component for different use cases, follow th
    ```
 
 4. **CreateButton**: Use for actions that create new items or resources.
+
    ```tsx
    <CreateButton onClick={handleCreateNew} label="Add Employee" />
    ```
 
 5. **ActionButton**: Use for actions that need confirmation or have important consequences.
+
    ```tsx
-   <ActionButton 
+   <ActionButton
      isDestructive
      confirmationMessage="This action cannot be undone. Are you sure?"
      onConfirmedClick={handleDelete}
@@ -307,13 +315,17 @@ To help you choose the right button component for different use cases, follow th
    ```
 
 6. **ButtonLink**: Use for navigation when you want the look of a button.
+
    ```tsx
-   <ButtonLink href="/reports" variant="outline">View Reports</ButtonLink>
+   <ButtonLink href="/reports" variant="outline">
+     View Reports
+   </ButtonLink>
    ```
 
 7. **ToggleButton**: Use for binary state toggling (on/off, active/inactive).
+
    ```tsx
-   <ToggleButton 
+   <ToggleButton
      isActive={isFilterActive}
      onToggle={(active) => setIsFilterActive(active)}
    >
@@ -322,9 +334,10 @@ To help you choose the right button component for different use cases, follow th
    ```
 
 8. **ToggleButtonGroup**: Use for selecting from a group of related options.
+
    ```tsx
-   <ToggleButtonGroup 
-     value={selectedView} 
+   <ToggleButtonGroup
+     value={selectedView}
      onChange={(value) => setSelectedView(value)}
    >
      <ToggleButton value="list">List</ToggleButton>
@@ -349,6 +362,7 @@ Here are some common migration patterns you can follow:
 #### 1. Form Submission Buttons
 
 **Before:**
+
 ```tsx
 <Button type="submit" disabled={isSubmitting}>
   {isSubmitting ? (
@@ -360,12 +374,9 @@ Here are some common migration patterns you can follow:
 ```
 
 **After:**
+
 ```tsx
-<LoadingButton 
-  type="submit" 
-  isLoading={isSubmitting}
-  loadingText="Saving..."
->
+<LoadingButton type="submit" isLoading={isSubmitting} loadingText="Saving...">
   Save
 </LoadingButton>
 ```
@@ -373,10 +384,11 @@ Here are some common migration patterns you can follow:
 #### 2. Icon-Only Buttons
 
 **Before:**
+
 ```tsx
-<Button 
-  variant="ghost" 
-  size="icon" 
+<Button
+  variant="ghost"
+  size="icon"
   onClick={handleAction}
   aria-label="Edit item"
 >
@@ -385,9 +397,10 @@ Here are some common migration patterns you can follow:
 ```
 
 **After:**
+
 ```tsx
-<IconButton 
-  variant="ghost" 
+<IconButton
+  variant="ghost"
   icon={<PencilIcon className="h-4 w-4" />}
   onClick={handleAction}
   ariaLabel="Edit item"
@@ -397,39 +410,41 @@ Here are some common migration patterns you can follow:
 #### 3. Confirmation Buttons
 
 **Before:**
-```tsx
-<Button 
-  variant="destructive" 
-  onClick={() => setShowConfirmation(true)}
->
-  Delete Account
-</Button>
 
-{showConfirmation && (
-  <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Are you sure?</DialogTitle>
-        <DialogDescription>
-          This action cannot be undone. Your account will be permanently deleted.
-        </DialogDescription>
-      </DialogHeader>
-      <DialogFooter>
-        <Button variant="outline" onClick={() => setShowConfirmation(false)}>
-          Cancel
-        </Button>
-        <Button variant="destructive" onClick={handleDeleteAccount}>
-          Delete
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-)}
+```tsx
+<Button variant="destructive" onClick={() => setShowConfirmation(true)}>
+  Delete Account
+</Button>;
+
+{
+  showConfirmation && (
+    <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. Your account will be permanently
+            deleted.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowConfirmation(false)}>
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={handleDeleteAccount}>
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 ```
 
 **After:**
+
 ```tsx
-<ActionButton 
+<ActionButton
   variant="destructive"
   confirmationTitle="Are you sure?"
   confirmationMessage="This action cannot be undone. Your account will be permanently deleted."
@@ -442,6 +457,7 @@ Here are some common migration patterns you can follow:
 #### 4. Navigation Buttons
 
 **Before:**
+
 ```tsx
 <Button variant="outline" onClick={() => navigate("/reports")}>
   <FileTextIcon className="mr-2 h-4 w-4" />
@@ -450,9 +466,10 @@ Here are some common migration patterns you can follow:
 ```
 
 **After:**
+
 ```tsx
-<ButtonLink 
-  href="/reports" 
+<ButtonLink
+  href="/reports"
   variant="outline"
   startIcon={<FileTextIcon className="h-4 w-4" />}
 >
@@ -463,23 +480,33 @@ Here are some common migration patterns you can follow:
 #### 5. Toggle Button
 
 **Before:**
+
 ```tsx
-<Button 
+<Button
   variant={isDarkMode ? "default" : "outline"}
   onClick={() => setIsDarkMode(!isDarkMode)}
 >
-  {isDarkMode ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+  {isDarkMode ? (
+    <SunIcon className="h-4 w-4" />
+  ) : (
+    <MoonIcon className="h-4 w-4" />
+  )}
   {isDarkMode ? "Light Mode" : "Dark Mode"}
 </Button>
 ```
 
 **After:**
+
 ```tsx
-<ToggleButton 
-  isActive={isDarkMode} 
+<ToggleButton
+  isActive={isDarkMode}
   onToggle={(active) => setIsDarkMode(active)}
 >
-  {isDarkMode ? <SunIcon className="h-4 w-4 mr-2" /> : <MoonIcon className="h-4 w-4 mr-2" />}
+  {isDarkMode ? (
+    <SunIcon className="h-4 w-4 mr-2" />
+  ) : (
+    <MoonIcon className="h-4 w-4 mr-2" />
+  )}
   {isDarkMode ? "Light Mode" : "Dark Mode"}
 </ToggleButton>
 ```
@@ -487,6 +514,7 @@ Here are some common migration patterns you can follow:
 #### 6. Button Group
 
 **Before:**
+
 ```tsx
 <div className="flex space-x-2">
   <Button variant="outline">Previous</Button>
@@ -496,6 +524,7 @@ Here are some common migration patterns you can follow:
 ```
 
 **After:**
+
 ```tsx
 <ButtonGroup>
   <Button variant="outline">Previous</Button>
@@ -505,6 +534,7 @@ Here are some common migration patterns you can follow:
 ```
 
 **Before (attached buttons):**
+
 ```tsx
 <div className="inline-flex">
   <Button className="rounded-r-none border-r-0">Previous</Button>
@@ -514,6 +544,7 @@ Here are some common migration patterns you can follow:
 ```
 
 **After:**
+
 ```tsx
 <ButtonGroup attached>
   <Button>Previous</Button>
@@ -540,4 +571,4 @@ Here are some common migration patterns you can follow:
 
 8. **Responsive considerations**: Ensure buttons are properly sized for touch targets on mobile devices.
 
-By following these guidelines, you'll maintain consistency across the application while providing the best possible user experience. 
+By following these guidelines, you'll maintain consistency across the application while providing the best possible user experience.

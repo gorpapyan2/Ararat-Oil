@@ -7,7 +7,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/core/components/ui/command';
+} from "@/core/components/ui/command";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Button } from "@/core/components/ui/button";
 

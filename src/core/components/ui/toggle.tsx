@@ -3,7 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  Toggle,
-  toggleVariants 
-} from "@/core/components/ui/primitives/toggle";
+export { Toggle, toggleVariants } from "@/core/components/ui/primitives/toggle";

@@ -1,6 +1,6 @@
 import { dashboardApi, DashboardData } from "@/core/api";
 
-// Define a fallback type for dashboard data 
+// Define a fallback type for dashboard data
 const DEFAULT_DASHBOARD_DATA: DashboardData = {
   fuel_levels: {},
   recent_sales: [],
@@ -13,7 +13,7 @@ const DEFAULT_DASHBOARD_DATA: DashboardData = {
     total_capacity: 0,
     current_level: 0,
     percentage: 0,
-  }
+  },
 };
 
 /**
@@ -29,8 +29,8 @@ export const fetchDashboardData = async (): Promise<DashboardData> => {
     }
 
     return response.data || DEFAULT_DASHBOARD_DATA;
-  } catch (err: any) {
-    console.error("Failed to fetch dashboard data:", err);
-    return DEFAULT_DASHBOARD_DATA;
+  } catch (err: unknown) {
+    console.error("Error fetching dashboard data:", err);
+    throw err instanceof Error ? err : new Error("Failed to fetch dashboard data");
   }
-}; 
+};

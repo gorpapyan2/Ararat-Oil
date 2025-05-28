@@ -1,16 +1,14 @@
 import * as React from "react";
 import { cn } from "@/shared/utils";
 
-interface VisuallyHiddenProps extends React.HTMLAttributes<HTMLSpanElement> {}
-
 /**
  * VisuallyHidden component
- * 
+ *
  * Renders content that is visually hidden but still accessible to screen readers.
  * This is useful for providing additional context to screen reader users
  * without affecting the visual design.
  */
-const VisuallyHidden = React.forwardRef<HTMLSpanElement, VisuallyHiddenProps>(
+const VisuallyHidden = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
   ({ className, ...props }, ref) => (
     <span
       ref={ref}
@@ -19,12 +17,12 @@ const VisuallyHidden = React.forwardRef<HTMLSpanElement, VisuallyHiddenProps>(
         "whitespace-nowrap border-0",
         "clip-[rect(0,0,0,0)]",
         "pointer-events-none",
-        className,
+        className
       )}
       {...props}
     />
-  ),
+  )
 );
 VisuallyHidden.displayName = "VisuallyHidden";
 
-export { VisuallyHidden }; 
+export { VisuallyHidden };

@@ -10,9 +10,11 @@ const drawerVariants = cva(
     variants: {
       position: {
         top: "inset-x-0 top-0 border-b h-[var(--drawer-height,20rem)] translate-y-0",
-        bottom: "inset-x-0 bottom-0 border-t h-[var(--drawer-height,20rem)] translate-y-0",
+        bottom:
+          "inset-x-0 bottom-0 border-t h-[var(--drawer-height,20rem)] translate-y-0",
         left: "inset-y-0 left-0 border-r w-[var(--drawer-width,30rem)] translate-x-0",
-        right: "inset-y-0 right-0 border-l w-[var(--drawer-width,30rem)] translate-x-0",
+        right:
+          "inset-y-0 right-0 border-l w-[var(--drawer-width,30rem)] translate-x-0",
       },
     },
     defaultVariants: {
@@ -183,7 +185,10 @@ const DrawerFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4", className)}
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4",
+      className
+    )}
     {...props}
   />
 ));
@@ -195,7 +200,10 @@ const DrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h2
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      className
+    )}
     {...props}
   />
 ));
@@ -222,4 +230,4 @@ export {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-}; 
+};

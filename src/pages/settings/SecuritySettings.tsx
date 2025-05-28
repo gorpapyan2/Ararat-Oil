@@ -23,9 +23,9 @@ import {
 } from "@/core/components/ui/form";
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Switch } from '@/core/components/ui/switch';
-import { Label } from '@/core/components/ui/label';
-import { Separator } from '@/core/components/ui/separator';
+import { Switch } from "@/core/components/ui/switch";
+import { Label } from "@/core/components/ui/label";
+import { Separator } from "@/core/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -38,7 +38,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/core/components/ui/accordion';
+} from "@/core/components/ui/accordion";
 import {
   Dialog,
   DialogContent,
@@ -47,10 +47,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/core/components/ui/primitives/dialog";
-import { LoadingButton } from '@/core/components/ui/loading-button';
-import { ActionButton } from '@/core/components/ui/action-button';
-import { IconButton } from '@/core/components/ui/icon-button';
-import { Badge } from '@/core/components/ui/badge';
+import { LoadingButton } from "@/core/components/ui/loading-button";
+import { ActionButton } from "@/core/components/ui/action-button";
+import { IconButton } from "@/core/components/ui/icon-button";
+import { Badge } from "@/core/components/ui/badge";
 import { SessionLogoutDialogStandardized } from "@/features/auth/components/SessionLogoutDialogStandardized";
 
 // Icons
@@ -74,26 +74,34 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 // Password schema
-const passwordFormSchema = z.object({
-  currentPassword: z.string().min(1, {
-    message: "Current password is required",
-  }),
-  newPassword: z.string().min(8, {
-    message: "Password must be at least 8 characters",
-  }).regex(/[A-Z]/, {
-    message: "Password must contain at least one uppercase letter",
-  }).regex(/[a-z]/, {
-    message: "Password must contain at least one lowercase letter",
-  }).regex(/[0-9]/, {
-    message: "Password must contain at least one number",
-  }).regex(/[^A-Za-z0-9]/, {
-    message: "Password must contain at least one special character",
-  }),
-  confirmPassword: z.string(),
-}).refine(data => data.newPassword === data.confirmPassword, {
-  path: ["confirmPassword"],
-  message: "Passwords do not match",
-});
+const passwordFormSchema = z
+  .object({
+    currentPassword: z.string().min(1, {
+      message: "Current password is required",
+    }),
+    newPassword: z
+      .string()
+      .min(8, {
+        message: "Password must be at least 8 characters",
+      })
+      .regex(/[A-Z]/, {
+        message: "Password must contain at least one uppercase letter",
+      })
+      .regex(/[a-z]/, {
+        message: "Password must contain at least one lowercase letter",
+      })
+      .regex(/[0-9]/, {
+        message: "Password must contain at least one number",
+      })
+      .regex(/[^A-Za-z0-9]/, {
+        message: "Password must contain at least one special character",
+      }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
 
 // Device type for session list
 type SessionDevice = {
@@ -140,10 +148,10 @@ const mockSessions: SessionDevice[] = [
 function SecuritySettings() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  
+
   // Log render count in development
   useRenderCount("SecuritySettings");
-  
+
   // Security states
   const [security, setSecurity] = useState({
     twoFactorEnabled: false,
@@ -170,41 +178,46 @@ function SecuritySettings() {
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
 
   // State for the session logout dialog
-  const [logoutSession, setLogoutSession] = useState<SessionDevice | null>(null);
+  const [logoutSession, setLogoutSession] = useState<SessionDevice | null>(
+    null
+  );
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Update security setting (boolean)
-  const updateSecuritySwitch = (key: keyof typeof security) => (checked: boolean) => {
-    setSecurity({
-      ...security,
-      [key]: checked
-    });
-    
-    // Special case for 2FA toggle
-    if (key === "twoFactorEnabled" && checked) {
-      // In a real app, this would trigger the 2FA setup flow
-      toast({
-        title: "Two-factor authentication enabled",
-        description: "You'll now need to verify your identity when logging in.",
+  const updateSecuritySwitch =
+    (key: keyof typeof security) => (checked: boolean) => {
+      setSecurity({
+        ...security,
+        [key]: checked,
       });
-    }
-  };
-  
+
+      // Special case for 2FA toggle
+      if (key === "twoFactorEnabled" && checked) {
+        // In a real app, this would trigger the 2FA setup flow
+        toast({
+          title: "Two-factor authentication enabled",
+          description:
+            "You'll now need to verify your identity when logging in.",
+        });
+      }
+    };
+
   // Update security setting (string)
-  const updateSecuritySelect = (key: keyof typeof security) => (value: string) => {
-    setSecurity({
-      ...security,
-      [key]: value
-    });
-  };
+  const updateSecuritySelect =
+    (key: keyof typeof security) => (value: string) => {
+      setSecurity({
+        ...security,
+        [key]: value,
+      });
+    };
 
   // Handle password form submission
   const onPasswordSubmit = async (data: z.infer<typeof passwordFormSchema>) => {
     setIsPasswordSubmitting(true);
     try {
       // Password update logic here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulating API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulating API call
       toast({
         title: t("settings.security.passwordUpdated"),
         description: t("settings.security.passwordUpdatedDescription"),
@@ -220,25 +233,25 @@ function SecuritySettings() {
       setIsPasswordSubmitting(false);
     }
   };
-  
+
   const handleSessionLogout = async (sessionId: string) => {
     setIsLoggingOut(true);
-    
+
     try {
       // Simulating API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Update state to remove the session
-      setSecurity(prev => ({
+      setSecurity((prev) => ({
         ...prev,
-        sessions: prev.sessions.filter(session => session.id !== sessionId),
+        sessions: prev.sessions.filter((session) => session.id !== sessionId),
       }));
-      
+
       toast({
         title: t("settings.security.logoutSuccess"),
         message: t("settings.security.logoutSuccessDescription"),
       });
-      
+
       setIsLogoutDialogOpen(false);
     } catch (error) {
       toast({
@@ -251,30 +264,30 @@ function SecuritySettings() {
       setLogoutSession(null);
     }
   };
-  
+
   const openLogoutDialog = (session: SessionDevice) => {
     setLogoutSession(session);
     setIsLogoutDialogOpen(true);
   };
-  
+
   // Handle logout all sessions
   const handleLogoutAllSessions = () => {
     // Keep only the current session
     const updatedSessions = security.sessions.filter(
-      session => session.isCurrent
+      (session) => session.isCurrent
     );
-    
+
     setSecurity({
       ...security,
-      sessions: updatedSessions
+      sessions: updatedSessions,
     });
-    
+
     toast({
       title: "All devices logged out",
       description: "All other devices have been logged out successfully.",
     });
   };
-  
+
   // Recovery codes (mock data - in a real app these would be generated securely)
   const recoveryCodes = [
     "ABCD-EFGH-IJKL-MNOP",
@@ -300,8 +313,8 @@ function SecuritySettings() {
         </CardHeader>
         <CardContent>
           <Form {...passwordForm}>
-            <form 
-              onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} 
+            <form
+              onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
               className="space-y-4"
             >
               <FormField
@@ -309,19 +322,21 @@ function SecuritySettings() {
                 name="currentPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("settings.security.currentPassword")}</FormLabel>
+                    <FormLabel>
+                      {t("settings.security.currentPassword")}
+                    </FormLabel>
                     <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="••••••••" 
-                        {...field} 
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={passwordForm.control}
                 name="newPassword"
@@ -329,10 +344,10 @@ function SecuritySettings() {
                   <FormItem>
                     <FormLabel>{t("settings.security.newPassword")}</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="••••••••" 
-                        {...field} 
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        {...field}
                       />
                     </FormControl>
                     <FormDescription>
@@ -342,26 +357,28 @@ function SecuritySettings() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={passwordForm.control}
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("settings.security.confirmPassword")}</FormLabel>
+                    <FormLabel>
+                      {t("settings.security.confirmPassword")}
+                    </FormLabel>
                     <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="••••••••" 
-                        {...field} 
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
-              <LoadingButton 
+
+              <LoadingButton
                 type="submit"
                 isLoading={isPasswordSubmitting}
                 loadingText={t("settings.security.updatingPassword")}
@@ -372,7 +389,7 @@ function SecuritySettings() {
           </Form>
         </CardContent>
       </Card>
-      
+
       {/* Two-Factor Authentication */}
       <Card>
         <CardHeader>
@@ -386,7 +403,10 @@ function SecuritySettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="twoFactorEnabled" className="flex flex-col space-y-1">
+            <Label
+              htmlFor="twoFactorEnabled"
+              className="flex flex-col space-y-1"
+            >
               <span>{t("settings.security.enableTwoFactor")}</span>
               <span className="font-normal text-xs text-muted-foreground">
                 {t("settings.security.enableTwoFactorDescription")}
@@ -398,19 +418,21 @@ function SecuritySettings() {
               onCheckedChange={updateSecuritySwitch("twoFactorEnabled")}
             />
           </div>
-          
+
           {security.twoFactorEnabled && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="twoFactorMethod">
                   {t("settings.security.twoFactorMethod")}
                 </Label>
-                <Select 
+                <Select
                   onValueChange={updateSecuritySelect("twoFactorMethod")}
                   value={security.twoFactorMethod}
                 >
                   <SelectTrigger id="twoFactorMethod">
-                    <SelectValue placeholder={t("settings.security.selectMethod")} />
+                    <SelectValue
+                      placeholder={t("settings.security.selectMethod")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="app">
@@ -434,13 +456,13 @@ function SecuritySettings() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               {security.twoFactorMethod === "app" && (
                 <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
                   <div className="text-sm font-medium">
                     {t("settings.security.setupAuthenticator")}
                   </div>
-                  
+
                   <div className="flex justify-center py-2">
                     {/* This would be an actual QR code in a real app */}
                     <div className="h-48 w-48 border-2 border-dashed rounded-lg flex items-center justify-center">
@@ -449,30 +471,34 @@ function SecuritySettings() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <p className="text-xs text-muted-foreground">
                     {t("settings.security.scanQrCodeInstructions")}
                   </p>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="verificationCode">
                       {t("settings.security.verificationCode")}
                     </Label>
                     <div className="flex space-x-2">
-                      <Input 
+                      <Input
                         id="verificationCode"
-                        placeholder="123456" 
+                        placeholder="123456"
                         className="max-w-[200px]"
                       />
-                      <ActionButton 
+                      <ActionButton
                         variant="secondary"
-                        confirmationMessage={t("settings.security.confirmVerificationAction")}
+                        confirmationMessage={t(
+                          "settings.security.confirmVerificationAction"
+                        )}
                         confirmationTitle={t("settings.security.verifyTitle")}
                         onConfirmedClick={() => {
                           // Logic to verify 2FA code
                           toast({
                             title: t("settings.security.twoFactorEnabled"),
-                            description: t("settings.security.twoFactorEnabledDescription"),
+                            description: t(
+                              "settings.security.twoFactorEnabledDescription"
+                            ),
                           });
                         }}
                       >
@@ -482,7 +508,7 @@ function SecuritySettings() {
                   </div>
                 </div>
               )}
-              
+
               <Accordion type="single" collapsible>
                 <AccordionItem value="recovery-codes">
                   <AccordionTrigger className="text-sm">
@@ -493,11 +519,14 @@ function SecuritySettings() {
                       <p className="text-xs text-muted-foreground">
                         {t("settings.security.recoveryCodesDescription")}
                       </p>
-                      
+
                       {security.showRecoveryCodes ? (
                         <div className="grid grid-cols-2 gap-2">
                           {recoveryCodes.map((code, index) => (
-                            <div key={index} className="bg-muted rounded p-2 text-sm font-mono">
+                            <div
+                              key={index}
+                              className="bg-muted rounded p-2 text-sm font-mono"
+                            >
                               {code}
                             </div>
                           ))}
@@ -506,12 +535,17 @@ function SecuritySettings() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setSecurity({...security, showRecoveryCodes: true})}
+                          onClick={() =>
+                            setSecurity({
+                              ...security,
+                              showRecoveryCodes: true,
+                            })
+                          }
                         >
                           {t("settings.security.viewRecoveryCodes")}
                         </Button>
                       )}
-                      
+
                       {security.showRecoveryCodes && (
                         <div className="pt-2">
                           <IconButton
@@ -522,7 +556,9 @@ function SecuritySettings() {
                               // Logic to download recovery codes
                               toast({
                                 title: t("settings.security.codesDownloaded"),
-                                description: t("settings.security.codesDownloadedDescription"),
+                                description: t(
+                                  "settings.security.codesDownloadedDescription"
+                                ),
                               });
                             }}
                             ariaLabel={t("settings.security.downloadCodes")}
@@ -537,7 +573,7 @@ function SecuritySettings() {
           )}
         </CardContent>
       </Card>
-      
+
       {/* Login Settings */}
       <Card>
         <CardHeader>
@@ -551,7 +587,10 @@ function SecuritySettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="passwordLessLogin" className="flex flex-col space-y-1">
+            <Label
+              htmlFor="passwordLessLogin"
+              className="flex flex-col space-y-1"
+            >
               <span>{t("settings.security.passwordLessLogin")}</span>
               <span className="font-normal text-xs text-muted-foreground">
                 {t("settings.security.passwordLessLoginDescription")}
@@ -564,16 +603,19 @@ function SecuritySettings() {
               disabled={!security.twoFactorEnabled}
             />
           </div>
-          
+
           {security.passwordLessLogin && !security.twoFactorEnabled && (
             <div className="rounded-lg bg-orange-50 dark:bg-orange-950/50 p-3 text-sm text-orange-600 dark:text-orange-400 flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
               <p>{t("settings.security.twoFactorRequiredWarning")}</p>
             </div>
           )}
-          
+
           <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="rememberDevices" className="flex flex-col space-y-1">
+            <Label
+              htmlFor="rememberDevices"
+              className="flex flex-col space-y-1"
+            >
               <span>{t("settings.security.rememberDevices")}</span>
               <span className="font-normal text-xs text-muted-foreground">
                 {t("settings.security.rememberDevicesDescription")}
@@ -585,17 +627,19 @@ function SecuritySettings() {
               onCheckedChange={updateSecuritySwitch("rememberDevices")}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="inactiveTimeout">
               {t("settings.security.inactiveTimeout")}
             </Label>
-            <Select 
+            <Select
               onValueChange={updateSecuritySelect("inactiveTimeout")}
               value={security.inactiveTimeout}
             >
               <SelectTrigger id="inactiveTimeout" className="w-full">
-                <SelectValue placeholder={t("settings.security.selectTimeout")} />
+                <SelectValue
+                  placeholder={t("settings.security.selectTimeout")}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="15">
@@ -636,7 +680,7 @@ function SecuritySettings() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Notification Settings */}
       <Card>
         <CardHeader>
@@ -650,7 +694,10 @@ function SecuritySettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between space-x-2">
-            <Label htmlFor="loginNotifications" className="flex flex-col space-y-1">
+            <Label
+              htmlFor="loginNotifications"
+              className="flex flex-col space-y-1"
+            >
               <span>{t("settings.security.loginNotifications")}</span>
               <span className="font-normal text-xs text-muted-foreground">
                 {t("settings.security.loginNotificationsDescription")}
@@ -662,7 +709,7 @@ function SecuritySettings() {
               onCheckedChange={updateSecuritySwitch("loginNotifications")}
             />
           </div>
-          
+
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="securityAlerts" className="flex flex-col space-y-1">
               <span>{t("settings.security.securityAlerts")}</span>
@@ -678,7 +725,7 @@ function SecuritySettings() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Active Sessions */}
       <Card>
         <CardHeader>
@@ -692,12 +739,17 @@ function SecuritySettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-4">
-            {security.sessions.map(session => (
-              <div key={session.id} className="flex flex-col gap-1.5 p-4 border rounded-lg">
+            {security.sessions.map((session) => (
+              <div
+                key={session.id}
+                className="flex flex-col gap-1.5 p-4 border rounded-lg"
+              >
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{session.deviceName}</span>
+                      <span className="font-semibold">
+                        {session.deviceName}
+                      </span>
                       {session.isCurrent && (
                         <Badge variant="outline" className="text-xs">
                           {t("settings.security.currentDevice")}
@@ -710,11 +762,11 @@ function SecuritySettings() {
                       <span>{session.location}</span>
                     </div>
                   </div>
-                  
+
                   {!session.isCurrent && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="text-destructive"
                       onClick={() => openLogoutDialog(session)}
                     >
@@ -723,7 +775,7 @@ function SecuritySettings() {
                     </Button>
                   )}
                 </div>
-                
+
                 <div className="text-xs flex items-center gap-1">
                   <span className="font-medium">
                     {t("settings.security.lastActive")}:
@@ -733,11 +785,11 @@ function SecuritySettings() {
               </div>
             ))}
           </div>
-          
+
           {security.sessions.length > 1 && (
-            <Button 
-              variant="outline" 
-              className="w-full" 
+            <Button
+              variant="outline"
+              className="w-full"
               onClick={handleLogoutAllSessions}
             >
               <LogOut className="h-4 w-4 mr-2" />
@@ -746,7 +798,7 @@ function SecuritySettings() {
           )}
         </CardContent>
       </Card>
-      
+
       {/* Security Tips */}
       <Card>
         <CardHeader>
@@ -774,10 +826,10 @@ function SecuritySettings() {
               <span>{t("settings.security.tip4")}</span>
             </li>
           </ul>
-          
+
           <div className="mt-4">
-            <Button 
-              variant="link" 
+            <Button
+              variant="link"
               className="p-0 h-auto flex items-center gap-1 text-sm"
             >
               {t("settings.security.learnMore")}
@@ -786,7 +838,7 @@ function SecuritySettings() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Session Logout Dialog */}
       {logoutSession && (
         <SessionLogoutDialogStandardized
@@ -802,4 +854,4 @@ function SecuritySettings() {
 }
 
 // Export a memoized version for better performance
-export default memo(SecuritySettings); 
+export default memo(SecuritySettings);

@@ -48,25 +48,50 @@ export function ProfitLossManagerStandardized({
   const queryClient = useQueryClient();
   const { refetchAll } = useFinance();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedProfitLoss, setSelectedProfitLoss] = useState<ProfitLoss | null>(null);
+  const [selectedProfitLoss, setSelectedProfitLoss] =
+    useState<ProfitLoss | null>(null);
 
   // Create the mutations directly with the calculateProfitLoss function
   const createProfitLoss = useMutation({
-    mutationFn: (data: { period: string; total_sales: number; total_expenses: number; profit: number }) => 
-      calculateProfitLoss(data.period),
+    mutationFn: (data: {
+      period: string;
+      total_sales: number;
+      total_expenses: number;
+      profit: number;
+    }) => calculateProfitLoss(data.period),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profit-loss'] });
-      toast.success(t("finance.profitLoss.createSuccess", "Profit & Loss created successfully"));
+      queryClient.invalidateQueries({ queryKey: ["profit-loss"] });
+      toast.success(
+        t(
+          "finance.profitLoss.createSuccess",
+          "Profit & Loss created successfully"
+        )
+      );
       refetchAll();
     },
   });
 
   const updateProfitLoss = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { period: string; total_sales: number; total_expenses: number; profit: number }}) => 
-      calculateProfitLoss(data.period),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: {
+        period: string;
+        total_sales: number;
+        total_expenses: number;
+        profit: number;
+      };
+    }) => calculateProfitLoss(data.period),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profit-loss'] });
-      toast.success(t("finance.profitLoss.updateSuccess", "Profit & Loss updated successfully"));
+      queryClient.invalidateQueries({ queryKey: ["profit-loss"] });
+      toast.success(
+        t(
+          "finance.profitLoss.updateSuccess",
+          "Profit & Loss updated successfully"
+        )
+      );
       refetchAll();
     },
   });
@@ -100,7 +125,12 @@ export function ProfitLossManagerStandardized({
             setSelectedProfitLoss(null);
           },
           onError: (error) => {
-            toast.error(t("finance.profitLoss.updateError", "Failed to update Profit & Loss"));
+            toast.error(
+              t(
+                "finance.profitLoss.updateError",
+                "Failed to update Profit & Loss"
+              )
+            );
             console.error("Error updating Profit & Loss:", error);
           },
         }
@@ -118,7 +148,12 @@ export function ProfitLossManagerStandardized({
             setIsDialogOpen(false);
           },
           onError: (error) => {
-            toast.error(t("finance.profitLoss.createError", "Failed to create Profit & Loss"));
+            toast.error(
+              t(
+                "finance.profitLoss.createError",
+                "Failed to create Profit & Loss"
+              )
+            );
             console.error("Error creating Profit & Loss:", error);
           },
         }
@@ -173,14 +208,18 @@ export function ProfitLossManagerStandardized({
                 <div>
                   <h3 className="font-semibold">{item.period}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {t("finance.profitLoss.revenue", "Revenue")}: {item.total_sales}
+                    {t("finance.profitLoss.revenue", "Revenue")}:{" "}
+                    {item.total_sales}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {t("finance.profitLoss.expenses", "Expenses")}: {item.total_expenses}
+                    {t("finance.profitLoss.expenses", "Expenses")}:{" "}
+                    {item.total_expenses}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className={`font-semibold ${item.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <p
+                    className={`font-semibold ${item.profit >= 0 ? "text-green-600" : "text-red-600"}`}
+                  >
                     {t("finance.profitLoss.profit", "Profit")}: {item.profit}
                   </p>
                 </div>
@@ -190,9 +229,7 @@ export function ProfitLossManagerStandardized({
         </div>
       )}
 
-      <Dialog 
-        open={isDialogOpen} 
-        onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -209,7 +246,9 @@ export function ProfitLossManagerStandardized({
                 name="period"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("finance.profitLoss.period", "Period")}</FormLabel>
+                    <FormLabel>
+                      {t("finance.profitLoss.period", "Period")}
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -223,7 +262,9 @@ export function ProfitLossManagerStandardized({
                 name="revenue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("finance.profitLoss.revenue", "Revenue")}</FormLabel>
+                    <FormLabel>
+                      {t("finance.profitLoss.revenue", "Revenue")}
+                    </FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" {...field} />
                     </FormControl>
@@ -237,7 +278,9 @@ export function ProfitLossManagerStandardized({
                 name="expenses"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("finance.profitLoss.expenses", "Expenses")}</FormLabel>
+                    <FormLabel>
+                      {t("finance.profitLoss.expenses", "Expenses")}
+                    </FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" {...field} />
                     </FormControl>
@@ -254,7 +297,12 @@ export function ProfitLossManagerStandardized({
                 >
                   {t("common.cancel", "Cancel")}
                 </Button>
-                <Button type="submit" disabled={createProfitLoss.isPending || updateProfitLoss.isPending}>
+                <Button
+                  type="submit"
+                  disabled={
+                    createProfitLoss.isPending || updateProfitLoss.isPending
+                  }
+                >
                   {selectedProfitLoss
                     ? t("common.save", "Save")
                     : t("common.create", "Create")}
@@ -266,4 +314,4 @@ export function ProfitLossManagerStandardized({
       </Dialog>
     </div>
   );
-} 
+}

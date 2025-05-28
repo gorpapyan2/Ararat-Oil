@@ -1,55 +1,100 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { PageHeader } from '@/core/components/ui/page-header';
-import { Home, Fuel, Tag, AlertCircle, Plus, Pencil, Trash2, MoreHorizontal, History, ArrowUpDown } from "lucide-react";
+import { PageHeader } from "@/core/components/ui/page-header";
+import {
+  Home,
+  Fuel,
+  Tag,
+  AlertCircle,
+  Plus,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  History,
+  ArrowUpDown,
+} from "lucide-react";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
-import { 
-  fuelTypesApi,
-  FuelType as FuelTypeModel
-} from "@/core/api";
-import { 
-  useFuelPrices, 
-  useUpdateFuelPrice, 
+import { fuelTypesApi, FuelType as FuelTypeModel } from "@/core/api";
+import {
+  useFuelPrices,
+  useUpdateFuelPrice,
   useCreateFuelPrice,
-  getFuelPrices
+  getFuelPrices,
 } from "@/features/fuel-prices";
 import type { FuelPrice } from "@/features/fuel-prices";
 import { FuelTypeCode } from "@/types";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/core/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Label } from '@/core/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/ui/table';
-import { Alert, AlertDescription, AlertTitle } from '@/core/components/ui/alert';
+import { Label } from "@/core/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/core/components/ui/table";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/core/components/ui/alert";
 import { useToast } from "@/hooks/useToast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/core/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/core/components/ui/tabs";
 import { StandardDialog } from "@/core/components/ui/composed/dialog";
-import { Badge } from '@/core/components/ui/badge';
+import { Badge } from "@/core/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@/core/components/ui/dropdown-menu';
+} from "@/core/components/ui/dropdown-menu";
 import { format } from "date-fns";
-import { apiNamespaces, getApiErrorMessage, getApiSuccessMessage, getApiActionLabel } from "@/i18n/i18n";
+import {
+  apiNamespaces,
+  getApiErrorMessage,
+  getApiSuccessMessage,
+  getApiActionLabel,
+} from "@/i18n/i18n";
 
 // New type for the fuel type management
 type FuelTypeDetails = FuelTypeModel;
 
 // Specific fuel type codes array to avoid deep instantiation error
-const FUEL_TYPE_CODES = ["diesel", "gas", "petrol_regular", "petrol_premium"] as const;
+const FUEL_TYPE_CODES = [
+  "diesel",
+  "gas",
+  "petrol_regular",
+  "petrol_premium",
+] as const;
 
 export default function FuelPricesPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  
+
   // Use the new React Query hooks
-  const { data: fuelPricesData, isLoading, error: fuelPricesError } = useFuelPrices();
+  const {
+    data: fuelPricesData,
+    isLoading,
+    error: fuelPricesError,
+  } = useFuelPrices();
   const updateFuelPriceMutation = useUpdateFuelPrice();
   const createFuelPriceMutation = useCreateFuelPrice();
-  
+
   const [error, setError] = useState<string | null>(null);
   const [fuelPrices, setFuelPrices] = useState<FuelPrice[]>([]);
   const [editPrices, setEditPrices] = useState<FuelPrice[]>([]);
@@ -58,7 +103,9 @@ export default function FuelPricesPage() {
   const [priceHistory, setPriceHistory] = useState<FuelPrice[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [selectedFuelType, setSelectedFuelType] = useState<FuelTypeCode | undefined>(undefined);
+  const [selectedFuelType, setSelectedFuelType] = useState<
+    FuelTypeCode | undefined
+  >(undefined);
   // State for fuel types management
   const [activeTab, setActiveTab] = useState("prices");
   const [fuelTypes, setFuelTypes] = useState<FuelTypeDetails[]>([]);
@@ -66,24 +113,36 @@ export default function FuelPricesPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newFuelType, setNewFuelType] = useState({ name: "" });
-  const [editingFuelType, setEditingFuelType] = useState<FuelTypeDetails | null>(null);
+  const [editingFuelType, setEditingFuelType] =
+    useState<FuelTypeDetails | null>(null);
 
   // Memoize breadcrumb segments to prevent unnecessary re-renders
-  const breadcrumbSegments = useMemo(() => [
-    { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
-    { name: t("common.fuelManagement"), href: "/fuel-management", icon: <Fuel className="h-4 w-4" /> },
-    { 
-      name: t("common.fuelPrices"), 
-      href: "/fuel-management/fuel-prices", 
-      isCurrent: true,
-      icon: <Tag className="h-4 w-4" /> 
-    }
-  ], [t]);
+  const breadcrumbSegments = useMemo(
+    () => [
+      {
+        name: t("common.dashboard"),
+        href: "/",
+        icon: <Home className="h-4 w-4" />,
+      },
+      {
+        name: t("common.fuelManagement"),
+        href: "/fuel-management",
+        icon: <Fuel className="h-4 w-4" />,
+      },
+      {
+        name: t("common.fuelPrices"),
+        href: "/fuel-management/fuel-prices",
+        isCurrent: true,
+        icon: <Tag className="h-4 w-4" />,
+      },
+    ],
+    [t]
+  );
 
   // Configure breadcrumb navigation with icons
   usePageBreadcrumbs({
     segments: breadcrumbSegments,
-    title: t("common.fuelPrices")
+    title: t("common.fuelPrices"),
   });
 
   // Update local state when React Query data is loaded
@@ -97,9 +156,11 @@ export default function FuelPricesPage() {
   // Update error state when React Query error occurs
   useEffect(() => {
     if (fuelPricesError) {
-      setError(fuelPricesError instanceof Error 
-        ? fuelPricesError.message 
-        : getApiErrorMessage(apiNamespaces.fuelPrices, 'fetch'));
+      setError(
+        fuelPricesError instanceof Error
+          ? fuelPricesError.message
+          : getApiErrorMessage(apiNamespaces.fuelPrices, "fetch")
+      );
     } else {
       setError(null);
     }
@@ -116,7 +177,9 @@ export default function FuelPricesPage() {
         setIsTypesLoading(false);
       } catch (err) {
         console.error("Failed to load fuel types:", err);
-        setError(getApiErrorMessage(apiNamespaces.fuelPrices, 'fetch', 'fuel types'));
+        setError(
+          getApiErrorMessage(apiNamespaces.fuelPrices, "fetch", "fuel types")
+        );
         setIsTypesLoading(false);
       }
     };
@@ -137,7 +200,11 @@ export default function FuelPricesPage() {
       console.error("Failed to load price history:", err);
       toast({
         title: t("common.error"),
-        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'fetch', 'price history'),
+        description: getApiErrorMessage(
+          apiNamespaces.fuelPrices,
+          "fetch",
+          "price history"
+        ),
         type: "error",
       });
     } finally {
@@ -167,9 +234,13 @@ export default function FuelPricesPage() {
   // Handle price change
   const handlePriceChange = (fuelType: FuelTypeCode, value: string) => {
     const price = parseFloat(value);
-    setEditPrices(prev => prev.map(p => 
-      p.fuel_type === fuelType ? { ...p, price_per_liter: isNaN(price) ? 0 : price } : p
-    ));
+    setEditPrices((prev) =>
+      prev.map((p) =>
+        p.fuel_type === fuelType
+          ? { ...p, price_per_liter: isNaN(price) ? 0 : price }
+          : p
+      )
+    );
   };
 
   // Handle save prices - update to use create/update/delete logic per price
@@ -179,36 +250,44 @@ export default function FuelPricesPage() {
       setError(null);
 
       // Update prices using mutations
-      await Promise.all(editPrices.map(async (price) => {
-        if (price.id) {
-          return updateFuelPriceMutation.mutateAsync({
-            id: price.id, 
-            data: { price_per_liter: price.price_per_liter }
-          });
-        } else {
-          return createFuelPriceMutation.mutateAsync({
-            fuel_type: price.fuel_type as FuelTypeCode,
-            price_per_liter: price.price_per_liter,
-            effective_date: new Date().toISOString(),
-          });
-        }
-      }));
-      
+      await Promise.all(
+        editPrices.map(async (price) => {
+          if (price.id) {
+            return updateFuelPriceMutation.mutateAsync({
+              id: price.id,
+              data: { price_per_liter: price.price_per_liter },
+            });
+          } else {
+            return createFuelPriceMutation.mutateAsync({
+              fuel_type: price.fuel_type as FuelTypeCode,
+              price_per_liter: price.price_per_liter,
+              effective_date: new Date().toISOString(),
+            });
+          }
+        })
+      );
+
       setEditing(false);
       setSubmitting(false);
-      
+
       // Refresh history if showing
       if (showHistory) {
         loadPriceHistory(selectedFuelType);
       }
-      
+
       toast({
         title: t("common.success"),
-        description: getApiSuccessMessage(apiNamespaces.fuelPrices, 'update', 'prices'),
+        description: getApiSuccessMessage(
+          apiNamespaces.fuelPrices,
+          "update",
+          "prices"
+        ),
       });
     } catch (err) {
       console.error("Failed to update fuel prices:", err);
-      setError(getApiErrorMessage(apiNamespaces.fuelPrices, 'update', 'prices'));
+      setError(
+        getApiErrorMessage(apiNamespaces.fuelPrices, "update", "prices")
+      );
       setSubmitting(false);
     }
   };
@@ -218,8 +297,12 @@ export default function FuelPricesPage() {
     if (!newFuelType.name) {
       toast({
         title: t("common.error"),
-        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'create', 'fuel type'),
-        type: "error"
+        description: getApiErrorMessage(
+          apiNamespaces.fuelPrices,
+          "create",
+          "fuel type"
+        ),
+        type: "error",
       });
       return;
     }
@@ -230,26 +313,34 @@ export default function FuelPricesPage() {
         name: newFuelType.name,
         color: "#000000", // Default color
         price_per_liter: 0,
-        status: 'active'
+        status: "active",
       });
 
       if (response.data) {
         setFuelTypes([...fuelTypes, response.data]);
         setIsAddDialogOpen(false);
         setNewFuelType({ name: "" });
-        
+
         toast({
           title: t("common.success"),
-          description: getApiSuccessMessage(apiNamespaces.fuelPrices, 'create', 'fuel type'),
-          type: "success"
+          description: getApiSuccessMessage(
+            apiNamespaces.fuelPrices,
+            "create",
+            "fuel type"
+          ),
+          type: "success",
         });
       }
     } catch (err) {
       console.error("Failed to create fuel type:", err);
       toast({
         title: t("common.error"),
-        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'create', 'fuel type'),
-        type: "error"
+        description: getApiErrorMessage(
+          apiNamespaces.fuelPrices,
+          "create",
+          "fuel type"
+        ),
+        type: "error",
       });
     } finally {
       setSubmitting(false);
@@ -264,28 +355,38 @@ export default function FuelPricesPage() {
       setSubmitting(true);
       const response = await fuelTypesApi.updateFuelType(editingFuelType.id, {
         name: editingFuelType.name,
-        status: editingFuelType.status as 'active' | 'inactive'
+        status: editingFuelType.status as "active" | "inactive",
       });
 
       if (response.data) {
-        setFuelTypes(fuelTypes.map(ft => 
-          ft.id === editingFuelType.id ? response.data! : ft
-        ));
+        setFuelTypes(
+          fuelTypes.map((ft) =>
+            ft.id === editingFuelType.id ? response.data! : ft
+          )
+        );
         setIsEditDialogOpen(false);
         setEditingFuelType(null);
-        
+
         toast({
           title: t("common.success"),
-          description: getApiSuccessMessage(apiNamespaces.fuelPrices, 'update', 'fuel type'),
-          type: "success"
+          description: getApiSuccessMessage(
+            apiNamespaces.fuelPrices,
+            "update",
+            "fuel type"
+          ),
+          type: "success",
         });
       }
     } catch (err) {
       console.error("Failed to update fuel type:", err);
       toast({
         title: t("common.error"),
-        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'update', 'fuel type'),
-        type: "error"
+        description: getApiErrorMessage(
+          apiNamespaces.fuelPrices,
+          "update",
+          "fuel type"
+        ),
+        type: "error",
       });
     } finally {
       setSubmitting(false);
@@ -296,19 +397,27 @@ export default function FuelPricesPage() {
   const handleDeleteFuelType = async (id: string) => {
     try {
       await fuelTypesApi.deleteFuelType(id);
-      setFuelTypes(fuelTypes.filter(ft => ft.id !== id));
-      
+      setFuelTypes(fuelTypes.filter((ft) => ft.id !== id));
+
       toast({
         title: t("common.success"),
-        description: getApiSuccessMessage(apiNamespaces.fuelPrices, 'delete', 'fuel type'),
-        type: "success"
+        description: getApiSuccessMessage(
+          apiNamespaces.fuelPrices,
+          "delete",
+          "fuel type"
+        ),
+        type: "success",
       });
     } catch (err) {
       console.error("Failed to delete fuel type:", err);
       toast({
         title: t("common.error"),
-        description: getApiErrorMessage(apiNamespaces.fuelPrices, 'delete', 'fuel type'),
-        type: "error"
+        description: getApiErrorMessage(
+          apiNamespaces.fuelPrices,
+          "delete",
+          "fuel type"
+        ),
+        type: "error",
       });
     }
   };
@@ -327,8 +436,14 @@ export default function FuelPricesPage() {
     <StandardDialog
       open={isAddDialogOpen}
       onOpenChange={setIsAddDialogOpen}
-      title={t("fuelPrices.addFuelType") || getApiActionLabel(apiNamespaces.fuelPrices, 'create', 'fuel type')}
-      description={t("fuelPrices.addFuelTypeDescription") || "Create a new fuel type for your station"}
+      title={
+        t("fuelPrices.addFuelType") ||
+        getApiActionLabel(apiNamespaces.fuelPrices, "create", "fuel type")
+      }
+      description={
+        t("fuelPrices.addFuelTypeDescription") ||
+        "Create a new fuel type for your station"
+      }
       actions={
         <Button type="submit" onClick={handleAddFuelType}>
           {t("common.save") || "Save"}
@@ -358,7 +473,10 @@ export default function FuelPricesPage() {
         setIsEditDialogOpen(open);
         if (!open) setEditingFuelType(null);
       }}
-      title={t("fuelPrices.editFuelType") || getApiActionLabel(apiNamespaces.fuelPrices, 'update', 'fuel type')}
+      title={
+        t("fuelPrices.editFuelType") ||
+        getApiActionLabel(apiNamespaces.fuelPrices, "update", "fuel type")
+      }
       actions={
         <Button type="submit" onClick={handleEditFuelType}>
           {t("common.save") || "Save"}
@@ -374,7 +492,9 @@ export default function FuelPricesPage() {
             <Input
               id="edit-name"
               value={editingFuelType?.name || ""}
-              onChange={(e) => setEditingFuelType({ ...editingFuelType, name: e.target.value })}
+              onChange={(e) =>
+                setEditingFuelType({ ...editingFuelType, name: e.target.value })
+              }
               className="col-span-3"
             />
           </div>
@@ -385,7 +505,12 @@ export default function FuelPricesPage() {
             <Input
               id="edit-status"
               value={editingFuelType?.status || "active"}
-              onChange={(e) => setEditingFuelType({ ...editingFuelType, status: e.target.value as 'active' | 'inactive' })}
+              onChange={(e) =>
+                setEditingFuelType({
+                  ...editingFuelType,
+                  status: e.target.value as "active" | "inactive",
+                })
+              }
               className="col-span-3"
             />
           </div>
@@ -395,8 +520,11 @@ export default function FuelPricesPage() {
   );
 
   // Get translated page title and description using the API translation helpers
-  const pageTitle = t("common.fuelPrices") || getApiActionLabel(apiNamespaces.fuelPrices, 'list');
-  const pageDescription = t("fuelPrices.description") || "Manage your fuel types and prices";
+  const pageTitle =
+    t("common.fuelPrices") ||
+    getApiActionLabel(apiNamespaces.fuelPrices, "list");
+  const pageDescription =
+    t("fuelPrices.description") || "Manage your fuel types and prices";
 
   return (
     <div className="space-y-6">
@@ -405,7 +533,7 @@ export default function FuelPricesPage() {
         description={pageDescription}
         icon={<Tag className="h-6 w-6 mr-2" />}
       />
-      
+
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -413,24 +541,33 @@ export default function FuelPricesPage() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
-      <Tabs defaultValue="prices" value={activeTab} onValueChange={setActiveTab}>
+
+      <Tabs
+        defaultValue="prices"
+        value={activeTab}
+        onValueChange={setActiveTab}
+      >
         <TabsList>
           <TabsTrigger value="prices">{t("fuelPrices.prices")}</TabsTrigger>
-          <TabsTrigger value="history">{t("fuelPrices.priceHistory")}</TabsTrigger>
+          <TabsTrigger value="history">
+            {t("fuelPrices.priceHistory")}
+          </TabsTrigger>
           <TabsTrigger value="types">{t("fuelPrices.fuelTypes")}</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="prices" className="mt-4">
           <div className="grid md:grid-cols-1 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t("fuelPrices.currentPrices") || "Current Fuel Prices"}</CardTitle>
+                <CardTitle>
+                  {t("fuelPrices.currentPrices") || "Current Fuel Prices"}
+                </CardTitle>
                 <CardDescription>
-                  {t("fuelPrices.currentPricesDescription") || "View and update the current prices for each fuel type"}
+                  {t("fuelPrices.currentPricesDescription") ||
+                    "View and update the current prices for each fuel type"}
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent>
                 <div className="rounded-md border">
                   <Table>
@@ -438,109 +575,144 @@ export default function FuelPricesPage() {
                       <TableRow>
                         <TableHead>{t("common.fuelType")}</TableHead>
                         <TableHead className="text-right">
-                          {editing ? t("fuelPrices.newPrice") : t("common.pricePerLiter")} (֏)
+                          {editing
+                            ? t("fuelPrices.newPrice")
+                            : t("common.pricePerLiter")}{" "}
+                          (֏)
                         </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {!isLoading && fuelPrices.map((price) => (
-                        <TableRow key={price.id}>
-                          <TableCell className="font-medium">
-                            {t(`common.${price.fuel_type}`) || price.fuel_type}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {editing ? (
-                              <Input
-                                type="number"
-                                value={editPrices.find(p => p.id === price.id)?.price_per_liter.toString() || ''}
-                                onChange={(e) => handlePriceChange(price.fuel_type as FuelTypeCode, e.target.value)}
-                                min={0}
-                                step={1}
-                                className="w-24 ml-auto"
-                              />
-                            ) : (
-                              <span>{price.price_per_liter.toLocaleString()}</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      
-                      {isLoading && Array.from({ length: 5 }).map((_, index) => (
-                        <TableRow key={`loading-${index}`}>
-                          <TableCell>
-                            <div className="h-5 w-24 bg-muted animate-pulse rounded" />
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="h-5 w-16 bg-muted animate-pulse rounded ml-auto" />
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {!isLoading &&
+                        fuelPrices.map((price) => (
+                          <TableRow key={price.id}>
+                            <TableCell className="font-medium">
+                              {t(`common.${price.fuel_type}`) ||
+                                price.fuel_type}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {editing ? (
+                                <Input
+                                  type="number"
+                                  value={
+                                    editPrices
+                                      .find((p) => p.id === price.id)
+                                      ?.price_per_liter.toString() || ""
+                                  }
+                                  onChange={(e) =>
+                                    handlePriceChange(
+                                      price.fuel_type as FuelTypeCode,
+                                      e.target.value
+                                    )
+                                  }
+                                  min={0}
+                                  step={1}
+                                  className="w-24 ml-auto"
+                                />
+                              ) : (
+                                <span>
+                                  {price.price_per_liter.toLocaleString()}
+                                </span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+
+                      {isLoading &&
+                        Array.from({ length: 5 }).map((_, index) => (
+                          <TableRow key={`loading-${index}`}>
+                            <TableCell>
+                              <div className="h-5 w-24 bg-muted animate-pulse rounded" />
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="h-5 w-16 bg-muted animate-pulse rounded ml-auto" />
+                            </TableCell>
+                          </TableRow>
+                        ))}
                     </TableBody>
                   </Table>
                 </div>
               </CardContent>
-              
+
               <CardFooter className="flex justify-end gap-2">
                 {editing ? (
                   <>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={handleCancelEditing}
                       disabled={submitting}
                     >
                       {t("common.cancel")}
                     </Button>
-                    <Button 
-                      onClick={handleSavePrices}
-                      disabled={submitting}
-                    >
+                    <Button onClick={handleSavePrices} disabled={submitting}>
                       {submitting ? t("common.saving") : t("common.save")}
                     </Button>
                   </>
                 ) : (
                   <Button onClick={handleStartEditing}>
-                    {t("fuelPrices.updatePrices") || getApiActionLabel(apiNamespaces.fuelPrices, 'update', 'prices')}
+                    {t("fuelPrices.updatePrices") ||
+                      getApiActionLabel(
+                        apiNamespaces.fuelPrices,
+                        "update",
+                        "prices"
+                      )}
                   </Button>
                 )}
               </CardFooter>
             </Card>
           </div>
         </TabsContent>
-        
-        <TabsContent value="history" className="mt-4" onFocus={() => setShowHistory(true)}>
+
+        <TabsContent
+          value="history"
+          className="mt-4"
+          onFocus={() => setShowHistory(true)}
+        >
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>{t("fuelPrices.priceHistory") || "Fuel Price History"}</CardTitle>
+                <CardTitle>
+                  {t("fuelPrices.priceHistory") || "Fuel Price History"}
+                </CardTitle>
                 <CardDescription>
-                  {t("fuelPrices.priceHistoryDescription") || "View the history of fuel price changes"}
+                  {t("fuelPrices.priceHistoryDescription") ||
+                    "View the history of fuel price changes"}
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-[180px] justify-between">
-                      {selectedFuelType ? t(`common.${selectedFuelType}`) || selectedFuelType : t("common.allFuelTypes")}
+                    <Button
+                      variant="outline"
+                      className="w-[180px] justify-between"
+                    >
+                      {selectedFuelType
+                        ? t(`common.${selectedFuelType}`) || selectedFuelType
+                        : t("common.allFuelTypes")}
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setSelectedFuelType(undefined)}>
+                    <DropdownMenuItem
+                      onClick={() => setSelectedFuelType(undefined)}
+                    >
                       {t("common.allFuelTypes") || "All Fuel Types"}
                     </DropdownMenuItem>
-                    {FUEL_TYPE_CODES.map(fuelType => (
-                      <DropdownMenuItem 
+                    {FUEL_TYPE_CODES.map((fuelType) => (
+                      <DropdownMenuItem
                         key={fuelType}
-                        onClick={() => setSelectedFuelType(fuelType as FuelTypeCode)}
+                        onClick={() =>
+                          setSelectedFuelType(fuelType as FuelTypeCode)
+                        }
                       >
                         {t(`common.${fuelType}`) || fuelType}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="icon"
                   onClick={() => loadPriceHistory(selectedFuelType)}
                   disabled={historyLoading}
@@ -549,7 +721,7 @@ export default function FuelPricesPage() {
                 </Button>
               </div>
             </CardHeader>
-            
+
             <CardContent>
               <div className="rounded-md border">
                 <Table>
@@ -568,20 +740,26 @@ export default function FuelPricesPage() {
                           <TableRow key={price.id}>
                             <TableCell>
                               <Badge variant="outline">
-                                {t(`common.${price.fuel_type}`) || price.fuel_type}
+                                {t(`common.${price.fuel_type}`) ||
+                                  price.fuel_type}
                               </Badge>
                             </TableCell>
                             <TableCell>
                               {price.price_per_liter.toLocaleString()}
                             </TableCell>
-                            <TableCell>{formatDate(price.effective_date)}</TableCell>
-                            <TableCell>{formatDate(price.created_at || '')}</TableCell>
+                            <TableCell>
+                              {formatDate(price.effective_date)}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(price.created_at || "")}
+                            </TableCell>
                           </TableRow>
                         ))
                       ) : (
                         <TableRow>
                           <TableCell colSpan={4} className="text-center py-6">
-                            {t("fuelPrices.noHistory") || "No price history found"}
+                            {t("fuelPrices.noHistory") ||
+                              "No price history found"}
                           </TableCell>
                         </TableRow>
                       )
@@ -609,19 +787,27 @@ export default function FuelPricesPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="types" className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>{t("fuelPrices.fuelTypes") || "Fuel Types"}</CardTitle>
+                <CardTitle>
+                  {t("fuelPrices.fuelTypes") || "Fuel Types"}
+                </CardTitle>
                 <CardDescription>
-                  {t("fuelPrices.fuelTypesDescription") || "Manage your fuel types"}
+                  {t("fuelPrices.fuelTypesDescription") ||
+                    "Manage your fuel types"}
                 </CardDescription>
               </div>
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                {t("fuelPrices.addFuelType") || getApiActionLabel(apiNamespaces.fuelPrices, 'create', 'fuel type')}
+                {t("fuelPrices.addFuelType") ||
+                  getApiActionLabel(
+                    apiNamespaces.fuelPrices,
+                    "create",
+                    "fuel type"
+                  )}
               </Button>
             </CardHeader>
             <CardContent>
@@ -632,7 +818,9 @@ export default function FuelPricesPage() {
                       <TableHead>{t("fuelPrices.code") || "Code"}</TableHead>
                       <TableHead>{t("fuelPrices.name") || "Name"}</TableHead>
                       <TableHead>{t("common.status")}</TableHead>
-                      <TableHead className="text-right">{t("common.actions")}</TableHead>
+                      <TableHead className="text-right">
+                        {t("common.actions")}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -640,25 +828,40 @@ export default function FuelPricesPage() {
                       fuelTypes.length > 0 ? (
                         fuelTypes.map((fuelType) => (
                           <TableRow key={fuelType.id}>
-                            <TableCell className="font-medium">{fuelType.id.substring(0, 8)}</TableCell>
+                            <TableCell className="font-medium">
+                              {fuelType.id.substring(0, 8)}
+                            </TableCell>
                             <TableCell>{fuelType.name}</TableCell>
                             <TableCell>
-                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                fuelType.status === 'active' ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-                              }`}>
-                                {fuelType.status === 'active' ? t("common.active") : t("common.inactive")}
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                  fuelType.status === "active"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-gray-100 text-gray-800"
+                                }`}
+                              >
+                                {fuelType.status === "active"
+                                  ? t("common.active")
+                                  : t("common.inactive")}
                               </span>
                             </TableCell>
                             <TableCell className="text-right">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <span className="sr-only">{t("common.openMenu")}</span>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <span className="sr-only">
+                                      {t("common.openMenu")}
+                                    </span>
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuLabel>{t("common.actions")}</DropdownMenuLabel>
+                                  <DropdownMenuLabel>
+                                    {t("common.actions")}
+                                  </DropdownMenuLabel>
                                   <DropdownMenuItem
                                     onClick={() => {
                                       setEditingFuelType(fuelType);
@@ -670,7 +873,9 @@ export default function FuelPricesPage() {
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     className="text-red-600"
-                                    onClick={() => handleDeleteFuelType(fuelType.id)}
+                                    onClick={() =>
+                                      handleDeleteFuelType(fuelType.id)
+                                    }
                                   >
                                     <Trash2 className="h-4 w-4 mr-2" />
                                     {t("common.delete")}
@@ -683,7 +888,8 @@ export default function FuelPricesPage() {
                       ) : (
                         <TableRow>
                           <TableCell colSpan={4} className="text-center py-6">
-                            {t("fuelPrices.noFuelTypes") || "No fuel types found"}
+                            {t("fuelPrices.noFuelTypes") ||
+                              "No fuel types found"}
                           </TableCell>
                         </TableRow>
                       )
@@ -717,4 +923,4 @@ export default function FuelPricesPage() {
       {renderEditFuelTypeDialog()}
     </div>
   );
-} 
+}

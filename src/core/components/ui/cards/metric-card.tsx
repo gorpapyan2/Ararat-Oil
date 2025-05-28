@@ -32,11 +32,13 @@ export const MetricCard = React.forwardRef<HTMLDivElement, MetricCardProps>(
   ) => {
     // Determine if we're showing a trend and its direction
     const showTrend = trend !== undefined;
-    const trendDirection = trend?.direction || (
-      (typeof trend?.value === 'number' && trend?.value > 0) ? 'up' : 
-      (typeof trend?.value === 'number' && trend?.value < 0) ? 'down' : 
-      'neutral'
-    );
+    const trendDirection =
+      trend?.direction ||
+      (typeof trend?.value === "number" && trend?.value > 0
+        ? "up"
+        : typeof trend?.value === "number" && trend?.value < 0
+          ? "down"
+          : "neutral");
 
     // Trend direction styling
     const directionClasses = {
@@ -89,9 +91,15 @@ export const MetricCard = React.forwardRef<HTMLDivElement, MetricCardProps>(
                 directionClasses[trendDirection]
               )}
             >
-              {trendDirection === "up" && <ArrowUpIcon className="w-4 h-4 mr-1" />}
-              {trendDirection === "down" && <ArrowDownIcon className="w-4 h-4 mr-1" />}
-              {trendDirection === "neutral" && <ArrowRightIcon className="w-4 h-4 mr-1" />}
+              {trendDirection === "up" && (
+                <ArrowUpIcon className="w-4 h-4 mr-1" />
+              )}
+              {trendDirection === "down" && (
+                <ArrowDownIcon className="w-4 h-4 mr-1" />
+              )}
+              {trendDirection === "neutral" && (
+                <ArrowRightIcon className="w-4 h-4 mr-1" />
+              )}
               <span>{trend.value}</span>
               {trend.label && (
                 <span className="text-muted-foreground ml-1">
@@ -112,4 +120,4 @@ export const MetricCard = React.forwardRef<HTMLDivElement, MetricCardProps>(
   }
 );
 
-MetricCard.displayName = "MetricCard"; 
+MetricCard.displayName = "MetricCard";

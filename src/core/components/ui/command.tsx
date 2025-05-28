@@ -1,37 +1,31 @@
-import * as React from 'react';
-import { Command as CommandPrimitive } from 'cmdk';
+import * as React from "react";
+import { Command as CommandPrimitive } from "cmdk";
 
-import { cn } from '@/shared/utils';
-
-export interface CommandProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive> {
-  // Add specific props here
-}
+import { cn } from "@/shared/utils";
 
 /**
  * Command component - a searchable command palette
  */
-export function Command({ className, ...props }: CommandProps) {
+export function Command({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
       className={cn(
-        'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
+        "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
         className
       )}
       {...props}
     />
   );
 }
-
-interface CommandGroupProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group> {}
 
 /**
  * Command group component for grouping command items
  */
-export function CommandGroup({ className, ...props }: CommandGroupProps) {
+export function CommandGroup({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>) {
   return (
     <CommandPrimitive.Group
       className={cn(
-        'overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground',
+        "overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground",
         className
       )}
       {...props}
@@ -39,16 +33,14 @@ export function CommandGroup({ className, ...props }: CommandGroupProps) {
   );
 }
 
-interface CommandItemProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item> {}
-
 /**
  * Command item component for individual selectable items
  */
-export function CommandItem({ className, ...props }: CommandItemProps) {
+export function CommandItem({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>) {
   return (
     <CommandPrimitive.Item
       className={cn(
-        'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50',
+        "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
         className
       )}
       {...props}

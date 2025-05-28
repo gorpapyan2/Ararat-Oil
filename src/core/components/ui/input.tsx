@@ -3,9 +3,9 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
+export {
   InputProps,
   InputWithIconProps,
   Input,
-  InputWithIcon 
+  InputWithIcon,
 } from "@/core/components/ui/primitives/input";

@@ -16,4 +16,4 @@ export function SalesDatePicker({ date, onDateChange }: SalesDatePickerProps) {
       className="w-full"
     />
   );
-} 
+}

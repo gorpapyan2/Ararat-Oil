@@ -4,8 +4,11 @@ import { adjustTankLevel } from "../services";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Label } from '@/core/components/ui/label';
-import { RadioGroup, RadioGroupItem } from "@/core/components/ui/primitives/radio-group";
+import { Label } from "@/core/components/ui/label";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/core/components/ui/primitives/radio-group";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -43,12 +46,12 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
 
       await adjustTankLevel(tank.id, adjustment);
       await queryClient.invalidateQueries({ queryKey: ["tanks"] });
-      
+
       toast({
         title: t("common.success"),
         description: t("tanks.levelUpdated"),
       });
-      
+
       onComplete();
     } catch (error) {
       toast({
@@ -93,11 +96,7 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
       </RadioGroup>
 
       <div className="flex space-x-2">
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="flex-1"
-        >
+        <Button type="submit" disabled={isSubmitting} className="flex-1">
           {isSubmitting ? t("common.saving") : t("common.save")}
         </Button>
         <Button
@@ -112,4 +111,4 @@ export function TankLevelEditor({ tank, onComplete }: TankLevelEditorProps) {
       </div>
     </form>
   );
-} 
+}

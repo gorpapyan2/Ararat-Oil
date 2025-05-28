@@ -1,21 +1,27 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, UseFormProps, UseFormReturn, SubmitHandler } from "react-hook-form";
+import {
+  useForm,
+  UseFormProps,
+  UseFormReturn,
+  SubmitHandler,
+} from "react-hook-form";
 import { useState } from "react";
 import { z } from "zod";
 
 /**
  * Props for useZodForm hook
  */
-interface UseZodFormProps<TSchema extends z.ZodType> extends Omit<UseFormProps<z.infer<TSchema>>, "resolver"> {
+interface UseZodFormProps<TSchema extends z.ZodType>
+  extends Omit<UseFormProps<z.infer<TSchema>>, "resolver"> {
   schema: TSchema;
 }
 
 /**
  * A hook that combines React Hook Form with Zod schema validation
  */
-export function useZodForm<TSchema extends z.ZodType>({ 
-  schema, 
-  ...formProps 
+export function useZodForm<TSchema extends z.ZodType>({
+  schema,
+  ...formProps
 }: UseZodFormProps<TSchema>): UseFormReturn<z.infer<TSchema>> {
   return useForm<z.infer<TSchema>>({
     ...formProps,
@@ -49,8 +55,12 @@ export function useFormSubmitHandler<TFormValues>(
       await onSubmit(data);
       options.onSuccess?.();
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "An unknown error occurred");
-      options.onError?.(error instanceof Error ? error : new Error("An unknown error occurred"));
+      setFormError(
+        error instanceof Error ? error.message : "An unknown error occurred"
+      );
+      options.onError?.(
+        error instanceof Error ? error : new Error("An unknown error occurred")
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -79,11 +89,15 @@ export function useZodFormWithSubmit<TSchema extends z.ZodType>({
   options?: UseFormSubmitHandlerOptions;
 }) {
   const form = useZodForm({ schema, ...formProps });
-  const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler(form, onSubmit, options);
+  const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler(
+    form,
+    onSubmit,
+    options
+  );
 
   return {
     form,
     isSubmitting,
     onSubmit: handleSubmit,
   };
-} 
+}

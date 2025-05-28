@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Shift, ShiftPaymentMethod, PaymentMethod } from "@/types";
 import { shiftsApi } from "@/core/api";
-import { useAuth } from '@/features/auth';
-import { useToast } from "@/hooks/useToast";
+import { useAuth } from "@/features/auth";
+import { useToast } from "./use-toast";
 import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
 
 export function useShift() {
@@ -11,7 +11,9 @@ export function useShift() {
   const [success, setSuccess] = useState(false);
   const [isCheckingShift, setIsCheckingShift] = useState(false);
   const [lastCheckTime, setLastCheckTime] = useState(0);
-  const [shiftPaymentMethods, setShiftPaymentMethods] = useState<PaymentMethodItem[]>([]);
+  const [shiftPaymentMethods, setShiftPaymentMethods] = useState<
+    PaymentMethodItem[]
+  >([]);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -31,137 +33,165 @@ export function useShift() {
   }, [isCheckingShift, lastCheckTime]);
 
   // Check for active shift
-  const checkActiveShift = useCallback(async (userId?: string, skipCache = false): Promise<Shift | null> => {
-    if (!user && !userId) {
-      console.log('No user found, cannot check for active shift');
-      return null;
-    }
-    
-    // If already checking and not forced to skip cache, prevent duplicate calls
-    if (isCheckingShift && !skipCache) {
-      console.log('Already checking for active shift, skipping duplicate call');
-      return activeShift;
-    }
-    
-    try {
-      setIsCheckingShift(true);
-      setLastCheckTime(Date.now());
-      
-      // Check for offline mode first
-      if (!navigator.onLine) {
-        console.log('Offline mode: using cached shift data');
-        // Try to get cached data from localStorage
-        try {
-          const cachedShift = localStorage.getItem(`activeShift_${userId || user?.id}`);
-          if (cachedShift) {
-            const parsedShift = JSON.parse(cachedShift) as Shift;
-            console.log('Using cached shift data:', parsedShift);
-            setActiveShift(parsedShift);
-            return parsedShift;
-          }
-        } catch (e) {
-          console.error('Error parsing cached shift:', e);
-        }
+  const checkActiveShift = useCallback(
+    async (userId?: string, skipCache = false): Promise<Shift | null> => {
+      if (!user && !userId) {
+        console.log("No user found, cannot check for active shift");
+        return null;
+      }
+
+      // If already checking and not forced to skip cache, prevent duplicate calls
+      if (isCheckingShift && !skipCache) {
+        console.log(
+          "Already checking for active shift, skipping duplicate call"
+        );
         return activeShift;
       }
-      
-      // Check for ANY active shift in the system
+
       try {
-        const response = await shiftsApi.getSystemActiveShift();
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
-        
-        const systemActiveShift = response.data || null;
-        if (systemActiveShift) {
-          console.log("Found an active shift in the system:", systemActiveShift);
-          
-          // Always update the activeShift state with any active shift
-          // This ensures we know a shift is active even if it's not for the current user
-          setActiveShift(systemActiveShift);
-          
-          // Cache this for the user too, for reference
-          localStorage.setItem(`activeShift_system`, JSON.stringify(systemActiveShift));
-          
-          // If it belongs to the current user, cache it specifically for them
-          if (systemActiveShift.employee_id === (userId || user?.id)) {
-            localStorage.setItem(`activeShift_${userId || user?.id}`, JSON.stringify(systemActiveShift));
+        setIsCheckingShift(true);
+        setLastCheckTime(Date.now());
+
+        // Check for offline mode first
+        if (!navigator.onLine) {
+          console.log("Offline mode: using cached shift data");
+          // Try to get cached data from localStorage
+          try {
+            const cachedShift = localStorage.getItem(
+              `activeShift_${userId || user?.id}`
+            );
+            if (cachedShift) {
+              const parsedShift = JSON.parse(cachedShift) as Shift;
+              console.log("Using cached shift data:", parsedShift);
+              setActiveShift(parsedShift);
+              return parsedShift;
+            }
+          } catch (e) {
+            console.error("Error parsing cached shift:", e);
           }
-          
-          return systemActiveShift;
+          return activeShift;
         }
-      } catch (error) {
-        console.error("Error checking for system active shift:", error);
-      }
-      
-      // Implement retry logic with backoff
-      let retryCount = 0;
-      const maxRetries = 3;
-      let foundShift: Shift | null = null;
-      
-      while (retryCount < maxRetries) {
+
+        // Check for ANY active shift in the system
         try {
-          // Use the API to get user's active shift
-          const response = await shiftsApi.getActiveShiftForUser(userId || user?.id || '');
+          const response = await shiftsApi.getSystemActiveShift();
           if (response.error) {
             throw new Error(response.error.message);
           }
-          
-          const fetchedShift = response.data || null;
-          
-          // Only update state if the component is still mounted and checking hasn't been canceled
-          if (isCheckingShift) {
-            console.log('Active shift check complete:', fetchedShift ? 'Shift found' : 'No active shift');
-            
-            // Cache the shift data for offline access
-            if (fetchedShift) {
-              try {
-                localStorage.setItem(`activeShift_${userId || user?.id}`, JSON.stringify(fetchedShift));
-              } catch (e) {
-                console.warn('Failed to cache shift data:', e);
-              }
-            } else if (!success) {
-              // Only clear if we're not in the process of closing a shift
-              localStorage.removeItem(`activeShift_${userId || user?.id}`);
+
+          const systemActiveShift = response.data || null;
+          if (systemActiveShift) {
+            console.log(
+              "Found an active shift in the system:",
+              systemActiveShift
+            );
+
+            // Always update the activeShift state with any active shift
+            // This ensures we know a shift is active even if it's not for the current user
+            setActiveShift(systemActiveShift as unknown as Shift);
+
+            // Cache this for the user too, for reference
+            localStorage.setItem(
+              `activeShift_system`,
+              JSON.stringify(systemActiveShift)
+            );
+
+            // If it belongs to the current user, cache it specifically for them
+            if (systemActiveShift.employee_id === (userId || user?.id)) {
+              localStorage.setItem(
+                `activeShift_${userId || user?.id}`,
+                JSON.stringify(systemActiveShift)
+              );
             }
-            
-            setActiveShift(fetchedShift);
-            foundShift = fetchedShift;
+
+            return systemActiveShift as unknown as Shift;
           }
-          
-          // Exit retry loop if successful
-          break;
-        } catch (error: any) {
-          retryCount++;
-          if (retryCount < maxRetries) {
-            console.log(`Retry attempt ${retryCount}/${maxRetries} for active shift check`);
-            // Exponential backoff
-            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
-          } else {
-            throw error; // Re-throw the error after max retries
+        } catch (error) {
+          console.error("Error checking for system active shift:", error);
+        }
+
+        // Implement retry logic with backoff
+        let retryCount = 0;
+        const maxRetries = 3;
+        let foundShift: Shift | null = null;
+
+        while (retryCount < maxRetries) {
+          try {
+            // Use the API to get user's active shift
+            const response = await shiftsApi.getActiveShiftForUser(
+              userId || user?.id || ""
+            );
+            if (response.error) {
+              throw new Error(response.error.message);
+            }
+
+            const fetchedShift = response.data || null;
+
+            // Only update state if the component is still mounted and checking hasn't been canceled
+            if (isCheckingShift) {
+              console.log(
+                "Active shift check complete:",
+                fetchedShift ? "Shift found" : "No active shift"
+              );
+
+              // Cache the shift data for offline access
+              if (fetchedShift) {
+                try {
+                  localStorage.setItem(
+                    `activeShift_${userId || user?.id}`,
+                    JSON.stringify(fetchedShift)
+                  );
+                } catch (e) {
+                  console.warn("Failed to cache shift data:", e);
+                }
+              } else if (!success) {
+                // Only clear if we're not in the process of closing a shift
+                localStorage.removeItem(`activeShift_${userId || user?.id}`);
+              }
+
+              setActiveShift(fetchedShift as unknown as Shift);
+              foundShift = fetchedShift as unknown as Shift;
+            }
+
+            // Exit retry loop if successful
+            break;
+          } catch (error: unknown) {
+            retryCount++;
+            if (retryCount < maxRetries) {
+              console.log(
+                `Retry attempt ${retryCount}/${maxRetries} for active shift check`
+              );
+              // Exponential backoff
+              await new Promise((resolve) =>
+                setTimeout(resolve, 1000 * retryCount)
+              );
+            } else {
+              throw error; // Re-throw the error after max retries
+            }
           }
         }
+
+        return foundShift;
+      } catch (error: unknown) {
+        console.error("Error checking for active shift:", error);
+        return null;
+      } finally {
+        setIsCheckingShift(false);
       }
-      
-      return foundShift;
-    } catch (error: any) {
-      console.error('Error checking for active shift:', error);
-      return null;
-    } finally {
-      setIsCheckingShift(false);
-    }
-  }, [user, isCheckingShift, activeShift, success]);
+    },
+    [user, isCheckingShift, activeShift, success]
+  );
 
   // Fetch payment methods when shift changes
   useEffect(() => {
     if (activeShift) {
       fetchShiftPaymentMethods(activeShift.id);
-      
+
       // Set up periodic refresh of sales total if there's an active shift
       const intervalId = setInterval(() => {
         updateShiftSalesTotal(activeShift.id);
       }, 30000); // Refresh every 30 seconds
-      
+
       return () => clearInterval(intervalId); // Clean up interval on unmount or shift change
     } else {
       setShiftPaymentMethods([]);
@@ -187,12 +217,12 @@ export function useShift() {
       if (response.error) {
         throw new Error(response.error.message);
       }
-      
+
       const salesTotal = response.data?.total || 0;
 
       // Update the shift object with current sales total
       if (activeShift) {
-        setActiveShift(prev => {
+        setActiveShift((prev) => {
           if (!prev) return null;
           return {
             ...prev,
@@ -205,83 +235,100 @@ export function useShift() {
     }
   };
 
-  const beginShift = async (openingCash: number, employeeIds: string[] = []) => {
+  const beginShift = async (
+    openingCash: number,
+    employeeIds: string[] = []
+  ) => {
     try {
       setIsLoading(true);
-      
+
       // Check if there's already an active shift first - for ANY employee
       if (!navigator.onLine) {
         // For offline mode, check local cache
         const cachedShift = localStorage.getItem(`activeShift_${user?.id}`);
         if (cachedShift) {
-          throw new Error("You already have an active shift open. Please close it before starting a new one.");
+          throw new Error(
+            "You already have an active shift open. Please close it before starting a new one."
+          );
         }
-        
+
         // Also check for system-wide active shift
         const systemShift = localStorage.getItem(`activeShift_system`);
         if (systemShift) {
           const parsedShift = JSON.parse(systemShift);
           if (parsedShift && parsedShift.employee_id !== user?.id) {
-            throw new Error("Another employee has an active shift open. Only one shift can be active at a time.");
+            throw new Error(
+              "Another employee has an active shift open. Only one shift can be active at a time."
+            );
           }
         }
       } else {
-        // For online mode, check with the server 
+        // For online mode, check with the server
         try {
           // Query for ANY active shift in the system using the API
           const response = await shiftsApi.getSystemActiveShift();
           if (response.error) {
             throw new Error(response.error.message);
           }
-          
+
           const systemActiveShift = response.data || null;
-          
+
           if (systemActiveShift) {
             // There's an active shift already
-            const isCurrentUserShift = systemActiveShift.employee_id === user?.id;
-            
+            const isCurrentUserShift =
+              systemActiveShift.employee_id === user?.id;
+
             if (isCurrentUserShift) {
-              throw new Error("You already have an active shift open. Please close it before starting a new one.");
+              throw new Error(
+                "You already have an active shift open. Please close it before starting a new one."
+              );
             } else {
-              throw new Error("Another employee has an active shift open. Only one shift can be active at a time.");
+              throw new Error(
+                "Another employee has an active shift open. Only one shift can be active at a time."
+              );
             }
           }
-        } catch (checkError: any) {
+        } catch (checkError: unknown) {
           // If the error indicates no active shifts were found, we can proceed
-          if (!checkError.message?.includes("No active shifts found")) {
-            console.error("Error checking for existing active shifts:", checkError);
+          const errorMessage = checkError instanceof Error ? checkError.message : "";
+          if (!errorMessage.includes("No active shifts found")) {
+            console.error(
+              "Error checking for existing active shifts:",
+              checkError
+            );
             throw checkError;
           }
         }
       }
-      
+
       // Start new shift
       const response = await shiftsApi.startShift(openingCash, employeeIds);
       if (response.error) {
         throw new Error(response.error.message);
       }
-      
+
       const newShift = response.data!;
-      
+
       // Update state with new shift
-      setActiveShift(newShift);
-      
+      setActiveShift(newShift as unknown as Shift);
+
       // Cache the new shift for offline mode
       localStorage.setItem(`activeShift_${user?.id}`, JSON.stringify(newShift));
       localStorage.setItem(`activeShift_system`, JSON.stringify(newShift));
-      
+
       toast({
         title: "Shift Started",
         description: `Shift started with ${openingCash} cash`,
         variant: "success",
       });
-      
+
       return newShift;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error starting shift:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       toast({
         title: "Error Starting Shift",
-        description: error.message || "An unknown error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
       return null;
@@ -290,43 +337,51 @@ export function useShift() {
     }
   };
 
-  const endShift = async (closingCash: number, paymentMethods?: PaymentMethodItem[]) => {
+  const endShift = async (
+    closingCash: number,
+    paymentMethods?: PaymentMethodItem[]
+  ) => {
     try {
       setIsLoading(true);
       setSuccess(true); // Indicate we're in the closing process
-  
+
       if (!activeShift) {
         throw new Error("No active shift found to close");
       }
-  
+
       // Close the shift
-      const response = await shiftsApi.closeShift(activeShift.id, closingCash, paymentMethods);
+      const response = await shiftsApi.closeShift(
+        activeShift.id,
+        closingCash,
+        paymentMethods
+      );
       if (response.error) {
         throw new Error(response.error.message);
       }
-      
+
       const closedShift = response.data!;
-  
+
       // Remove cached shift data since it's now closed
       localStorage.removeItem(`activeShift_${user?.id}`);
       localStorage.removeItem(`activeShift_system`);
-  
+
       // Reset state
       setActiveShift(null);
       setShiftPaymentMethods([]);
-  
+
       toast({
         title: "Shift Closed",
         description: `Shift closed with ${closingCash} cash`,
         variant: "success",
       });
-  
+
       return closedShift;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error closing shift:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       toast({
         title: "Error Closing Shift",
-        description: error.message || "An unknown error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
       return null;
@@ -343,6 +398,6 @@ export function useShift() {
     checkActiveShift,
     beginShift,
     endShift,
-    isCheckingShift
+    isCheckingShift,
   };
 }

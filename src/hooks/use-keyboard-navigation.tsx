@@ -56,7 +56,7 @@ export function useKeyboardNavigation({
         onActivate(event);
       }
     },
-    [navigationKeys, activationKeys, onNavigate, onActivate],
+    [navigationKeys, activationKeys, onNavigate, onActivate]
   );
 
   return { handleKeyDown };
@@ -67,14 +67,14 @@ export function useKeyboardNavigation({
  */
 export function useFocusTrap(
   containerRef: React.RefObject<HTMLElement>,
-  isActive: boolean = true,
+  isActive: boolean = true
 ) {
   React.useEffect(() => {
     if (!isActive || !containerRef.current) return;
 
     const container = containerRef.current;
     const focusableElements = container.querySelectorAll(
-      'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])',
+      'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
     );
 
     const firstElement = focusableElements[0] as HTMLElement;

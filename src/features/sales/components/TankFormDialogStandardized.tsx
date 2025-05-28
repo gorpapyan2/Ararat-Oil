@@ -3,7 +3,10 @@ import { z } from "zod";
 import { StandardDialog } from "@/core/components/ui/composed/dialog";
 import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
-import { FormInput, FormSelect } from '@/core/components/ui/composed/form-fields';
+import {
+  FormInput,
+  FormSelect,
+} from "@/core/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
 import { FuelTank, FuelTypeCode } from "@/types";
 
@@ -22,12 +25,14 @@ interface TankFormDialogStandardizedProps {
 
 // Define Zod schema for validation
 const tankSchema = z.object({
-  name: z.string({ required_error: "Name is required" })
+  name: z
+    .string({ required_error: "Name is required" })
     .min(2, "Name must be at least 2 characters"),
   fuel_type: z.enum(["petrol", "diesel", "cng"], {
     required_error: "Fuel type is required",
   }),
-  capacity: z.number({ required_error: "Capacity is required" })
+  capacity: z
+    .number({ required_error: "Capacity is required" })
     .min(1, "Capacity must be greater than 0"),
 });
 
@@ -53,9 +58,8 @@ export function TankFormDialogStandardized({
   });
 
   // Form submission handler
-  const { isSubmitting, onSubmit: handleSubmit } = useFormSubmitHandler<TankFormData>(
-    form,
-    async (data) => {
+  const { isSubmitting, onSubmit: handleSubmit } =
+    useFormSubmitHandler<TankFormData>(form, async (data) => {
       try {
         const tankData: Omit<FuelTank, "id" | "created_at"> = {
           name: data.name,
@@ -67,9 +71,11 @@ export function TankFormDialogStandardized({
         // Mock update/create operations since updateFuelTank is not available
         toast({
           title: "Success",
-          description: tank?.id ? "Tank updated successfully" : "Tank created successfully",
+          description: tank?.id
+            ? "Tank updated successfully"
+            : "Tank created successfully",
         });
-        
+
         form.reset();
         onSuccess();
         return true;
@@ -81,8 +87,7 @@ export function TankFormDialogStandardized({
         });
         return false;
       }
-    }
-  );
+    });
 
   // Create form actions
   const formActions = (
@@ -106,9 +111,7 @@ export function TankFormDialogStandardized({
       open={open}
       onOpenChange={onOpenChange}
       title={tank?.id ? "Edit Tank" : "Add New Tank"}
-      description={tank?.id
-        ? "Update tank details"
-        : "Create a new fuel tank"}
+      description={tank?.id ? "Update tank details" : "Create a new fuel tank"}
       maxWidth="sm:max-w-[425px]"
       actions={formActions}
     >
@@ -143,4 +146,4 @@ export function TankFormDialogStandardized({
       </form>
     </StandardDialog>
   );
-} 
+}

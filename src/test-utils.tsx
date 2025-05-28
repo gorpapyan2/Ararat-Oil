@@ -1,7 +1,7 @@
-import React from 'react';
-import { render as rtlRender } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
+import React from "react";
+import { render as rtlRender } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router-dom";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -11,8 +11,8 @@ const queryClient = new QueryClient({
   },
 });
 
-function render(ui: React.ReactElement, { route = '/' } = {}) {
-  window.history.pushState({}, 'Test page', route);
+function render(ui: React.ReactElement, { route = "/" } = {}) {
+  window.history.pushState({}, "Test page", route);
 
   return rtlRender(ui, {
     wrapper: ({ children }) => (
@@ -23,5 +23,5 @@ function render(ui: React.ReactElement, { route = '/' } = {}) {
   });
 }
 
-export * from '@testing-library/react';
-export { render }; 
+export * from "@testing-library/react";
+export { render };

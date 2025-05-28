@@ -1,15 +1,28 @@
-import * as React from 'react';
-import { useController, FieldValues, UseControllerProps, Path, PathValue } from 'react-hook-form';
-import { StandardDatePicker, DateRange, StandardDatePickerProps } from './StandardDatePicker';
+import * as React from "react";
+import {
+  useController,
+  FieldValues,
+  UseControllerProps,
+  Path,
+  PathValue,
+} from "react-hook-form";
+import {
+  StandardDatePicker,
+  DateRange,
+  StandardDatePickerProps,
+} from "./StandardDatePicker";
 
 /**
  * Base props for FormStandardDatePicker
  */
 interface FormStandardDatePickerBaseProps<
   TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>
-> extends Omit<StandardDatePickerProps, 'value' | 'onChange' | 'error' | 'errorMessage' | 'name'>,
-  UseControllerProps<TFieldValues, TName> {
+  TName extends Path<TFieldValues>,
+> extends Omit<
+      StandardDatePickerProps,
+      "value" | "onChange" | "error" | "errorMessage" | "name"
+    >,
+    UseControllerProps<TFieldValues, TName> {
   /**
    * Custom error message to override the one from form validation
    */
@@ -21,9 +34,9 @@ interface FormStandardDatePickerBaseProps<
  */
 export interface FormSingleDatePickerProps<
   TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>
+  TName extends Path<TFieldValues>,
 > extends FormStandardDatePickerBaseProps<TFieldValues, TName> {
-  mode?: 'single';
+  mode?: "single";
 }
 
 /**
@@ -31,9 +44,9 @@ export interface FormSingleDatePickerProps<
  */
 export interface FormRangeDatePickerProps<
   TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>
+  TName extends Path<TFieldValues>,
 > extends FormStandardDatePickerBaseProps<TFieldValues, TName> {
-  mode: 'range';
+  mode: "range";
   separator?: string;
   numberOfMonths?: number;
 }
@@ -43,12 +56,14 @@ export interface FormRangeDatePickerProps<
  */
 export type FormStandardDatePickerProps<
   TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>
-> = FormSingleDatePickerProps<TFieldValues, TName> | FormRangeDatePickerProps<TFieldValues, TName>;
+  TName extends Path<TFieldValues>,
+> =
+  | FormSingleDatePickerProps<TFieldValues, TName>
+  | FormRangeDatePickerProps<TFieldValues, TName>;
 
 /**
  * Form field wrapper for StandardDatePicker to work with react-hook-form
- * 
+ *
  * @example Single date mode
  * ```tsx
  * <FormStandardDatePicker
@@ -58,7 +73,7 @@ export type FormStandardDatePickerProps<
  *   required
  * />
  * ```
- * 
+ *
  * @example Date range mode
  * ```tsx
  * <FormStandardDatePicker
@@ -72,7 +87,7 @@ export type FormStandardDatePickerProps<
  */
 export function FormStandardDatePicker<
   TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>
+  TName extends Path<TFieldValues>,
 >({
   control,
   name,
@@ -80,30 +95,30 @@ export function FormStandardDatePicker<
   defaultValue,
   shouldUnregister,
   customErrorMessage,
-  mode = 'single',
+  mode = "single",
   ...rest
 }: FormStandardDatePickerProps<TFieldValues, TName>) {
   const {
     field,
-    fieldState: { error }
+    fieldState: { error },
   } = useController({
     name,
     control,
     rules,
     defaultValue,
-    shouldUnregister
+    shouldUnregister,
   });
 
   // For single date mode
   const handleSingleDateChange = (date: Date | undefined) => {
-    if (mode === 'single') {
+    if (mode === "single") {
       field.onChange(date as PathValue<TFieldValues, TName>);
     }
   };
-  
+
   // For date range mode
   const handleRangeChange = (dateRange: DateRange | undefined) => {
-    if (mode === 'range') {
+    if (mode === "range") {
       field.onChange(dateRange as PathValue<TFieldValues, TName>);
     }
   };
@@ -121,15 +136,19 @@ export function FormStandardDatePicker<
   };
 
   // Render the appropriate date picker based on mode
-  if (mode === 'range') {
+  if (mode === "range") {
     return (
       <StandardDatePicker
         {...datePickerProps}
         mode="range"
         value={field.value as DateRange}
         onChange={handleRangeChange}
-        separator={(rest as FormRangeDatePickerProps<TFieldValues, TName>).separator}
-        numberOfMonths={(rest as FormRangeDatePickerProps<TFieldValues, TName>).numberOfMonths}
+        separator={
+          (rest as FormRangeDatePickerProps<TFieldValues, TName>).separator
+        }
+        numberOfMonths={
+          (rest as FormRangeDatePickerProps<TFieldValues, TName>).numberOfMonths
+        }
       />
     );
   }
@@ -142,4 +161,4 @@ export function FormStandardDatePicker<
       onChange={handleSingleDateChange}
     />
   );
-} 
+}

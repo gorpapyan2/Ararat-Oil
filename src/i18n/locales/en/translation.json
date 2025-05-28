@@ -210,7 +210,7 @@
       "viewAll": "View All",
       "fuelSupplyAdded": "Fuel Supply Added",
       "paymentReceived": "Payment Received",
-      "tankLevelUpdated": "Tank Level Updated", 
+      "tankLevelUpdated": "Tank Level Updated",
       "maintenanceScheduled": "Maintenance Scheduled",
       "statusCompleted": "Completed",
       "statusWarning": "Warning",
@@ -534,7 +534,7 @@
       "description": "Customize the appearance of the application",
       "theme": "Theme",
       "light": "Light",
-      "dark": "Dark", 
+      "dark": "Dark",
       "system": "System"
     },
     "notifications": {

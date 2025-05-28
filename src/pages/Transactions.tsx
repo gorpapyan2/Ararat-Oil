@@ -1,24 +1,29 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
-import { Breadcrumb } from '@/core/components/ui/breadcrumb';
-import { TransactionsManagerStandardized } from "@/features/finance/components/TransactionsManagerStandardized";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
+import { Breadcrumb } from "@/core/components/ui/breadcrumb";
+import { FinanceManagerStandardized } from "@/features/finance/components/FinanceManagerStandardized";
 import { useTranslation } from "react-i18next";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 const Transactions = () => {
   const { t } = useTranslation();
-  
+
   // Configure breadcrumb navigation
   const breadcrumbSegments = [
     { name: t("common.dashboard"), href: "/" },
-    { name: t("transactions.title"), href: "/transactions", isCurrent: true }
+    { name: t("transactions.title"), href: "/transactions", isCurrent: true },
   ];
 
   usePageBreadcrumbs({
     segments: [
       { name: "Dashboard", href: "/" },
-      { name: "Transactions", href: "/transactions", isCurrent: true }
+      { name: "Transactions", href: "/transactions", isCurrent: true },
     ],
-    title: "Transactions"
+    title: "Transactions",
   });
 
   return (
@@ -32,7 +37,7 @@ const Transactions = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <TransactionsManagerStandardized />
+          <FinanceManagerStandardized />
         </CardContent>
       </Card>
     </div>

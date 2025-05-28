@@ -1,21 +1,27 @@
-import { ExpensesManagerStandardized } from "@/features/finance/components/ExpensesManagerStandardized";
+import { ExpenseManagerStandardized } from "@/features/finance/components/ExpenseManagerStandardized";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { useFinance } from "@/features/finance/hooks/useFinance";
 import { useMemo } from "react";
 
 const Expenses = () => {
-  const breadcrumbSegments = useMemo(() => [
-    { name: "Dashboard", href: "/" },
-    { name: "Expenses", href: "/expenses", isCurrent: true }
-  ], []);
+  const { expenses, isLoadingExpenses } = useFinance();
+  
+  const breadcrumbSegments = useMemo(
+    () => [
+      { name: "Dashboard", href: "/" },
+      { name: "Expenses", href: "/expenses", isCurrent: true },
+    ],
+    []
+  );
 
   usePageBreadcrumbs({
     segments: breadcrumbSegments,
-    title: "Expenses"
+    title: "Expenses",
   });
 
   return (
     <div className="space-y-6">
-      <ExpensesManagerStandardized />
+      <ExpenseManagerStandardized expenses={expenses} isLoading={isLoadingExpenses} />
     </div>
   );
 };

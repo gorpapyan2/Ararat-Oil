@@ -1,6 +1,6 @@
 /**
  * Service for handling profit-loss related operations
- * 
+ *
  * This service has been updated to use standardized API methods from the core API.
  * - calculate -> calculateProfitLoss
  * - getSummary -> getProfitLossSummary
@@ -10,7 +10,13 @@
 import { profitLossApi, adapters, ProfitLoss } from "@/core/api";
 import { ProfitLossSummary } from "@/types";
 
-export type PeriodType = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
+export type PeriodType =
+  | "day"
+  | "week"
+  | "month"
+  | "quarter"
+  | "year"
+  | "custom";
 
 export interface ProfitLossDetails {
   period: string;
@@ -46,7 +52,7 @@ interface ProfitLossWithDetails extends ProfitLoss {
       by_provider: Record<string, number>;
       by_fuel_type: Record<string, number>;
     };
-  }
+  };
 }
 
 export interface GenerateProfitLossRequest {
@@ -64,9 +70,9 @@ export const calculateProfitLoss = async (
 ): Promise<ProfitLossDetails> => {
   try {
     const response = await profitLossApi.calculateProfitLoss(
-      period, 
-      startDate, 
-      endDate, 
+      period,
+      startDate,
+      endDate,
       includeDetails
     );
 
@@ -80,16 +86,18 @@ export const calculateProfitLoss = async (
 
     // Adapt the API response to the ProfitLossDetails type
     return {
-      period: profitLossData?.period || '',
+      period: profitLossData?.period || "",
       total_sales: profitLossData?.revenue || 0,
       total_expenses: profitLossData?.expenses || 0,
       profit: profitLossData?.profit || 0,
       // Any additional details will be passed through if they exist
-      ...(profitLossData?.details ? { 
-        sales_details: profitLossData.details.sales,
-        expense_details: profitLossData.details.expenses,
-        fuel_supply_details: profitLossData.details.fuel_supplies
-      } : {})
+      ...(profitLossData?.details
+        ? {
+            sales_details: profitLossData.details.sales,
+            expense_details: profitLossData.details.expenses,
+            fuel_supply_details: profitLossData.details.fuel_supplies,
+          }
+        : {}),
     };
   } catch (err) {
     console.error("Failed to calculate profit and loss:", err);
@@ -103,7 +111,11 @@ export const getProfitLossSummary = async (
   endDate?: string
 ): Promise<ProfitLossSummary[]> => {
   try {
-    const response = await profitLossApi.getProfitLossSummary(period, startDate, endDate);
+    const response = await profitLossApi.getProfitLossSummary(
+      period,
+      startDate,
+      endDate
+    );
 
     if (response.error) {
       console.error("Error fetching profit-loss summary:", response.error);
@@ -112,7 +124,11 @@ export const getProfitLossSummary = async (
 
     // Use adapter to convert API response to application type
     // Make sure we're passing an array to the adapter function
-    const dataArray = Array.isArray(response.data) ? response.data : response.data ? [response.data] : [];
+    const dataArray = Array.isArray(response.data)
+      ? response.data
+      : response.data
+        ? [response.data]
+        : [];
     return adapters.adaptApiProfitLossToSummaryArray(dataArray);
   } catch (err) {
     console.error("Failed to fetch profit-loss summary:", err);
@@ -122,17 +138,24 @@ export const getProfitLossSummary = async (
 
 export const fetchProfitLossSummary = getProfitLossSummary;
 
-export const getProfitLossById = async (id: string): Promise<ProfitLossSummary | null> => {
+export const getProfitLossById = async (
+  id: string
+): Promise<ProfitLossSummary | null> => {
   try {
     const response = await profitLossApi.getProfitLossById(id);
 
     if (response.error) {
-      console.error(`Error fetching profit-loss record with ID ${id}:`, response.error);
+      console.error(
+        `Error fetching profit-loss record with ID ${id}:`,
+        response.error
+      );
       throw new Error(response.error.message);
     }
 
     // Use adapter to convert API response to application type
-    return response.data ? adapters.adaptApiProfitLossToSummary(response.data) : null;
+    return response.data
+      ? adapters.adaptApiProfitLossToSummary(response.data)
+      : null;
   } catch (err) {
     console.error(`Failed to fetch profit-loss record with ID ${id}:`, err);
     throw err;
@@ -143,7 +166,12 @@ export const generateAndSaveProfitLoss = async (
   params: GenerateProfitLossRequest
 ): Promise<ProfitLossSummary> => {
   try {
-    const response = await profitLossApi.calculateProfitLoss(params.period_type, params.start_date, params.end_date, true);
+    const response = await profitLossApi.calculateProfitLoss(
+      params.period_type,
+      params.start_date,
+      params.end_date,
+      true
+    );
 
     if (response.error) {
       console.error("Error generating profit-loss record:", response.error);
@@ -156,4 +184,4 @@ export const generateAndSaveProfitLoss = async (
     console.error("Failed to generate profit-loss record:", err);
     throw err;
   }
-}; 
+};

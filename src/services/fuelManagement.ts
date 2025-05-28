@@ -1,6 +1,6 @@
-import { supabase } from './supabase';
+import { supabase } from "./supabase";
 
-export type FuelType = 'gas' | 'diesel' | 'petrol';
+export type FuelType = "gas" | "diesel" | "petrol";
 
 export interface FuelManagementSummary {
   tanks: {
@@ -26,11 +26,14 @@ export interface FuelManagementSummary {
     totalQuantity: number;
     totalCost: number;
     averagePrice: number;
-    byType: Record<FuelType, {
-      quantity: number;
-      cost: number;
-      averagePrice: number;
-    }>;
+    byType: Record<
+      FuelType,
+      {
+        quantity: number;
+        cost: number;
+        averagePrice: number;
+      }
+    >;
     list: Array<{
       id: string;
       fuel_type: FuelType;
@@ -54,7 +57,7 @@ export interface FuelManagementSummary {
   alerts?: Array<{
     title: string;
     message: string;
-    type: 'warning' | 'error' | 'info';
+    type: "warning" | "error" | "info";
   }>;
   recentActivity: {
     supplies: Array<{
@@ -106,27 +109,32 @@ export interface FuelManagementFilters {
 }
 
 export const fuelManagementService = {
-  async getSummary(filters: FuelManagementFilters = {}): Promise<FuelManagementSummary> {
+  async getSummary(
+    filters: FuelManagementFilters = {}
+  ): Promise<FuelManagementSummary> {
     try {
-      const { data, error } = await supabase.functions.invoke('fuel-management', {
-        body: { filters }
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "fuel-management",
+        {
+          body: { filters },
+        }
+      );
 
       if (error) {
-        console.error('Error fetching fuel management summary:', error);
+        console.error("Error fetching fuel management summary:", error);
         throw new Error(error.message);
       }
 
       if (!data) {
-        throw new Error('No data received from the server');
+        throw new Error("No data received from the server");
       }
 
       // Unwrap the 'data' property if present
-      const summary = (data && 'data' in data) ? data.data : data;
+      const summary = data && "data" in data ? data.data : data;
       return summary as FuelManagementSummary;
     } catch (error) {
-      console.error('Error in fuelManagementService.getSummary:', error);
+      console.error("Error in fuelManagementService.getSummary:", error);
       throw error;
     }
-  }
-}; 
+  },
+};

@@ -6,11 +6,17 @@ import { IconArrowLeft } from "@tabler/icons-react";
 import { Home, CircleDollarSign, Plus, AlertCircle } from "lucide-react";
 
 // Import components
-import { PageHeader } from '@/core/components/ui/page-header';
+import { PageHeader } from "@/core/components/ui/page-header";
 import { Button } from "@/core/components/ui/button";
 import { Card, CardContent } from "@/core/components/ui/card";
-import { Alert, AlertDescription } from '@/core/components/ui/alert';
-import { expensesApi, Expense, PaymentStatus, ExpenseCategory, PaymentMethod } from "@/core/api";
+import { Alert, AlertDescription } from "@/core/components/ui/alert";
+import {
+  expensesApi,
+  Expense,
+  PaymentStatus,
+  ExpenseCategory,
+  PaymentMethod,
+} from "@/core/api";
 import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
@@ -26,22 +32,37 @@ export default function ExpenseCreate() {
   const [pendingData, setPendingData] = useState<Partial<Expense> | null>(null);
 
   // Memoize breadcrumb segments to prevent unnecessary re-renders
-  const breadcrumbSegments = useMemo(() => [
-    { name: t("common.dashboard"), href: "/", icon: <Home className="h-4 w-4" /> },
-    { name: t("common.financeManagement"), href: "/finance", icon: <CircleDollarSign className="h-4 w-4" /> },
-    { name: t("common.expenses"), href: "/finance/expenses", icon: <CircleDollarSign className="h-4 w-4" /> },
-    { 
-      name: t("finance.expenses.add", "Add Expense"), 
-      href: "/finance/expenses/create", 
-      isCurrent: true,
-      icon: <Plus className="h-4 w-4" /> 
-    }
-  ], [t]);
+  const breadcrumbSegments = useMemo(
+    () => [
+      {
+        name: t("common.dashboard"),
+        href: "/",
+        icon: <Home className="h-4 w-4" />,
+      },
+      {
+        name: t("common.financeManagement"),
+        href: "/finance",
+        icon: <CircleDollarSign className="h-4 w-4" />,
+      },
+      {
+        name: t("common.expenses"),
+        href: "/finance/expenses",
+        icon: <CircleDollarSign className="h-4 w-4" />,
+      },
+      {
+        name: t("finance.expenses.add", "Add Expense"),
+        href: "/finance/expenses/create",
+        isCurrent: true,
+        icon: <Plus className="h-4 w-4" />,
+      },
+    ],
+    [t]
+  );
 
   // Configure breadcrumb navigation with icons
   usePageBreadcrumbs({
     segments: breadcrumbSegments,
-    title: t("finance.expenses.add", "Add Expense")
+    title: t("finance.expenses.add", "Add Expense"),
   });
 
   // Add create expense mutation with proper error handling
@@ -50,21 +71,24 @@ export default function ExpenseCreate() {
     onSuccess: () => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      
+
       // Show success message
       toast({
         title: t("common.success"),
-        description: t("finance.expenses.createSuccess", "Expense record created successfully"),
+        description: t(
+          "finance.expenses.createSuccess",
+          "Expense record created successfully"
+        ),
       });
-      
+
       // Navigate back to the finance page
       navigate("/finance?tab=expenses");
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error("Create error:", error);
       toast({
         title: t("common.error"),
-        description: error.message || t("finance.expenses.createError", "Failed to create expense record"),
+        description: error instanceof Error ? error.message : t("expenses.createError"),
         variant: "destructive",
       });
       setIsConfirmOpen(false);
@@ -72,10 +96,13 @@ export default function ExpenseCreate() {
   });
 
   // Default values with today's date
-  const defaultValues = useMemo(() => ({
-    date: new Date().toISOString().split("T")[0],
-    payment_status: "pending" as PaymentStatus,
-  }), []);
+  const defaultValues = useMemo(
+    () => ({
+      date: new Date().toISOString().split("T")[0],
+      payment_status: "pending" as PaymentStatus,
+    }),
+    []
+  );
 
   const handleSubmit = (data: ExpenseFormValues) => {
     // Cast the form values to the expected expense type
@@ -88,14 +115,16 @@ export default function ExpenseCreate() {
       payment_method: data.payment_method as PaymentMethod | undefined,
       notes: data.notes,
     };
-    
+
     setPendingData(expenseData);
     setIsConfirmOpen(true);
   };
 
   const handleConfirm = () => {
     if (pendingData) {
-      createExpenseMutation.mutate(pendingData as Omit<Expense, "id" | "created_at">);
+      createExpenseMutation.mutate(
+        pendingData as Omit<Expense, "id" | "created_at">
+      );
     }
   };
 
@@ -112,7 +141,10 @@ export default function ExpenseCreate() {
     <div className="container mx-auto p-4 space-y-6">
       <PageHeader
         title={t("finance.expenses.add", "Add Expense")}
-        description={t("finance.expenses.createDescription", "Fill in the details to add a new expense record.")}
+        description={t(
+          "finance.expenses.createDescription",
+          "Fill in the details to add a new expense record."
+        )}
         actions={
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleCancel}>
@@ -127,16 +159,19 @@ export default function ExpenseCreate() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {createExpenseMutation.error instanceof Error 
-              ? createExpenseMutation.error.message 
-              : t("finance.expenses.createError", "Failed to create expense record")}
+            {createExpenseMutation.error instanceof Error
+              ? createExpenseMutation.error.message
+              : t(
+                  "finance.expenses.createError",
+                  "Failed to create expense record"
+                )}
           </AlertDescription>
         </Alert>
       )}
 
       <Card className="max-w-4xl mx-auto">
         <CardContent className="pt-6">
-          <ExpenseForm 
+          <ExpenseForm
             onSubmit={handleSubmit}
             isSubmitting={createExpenseMutation.isPending}
             defaultValues={defaultValues}
@@ -148,4 +183,4 @@ export default function ExpenseCreate() {
       </Card>
     </div>
   );
-} 
+}

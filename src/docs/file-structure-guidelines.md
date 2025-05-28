@@ -78,14 +78,17 @@ hooks/
 ### File Naming
 
 1. **Component Files**:
+
    - Use PascalCase for React component files: `Button.tsx`, `DialogContent.tsx`
    - Use kebab-case for utility files: `form-utils.ts`, `date-helpers.ts`
    - Test files should match the file they're testing with `.test` or `.spec` suffix: `Button.test.tsx`
 
 2. **Hook Files**:
+
    - Use kebab-case with `use-` prefix: `use-form.ts`, `use-local-storage.ts`
 
 3. **Utility Files**:
+
    - Use kebab-case: `string-utils.ts`, `validation-helpers.ts`
 
 4. **Type Files**:
@@ -94,14 +97,17 @@ hooks/
 ### Component Naming
 
 1. **Component Names**:
+
    - Use PascalCase: `Button`, `Card`, `UserProfile`
    - Be descriptive and clear about the component's purpose
    - Prefix UI variants: `PrimaryButton`, `OutlineCard`
 
 2. **Hook Names**:
+
    - Use camelCase with `use` prefix: `useForm`, `useLocalStorage`
 
 3. **Function Names**:
+
    - Use camelCase: `formatDate`, `validateEmail`
    - Use verb prefixes for actions: `handleSubmit`, `fetchData`
 
@@ -123,32 +129,34 @@ Example:
 
 ```tsx
 // External libraries
-import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 // Internal modules
-import { api } from '@/services/api';
-import { useToast } from '@/hooks';
+import { api } from "@/services/api";
+import { useToast } from "@/hooks";
 
 // Components
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 // Types and interfaces
-import type { User, UserResponse } from '@/types';
+import type { User, UserResponse } from "@/types";
 
 // Assets and styles
-import styles from './styles.module.css';
+import styles from "./styles.module.css";
 ```
 
 ## Documentation Guidelines
 
 1. **Component Documentation**:
+
    - Include a JSDoc comment above each component
    - Document props using TypeScript interface comments
    - Provide examples for complex usage
 
 2. **Function Documentation**:
+
    - Document parameters and return values
    - Explain side effects or important behavior
 
@@ -163,6 +171,7 @@ Our cleanup efforts will proceed in phases:
 ### Phase 1: Directory Structure Standardization (1 week)
 
 1. **Reorganize Component Directory**:
+
    - Move UI components to `components/ui/`
    - Create proper subdirectories for features
    - Update imports and ensure tests pass
@@ -174,6 +183,7 @@ Our cleanup efforts will proceed in phases:
 ### Phase 2: File Naming Standardization (1 week)
 
 1. **Rename Component Files**:
+
    - Update to follow PascalCase convention
    - Fix imports across the codebase
    - Verify functionality after changes
@@ -185,10 +195,12 @@ Our cleanup efforts will proceed in phases:
 ### Phase 3: Remove Duplicate and Deprecated Code (2 weeks)
 
 1. **Identify Deprecated Components**:
+
    - Use imports analysis to find unused components
    - Create list of components targeted for removal
 
 2. **Remove Showcase Components**:
+
    - Remove unused demonstration components
    - Update documentation as needed
 
@@ -199,6 +211,7 @@ Our cleanup efforts will proceed in phases:
 ### Phase 4: Documentation Updates (1 week)
 
 1. **Update Component Documentation**:
+
    - Ensure all components have proper JSDoc comments
    - Update README files in directories
 
@@ -211,11 +224,13 @@ Our cleanup efforts will proceed in phases:
 ### Component Organization
 
 1. **Single Responsibility**:
+
    - Each component should do one thing well
    - Extract complex logic to custom hooks
    - Separate rendering from business logic
 
 2. **Composability**:
+
    - Design components to be composed together
    - Use children props for flexible layouts
    - Avoid deeply nested component hierarchies
@@ -228,11 +243,13 @@ Our cleanup efforts will proceed in phases:
 ### Code Style
 
 1. **Formatting**:
+
    - Use Prettier for consistent formatting
    - Follow ESLint rules
    - Maintain consistent indentation
 
 2. **Comments**:
+
    - Comment complex logic or algorithms
    - Avoid unnecessary comments for clear code
    - Use JSDoc for public APIs
@@ -259,4 +276,4 @@ Our cleanup efforts will proceed in phases:
 - **Phase 3**: 2 weeks (Code Cleanup)
 - **Phase 4**: 1 week (Documentation)
 
-Total: 5 weeks 
+Total: 5 weeks

@@ -5,7 +5,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/core/components/ui/popover';
+} from "@/core/components/ui/popover";
 import { cn } from "@/shared/utils";
 import { Input } from "@/core/components/ui/primitives/input";
 import { useTranslation } from "react-i18next";
@@ -30,7 +30,7 @@ export function ProviderFilter({
   // Ensure providers is always defined and an array
   const providersList = Array.isArray(providers) ? providers : [];
   const selectedProvider = providersList.find(
-    (provider) => provider.id === value,
+    (provider) => provider.id === value
   );
 
   // Filter providers based on search
@@ -38,7 +38,7 @@ export function ProviderFilter({
     if (!search) return providersList;
     const lowerSearch = search.toLowerCase();
     return providersList.filter((prov) =>
-      prov.name.toLowerCase().includes(lowerSearch),
+      prov.name.toLowerCase().includes(lowerSearch)
     );
   }, [providersList, search]);
 
@@ -90,7 +90,7 @@ export function ProviderFilter({
                   <div
                     className={cn(
                       "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
-                      value === "all" ? "bg-accent text-accent-foreground" : "",
+                      value === "all" ? "bg-accent text-accent-foreground" : ""
                     )}
                     onClick={() => {
                       onChange("all");
@@ -101,7 +101,7 @@ export function ProviderFilter({
                     <Check
                       className={cn(
                         "h-4 w-4",
-                        value === "all" ? "opacity-100" : "opacity-0",
+                        value === "all" ? "opacity-100" : "opacity-0"
                       )}
                     />
                     {t("common.allProviders")}
@@ -114,7 +114,7 @@ export function ProviderFilter({
                         "flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
                         value === provider.id
                           ? "bg-accent text-accent-foreground"
-                          : "",
+                          : ""
                       )}
                       onClick={() => {
                         onChange(provider.id);
@@ -125,7 +125,7 @@ export function ProviderFilter({
                       <Check
                         className={cn(
                           "h-4 w-4",
-                          value === provider.id ? "opacity-100" : "opacity-0",
+                          value === provider.id ? "opacity-100" : "opacity-0"
                         )}
                       />
                       {provider.name}

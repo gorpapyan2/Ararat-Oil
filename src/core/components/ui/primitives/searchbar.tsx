@@ -48,18 +48,15 @@ export function SearchBar({
 
   if (variant === "button") {
     return (
-      <form 
-        onSubmit={handleSubmit} 
-        className={cn("flex w-full", className)}
-      >
-        <Input 
+      <form onSubmit={handleSubmit} className={cn("flex w-full", className)}>
+        <Input
           type="search"
           value={currentValue}
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
           className="flex h-10 w-full rounded-l-md border border-input bg-gray-50 px-3 py-2 text-sm ring-offset-background"
         />
-        <button 
+        <button
           type="submit"
           className="h-10 rounded-r-md border border-l-0 border-input bg-gray-50 px-3 py-2 text-sm font-medium hover:bg-muted"
         >
@@ -90,4 +87,4 @@ export function SearchBar({
       />
     </div>
   );
-} 
+}

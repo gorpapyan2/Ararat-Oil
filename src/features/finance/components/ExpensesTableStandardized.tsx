@@ -1,18 +1,13 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
+import { CalendarIcon, DollarSign, CreditCard, FileText } from "lucide-react";
 import {
-  CalendarIcon,
-  DollarSign,
-  CreditCard,
-  FileText,
-} from "lucide-react";
-import { 
-  StandardizedDataTable, 
+  StandardizedDataTable,
   FiltersShape,
   createBadgeCell,
   createDateCell,
-  createCurrencyCell
+  createCurrencyCell,
 } from "@/shared/components/unified/StandardizedDataTable";
 import { Badge } from "@/core/components/ui/primitives/badge";
 import type { Expense } from "../types/finance.types";
@@ -27,7 +22,7 @@ interface ExpensesTableStandardizedProps {
   onFiltersChange?: (filters: FiltersShape) => void;
   totalCount?: number;
   onPageChange?: (page: number, pageSize: number) => void;
-  onSortChange?: (column: string | null, direction: 'asc' | 'desc') => void;
+  onSortChange?: (column: string | null, direction: "asc" | "desc") => void;
 }
 
 export function ExpensesTableStandardized({
@@ -42,7 +37,7 @@ export function ExpensesTableStandardized({
   onPageChange,
   onSortChange,
 }: ExpensesTableStandardizedProps) {
-  const { t } = useTranslation(['finance', 'common']);
+  const { t } = useTranslation(["finance", "common"]);
   const [filters, setFilters] = useState<FiltersShape>({
     searchTerm: "",
     category: "all",
@@ -57,93 +52,97 @@ export function ExpensesTableStandardized({
 
   // Define status badge variant based on status value
   const getPaymentStatusVariant = (status: string | undefined) => {
-    if (!status) return 'outline';
-    
+    if (!status) return "outline";
+
     const statusLower = status.toLowerCase();
-    if (statusLower === 'paid' || statusLower === 'completed') {
-      return 'success';
-    } else if (statusLower === 'pending') {
-      return 'warning';
-    } else if (statusLower === 'cancelled' || statusLower === 'failed') {
-      return 'destructive';
+    if (statusLower === "paid" || statusLower === "completed") {
+      return "success";
+    } else if (statusLower === "pending") {
+      return "warning";
+    } else if (statusLower === "cancelled" || statusLower === "failed") {
+      return "destructive";
     }
-    return 'outline';
+    return "outline";
   };
 
   // Define columns for the StandardizedDataTable
-  const columns = useMemo(() => [
-    {
-      header: t('finance:expenses.fields.date'),
-      accessorKey: 'date' as keyof Expense,
-      cell: (value: string) => createDateCell(value),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:expenses.fields.category'),
-      accessorKey: 'category' as keyof Expense,
-      cell: (value: string) => (
-        <Badge variant="outline" className="capitalize">
-          {value || t('common:other')}
-        </Badge>
-      ),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:expenses.fields.description'),
-      accessorKey: 'description' as keyof Expense,
-      cell: (value: string) => value || "-",
-      enableSorting: true,
-    },
-    {
-      header: t('finance:expenses.fields.amount'),
-      accessorKey: 'amount' as keyof Expense,
-      cell: (value: number) => createCurrencyCell(value),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:expenses.fields.paymentMethod'),
-      accessorKey: 'payment_method' as keyof Expense,
-      cell: (value: string) => (
-        <div className="flex items-center gap-2">
-          <CreditCard className="h-4 w-4 text-muted-foreground" />
-          <span>{value || "-"}</span>
-        </div>
-      ),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:expenses.fields.paymentStatus'),
-      accessorKey: 'payment_status' as keyof Expense,
-      cell: (value: string) => createBadgeCell(
-        value ? value.toUpperCase() : "N/A", 
-        getPaymentStatusVariant(value)
-      ),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:expenses.fields.invoiceNumber'),
-      accessorKey: 'invoice_number' as keyof Expense,
-      cell: (value: string) => (
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-muted-foreground" />
-          <span>{value || "-"}</span>
-        </div>
-      ),
-      enableSorting: true,
-    },
-    {
-      header: t('finance:expenses.fields.notes'),
-      accessorKey: 'notes' as keyof Expense,
-      cell: (value: string) => value || "-",
-      enableSorting: true,
-    },
-  ], [t]);
+  const columns = useMemo(
+    () => [
+      {
+        header: t("finance:expenses.fields.date"),
+        accessorKey: "date" as keyof Expense,
+        cell: (value: string) => createDateCell(value),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:expenses.fields.category"),
+        accessorKey: "category" as keyof Expense,
+        cell: (value: string) => (
+          <Badge variant="outline" className="capitalize">
+            {value || t("common:other")}
+          </Badge>
+        ),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:expenses.fields.description"),
+        accessorKey: "description" as keyof Expense,
+        cell: (value: string) => value || "-",
+        enableSorting: true,
+      },
+      {
+        header: t("finance:expenses.fields.amount"),
+        accessorKey: "amount" as keyof Expense,
+        cell: (value: number) => createCurrencyCell(value),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:expenses.fields.paymentMethod"),
+        accessorKey: "payment_method" as keyof Expense,
+        cell: (value: string) => (
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <span>{value || "-"}</span>
+          </div>
+        ),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:expenses.fields.paymentStatus"),
+        accessorKey: "payment_status" as keyof Expense,
+        cell: (value: string) =>
+          createBadgeCell(
+            value ? value.toUpperCase() : "N/A",
+            getPaymentStatusVariant(value)
+          ),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:expenses.fields.invoiceNumber"),
+        accessorKey: "invoice_number" as keyof Expense,
+        cell: (value: string) => (
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <span>{value || "-"}</span>
+          </div>
+        ),
+        enableSorting: true,
+      },
+      {
+        header: t("finance:expenses.fields.notes"),
+        accessorKey: "notes" as keyof Expense,
+        cell: (value: string) => value || "-",
+        enableSorting: true,
+      },
+    ],
+    [t]
+  );
 
   const isServerSide = Boolean(onPageChange && onSortChange);
 
   return (
     <StandardizedDataTable
-      title={t('finance:expenses.title')}
+      title={t("finance:expenses.title")}
       columns={columns}
       data={expenses}
       loading={isLoading}
@@ -157,9 +156,9 @@ export function ExpensesTableStandardized({
       onSortChange={onSortChange}
       exportOptions={{
         enabled: true,
-        filename: 'expenses-export',
-        exportAll: true
+        filename: "expenses-export",
+        exportAll: true,
       }}
     />
   );
-} 
+}

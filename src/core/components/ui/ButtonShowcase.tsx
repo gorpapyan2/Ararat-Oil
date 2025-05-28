@@ -3,6 +3,4 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export { 
-  ButtonShowcase 
-} from "@/core/components/ui/primitives/ButtonShowcase";
+export { ButtonShowcase } from "@/core/components/ui/primitives/ButtonShowcase";
