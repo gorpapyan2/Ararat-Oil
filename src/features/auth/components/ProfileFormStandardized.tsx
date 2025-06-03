@@ -26,7 +26,7 @@ import {
   AvatarFallback,
 } from "@/core/components/ui/avatar";
 import { FormInput } from "@/core/components/ui/composed/form-fields";
-import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { useZodForm, useFormSubmitHandler } from "@/shared/hooks/use-form";
 
 // Define the form validation schema
 const profileSchema = z.object({

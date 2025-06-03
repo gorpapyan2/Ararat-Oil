@@ -1,190 +1,156 @@
-import { useCallback, useState } from "react";
-import { useEntityDialog } from "@/shared/hooks/base";
-import type { Sale, CreateSaleRequest, UpdateSaleRequest } from "../types";
-import { createSale, updateSale, deleteSale } from "../services";
-import { useToast } from "@/shared/hooks/ui";
+import { useState, useCallback } from "react";
+import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { Sale } from "@/types";
+import { createSale, updateSale, deleteSale } from "@/features/sales/services";
+import type { CreateSaleRequest, UpdateSaleRequest } from "@/features/sales/types";
 
-/**
- * Options for the sales dialog hook
- */
-export interface UseSalesDialogOptions {
-  /**
-   * Callback when a sale is successfully created
-   */
+interface UseSalesDialogOptions {
   onCreateSuccess?: (sale: Sale) => void;
-
-  /**
-   * Callback when a sale is successfully updated
-   */
   onUpdateSuccess?: (sale: Sale) => void;
-
-  /**
-   * Callback when a sale is successfully deleted
-   * @param id The ID of the deleted sale
-   * @param sale The deleted sale entity
-   */
-  onDeleteSuccess?: (id: string | number, sale?: Sale) => void;
+  onDeleteSuccess?: (id: string) => void;
 }
 
-/**
- * Custom hook for managing sales dialog state and operations
- *
- * This hook builds on the base entity dialog hook to provide
- * sales-specific functionality while eliminating code duplication.
- */
-export function useSalesDialog(options?: UseSalesDialogOptions) {
-  // Use the shared toast hook - destructure it to get the toast function
-  const { toast, success, error: showError } = useToast();
-  // Use the base entity dialog hook for edit/create operations
-  const editDialog = useEntityDialog<Sale>({
-    entityName: "sale",
-    onCreateSuccess: options?.onCreateSuccess,
-    onUpdateSuccess: options?.onUpdateSuccess,
-    onDeleteSuccess: options?.onDeleteSuccess,
-  });
-
-  // Use separate state for delete dialog (not part of the base dialog)
+export function useSalesDialog({
+  onCreateSuccess,
+  onUpdateSuccess,
+  onDeleteSuccess,
+}: UseSalesDialogOptions = {}) {
+  // Dialog state
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Use React Query for cache management
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  /**
-   * Open dialog for confirming deletion
-   */
-  const openDeleteDialog = useCallback(
-    (sale: Sale) => {
-      editDialog.setEntity(sale);
-      setIsDeleteDialogOpen(true);
-    },
-    [editDialog]
-  );
+  // Reset selected sale when edit dialog closes
+  const handleEditDialogOpenChange = useCallback((open: boolean) => {
+    setIsEditDialogOpen(open);
+    if (!open) {
+      setSelectedSale(null);
+    }
+  }, []);
 
-  /**
-   * Close delete dialog
-   */
-  const closeDeleteDialog = useCallback(() => {
-    setIsDeleteDialogOpen(false);
-    setTimeout(() => {
-      editDialog.setEntity(null);
-    }, 300);
-  }, [editDialog]);
+  // Open dialog for creating a new sale
+  const openCreateDialog = useCallback(() => {
+    setSelectedSale(null);
+    setIsEditDialogOpen(true);
+  }, []);
 
-  /**
-   * Handle form submission for sale creation or update
-   */
+  // Open dialog for editing an existing sale
+  const openEditDialog = useCallback((sale: Sale) => {
+    setSelectedSale(sale);
+    setIsEditDialogOpen(true);
+  }, []);
+
+  // Open dialog for confirming deletion
+  const openDeleteDialog = useCallback((sale: Sale) => {
+    setSelectedSale(sale);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  // Handle form submission (create or update)
   const handleSubmit = useCallback(
-    async (formData: CreateSaleRequest) => {
+    async (data: CreateSaleRequest) => {
+      setIsSubmitting(true);
+
       try {
-        editDialog.setIsSubmitting(true);
-
-        if (editDialog.entity) {
+        if (selectedSale?.id) {
           // Update existing sale
-          const updateData: UpdateSaleRequest = {
-            id: editDialog.entity.id,
-            ...formData,
-          };
+          const updateData: UpdateSaleRequest = { ...data, id: selectedSale.id };
+          const updatedSale = await updateSale(selectedSale.id, updateData);
 
-          const updatedSale = await updateSale(updateData.id, updateData);
+          queryClient.invalidateQueries({ queryKey: ["sales"] });
+          queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+          queryClient.invalidateQueries({ queryKey: ["latest-sale"] });
 
-          success({
-            title: "Sale updated",
-            description: `Successfully updated sale for ${formData.amount.toFixed(2)}.`,
+          toast({
+            title: "Success",
+            description: "Sale updated successfully and tank level adjusted",
           });
 
-          // Invalidate relevant queries
-          queryClient.invalidateQueries({ queryKey: ["sales"] });
-
-          // Notify parent components of the update
-          editDialog.handleUpdateSuccess(updatedSale as Sale);
+          onUpdateSuccess?.(updatedSale);
         } else {
           // Create new sale
-          const newSale = await createSale(formData);
+          const newSale = await createSale(data);
 
-          success({
-            title: "Sale created",
-            description: `Successfully created sale for ${formData.amount.toFixed(2)}.`,
+          queryClient.invalidateQueries({ queryKey: ["sales"] });
+          queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
+          queryClient.invalidateQueries({ queryKey: ["latest-sale"] });
+
+          toast({
+            title: "Success",
+            description: "Sale created successfully and tank level updated",
           });
 
-          // Invalidate relevant queries
-          queryClient.invalidateQueries({ queryKey: ["sales"] });
-
-          // Notify parent components of the creation
-          editDialog.handleCreateSuccess(newSale as Sale);
+          onCreateSuccess?.(newSale);
         }
-      } catch (error) {
-        console.error("Error submitting sale data:", error);
-        showError({
-          title: "Error",
-          description: "Failed to save sale. Please try again.",
-        });
 
-        // Handle the error with the base hook
-        editDialog.handleError(error as Error);
+        setIsEditDialogOpen(false);
+      } catch (error: unknown) {
+        console.error("Error submitting sale:", error);
+        const errorMessage = error instanceof Error ? error.message : "Failed to save sale";
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
       } finally {
-        editDialog.setIsSubmitting(false);
+        setIsSubmitting(false);
       }
     },
-    [editDialog, queryClient, showError, success]
+    [selectedSale, queryClient, toast, onUpdateSuccess, onCreateSuccess]
   );
 
-  /**
-   * Handle sale deletion
-   */
+  // Handle delete confirmation
   const handleDelete = useCallback(async () => {
-    if (!editDialog.entity) return;
+    if (!selectedSale?.id) return;
+
+    setIsSubmitting(true);
 
     try {
-      editDialog.setIsSubmitting(true);
+      await deleteSale(selectedSale.id);
 
-      await deleteSale(editDialog.entity.id);
-
-      success({
-        title: "Sale deleted",
-        description: `Successfully deleted sale.`,
-      });
-
-      // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ["sales"] });
+      queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });
 
-      // Use the base hook's handleDeleteSuccess method
-      editDialog.handleDeleteSuccess(editDialog.entity.id);
-
-      // Close the dialog
-      closeDeleteDialog();
-    } catch (error) {
-      console.error("Error deleting sale:", error);
-      showError({
-        title: "Error",
-        description: "Failed to delete sale. Please try again.",
+      toast({
+        title: "Success",
+        description: "Sale deleted successfully and tank level restored",
       });
 
-      // Handle the error with the base hook
-      editDialog.handleError(error as Error);
+      onDeleteSuccess?.(selectedSale.id);
+      setIsDeleteDialogOpen(false);
+    } catch (error: unknown) {
+      console.error("Error deleting sale:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete sale";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
-      editDialog.setIsSubmitting(false);
+      setIsSubmitting(false);
     }
-  }, [editDialog, queryClient, closeDeleteDialog, showError, success]);
+  }, [selectedSale, queryClient, toast, onDeleteSuccess]);
 
   return {
-    // Re-export everything from the edit dialog
-    ...editDialog,
-
-    // Delete dialog state
+    // Dialog state
+    isEditDialogOpen,
+    setIsEditDialogOpen,
     isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
+    selectedSale,
+    isSubmitting,
 
-    // Additional methods
+    // Dialog actions
+    handleEditDialogOpenChange,
+    openCreateDialog,
+    openEditDialog,
     openDeleteDialog,
-    closeDeleteDialog,
-    handleDelete,
     handleSubmit,
-
-    // For backwards compatibility
-    isEditDialogOpen: editDialog.isOpen,
-    handleEditDialogOpenChange: editDialog.onOpenChange,
-    openCreateDialog: editDialog.openCreate,
-    openEditDialog: editDialog.openEdit,
-    selectedSale: editDialog.entity,
+    handleDelete,
   };
 }

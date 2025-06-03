@@ -86,6 +86,27 @@ export async function getExpensesCount(): Promise<
 }
 
 /**
+ * Exports expenses data as CSV
+ */
+export async function exportExpenses(filters?: {
+  startDate?: string;
+  endDate?: string;
+  format?: 'csv' | 'json';
+  category?: string;
+}): Promise<string> {
+  const response = await fetchFromFunction<string>(`${ENDPOINT}/export`, {
+    queryParams: filters,
+    responseType: "text"
+  });
+  
+  if (response instanceof Response) {
+    return await response.text();
+  }
+  
+  return response as string;
+}
+
+/**
  * Expenses API object with all methods
  */
 export const expensesApi = {
@@ -96,4 +117,5 @@ export const expensesApi = {
   updateExpense,
   deleteExpense,
   getExpensesCount,
+  exportExpenses,
 };

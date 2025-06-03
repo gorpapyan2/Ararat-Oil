@@ -73,7 +73,7 @@ function adaptFeatureTypeToApiUpdateRequest(
 export async function getFillingSystemsWithFilters(
   filters?: FillingSystemFilters
 ): Promise<FillingSystem[]> {
-  const response = await fillingSystemsApi.getFilingSystems();
+  const response = await fillingSystemsApi.getFillingSystems();
 
   if (response.error) {
     throw new Error(response.error.message);

@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/core/components/ui/dropdown-menu";
 import { Button } from "@/core/components/ui/button";
-import { Badge } from "@/core/components/ui/badge";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { Check, ChevronDown } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { salesApi } from "@/core/api";

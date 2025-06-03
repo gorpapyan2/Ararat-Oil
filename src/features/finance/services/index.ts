@@ -6,6 +6,11 @@ import { transactionsApi } from "@/core/api/endpoints/transactions";
 import { expensesApi } from "@/core/api/endpoints/expenses";
 import { profitLossApi } from "@/core/api/endpoints/profit-loss";
 import { financialsApi } from "@/core/api/endpoints/financials";
+import { fetchJson } from '@/core/api/client';
+import { API_ENDPOINTS } from '@/core/config/api';
+
+// Import mock data provider
+import { mockDataProvider } from "@/services/mockData";
 
 // Import types
 import type {
@@ -18,6 +23,7 @@ import type {
   Expense,
   ProfitLoss,
   FinanceData,
+  FinanceOverview,
 } from "../types/finance.types";
 
 // Adapter functions for transactions
@@ -86,16 +92,16 @@ function adaptExpenseToApi(
   };
 }
 
-// Adapter functions for profit-loss
-function adaptProfitLossFromApi(apiProfitLoss: ApiProfitLoss): ProfitLoss {
+// Adaptation function to convert API ProfitLoss to Finance ProfitLoss
+function adaptProfitLossFromApi(apiData: ApiProfitLoss): ProfitLoss {
   return {
-    id: apiProfitLoss.id,
-    period: apiProfitLoss.period,
-    total_sales: apiProfitLoss.revenue,
-    total_expenses: apiProfitLoss.expenses,
-    profit: apiProfitLoss.profit,
-    created_at: apiProfitLoss.created_at,
-    updated_at: apiProfitLoss.updated_at,
+    id: apiData.id,
+    period: apiData.period,
+    total_sales: apiData.revenue || 0,
+    total_expenses: apiData.expenses || 0,
+    profit: apiData.profit || 0,
+    created_at: apiData.created_at,
+    updated_at: apiData.updated_at || apiData.created_at,
   };
 }
 
@@ -244,15 +250,42 @@ export async function updateExpense(
 /**
  * Get profit and loss reports
  */
-export async function getProfitLoss(): Promise<ProfitLoss[]> {
-  const response = await financialsApi.getProfitLoss();
-
-  if (response.error) {
-    throw new Error(response.error.message);
+export const getProfitLoss = async (
+  periodType?: 'day' | 'week' | 'month' | 'quarter' | 'year',
+  startDate?: string,
+  endDate?: string
+): Promise<ProfitLoss[]> => {
+  try {
+    console.log('Fetching profit & loss data from Edge Function...');
+    
+    const queryParams: Record<string, string | boolean> = {};
+    if (periodType) queryParams.period_type = periodType;
+    if (startDate) queryParams.start_date = startDate;
+    if (endDate) queryParams.end_date = endDate;
+    queryParams.include_details = false;
+    
+    const response = await fetchJson<ApiProfitLoss[]>(API_ENDPOINTS.FUNCTIONS.PROFIT_LOSS, {
+      queryParams
+    });
+    
+    if (response.error) {
+      console.warn('Profit & Loss Edge Function returned error:', response.error);
+      throw new Error(response.error.message);
+    }
+    
+    if (!response.data) {
+      console.warn('Profit & Loss Edge Function returned no data');
+      return [];
+    }
+    
+    console.log('Profit & loss data fetched successfully from Edge Function');
+    return response.data.map(adaptProfitLossFromApi);
+    
+  } catch (error) {
+    console.warn('Profit & Loss Edge Function failed:', error);
+    return [];
   }
-
-  return (response.data || []).map(adaptProfitLossFromApi);
-}
+};
 
 /**
  * Calculate profit and loss for a period
@@ -282,23 +315,42 @@ export async function calculateProfitLoss(
 /**
  * Get finance overview data
  */
-export async function getFinanceOverview(): Promise<{
-  total_sales: number;
-  total_expenses: number;
-  net_profit: number;
-}> {
-  const response = await financialsApi.getFinanceOverview();
-
-  if (response.error) {
-    throw new Error(response.error.message);
+export const getFinanceOverview = async (): Promise<FinanceOverview> => {
+  try {
+    console.log('Fetching finance overview from Edge Function...');
+    
+    const response = await fetchJson<FinanceOverview>('finance/overview');
+    
+    if (response.error) {
+      console.warn('Finance Overview Edge Function returned error:', response.error);
+      throw new Error(response.error.message);
+    }
+    
+    if (!response.data) {
+      console.warn('Finance Overview Edge Function returned no data');
+      return {
+        total_sales: 0,
+        total_expenses: 0,
+        net_profit: 0,
+        recent_transactions: [],
+        top_expenses: []
+      };
+    }
+    
+    console.log('Finance overview fetched successfully from Edge Function');
+    return response.data;
+    
+  } catch (error) {
+    console.warn('Finance Overview Edge Function failed:', error);
+    return {
+      total_sales: 0,
+      total_expenses: 0,
+      net_profit: 0,
+      recent_transactions: [],
+      top_expenses: []
+    };
   }
-
-  if (!response.data) {
-    throw new Error("No finance overview data returned");
-  }
-
-  return response.data;
-}
+};
 
 /**
  * Get all finance data in one call

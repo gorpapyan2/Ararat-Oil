@@ -128,7 +128,8 @@ export async function fetchFromFunction<
   try {
     // Get current session for auth token
     const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData?.session?.access_token;
+    // Use the user access token if available, otherwise fall back to the public anon key.
+    const token = sessionData?.session?.access_token || API_CONFIG.SUPABASE_ANON_KEY;
 
     // Set up headers
     const headers: HeadersInit = {

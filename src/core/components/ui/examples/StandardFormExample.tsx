@@ -1,6 +1,6 @@
 import React from "react";
 import { z } from "zod";
-import { useZodForm } from "@/hooks/use-form";
+import { useZodForm } from "@/shared/hooks/use-form";
 import {
   FormInput,
   FormSelect,

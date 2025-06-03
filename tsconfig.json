@@ -12,7 +12,7 @@
       "@shared/*": ["./src/shared/*"],
       "@core/*": ["./src/core/*"],
       "@utils/*": ["./src/shared/utils/*"],
-      "@hooks/*": ["./src/shared/hooks/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@components/*": ["./src/shared/components/*"]
     },
     "noImplicitAny": false,

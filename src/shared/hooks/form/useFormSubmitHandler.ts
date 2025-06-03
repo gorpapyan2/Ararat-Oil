@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UseFormReturn, FieldValues } from "react-hook-form";
-import { useToast } from "@/shared/hooks/ui";
+import { useToast } from "@/core/hooks/use-toast";
 
 /**
  * Options for form submission handler

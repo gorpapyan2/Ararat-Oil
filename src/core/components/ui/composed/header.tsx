@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/core/components/ui/language-switcher";
-import { useIsMobile } from "@/hooks/useResponsive";
+import { useIsMobile } from "@/shared/hooks/useResponsive";
 import { Bell, HelpCircle, Settings } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { Button } from "@/core/components/ui/button";

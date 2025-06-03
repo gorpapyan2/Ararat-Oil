@@ -1,94 +1,140 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+
+// CSS imports - Load in optimal order for performance
+import "./index.css"; // Main CSS first for critical styles
+
+// App component import
 import App from "./App";
-import "./index.css";
 
-// Initialize i18n before app starts
-import "./i18n/i18n";
-
-// Performance measurement
-const startTime = performance.now();
-console.log("Application starting...");
-
-// Improved root element creation
-const getRootElement = () => {
-  let rootElement = document.getElementById("root");
-  if (!rootElement) {
-    console.log("Creating root element");
-    rootElement = document.createElement("div");
-    rootElement.id = "root";
-    document.body.appendChild(rootElement);
-  }
-  return rootElement;
+// Performance optimizations
+// Preload critical resources
+const preloadCriticalResources = () => {
+  // Create link elements for critical CSS preloading
+  const cssPreload = document.createElement('link');
+  cssPreload.rel = 'preload';
+  cssPreload.as = 'style';
+  cssPreload.href = '/src/index.css';
+  document.head.appendChild(cssPreload);
 };
 
-// Global error handler for uncaught errors
-window.addEventListener("error", (event) => {
-  console.error("Global error:", event.error);
-  const errorDisplay = document.createElement("div");
-  errorDisplay.style.position = "fixed";
-  errorDisplay.style.bottom = "0";
-  errorDisplay.style.left = "0";
-  errorDisplay.style.right = "0";
-  errorDisplay.style.padding = "10px";
-  errorDisplay.style.background = "#f8d7da";
-  errorDisplay.style.color = "#721c24";
-  errorDisplay.style.borderTop = "1px solid #f5c6cb";
-  errorDisplay.style.zIndex = "9999";
-  errorDisplay.innerHTML = `<strong>Error:</strong> ${event.error?.message || "Unknown error"}`;
-  document.body.appendChild(errorDisplay);
+// Error boundary for initialization errors
+const AppWithErrorBoundary = () => (
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
-  // Auto-remove after 10 seconds
-  setTimeout(() => {
-    if (document.body.contains(errorDisplay)) {
-      document.body.removeChild(errorDisplay);
+// Initialize the app with proper error handling
+async function initializeApp() {
+  try {
+    // Preload critical resources
+    preloadCriticalResources();
+    
+    // Try to load i18n if available
+    try {
+      await import("./i18n/i18n");
+      console.log("✅ Internationalization loaded successfully");
+    } catch (error) {
+      console.warn("⚠️ i18n not available, continuing without internationalization");
     }
-  }, 10000);
-});
 
-// Enhanced rendering with performance tracking and error handling
-try {
-  const rootElement = getRootElement();
+    // Get root element with validation
+    const rootElement = document.getElementById("root");
+    if (!rootElement) {
+      throw new Error("Root element not found");
+    }
+
+    // Create React root and render
+    const root = ReactDOM.createRoot(rootElement);
+    
+    // Render with performance optimizations
+    root.render(<AppWithErrorBoundary />);
+    
+    // Log successful initialization
+    console.log("🚀 Ararat Oil Management System initialized successfully");
+    
+  } catch (error) {
+    console.error("❌ Failed to initialize application:", error);
+    renderErrorFallback(error);
+  }
+}
+
+// Error fallback rendering
+function renderErrorFallback(error: any) {
+  const rootElement = document.getElementById("root");
+  if (!rootElement) return;
+
   const root = ReactDOM.createRoot(rootElement);
-
-  // Use a simpler structure with React.StrictMode for development
+  
   root.render(
     <React.StrictMode>
-      <App />
+      <div className="min-h-screen flex-center bg-background">
+        <div className="card max-w-md w-full">
+          <div className="card-header text-center">
+            <div className="text-destructive text-6xl mb-4">⚠️</div>
+            <h1 className="text-2xl font-bold text-card-foreground mb-4">
+              Initialization Error
+            </h1>
+          </div>
+          <div className="card-content space-y-4">
+            <p className="text-muted-foreground text-center">
+              The Ararat Oil Management System failed to initialize properly.
+            </p>
+            <details className="text-left">
+              <summary className="cursor-pointer text-sm text-muted-foreground mb-2">
+                Error Details (click to expand)
+              </summary>
+              <div className="bg-muted p-4 rounded-md text-xs font-mono">
+                <pre className="whitespace-pre-wrap overflow-x-auto">
+                  {error?.stack || error?.message || "Unknown error"}
+                </pre>
+              </div>
+            </details>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => window.location.reload()} 
+                className="btn btn-primary flex-1"
+              >
+                Reload Application
+              </button>
+              <button 
+                onClick={() => window.location.href = "/"} 
+                className="btn btn-secondary flex-1"
+              >
+                Go Home
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </React.StrictMode>
   );
-
-  // Performance logging
-  const renderTime = performance.now() - startTime;
-  console.log(`Initial render completed in ${renderTime.toFixed(2)}ms`);
-
-  // Check if we actually have content rendered
-  setTimeout(() => {
-    const appContent = rootElement.innerHTML;
-    if (appContent.trim().length < 50) {
-      // A simple heuristic for "empty" app
-      console.warn(
-        "Application may not have rendered properly - content seems minimal"
-      );
-    }
-  }, 2000);
-} catch (error) {
-  console.error("Fatal error during render:", error);
-
-  // Fallback UI for catastrophic errors
-  const rootElement = getRootElement();
-  rootElement.innerHTML = `
-    <div style="padding: 20px; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
-      <h2 style="color: #721c24;">Application Failed to Start</h2>
-      <p>There was a critical error initializing the application.</p>
-      <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 15px 0; overflow: auto;">
-        <strong>Error details:</strong>
-        <pre style="margin: 10px 0 0">${error instanceof Error ? error.message : String(error)}</pre>
-      </div>
-      <p>Try refreshing the page or contact support if the problem persists.</p>
-      <button onclick="window.location.reload()" style="padding: 8px 16px; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
-        Refresh Page
-      </button>
-    </div>
-  `;
 }
+
+// Performance monitoring
+if (typeof window !== 'undefined') {
+  // Monitor Core Web Vitals
+  const observePerformance = () => {
+    try {
+      // First Contentful Paint
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          console.log(`🎯 ${entry.name}: ${entry.startTime}ms`);
+        }
+      }).observe({ entryTypes: ['paint'] });
+    } catch (error) {
+      console.warn("Performance monitoring not supported");
+    }
+  };
+  
+  // Initialize performance monitoring
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observePerformance);
+  } else {
+    observePerformance();
+  }
+}
+
+// Start the application
+initializeApp();

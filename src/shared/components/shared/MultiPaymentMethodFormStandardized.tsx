@@ -14,7 +14,7 @@ import {
 import { CurrencyInput } from "@/core/components/ui/currency-input";
 import { Plus, X, AlertTriangle, Info, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { useZodForm, useFormSubmitHandler } from "@/shared/hooks/use-form";
 import { formatCurrency } from "@/shared/utils";
 import { FormProvider } from "react-hook-form";
 import { Alert, AlertDescription } from "@/core/components/ui/alert";

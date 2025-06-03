@@ -1,28 +1,30 @@
-// Dialog hooks
-export {
-  useDialog,
-  useConfirmDialog,
-  useAlertDialog,
-  useMultiStepDialog,
-  useConfirmationDialog,
-  useLoginDialog,
-} from "./useDialog";
+// Central hooks export file - Clean and simple
 
-// Entity-specific dialog hooks
-export { useEmployeeDialog } from "./useEmployeeDialog";
-export { useSalesDialog } from "./useSalesDialog";
-export { useTankDialog } from "./useTankDialog";
-export { useProfileDialog } from "./useProfileDialog";
-
-// Form hooks
-export { useZodForm, useFormSubmitHandler } from "./use-form";
-
-// Toast hooks
-export {
-  useToast,
-  type ToastOptions,
-  type ToastVariant,
-} from "./use-toast";
-
-// Export API hooks
+// Re-export from individual hook files (these files exist and re-export from core/shared)
+export * from "./useAuth";
+export * from "./useToast";
+export * from "./useDialog";
+export * from "./useTransactionCreation";
+export * from "./useConfirmationDialog";
+export * from "./useProfileDialog";
+export * from "./use-keyboard-navigation";
 export * from "./api";
+
+// Direct exports from core hooks for compatibility
+export { useTheme } from "@/core/hooks/useTheme";
+export { useLocalStorage } from "@/core/hooks/useLocalStorage";
+
+// Direct exports from shared hooks
+export { useIsMobile } from "@/shared/hooks/useIsMobile";
+export { useMediaQuery } from "@/shared/hooks/useMediaQuery";
+export { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
+export { useZodForm, useFormSubmitHandler, useZodFormWithSubmit } from "@/shared/hooks/use-form";
+
+// Export types that components might need
+export type ToastVariant = "default" | "success" | "error" | "warning";
+export type ToastOptions = {
+  title?: string;
+  description?: string;
+  variant?: ToastVariant;
+  duration?: number;
+};

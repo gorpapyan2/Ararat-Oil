@@ -1,5 +1,5 @@
 import { LucideIcon } from "lucide-react";
-import { BarChart3, Users, Settings, CreditCard, CalendarClock, Database, Bug } from "lucide-react";
+import { BarChart3, Users, Settings, CreditCard, CalendarClock, Database, Bug, Grid3X3 } from "lucide-react";
 import {
   IconGasStation,
   IconUser,
@@ -12,6 +12,10 @@ import {
   type Icon,
 } from "@/core/components/ui/icons";
 import { useTranslation } from "react-i18next";
+import { featuresConfig } from "@/core/config/features";
+import type { NavItemConfig } from "@/shared/components/sidebar/SidebarNavSection";
+import type { NavigationFeature } from "@/core/types/navigation";
+import type React from "react";
 
 /**
  * Hook that provides navigation configuration for the sidebar
@@ -21,67 +25,51 @@ import { useTranslation } from "react-i18next";
 export const useSidebarNavConfig = () => {
   const { t } = useTranslation();
 
-  // Add sidebar UI translation keys
+  // Ensure some common sidebar translation keys are registered for extraction
   t("sidebar.expandSidebar", "Expand sidebar");
   t("sidebar.collapseSidebar", "Collapse sidebar");
   t("sidebar.collapse", "Collapse");
   t("sidebar.hasSubmenu", "Has submenu");
 
-  return {
-    overview: [
-      { to: "/", icon: BarChart3, label: t("common.dashboard") },
-    ],
-    fuelManagement: [
-      {
-        to: "/fuel-management",
-        icon: IconGasStation,
-        label: t("common.fuelManagement"),
-        children: [
-          {
-            to: "/fuel-management/filling-systems",
-            icon: IconGasStation,
-            label: t("common.fillingSystems"),
-          },
-          {
-            to: "/fuel-management/tanks",
-            icon: IconTank,
-            label: t("common.tanks"),
-          },
-          {
-            to: "/fuel-management/fuel-supplies",
-            icon: IconReceipt,
-            label: t("common.fuelSupplies"),
-          },
-        ],
-      },
-    ],
-    salesFinance: [
-      {
-        to: "/finance",
-        icon: IconCash,
-        label: t("common.finance"),
-        children: [
-          { to: "/finance/sales", icon: BarChart3, label: t("common.sales") },
-          {
-            to: "/finance/shifts",
-            icon: CalendarClock,
-            label: t("common.shifts"),
-          },
-          {
-            to: "/finance/expenses",
-            icon: IconCoin,
-            label: t("common.expenses"),
-          },
-        ],
-      },
-    ],
-    management: [
-      { to: "/employees", icon: Users, label: t("common.employees") },
-      { to: "/syncup", icon: Database, label: t("common.supabaseSync") },
-      { to: "/settings", icon: Settings, label: t("common.settings") },
-    ],
-    development: [{ to: "/debug", icon: Bug, label: t("common.debug") }],
+  // Helper: recursively build NavItemConfig from NavigationFeature
+  const buildNavItem = (feature: NavigationFeature): NavItemConfig => {
+    let iconComponent: React.ElementType;
+
+    if (typeof feature.icon === "string") {
+      // If the icon is a plain string (emoji), fall back to a default icon
+      iconComponent = BarChart3;
+    } else if (feature.icon) {
+      iconComponent = feature.icon as unknown as React.ElementType;
+    } else {
+      iconComponent = BarChart3;
+    }
+
+    return {
+      to: feature.path,
+      icon: iconComponent,
+      label: feature.title,
+      children: feature.children?.map(buildNavItem),
+    };
   };
+
+  // Group features by category while preserving optional priority / alphabetical order
+  const navSections: Record<string, NavItemConfig[]> = {};
+
+  // Sort features by optional priority then title for consistency
+  const sortedFeatures = [...featuresConfig.features].sort((a, b) => {
+    const prioDiff = (a.priority ?? 0) - (b.priority ?? 0);
+    if (prioDiff !== 0) return prioDiff;
+    return a.title.localeCompare(b.title);
+  });
+
+  sortedFeatures.forEach((feature) => {
+    const sectionKey = feature.category;
+    if (!navSections[sectionKey]) navSections[sectionKey] = [];
+    navSections[sectionKey].push(buildNavItem(feature));
+  });
+
+  // Return generated sections – caller (Sidebar) will iterate via Object.entries()
+  return navSections;
 };
 
 export interface NavigationItem {

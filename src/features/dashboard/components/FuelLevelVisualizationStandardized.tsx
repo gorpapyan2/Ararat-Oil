@@ -8,15 +8,28 @@ import {
 import { useTranslation } from "react-i18next";
 import { useDashboard } from "@/features/dashboard/hooks/useDashboard";
 import { Progress } from "@/core/components/ui/primitives/progress";
-import { Badge } from "@/core/components/ui/primitives/badge";
+import { Badge } from "@/core/components/ui/badge";
+
+// Simple fuel type mapping for display purposes
+const getFuelTypeName = (fuelTypeId: string): string => {
+  const fuelTypeMap: Record<string, string> = {
+    'gasoline-95': 'Gasoline 95',
+    'gasoline-98': 'Gasoline 98',
+    'diesel': 'Diesel',
+    'premium': 'Premium',
+  };
+  return fuelTypeMap[fuelTypeId] || `Fuel Type ${fuelTypeId.slice(0, 8)}...`;
+};
 
 export function FuelLevelVisualizationStandardized() {
   const { t } = useTranslation();
-  const { tankLevels, isLoadingTankLevels } = useDashboard();
+  const { data: dashboardData, isLoading: isLoadingTankLevels } = useDashboard();
 
   if (isLoadingTankLevels) {
     return <div>{t("common.loading")}</div>;
   }
+
+  const tankLevels = dashboardData?.tanks || [];
 
   return (
     <Card>
@@ -24,9 +37,9 @@ export function FuelLevelVisualizationStandardized() {
         <CardTitle>{t("dashboard.fuelLevels")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {tankLevels?.map((tank) => {
+        {tankLevels.map((tank) => {
           // Calculate percentage for the progress bar
-          const percentage = (tank.current_volume / tank.capacity) * 100;
+          const percentage = (tank.current_level / tank.capacity) * 100;
           // Determine status based on percentage
           let status: "low" | "medium" | "high" = "medium";
           let statusColor = "";
@@ -43,14 +56,14 @@ export function FuelLevelVisualizationStandardized() {
             <div key={tank.id} className="space-y-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">{tank.fuel_type}</p>
+                  <p className="font-medium">{getFuelTypeName(tank.fuel_type_id)}</p>
                   <p className="text-sm text-muted-foreground">
-                    {t("tanks.tankNumber", { number: tank.tank_number })}
+                    {tank.name}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-medium">
-                    {tank.current_volume.toLocaleString()} L
+                    {tank.current_level.toLocaleString()} L
                     <span className="text-sm text-muted-foreground">
                       {" "}
                       / {tank.capacity.toLocaleString()} L
@@ -83,7 +96,7 @@ export function FuelLevelVisualizationStandardized() {
           );
         })}
 
-        {tankLevels?.length === 0 && (
+        {tankLevels.length === 0 && (
           <div className="text-center py-4">
             <p className="text-muted-foreground">
               {t("dashboard.noTanksAvailable")}

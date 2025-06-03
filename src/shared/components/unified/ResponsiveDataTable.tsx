@@ -3,7 +3,7 @@ import {
   StandardizedDataTable,
   type StandardizedDataTableProps,
 } from "./StandardizedDataTable";
-import { useIsMobile, useIsTablet } from "@/hooks/useResponsive";
+import { useIsMobile, useIsTablet } from "@/shared/hooks/useResponsive";
 import { ChevronRight, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 import {
@@ -80,12 +80,14 @@ function MobileDataView<TData extends object>({
   };
 
   // Get a display value for the column
-  const getColumnValue = (row: TData, column: (typeof columns)[0]) => {
-    const value = (row as Record<string, unknown>)[column.accessorKey];
+  const getColumnValue = (row: TData, column: (typeof columns)[0]): React.ReactNode => {
+    const value = (row as Record<string, unknown>)[
+      column.accessorKey as string
+    ];
     if (column.cell) {
       return column.cell(value, row);
     }
-    return value;
+    return value as React.ReactNode;
   };
 
   // Determine primary and secondary columns for the card view
@@ -280,7 +282,7 @@ function TabletDataView<TData extends object>(
 
     return (
       <Drawer open={isFiltersDrawerOpen} onOpenChange={setIsFiltersDrawerOpen}>
-        <DrawerTrigger as Child>
+        <DrawerTrigger>
           <Button
             variant="outline"
             size="sm"

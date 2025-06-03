@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Shift, ShiftPaymentMethod, PaymentMethod } from "@/types";
 import { shiftsApi } from "@/core/api";
 import { useAuth } from "@/features/auth";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/core/hooks/use-toast";
 import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
 
 export function useShift() {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMediaQuery } from "@/hooks/useResponsive";
+import { useMediaQuery } from "@/shared/hooks/useResponsive";
 import {
   Card,
   CardContent,

@@ -10,7 +10,7 @@ import {
   FieldValues,
   ControllerRenderProps,
 } from "react-hook-form";
-import { cn } from "@/utils/cn";
+import { cn } from "@/shared/utils/cn";
 import { Calendar } from "@/core/components/ui/primitives/calendar";
 import { format } from "date-fns";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";

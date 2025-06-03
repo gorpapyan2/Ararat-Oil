@@ -3,7 +3,7 @@ import {
   StandardDatePicker,
   DateRange as StandardDateRange,
 } from "@/shared/components/common/datepicker";
-import { cn } from "@/utils/cn";
+import { cn } from "@/shared/utils/cn";
 
 /**
  * DateRange type for from/to date selection

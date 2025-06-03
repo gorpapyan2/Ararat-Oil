@@ -6,7 +6,7 @@ import { cn } from "@/shared/utils";
 import { Button } from "@/core/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { SkipToContent } from "@/core/components/ui/skip-to-content";
-import { useIsMobile } from "@/hooks/useResponsive";
+import { useIsMobile } from "@/hooks";
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -18,14 +18,19 @@ export function MainLayout({ children }: MainLayoutProps) {
   const isMobile = useIsMobile();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    const savedState = localStorage.getItem("sidebarCollapsed");
-    return savedState ? JSON.parse(savedState) : false;
+    if (typeof window !== 'undefined') {
+      const savedState = localStorage.getItem("sidebarCollapsed");
+      return savedState ? JSON.parse(savedState) : false;
+    }
+    return false;
   });
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("sidebarCollapsed", JSON.stringify(sidebarCollapsed));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("sidebarCollapsed", JSON.stringify(sidebarCollapsed));
+    }
   }, [sidebarCollapsed]);
 
   const toggleSidebarCollapse = () => {
@@ -46,7 +51,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   // Use a different layout for the auth page
   if (isAuthPage) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
         <main
           id="main-content"
           className="flex min-h-screen flex-col items-center justify-center"
@@ -59,11 +64,8 @@ export function MainLayout({ children }: MainLayoutProps) {
     );
   }
 
-  // Calculate sidebar width for main content margin
-  const sidebarWidth = sidebarCollapsed ? 70 : 240;
-
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       <SkipToContent />
 
       <Sidebar
@@ -79,54 +81,57 @@ export function MainLayout({ children }: MainLayoutProps) {
         <Button
           onClick={toggleMobileSidebar}
           className={cn(
-            "fixed top-4 left-4 z-50 md:hidden",
+            "fixed top-4 left-4 z-40 md:hidden",
             "flex items-center justify-center",
-            "h-10 w-10 rounded-full",
-            "bg-primary text-primary-foreground",
-            "shadow-lg shadow-primary/20",
-            "border-2 border-primary-foreground/10",
+            "h-12 w-12 rounded-xl",
+            "bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg",
+            "text-slate-700 dark:text-slate-300",
+            "shadow-lg shadow-slate-900/10 dark:shadow-black/20",
+            "border border-slate-200/60 dark:border-slate-700/60",
             "transition-all duration-200 ease-in-out",
-            "hover:bg-primary/90 hover:scale-105",
-            "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background",
-            mobileSidebarOpen && "bg-gray-50 text-foreground rotate-90"
+            "hover:bg-white dark:hover:bg-slate-800 hover:scale-105",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+            mobileSidebarOpen && "rotate-90 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
           )}
           aria-label={mobileSidebarOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileSidebarOpen}
           aria-controls="sidebar"
           size="icon"
-          variant="outline"
+          variant="ghost"
         >
           {mobileSidebarOpen ? (
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
           ) : (
-            <Menu className="h-5 w-5" />
+            <Menu className="h-6 w-6" />
           )}
         </Button>
       )}
 
-      {/* Overlay for mobile sidebar */}
-      {isMobile && mobileSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50  z-40"
-          aria-hidden="true"
-          onClick={() => setMobileSidebarOpen(false)}
-        />
-      )}
-
-      {/* Main content area - updated to remove header padding */}
+      {/* Main content area */}
       <main
         id="main-content"
-        className="min-h-screen overflow-auto transition-all duration-300"
-        style={{
-          marginLeft: !isMobile ? `${sidebarWidth}px` : "0px",
-        }}
-        role="main"
+        className={cn(
+          "min-h-screen transition-all duration-300 ease-in-out"
+        )}
+        // Use CSS variable injected by Sidebar for consistent spacing
+        style={{ marginLeft: isMobile ? 0 : "var(--sidebar-width, 72px)" }}
         tabIndex={-1}
       >
-        <div className="container mx-auto py-6 px-4 md:px-6">{children}</div>
+        {/* Content wrapper with proper centering and responsive padding */}
+        <div className={cn(
+          "w-full min-h-screen",
+          "p-4 sm:p-6 lg:p-8",
+          // Ensure content doesn't get too wide on large screens
+          "max-w-none"
+        )}>
+          {/* Inner content container for proper centering */}
+          <div className="w-full h-full">
+            {children}
+          </div>
+        </div>
       </main>
 
       <Toaster />
-    </>
+    </div>
   );
 }

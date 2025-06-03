@@ -10,6 +10,7 @@ export { MetricsCardsStandardized } from "./components/MetricsCardsStandardized"
 export { SalesSummaryWidgetStandardized } from "./components/SalesSummaryWidgetStandardized";
 export { FinanceDashboard } from "./components/FinanceDashboard";
 export { FuelManagementDashboard } from "./components/FuelManagementDashboard";
+export { FuelManagementDashboardPro } from "./components/FuelManagementDashboardPro";
 export { SalesDashboard } from "./components/SalesDashboard";
 
 // Types

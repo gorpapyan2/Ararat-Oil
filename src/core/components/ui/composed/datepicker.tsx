@@ -1,6 +1,6 @@
 import * as React from "react";
 import { StandardDatePicker } from "@/shared/components/common/datepicker";
-import { cn } from "@/utils/cn";
+import { cn } from "@/shared/utils/cn";
 
 /**
  * DatePicker component props

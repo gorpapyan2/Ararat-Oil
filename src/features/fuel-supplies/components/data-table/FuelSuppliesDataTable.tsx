@@ -4,7 +4,7 @@ import {
   StandardizedDataTableColumn,
 } from "@/shared/components/unified/StandardizedDataTable";
 import { Card, CardContent } from "@/core/components/ui/card";
-import { Badge } from "@/core/components/ui/badge";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { Button } from "@/core/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -31,7 +31,7 @@ import {
 import { FuelSupply } from "@/types";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { useMediaQuery } from "@/hooks/useResponsive";
+import { useMediaQuery } from "@/shared/hooks/useResponsive";
 import {
   TooltipProvider,
   Tooltip,

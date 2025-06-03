@@ -10,15 +10,15 @@
  */
 export const API_CONFIG = {
   // Base URLs
-  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || "https://vfywgrsymuvojbbfodri.supabase.co",
+  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || "https://qnghvjeunmicykrzpeog.supabase.co",
   FUNCTIONS_URL:
     import.meta.env.VITE_SUPABASE_FUNCTIONS_URL ||
-    "https://vfywgrsymuvojbbfodri.supabase.co/functions/v1",
+    "https://qnghvjeunmicykrzpeog.supabase.co/functions/v1",
 
   // Authentication
   SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || "",
   PROJECT_ID:
-    import.meta.env.VITE_SUPABASE_PROJECT_ID || "vfywgrsymuvojbbfodri",
+    import.meta.env.VITE_SUPABASE_PROJECT_ID || "qnghvjeunmicykrzpeog",
 
   // Timeouts (in milliseconds)
   TIMEOUT: 30000, // 30 seconds

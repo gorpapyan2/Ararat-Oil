@@ -143,7 +143,10 @@
     "all": "Բոլորը",
     "supabaseSync": "Տվյալների բազայի համաժամացում",
     "fuelPrices": "Վառելիքի գներ",
-    "updateFuelPrices": "Թարմացնել վառելիքի գները"
+    "updateFuelPrices": "Թարմացնել վառելիքի գները",
+    "mainNavigation": "Հիմնական նավարկություն",
+    "navigateBetweenItems": "Նավարկել տարրերի միջև",
+    "closeMenu": "Փակել ընտրացանկը"
   },
   "auth": {
     "signIn": {
@@ -911,9 +914,35 @@
     "collapseSidebar": "Փակել կողային վահանակը",
     "collapse": "Փակել",
     "hasSubmenu": "Ունի ենթամենյու",
-    "toggleTheme": "Փոխել թեման"
+    "toggleTheme": "Փոխել թեման",
+    "keyboardShortcuts": "Ստեղնաշարի կարճ հրամաններ",
+    "openMenu": "Բացել ընտրացանկը",
+    "expandSection": "Ընդարձակել բաժինը"
   },
   "status": {
     "unknown": "Անհայտ"
+  },
+  "navigation": {
+    "dashboard": "Կառավարման վահանակ",
+    "finance": "Ֆինանսներ", 
+    "financials": "Ֆինանսական տվյալներ",
+    "sales": "Վաճառք",
+    "shifts": "Հերթափոխեր",
+    "expenses": "Ծախսեր",
+    "tanks": "Բաքեր",
+    "fillingSystems": "Լցման համակարգեր",
+    "fuelSupplies": "Վառելիքի մատակարարումներ",
+    "providers": "Մատակարարներ",
+    "employees": "Աշխատակիցներ",
+    "settings": "Կարգավորումներ",
+    "reports": "Հաշվետվություններ",
+    "fuelManagement": "Վառելիքի կառավարում",
+    "overview": "Ակնարկ",
+    "operations": "Գործառնություններ",
+    "salesFinance": "Վաճառք և ֆինանսներ",
+    "management": "Կառավարում",
+    "development": "Ծրագրավորում",
+    "debug": "Կարգաբերում"
   }
 }
+

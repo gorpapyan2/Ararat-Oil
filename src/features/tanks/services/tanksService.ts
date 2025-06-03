@@ -8,8 +8,6 @@ import type {
   TankSummary,
 } from "../types/tanks.types";
 
-const EDGE_FUNCTION_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/tanks`;
-
 export const tanksService = {
   async getTanks() {
     try {

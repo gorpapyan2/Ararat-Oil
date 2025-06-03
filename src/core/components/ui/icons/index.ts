@@ -5,6 +5,9 @@
 export {
   IconSettings,
   IconUser,
+  IconUsers,
+  IconUserPlus,
+  IconUserCircle,
   IconMoon,
   IconSun,
   IconPlus,
@@ -17,6 +20,7 @@ export {
   IconChevronRight,
   IconChevronUp,
   IconChevronDown,
+  IconArrowLeft,
   IconSearch,
   IconFilter,
   IconSend,
@@ -37,6 +41,7 @@ export {
   IconPalette,
   IconDeviceLaptop,
   IconLogout,
+  IconCamera,
 } from "@tabler/icons-react";
 
 // Business Domain Icons
@@ -44,8 +49,10 @@ export {
   IconGasStation,
   IconTank,
   IconTruck,
+  IconBuildingFactory,
   IconCash,
   IconCoin,
+  IconCurrencyDollar,
   IconReceipt,
   IconReport,
   IconChartLine,

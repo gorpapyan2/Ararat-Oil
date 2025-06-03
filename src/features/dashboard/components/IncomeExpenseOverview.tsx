@@ -32,7 +32,7 @@ import {
   Info,
   PieChart,
 } from "lucide-react";
-import { useMediaQuery } from "@/hooks/useResponsive";
+import { useMediaQuery } from "@/shared/hooks/useResponsive";
 import { formatCurrency } from "@/shared/utils";
 import { cn } from "@/shared/utils";
 import {

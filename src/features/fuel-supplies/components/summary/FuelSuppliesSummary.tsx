@@ -42,7 +42,7 @@ import {
 import { cn } from "@/shared/utils";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/core/components/ui/badge";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/core/components/ui/tabs";
 import { Button } from "@/core/components/ui/button";
 import {

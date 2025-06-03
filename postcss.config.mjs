@@ -1,8 +1,7 @@
-// Simple PostCSS configuration
+// Minimal PostCSS configuration for Tailwind CSS v4
 export default {
   plugins: {
-    'postcss-import': {},
     '@tailwindcss/postcss': {},
-    autoprefixer: {}
-  }
+    'autoprefixer': {},
+  },
 };

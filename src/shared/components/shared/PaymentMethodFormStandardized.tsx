@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { PaymentMethod } from "@/types";
 import { Button } from "@/core/components/ui/button";
 import {
   Card,
@@ -13,9 +12,8 @@ import { formatCurrency } from "@/shared/utils";
 import {
   FormInput,
   FormSelect,
-  FormTextarea,
 } from "@/core/components/ui/composed/form-fields";
-import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { useZodForm, useFormSubmitHandler } from "@/shared/hooks/use-form";
 
 const paymentSchema = z.object({
   payment_method: z.enum(
@@ -133,7 +131,6 @@ export function PaymentMethodFormStandardized({
             label="Notes (Optional)"
             form={form}
             placeholder="Additional payment notes"
-            autoComplete="off"
           />
 
           <Separator className="my-4" />

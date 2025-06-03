@@ -4,7 +4,7 @@ import { cn } from "@/shared/utils";
 import { Button } from "@/core/components/ui/button";
 import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import { SkipToContent } from "@/core/components/ui/skip-to-content";
-import { useIsMobile } from "@/hooks/useResponsive";
+import { useIsMobile } from "@/shared/hooks/useResponsive";
 import { useAuth } from "@/features/auth";
 import { Toaster } from "@/core/components/ui/toast";
 import {
@@ -28,139 +28,143 @@ interface NavigationItem {
   children?: NavigationItem[];
 }
 
-type AdminShellProps = {
+interface AdminShellProps {
   children: React.ReactNode;
-};
+}
 
 export function AdminShell({ children }: AdminShellProps) {
   const { t } = useTranslation();
-  const { pathname } = useLocation();
-  const isAuthPage = pathname === APP_ROUTES.AUTH.path;
-  const isMobile = useIsMobile();
   const { user, logout } = useAuth();
-  const navConfig = useSidebarNavConfig();
+  const location = useLocation();
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate(APP_ROUTES.AUTH.path);
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
-  // Mobile sidebar state
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-  // Sidebar state - get initial state from localStorage
+  const isMobile = useIsMobile();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    const savedState = localStorage.getItem("sidebarCollapsed");
-    return savedState ? JSON.parse(savedState) : false;
+    const saved = localStorage.getItem("adminShellSidebarCollapsed");
+    return saved ? JSON.parse(saved) : false;
   });
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Save sidebar state to localStorage
-  useEffect(() => {
-    localStorage.setItem("sidebarCollapsed", JSON.stringify(sidebarCollapsed));
-  }, [sidebarCollapsed]);
+  const navConfig = useSidebarNavConfig();
 
-  // Close mobile sidebar when route changes
+  // Check if current route is an auth page
+  const isAuthPage = [
+    APP_ROUTES.AUTH.path,
+  ].includes(location.pathname);
+
   useEffect(() => {
-    if (isMobile && isMobileSidebarOpen) {
-      setIsMobileSidebarOpen(false);
+    localStorage.setItem("adminShellSidebarCollapsed", JSON.stringify(sidebarCollapsed));
+    // Hide sidebar on auth pages
+    if (isAuthPage) {
+      setSidebarCollapsed(true);
     }
-  }, [pathname, isMobile, isMobileSidebarOpen]);
+  }, [sidebarCollapsed, isAuthPage]);
+
+  // Keep CSS variable in sync so other layouts can use consistent spacing
+  useEffect(() => {
+    const width = isMobile ? 0 : sidebarCollapsed ? 70 : 240;
+    document.documentElement.style.setProperty("--sidebar-width", `${width}px`);
+  }, [sidebarCollapsed, isMobile]);
 
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  const isActive = (path: string) => pathname === path;
-  const isActiveChild = (path: string) => pathname.startsWith(path);
+  const toggleMobileSidebar = () => {
+    setMobileSidebarOpen(!mobileSidebarOpen);
+  };
 
-  // Simplified sidebar content rendering function
+  const handleSignOut = async () => {
+    await logout();
+    navigate(APP_ROUTES.AUTH.path);
+  };
+
+  const isActive = (path: string, exact = false) => {
+    if (exact) {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
+
   const renderSidebarContent = () => (
-    <div className="flex h-full w-full flex-col overflow-hidden">
-      {/* Sidebar header */}
-      <div className="flex h-14 items-center border-b px-4">
-        <div
-          className={cn(
-            "flex items-center transition-all duration-300",
-            sidebarCollapsed ? "justify-center w-full" : "gap-2"
-          )}
-        >
-          {!sidebarCollapsed && (
-            <span className="font-heading font-bold text-xl">Ararat Oil</span>
-          )}
-          {sidebarCollapsed && (
-            <span className="font-heading font-bold text-accent text-lg">
-              AO
-            </span>
-          )}
-        </div>
+    <div className="h-full flex flex-col bg-gray-900/95 backdrop-blur-xl border-r border-gray-800/50">
+      {/* Logo section */}
+      <div className={cn(
+        "border-b border-gray-800/50 px-4 py-6 bg-gradient-to-r from-gray-900 to-gray-800",
+        sidebarCollapsed ? "text-center" : ""
+      )}>
+        {sidebarCollapsed ? (
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto shadow-lg">
+            <span className="text-white font-bold text-sm">AO</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-sm">AO</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white">Ararat Oil</h1>
+              <p className="text-xs text-gray-400">Management System</p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Simplified sidebar navigation */}
-      <div className="flex-1 overflow-auto">
-        <nav className="flex flex-col gap-4 p-4">
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto py-4">
+        <nav className="space-y-1 px-3">
           {Object.entries(navConfig).map(([section, items]) => (
             <div key={section} className="flex flex-col gap-1">
+              {/* Section header */}
               {!sidebarCollapsed && (
-                <h3 className="px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <h3 className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   {t(`common.${section}`)}
                 </h3>
               )}
-              <div className="flex flex-col gap-1">
-                {items.map((item: NavigationItem) => {
-                  const isItemActive = item.children
-                    ? isActiveChild(item.to)
-                    : isActive(item.to);
 
-                  // Common styling for the nav item
-                  const navItemClasses = cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
-                    "hover:bg-primary/10",
-                    isItemActive
-                      ? "bg-primary/15 text-primary font-medium"
-                      : "text-foreground/80 hover:text-foreground"
-                  );
+              {/* Navigation items */}
+              {items.map((item: NavigationItem) => {
+                const isItemActive = item.children
+                  ? item.children.some((child) => isActive(child.to))
+                  : isActive(item.to, true);
 
-                  // Render the icon
-                  const IconComponent = item.icon;
-                  const renderedIcon = IconComponent ? (
-                    <div
-                      className={cn(
-                        "flex items-center justify-center min-w-[24px]",
-                        isItemActive && "text-primary"
-                      )}
-                    >
-                      <IconComponent size={20} />
-                    </div>
-                  ) : null;
+                const IconComponent = item.icon;
+                const renderedIcon = React.isValidElement(IconComponent) ? (
+                  IconComponent
+                ) : (
+                  <IconComponent className="h-5 w-5 flex-shrink-0" />
+                );
 
-                  return (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      className={navItemClasses}
-                      aria-current={isItemActive ? "page" : undefined}
-                    >
-                      {renderedIcon}
-                      {!sidebarCollapsed && <span>{item.label}</span>}
-                      {sidebarCollapsed && (
-                        <span className="sr-only">{item.label}</span>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
+                const navItemClasses = cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                  "hover:bg-gray-800/50 hover:shadow-lg hover:shadow-gray-900/20",
+                  isItemActive
+                    ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-400 border border-blue-500/30 shadow-md shadow-blue-500/10"
+                    : "text-gray-300 hover:text-white",
+                  sidebarCollapsed && "justify-center px-2"
+                );
+
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={navItemClasses}
+                    aria-current={isItemActive ? "page" : undefined}
+                  >
+                    {renderedIcon}
+                    {!sidebarCollapsed && <span>{item.label}</span>}
+                    {sidebarCollapsed && (
+                      <span className="sr-only">{item.label}</span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           ))}
         </nav>
       </div>
 
-      {/* Simplified footer */}
-      <div className="border-t p-4 space-y-4">
+      {/* Footer */}
+      <div className="border-t border-gray-800/50 p-4 space-y-4 bg-gray-900/50">
         {/* Theme switcher */}
         <div
           className={cn(
@@ -169,7 +173,7 @@ export function AdminShell({ children }: AdminShellProps) {
           )}
         >
           {!sidebarCollapsed && (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-gray-400">
               {t("common.theme")}
             </span>
           )}
@@ -181,7 +185,7 @@ export function AdminShell({ children }: AdminShellProps) {
           variant="outline"
           size="sm"
           onClick={toggleSidebarCollapse}
-          className="w-full justify-center"
+          className="w-full justify-center bg-gray-800/50 border-gray-700/50 text-gray-300 hover:bg-gray-700/50 hover:text-white"
         >
           {sidebarCollapsed ? (
             <ChevronRight className="h-4 w-4" />
@@ -195,68 +199,65 @@ export function AdminShell({ children }: AdminShellProps) {
 
         {/* Sign out button */}
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          onClick={handleLogout}
+          onClick={handleSignOut}
           className={cn(
-            "w-full",
-            sidebarCollapsed ? "justify-center" : "justify-start",
-            "text-muted-foreground"
+            "w-full bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50",
+            sidebarCollapsed ? "px-2" : "justify-start"
           )}
         >
-          <IconLogout className={cn("h-4 w-4", !sidebarCollapsed && "mr-2")} />
-          {!sidebarCollapsed && <span>{t("common.signOut")}</span>}
+          <IconLogout className="h-4 w-4" />
+          {!sidebarCollapsed && <span className="ml-2">{t("auth.signOut")}</span>}
         </Button>
       </div>
     </div>
   );
 
-  // Main content with simplified layout
+  // Content with sidebar for authenticated pages
   const contentWithSidebar = (
-    <div className="relative min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
       <SkipToContent />
 
-      {/* Sidebar - desktop version */}
+      {/* Desktop sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-30 hidden h-screen border-r bg-card/50  transition-all md:block md:flex-col",
-          sidebarCollapsed ? "md:w-[70px]" : "md:w-[240px]"
+          "fixed top-0 left-0 z-30 h-screen transition-all duration-300 ease-in-out hidden md:block",
+          sidebarCollapsed ? "w-[70px]" : "w-[240px]"
         )}
       >
         {renderSidebarContent()}
       </aside>
 
-      {/* Mobile sidebar - sheet component */}
-      <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+      {/* Mobile sidebar */}
+      <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
         <SheetTrigger asChild>
           <Button
             variant="outline"
             size="icon"
-            className={cn("fixed left-4 top-3 z-40 md:hidden")}
+            className="fixed top-4 left-4 z-40 md:hidden bg-gray-800/50 border-gray-700/50 text-gray-300 hover:bg-gray-700/50"
           >
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle Menu</span>
+            <Menu className="h-4 w-4" />
+            <span className="sr-only">{t("sidebar.openMenu")}</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0">
+        <SheetContent side="left" className="w-[240px] p-0 bg-gray-900 border-gray-800">
           {renderSidebarContent()}
         </SheetContent>
       </Sheet>
 
-      {/* Main content */}
       <main
         id="main-content"
         className={cn(
-          "flex min-h-screen flex-col bg-gray-50 transition-all",
-          sidebarCollapsed ? "md:pl-[70px]" : "md:pl-[240px]"
+          "flex min-h-screen flex-col bg-transparent transition-all duration-300"
         )}
+        style={{ paddingLeft: isMobile ? 0 : "var(--sidebar-width, 72px)" }}
         tabIndex={-1}
       >
         {/* Header */}
-        <header className="sticky top-0 z-20 flex h-14 items-center border-b bg-gray-50/95  px-4 shadow-sm">
+        <header className="sticky top-0 z-20 flex h-16 items-center border-b border-gray-800/50 bg-gray-900/80 backdrop-blur-xl px-4 shadow-lg">
           <div className="flex-1 overflow-hidden flex items-center">
-            {/* Page title placeholder */}
-            <h1 className="text-xl font-bold truncate">
+            <h1 className="text-xl font-bold text-white truncate">
               {t("common.appName")}
             </h1>
           </div>
@@ -265,14 +266,14 @@ export function AdminShell({ children }: AdminShellProps) {
             {/* Add DevMenu */}
             <DevMenu />
 
-            {/* User profile button placeholder */}
+            {/* User profile button */}
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full hover:bg-primary/10 transition-colors"
+              className="rounded-full hover:bg-gray-800/50 transition-colors"
             >
-              <span className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium">
-                AO
+              <span className="size-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-medium text-sm shadow-lg">
+                {user?.email?.charAt(0).toUpperCase() || "AO"}
               </span>
             </Button>
           </div>
@@ -289,7 +290,7 @@ export function AdminShell({ children }: AdminShellProps) {
   // Use different layouts for auth and main pages
   if (isAuthPage) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
         <main
           id="main-content"
           className="flex min-h-screen flex-col items-center justify-center p-4 md:p-8"

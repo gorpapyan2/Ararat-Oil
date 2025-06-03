@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { IconUsers, IconUserPlus } from "@tabler/icons-react";
+import { IconUsers, IconUserPlus } from "@/core/components/ui/icons";
 
 // Import our custom UI components
 import { PageHeader } from "@/core/components/ui/page-header";
@@ -28,7 +28,7 @@ import {
 import { Employee } from "@/types";
 import { EmployeeDialogStandardized } from "@/features/employees/components/EmployeeDialogStandardized";
 import { useToast } from "@/hooks";
-import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
 import {
   apiNamespaces,
   getApiErrorMessage,
@@ -205,7 +205,6 @@ export function EmployeesPage() {
       {
         name: t("navigation.employees"),
         href: "/employees",
-        icon: <IconUsers className="h-4 w-4" />,
         isCurrent: true,
       },
     ],
@@ -272,47 +271,93 @@ export function EmployeesPage() {
   }, [selectedEmployee]);
 
   return (
-    <div className="container py-6 max-w-7xl mx-auto">
-      <div className="my-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Header Section with Create Button */}
         <PageHeader
           title={t("employees.title", "Employees")}
-          description={t(
-            "employees.description",
-            "Manage employee information and records"
-          )}
-        >
-          <CreateButton
-            onClick={handleOpenCreateDialog}
-            icon={<IconUserPlus className="h-4 w-4" />}
-            label={getApiActionLabel(apiNamespaces.employees, "create")}
-          />
-        </PageHeader>
+          actions={
+            <CreateButton onClick={handleOpenCreateDialog} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <IconUserPlus className="mr-2 h-4 w-4" />
+              {t("employees.addEmployee", "Add Employee")}
+            </CreateButton>
+          }
+          className="text-white"
+        />
+
+        {/* Summary Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">Total Employees</CardTitle>
+              <IconUsers className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{employees.length}</div>
+              <p className="text-xs text-gray-400">
+                {employees.filter((emp) => emp.status === "active").length} active
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">Active</CardTitle>
+              <div className="h-4 w-4 rounded-full bg-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">
+                {employees.filter((emp) => emp.status === "active").length}
+              </div>
+              <p className="text-xs text-gray-400">
+                {employees.filter((emp) => emp.status === "active").length > 0
+                  ? Math.round(
+                      (employees.filter((emp) => emp.status === "active").length / employees.length) * 100
+                    )
+                  : 0}
+                % of total
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-400">
+                Average Salary
+              </CardTitle>
+              <IconUsers className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">
+                AMD {employees.reduce((total, emp) => total + emp.salary, 0).toLocaleString()}
+              </div>
+              <p className="text-xs text-gray-400">
+                Total: AMD {employees.reduce((total, emp) => total + emp.salary, 0).toLocaleString()}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Data Table */}
+        <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
+          <CardContent className="p-0">
+            <EmployeesTableStandardized
+              employees={employees}
+              isLoading={isLoading}
+              onEdit={handleEditEmployee}
+              onDelete={handleDeleteEmployee}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Employee Dialog for Create/Edit */}
+        <EmployeeDialogStandardized
+          open={isDialogOpen}
+          onClose={handleCloseDialog}
+          onSubmit={selectedEmployee ? handleUpdateEmployee : handleCreateEmployee}
+          employee={selectedEmployeeForDialog}
+        />
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconUsers className="h-5 w-5" />
-            {t("employees.list.title", "Employee List")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EmployeesTableStandardized
-            employees={employees}
-            isLoading={isLoading}
-            onEdit={handleEditEmployee}
-            onDelete={handleDeleteEmployee}
-          />
-        </CardContent>
-      </Card>
-
-      <EmployeeDialogStandardized
-        open={isDialogOpen}
-        onOpenChange={handleCloseDialog}
-        onSubmit={selectedEmployee ? handleUpdateEmployee : handleCreateEmployee}
-        employee={selectedEmployeeForDialog}
-        isLoading={createMutation.isPending || updateMutation.isPending}
-      />
     </div>
   );
 } 

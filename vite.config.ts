@@ -1,216 +1,240 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import tailwindcss from "@tailwindcss/vite";
-import path from "path";
-import { componentTagger } from "lovable-tagger";
-import { visualizer } from "rollup-plugin-visualizer";
-import fs from 'fs';
-import dotenv from 'dotenv';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
-// Load environment variables from .env file if exists
-const envFile = fs.existsSync('.env') ? '.env' : '.env.local';
-if (fs.existsSync(envFile)) {
-  dotenv.config({ path: envFile });
-}
-
-// Get port from environment or use a fallback
-function getServerPort() {
-  const envPort = process.env.VITE_PORT || process.env.PORT;
-  if (envPort) {
-    return parseInt(envPort, 10);
-  }
+export default defineConfig(({ mode }) => {
+  const isProduction = mode === 'production';
   
-  // Default port if not specified in env
-  return 3006;
-}
-
-// Helper to determine the input based on mode
-function getInputForMode(mode: string): string | Record<string, string> {
-  if (mode === 'debug') {
-    return {
-      main: path.resolve(__dirname, 'index.html'),
-      debug: path.resolve(__dirname, 'src/main.debug.tsx')
-    };
-  }
-  if (mode === 'test') {
-    return {
-      main: path.resolve(__dirname, 'index.html'),
-      test: path.resolve(__dirname, 'src/test-main.tsx')
-    };
-  }
-  if (mode === 'minimal') {
-    return {
-      minimal: path.resolve(__dirname, 'index-minimal.html')
-    };
-  }
-  if (mode === 'bridge') {
-    return {
-      main: path.resolve(__dirname, 'index.html'),
-      bridge: path.resolve(__dirname, 'src/bridge-main.tsx')
-    };
-  }
-  // Default case for normal development mode
-  return path.resolve(__dirname, 'index.html');
-}
-
-// https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => ({
-  server: {
-    port: getServerPort(),
-    strictPort: false, // Allow Vite to try other ports if the specified one is in use
-    host: true,
-    watch: {
-      usePolling: true,
+  return {
+    plugins: [
+      react({
+        // Remove problematic babel plugins
+        babel: undefined,
+      }),
+    ],
+    
+    css: {
+      postcss: './postcss.config.mjs',
+      // Enhanced CSS processing
+      cssCodeSplit: true,
+      cssMinify: isProduction,
+      cssTarget: 'chrome87', // Modern browsers
+      devSourcemap: !isProduction,
     },
-    open: true,
-    // Add hmr configuration to prevent blank screen issues
-    hmr: {
-      overlay: true,
-      timeout: 30000,
-    },
-  },
-  // Add base configuration to ensure proper path resolution
-  base: '/',
-  define: {
-    // Add global module definition to avoid 'module is not defined' errors
-    'global': 'globalThis',
-    'process.env': process.env,
-  },
-  css: {
-    // Enable source maps for easier debugging
-    devSourcemap: true,
-    // Add preprocessOptions to ensure proper import ordering
-    preprocessorOptions: {
-      css: {
-        // Ensure @import statements are processed in the correct order
-        charset: false,
-        // Always add imports at the beginning
-        additionalData: '/* Ensure imports first */\n',
+    
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, './src'),
+        '@/components': resolve(__dirname, './src/components'),
+        '@/lib': resolve(__dirname, './src/lib'),
+        '@/hooks': resolve(__dirname, './src/hooks'),
+        '@/utils': resolve(__dirname, './src/utils'),
+        '@/types': resolve(__dirname, './src/types'),
+        '@/assets': resolve(__dirname, './src/assets'),
+        '@/styles': resolve(__dirname, './src/styles'),
+        '@/features': resolve(__dirname, './src/features'),
+        '@/core': resolve(__dirname, './src/core'),
+        '@/shared': resolve(__dirname, './src/shared'),
+        '@/layouts': resolve(__dirname, './src/layouts'),
       },
     },
-  },
-  plugins: [
-    // Use Tailwind CSS v4 Vite plugin
-    tailwindcss(),
-    react({
-      jsxImportSource: 'react',
-    }),
-    command === 'serve' && componentTagger(),
-    mode === 'analyze' && visualizer({
+    
+    server: {
+      port: 3000,
+      host: true,
       open: true,
-      filename: 'dist/stats.html',
-      gzipSize: true,
-      brotliSize: true,
-    }),
-  ].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-    // Add main field for better CommonJS compatibility
-    mainFields: ['browser', 'module', 'main'],
-    // Force ESM modules for problematic packages
-    dedupe: ['react', 'react-dom'],
-    // Ensure .tsx files are properly handled
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
-  },
-  optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react/jsx-runtime',
-      'react/jsx-dev-runtime',
-      '@tanstack/react-query',
-      '@tanstack/react-query-devtools',
-      'lucide-react',
-      '@radix-ui/react-icons',
-      '@radix-ui/react-slot',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-navigation-menu',
-      '@radix-ui/react-popover',
-      '@radix-ui/react-select',
-      '@radix-ui/react-separator',
-      '@radix-ui/react-tabs',
-      '@radix-ui/react-toast',
-      'class-variance-authority',
-      'clsx',
-      'tailwind-merge',
-      'tailwindcss-animate',
-      'recharts'
-    ],
-    exclude: [
-      // Exclude Node.js utility scripts and problematic icon library
-      'src/utils/component-audit.js',
-      '@tabler/icons-react'
-    ],
-    esbuildOptions: {
-      target: 'es2020',
-      format: 'esm',
-      resolveExtensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
-      define: {
-        global: 'window'
+      // Enhanced HMR
+      hmr: {
+        overlay: true,
       },
-      // Add logLevel for better debugging
-      logLevel: 'error',
+      // CORS settings for development
+      cors: true,
     },
-    // Ensure dependencies are properly pre-bundled
-    force: true,
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-    // Improve chunking strategy
-    chunkSizeWarningLimit: 1000,
-    // Configure module preloading for better dynamic imports
-    modulePreload: {
-      polyfill: true,
-    },
-    commonjsOptions: {
-      // Improve handling of CommonJS dependencies
-      transformMixedEsModules: true,
-      include: [/node_modules/],
-      // Prevent errors in specific modules
-      defaultIsModuleExports: true,
-    },
-    rollupOptions: {
-      external: [
-        // Exclude Node.js utility scripts from the bundle
-        /.*component-audit\.js$/
-      ],
-      output: {
-        manualChunks: (id) => {
-          // Handle Tabler Icons specially to prevent chunk splitting
-          if (id.includes('@tabler/icons-react')) {
-            return 'tabler-icons';
-          }
-          
-          // Group other vendor libraries
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
+    
+    build: {
+      outDir: 'dist',
+      sourcemap: !isProduction,
+      minify: isProduction ? 'terser' : false,
+      // Enhanced chunk splitting for better caching
+      rollupOptions: {
+        output: {
+          // Intelligent chunk naming
+          chunkFileNames: (chunkInfo) => {
+            const facadeModuleId = chunkInfo.facadeModuleId 
+              ? chunkInfo.facadeModuleId.split('/').pop() 
+              : 'chunk';
+            return `js/${facadeModuleId}-[hash].js`;
+          },
+          entryFileNames: 'js/[name]-[hash].js',
+          assetFileNames: (assetInfo) => {
+            const info = assetInfo.name?.split('.') || [];
+            const ext = info[info.length - 1];
+            if (/\.(css)$/.test(assetInfo.name || '')) {
+              return 'css/[name]-[hash].[ext]';
             }
-            if (id.includes('@radix-ui')) {
-              return 'ui-vendor';
+            if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name || '')) {
+              return 'img/[name]-[hash].[ext]';
             }
-            if (id.includes('@tanstack/react-query')) {
-              return 'query-vendor';
+            if (/\.(woff2?|eot|ttf|otf)$/i.test(assetInfo.name || '')) {
+              return 'fonts/[name]-[hash].[ext]';
             }
-            if (id.includes('recharts')) {
-              return 'chart-vendor';
-            }
-            if (id.includes('lucide-react')) {
-              return 'lucide-icons';
-            }
-            // Group other vendor dependencies
-            return 'vendor';
-          }
+            return 'assets/[name]-[hash].[ext]';
+          },
+          // Advanced manual chunks for optimal loading
+          manualChunks: {
+            // React ecosystem
+            'react-vendor': ['react', 'react-dom'],
+            
+            // React Router
+            'router': ['react-router-dom'],
+            
+            // React Query
+            'query': ['@tanstack/react-query'],
+            
+            // UI Library - Radix UI
+            'ui-vendor': [
+              '@radix-ui/react-accordion',
+              '@radix-ui/react-alert-dialog',
+              '@radix-ui/react-avatar',
+              '@radix-ui/react-checkbox',
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-dropdown-menu',
+              '@radix-ui/react-hover-card',
+              '@radix-ui/react-label',
+              '@radix-ui/react-popover',
+              '@radix-ui/react-select',
+              '@radix-ui/react-separator',
+              '@radix-ui/react-slider',
+              '@radix-ui/react-switch',
+              '@radix-ui/react-tabs',
+              '@radix-ui/react-toast',
+              '@radix-ui/react-toggle',
+              '@radix-ui/react-tooltip',
+            ],
+            
+            // Icons and utilities
+            'icons-vendor': ['lucide-react', '@tabler/icons-react'],
+            
+            // Utility libraries
+            'utils-vendor': [
+              'clsx',
+              'class-variance-authority',
+              'tailwind-merge',
+              'date-fns',
+              'uuid'
+            ],
+            
+            // Form handling
+            'forms-vendor': [
+              'react-hook-form',
+              '@hookform/resolvers',
+              'zod'
+            ],
+            
+            // Data visualization
+            'charts-vendor': ['recharts'],
+            
+            // Animation libraries
+            'animation-vendor': ['framer-motion'],
+            
+            // Supabase and authentication
+            'auth-vendor': ['@supabase/supabase-js'],
+            
+            // Development tools (only in development)
+            ...(isProduction ? {} : {
+              'dev-vendor': ['@tanstack/react-query-devtools']
+            })
+          },
         },
       },
-      input: getInputForMode(mode),
+      
+      // Asset optimization
+      assetsDir: 'assets',
+      assetsInlineLimit: 4096, // 4kb
+      
+      // Chunk size warnings
+      chunkSizeWarningLimit: 1000,
+      
+      // Target modern browsers for smaller bundles
+      target: 'es2020',
+      
+      // CSS optimization
+      cssTarget: 'chrome87',
+      
+      // Experimental features for better performance
+      reportCompressedSize: isProduction,
+      
+      // Terser options for better minification
+      terserOptions: isProduction ? {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.info'],
+        },
+        mangle: {
+          safari10: true,
+        },
+      } : undefined,
     },
-    // Add CSS specific settings
-    cssCodeSplit: true,
-    cssMinify: true,
-  },
-}));
+    
+    // Dependency optimization
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        '@tanstack/react-query',
+        'lucide-react',
+        'clsx',
+        'tailwind-merge',
+      ],
+      exclude: [
+        // Exclude large dependencies that don't need pre-bundling
+        '@tanstack/react-query-devtools',
+      ],
+    },
+    
+    // Enable experimental features
+    experimental: {
+      renderBuiltUrl(filename) {
+        // Custom URL rendering for CDN or asset optimization
+        return filename;
+      },
+    },
+    
+    // Performance optimizations
+    esbuild: {
+      // Remove console logs in production
+      drop: isProduction ? ['console', 'debugger'] : [],
+      // Legal comments handling
+      legalComments: 'none',
+    },
+    
+    // Preview server configuration
+    preview: {
+      port: 3000,
+      host: true,
+      cors: true,
+    },
+    
+    // Define global constants
+    define: {
+      // Eliminate feature flags for smaller bundle
+      __DEV__: !isProduction,
+      __PROD__: isProduction,
+      // App version from package.json
+      __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    },
+    
+    // Worker configuration for web workers
+    worker: {
+      format: 'es',
+    },
+    
+    // JSON configuration
+    json: {
+      namedExports: true,
+      stringify: false,
+    },
+  };
+});

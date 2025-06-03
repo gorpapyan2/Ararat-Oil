@@ -7,7 +7,7 @@ import {
   FormInput,
   FormSelect,
 } from "@/core/components/ui/composed/form-fields";
-import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { useZodForm, useFormSubmitHandler } from "@/shared/hooks/use-form";
 import { FuelTank, FuelTypeCode } from "@/types";
 
 interface TankFormDialogStandardizedProps {

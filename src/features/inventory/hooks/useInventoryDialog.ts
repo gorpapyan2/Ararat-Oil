@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useEntityDialog } from "@/shared/hooks/base";
-import { useToast } from "@/shared/hooks/ui";
+import { useToast } from "@/core/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Define inventory item type
@@ -172,10 +172,7 @@ export function useInventoryDialog(options?: UseInventoryDialogOptions) {
       queryClient.invalidateQueries({ queryKey: ["inventory"] });
 
       // Use the base hook's handleDeleteSuccess method
-      entityDialog.handleDeleteSuccess(
-        entityDialog.entity.id,
-        entityDialog.entity
-      );
+      entityDialog.handleDeleteSuccess(entityDialog.entity.id);
     } catch (error) {
       console.error("Error deleting inventory item:", error);
       showError({

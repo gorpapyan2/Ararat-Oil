@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/utils";
 import { LucideIcon } from "lucide-react";
-import { useIsMobile } from "@/hooks/useResponsive";
+import { useIsMobile } from "@/shared/hooks/useResponsive";
 import { Separator } from "@/core/components/ui/separator";
 
 interface PageLayoutProps {

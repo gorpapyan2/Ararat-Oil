@@ -4,33 +4,19 @@
  * import { formatDate, cn, formatCurrency } from '@/utils';
  */
 
-// Import and re-export specifically to avoid naming conflicts
-import {
-  formatDate as formatDateUtil,
-  formatCurrency,
-  formatNumber,
-  formatPercent,
-  getRelativeTime as getRelativeTimeUtil,
-} from "./formatting";
-
-import { cn } from "./cn";
-
-// Export date utilities with preference for date.ts implementation
-import { formatDate, getRelativeTime } from "./date";
-
-// Export other utilities
-export * from "./deprecation";
-export * from "./errorHandling";
-
-// Export with disambiguated names
+// Re-export from shared utils
 export {
   formatDate,
-  getRelativeTime,
   formatCurrency,
   formatNumber,
   formatPercent,
-  cn,
-  // Provide alternative names for the formatting.ts versions if needed
-  formatDateUtil,
-  getRelativeTimeUtil,
-};
+  getRelativeTime,
+} from "@/shared/utils/formatting";
+
+export { cn } from "@/shared/utils/cn";
+
+// Re-export from core utilities
+export * from "@/core/errorHandling";
+export * from "@/core/api-helpers";
+export * from "@/core/supabase-helpers";
+export * from "@/core/db-migration";

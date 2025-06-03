@@ -1,13 +1,12 @@
 import { z } from "zod";
 import type { UseFormProps } from "react-hook-form";
 
-// These will be updated to import from the shared directory once migrated
-// For now, we'll keep the relative imports to existing hooks
-import { useZodForm } from "../../../hooks/useZodForm";
-import { useFormSubmitHandler } from "../../../hooks/useFormSubmitHandler";
-import { useCommonValidation } from "../../../hooks/useCommonValidation";
-import { useFieldValidation } from "../../../hooks/useFieldValidation";
-import { useFormSchemas } from "../../../hooks/useFormSchemas";
+// Import hooks from relative paths within the form directory to avoid circular imports
+import { useZodForm } from "./useZodForm";
+import { useFormSubmitHandler } from "./useFormSubmitHandler";
+import { useCommonValidation } from "./useCommonValidation";
+import { useFieldValidation } from "@/hooks";
+import { useFormSchemas } from "@/hooks";
 
 /**
  * Options for the form validation hook

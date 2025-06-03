@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Button } from "@/core/components/ui/primitives/button";
-import { cn } from "@/utils/cn";
+import { cn } from "@/shared/utils/cn";
 import type {
   StandardFormComponentProps,
   FormRowProps,

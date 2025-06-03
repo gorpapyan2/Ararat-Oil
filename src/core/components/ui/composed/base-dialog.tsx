@@ -12,7 +12,7 @@ import {
   DialogFooter,
 } from "@/core/components/ui/primitives/dialog";
 import { Button } from "@/core/components/ui/primitives/button";
-import { cn } from "@/utils/cn";
+import { cn } from "@/shared/utils/cn";
 
 /**
  * Props for StandardDialog component

@@ -8,7 +8,7 @@ import {
   FormInput,
   FormSelect,
 } from "@/core/components/ui/composed/form-fields";
-import { useZodForm, useFormSubmitHandler } from "@/hooks/use-form";
+import { useZodForm, useFormSubmitHandler } from "@/shared/hooks/use-form";
 import { useTranslation } from "react-i18next";
 import { apiNamespaces, getApiActionLabel } from "@/i18n/i18n";
 import { useFillingSystem } from "../hooks/useFillingSystem";

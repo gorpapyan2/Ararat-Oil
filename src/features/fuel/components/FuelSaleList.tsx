@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/core/components/ui/primitives/table";
-import { Badge } from "@/core/components/ui/primitives/badge";
+import { Badge } from "@/core/components/ui/badge";
 import type { FuelSale } from "../types/fuel.types";
 
 interface FuelSaleListProps {

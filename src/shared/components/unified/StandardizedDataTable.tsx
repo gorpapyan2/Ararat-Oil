@@ -172,8 +172,16 @@ export function StandardizedDataTable<TData extends object>({
         ? ({ getValue, row }: { getValue: () => unknown; row: { original: TData } }) => column.cell!(getValue(), row.original)
         : undefined,
       enableSorting: column.enableSorting ?? true,
-      footer: column.footer,
-      meta: column.meta,
+      footer: typeof column.footer === "function" 
+        ? ({ table }: { table: { getFilteredRowModel: () => { rows: { original: TData }[] } } }) => {
+            const footerFunc = column.footer as (rows: TData[]) => React.ReactNode;
+            return footerFunc(table.getFilteredRowModel().rows.map(row => row.original));
+          }
+        : column.footer,
+      meta: {
+        ...column.meta,
+        className: column.meta?.className,
+      },
     }));
 
     // Add actions column if onEdit or onDelete are provided
@@ -221,7 +229,6 @@ export function StandardizedDataTable<TData extends object>({
         footer: undefined,
         meta: {
           className: "actions-column",
-          ariaLabel: "Actions",
         },
       });
     }
@@ -343,7 +350,6 @@ export function StandardizedDataTable<TData extends object>({
 
   return (
     <DataTable
-      id="data-table-ref"
       title={title}
       columns={tableColumns}
       data={safeData}
@@ -372,7 +378,7 @@ export function StandardizedDataTable<TData extends object>({
         role: "cell",
       })}
       getHeaderProps={(header) => ({
-        "aria-label": header.column.columnDef.meta?.ariaLabel,
+        "aria-label": `Sort by ${header.column.columnDef.header}`,
       })}
       highlightSearchResults={highlightSearchResults}
       searchDebounceMs={searchDebounceMs}

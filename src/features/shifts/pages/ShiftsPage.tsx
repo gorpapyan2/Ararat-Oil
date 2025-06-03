@@ -1,496 +1,428 @@
-import { ShiftControl } from "@/features/sales";
-import { PageLayout } from "@/layouts/PageLayout";
-import {
-  CalendarClock,
-  ChartBar,
-  Search,
-  Filter,
-  RefreshCw,
-  Eye,
-  Plus,
-} from "lucide-react";
-import { useTranslation } from "react-i18next";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/core/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState, useCallback } from "react";
-import { formatCurrency } from "@/shared/utils";
-import { Skeleton } from "@/core/components/ui/skeleton";
-import { Shift } from "@/types";
-import { AlertCircle } from "lucide-react";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/core/components/ui/alert";
-import { fetchEmployeeByUserId, fetchShiftHistory } from "@/utils/api-helpers";
-import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
-import { Input } from "@/core/components/ui/primitives/input";
-import { Button, ButtonLink } from "@/core/components/ui/button";
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
+import { 
+  Calendar, 
+  Clock, 
+  Users, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  CheckCircle, 
+  AlertCircle,
+  UserCheck,
+  DollarSign,
+  BarChart3,
+  RefreshCw
+} from 'lucide-react';
+
+// UI Components
+import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
+import { Button } from '@/core/components/ui/button';
+import { Badge } from '@/core/components/ui/primitives/badge';
+import { StandardizedDataTable } from '@/shared/components/unified/StandardizedDataTable';
+import { Loading } from '@/core/components/ui/loading';
+import { Alert, AlertDescription } from '@/core/components/ui/alert';
+import { Input } from '@/core/components/ui/input';
+import { Label } from '@/core/components/ui/label';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from '@/core/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/core/components/ui/primitives/select";
-import { addDays } from "date-fns";
-import { Badge } from "@/core/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/core/components/ui/tooltip";
-import { useShift } from "../hooks/useShift";
-import { useNavigate } from "react-router-dom";
-import { formatDateTime, calculateDuration } from "@/shared/utils";
-import { ArrowRight, DollarSign } from "lucide-react";
-import { cn } from "@/shared/utils";
-import { StandardDatePicker } from "@/shared/components/common/datepicker/StandardDatePicker";
+} from '@/core/components/ui/select';
 
-// Local InputWithIcon implementation
-const InputWithIcon = ({
-  icon,
-  className,
-  ...props
-}: {
-  icon?: React.ReactNode;
-  className?: string;
-  [key: string]: unknown;
-}) => {
-  return (
-    <div className="relative">
-      {icon && (
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-          {icon}
-        </div>
-      )}
-      <Input className={cn(icon && "pl-10", className)} {...props} />
-    </div>
-  );
-};
+// Services
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/shared/utils';
 
-interface ShiftHistoryItem extends Omit<Shift, "sales_total" | "status"> {
-  sales_total: number | null;
+// Types
+interface Shift {
+  id: string;
   employee_name: string;
-  status: "OPEN" | "CLOSED";
-  payment_methods?: ShiftPaymentMethod[];
-  closed_at?: string;
+  employee_id: string;
+  start_time: string;
+  end_time: string;
+  shift_type: 'morning' | 'afternoon' | 'night';
+  status: 'scheduled' | 'active' | 'completed' | 'cancelled';
+  date: string;
+  total_hours?: number;
+  break_time?: number;
+  overtime_hours?: number;
+  hourly_rate?: number;
+  total_pay?: number;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
 }
 
-// Helper function to format dates
-const formatDate = (dateString: string): string => {
-  if (!dateString) return "-";
+interface ShiftMetrics {
+  total_shifts: number;
+  active_shifts: number;
+  completed_shifts: number;
+  total_hours: number;
+  total_overtime: number;
+  total_payroll: number;
+}
 
-  try {
-    const date = new Date(dateString);
+// Supabase Edge Function Services
+const shiftsService = {
+  async getShifts(): Promise<Shift[]> {
+    const { data, error } = await supabase
+      .from('shifts')
+      .select('*')
+      .order('date', { ascending: false })
+      .order('start_time', { ascending: true });
+    
+    if (error) throw error;
+    return data || [];
+  },
 
-    // Check if date is valid
-    if (isNaN(date.getTime())) {
-      return "-";
-    }
+  async getShiftMetrics(): Promise<ShiftMetrics> {
+    const { data, error } = await supabase.functions.invoke('shifts-analytics', {
+      body: { action: 'get_metrics' }
+    });
+    
+    if (error) throw error;
+    return data;
+  },
 
-    return date.toLocaleDateString();
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "-";
+  async createShift(shift: Omit<Shift, 'id' | 'created_at' | 'updated_at'>): Promise<Shift> {
+    const { data, error } = await supabase
+      .from('shifts')
+      .insert([shift])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async updateShift(id: string, updates: Partial<Shift>): Promise<Shift> {
+    const { data, error } = await supabase
+      .from('shifts')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteShift(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('shifts')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
   }
 };
 
-// Add a safe formatting function
-const safeFormatDateTime = (dateString?: string | null): string => {
-  if (!dateString) return "-";
-  try {
-    // Validate the date is parseable
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return "-";
-    }
-    return formatDateTime(dateString);
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "-";
-  }
-};
+export const ShiftsPage: React.FC = () => {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-export function ShiftsPage() {
-  const { t } = useTranslation();
-  const { user } = useAuth();
-  const { activeShift, isLoading: isLoadingShift } = useShift();
-  const [shiftHistory, setShiftHistory] = useState<ShiftHistoryItem[]>([]);
-  const [filteredShifts, setFilteredShifts] = useState<ShiftHistoryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-
-  // Add console log to debug activeShift state
-  useEffect(() => {
-    console.log("Shifts page - activeShift state:", activeShift);
-  }, [activeShift]);
-
-  // Search and filter state
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>({
-    from: addDays(new Date(), -30),
-    to: new Date(),
+  // Queries
+  const { data: shifts = [], isLoading: shiftsLoading, error: shiftsError } = useQuery({
+    queryKey: ['shifts'],
+    queryFn: shiftsService.getShifts
   });
 
-  // Add a wrapper function to handle the DateRange type conversion
-  const handleDateRangeChange = (range: {
-    from: Date | undefined;
-    to: Date | undefined;
-  }) => {
-    setDateRange({
-      from: range.from,
-      to: range.to || range.from || undefined,
-    });
-  };
+  const { data: metrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ['shift-metrics'],
+    queryFn: shiftsService.getShiftMetrics
+  });
 
-  const loadShiftHistory = useCallback(async () => {
-    if (!user) return;
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      // First, get the employee name
-      const employee = await fetchEmployeeByUserId(user.id);
-      const employeeName =
-        employee && typeof employee === "object"
-          ? (employee as Record<string, unknown>).name || "Current User"
-          : "Current User";
-
-      // Then get shift history (increased limit for more history)
-      const shifts = await fetchShiftHistory(user.id, 50);
-
-      // Format the data for display
-      const formattedData = shifts.map((shift) => ({
-        ...shift,
-        employee_name: employeeName,
-        status: shift.status as "OPEN" | "CLOSED",
-      }));
-
-      setShiftHistory(formattedData as ShiftHistoryItem[]);
-      setFilteredShifts(formattedData as ShiftHistoryItem[]);
-
-      // Load payment methods for closed shifts
-      await loadPaymentMethodsForShifts(formattedData as ShiftHistoryItem[]);
-    } catch (error) {
-      console.error("Error loading shift history:", error);
-      setError(
-        error instanceof Error ? error.message : "Failed to load shift history"
-      );
-    } finally {
-      setIsLoading(false);
+  // Mutations
+  const createMutation = useMutation({
+    mutationFn: shiftsService.createShift,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
+      setIsCreateDialogOpen(false);
     }
-  }, [user, setIsLoading, setError, setShiftHistory, setFilteredShifts]);
+  });
 
-  useEffect(() => {
-    if (user) {
-      loadShiftHistory();
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<Shift> }) =>
+      shiftsService.updateShift(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
     }
-  }, [user, loadShiftHistory]);
+  });
 
-  // Apply filters whenever filter state changes
-  const applyFilters = useCallback(() => {
-    let filtered = [...shiftHistory];
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (shift) =>
-          shift.employee_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          shift.id.toString().includes(searchTerm)
-      );
+  const deleteMutation = useMutation({
+    mutationFn: shiftsService.deleteShift,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
     }
+  });
 
-    // Status filter
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((shift) => shift.status === statusFilter);
-    }
-
-    // Date filter
-    if (dateRange.from) {
-      filtered = filtered.filter((shift) => {
-        const shiftDate = new Date(shift.created_at || "");
-        const fromDate = dateRange.from!;
-        const toDate = dateRange.to || new Date();
-        return shiftDate >= fromDate && shiftDate <= toDate;
-      });
-    }
-
-    setFilteredShifts(filtered);
-  }, [shiftHistory, searchTerm, statusFilter, dateRange, setFilteredShifts]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
-
-  const loadPaymentMethodsForShifts = async (shifts: ShiftHistoryItem[]) => {
-    const closedShifts = shifts.filter((shift) => shift.status === "CLOSED");
-
-    for (const shift of closedShifts) {
-      try {
-        const response = await shiftsApi.getShiftPaymentMethods(shift.id);
-        shift.payment_methods = response.data || [];
-      } catch (error) {
-        console.error(`Error loading payment methods for shift ${shift.id}:`, error);
+  // Column definitions for DataTable
+  const columns = [
+    {
+      accessorKey: 'employee_name',
+      header: 'Employee',
+      cell: ({ row }: any) => (
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+            <Users className="w-4 h-4 text-primary" />
+          </div>
+          <span className="font-medium">{row.getValue('employee_name')}</span>
+        </div>
+      )
+    },
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }: any) => (
+        <span>{new Date(row.getValue('date')).toLocaleDateString()}</span>
+      )
+    },
+    {
+      accessorKey: 'shift_type',
+      header: 'Shift Type',
+      cell: ({ row }: any) => {
+        const type = row.getValue('shift_type') as string;
+        const variants: Record<string, any> = {
+          morning: 'default',
+          afternoon: 'secondary',
+          night: 'outline'
+        };
+        return (
+          <Badge variant={variants[type] || 'default'}>
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </Badge>
+        );
       }
+    },
+    {
+      accessorKey: 'start_time',
+      header: 'Start Time',
+      cell: ({ row }: any) => (
+        <div className="flex items-center gap-1">
+          <Clock className="w-4 h-4 text-muted-foreground" />
+          <span>{row.getValue('start_time')}</span>
+        </div>
+      )
+    },
+    {
+      accessorKey: 'end_time',
+      header: 'End Time',
+      cell: ({ row }: any) => (
+        <div className="flex items-center gap-1">
+          <Clock className="w-4 h-4 text-muted-foreground" />
+          <span>{row.getValue('end_time')}</span>
+        </div>
+      )
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }: any) => {
+        const status = row.getValue('status') as string;
+        const variants: Record<string, any> = {
+          scheduled: 'outline',
+          active: 'default',
+          completed: 'success',
+          cancelled: 'destructive'
+        };
+        const icons: Record<string, any> = {
+          scheduled: Calendar,
+          active: UserCheck,
+          completed: CheckCircle,
+          cancelled: AlertCircle
+        };
+        const Icon = icons[status];
+        
+        return (
+          <div className="flex items-center gap-2">
+            <Icon className="w-4 h-4" />
+            <Badge variant={variants[status] || 'default'}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </Badge>
+          </div>
+        );
+      }
+    },
+    {
+      accessorKey: 'total_hours',
+      header: 'Hours',
+      cell: ({ row }: any) => (
+        <span className="font-mono">{row.getValue('total_hours') || 0}h</span>
+      )
+    },
+    {
+      accessorKey: 'total_pay',
+      header: 'Pay',
+      cell: ({ row }: any) => (
+        <div className="flex items-center gap-1">
+          <DollarSign className="w-4 h-4 text-green-600" />
+          <span className="font-mono">${row.getValue('total_pay') || 0}</span>
+        </div>
+      )
     }
+  ];
 
-    // Update state with payment methods
-    setShiftHistory([...shifts]);
-    setFilteredShifts([...shifts]);
-  };
+  // Metric cards data
+  const metricCards = [
+    {
+      title: 'Total Shifts',
+      value: metrics?.total_shifts || 0,
+      icon: Calendar,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      change: '+12%'
+    },
+    {
+      title: 'Active Shifts',
+      value: metrics?.active_shifts || 0,
+      icon: UserCheck,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      change: '+5%'
+    },
+    {
+      title: 'Total Hours',
+      value: `${metrics?.total_hours || 0}h`,
+      icon: Clock,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      change: '+8%'
+    },
+    {
+      title: 'Total Payroll',
+      value: `$${metrics?.total_payroll || 0}`,
+      icon: DollarSign,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50',
+      change: '+15%'
+    }
+  ];
 
-  const calculateMetrics = () => {
-    const totalShifts = filteredShifts.length;
-    const openShifts = filteredShifts.filter((s) => s.status === "OPEN").length;
-    const closedShifts = filteredShifts.filter((s) => s.status === "CLOSED").length;
-    const totalSales = filteredShifts.reduce(
-      (sum, shift) => sum + (shift.sales_total || 0),
-      0
+  if (shiftsError) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load shifts data. Please try again later.
+          </AlertDescription>
+        </Alert>
+      </div>
     );
-
-    return {
-      totalShifts,
-      openShifts,
-      closedShifts,
-      totalSales,
-    };
-  };
-
-  const viewShiftDetails = (shift: ShiftHistoryItem) => {
-    navigate(`/shifts/${shift.id}`);
-  };
-
-  const handleShiftStart = () => {
-    // Navigate to shift open page
-    navigate("/finance/shifts/open");
-  };
-
-  const handleShiftEnd = () => {
-    // Navigate to shift close page
-    navigate("/finance/shifts/close");
-  };
-
-  const metrics = calculateMetrics();
+  }
 
   return (
-    <PageLayout titleKey="shifts.title" descriptionKey="shifts.description">
-      <div className="space-y-6">
-        {/* Active Shift Control */}
-        <ShiftControl 
-          onShiftStart={handleShiftStart}
-          onShiftEnd={handleShiftEnd}
-          isShiftOpen={!!activeShift}
-        />
-
-        {/* Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t("shifts.metrics.total")}
-              </CardTitle>
-              <CalendarClock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.totalShifts}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t("shifts.metrics.open")}
-              </CardTitle>
-              <Plus className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {metrics.openShifts}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t("shifts.metrics.closed")}
-              </CardTitle>
-              <ChartBar className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                {metrics.closedShifts}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t("shifts.metrics.totalSales")}
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">
-                {formatCurrency(metrics.totalSales)}
-              </div>
-            </CardContent>
-          </Card>
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Shifts Management</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage employee shifts, schedules, and payroll
+          </p>
         </div>
-
-        {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              {t("shifts.filters.title")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <InputWithIcon
-                icon={<Search className="h-4 w-4" />}
-                placeholder={t("shifts.filters.search")}
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-              />
-
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("shifts.filters.status")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("shifts.status.all")}</SelectItem>
-                  <SelectItem value="OPEN">{t("shifts.status.open")}</SelectItem>
-                  <SelectItem value="CLOSED">{t("shifts.status.closed")}</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <StandardDatePicker
-                mode="range"
-                value={dateRange}
-                onChange={handleDateRangeChange}
-                placeholder={t("shifts.filters.dateRange")}
-              />
-
-              <Button
-                variant="outline"
-                onClick={loadShiftHistory}
-                disabled={isLoading}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-                {t("common.refresh")}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ['shifts'] });
+              queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
+            }}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Shift
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Error Display */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>{t("common.error")}</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {/* Shift History */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("shifts.history.title")}</CardTitle>
-            <CardDescription>
-              {t("shifts.history.description")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            ) : filteredShifts.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {t("shifts.history.empty")}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {filteredShifts.map((shift) => (
-                  <div
-                    key={shift.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-3">
-                        <Badge
-                          variant={shift.status === "OPEN" ? "default" : "secondary"}
-                        >
-                          {shift.status}
-                        </Badge>
-                        <span className="font-medium">
-                          {t("shifts.history.shift")} #{shift.id}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {shift.employee_name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>
-                          {t("shifts.history.started")}: {safeFormatDateTime(shift.created_at)}
-                        </span>
-                        {shift.closed_at && (
-                          <span>
-                            {t("shifts.history.closed")}: {safeFormatDateTime(shift.closed_at)}
-                          </span>
-                        )}
-                        {shift.sales_total !== null && (
-                          <span>
-                            {t("shifts.history.sales")}: {formatCurrency(shift.sales_total)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => viewShiftDetails(shift)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{t("shifts.history.viewDetails")}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Shift</DialogTitle>
+              </DialogHeader>
+              {/* Add create shift form here */}
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
-    </PageLayout>
+
+      {/* Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        {metricCards.map((metric, index) => (
+          <motion.div
+            key={metric.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {metric.title}
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {metricsLoading ? (
+                        <div className="h-8 w-20 bg-muted animate-pulse rounded" />
+                      ) : (
+                        metric.value
+                      )}
+                    </p>
+                    <p className="text-sm text-green-600 font-medium">
+                      {metric.change} from last month
+                    </p>
+                  </div>
+                  <div className={cn(
+                    "w-12 h-12 rounded-lg flex items-center justify-center",
+                    metric.bgColor
+                  )}>
+                    <metric.icon className={cn("w-6 h-6", metric.color)} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Shifts Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            Shifts Schedule
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {shiftsLoading ? (
+            <Loading />
+          ) : (
+            <StandardizedDataTable
+              columns={columns}
+              data={shifts}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
-} 
+}; 

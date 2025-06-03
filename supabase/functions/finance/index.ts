@@ -224,6 +224,88 @@ serve(async (req) => {
         throw new Error('Method not allowed')
       }
 
+      case 'overview': {
+        if (!user) throw new Error('Unauthorized')
+
+        if (req.method === 'GET') {
+          // Get total sales from the last 30 days
+          const thirtyDaysAgo = new Date()
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+          
+          const [salesResult, expensesResult] = await Promise.all([
+            // Get sales data
+            supabaseClient
+              .from('sales')
+              .select('total_price, created_at, fuel_type_id, quantity, price_per_liter')
+              .gte('created_at', thirtyDaysAgo.toISOString())
+              .order('created_at', { ascending: false }),
+            
+            // Get expenses data
+            supabaseClient
+              .from('expenses')
+              .select('amount, created_at, category, description')
+              .gte('created_at', thirtyDaysAgo.toISOString())
+              .order('created_at', { ascending: false })
+          ])
+
+          if (salesResult.error) throw salesResult.error
+          if (expensesResult.error) throw expensesResult.error
+
+          const sales = salesResult.data || []
+          const expenses = expensesResult.data || []
+
+          // Calculate totals
+          const total_sales = sales.reduce((sum, sale) => sum + (sale.total_price || 0), 0)
+          const total_expenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0)
+          const net_profit = total_sales - total_expenses
+
+          // Get recent transactions (top 5)
+          const recent_transactions = [
+            ...sales.slice(0, 3).map(sale => ({
+              id: `sale_${sale.created_at}`,
+              type: 'income' as const,
+              amount: sale.total_price || 0,
+              description: `Fuel sale - ${sale.quantity || 0}L`,
+              date: sale.created_at
+            })),
+            ...expenses.slice(0, 2).map(expense => ({
+              id: `expense_${expense.created_at}`,
+              type: 'expense' as const,
+              amount: expense.amount || 0,
+              description: expense.description || expense.category || 'Expense',
+              date: expense.created_at
+            }))
+          ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5)
+
+          // Get top expense categories
+          const expenseCategories: Record<string, number> = {}
+          expenses.forEach(expense => {
+            const category = expense.category || 'Other'
+            expenseCategories[category] = (expenseCategories[category] || 0) + (expense.amount || 0)
+          })
+
+          const top_expenses = Object.entries(expenseCategories)
+            .map(([category, amount]) => ({ category, amount }))
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 5)
+
+          const overview = {
+            total_sales,
+            total_expenses,
+            net_profit,
+            recent_transactions,
+            top_expenses
+          }
+
+          return new Response(JSON.stringify({ data: overview }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          })
+        }
+
+        throw new Error('Method not allowed')
+      }
+
       default:
         throw new Error('Not found')
     }

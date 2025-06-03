@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useToast } from "@/shared/hooks/ui";
+import { useToast } from "@/core/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Types for fuel tank data
@@ -173,6 +173,43 @@ export function useFuelTankMonitor({
     return (tank.currentLevel / tank.capacity) * 100;
   }, []);
 
+  // Start refilling the tank
+  const startRefill = useCallback(async () => {
+    if (!tank || isRefilling) return;
+
+    try {
+      setIsRefilling(true);
+
+      const updatedTank = await startRefilling(tankId);
+      setTank(updatedTank);
+
+      success({
+        title: "Refilling Started",
+        description: `Tank ${updatedTank.name} is now being refilled.`,
+      });
+
+      onRefillStart?.(updatedTank);
+
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: ["fuelTanks", tankId] });
+    } catch (err) {
+      console.error("Error starting refill:", err);
+      showError({
+        title: "Refill Error",
+        description: `Failed to start refilling tank ${tank.name}.`,
+      });
+      setIsRefilling(false);
+    }
+  }, [
+    tank,
+    isRefilling,
+    tankId,
+    success,
+    showError,
+    onRefillStart,
+    queryClient,
+  ]);
+
   // Fetch tank data
   const fetchTank = useCallback(async () => {
     setIsLoading(true);
@@ -247,43 +284,6 @@ export function useFuelTankMonitor({
     showError,
     queryClient,
     startRefill,
-  ]);
-
-  // Start refilling the tank
-  const startRefill = useCallback(async () => {
-    if (!tank || isRefilling) return;
-
-    try {
-      setIsRefilling(true);
-
-      const updatedTank = await startRefilling(tankId);
-      setTank(updatedTank);
-
-      success({
-        title: "Refilling Started",
-        description: `Tank ${updatedTank.name} is now being refilled.`,
-      });
-
-      onRefillStart?.(updatedTank);
-
-      // Invalidate queries
-      queryClient.invalidateQueries({ queryKey: ["fuelTanks", tankId] });
-    } catch (err) {
-      console.error("Error starting refill:", err);
-      showError({
-        title: "Refill Error",
-        description: `Failed to start refilling tank ${tank.name}.`,
-      });
-      setIsRefilling(false);
-    }
-  }, [
-    tank,
-    isRefilling,
-    tankId,
-    success,
-    showError,
-    onRefillStart,
-    queryClient,
   ]);
 
   // Update tank level manually

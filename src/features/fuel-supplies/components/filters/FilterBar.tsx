@@ -49,7 +49,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/core/components/ui/tabs";
-import { Badge } from "@/core/components/ui/badge";
+import { Badge } from "@/core/components/ui/primitives/badge";
 
 interface FilterBarProps {
   filters: {

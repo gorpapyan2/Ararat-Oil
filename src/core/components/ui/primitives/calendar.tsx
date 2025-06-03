@@ -2,7 +2,7 @@
  * Calendar primitive component for date selection
  */
 import React from "react";
-import { cn } from "@/utils/cn";
+import { cn } from "@/shared/utils/cn";
 import {
   ChevronLeft,
   ChevronRight,

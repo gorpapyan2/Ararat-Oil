@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/core/components/ui/card";
 import { Progress } from "@/core/components/ui/primitives/progress";
-import { Badge } from "@/core/components/ui/primitives/badge";
+import { Badge } from "@/core/components/ui/badge";
 import type { FuelTank } from "../types/fuel.types";
 
 interface FuelTankCardProps {

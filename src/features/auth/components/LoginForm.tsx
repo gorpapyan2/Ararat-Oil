@@ -26,17 +26,14 @@ export function LoginForm() {
   const loginSchema = z.object({
     email: z
       .string({
-        required_error: t("auth.emailRequired", "Email is required"),
+        required_error: "Email is required",
       })
-      .email(t("auth.invalidEmail", "Invalid email address")),
+      .email("Invalid email address"),
     password: z
       .string({
-        required_error: t("auth.passwordRequired", "Password is required"),
+        required_error: "Password is required",
       })
-      .min(
-        6,
-        t("auth.passwordMinLength", "Password must be at least 6 characters")
-      ),
+      .min(6, "Password must be at least 6 characters"),
   });
 
   // Type for the form values based on the schema
@@ -73,8 +70,8 @@ export function LoginForm() {
       onSubmit={handleSubmit}
       submitText={
         isLoading
-          ? t("auth.signingIn", "Signing in...")
-          : t("auth.signIn", "Sign in")
+          ? t("auth.signingIn") || "Signing in..."
+          : t("auth.signIn.button") || "Sign in"
       }
       className="space-y-4"
     >
@@ -92,7 +89,7 @@ export function LoginForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("auth.email", "Email")}</FormLabel>
+                <FormLabel>{t("auth.email") || "Email"}</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
                 </FormControl>
@@ -106,7 +103,7 @@ export function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("auth.password", "Password")}</FormLabel>
+                <FormLabel>{t("auth.password") || "Password"}</FormLabel>
                 <FormControl>
                   <Input type="password" {...field} />
                 </FormControl>

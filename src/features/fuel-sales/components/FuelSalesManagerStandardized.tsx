@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks";
-import { useDialog } from "@/hooks/use-dialog";
+import { useDialog } from "@/hooks/useDialog";
 import { supabase } from "@/core/api/supabase";
 import { FuelSalesTable } from "./FuelSalesTable";
 import { FuelSalesFormStandardized } from "./FuelSalesFormStandardized";
@@ -40,13 +40,13 @@ export function FuelSalesManagerStandardized({
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<FuelSaleFilters>({});
 
-  const { open: isAddDialogOpen, onOpenChange: onAddDialogOpenChange } =
+  const { isOpen: isAddDialogOpen, onOpenChange: onAddDialogOpenChange } =
     useDialog();
 
-  const { open: isEditDialogOpen, onOpenChange: onEditDialogOpenChange } =
+  const { isOpen: isEditDialogOpen, onOpenChange: onEditDialogOpenChange } =
     useDialog();
 
-  const { open: isDeleteDialogOpen, onOpenChange: onDeleteDialogOpenChange } =
+  const { isOpen: isDeleteDialogOpen, onOpenChange: onDeleteDialogOpenChange } =
     useDialog();
 
   const { data: tanks = [] } = useQuery<FuelTank[]>({

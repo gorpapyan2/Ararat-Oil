@@ -1,8 +1,8 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
+import { cn } from "@/shared/utils/cn";
 
-import { cn } from "@/utils/cn";
-
-interface NavItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
+interface NavItemProps {
   to?: string;
   icon?: React.ReactNode;
   label?: string;
@@ -10,12 +10,12 @@ interface NavItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onCli
   hasActiveChild?: boolean;
   collapsed?: boolean;
   onClick?: () => void;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 /**
- * NavItem component
- *
- * @placeholder This is a placeholder component that needs proper implementation
+ * NavItem component with proper React Router navigation
  */
 export function NavItem({ 
   className, 
@@ -27,23 +27,51 @@ export function NavItem({
   collapsed, 
   onClick,
   children,
-  ...props 
 }: NavItemProps) {
-  return (
-    <div 
-      className={cn(
-        "-nav-item", 
-        "flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-colors",
-        active && "bg-primary/10 text-primary",
-        hasActiveChild && "bg-muted/50",
-        className
-      )} 
-      onClick={onClick}
-      {...props}
-    >
+  const handleClick = (e: React.MouseEvent) => {
+    // If there's a custom onClick and no 'to' prop, use custom onClick
+    // (for expandable items with children)
+    if (onClick && !to) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const content = (
+    <>
       {icon && <span className="flex-shrink-0">{icon}</span>}
       {!collapsed && label && <span className="flex-1">{label}</span>}
       {children}
+    </>
+  );
+
+  const baseClasses = cn(
+    "flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-colors hover:bg-muted/50",
+    active && "bg-primary/10 text-primary font-medium",
+    hasActiveChild && "bg-muted/50",
+    className
+  );
+
+  // If 'to' prop is provided, use Link for navigation
+  if (to) {
+    return (
+      <Link 
+        to={to}
+        className={baseClasses}
+        onClick={handleClick}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  // Otherwise, use div with click handler (for expandable items)
+  return (
+    <div 
+      className={baseClasses}
+      onClick={handleClick}
+    >
+      {content}
     </div>
   );
 }

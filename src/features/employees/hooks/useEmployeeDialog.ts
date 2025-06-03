@@ -1,68 +1,90 @@
-import { useCallback, useRef } from "react";
-import { useEntityDialog } from "@/shared/hooks/base";
-import type { Employee } from "../types/employees.types";
-import { useToast } from "@/shared/hooks/ui";
+import { useState, useCallback, useRef } from "react";
+import { Employee } from "@/types";
+import { useToast } from "@/hooks";
 
 /**
- * Options for the employee dialog hook
+ * Custom hook for managing EmployeeDialog state and data handling
  */
-export interface UseEmployeeDialogOptions {
-  /**
-   * Callback when an employee is successfully created
-   */
+export function useEmployeeDialog(options?: {
   onCreateSuccess?: (employee: Employee) => void;
-
-  /**
-   * Callback when an employee is successfully updated
-   */
   onUpdateSuccess?: (employee: Employee) => void;
-}
-
-/**
- * Custom hook for managing employee dialog state and operations
- *
- * This hook builds on the base entity dialog hook to provide
- * employee-specific functionality while eliminating code duplication.
- */
-export function useEmployeeDialog(options?: UseEmployeeDialogOptions) {
-  // Use the shared toast hook
+}) {
   const { toast } = useToast();
-  // Use the base entity dialog hook for common functionality
-  const dialog = useEntityDialog<Employee>({
-    entityName: "employee",
-    onCreateSuccess: options?.onCreateSuccess,
-    onUpdateSuccess: options?.onUpdateSuccess,
-  });
-
-  // Keep a reference to the trigger element for positioning
+  
+  // Dialog state
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const triggerRef = useRef<HTMLElement>(null);
 
   /**
-   * Handle form submission for employee creation or update
+   * Open dialog to create a new employee
+   */
+  const openCreate = useCallback(() => {
+    setSelectedEmployee(null);
+    setIsOpen(true);
+  }, []);
+
+  /**
+   * Open dialog to edit an existing employee
+   */
+  const openEdit = useCallback((employee: Employee) => {
+    setSelectedEmployee(employee);
+    setIsOpen(true);
+  }, []);
+
+  /**
+   * Close the dialog
+   */
+  const close = useCallback(() => {
+    setIsOpen(false);
+    // Optional: Reset selected employee after a delay to avoid UI flicker
+    setTimeout(() => {
+      setSelectedEmployee(null);
+    }, 300);
+  }, []);
+
+  /**
+   * Handle dialog open state change
+   */
+  const onOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      // Optional: Reset selected employee after a delay to avoid UI flicker
+      setTimeout(() => {
+        setSelectedEmployee(null);
+      }, 300);
+    }
+  }, []);
+
+  /**
+   * Handle form submission
    */
   const handleSubmit = useCallback(
     async (formData: Partial<Employee>) => {
       try {
-        dialog.setIsSubmitting(true);
+        setIsSubmitting(true);
 
-        if (dialog.entity) {
+        if (selectedEmployee) {
           // Update existing employee
           const updatedEmployee = {
-            ...dialog.entity,
+            ...selectedEmployee,
             ...formData,
-            updated_at: new Date().toISOString(),
           };
 
           // Here you would typically make an API call to update the employee
-          // const result = await updateEmployee(updatedEmployee);
+          // await updateEmployee(updatedEmployee);
 
           toast({
             title: "Employee updated",
-            description: `Successfully updated ${updatedEmployee.first_name} ${updatedEmployee.last_name}.`,
+            description: `Successfully updated ${updatedEmployee.name}.`,
           });
 
-          // Notify parent components of the update
-          dialog.handleUpdateSuccess(updatedEmployee as Employee);
+          if (options?.onUpdateSuccess) {
+            options.onUpdateSuccess(updatedEmployee as Employee);
+          }
         } else {
           // Create new employee
           const newEmployee = {
@@ -73,40 +95,55 @@ export function useEmployeeDialog(options?: UseEmployeeDialogOptions) {
           } as Employee;
 
           // Here you would typically make an API call to create the employee
-          // const result = await createEmployee(newEmployee);
+          // await createEmployee(newEmployee);
 
           toast({
             title: "Employee created",
-            description: `Successfully added ${newEmployee.first_name} ${newEmployee.last_name}.`,
+            description: `Successfully added ${newEmployee.name}.`,
           });
 
-          // Notify parent components of the creation
-          dialog.handleCreateSuccess(newEmployee);
+          if (options?.onCreateSuccess) {
+            options.onCreateSuccess(newEmployee);
+          }
         }
+
+        // Close dialog
+        setIsOpen(false);
+
+        // Optional: Reset selected employee after a delay
+        setTimeout(() => {
+          setSelectedEmployee(null);
+        }, 300);
+
+        return true;
       } catch (error) {
-        console.error("Error submitting employee data:", error);
+        console.error("Error submitting employee form:", error);
+
         toast({
           title: "Error",
-          description: "Failed to save employee. Please try again.",
+          description: `Failed to ${selectedEmployee ? "update" : "create"} employee.`,
           variant: "destructive",
         });
 
-        // Handle the error with the base hook
-        dialog.handleError(error as Error);
+        return false;
       } finally {
-        dialog.setIsSubmitting(false);
+        setIsSubmitting(false);
       }
     },
-    [dialog, toast]
+    [selectedEmployee, options]
   );
 
   return {
-    // Re-export everything from the base dialog
-    ...dialog,
-
-    // Add/override with employee-specific properties
-    selectedEmployee: dialog.entity,
-    triggerRef,
+    isOpen,
+    setIsOpen,
+    selectedEmployee,
+    setSelectedEmployee,
+    isSubmitting,
+    openCreate,
+    openEdit,
+    close,
+    onOpenChange,
     handleSubmit,
+    triggerRef,
   };
 }

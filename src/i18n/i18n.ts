@@ -40,7 +40,7 @@ i18n
     react: {
       useSuspense: false, // Disable suspense to prevent loading issues
     },
-    returnObjects: true, // Enable accessing nested objects in translations
+    returnObjects: false, // Disable returning objects to ensure strings are returned for React children
   });
 
 // Ensure default language is set to Armenian

@@ -117,82 +117,87 @@ export function SalesPage() {
   };
 
   return (
-    <div className="container py-6 max-w-7xl mx-auto">
-      <div className="my-4">
-        <PageHeader
-          title={t("sales.title", "Sales")}
-          description={t(
-            "sales.description",
-            "Manage and track all sales transactions"
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
+      <div className="container py-6 max-w-7xl mx-auto">
+        <div className="my-4">
+          <PageHeader
+            title={t("sales.title", "Sales")}
+            description={t(
+              "sales.description",
+              "Manage and track all sales transactions"
+            )}
+            className="text-white"
+          >
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-1 bg-gray-800/50 border-gray-700/50 text-white hover:bg-gray-800/70">
+                    <FilterIcon className="h-3.5 w-3.5" />
+                    <span>{t("common.filter")}</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="sm:max-w-md bg-gray-900 border-gray-700">
+                  <ScrollArea className="h-[calc(100vh-80px)] pr-4">
+                    <SalesFilterPanel
+                      onClose={() => setIsFilterOpen(false)}
+                      onFiltersChange={handleFiltersChange}
+                    />
+                  </ScrollArea>
+                </SheetContent>
+              </Sheet>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1 bg-gray-800/50 border-gray-700/50 text-white hover:bg-gray-800/70"
+                onClick={handleExport}
+                disabled={isExporting}
+              >
+                <DownloadIcon className="h-3.5 w-3.5" />
+                <span>{t("sales.export", "Export")}</span>
+              </Button>
+
+              <Button
+                variant="default"
+                size="sm"
+                className="h-8 gap-1 bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => navigate("/sales/new")}
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span>{t("sales.create", "New Sale")}</span>
+              </Button>
+            </div>
+          </PageHeader>
+        </div>
+
+        {/* Main Content */}
+        <div className="space-y-4">
+          {/* Alert for when no data might be available */}
+          {(dateRange.from > new Date() ||
+            (dateRange.to &&
+              dateRange.to <
+                new Date(Date.now() - 365 * 24 * 60 * 60 * 1000))) && (
+            <Alert variant="default" className="bg-yellow-900/20 border-yellow-500/50 text-yellow-200">
+              <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              <AlertTitle className="text-yellow-100">{t("common.notice")}</AlertTitle>
+              <AlertDescription className="text-yellow-200">
+                {t(
+                  "sales.dateRangeWarning",
+                  "The selected date range may not contain any data. Consider adjusting your date filter."
+                )}
+              </AlertDescription>
+            </Alert>
           )}
-        >
-          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 gap-1">
-                  <FilterIcon className="h-3.5 w-3.5" />
-                  <span>{t("common.filter")}</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="sm:max-w-md">
-                <ScrollArea className="h-[calc(100vh-80px)] pr-4">
-                  <SalesFilterPanel
-                    onClose={() => setIsFilterOpen(false)}
-                    onFiltersChange={handleFiltersChange}
-                  />
-                </ScrollArea>
-              </SheetContent>
-            </Sheet>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1"
-              onClick={handleExport}
-              disabled={isExporting}
-            >
-              <DownloadIcon className="h-3.5 w-3.5" />
-              <span>{t("sales.export", "Export")}</span>
-            </Button>
-
-            <Button
-              variant="default"
-              size="sm"
-              className="h-8 gap-1"
-              onClick={() => navigate("/sales/new")}
-            >
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span>{t("sales.create", "New Sale")}</span>
-            </Button>
+          {/* Sales Table */}
+          <div className="bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-xl">
+            <SalesTable
+              sales={sales}
+              isLoading={isLoading}
+              onDelete={handleDelete}
+            />
           </div>
-        </PageHeader>
-      </div>
-
-      {/* Main Content */}
-      <div className="space-y-4">
-        {/* Alert for when no data might be available */}
-        {(dateRange.from > new Date() ||
-          (dateRange.to &&
-            dateRange.to <
-              new Date(Date.now() - 365 * 24 * 60 * 60 * 1000))) && (
-          <Alert variant="default" className="bg-muted border-amber-500/50">
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
-            <AlertTitle>{t("common.notice")}</AlertTitle>
-            <AlertDescription>
-              {t(
-                "sales.dateRangeWarning",
-                "The selected date range may not contain any data. Consider adjusting your date filter."
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Sales Table */}
-        <SalesTable
-          sales={sales}
-          isLoading={isLoading}
-          onDelete={handleDelete}
-        />
+        </div>
       </div>
     </div>
   );

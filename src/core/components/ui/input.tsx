@@ -4,8 +4,11 @@
  */
 
 export {
-  InputProps,
-  InputWithIconProps,
   Input,
   InputWithIcon,
+} from "@/core/components/ui/primitives/input";
+
+export type {
+  InputProps,
+  InputWithIconProps,
 } from "@/core/components/ui/primitives/input";

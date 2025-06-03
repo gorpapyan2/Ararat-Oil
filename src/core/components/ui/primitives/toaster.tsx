@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks";
 import { ToastContainer } from "./toast-container";
-import { useIsMobile } from "@/hooks/useResponsive";
+import { useIsMobile } from "@/shared/hooks/useResponsive";
 
 export function Toaster() {
   const { toasts } = useToast();

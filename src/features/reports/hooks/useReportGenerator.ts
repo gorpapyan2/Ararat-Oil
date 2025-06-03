@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useToast } from "@/shared/hooks/ui";
+import { useToast } from "@/core/hooks/use-toast";
 import { z } from "zod";
 
 // Types for report parameters
@@ -98,7 +98,7 @@ export interface UseReportGeneratorOptions {
 export function useReportGenerator(options?: UseReportGeneratorOptions) {
   const [reportResult, setReportResult] = useState<ReportResult | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const { success, showError } = useToast();
+  const { success, error: showError } = useToast();
 
   // State for report parameters form
   const [parameters, setParameters] = useState<ReportParameters>({

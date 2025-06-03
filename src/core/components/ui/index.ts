@@ -164,3 +164,12 @@ export * from "./primitives/textarea";
 export * from "./primitives/toast";
 export * from "./primitives/toggle";
 export * from "./primitives/tooltip";
+
+// Main component exports (not primitives)
+// export * from "./badge"; // Removed duplicate
+export * from "./button";
+// export * from "./card"; // Commented out to avoid conflicts with cards system
+export * from "./checkbox";
+export * from "./input";
+export * from "./label";
+export * from "./textarea";

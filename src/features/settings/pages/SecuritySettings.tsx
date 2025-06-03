@@ -50,7 +50,7 @@ import {
 import { LoadingButton } from "@/core/components/ui/loading-button";
 import { ActionButton } from "@/core/components/ui/action-button";
 import { IconButton } from "@/core/components/ui/icon-button";
-import { Badge } from "@/core/components/ui/badge";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { SessionLogoutDialogStandardized } from "@/features/auth/components/SessionLogoutDialogStandardized";
 
 // Icons

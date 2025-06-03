@@ -1,164 +1,125 @@
-import React, { useState, lazy, Suspense, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { IconUser, IconMoon, IconBell, IconLock } from "@tabler/icons-react";
 import { PageHeader } from "@/core/components/ui/page-header";
-import { Home, Settings } from "lucide-react";
-import { BreadcrumbPageWrapper } from "@/core/providers/BreadcrumbPageWrapper";
-import { apiNamespaces, getApiActionLabel } from "@/i18n/i18n";
+import { Button } from "@/core/components/ui/button";
+import { Settings, User, Bell, Lock, Palette } from "lucide-react";
+import { BreadcrumbItem, Breadcrumbs } from "@/core/components/ui/breadcrumbs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/core/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/core/components/ui/card";
+import { ProfileSettings } from "@/features/settings/components/ProfileSettings";
+import { NotificationSettings } from "@/features/settings/components/NotificationSettings";
+import { SecuritySettings } from "@/features/settings/components/SecuritySettings";
+import { ThemeSettings } from "@/features/settings/components/ThemeSettings";
+import { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
+import { useAuth } from "@/features/auth";
 
-// Lazy load settings sections
-const ProfileSettings = lazy(() => import("./ProfileSettings"));
-const AppearanceSettings = lazy(() => import("./AppearanceSettings"));
-const NotificationSettings = lazy(() => import("./NotificationSettings"));
-const SecuritySettings = lazy(() => import("./SecuritySettings"));
-
-export default function SettingsPage() {
+export function SettingsPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
 
-  // Prefetch the next likely tab when user is on the current tab
-  const tabMap = {
-    profile: "appearance",
-    appearance: "notifications",
-    notifications: "security",
-    security: "profile",
-  };
+  // Configure breadcrumbs
+  const breadcrumbSegments = useMemo(
+    () => [
+      {
+        name: t("common.dashboard"),
+        href: "/",
+        icon: <Settings className="h-4 w-4" />,
+      },
+      {
+        name: t("common.settings"),
+        href: "/settings",
+        isCurrent: true,
+        icon: <Settings className="h-4 w-4" />,
+      },
+    ],
+    [t]
+  );
 
-  // Prefetch the next tab after a delay
-  const nextTab = tabMap[activeTab as keyof typeof tabMap];
+  usePageBreadcrumbs({
+    segments: breadcrumbSegments,
+    title: t("common.settings"),
+  });
 
-  // Use useCallback to memoize the function
-  const prefetchNextTab = useCallback(() => {
-    switch (nextTab) {
-      case "profile":
-        import("./ProfileSettings");
-        break;
-      case "appearance":
-        import("./AppearanceSettings");
-        break;
-      case "notifications":
-        import("./NotificationSettings");
-        break;
-      case "security":
-        import("./SecuritySettings");
-        break;
-    }
-  }, [nextTab]);
-
-  // Use timeout to delay prefetching
-  React.useEffect(() => {
-    const timeoutId = setTimeout(prefetchNextTab, 2000);
-    return () => clearTimeout(timeoutId);
-  }, [prefetchNextTab]);
-
-  // Get translated page title and description using the API translation helpers
-  const pageTitle =
-    t("common.settings") || getApiActionLabel(apiNamespaces.settings, "list");
-  const pageDescription =
-    t("settings.description") || "Configure your application settings";
+  const tabItems = [
+    {
+      value: "profile",
+      label: t("settings.profile"),
+      icon: <User className="h-4 w-4" />,
+      component: <ProfileSettings />,
+    },
+    {
+      value: "notifications",
+      label: t("settings.notifications"),
+      icon: <Bell className="h-4 w-4" />,
+      component: <NotificationSettings />,
+    },
+    {
+      value: "security",
+      label: t("settings.security"),
+      icon: <Lock className="h-4 w-4" />,
+      component: <SecuritySettings />,
+    },
+    {
+      value: "appearance",
+      label: t("settings.appearance"),
+      icon: <Palette className="h-4 w-4" />,
+      component: <ThemeSettings />,
+    },
+  ];
 
   return (
-    <BreadcrumbPageWrapper
-      breadcrumbs={[
-        {
-          name: t("common.dashboard"),
-          href: "/",
-          icon: <Home className="h-4 w-4" />,
-        },
-        {
-          name: pageTitle,
-          href: "/settings",
-          icon: <Settings className="h-4 w-4" />,
-          isCurrent: true,
-        },
-      ]}
-      title={pageTitle}
-    >
-      <div className="space-y-6">
-        <PageHeader
-          title={pageTitle}
-          description={pageDescription}
-          icon={<Settings className="h-6 w-6 mr-2" />}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 space-y-6">
+      <PageHeader
+        title={t("common.settings")}
+        description={t("settings.description", "Manage your account settings and preferences")}
+        className="text-white"
+      />
 
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border rounded-lg p-6 shadow-sm">
-              <h3 className="font-medium mb-4">
-                {t("settings.userPreferences", "User Preferences")}
-              </h3>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("settings.language", "Language")}
-                  </label>
-                  <select className="w-full rounded-md border border-input bg-gray-50 px-3 py-1.5 text-sm shadow-sm">
-                    <option>English</option>
-                    <option>Armenian</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("settings.theme", "Theme")}
-                  </label>
-                  <select className="w-full rounded-md border border-input bg-gray-50 px-3 py-1.5 text-sm shadow-sm">
-                    <option>Light</option>
-                    <option>Dark</option>
-                    <option>System</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4 bg-gray-800/50 border border-gray-700/50">
+          {tabItems.map((tab) => (
+            <TabsTrigger 
+              key={tab.value} 
+              value={tab.value} 
+              className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            >
+              {tab.icon}
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-            <div className="border rounded-lg p-6 shadow-sm">
-              <h3 className="font-medium mb-4">
-                {t("settings.notificationSettings", "Notification Settings")}
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">
-                      {t("settings.emailNotifications", "Email Notifications")}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {t(
-                        "settings.emailNotificationsDesc",
-                        "Receive notifications via email"
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300"
-                      defaultChecked
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">
-                      {t("settings.pushNotifications", "Push Notifications")}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {t(
-                        "settings.pushNotificationsDesc",
-                        "Receive push notifications"
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </BreadcrumbPageWrapper>
+        {tabItems.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value} className="space-y-4">
+            <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  {tab.icon}
+                  {tab.label}
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  {t(`settings.${tab.value}Description`, `Configure your ${tab.label.toLowerCase()} settings`)}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {tab.component}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
   );
 }

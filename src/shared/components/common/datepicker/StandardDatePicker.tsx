@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from "@/core/components/ui/popover";
 import { Button } from "@/core/components/ui/button";
-import { cn } from "@/utils/cn";
+import { cn } from "@/shared/utils/cn";
 import { Input } from "@/core/components/ui/primitives/input";
 
 /**

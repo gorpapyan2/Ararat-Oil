@@ -112,7 +112,16 @@
     "searchPlaceholder": "Search...",
     "noResults": "No results found.",
     "navigateBetweenItems": "Navigate between items",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "theme": "Theme",
+    "finance": "Finance"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "fuelManagement": "Fuel Management", 
+    "finance": "Finance",
+    "employees": "Employees",
+    "settings": "Settings"
   },
   "auth": {
     "signIn": "Sign In",

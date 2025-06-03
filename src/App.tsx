@@ -1,511 +1,456 @@
-import React, { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React, { Component, ErrorInfo, ReactNode, Suspense, lazy } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ThemeProvider } from "@/core/providers/theme-provider";
-import { BreadcrumbProvider } from "@/core/providers/BreadcrumbProvider";
-import { ErrorBoundary } from "@/shared/components/enhanced/ErrorBoundary";
+
+// Layout Components
 import { MainLayout } from "@/layouts/MainLayout";
+import { AuthProvider } from "@/features/auth/components/AuthProvider";
+import { ThemeProvider } from "@/core/providers/theme-provider";
+
+// Loading Component
 import { Loading } from "@/core/components/ui/loading";
-import { AuthGuard } from "@/features/auth/components/AuthGuard";
-import { APP_ROUTES } from "@/core/config/routes";
 
-// Lazy load pages for better performance
-const DashboardPage = lazy(() => import("@/features/dashboard").then(module => ({ default: module.DashboardPage })));
-const AuthPage = lazy(() => import("@/pages/Auth"));
-const FuelManagementPage = lazy(() => import("@/pages/FuelManagement"));
-const FuelSuppliesPage = lazy(() => import("@/pages/fuel-management/FuelSuppliesPage"));
-const SalesPage = lazy(() => import("@/features/sales/pages/SalesPage").then(module => ({ default: module.SalesPage })));
-const ShiftsPage = lazy(() => import("@/features/shifts").then(module => ({ default: module.ShiftsPage })));
-const ExpensesPage = lazy(() => import("@/features/finance").then(module => ({ default: module.ExpensesPage })));
-const TransactionsPage = lazy(() => import("@/features/finance").then(module => ({ default: module.TransactionsPage })));
-const EmployeesPage = lazy(() => import("@/features/employees").then(module => ({ default: module.EmployeesPage })));
-const SettingsPage = lazy(() => import("@/features/settings").then(module => ({ default: module.SettingsPage })));
-const DebugPage = lazy(() => import("@/pages/dev/DevTools"));
-const NotFoundPage = lazy(() => import("@/pages/NotFound"));
+// Lazy load components for better performance
+const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const AuthPage = lazy(() => import('@/features/auth/pages/AuthPage').then(m => ({ default: m.AuthPage })));
+const NavigationPage = lazy(() => import('@/features/dashboard/pages/NavigationPage').then(m => ({ default: m.NavigationPage })));
+const ReportsPage = lazy(() => import('@/features/reports/pages/ReportsPage').then(m => ({ default: m.ReportsPage })));
+const DataSyncPage = lazy(() => import('@/features/data-sync/pages/DataSyncPage').then(m => ({ default: m.DataSyncPage })));
 
-// React Query configuration
+// Employees
+const EmployeesPage = lazy(() => import("@/features/employees/pages/EmployeesPage").then(m => ({ default: m.EmployeesPage })));
+
+// Finance
+const FinancePage = lazy(() => import("@/features/finance/pages/FinancePage").then(m => ({ default: m.FinancePage })));
+const SalesPage = lazy(() => import("@/features/sales/pages/SalesPage").then(m => ({ default: m.SalesPage })));
+const ShiftsPage = lazy(() => import("@/features/shifts/pages/ShiftsPage").then(m => ({ default: m.ShiftsPage })));
+const ExpensesPage = lazy(() => import("@/features/expenses/pages/ExpensesPage").then(m => ({ default: m.ExpensesPage })));
+
+// Settings
+const SettingsPage = lazy(() => import("@/features/settings/pages/SettingsPage").then(m => ({ default: m.SettingsPage })));
+
+// Fuel Management
+const FuelManagementDashboard = lazy(() => import("@/features/fuel-management/pages/FuelManagementDashboard").then(m => ({ default: m.FuelManagementDashboard })));
+const FuelPricesPage = lazy(() => import("@/features/fuel-management/pages/FuelPricesPage"));
+const TanksPage = lazy(() => import("@/features/fuel-management/pages/TanksPage"));
+const FuelSuppliesPage = lazy(() => import("@/features/fuel-management/pages/FuelSuppliesPage"));
+const FillingSystemsPage = lazy(() => import("@/features/fuel-management/pages/FillingSystemsPage"));
+const ProvidersPage = lazy(() => import("@/features/fuel-management/pages/ProvidersPage"));
+const FuelSalesPage = lazy(() => import("@/features/fuel-management/pages/FuelSalesPage"));
+
+// Error Boundary Component
+interface ErrorFallbackProps {
+  error: Error;
+  resetErrorBoundary: () => void;
+}
+
+function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+  console.error("React Error Boundary caught an error:", error);
+  
+  return (
+    <div className="min-h-screen flex-center">
+      <div className="card max-w-md w-full">
+        <div className="card-header text-center">
+          <div className="text-destructive text-6xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold mb-4 text-card-foreground">Something went wrong</h1>
+        </div>
+        <div className="card-content space-y-4">
+          <p className="text-muted-foreground">
+            The application encountered an unexpected error and needs to be restarted.
+          </p>
+          <details className="text-left">
+            <summary className="cursor-pointer text-sm text-muted-foreground mb-2">
+              Error Details (click to expand)
+            </summary>
+            <div className="bg-muted p-4 rounded-md text-xs font-mono">
+              <p><strong>Error:</strong> {error.name}</p>
+              <p><strong>Message:</strong> {error.message}</p>
+              <p><strong>Stack:</strong></p>
+              <pre className="whitespace-pre-wrap overflow-x-auto">
+                {error.stack}
+              </pre>
+            </div>
+          </details>
+          <div className="flex gap-2">
+            <button
+              onClick={resetErrorBoundary}
+              className="btn btn-primary flex-1"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn btn-secondary flex-1"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  resetErrorBoundary = () => {
+    this.setState({ hasError: false, error: undefined });
+  };
+
+  render() {
+    if (this.state.hasError && this.state.error) {
+      return (
+        <ErrorFallback
+          error={this.state.error}
+          resetErrorBoundary={this.resetErrorBoundary}
+        />
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Create QueryClient with proper configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (replaces cacheTime)
       retry: (failureCount, error) => {
-        // Don't retry on 4xx errors
-        if (error instanceof Error && error.message.includes('4')) {
-          return false;
-        }
-        return failureCount < 3;
+        console.error(`Query failed (attempt ${failureCount + 1}):`, error);
+        return failureCount < 2;
       },
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
       refetchOnWindowFocus: false,
     },
     mutations: {
-      retry: 1,
+      retry: (failureCount, error) => {
+        console.error(`Mutation failed (attempt ${failureCount + 1}):`, error);
+        return failureCount < 1;
+      },
     },
   },
 });
 
-// Loading fallback component
-const PageLoadingFallback: React.FC = () => (
-  <Loading variant="page" text="Loading page..." />
-);
+// Loading Fallback Component
+function LoadingFallback() {
+  return <Loading variant="page" text="Loading Ararat Oil Management System..." />;
+}
 
-// Protected route wrapper
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AuthGuard>
-    {children}
-  </AuthGuard>
-);
-
-// Main App component
-const App: React.FC = () => {
+// Protected Route Component
+function ProtectedRoute({ children }: { children: ReactNode }) {
   return (
-    <ErrorBoundary
-      fallback={(error, resetError) => (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center max-w-lg p-6">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">
-              Application Error
-            </h1>
-            <p className="text-gray-600 mb-4">
-              {error.message || "A critical error occurred. Please refresh the page or contact support."}
-            </p>
-            <div className="space-x-4">
-              <button
-                onClick={resetError}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Try Again
-              </button>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-              >
-                Refresh Page
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    >
+    <MainLayout>
+      <Suspense fallback={<LoadingFallback />}>
+        {children}
+      </Suspense>
+    </MainLayout>
+  );
+}
+
+// Public Route Component
+function PublicRoute({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      {children}
+    </Suspense>
+  );
+}
+
+function App() {
+  return (
+    <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <ThemeProvider>
-            <BreadcrumbProvider>
-              <div className="min-h-screen bg-background">
-                <Routes>
-                  {/* Public auth route */}
-                  <Route
-                    path={APP_ROUTES.AUTH.path}
-                    element={
-                      <ErrorBoundary
-                        fallback={(error, resetError) => (
-                          <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                            <div className="text-center max-w-md">
-                              <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                Something went wrong
-                              </h2>
-                              <p className="text-gray-600 mb-4">
-                                {error.message || "An unexpected error occurred while loading this page."}
-                              </p>
-                              <button
-                                onClick={resetError}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                              >
-                                Try again
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      >
-                        <Suspense fallback={<PageLoadingFallback />}>
-                          <AuthPage />
-                        </Suspense>
-                      </ErrorBoundary>
-                    }
-                  />
+        <ThemeProvider>
+          <Router>
+            <AuthProvider>
+              <Routes>
+                {/* Authentication Routes */}
+                <Route 
+                  path="/auth" 
+                  element={
+                    <PublicRoute>
+                      <AuthPage />
+                    </PublicRoute>
+                  } 
+                />
 
-                  {/* Protected routes with layout */}
-                  <Route
-                    path="/*"
-                    element={
-                      <ProtectedRoute>
-                        <MainLayout>
-                          <Routes>
-                            {/* Dashboard */}
-                            <Route
-                              path={APP_ROUTES.DASHBOARD.path}
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <DashboardPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
+                {/* Dashboard */}
+                <Route 
+                  path="/" 
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={<Navigate to="/" replace />} 
+                />
 
-                            {/* Fuel Management */}
-                            <Route
-                              path="/fuel-management"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <FuelManagementPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
+                {/* Employees */}
+                <Route 
+                  path="/employees" 
+                  element={
+                    <ProtectedRoute>
+                      <EmployeesPage />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                            <Route
-                              path="/fuel-management/fuel-supplies"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <FuelSuppliesPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
+                {/* Fuel Management Routes */}
+                <Route 
+                  path="/fuel" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/tanks" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/inventory" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/pumps" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel-management" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelManagementDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel-management/tanks" 
+                  element={
+                    <ProtectedRoute>
+                      <TanksPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel-management/filling-systems" 
+                  element={
+                    <ProtectedRoute>
+                      <FillingSystemsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel-management/fuel-supplies" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelSuppliesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel-management/providers" 
+                  element={
+                    <ProtectedRoute>
+                      <ProvidersPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel-management/prices" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelPricesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel-management/sales" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelSalesPage />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                            {/* Finance */}
-                            <Route
-                              path="/finance/sales"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <SalesPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
+                {/* Finance Routes */}
+                <Route 
+                  path="/finance" 
+                  element={
+                    <ProtectedRoute>
+                      <FinancePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/finance/reports" 
+                  element={
+                    <ProtectedRoute>
+                      <ReportsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/finance/expenses" 
+                  element={
+                    <ProtectedRoute>
+                      <ExpensesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/finance/sales" 
+                  element={
+                    <ProtectedRoute>
+                      <SalesPage />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                            <Route
-                              path="/finance/shifts"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <ShiftsPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
+                {/* Management Routes */}
+                <Route 
+                  path="/management" 
+                  element={
+                    <ProtectedRoute>
+                      <EmployeesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/shifts" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftsPage />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                            <Route
-                              path="/finance/expenses"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <ExpensesPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
+                {/* Reports Routes */}
+                <Route 
+                  path="/reports" 
+                  element={
+                    <ProtectedRoute>
+                      <ReportsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/reports/daily" 
+                  element={
+                    <ProtectedRoute>
+                      <ReportsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/reports/monthly" 
+                  element={
+                    <ProtectedRoute>
+                      <ReportsPage />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                            <Route
-                              path="/finance/transactions"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <TransactionsPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
+                {/* Settings Routes */}
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/system" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/users" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/backup" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/integrations" 
+                  element={
+                    <ProtectedRoute>
+                      <DataSyncPage />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                            {/* Legacy redirects */}
-                            <Route
-                              path="/fuel-supplies"
-                              element={<Navigate to="/fuel-management/fuel-supplies" replace />}
-                            />
-                            <Route
-                              path="/sales"
-                              element={<Navigate to="/finance/sales" replace />}
-                            />
-                            <Route
-                              path="/shifts"
-                              element={<Navigate to="/finance/shifts" replace />}
-                            />
-                            <Route
-                              path="/expenses"
-                              element={<Navigate to="/finance/expenses" replace />}
-                            />
-                            <Route
-                              path="/transactions"
-                              element={<Navigate to="/finance/transactions" replace />}
-                            />
+                {/* Navigation Page */}
+                <Route 
+                  path="/navigation" 
+                  element={
+                    <ProtectedRoute>
+                      <NavigationPage />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                            {/* Other routes */}
-                            <Route
-                              path="/employees"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <EmployeesPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
-
-                            <Route
-                              path="/settings"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <SettingsPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
-
-                            <Route
-                              path="/debug"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <DebugPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
-
-                            {/* Catch all - 404 */}
-                            <Route
-                              path="*"
-                              element={
-                                <ErrorBoundary
-                                  fallback={(error, resetError) => (
-                                    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6">
-                                      <div className="text-center max-w-md">
-                                        <h2 className="text-xl font-semibold text-red-600 mb-4">
-                                          Something went wrong
-                                        </h2>
-                                        <p className="text-gray-600 mb-4">
-                                          {error.message || "An unexpected error occurred while loading this page."}
-                                        </p>
-                                        <button
-                                          onClick={resetError}
-                                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                        >
-                                          Try again
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                >
-                                  <Suspense fallback={<PageLoadingFallback />}>
-                                    <NotFoundPage />
-                                  </Suspense>
-                                </ErrorBoundary>
-                              }
-                            />
-                          </Routes>
-                        </MainLayout>
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </div>
-            </BreadcrumbProvider>
-          </ThemeProvider>
-        </BrowserRouter>
-
-        {/* React Query Devtools - only in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools initialIsOpen={false} />
-        )}
+                {/* Catch all - redirect to dashboard */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </AuthProvider>
+          </Router>
+        </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
-};
+}
 
 export default App;
+
