@@ -6,7 +6,7 @@
 // DOM utilities
 export { cn, generateId, debounce, sleep, checkColorContrast } from "./dom";
 
-// Formatting utilities
+// Formatting utilities (using consolidated formatter)
 export {
   numberWithCommas,
   formatDate,
@@ -17,7 +17,11 @@ export {
   formatDateTime,
   calculateDuration,
   calculateShiftDuration,
-} from "./formatting";
+  formatPercent,
+  formatFileSize,
+  formatPhoneNumber,
+  truncateText,
+} from "@/lib/formatters";
 
 // Object utilities
 export {

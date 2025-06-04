@@ -1,6 +1,22 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.3';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
+// Simple CORS helper
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  let allowOrigin = '*';
+  
+  if (origin && origin.startsWith('http://localhost:')) {
+    allowOrigin = origin;
+  }
+
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-auth',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
+
 // ---- START INLINED CODE FROM SHARED MODULES ----
 
 // Types
@@ -19,13 +35,6 @@ interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
-
-// CORS headers
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-};
 
 // Database utilities
 const createServiceClient = () => {
@@ -84,14 +93,7 @@ const getUserFromRequest = async (request: Request) => {
 };
 
 // API utilities
-function handleCors(req: Request): Response | null {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-  return null;
-}
-
-function createJsonResponse<T>(data: ApiResponse<T>, status = 200): Response {
+function createJsonResponse<T>(data: ApiResponse<T>, status = 200, corsHeaders: Record<string, string>): Response {
   return new Response(
     JSON.stringify(data),
     {
@@ -104,13 +106,13 @@ function createJsonResponse<T>(data: ApiResponse<T>, status = 200): Response {
   );
 }
 
-function successResponse<T>(data: T, status = 200): Response {
-  return createJsonResponse({ data }, status);
+function successResponse<T>(data: T, status = 200, corsHeaders: Record<string, string>): Response {
+  return createJsonResponse({ data }, status, corsHeaders);
 }
 
-function errorResponse(error: unknown, status = 400): Response {
+function errorResponse(error: unknown, status = 400, corsHeaders: Record<string, string>): Response {
   const errorData = handleError(error);
-  return createJsonResponse(errorData, status);
+  return createJsonResponse(errorData, status, corsHeaders);
 }
 
 async function parseRequestBody<T>(request: Request): Promise<T> {
@@ -127,25 +129,29 @@ async function parseRequestBody<T>(request: Request): Promise<T> {
   }
 }
 
-function methodNotAllowed(): Response {
-  return errorResponse({ message: 'Method not allowed' }, 405);
+function methodNotAllowed(corsHeaders: Record<string, string>): Response {
+  return errorResponse({ message: 'Method not allowed' }, 405, corsHeaders);
 }
 
-function unauthorized(): Response {
-  return errorResponse({ message: 'Unauthorized' }, 401);
+function unauthorized(corsHeaders: Record<string, string>): Response {
+  return errorResponse({ message: 'Unauthorized' }, 401, corsHeaders);
 }
 
-function notFound(resource = 'Resource'): Response {
-  return errorResponse({ message: `${resource} not found` }, 404);
+function notFound(resource = 'Resource', corsHeaders: Record<string, string>): Response {
+  return errorResponse({ message: `${resource} not found` }, 404, corsHeaders);
 }
 
 // ---- END INLINED CODE FROM SHARED MODULES ----
 
 // Handle fuel types operations
 serve(async (req: Request) => {
-  // Handle CORS
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { status: 204, headers: corsHeaders });
+  }
 
   // Get URL path
   const url = new URL(req.url);
@@ -154,42 +160,42 @@ serve(async (req: Request) => {
   // Authentication check
   const user = await getUserFromRequest(req);
   if (!user) {
-    return unauthorized();
+    return unauthorized(corsHeaders);
   }
 
   try {
     // Route handling
     if (req.method === 'GET') {
       if (path === '' || path === '/') {
-        return await getFuelTypes();
+        return await getFuelTypes(corsHeaders);
       } else if (path === '/active') {
-        return await getActiveFuelTypes();
+        return await getActiveFuelTypes(corsHeaders);
       } else if (path.match(/^\/[a-zA-Z0-9-]+$/)) {
         const id = path.split('/')[1];
-        return await getFuelTypeById(id);
+        return await getFuelTypeById(id, corsHeaders);
       }
     } else if (req.method === 'POST' && (path === '' || path === '/')) {
       const data = await parseRequestBody<Omit<FuelTypeModel, 'id' | 'created_at' | 'updated_at'>>(req);
-      return await createFuelType(data);
+      return await createFuelType(data, corsHeaders);
     } else if (req.method === 'PUT' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
       const id = path.split('/')[1];
       const data = await parseRequestBody<Partial<Omit<FuelTypeModel, 'id' | 'created_at' | 'updated_at'>>>(req);
-      return await updateFuelType(id, data);
+      return await updateFuelType(id, data, corsHeaders);
     } else if (req.method === 'DELETE' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
       const id = path.split('/')[1];
-      return await deleteFuelType(id);
+      return await deleteFuelType(id, corsHeaders);
     }
   } catch (error) {
-    return errorResponse(error);
+    return errorResponse(error, 400, corsHeaders);
   }
 
-  return methodNotAllowed();
+  return methodNotAllowed(corsHeaders);
 });
 
 /**
  * Get all fuel types
  */
-async function getFuelTypes(): Promise<Response> {
+async function getFuelTypes(corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const supabase = createServiceClient();
     
@@ -200,16 +206,16 @@ async function getFuelTypes(): Promise<Response> {
 
     if (error) throw error;
 
-    return successResponse(data);
+    return successResponse(data, 200, corsHeaders);
   } catch (error) {
-    return errorResponse(error);
+    return errorResponse(error, 400, corsHeaders);
   }
 }
 
 /**
  * Get only active fuel types
  */
-async function getActiveFuelTypes(): Promise<Response> {
+async function getActiveFuelTypes(corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const supabase = createServiceClient();
     
@@ -221,16 +227,16 @@ async function getActiveFuelTypes(): Promise<Response> {
 
     if (error) throw error;
 
-    return successResponse(data);
+    return successResponse(data, 200, corsHeaders);
   } catch (error) {
-    return errorResponse(error);
+    return errorResponse(error, 400, corsHeaders);
   }
 }
 
 /**
  * Get a fuel type by ID
  */
-async function getFuelTypeById(id: string): Promise<Response> {
+async function getFuelTypeById(id: string, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const supabase = createServiceClient();
     
@@ -242,14 +248,14 @@ async function getFuelTypeById(id: string): Promise<Response> {
 
     if (error) {
       if (error.code === 'PGRST116') {
-        return notFound('Fuel type');
+        return notFound('Fuel type', corsHeaders);
       }
       throw error;
     }
 
-    return successResponse(data);
+    return successResponse(data, 200, corsHeaders);
   } catch (error) {
-    return errorResponse(error);
+    return errorResponse(error, 400, corsHeaders);
   }
 }
 
@@ -257,7 +263,8 @@ async function getFuelTypeById(id: string): Promise<Response> {
  * Create a new fuel type
  */
 async function createFuelType(
-  fuelType: Omit<FuelTypeModel, 'id' | 'created_at' | 'updated_at'>
+  fuelType: Omit<FuelTypeModel, 'id' | 'created_at' | 'updated_at'>,
+  corsHeaders: Record<string, string>
 ): Promise<Response> {
   try {
     const supabase = createServiceClient();
@@ -274,7 +281,7 @@ async function createFuelType(
     if (existing) {
       return errorResponse({
         message: `A fuel type with code "${fuelType.code}" already exists`
-      }, 409); // Conflict status code
+      }, 409, corsHeaders); // Conflict status code
     }
     
     const { data, error } = await supabase
@@ -288,9 +295,9 @@ async function createFuelType(
 
     if (error) throw error;
 
-    return successResponse(data, 201);
+    return successResponse(data, 201, corsHeaders);
   } catch (error) {
-    return errorResponse(error);
+    return errorResponse(error, 400, corsHeaders);
   }
 }
 
@@ -299,7 +306,8 @@ async function createFuelType(
  */
 async function updateFuelType(
   id: string,
-  updates: Partial<Omit<FuelTypeModel, 'id' | 'created_at' | 'updated_at'>>
+  updates: Partial<Omit<FuelTypeModel, 'id' | 'created_at' | 'updated_at'>>,
+  corsHeaders: Record<string, string>
 ): Promise<Response> {
   try {
     const supabase = createServiceClient();
@@ -313,7 +321,7 @@ async function updateFuelType(
 
     if (checkError) {
       if (checkError.code === 'PGRST116') {
-        return notFound('Fuel type');
+        return notFound('Fuel type', corsHeaders);
       }
       throw checkError;
     }
@@ -332,7 +340,7 @@ async function updateFuelType(
       if (duplicate) {
         return errorResponse({
           message: `A fuel type with code "${updates.code}" already exists`
-        }, 409); // Conflict status code
+        }, 409, corsHeaders); // Conflict status code
       }
     }
     
@@ -348,16 +356,16 @@ async function updateFuelType(
 
     if (error) throw error;
 
-    return successResponse(data);
+    return successResponse(data, 200, corsHeaders);
   } catch (error) {
-    return errorResponse(error);
+    return errorResponse(error, 400, corsHeaders);
   }
 }
 
 /**
  * Delete a fuel type
  */
-async function deleteFuelType(id: string): Promise<Response> {
+async function deleteFuelType(id: string, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const supabase = createServiceClient();
     
@@ -370,7 +378,7 @@ async function deleteFuelType(id: string): Promise<Response> {
 
     if (checkError) {
       if (checkError.code === 'PGRST116') {
-        return notFound('Fuel type');
+        return notFound('Fuel type', corsHeaders);
       }
       throw checkError;
     }
@@ -386,7 +394,7 @@ async function deleteFuelType(id: string): Promise<Response> {
     if (refsInTanks && refsInTanks > 0) {
       return errorResponse({
         message: `Cannot delete fuel type that is used by ${refsInTanks} tanks`
-      }, 409); // Conflict status code
+      }, 409, corsHeaders); // Conflict status code
     }
     
     // Delete the fuel type
@@ -402,6 +410,6 @@ async function deleteFuelType(id: string): Promise<Response> {
       headers: corsHeaders
     });
   } catch (error) {
-    return errorResponse(error);
+    return errorResponse(error, 400, corsHeaders);
   }
 }

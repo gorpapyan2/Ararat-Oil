@@ -17,25 +17,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const isAuthPage = pathname === "/auth";
   const isMobile = useIsMobile();
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedState = localStorage.getItem("sidebarCollapsed");
-      return savedState ? JSON.parse(savedState) : false;
-    }
-    return false;
-  });
-
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem("sidebarCollapsed", JSON.stringify(sidebarCollapsed));
-    }
-  }, [sidebarCollapsed]);
-
-  const toggleSidebarCollapse = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
 
   const toggleMobileSidebar = () => {
     setMobileSidebarOpen(!mobileSidebarOpen);
@@ -47,6 +29,9 @@ export function MainLayout({ children }: MainLayoutProps) {
       setMobileSidebarOpen(false);
     }
   }, [pathname, isMobile, mobileSidebarOpen]);
+
+  // Fixed sidebar width (always collapsed)
+  const sidebarWidth = isMobile ? 0 : 80;
 
   // Use a different layout for the auth page
   if (isAuthPage) {
@@ -68,69 +53,93 @@ export function MainLayout({ children }: MainLayoutProps) {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       <SkipToContent />
 
-      <Sidebar
-        collapsed={sidebarCollapsed}
-        onToggleCollapse={toggleSidebarCollapse}
-        isMobile={isMobile}
-        isOpen={mobileSidebarOpen}
-        onToggle={toggleMobileSidebar}
-      />
-
-      {/* Mobile menu toggle button */}
-      {isMobile && (
-        <Button
-          onClick={toggleMobileSidebar}
-          className={cn(
-            "fixed top-4 left-4 z-40 md:hidden",
-            "flex items-center justify-center",
-            "h-12 w-12 rounded-xl",
-            "bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg",
-            "text-slate-700 dark:text-slate-300",
-            "shadow-lg shadow-slate-900/10 dark:shadow-black/20",
-            "border border-slate-200/60 dark:border-slate-700/60",
-            "transition-all duration-200 ease-in-out",
-            "hover:bg-white dark:hover:bg-slate-800 hover:scale-105",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500/20",
-            mobileSidebarOpen && "rotate-90 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-          )}
-          aria-label={mobileSidebarOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileSidebarOpen}
-          aria-controls="sidebar"
-          size="icon"
-          variant="ghost"
-        >
-          {mobileSidebarOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </Button>
-      )}
-
-      {/* Main content area */}
-      <main
-        id="main-content"
+      {/* CSS Grid Layout Container */}
+      <div 
         className={cn(
-          "min-h-screen transition-all duration-300 ease-in-out"
+          "min-h-screen grid transition-all duration-300 ease-in-out",
+          isMobile ? "grid-cols-1" : `grid-cols-[${sidebarWidth}px_1fr]`
         )}
-        // Use CSS variable injected by Sidebar for consistent spacing
-        style={{ marginLeft: isMobile ? 0 : "var(--sidebar-width, 72px)" }}
-        tabIndex={-1}
+        style={{
+          gridTemplateColumns: isMobile ? "1fr" : `${sidebarWidth}px 1fr`
+        }}
       >
-        {/* Content wrapper with proper centering and responsive padding */}
-        <div className={cn(
-          "w-full min-h-screen",
-          "p-4 sm:p-6 lg:p-8",
-          // Ensure content doesn't get too wide on large screens
-          "max-w-none"
-        )}>
-          {/* Inner content container for proper centering */}
-          <div className="w-full h-full">
-            {children}
-          </div>
+        {/* Sidebar - Grid Area 1 */}
+        <div 
+          className={cn(
+            "relative",
+            isMobile ? "fixed inset-y-0 left-0 z-50" : "z-10"
+          )}
+        >
+          <Sidebar
+            isMobile={isMobile}
+            isOpen={mobileSidebarOpen}
+            onToggle={toggleMobileSidebar}
+          />
         </div>
-      </main>
 
+        {/* Main Content Area - Grid Area 2 */}
+        <main
+          id="main-content"
+          className={cn(
+            "relative z-0 flex flex-col min-h-screen overflow-hidden",
+            // Ensure content is positioned correctly
+            isMobile ? "col-span-1" : "col-start-2"
+          )}
+          tabIndex={-1}
+        >
+          {/* Mobile menu toggle button - Positioned relative to main content */}
+          {isMobile && (
+            <Button
+              onClick={toggleMobileSidebar}
+              className={cn(
+                "absolute top-6 left-6 z-20 md:hidden",
+                "flex items-center justify-center",
+                "h-12 w-12 rounded-2xl",
+                "bg-slate-900/90 backdrop-blur-xl",
+                "text-white",
+                "shadow-2xl shadow-black/30",
+                "border border-slate-700/50",
+                "transition-all duration-300 ease-in-out",
+                "hover:bg-slate-800/90 hover:scale-105",
+                "focus:outline-none focus:ring-2 focus:ring-blue-500/50",
+                mobileSidebarOpen && "rotate-180 bg-blue-600/90 border-blue-500/50"
+              )}
+              aria-label={mobileSidebarOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileSidebarOpen}
+              aria-controls="sidebar"
+              size="icon"
+              variant="ghost"
+            >
+              {mobileSidebarOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
+          )}
+
+          {/* Content wrapper with proper padding and overflow handling */}
+          <div className={cn(
+            "flex-1 w-full h-full relative",
+            "p-6 sm:p-8 lg:p-10",
+            // Add padding-top on mobile to account for menu button
+            isMobile && "pt-20"
+          )}>
+            {/* Inner content container */}
+            <div className="w-full h-full relative z-0">
+              {children}
+            </div>
+
+            {/* Overlay elements container - Always visible, proper z-index */}
+            <div className="absolute inset-0 pointer-events-none z-30">
+              {/* This is where prompt cursors, tooltips, etc. would go */}
+              {/* They will always be above content but below modals */}
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Toast notifications - Highest z-index */}
       <Toaster />
     </div>
   );

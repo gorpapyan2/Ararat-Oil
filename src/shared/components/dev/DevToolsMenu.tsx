@@ -10,17 +10,7 @@ import {
 } from "@/core/components/ui/card";
 import { Button } from "@/core/components/ui/button";
 import {
-  Smartphone,
-  MessageSquare,
-  PlusCircle,
-  Settings,
-  Grid,
   Sparkles,
-  CreditCard,
-  Layout,
-  Bell,
-  Square,
-  MousePointerClick,
 } from "lucide-react";
 
 interface DevToolItem {
@@ -30,32 +20,7 @@ interface DevToolItem {
   icon: React.ReactNode;
 }
 
-const devTools: DevToolItem[] = [
-  {
-    title: "Responsive Hooks",
-    description: "Test responsive breakpoints and hooks",
-    path: "/dev/responsive-test",
-    icon: <Layout className="h-6 w-6" />,
-  },
-  {
-    title: "Toast Notifications",
-    description: "Test toast notification styles and behaviors",
-    path: "/dev/toast-test",
-    icon: <Bell className="h-6 w-6" />,
-  },
-  {
-    title: "Card Components",
-    description: "View all card component variants",
-    path: "/dev/card-components",
-    icon: <Square className="h-6 w-6" />,
-  },
-  {
-    title: "Button Components",
-    description: "View all button component variants",
-    path: "/dev/button-components",
-    icon: <MousePointerClick className="h-6 w-6" />,
-  },
-];
+const devTools: DevToolItem[] = [];
 
 export function DevToolsMenu() {
   return (

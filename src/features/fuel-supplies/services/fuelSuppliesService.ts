@@ -1,80 +1,57 @@
-import { supabase } from "@/services/supabase";
+import { fuelSuppliesApi } from "@/core/api";
 import type {
   FuelSupply,
-  FuelSupplyFormData,
-  FuelSupplyFilters,
-} from "../types/fuel-supplies.types";
+  FuelSupplyCreate,
+  FuelSupplyUpdate,
+} from "@/core/api";
 
-export const fuelSuppliesService = {
-  async getSupplies(filters?: FuelSupplyFilters) {
-    let query = supabase
-      .from("fuel_supplies")
-      .select("*")
-      .order("delivery_date", { ascending: false });
-
-    if (filters) {
-      if (filters.dateRange) {
-        query = query
-          .gte("delivery_date", filters.dateRange.from.toISOString())
-          .lte("delivery_date", filters.dateRange.to.toISOString());
-      }
-      if (filters.providerId) {
-        query = query.eq("provider_id", filters.providerId);
-      }
-      if (filters.tankId) {
-        query = query.eq("tank_id", filters.tankId);
-      }
-      if (filters.paymentStatus) {
-        query = query.eq("payment_status", filters.paymentStatus);
-      }
-      if (filters.searchQuery) {
-        query = query.ilike("comments", `%${filters.searchQuery}%`);
-      }
+export async function fetchFuelSupplies(): Promise<FuelSupply[]> {
+  try {
+    const response = await fuelSuppliesApi.getFuelSupplies();
+    if (response.data) {
+      return response.data;
     }
+    throw new Error(response.error?.message || 'Failed to fetch fuel supplies');
+  } catch (error) {
+    console.error('Error fetching fuel supplies:', error);
+    return [];
+  }
+}
 
-    const { data, error } = await query;
-    if (error) throw error;
-    return data as FuelSupply[];
-  },
+export async function createFuelSupply(supply: FuelSupplyCreate): Promise<FuelSupply> {
+  try {
+    const response = await fuelSuppliesApi.createFuelSupply(supply);
+    if (response.data) {
+      return response.data;
+    }
+    throw new Error(response.error?.message || 'Failed to create fuel supply');
+  } catch (error) {
+    console.error('Error creating fuel supply:', error);
+    throw error;
+  }
+}
 
-  async createSupply(supply: FuelSupplyFormData) {
-    const { data, error } = await supabase
-      .from("fuel_supplies")
-      .insert({
-        ...supply,
-        total_cost: supply.quantity_liters * supply.price_per_liter,
-      })
-      .select()
-      .single();
+export async function updateFuelSupply(id: string, updates: FuelSupplyUpdate): Promise<FuelSupply> {
+  try {
+    const response = await fuelSuppliesApi.updateFuelSupply(id, updates);
+    if (response.data) {
+      return response.data;
+    }
+    throw new Error(response.error?.message || 'Failed to update fuel supply');
+  } catch (error) {
+    console.error('Error updating fuel supply:', error);
+    throw error;
+  }
+}
 
-    if (error) throw error;
-    return data as FuelSupply;
-  },
-
-  async updateSupply(id: string, supply: Partial<FuelSupplyFormData>) {
-    const { data, error } = await supabase
-      .from("fuel_supplies")
-      .update({
-        ...supply,
-        total_cost:
-          supply.quantity_liters && supply.price_per_liter
-            ? supply.quantity_liters * supply.price_per_liter
-            : undefined,
-      })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as FuelSupply;
-  },
-
-  async deleteSupply(id: string) {
-    const { error } = await supabase
-      .from("fuel_supplies")
-      .delete()
-      .eq("id", id);
-
-    if (error) throw error;
-  },
-};
+export async function deleteFuelSupply(id: string): Promise<void> {
+  try {
+    const response = await fuelSuppliesApi.deleteFuelSupply(id);
+    if (response.error) {
+      throw new Error(response.error.message || 'Failed to delete fuel supply');
+    }
+  } catch (error) {
+    console.error('Error deleting fuel supply:', error);
+    throw error;
+  }
+}

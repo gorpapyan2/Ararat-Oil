@@ -1,7 +1,7 @@
-import { cn } from "@/shared/utils";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { Progress } from "@/core/components/ui/progress";
-import { Badge } from "@/core/components/ui/badge";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { 
   Fuel, 
   TrendingUp, 
@@ -26,10 +26,39 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/core/providers/theme-provider";
 import { useState, useEffect } from "react";
 
+interface FuelManagementDashboardProData {
+  totalTanks?: number;
+  activeFillingSystems?: number;
+  dailyConsumption?: number;
+  inventoryValue?: number;
+  tankLevels?: Array<{
+    id: string;
+    name: string;
+    fuelType: string;
+    currentLevel: number;
+    capacity: number;
+    status: string;
+    lastUpdated: string;
+  }>;
+  alerts?: Array<{
+    id: string;
+    type: string;
+    message: string;
+    priority: 'low' | 'medium' | 'high' | 'critical';
+    timestamp: string;
+  }>;
+  performance?: {
+    efficiency: number;
+    uptime: number;
+    throughput: number;
+  };
+}
+
 interface FuelManagementDashboardProProps {
   className?: string;
+  data?: FuelManagementDashboardProData;
+  onRefresh?: () => void;
   isLoading?: boolean;
-  data?: any;
   expanded?: boolean;
 }
 
@@ -264,8 +293,9 @@ const TankVisualization = ({
  */
 export function FuelManagementDashboardPro({
   className,
-  isLoading,
   data,
+  onRefresh,
+  isLoading,
   expanded = true,
   ...props
 }: FuelManagementDashboardProProps) {

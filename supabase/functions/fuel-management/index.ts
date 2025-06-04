@@ -98,10 +98,10 @@ Deno.serve(async (req: Request) => {
   // Authentication check
   const user = await getUserFromRequest(req);
   if (!user) {
-    return unauthorized();
+    return unauthorized();  
   }
 
-  try {
+  try { 
     // Route handling
     if (req.method === 'GET' || req.method === 'POST') {
       if (path === '' || path === '/') {

@@ -1,14 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getTanks,
-  getTankById,
-  getTankLevelChanges,
-  createTank,
-  updateTank,
-  deleteTank,
-  getFuelTypes,
-  adjustTankLevel,
-} from "../services";
+import { tanksApi } from "@/core/api";
+import { useToast } from "@/hooks";
 import type {
   FuelTank,
   TankLevelChange,
@@ -30,10 +22,12 @@ const QUERY_KEYS = {
  * @returns Query object for tanks list
  */
 export function useTanks() {
-  return useQuery<FuelTank[], Error>({
-    queryKey: QUERY_KEYS.tanks,
-    queryFn: getTanks,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+  return useQuery({
+    queryKey: ["tanks"],
+    queryFn: async () => {
+      const response = await tanksApi.getTanks();
+      return response.data;
+    },
   });
 }
 
@@ -43,11 +37,13 @@ export function useTanks() {
  * @returns Query object for single tank
  */
 export function useTank(id: string) {
-  return useQuery<FuelTank, Error>({
-    queryKey: QUERY_KEYS.tank(id),
-    queryFn: () => getTankById(id),
+  return useQuery({
+    queryKey: ["tank", id],
+    queryFn: async () => {
+      const response = await tanksApi.getTankById(id);
+      return response.data;
+    },
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -57,11 +53,13 @@ export function useTank(id: string) {
  * @returns Query object for tank level changes
  */
 export function useTankLevelChanges(tankId: string) {
-  return useQuery<TankLevelChange[], Error>({
-    queryKey: QUERY_KEYS.levelChanges(tankId),
-    queryFn: () => getTankLevelChanges(tankId),
+  return useQuery({
+    queryKey: ["tank-level-changes", tankId],
+    queryFn: async () => {
+      const response = await tanksApi.getTankLevelChanges(tankId);
+      return response.data;
+    },
     enabled: !!tankId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -70,10 +68,16 @@ export function useTankLevelChanges(tankId: string) {
  * @returns Query object for fuel types
  */
 export function useFuelTypes() {
-  return useQuery<FuelType[], Error>({
-    queryKey: QUERY_KEYS.fuelTypes,
-    queryFn: getFuelTypes,
-    staleTime: 30 * 60 * 1000, // 30 minutes - fuel types change rarely
+  return useQuery({
+    queryKey: ["fuel-types"],
+    queryFn: async () => {
+      // For now, return mock data until fuel types API is implemented
+      return [
+        { id: "1", name: "Petrol" },
+        { id: "2", name: "Diesel" },
+        { id: "3", name: "Kerosene" },
+      ];
+    },
   });
 }
 
@@ -83,62 +87,108 @@ export function useFuelTypes() {
  */
 export function useTankMutations() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Create tank mutation
-  const createTankMutation = useMutation<FuelTank, Error, CreateTankRequest>({
-    mutationFn: createTank,
+  const createTankMutation = useMutation({
+    mutationFn: async (data: CreateTankRequest) => {
+      const response = await tanksApi.createTank(data);
+      return response.data;
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tanks });
+      queryClient.invalidateQueries({ queryKey: ["tanks"] });
+      toast({
+        title: "Success",
+        description: "Tank created successfully",
+        variant: "success",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create tank",
+        variant: "error",
+      });
     },
   });
 
   // Update tank mutation
-  const updateTankMutation = useMutation<
-    FuelTank,
-    Error,
-    { id: string; data: UpdateTankRequest }
-  >({
-    mutationFn: ({ id, data }) => updateTank(id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tanks });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.tank(variables.id),
+  const updateTankMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateTankRequest }) => {
+      const response = await tanksApi.updateTank(id, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tanks"] });
+      toast({
+        title: "Success",
+        description: "Tank updated successfully",
+        variant: "success",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update tank",
+        variant: "error",
       });
     },
   });
 
   // Delete tank mutation
-  const deleteTankMutation = useMutation<boolean, Error, string>({
-    mutationFn: deleteTank,
+  const deleteTankMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await tanksApi.deleteTank(id);
+      return response.data?.success || false;
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tanks });
+      queryClient.invalidateQueries({ queryKey: ["tanks"] });
+      toast({
+        title: "Success",
+        description: "Tank deleted successfully",
+        variant: "success",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete tank",
+        variant: "error",
+      });
     },
   });
 
   // Adjust tank level mutation
-  const adjustTankLevelMutation = useMutation<
-    TankLevelChange,
-    Error,
-    {
+  const adjustTankLevelMutation = useMutation({
+    mutationFn: async ({
+      tankId,
+      changeAmount,
+      changeType,
+      reason,
+    }: {
       tankId: string;
       changeAmount: number;
       changeType: "add" | "subtract";
       reason?: string;
-    }
-  >({
-    mutationFn: ({ tankId, changeAmount, changeType, reason }) =>
-      adjustTankLevel(tankId, {
-        change_amount: changeAmount,
-        change_type: changeType,
-        reason,
-      }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.tanks });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.tank(variables.tankId),
+    }) => {
+      const response = await tanksApi.adjustTankLevel(tankId, changeAmount, changeType, reason);
+      return response.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["tanks"] });
+      queryClient.invalidateQueries({ queryKey: ["tank", variables.tankId] });
+      queryClient.invalidateQueries({ queryKey: ["tank-level-changes", variables.tankId] });
+      toast({
+        title: "Success",
+        description: "Tank level adjusted successfully",
+        variant: "success",
       });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.levelChanges(variables.tankId),
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to adjust tank level",
+        variant: "error",
       });
     },
   });

@@ -71,17 +71,24 @@ export interface Tank {
   capacity: number;
   current_level: number;
   fuel_type_id: string;
-  status: "active" | "inactive" | "maintenance";
+  fuel_type?: {
+    id: string;
+    name: string;
+  };
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
+
+// Backward compatibility alias
+export type FuelTank = Tank;
 
 export interface TankCreate {
   name: string;
   capacity: number;
   current_level: number;
   fuel_type_id: string;
-  status: "active" | "inactive" | "maintenance";
+  is_active: boolean;
 }
 
 export interface TankUpdate {
@@ -89,7 +96,19 @@ export interface TankUpdate {
   capacity?: number;
   current_level?: number;
   fuel_type_id?: string;
-  status?: "active" | "inactive" | "maintenance";
+  is_active?: boolean;
+}
+
+export interface TankLevelChange {
+  id: string;
+  tank_id: string;
+  previous_level: number;
+  new_level: number;
+  change_amount: number;
+  change_type: "add" | "subtract";
+  reason?: string;
+  created_at: string;
+  created_by: string;
 }
 
 // Fuel Type Types
@@ -311,3 +330,26 @@ export interface PetrolProviderUpdate {
   address?: string;
   status?: "active" | "inactive";
 }
+
+// Type aliases for backward compatibility and consistency
+export type CreateProviderRequest = PetrolProviderCreate;
+export type UpdateProviderRequest = PetrolProviderUpdate;
+
+// Employee type aliases
+export type EmployeeCreate = Omit<Employee, "id" | "created_at" | "updated_at">;
+export type EmployeeUpdate = Partial<EmployeeCreate>;
+
+// Fuel Price type aliases  
+export type FuelPriceCreate = {
+  fuel_type: string;
+  price_per_liter: number;
+  effective_date: string;
+};
+export type FuelPriceUpdate = Partial<FuelPriceCreate>;
+
+// Sale type aliases
+export type SaleCreate = Omit<Sale, "id" | "created_at" | "updated_at">;
+export type SaleUpdate = Partial<SaleCreate>;
+
+// Filling System type aliases
+export type fillingsApi = any; // Placeholder for filling systems API

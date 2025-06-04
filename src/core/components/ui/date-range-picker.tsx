@@ -32,7 +32,7 @@ export const DatePickerWithRange: React.FC<DatePickerWithRangeProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleDateSelect = (selectedDate: any) => {
+  const handleDateSelect = (selectedDate: DateRange | undefined) => {
     onDateChange?.(selectedDate);
   };
 

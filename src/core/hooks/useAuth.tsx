@@ -4,7 +4,12 @@ import type { Session, User } from "@supabase/supabase-js";
 
 interface Profile {
   id: string;
-  full_name?: string;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  email?: string | null;
+  role?: string | null;
+  updated_at?: string | null;
+  username?: string | null;
   [key: string]: unknown;
 }
 
@@ -31,20 +36,6 @@ function useAuth() {
   return ctx;
 }
 
-// Mock user for offline development mode
-const MOCK_USER = {
-  id: "offline-user-id",
-  email: "offline@example.com",
-  user_metadata: { full_name: "Offline User" },
-  app_metadata: { role: "admin" },
-  aud: "authenticated",
-  created_at: new Date().toISOString(),
-  confirmed_at: new Date().toISOString(),
-  last_sign_in_at: new Date().toISOString(),
-  role: "authenticated",
-  updated_at: new Date().toISOString(),
-} as unknown as User;
-
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -62,13 +53,10 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         // Check if we're online
         if (!checkOnlineStatus()) {
-          console.warn("Network appears offline, using offline mode");
+          console.warn("Network appears offline. Authentication required when online.");
           setIsOffline(true);
-          setUser(MOCK_USER);
-          setProfile({
-            id: MOCK_USER.id,
-            full_name: MOCK_USER.user_metadata.full_name,
-          });
+          setUser(null);
+          setProfile(null);
           setIsLoading(false);
           return;
         }
@@ -78,12 +66,9 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
           console.error("Supabase auth error:", error);
-          setIsOffline(true);
-          setUser(MOCK_USER);
-          setProfile({
-            id: MOCK_USER.id,
-            full_name: MOCK_USER.user_metadata.full_name,
-          });
+          setIsOffline(false);
+          setUser(null);
+          setProfile(null);
           setIsLoading(false);
           return;
         }
@@ -140,12 +125,9 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         };
       } catch (err) {
         console.error("Critical auth error:", err);
-        setIsOffline(true);
-        setUser(MOCK_USER);
-        setProfile({
-          id: MOCK_USER.id,
-          full_name: MOCK_USER.user_metadata.full_name,
-        });
+        setIsOffline(false);
+        setUser(null);
+        setProfile(null);
       } finally {
         setIsLoading(false);
       }
@@ -161,7 +143,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleOffline = () => {
-      console.log("Network is offline, switching to offline mode");
+      console.log("Network is offline");
       setIsOffline(true);
     };
 
@@ -176,13 +158,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (isOffline) {
-      console.log("Offline mode: simulating login");
-      setUser(MOCK_USER);
-      setProfile({
-        id: MOCK_USER.id,
-        full_name: MOCK_USER.user_metadata.full_name,
-      });
-      return {};
+      return { error: "Cannot sign in while offline. Please check your internet connection." };
     }
 
     setIsLoading(true);
@@ -211,7 +187,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     if (isOffline) {
-      console.log("Offline mode: simulating logout");
+      console.log("Offline mode: Cannot sign out properly");
       setUser(null);
       setSession(null);
       setProfile(null);

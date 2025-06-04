@@ -1,51 +1,52 @@
+import { petrolProvidersApi, PetrolProvider, CreateProviderRequest, UpdateProviderRequest } from "@/core/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { petrolProvidersService } from "../services/petrolProvidersService";
 import type {
-  PetrolProvider,
   PetrolProviderFormData,
   PetrolProviderFilters,
 } from "../types/petrol-providers.types";
 
 export function usePetrolProviders(filters?: PetrolProviderFilters) {
+  return useQuery({
+    queryKey: ["petrol-providers", filters],
+    queryFn: () => petrolProvidersApi.getPetrolProviders(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useCreatePetrolProvider() {
   const queryClient = useQueryClient();
 
-  const providers = useQuery({
-    queryKey: ["petrol-providers", filters],
-    queryFn: () => petrolProvidersService.getProviders(filters),
-  });
-
-  const createProvider = useMutation({
-    mutationFn: petrolProvidersService.createProvider,
+  return useMutation({
+    mutationFn: (data: PetrolProviderFormData) => 
+      petrolProvidersApi.createPetrolProvider({
+        ...data,
+        status: "active" // Add default status since it's required by CreateProviderRequest
+      } as CreateProviderRequest),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
     },
   });
+}
 
-  const updateProvider = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: Partial<PetrolProviderFormData>;
-    }) => petrolProvidersService.updateProvider(id, data),
+export function useUpdatePetrolProvider() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<PetrolProviderFormData> }) =>
+      petrolProvidersApi.updatePetrolProvider(id, data as UpdateProviderRequest),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
     },
   });
+}
 
-  const deleteProvider = useMutation({
-    mutationFn: petrolProvidersService.deleteProvider,
+export function useDeletePetrolProvider() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => petrolProvidersApi.deletePetrolProvider(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["petrol-providers"] });
     },
   });
-
-  return {
-    providers: providers.data || [],
-    isLoading: providers.isLoading,
-    createProvider,
-    updateProvider,
-    deleteProvider,
-  };
 }

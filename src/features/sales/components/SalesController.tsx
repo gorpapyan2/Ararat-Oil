@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { TankFormDialog } from "@/features/tanks/components/TankFormDialog";
-import { tanksService } from "@/features/tanks/services/tanksService";
+import { tanksApi, fuelTypesApi } from "@/core/api";
 
 interface SalesControllerProps {
   onSuccess?: () => void;
@@ -31,10 +31,19 @@ export function SalesController({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch fuel types
-  const { data: fuelTypes = [] } = useQuery({
+  const { data: fuelTypesData = [] } = useQuery({
     queryKey: ["fuel-types"],
-    queryFn: tanksService.getFuelTypes,
+    queryFn: async () => {
+      const response = await fuelTypesApi.getFuelTypes();
+      return response.data || [];
+    },
   });
+
+  // Transform fuel types to match expected format
+  const fuelTypes = fuelTypesData.map(ft => ({
+    id: ft.id,
+    name: (ft as any).name || 'Unknown',
+  }));
 
   return (
     <>

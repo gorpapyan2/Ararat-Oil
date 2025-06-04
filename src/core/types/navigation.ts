@@ -178,7 +178,7 @@ export interface FeatureIntegration {
   type: 'api' | 'webhook' | 'database' | 'file' | 'service';
   status: 'connected' | 'disconnected' | 'error' | 'pending';
   lastSync?: Date;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
 }
 
 export interface FeatureNotification {
@@ -202,12 +202,16 @@ export type CategoryMap = Record<NavigationCategory, FeatureCategory>;
 export type StatusMap = Record<FeatureStatus, NavigationFeature[]>;
 
 // Export utility type guards
-export const isNavigationFeature = (obj: any): obj is NavigationFeature => {
-  return obj && typeof obj.id === 'string' && typeof obj.title === 'string';
+export const isNavigationFeature = (obj: unknown): obj is NavigationFeature => {
+  return obj !== null && typeof obj === 'object' && 'id' in obj && 'title' in obj && 
+         typeof (obj as Record<string, unknown>).id === 'string' && 
+         typeof (obj as Record<string, unknown>).title === 'string';
 };
 
-export const isFeatureCategory = (obj: any): obj is FeatureCategory => {
-  return obj && typeof obj.id === 'string' && Array.isArray(obj.features);
+export const isFeatureCategory = (obj: unknown): obj is FeatureCategory => {
+  return obj !== null && typeof obj === 'object' && 'id' in obj && 'features' in obj &&
+         typeof (obj as Record<string, unknown>).id === 'string' && 
+         Array.isArray((obj as Record<string, unknown>).features);
 };
 
 export const isValidCategory = (category: string): category is NavigationCategory => {

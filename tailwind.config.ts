@@ -17,8 +17,6 @@ export default {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-    // Include stories for Storybook
-    './src/**/*.stories.@(js|jsx|ts|tsx|mdx)',
     // Include any HTML files
     './public/**/*.html',
     './index.html',

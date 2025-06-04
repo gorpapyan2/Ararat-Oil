@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
 
 interface BusinessMetrics {
   revenue: {
@@ -62,46 +62,81 @@ interface SystemHealth {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Robust path parsing
+  const url = new URL(req.url);
+  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  const mainRoute = pathParts[0];
+  const subRoute = pathParts[1] || '';
+
+  if (mainRoute !== 'business-analytics') {
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
   try {
-    const url = new URL(req.url);
-    const endpoint = url.pathname.split('/').pop();
-    
-    switch (endpoint) {
+    // Handle different subroutes
+    switch (subRoute) {
       case 'metrics':
-        return await getBusinessMetrics(req);
+        if (req.method === 'GET') {
+          return await getBusinessMetrics(req);
+        }
+        break;
+      
       case 'quick-actions':
-        return await getQuickActions(req);
+        if (req.method === 'GET') {
+          return await getQuickActions(req);
+        }
+        break;
+      
       case 'recent-activity':
-        return await getRecentActivity(req);
+        if (req.method === 'GET') {
+          return await getRecentActivity(req);
+        }
+        break;
+      
       case 'system-health':
-        return await getSystemHealth(req);
-      case 'analytics-summary':
-        return await getAnalyticsSummary(req);
+        if (req.method === 'GET') {
+          return await getSystemHealth(req);
+        }
+        break;
+      
+      case 'summary':
+        if (req.method === 'GET') {
+          return await getAnalyticsSummary(req);
+        }
+        break;
+      
+      case '':
+        // Default endpoint - return summary
+        if (req.method === 'GET') {
+          return await getAnalyticsSummary(req);
+        }
+        break;
+      
       default:
         return new Response(
-          JSON.stringify({ error: 'Invalid endpoint' }),
-          { 
-            status: 404, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
+          JSON.stringify({ error: 'Endpoint not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
     }
+
+    // Method not allowed
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Business Analytics Error:', error);
     return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error',
-        message: error.message 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
@@ -110,6 +145,8 @@ async function getBusinessMetrics(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const timeframe = url.searchParams.get('timeframe') || 'today';
   const userId = req.headers.get('user-id');
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
 
   // Simulate business metrics calculation
   // In production, this would query your database
@@ -157,6 +194,8 @@ async function getBusinessMetrics(req: Request): Promise<Response> {
 
 async function getQuickActions(req: Request): Promise<Response> {
   const userId = req.headers.get('user-id');
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
   
   // Generate contextual quick actions based on business state
   const quickActions: QuickActionData[] = [
@@ -222,6 +261,8 @@ async function getRecentActivity(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const limit = parseInt(url.searchParams.get('limit') || '10');
   const userId = req.headers.get('user-id');
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
 
   // Simulate recent activity data
   const activities: RecentActivity[] = [
@@ -286,6 +327,10 @@ async function getRecentActivity(req: Request): Promise<Response> {
 }
 
 async function getSystemHealth(req: Request): Promise<Response> {
+  const userId = req.headers.get('user-id');
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   // Simulate system health metrics
   const health: SystemHealth = {
     database_performance: 98.2,
@@ -316,7 +361,10 @@ async function getSystemHealth(req: Request): Promise<Response> {
 
 async function getAnalyticsSummary(req: Request): Promise<Response> {
   const url = new URL(req.url);
-  const period = url.searchParams.get('period') || '24h';
+  const timeframe = url.searchParams.get('timeframe') || 'today';
+  const userId = req.headers.get('user-id');
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
   
   // Comprehensive analytics summary
   const summary = {
@@ -355,7 +403,7 @@ async function getAnalyticsSummary(req: Request): Promise<Response> {
     JSON.stringify({
       success: true,
       data: summary,
-      period,
+      timeframe,
       generated_at: new Date().toISOString()
     }),
     { 

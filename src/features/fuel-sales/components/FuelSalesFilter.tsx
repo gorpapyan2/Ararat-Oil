@@ -1,6 +1,6 @@
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/core/api/supabase";
+import { tanksApi } from "@/services/api";
 import { Card, CardContent } from "@/core/components/ui/card";
 import { Input } from "@/core/components/ui/primitives/input";
 import {
@@ -25,13 +25,15 @@ interface FuelSalesFilterProps {
 }
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
-  const { data, error } = await supabase
-    .from("fuel_tanks")
-    .select("id, name, fuel_type")
-    .order("name");
-
-  if (error) throw error;
-  return data;
+  const response = await tanksApi.getAll();
+  if (response.error) throw new Error(response.error);
+  
+  const tanks = response.data || [];
+  return tanks.map((tank) => ({
+    id: tank.id,
+    name: tank.name,
+    fuel_type: tank.fuel_type?.name || 'Unknown',
+  }));
 }
 
 export function FuelSalesFilter({
@@ -47,7 +49,10 @@ export function FuelSalesFilter({
     (range: { from: Date; to: Date } | undefined) => {
       onFiltersChange({
         ...filters,
-        dateRange: range,
+        date_range: range ? {
+          start: range.from.toISOString().split('T')[0],
+          end: range.to.toISOString().split('T')[0]
+        } : undefined,
       });
     },
     [filters, onFiltersChange]
@@ -57,7 +62,7 @@ export function FuelSalesFilter({
     (value: string) => {
       onFiltersChange({
         ...filters,
-        tankId: value || undefined,
+        filling_system_id: value || undefined,
       });
     },
     [filters, onFiltersChange]
@@ -67,7 +72,7 @@ export function FuelSalesFilter({
     (value: string) => {
       onFiltersChange({
         ...filters,
-        paymentStatus: value || undefined,
+        payment_status: value || undefined,
       });
     },
     [filters, onFiltersChange]
@@ -77,7 +82,7 @@ export function FuelSalesFilter({
     (value: string) => {
       onFiltersChange({
         ...filters,
-        searchQuery: value || undefined,
+        search_query: value || undefined,
       });
     },
     [filters, onFiltersChange]
@@ -90,14 +95,17 @@ export function FuelSalesFilter({
           <div className="space-y-2">
             <label className="text-sm font-medium">Date Range</label>
             <DateRangePicker
-              value={filters.dateRange}
-              onChange={handleDateRangeChange}
+              date={filters.date_range ? {
+                from: new Date(filters.date_range.start),
+                to: new Date(filters.date_range.end)
+              } : undefined}
+              onDateChange={handleDateRangeChange}
             />
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Tank</label>
-            <Select value={filters.tankId} onValueChange={handleTankChange}>
+            <Select value={filters.filling_system_id} onValueChange={handleTankChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select tank" />
               </SelectTrigger>
@@ -115,7 +123,7 @@ export function FuelSalesFilter({
           <div className="space-y-2">
             <label className="text-sm font-medium">Payment Status</label>
             <Select
-              value={filters.paymentStatus}
+              value={filters.payment_status}
               onValueChange={handlePaymentStatusChange}
             >
               <SelectTrigger>
@@ -125,7 +133,7 @@ export function FuelSalesFilter({
                 <SelectItem value="">All Statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -134,7 +142,7 @@ export function FuelSalesFilter({
             <label className="text-sm font-medium">Search</label>
             <Input
               placeholder="Search by customer name..."
-              value={filters.searchQuery || ""}
+              value={filters.search_query || ""}
               onChange={(e) => handleSearchChange(e.target.value)}
             />
           </div>

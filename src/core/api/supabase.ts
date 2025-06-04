@@ -6,7 +6,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/supabase";
+import type { Database } from "@/integrations/supabase/types";
 import { API_CONFIG } from "@/core/config/api";
 import { isDevelopment } from "@/core/config/environment";
 
@@ -56,7 +56,7 @@ if (isDevelopment()) {
     try {
       console.log("Checking Supabase connection...");
       const { data, error } = await supabase
-        .from("petrol_providers")
+        .from("employees")
         .select("count")
         .limit(1);
 

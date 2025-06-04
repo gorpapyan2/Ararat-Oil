@@ -4,6 +4,6 @@
  */
 
 export {
-  CreateButtonProps,
+  type CreateButtonProps,
   CreateButton,
 } from "@/core/components/ui/primitives/create-button";

@@ -42,7 +42,7 @@ export function FinancialDashboardStandardized({
   const [period, setPeriod] = useState<"7d" | "30d" | "90d">("30d");
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { financialSummary, isLoading, error } = useFinance();
+  const { financeOverview, isLoading, error } = useFinance();
 
   if (isLoading) {
     return (
@@ -65,7 +65,7 @@ export function FinancialDashboardStandardized({
 
   const getTrendIcon = (value: number) => {
     return value >= 0 ? (
-      <ArrowUpRight className="h-4 w-4 text-emerald-500" />
+      <ArrowUpRight className="h-4 w-4 text-green-500" />
     ) : (
       <ArrowDownRight className="h-4 w-4 text-red-500" />
     );
@@ -92,7 +92,7 @@ export function FinancialDashboardStandardized({
           <div className="flex items-center space-x-1">
             {getTrendIcon(trend)}
             <span
-              className={`text-xs ${trend >= 0 ? "text-emerald-500" : "text-red-500"}`}
+              className={`text-xs ${trend >= 0 ? "text-green-500" : "text-red-500"}`}
             >
               {formatTrendValue(trend)}
             </span>
@@ -131,35 +131,35 @@ export function FinancialDashboardStandardized({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {renderMetricCard(
           t("finance.total_revenue"),
-          financialSummary?.totalRevenue?.toLocaleString("en-US", {
+          financeOverview?.totalRevenue?.toLocaleString("en-US", {
             style: "currency",
             currency: "USD",
           }) || "$0.00",
-          financialSummary?.revenueTrend || 0,
+          financeOverview?.revenueTrend || 0,
           <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
         )}
         {renderMetricCard(
           t("finance.total_expenses"),
-          financialSummary?.totalExpenses?.toLocaleString("en-US", {
+          financeOverview?.totalExpenses?.toLocaleString("en-US", {
             style: "currency",
             currency: "USD",
           }) || "$0.00",
-          financialSummary?.expensesTrend || 0,
+          financeOverview?.expensesTrend || 0,
           <Wallet className="h-4 w-4 text-muted-foreground" />
         )}
         {renderMetricCard(
           t("finance.profit"),
-          financialSummary?.profit?.toLocaleString("en-US", {
+          financeOverview?.profit?.toLocaleString("en-US", {
             style: "currency",
             currency: "USD",
           }) || "$0.00",
-          financialSummary?.profitTrend || 0,
+          financeOverview?.profitTrend || 0,
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         )}
         {renderMetricCard(
           t("finance.profit_margin"),
-          `${financialSummary?.profitMargin?.toFixed(1) || 0}%`,
-          financialSummary?.profitMarginTrend || 0,
+          `${financeOverview?.profitMargin?.toFixed(1) || 0}%`,
+          financeOverview?.profitMarginTrend || 0,
           <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
         )}
       </div>

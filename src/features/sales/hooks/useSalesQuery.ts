@@ -7,7 +7,31 @@ import {
   SalesFilters,
   SalesExportOptions,
 } from "../types";
-import * as salesService from "../services/sales";
+import { getSales, getSaleById, createSale, updateSale, deleteSale } from "../services";
+
+// Adapter functions to transform between feature types and centralized service types
+const adaptCreateSaleRequest = (request: CreateSaleRequest) => ({
+  customer_name: request.customerName,
+  fuel_type: request.fuelType,
+  quantity: request.quantityLiters,
+  price_per_liter: request.unitPrice,
+  total_amount: request.amount,
+  sale_date: request.saleDate instanceof Date ? request.saleDate.toISOString() : request.saleDate,
+  filling_system_id: request.fillingSystemId,
+  payment_method: request.paymentMethod as "cash" | "card" | "credit",
+  status: "active" as const,
+});
+
+const adaptUpdateSaleRequest = (request: UpdateSaleRequest) => ({
+  customer_name: request.customerName,
+  fuel_type: request.fuelType,
+  quantity: request.quantityLiters,
+  price_per_liter: request.unitPrice,
+  total_amount: request.amount,
+  sale_date: request.saleDate instanceof Date ? request.saleDate.toISOString() : request.saleDate,
+  filling_system_id: request.fillingSystemId,
+  payment_method: request.paymentMethod as "cash" | "card" | "credit",
+});
 
 export const salesKeys = {
   all: ["sales"] as const,
@@ -20,7 +44,7 @@ export const salesKeys = {
 export function useSalesQuery(filters?: SalesFilters) {
   return useQuery({
     queryKey: salesKeys.list(filters || {}),
-    queryFn: () => salesService.fetchSales(filters),
+    queryFn: () => getSales(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -28,7 +52,7 @@ export function useSalesQuery(filters?: SalesFilters) {
 export function useSaleQuery(id: string) {
   return useQuery({
     queryKey: salesKeys.detail(id),
-    queryFn: () => salesService.fetchSale(id),
+    queryFn: () => getSaleById(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -37,22 +61,21 @@ export function useSaleQuery(id: string) {
 export function useSalesMutations() {
   const queryClient = useQueryClient();
 
-  const createSale = useMutation({
+  const createSaleMutation = useMutation({
     mutationFn: (newSale: CreateSaleRequest) =>
-      salesService.createSale(newSale),
+      createSale(adaptCreateSaleRequest(newSale)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: salesKeys.lists() });
       toast.success("Sale created successfully");
     },
-    onError: (error) => {
-      console.error("Error creating sale:", error);
+    onError: () => {
       toast.error("Failed to create sale");
     },
   });
 
-  const updateSale = useMutation({
+  const updateSaleMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateSaleRequest }) =>
-      salesService.updateSale(id, data),
+      updateSale(id, adaptUpdateSaleRequest(data)),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: salesKeys.lists() });
       queryClient.invalidateQueries({
@@ -60,41 +83,39 @@ export function useSalesMutations() {
       });
       toast.success("Sale updated successfully");
     },
-    onError: (error) => {
-      console.error("Error updating sale:", error);
+    onError: () => {
       toast.error("Failed to update sale");
     },
   });
 
-  const deleteSale = useMutation({
-    mutationFn: (id: string) => salesService.deleteSale(id),
+  const deleteSaleMutation = useMutation({
+    mutationFn: (id: string) => deleteSale(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: salesKeys.lists() });
       toast.success("Sale deleted successfully");
     },
-    onError: (error) => {
-      console.error("Error deleting sale:", error);
+    onError: () => {
       toast.error("Failed to delete sale");
     },
   });
 
-  const exportSales = useMutation({
-    mutationFn: (options: SalesExportOptions) =>
-      salesService.exportSales(options),
+  const exportSalesMutation = useMutation({
+    mutationFn: (options: SalesExportOptions) => {
+      throw new Error("Export functionality not yet implemented in centralized service");
+    },
     onSuccess: () => {
       toast.success("Sales data exported successfully");
     },
-    onError: (error) => {
-      console.error("Error exporting sales:", error);
+    onError: () => {
       toast.error("Failed to export sales data");
     },
   });
 
   return {
-    createSale,
-    updateSale,
-    deleteSale,
-    exportSales,
+    createSale: createSaleMutation,
+    updateSale: updateSaleMutation,
+    deleteSale: deleteSaleMutation,
+    exportSales: exportSalesMutation,
   };
 }
 

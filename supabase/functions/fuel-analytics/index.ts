@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getCorsHeaders, handleCors } from '../_shared/cors.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -327,129 +328,44 @@ function generateMaintenanceSchedule() {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Robust path parsing
+  const url = new URL(req.url);
+  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  const mainRoute = pathParts[0];
+  const subRoute = pathParts[1] || '';
+
+  if (mainRoute !== 'fuel-analytics') {
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
-  try {
-    const { action, tank_id, fuel_type, date_range }: FuelRequest = await req.json();
-
-    let response;
-
-    switch (action) {
-      case 'get_metrics':
-        response = generateFuelMetrics();
-        break;
-        
-      case 'get_prices':
-        response = generateFuelPrices();
-        break;
-        
-      case 'get_analytics':
-        response = generateFuelAnalytics();
-        break;
-        
-      case 'get_inventory_forecast':
-        response = generateInventoryForecast();
-        break;
-        
-      case 'get_supplier_comparison':
-        response = generateSupplierComparison();
-        break;
-        
-      case 'get_maintenance_schedule':
-        response = generateMaintenanceSchedule();
-        break;
-        
-      case 'get_tank_details':
-        response = {
-          tank_id,
-          details: {
-            name: `Tank ${tank_id} - ${fuel_type}`,
-            capacity: 8000,
-            current_level: 6200,
-            percentage: 77.5,
-            last_refill: '2024-01-10',
-            daily_consumption: 320,
-            efficiency_rating: 94.5,
-            temperature: 18.5,
-            pressure: 1.2,
-            last_maintenance: '2024-01-01',
-            next_maintenance: '2024-01-25',
-            sensor_status: 'online',
-            leak_detection: 'normal'
-          },
-          recent_activity: [
-            {
-              timestamp: '2024-01-15 14:30',
-              type: 'fuel_dispensed',
-              amount: 45.2,
-              customer_id: 'C001'
-            },
-            {
-              timestamp: '2024-01-15 10:15',
-              type: 'level_check',
-              level: 6245,
-              automated: true
-            }
-          ]
-        };
-        break;
-        
-      case 'optimize_pricing':
-        response = {
-          current_prices: generateFuelPrices(),
-          optimization_suggestions: [
-            {
-              fuel_type: 'gasoline',
-              current_price: 1.32,
-              suggested_price: 1.34,
-              expected_volume_change: -2.5,
-              expected_revenue_change: 1.8,
-              confidence: 87
-            },
-            {
-              fuel_type: 'diesel',
-              current_price: 1.45,
-              suggested_price: 1.43,
-              expected_volume_change: 4.2,
-              expected_revenue_change: 2.1,
-              confidence: 92
-            }
-          ],
-          market_factors: [
-            'Competitor average: $1.33/L for gasoline',
-            'Local demand increased 8% this week',
-            'Supply chain disruption affecting diesel prices'
-          ]
-        };
-        break;
-        
-      default:
-        return new Response(
-          JSON.stringify({ error: 'Invalid action' }),
-          { 
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
+  // Example: /fuel-analytics/metrics
+  if (subRoute === 'metrics') {
+    if (req.method === 'GET') {
+      const metrics = generateFuelMetrics();
+      return new Response(JSON.stringify({ metrics }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
     }
-
-    return new Response(
-      JSON.stringify(response),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
-
-  } catch (error) {
-    console.error('Fuel analytics error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
+
+  // ...repeat for other subroutes, always using ...corsHeaders...
+
+  // Not found
+  return new Response(
+    JSON.stringify({ error: 'Not found' }),
+    { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
 }); 

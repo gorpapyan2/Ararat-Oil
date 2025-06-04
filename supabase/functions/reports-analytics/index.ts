@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getCorsHeaders, handleCors } from '../_shared/cors.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -253,12 +254,40 @@ async function generateFinancialReport(request: ReportRequest): Promise<ReportDa
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Robust path parsing
+  const url = new URL(req.url);
+  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  const mainRoute = pathParts[0];
+  const subRoute = pathParts[1] || '';
+
+  if (mainRoute !== 'reports-analytics') {
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Example: /reports-analytics/metrics
+  if (subRoute === 'metrics') {
+    if (req.method === 'GET') {
+      // Replace with actual logic
+      return new Response(JSON.stringify({ metrics: {} }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 
   try {
-    const url = new URL(req.url);
     const endpoint = url.pathname.split('/').pop();
 
     switch (endpoint) {

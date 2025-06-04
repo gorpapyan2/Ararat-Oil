@@ -17,7 +17,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/core/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/features/auth";
 import { useEffect, useState, useCallback } from "react";
 import { formatCurrency } from "@/shared/utils";
 import { Skeleton } from "@/core/components/ui/skeleton";
@@ -176,7 +176,7 @@ const Shifts = () => {
       const shifts = await fetchShiftHistory(user.id, 50);
 
       // Format the data for display
-      const formattedData = shifts.map((shift) => ({
+      const formattedData = shifts.map((shift: Shift) => ({
         ...shift,
         employee_name: employeeName,
         status: shift.status as "OPEN" | "CLOSED",

@@ -86,10 +86,7 @@ export type * from "./cards/types";
 // Re-export composed components that don't have conflicts
 export * from "./composed/form-fields";
 export * from "./composed/dialog";
-// Export daterangepicker selectively to avoid conflicts
-import { DateRangePicker } from "./composed/daterangepicker";
-export { DateRangePicker };
-export * from "./composed/datepicker";
+// Note: DateRangePicker and datepicker have been deprecated and removed
 
 // Handle sheet conflicts
 import {

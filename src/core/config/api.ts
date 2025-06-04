@@ -9,16 +9,11 @@
  * Base API configuration
  */
 export const API_CONFIG = {
-  // Base URLs
-  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || "https://qnghvjeunmicykrzpeog.supabase.co",
-  FUNCTIONS_URL:
-    import.meta.env.VITE_SUPABASE_FUNCTIONS_URL ||
-    "https://qnghvjeunmicykrzpeog.supabase.co/functions/v1",
-
-  // Authentication
-  SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || "",
-  PROJECT_ID:
-    import.meta.env.VITE_SUPABASE_PROJECT_ID || "qnghvjeunmicykrzpeog",
+  // Supabase Configuration
+  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+  SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  FUNCTIONS_URL: import.meta.env.VITE_SUPABASE_FUNCTIONS_URL,
+  PROJECT_ID: import.meta.env.VITE_SUPABASE_PROJECT_ID,
 
   // Timeouts (in milliseconds)
   TIMEOUT: 30000, // 30 seconds

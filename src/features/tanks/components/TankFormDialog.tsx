@@ -1,8 +1,9 @@
-import { useState } from "react";
-import * as z from "zod";
-import { useTranslation } from "react-i18next";
+import React, { useState } from "react";
+import { Input } from "@/core/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
+import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks";
+import { useTranslation } from "react-i18next";
 import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
 import {
   FormControl,
@@ -11,26 +12,27 @@ import {
   FormLabel,
   FormMessage,
 } from "@/core/components/ui/primitives/form";
-import { Input } from "@/core/components/ui/primitives/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/core/components/ui/primitives/select";
-import { tanksService } from "../services/tanksService";
-import {
-  FuelTank,
-  CreateTankRequest,
-  UpdateTankRequest,
-} from "../types/tanks.types";
 import { toast as sonnerToast } from "sonner";
+
+// Form validation schema
+const tankFormSchema = z.object({
+  name: z.string().min(1, "Tank name is required"),
+  capacity: z.number().min(1, "Capacity must be greater than 0"),
+  fuel_type_id: z.string().min(1, "Fuel type is required"),
+  current_level: z.number().min(0, "Current level cannot be negative"),
+  is_active: z.boolean(),
+});
+
+type TankFormData = z.infer<typeof tankFormSchema>;
+
+// Import from core/api instead of services
+import { tanksApi, Tank, TankCreate, TankUpdate } from "@/core/api";
+import { useToast } from "@/hooks/useToast";
 
 interface TankFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tank?: FuelTank;
+  tank?: Tank;
   fuelTypes: { id: string; name: string }[];
   onSuccess?: () => void;
 }
@@ -47,39 +49,17 @@ export function TankFormDialog({
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Define the form schema using zod
-  const tankFormSchema = z.object({
-    name: z.string().min(1, t("common.nameRequired", "Name is required")),
-    fuel_type_id: z
-      .string()
-      .min(1, t("common.fuelTypeRequired", "Fuel type is required")),
-    capacity: z.coerce
-      .number()
-      .positive(
-        t("tanks.capacityPositive", "Capacity must be a positive number")
-      ),
-    current_level: z.coerce
-      .number()
-      .nonnegative(
-        t(
-          "tanks.levelNonNegative",
-          "Current level must be a non-negative number"
-        )
-      ),
-  });
-
-  type TankFormValues = z.infer<typeof tankFormSchema>;
-
   // Set default values
-  const defaultValues: TankFormValues = {
+  const defaultValues: TankFormData = {
     name: tank?.name || "",
     fuel_type_id: tank?.fuel_type_id || "",
     capacity: tank?.capacity || 0,
     current_level: tank?.current_level || 0,
+    is_active: tank?.is_active ?? true,
   };
 
   // Form submission handler
-  const onSubmit = async (values: TankFormValues) => {
+  const onSubmit = async (values: TankFormData) => {
     setIsSubmitting(true);
     try {
       const data = {
@@ -87,15 +67,16 @@ export function TankFormDialog({
         fuel_type_id: values.fuel_type_id,
         capacity: values.capacity,
         current_level: values.current_level,
+        is_active: values.is_active,
       };
 
       if (tank) {
-        await tanksService.updateTank(tank.id, data as UpdateTankRequest);
+        await tanksApi.updateTank(tank.id, data as TankUpdate);
         sonnerToast.success(t("common.success"), {
           description: t("tanks.tankUpdated", "Tank updated successfully"),
         });
       } else {
-        await tanksService.createTank(data as CreateTankRequest);
+        await tanksApi.createTank(data as TankCreate);
         sonnerToast.success(t("common.success"), {
           description: t("tanks.tankCreated", "Tank created successfully"),
         });
@@ -212,6 +193,38 @@ export function TankFormDialog({
                 </FormLabel>
                 <FormControl>
                   <Input type="number" min="0" step="0.01" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="is_active"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("common.status", "Status")}</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => field.onChange(value === "active")}
+                    defaultValue={field.value ? "active" : "inactive"}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={t(
+                            "common.selectStatus",
+                            "Select status"
+                          )}
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

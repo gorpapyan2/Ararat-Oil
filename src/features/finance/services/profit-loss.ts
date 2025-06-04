@@ -7,7 +7,9 @@
  * - getById -> getProfitLossById
  */
 
-import { profitLossApi, adapters, ProfitLoss } from "@/core/api";
+import { logger } from "@/core/utils/logger";
+import { createApiError } from "@/core/utils/error-handling";
+import { profitLossApi, ProfitLoss } from "@/core/api";
 import { ProfitLossSummary } from "@/types";
 
 export type PeriodType =
@@ -184,4 +186,204 @@ export const generateAndSaveProfitLoss = async (
     console.error("Failed to generate profit-loss record:", err);
     throw err;
   }
-}; 
+};
+
+// Summary calculations
+const DEFAULT_SUMMARY = {
+  total: 0,
+  current_month: 0,
+  previous_month: 0,
+  change_percentage: 0,
+  trend: "stable" as const,
+};
+
+/**
+ * Fetches profit and loss data for a specific date range
+ */
+export async function fetchProfitLossData(
+  startDate?: string,
+  endDate?: string,
+  period: "daily" | "weekly" | "monthly" = "monthly"
+): Promise<ProfitLoss[]> {
+  try {
+    logger.info("Fetching profit/loss data", { startDate, endDate, period });
+
+    const response = await profitLossApi.getProfitLoss({
+      start_date: startDate,
+      end_date: endDate,
+      period,
+    });
+
+    if (!response.success) {
+      throw createApiError(
+        "Failed to fetch profit/loss data",
+        response.error || "Unknown error"
+      );
+    }
+
+    return response.data || [];
+  } catch (error) {
+    logger.error("Error fetching profit/loss data:", error);
+    throw error;
+  }
+}
+
+/**
+ * Creates a new profit/loss record
+ */
+export async function createProfitLossRecord(
+  data: Omit<ProfitLoss, "id" | "created_at" | "updated_at">
+): Promise<ProfitLoss> {
+  try {
+    logger.info("Creating profit/loss record", data);
+
+    const response = await profitLossApi.createProfitLoss(data);
+
+    if (!response.success) {
+      throw createApiError(
+        "Failed to create profit/loss record",
+        response.error || "Unknown error"
+      );
+    }
+
+    if (!response.data) {
+      throw createApiError(
+        "No data returned when creating profit/loss record",
+        "Empty response"
+      );
+    }
+
+    return response.data;
+  } catch (error) {
+    logger.error("Error creating profit/loss record:", error);
+    throw error;
+  }
+}
+
+/**
+ * Updates an existing profit/loss record
+ */
+export async function updateProfitLossRecord(
+  id: string,
+  data: Partial<Omit<ProfitLoss, "id" | "created_at" | "updated_at">>
+): Promise<ProfitLoss> {
+  try {
+    logger.info("Updating profit/loss record", { id, data });
+
+    const response = await profitLossApi.updateProfitLoss(id, data);
+
+    if (!response.success) {
+      throw createApiError(
+        "Failed to update profit/loss record",
+        response.error || "Unknown error"
+      );
+    }
+
+    if (!response.data) {
+      throw createApiError(
+        "No data returned when updating profit/loss record",
+        "Empty response"
+      );
+    }
+
+    return response.data;
+  } catch (error) {
+    logger.error("Error updating profit/loss record:", error);
+    throw error;
+  }
+}
+
+/**
+ * Deletes a profit/loss record
+ */
+export async function deleteProfitLossRecord(id: string): Promise<void> {
+  try {
+    logger.info("Deleting profit/loss record", { id });
+
+    const response = await profitLossApi.deleteProfitLoss(id);
+
+    if (!response.success) {
+      throw createApiError(
+        "Failed to delete profit/loss record",
+        response.error || "Unknown error"
+      );
+    }
+  } catch (error) {
+    logger.error("Error deleting profit/loss record:", error);
+    throw error;
+  }
+}
+
+/**
+ * Gets profit/loss summary for dashboard display
+ */
+export async function getProfitLossSummary(
+  startDate?: string,
+  endDate?: string
+) {
+  try {
+    logger.info("Fetching profit/loss summary", { startDate, endDate });
+
+    const response = await profitLossApi.getProfitLossSummary({
+      start_date: startDate,
+      end_date: endDate,
+    });
+
+    if (!response.success) {
+      logger.warn("Failed to fetch profit/loss summary, using default");
+      return DEFAULT_SUMMARY;
+    }
+
+    return response.data || DEFAULT_SUMMARY;
+  } catch (error) {
+    logger.error("Error fetching profit/loss summary:", error);
+    return DEFAULT_SUMMARY;
+  }
+}
+
+/**
+ * Gets profit/loss data for array of entries
+ */
+export async function getProfitLossDataArray(
+  filters?: { start_date?: string; end_date?: string; period?: string }
+): Promise<ProfitLoss[]> {
+  try {
+    logger.info("Fetching profit/loss data array", filters);
+
+    const response = await profitLossApi.getProfitLoss(filters || {});
+
+    if (!response.success) {
+      logger.warn("Failed to fetch profit/loss data array, returning empty array");
+      return [];
+    }
+
+    const dataArray = Array.isArray(response.data) ? response.data : [response.data].filter(Boolean);
+    return dataArray;
+  } catch (error) {
+    logger.error("Error fetching profit/loss data array:", error);
+    return [];
+  }
+}
+
+/**
+ * Gets single profit/loss entry by ID
+ */
+export async function getProfitLossById(id: string) {
+  try {
+    logger.info("Fetching profit/loss by ID", { id });
+
+    const response = await profitLossApi.getProfitLossById(id);
+
+    if (!response.success) {
+      throw createApiError(
+        "Failed to fetch profit/loss record",
+        response.error || "Unknown error"
+      );
+    }
+
+    return response.data || null;
+  } catch (error) {
+    logger.error("Error fetching profit/loss by ID:", error);
+    throw error;
+  }
+} 

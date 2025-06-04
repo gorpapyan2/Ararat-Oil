@@ -6,7 +6,8 @@
 
 import { fetchFromFunction, ApiResponse } from "../client";
 import { API_ENDPOINTS } from "@/core/config/api";
-import type { Tank, TankCreate, TankUpdate, TankLevelChange } from "../types";
+import type { Tank, TankCreate, TankUpdate } from "../types";
+import { TankLevelChange } from "@/types";
 
 const ENDPOINT = API_ENDPOINTS.FUNCTIONS.TANKS;
 
@@ -87,6 +88,20 @@ export async function adjustTankLevel(
 }
 
 /**
+ * Gets tank summary with statistics
+ */
+export async function getTankSummary(): Promise<ApiResponse<{
+  totalTanks: number;
+  activeTanks: number;
+  totalCapacity: number;
+  totalCurrentLevel: number;
+  lowLevelTanks: number;
+  criticalLevelTanks: number;
+}>> {
+  return fetchFromFunction(`${ENDPOINT}/summary`);
+}
+
+/**
  * Tanks API object with all methods
  */
 export const tanksApi = {
@@ -97,4 +112,5 @@ export const tanksApi = {
   updateTank,
   deleteTank,
   adjustTankLevel,
+  getTankSummary,
 };

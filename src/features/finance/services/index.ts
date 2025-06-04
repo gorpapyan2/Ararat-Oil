@@ -1,6 +1,3 @@
-// Re-export the original service for backwards compatibility
-export * from "./financeService";
-
 // Import API endpoints
 import { transactionsApi } from "@/core/api/endpoints/transactions";
 import { expensesApi } from "@/core/api/endpoints/expenses";
@@ -10,7 +7,6 @@ import { fetchJson } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/config/api';
 
 // Import mock data provider
-import { mockDataProvider } from "@/services/mockData";
 
 // Import types
 import type {

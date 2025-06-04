@@ -12,7 +12,6 @@ export { FillingSystemFormStandardized } from "./components/FillingSystemFormSta
 export { FillingSystemList } from "./components/FillingSystemList";
 export { FillingSystemHeader } from "./components/FillingSystemHeader";
 export { ConfirmDeleteDialogStandardized } from "./components/ConfirmDeleteDialogStandardized";
-export { TankDiagnostics } from "./components/TankDiagnostics";
 
 // Re-export hooks
 export { useFillingSystem } from "./hooks/useFillingSystem";

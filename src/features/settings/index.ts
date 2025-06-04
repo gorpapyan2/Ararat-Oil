@@ -13,9 +13,6 @@ export {
 export type {
   UserPreferences,
   NotificationPreferences,
-  AppearanceSettings,
-  SecuritySettings,
-  PrivacySettings,
   UserSettings,
 } from "./types";
 

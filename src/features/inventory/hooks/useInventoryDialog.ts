@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useEntityDialog } from "@/shared/hooks/base";
-import { useToast } from "@/core/hooks/use-toast";
+import { useToast } from "@/core/hooks/useToast";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Define inventory item type

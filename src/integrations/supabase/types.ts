@@ -50,6 +50,9 @@ export type Database = {
           date: string;
           description: string;
           id: string;
+          invoice_number: string | null;
+          notes: string | null;
+          payment_method: string | null;
           payment_status: string;
         };
         Insert: {
@@ -59,6 +62,9 @@ export type Database = {
           date: string;
           description: string;
           id?: string;
+          invoice_number?: string | null;
+          notes?: string | null;
+          payment_method?: string | null;
           payment_status: string;
         };
         Update: {
@@ -68,205 +74,82 @@ export type Database = {
           date?: string;
           description?: string;
           id?: string;
+          invoice_number?: string | null;
+          notes?: string | null;
+          payment_method?: string | null;
           payment_status?: string;
         };
         Relationships: [];
       };
       filling_systems: {
         Row: {
-          created_at: string;
-          id: string;
-          name: string;
-          tank_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          name: string;
-          tank_id: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          name?: string;
-          tank_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "filling_systems_tank_id_fkey";
-            columns: ["tank_id"];
-            isOneToOne: false;
-            referencedRelation: "fuel_tanks";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      fuel_supplies: {
-        Row: {
-          comments: string | null;
-          created_at: string | null;
-          delivery_date: string;
-          employee_id: string;
-          id: string;
-          payment_method: string | null;
-          payment_status: string;
-          price_per_liter: number;
-          provider_id: string;
-          quantity_liters: number;
-          tank_id: string;
-          total_cost: number;
-        };
-        Insert: {
-          comments?: string | null;
-          created_at?: string | null;
-          delivery_date: string;
-          employee_id: string;
-          id?: string;
-          payment_method?: string | null;
-          payment_status?: string;
-          price_per_liter: number;
-          provider_id: string;
-          quantity_liters: number;
-          tank_id: string;
-          total_cost: number;
-        };
-        Update: {
-          comments?: string | null;
-          created_at?: string | null;
-          delivery_date?: string;
-          employee_id?: string;
-          id?: string;
-          payment_method?: string | null;
-          payment_status?: string;
-          price_per_liter?: number;
-          provider_id?: string;
-          quantity_liters?: number;
-          tank_id?: string;
-          total_cost?: number;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "fuel_supplies_employee_id_fkey";
-            columns: ["employee_id"];
-            isOneToOne: false;
-            referencedRelation: "employees";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "fuel_supplies_provider_id_fkey";
-            columns: ["provider_id"];
-            isOneToOne: false;
-            referencedRelation: "petrol_providers";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "fuel_supplies_tank_id_fkey";
-            columns: ["tank_id"];
-            isOneToOne: false;
-            referencedRelation: "fuel_tanks";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      fuel_tanks: {
-        Row: {
-          capacity: number;
-          created_at: string | null;
-          current_level: number;
-          fuel_type: string;
-          id: string;
-          name: string;
-        };
-        Insert: {
-          capacity: number;
-          created_at?: string | null;
-          current_level?: number;
-          fuel_type: string;
-          id?: string;
-          name: string;
-        };
-        Update: {
-          capacity?: number;
-          created_at?: string | null;
-          current_level?: number;
-          fuel_type?: string;
-          id?: string;
-          name?: string;
-        };
-        Relationships: [];
-      };
-      payment_methods: {
-        Row: {
-          created_at: string | null;
           id: number;
-          method_name: string;
-          updated_at: string | null;
-          user_id: string;
+          name: string;
+          status: string;
+          tank_id: string | null;
         };
         Insert: {
-          created_at?: string | null;
-          id?: never;
-          method_name: string;
-          updated_at?: string | null;
-          user_id: string;
+          id?: number;
+          name: string;
+          status?: string;
+          tank_id?: string | null;
         };
         Update: {
-          created_at?: string | null;
-          id?: never;
-          method_name?: string;
-          updated_at?: string | null;
-          user_id?: string;
+          id?: number;
+          name?: string;
+          status?: string;
+          tank_id?: string | null;
         };
         Relationships: [];
       };
-      petrol_providers: {
+      inventory: {
         Row: {
-          contact: string;
-          created_at: string;
-          id: string;
-          is_active: boolean | null;
-          name: string;
-          updated_at: string;
+          fuel_type: string;
+          id: number;
+          last_updated: string | null;
+          quantity: number;
         };
         Insert: {
-          contact: string;
-          created_at?: string;
-          id?: string;
-          is_active?: boolean | null;
-          name: string;
-          updated_at?: string;
+          fuel_type: string;
+          id?: number;
+          last_updated?: string | null;
+          quantity?: number;
         };
         Update: {
-          contact?: string;
-          created_at?: string;
-          id?: string;
-          is_active?: boolean | null;
-          name?: string;
-          updated_at?: string;
+          fuel_type?: string;
+          id?: number;
+          last_updated?: string | null;
+          quantity?: number;
         };
         Relationships: [];
       };
       profiles: {
         Row: {
-          created_at: string;
-          email: string;
+          avatar_url: string | null;
+          email: string | null;
           full_name: string | null;
           id: string;
-          updated_at: string;
+          role: string | null;
+          updated_at: string | null;
+          username: string | null;
         };
         Insert: {
-          created_at?: string;
-          email: string;
+          avatar_url?: string | null;
+          email?: string | null;
           full_name?: string | null;
           id: string;
-          updated_at?: string;
+          role?: string | null;
+          updated_at?: string | null;
+          username?: string | null;
         };
         Update: {
-          created_at?: string;
-          email?: string;
+          avatar_url?: string | null;
+          email?: string | null;
           full_name?: string | null;
           id?: string;
-          updated_at?: string;
+          role?: string | null;
+          updated_at?: string | null;
+          username?: string | null;
         };
         Relationships: [];
       };
@@ -283,9 +166,9 @@ export type Database = {
           created_at?: string | null;
           id?: string;
           period: string;
-          profit?: number;
-          total_expenses?: number;
-          total_sales?: number;
+          profit: number;
+          total_expenses: number;
+          total_sales: number;
         };
         Update: {
           created_at?: string | null;
@@ -301,53 +184,34 @@ export type Database = {
         Row: {
           created_at: string | null;
           date: string;
-          employee_id: string | null;
-          filling_system_id: string | null;
-          id: string;
-          meter_end: number | null;
-          meter_start: number | null;
-          payment_status: string | null;
+          filling_system_id: number | null;
+          fuel_type: string;
+          id: number;
+          liters: number;
           price_per_unit: number;
-          shift_id: string | null;
-          total_sales: number;
-          total_sold_liters: number;
+          total_sales: number | null;
         };
         Insert: {
           created_at?: string | null;
-          date: string;
-          employee_id?: string | null;
-          filling_system_id?: string | null;
-          id?: string;
-          meter_end?: number | null;
-          meter_start?: number | null;
-          payment_status?: string | null;
+          date?: string;
+          filling_system_id?: number | null;
+          fuel_type: string;
+          id?: number;
+          liters: number;
           price_per_unit: number;
-          shift_id?: string | null;
-          total_sales: number;
-          total_sold_liters?: number;
+          total_sales?: number | null;
         };
         Update: {
           created_at?: string | null;
           date?: string;
-          employee_id?: string | null;
-          filling_system_id?: string | null;
-          id?: string;
-          meter_end?: number | null;
-          meter_start?: number | null;
-          payment_status?: string | null;
+          filling_system_id?: number | null;
+          fuel_type?: string;
+          id?: number;
+          liters?: number;
           price_per_unit?: number;
-          shift_id?: string | null;
-          total_sales?: number;
-          total_sold_liters?: number;
+          total_sales?: number | null;
         };
         Relationships: [
-          {
-            foreignKeyName: "sales_employee_id_fkey";
-            columns: ["employee_id"];
-            isOneToOne: false;
-            referencedRelation: "employees";
-            referencedColumns: ["id"];
-          },
           {
             foreignKeyName: "sales_filling_system_id_fkey";
             columns: ["filling_system_id"];
@@ -367,7 +231,7 @@ export type Database = {
           shift_id: string;
         };
         Insert: {
-          amount: number;
+          amount?: number;
           created_at?: string | null;
           id?: string;
           payment_method: string;
@@ -414,7 +278,7 @@ export type Database = {
           opening_cash?: number;
           sales_total?: number;
           start_time?: string;
-          status: string;
+          status?: string;
           updated_at?: string | null;
         };
         Update: {
@@ -439,174 +303,15 @@ export type Database = {
           },
         ];
       };
-      tank_level_changes: {
-        Row: {
-          change_amount: number;
-          change_type: string;
-          created_at: string | null;
-          id: string;
-          new_level: number;
-          previous_level: number;
-          tank_id: string;
-        };
-        Insert: {
-          change_amount: number;
-          change_type: string;
-          created_at?: string | null;
-          id?: string;
-          new_level: number;
-          previous_level: number;
-          tank_id: string;
-        };
-        Update: {
-          change_amount?: number;
-          change_type?: string;
-          created_at?: string | null;
-          id?: string;
-          new_level?: number;
-          previous_level?: number;
-          tank_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "tank_level_changes_tank_id_fkey";
-            columns: ["tank_id"];
-            isOneToOne: false;
-            referencedRelation: "fuel_tanks";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      transactions: {
-        Row: {
-          amount: number;
-          created_at: string | null;
-          description: string | null;
-          employee_id: string;
-          entity_id: string | null;
-          entity_type: string | null;
-          id: string;
-          payment_method: string | null;
-          payment_reference: string | null;
-          payment_status: string;
-          sale_id: string | null;
-          updated_at: string | null;
-        };
-        Insert: {
-          amount: number;
-          created_at?: string | null;
-          description?: string | null;
-          employee_id: string;
-          entity_id?: string | null;
-          entity_type?: string | null;
-          id?: string;
-          payment_method?: string | null;
-          payment_reference?: string | null;
-          payment_status?: string;
-          sale_id?: string | null;
-          updated_at?: string | null;
-        };
-        Update: {
-          amount?: number;
-          created_at?: string | null;
-          description?: string | null;
-          employee_id?: string;
-          entity_id?: string | null;
-          entity_type?: string | null;
-          id?: string;
-          payment_method?: string | null;
-          payment_reference?: string | null;
-          payment_status?: string;
-          sale_id?: string | null;
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "transactions_employee_id_fkey";
-            columns: ["employee_id"];
-            isOneToOne: false;
-            referencedRelation: "employees";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "transactions_sale_id_fkey";
-            columns: ["sale_id"];
-            isOneToOne: false;
-            referencedRelation: "sales";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      create_sale_and_update_tank: {
-        Args: {
-          p_date: string;
-          p_price_per_unit: number;
-          p_total_sales: number;
-          p_total_sold_liters: number;
-          p_meter_start: number;
-          p_meter_end: number;
-          p_filling_system_id: string;
-          p_employee_id: string;
-          p_tank_id: string;
-          p_previous_level: number;
-          p_new_level: number;
-          p_change_amount: number;
-        };
-        Returns: {
-          created_at: string | null;
-          date: string;
-          employee_id: string | null;
-          filling_system_id: string | null;
-          id: string;
-          meter_end: number | null;
-          meter_start: number | null;
-          payment_status: string | null;
-          price_per_unit: number;
-          shift_id: string | null;
-          total_sales: number;
-          total_sold_liters: number;
-        };
-      };
-      delete_sale_and_restore_tank: {
-        Args: {
-          p_sale_id: string;
-          p_tank_id: string;
-          p_previous_level: number;
-          p_new_level: number;
-          p_change_amount: number;
-        };
-        Returns: undefined;
-      };
-      record_tank_level_change: {
-        Args: {
-          p_tank_id: string;
-          p_change_amount: number;
-          p_previous_level: number;
-          p_new_level: number;
-          p_change_type: string;
-        };
-        Returns: undefined;
-      };
+      [_ in never]: never;
     };
     Enums: {
-      employee_status: "active" | "on_leave" | "terminated";
-      expense_category:
-        | "utilities"
-        | "rent"
-        | "salaries"
-        | "maintenance"
-        | "supplies"
-        | "taxes"
-        | "insurance"
-        | "other";
-      fuel_type: "petrol" | "diesel" | "gas" | "kerosene" | "cng";
-      payment_method: "cash" | "card" | "bank_transfer" | "mobile_payment";
-      payment_status: "pending" | "completed" | "failed" | "refunded";
+      [_ in never]: never;
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -721,21 +426,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      employee_status: ["active", "on_leave", "terminated"],
-      expense_category: [
-        "utilities",
-        "rent",
-        "salaries",
-        "maintenance",
-        "supplies",
-        "taxes",
-        "insurance",
-        "other",
-      ],
-      fuel_type: ["petrol", "diesel", "gas", "kerosene", "cng"],
-      payment_method: ["cash", "card", "bank_transfer", "mobile_payment"],
-      payment_status: ["pending", "completed", "failed", "refunded"],
-    },
+    Enums: {},
   },
 } as const;

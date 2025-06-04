@@ -20,12 +20,12 @@ import { type EmployeeFormValues } from "@/features/employees/components/Employe
 // Import employee-related components and services
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  fetchEmployees,
+  getEmployees,
   createEmployee,
   updateEmployee,
   deleteEmployee,
-} from "@/services/employees";
-import { Employee } from "@/types";
+} from "@/features/employees/services";
+import { Employee } from "@/features/employees/types/employees.types";
 import { EmployeeDialogStandardized } from "@/features/employees/components/EmployeeDialogStandardized";
 import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
@@ -33,50 +33,40 @@ import {
   apiNamespaces,
   getApiErrorMessage,
   getApiSuccessMessage,
-  getApiActionLabel,
 } from "@/i18n/i18n";
-import { EmployeeManager } from "@/features/employees/components/EmployeeManager";
 
 // Create a function to convert between Employee types
 function convertToFeatureEmployee(employee: Employee): EmployeeFeature {
   return {
     id: employee.id,
-    first_name: employee.name.split(" ")[0] || "",
-    last_name: employee.name.split(" ")[1] || "",
-    email: employee.contact,
-    phone: "", // Not available in the global Employee type
+    first_name: employee.first_name,
+    last_name: employee.last_name,
+    email: employee.email,
+    phone: employee.phone,
     position: employee.position,
-    department: "", // Not available in the global Employee type
+    department: employee.department || "",
     hire_date: employee.hire_date,
     salary: employee.salary,
     status: employee.status,
-    notes: "", // Not available in the global Employee type
+    notes: employee.notes || "",
     created_at: employee.created_at,
-    updated_at: employee.created_at, // Not available in the global Employee type
+    updated_at: employee.updated_at || employee.created_at,
   };
 }
 
-// Create a type for create employee request that matches the API expectations
-interface CreateEmployeeRequest {
-  name: string;
-  position: string;
-  contact: string;
-  salary: number;
-  hire_date: string;
-  status: "active" | "inactive" | "on_leave";
-}
-
-// Convert form data to the format expected by createEmployee API
-function convertFormToCreateRequest(
-  data: EmployeeFormValues
-): CreateEmployeeRequest {
+// Convert form data to EmployeeFormData (which the API expects)
+function convertFormToEmployeeFormData(data: EmployeeFormValues) {
   return {
-    name: `${data.first_name} ${data.last_name}`,
+    first_name: data.first_name,
+    last_name: data.last_name,
+    email: data.email || "",
+    phone: data.phone || "",
     position: data.position,
-    contact: data.email || "",
-    salary: data.salary || 0,
+    department: data.department || "",
     hire_date: data.hire_date || new Date().toISOString(),
+    salary: data.salary || 0,
     status: data.status,
+    notes: data.notes || "",
   };
 }
 
@@ -94,7 +84,7 @@ export function EmployeesPage() {
   // Fetch employees data
   const { data: employeesData = [], isLoading } = useQuery({
     queryKey: ["employees"],
-    queryFn: () => fetchEmployees(),
+    queryFn: () => getEmployees(),
   });
 
   // Convert employees to the feature type - handle potential type mismatches with a type assertion
@@ -106,10 +96,14 @@ export function EmployeesPage() {
 
   // Mutations for CRUD operations with optimistic updates and proper error handling
   const createMutation = useMutation({
-    mutationFn: (data: EmployeeFormValues) => {
+    mutationFn: async (data: EmployeeFormValues) => {
       // Convert form data to the format expected by the API
-      const createRequest = convertFormToCreateRequest(data);
-      return createEmployee(createRequest);
+      const employeeFormData = convertFormToEmployeeFormData(data);
+      const result = await createEmployee(employeeFormData);
+      if (!result) {
+        throw new Error("Failed to create employee");
+      }
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
@@ -138,13 +132,14 @@ export function EmployeesPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (params: { id: string; data: EmployeeFormValues }) => {
+    mutationFn: async (params: { id: string; data: EmployeeFormValues }) => {
       // Convert form data to the format expected by the API
-      const updateRequest = {
-        id: params.id,
-        ...convertFormToCreateRequest(params.data),
-      };
-      return updateEmployee(params.id, updateRequest);
+      const employeeFormData = convertFormToEmployeeFormData(params.data);
+      const result = await updateEmployee(params.id, employeeFormData);
+      if (!result) {
+        throw new Error("Failed to update employee");
+      }
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
@@ -241,21 +236,28 @@ export function EmployeesPage() {
     // Convert back to the global Employee type for the dialog
     const globalEmployee: Employee = {
       id: employee.id,
-      name: `${employee.first_name} ${employee.last_name}`,
+      first_name: employee.first_name,
+      last_name: employee.last_name,
+      email: employee.email,
+      phone: employee.phone,
       position: employee.position,
-      contact: employee.email,
-      salary: employee.salary,
+      department: employee.department,
       hire_date: employee.hire_date,
+      salary: employee.salary,
       status: employee.status,
+      notes: employee.notes,
       created_at: employee.created_at,
+      updated_at: employee.updated_at,
     };
     setSelectedEmployee(globalEmployee);
     setIsDialogOpen(true);
   }, []);
 
-  const handleCloseDialog = useCallback(() => {
-    setIsDialogOpen(false);
-    setSelectedEmployee(null);
+  const handleCloseDialog = useCallback((open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      setSelectedEmployee(null);
+    }
   }, []);
 
   const handleOpenCreateDialog = useCallback(() => {
@@ -329,7 +331,7 @@ export function EmployeesPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-white">
-                AMD {employees.reduce((total, emp) => total + emp.salary, 0).toLocaleString()}
+                AMD {employees.length > 0 ? Math.round(employees.reduce((total, emp) => total + emp.salary, 0) / employees.length).toLocaleString() : 0}
               </div>
               <p className="text-xs text-gray-400">
                 Total: AMD {employees.reduce((total, emp) => total + emp.salary, 0).toLocaleString()}
@@ -353,7 +355,7 @@ export function EmployeesPage() {
         {/* Employee Dialog for Create/Edit */}
         <EmployeeDialogStandardized
           open={isDialogOpen}
-          onClose={handleCloseDialog}
+          onOpenChange={handleCloseDialog}
           onSubmit={selectedEmployee ? handleUpdateEmployee : handleCreateEmployee}
           employee={selectedEmployeeForDialog}
         />

@@ -1,47 +1,22 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { PageLayout } from "@/layouts/PageLayout";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/core/components/ui/card";
-import { Button, ButtonLink } from "@/core/components/ui/button";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/core/components/ui/alert";
-import {
-  ArrowLeft,
-  AlertCircle,
-  CalendarClock,
-  DollarSign,
-  FileCheck,
-  Clock,
-  Receipt,
-  Users,
-  CreditCard,
-} from "lucide-react";
-import {
-  formatCurrency,
-  formatDateTime,
-  calculateDuration,
-  calculateShiftDuration,
-} from "@/shared/utils";
-import { supabase } from "@/core/api/supabase";
-import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
+import { ArrowLeft, AlertCircle, DollarSign, Clock, User, CreditCard, Calendar, CheckCircle, XCircle, FileCheck, Receipt, Users, CalendarClock } from "lucide-react";
+
+// UI Components
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/core/components/ui/card";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { Skeleton } from "@/core/components/ui/skeleton";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/core/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/alert";
 import { Separator } from "@/core/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/tabs";
+import { PageLayout } from "@/layouts/PageLayout";
+import { ButtonLink } from "@/core/components/ui/primitives/button";
+
+// Services
+import { shiftsApi, salesApi, employeesApi } from "@/services/api";
+import type { Shift, Sale, Employee, ShiftPaymentMethod } from "@/core/api/types";
+import { formatDateTime } from "@/shared/utils";
 
 // Define the shift structure based on what's used in this component
 interface DetailShift {
@@ -54,7 +29,7 @@ interface DetailShift {
   end_time?: string;
   employee_name?: string;
   payment_methods?: ExtendedShiftPaymentMethod[];
-  user_id?: string;
+  employee_id?: string;
 }
 
 // Interface for raw data response from supabase
@@ -66,8 +41,7 @@ interface RawShiftData {
   sales_total?: number;
   start_time: string;
   end_time?: string;
-  user_id: string;
-  employee_id?: string;
+  employee_id: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -77,6 +51,32 @@ interface RawShiftData {
 interface ExtendedShiftPaymentMethod extends ShiftPaymentMethod {
   reference?: string; // For backwards compatibility
 }
+
+// Utility functions
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount);
+};
+
+const calculateDuration = (startTime: string): string => {
+  const start = new Date(startTime);
+  const now = new Date();
+  const diffMs = now.getTime() - start.getTime();
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  return `${hours}h ${minutes}m`;
+};
+
+const calculateShiftDuration = (startTime: string, endTime: string): string => {
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+  const diffMs = end.getTime() - start.getTime();
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  return `${hours}h ${minutes}m`;
+};
 
 // Add a safe formatting function
 const safeFormatDateTime = (dateString?: string | null): string => {
@@ -115,51 +115,27 @@ export default function ShiftDetails() {
         setIsLoading(true);
         setError(null);
 
-        // Fetch the shift data with explicit type casting to avoid deep type instantiation
-        const shiftResponse = await supabase
-          .from("shifts")
-          .select("*")
-          .eq("id", id || "")
-          .single();
-
+        // Fetch the shift data using modern API
+        const shiftResponse = await shiftsApi.getById(id || "");
         if (shiftResponse.error) {
-          throw shiftResponse.error;
+          throw new Error(shiftResponse.error);
         }
 
         if (!shiftResponse.data) {
           throw new Error("Shift not found");
         }
 
-        // Safely cast to our expected type
-        const typedShiftData = shiftResponse.data as RawShiftData;
+        const shiftData = shiftResponse.data;
 
-        // Log data for debugging
-        console.log("Fetched shift data:", typedShiftData);
-        console.log("User ID from shift:", typedShiftData.user_id);
-
-        // Fetch the employee name - use fetch API instead of supabase client to avoid type issues
+        // Fetch the employee name using employees API
         let employeeName = "Unknown";
         try {
-          // Only make the API call if user_id exists
-          if (typedShiftData.user_id) {
-            const response = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/employees?user_id=eq.${typedShiftData.user_id}&select=name`,
-              {
-                headers: {
-                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-                  Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                },
-              }
-            );
-
-            if (response.ok) {
-              const data = await response.json();
-              if (data && data.length > 0) {
-                employeeName = data[0].name;
-              }
+          if (shiftData.employee_id) {
+            // Get employee by ID
+            const employeeResponse = await employeesApi.getById(shiftData.employee_id);
+            if (employeeResponse.data) {
+              employeeName = employeeResponse.data.name;
             }
-          } else {
-            console.log("No user_id available for employee lookup");
           }
         } catch (err) {
           console.error("Error fetching employee name:", err);
@@ -167,44 +143,39 @@ export default function ShiftDetails() {
 
         // Fetch payment methods if the shift is closed
         let paymentMethods: ExtendedShiftPaymentMethod[] = [];
-        if (typedShiftData.status === "CLOSED" && id) {
-          // Correctly handle the API response
-          const paymentMethodsResponse =
-            await shiftsApi.getShiftPaymentMethods(id);
+        if (shiftData.is_active === false && id) {
+          const paymentMethodsResponse = await shiftsApi.getPaymentMethods(id);
           if (paymentMethodsResponse.data) {
-            // Cast the response data to our extended type to handle reference field
-            paymentMethods =
-              paymentMethodsResponse.data as unknown as ExtendedShiftPaymentMethod[];
+            paymentMethods = paymentMethodsResponse.data as unknown as ExtendedShiftPaymentMethod[];
           }
         }
 
-        // Calculate sales total
-        const salesResponse = await supabase
-          .from("sales")
-          .select("total_sales")
-          .eq("shift_id", id || "");
-
-        if (salesResponse.error) {
-          console.error("Error fetching sales data:", salesResponse.error);
+        // Calculate sales total using sales API
+        let salesTotal = 0;
+        try {
+          const salesResponse = await salesApi.getAll({ shift_id: id });
+          if (salesResponse.data) {
+            salesTotal = salesResponse.data.reduce(
+              (sum, sale) => sum + (sale.total_price || 0),
+              0
+            );
+          }
+        } catch (err) {
+          console.error("Error fetching sales data:", err);
         }
 
-        const salesTotal = (salesResponse.data || []).reduce(
-          (sum, sale) => sum + (sale.total_sales || 0),
-          0
-        );
-
-        // Set the complete shift data with proper structure
+        // Set the complete shift data
         setShift({
-          id: typedShiftData.id,
-          status: typedShiftData.status as "OPEN" | "CLOSED",
-          opening_cash: typedShiftData.opening_cash,
-          closing_cash: typedShiftData.closing_cash,
-          sales_total: salesTotal || typedShiftData.sales_total || 0,
-          start_time: typedShiftData.start_time,
-          end_time: typedShiftData.end_time,
-          employee_name: employeeName || "Unknown Employee",
+          id: shiftData.id,
+          status: shiftData.is_active ? "OPEN" : "CLOSED",
+          opening_cash: shiftData.opening_cash,
+          closing_cash: shiftData.closing_cash,
+          sales_total: salesTotal,
+          start_time: shiftData.start_time,
+          end_time: shiftData.end_time,
+          employee_name: employeeName,
           payment_methods: paymentMethods,
-          user_id: typedShiftData.user_id || undefined,
+          employee_id: shiftData.employee_id || undefined,
         });
       } catch (error: unknown) {
         console.error("Error loading shift details:", error);
@@ -224,10 +195,10 @@ export default function ShiftDetails() {
         titleKey="shifts.shiftDetails"
         action={
           <ButtonLink
-            href="/finance/shifts"
+            to="/finance/shifts"
             variant="outline"
-            startIcon={<ArrowLeft className="h-4 w-4" />}
           >
+            <ArrowLeft className="h-4 w-4 mr-2" />
             {t("common.backToShifts")}
           </ButtonLink>
         }
@@ -266,10 +237,10 @@ export default function ShiftDetails() {
         titleKey="shifts.shiftDetails"
         action={
           <ButtonLink
-            href="/finance/shifts"
+            to="/finance/shifts"
             variant="outline"
-            startIcon={<ArrowLeft className="h-4 w-4" />}
           >
+            <ArrowLeft className="h-4 w-4 mr-2" />
             {t("common.backToShifts")}
           </ButtonLink>
         }
@@ -292,10 +263,10 @@ export default function ShiftDetails() {
         titleKey="shifts.shiftDetails"
         action={
           <ButtonLink
-            href="/finance/shifts"
+            to="/finance/shifts"
             variant="outline"
-            startIcon={<ArrowLeft className="h-4 w-4" />}
           >
+            <ArrowLeft className="h-4 w-4 mr-2" />
             {t("common.backToShifts")}
           </ButtonLink>
         }
@@ -316,10 +287,10 @@ export default function ShiftDetails() {
       titleKey="shifts.shiftDetails"
       action={
         <ButtonLink
-          href="/finance/shifts"
+          to="/finance/shifts"
           variant="outline"
-          startIcon={<ArrowLeft className="h-4 w-4" />}
         >
+          <ArrowLeft className="h-4 w-4 mr-2" />
           {t("common.backToShifts")}
         </ButtonLink>
       }
@@ -631,3 +602,4 @@ export default function ShiftDetails() {
     </PageLayout>
   );
 }
+

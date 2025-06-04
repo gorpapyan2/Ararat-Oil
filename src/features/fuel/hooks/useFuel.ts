@@ -1,6 +1,7 @@
+import { tanksApi, fuelSuppliesApi, salesApi } from "@/core/api";
+import type { Tank, TankCreate, TankUpdate, FuelSupply, Sale, FuelSupplyCreate, SaleCreate, SaleUpdate } from "@/core/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fuelService } from "../services/fuelService";
-import type { FuelTank, FuelSupply, FuelSale } from "../types/fuel.types";
+import { FuelSupplyUpdate } from "@/core/api/types";
 
 export function useFuel() {
   const queryClient = useQueryClient();
@@ -8,19 +9,27 @@ export function useFuel() {
   // Tanks
   const tanks = useQuery({
     queryKey: ["tanks"],
-    queryFn: fuelService.getTanks,
+    queryFn: async () => {
+      const response = await tanksApi.getTanks();
+      return response.data || [];
+    },
   });
 
-  const createTank = useMutation({
-    mutationFn: fuelService.createTank,
+  const createTankMutation = useMutation({
+    mutationFn: async (data: TankCreate) => {
+      const response = await tanksApi.createTank(data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tanks"] });
     },
   });
 
-  const updateTank = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<FuelTank> }) =>
-      fuelService.updateTank(id, data),
+  const updateTankMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: TankUpdate }) => {
+      const response = await tanksApi.updateTank(id, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tanks"] });
     },
@@ -29,19 +38,27 @@ export function useFuel() {
   // Supplies
   const supplies = useQuery({
     queryKey: ["supplies"],
-    queryFn: fuelService.getSupplies,
+    queryFn: async () => {
+      const response = await fuelSuppliesApi.getFuelSupplies();
+      return response.data || [];
+    },
   });
 
-  const createSupply = useMutation({
-    mutationFn: fuelService.createSupply,
+  const createSupplyMutation = useMutation({
+    mutationFn: async (data: FuelSupplyCreate) => {
+      const response = await fuelSuppliesApi.createFuelSupply(data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["supplies"] });
     },
   });
 
-  const updateSupply = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<FuelSupply> }) =>
-      fuelService.updateSupply(id, data),
+  const updateSupplyMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: FuelSupplyUpdate }) => {
+      const response = await fuelSuppliesApi.updateFuelSupply(id, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["supplies"] });
     },
@@ -50,19 +67,27 @@ export function useFuel() {
   // Sales
   const sales = useQuery({
     queryKey: ["sales"],
-    queryFn: fuelService.getSales,
+    queryFn: async () => {
+      const response = await salesApi.getSales();
+      return response.data || [];
+    },
   });
 
-  const createSale = useMutation({
-    mutationFn: fuelService.createSale,
+  const createSaleMutation = useMutation({
+    mutationFn: async (data: SaleCreate) => {
+      const response = await salesApi.createSale(data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
     },
   });
 
-  const updateSale = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<FuelSale> }) =>
-      fuelService.updateSale(id, data),
+  const updateSaleMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: SaleUpdate }) => {
+      const response = await salesApi.updateSale(id, data);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
     },
@@ -72,19 +97,19 @@ export function useFuel() {
     // Tanks
     tanks: tanks.data || [],
     isLoadingTanks: tanks.isLoading,
-    createTank,
-    updateTank,
+    createTank: createTankMutation,
+    updateTank: updateTankMutation,
 
     // Supplies
     supplies: supplies.data || [],
     isLoadingSupplies: supplies.isLoading,
-    createSupply,
-    updateSupply,
+    createSupply: createSupplyMutation,
+    updateSupply: updateSupplyMutation,
 
     // Sales
     sales: sales.data || [],
     isLoadingSales: sales.isLoading,
-    createSale,
-    updateSale,
+    createSale: createSaleMutation,
+    updateSale: updateSaleMutation,
   };
 }

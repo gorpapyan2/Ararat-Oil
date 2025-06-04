@@ -61,7 +61,7 @@ async function initializeApp() {
 }
 
 // Error fallback rendering
-function renderErrorFallback(error: any) {
+function renderErrorFallback(error: Error | unknown) {
   const rootElement = document.getElementById("root");
   if (!rootElement) return;
 
@@ -87,7 +87,7 @@ function renderErrorFallback(error: any) {
               </summary>
               <div className="bg-muted p-4 rounded-md text-xs font-mono">
                 <pre className="whitespace-pre-wrap overflow-x-auto">
-                  {error?.stack || error?.message || "Unknown error"}
+                  {error instanceof Error ? (error.stack || error.message) : String(error) || "Unknown error"}
                 </pre>
               </div>
             </details>

@@ -7,7 +7,7 @@
  * - getById -> getProfitLossById
  */
 
-import { profitLossApi, adapters, ProfitLoss } from "@/core/api";
+import { profitLossApi, ProfitLoss, logger } from "@/core/api";
 import { ProfitLossSummary } from "@/types";
 
 export type PeriodType =
@@ -111,25 +111,30 @@ export const getProfitLossSummary = async (
   endDate?: string
 ): Promise<ProfitLossSummary[]> => {
   try {
-    const response = await profitLossApi.getProfitLossSummary(
-      period,
-      startDate,
-      endDate
-    );
-
-    if (response.error) {
-      console.error("Error fetching profit-loss summary:", response.error);
-      throw new Error(response.error.message);
+    logger.info("Fetching profit-loss summary", { period, startDate, endDate });
+    
+    const response = await profitLossApi.getProfitLossSummary(period as any);
+    
+    if (response.error || !response.data) {
+      console.warn("Failed to fetch profit-loss summary:", response.error);
+      return [];
     }
 
-    // Use adapter to convert API response to application type
-    // Make sure we're passing an array to the adapter function
+    // Convert single item to array if needed
     const dataArray = Array.isArray(response.data)
-      ? response.data
-      : response.data
-        ? [response.data]
-        : [];
-    return adapters.adaptApiProfitLossToSummaryArray(dataArray);
+        ? response.data
+        : [response.data];
+    
+    // Return the data with correct property mapping
+    return dataArray.map(item => ({
+      id: item.id,
+      period: item.period,
+      total_sales: item.revenue || 0, // Map revenue to total_sales
+      total_expenses: item.expenses || 0, // Map expenses to total_expenses
+      profit: item.profit,
+      created_at: item.created_at,
+      updated_at: item.updated_at
+    }));
   } catch (err) {
     console.error("Failed to fetch profit-loss summary:", err);
     throw err;
@@ -142,20 +147,26 @@ export const getProfitLossById = async (
   id: string
 ): Promise<ProfitLossSummary | null> => {
   try {
+    logger.info(`Fetching profit-loss record with ID: ${id}`);
+    
     const response = await profitLossApi.getProfitLossById(id);
-
-    if (response.error) {
-      console.error(
-        `Error fetching profit-loss record with ID ${id}:`,
-        response.error
-      );
-      throw new Error(response.error.message);
+    
+    if (response.error || !response.data) {
+      console.warn(`Failed to fetch profit-loss record with ID ${id}:`, response.error);
+      return null;
     }
 
-    // Use adapter to convert API response to application type
-    return response.data
-      ? adapters.adaptApiProfitLossToSummary(response.data)
-      : null;
+    // Return the data with correct property mapping
+    const item = response.data;
+    return {
+      id: item.id,
+      period: item.period,
+      total_sales: item.revenue || 0, // Map revenue to total_sales
+      total_expenses: item.expenses || 0, // Map expenses to total_expenses
+      profit: item.profit,
+      created_at: item.created_at,
+      updated_at: item.updated_at
+    };
   } catch (err) {
     console.error(`Failed to fetch profit-loss record with ID ${id}:`, err);
     throw err;
@@ -166,20 +177,32 @@ export const generateAndSaveProfitLoss = async (
   params: GenerateProfitLossRequest
 ): Promise<ProfitLossSummary> => {
   try {
+    logger.info("Generating profit-loss record", params);
+    
+    // Use calculateProfitLoss instead since there's no create method
     const response = await profitLossApi.calculateProfitLoss(
       params.period_type,
       params.start_date,
       params.end_date,
-      true
+      false
     );
-
-    if (response.error) {
-      console.error("Error generating profit-loss record:", response.error);
-      throw new Error(response.error.message);
+    
+    if (response.error || !response.data) {
+      console.error("Failed to generate profit-loss record:", response.error);
+      throw new Error(response.error?.message || "Failed to generate profit-loss record");
     }
 
-    // Use adapter to convert API response to application type
-    return adapters.adaptApiProfitLossToSummary(response.data!);
+    // Return the data with correct property mapping
+    const item = response.data;
+    return {
+      id: item.id,
+      period: item.period,
+      total_sales: item.revenue || 0, // Map revenue to total_sales
+      total_expenses: item.expenses || 0, // Map expenses to total_expenses
+      profit: item.profit,
+      created_at: item.created_at,
+      updated_at: item.updated_at
+    };
   } catch (err) {
     console.error("Failed to generate profit-loss record:", err);
     throw err;

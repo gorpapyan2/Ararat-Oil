@@ -10,8 +10,8 @@ import {
   FormTextarea,
 } from "@/core/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/shared/hooks/use-form";
-import { useFuelSales } from "../hooks/useFuelSales";
-import { supabase } from "@/core/api/supabase";
+import { useCreateFuelSale, useUpdateFuelSale } from "../hooks/useFuelSales";
+import { tanksApi } from "@/services/api";
 import type { FuelSale, FuelSaleFormData } from "../types/fuel-sales.types";
 
 interface FuelTank {
@@ -28,39 +28,39 @@ interface FuelSalesFormStandardizedProps {
 }
 
 const fuelSaleSchema = z.object({
-  sale_date: z.string({ required_error: "Sale date is required" }),
-  tank_id: z.string({ required_error: "Tank is required" }),
-  customer_name: z.string({ required_error: "Customer name is required" }),
+  transaction_date: z.string({ required_error: "Sale date is required" }),
+  filling_system_id: z.string({ required_error: "Tank is required" }),
+  fuel_type_id: z.string({ required_error: "Fuel type is required" }),
   quantity: z.preprocess(
     (val) => (val === "" ? 0 : Number(val)),
     z
       .number({ required_error: "Quantity must be a number" })
       .gt(0, "Quantity must be greater than 0")
   ),
-  price_per_unit: z.preprocess(
+  price_per_liter: z.preprocess(
     (val) => (val === "" ? 0 : Number(val)),
     z
-      .number({ required_error: "Price per unit must be a number" })
-      .gt(0, "Price per unit must be greater than 0")
+      .number({ required_error: "Price per liter must be a number" })
+      .gt(0, "Price per liter must be greater than 0")
   ),
-  payment_method: z.enum(["cash", "card", "bank_transfer"], {
+  payment_method: z.enum(["cash", "card", "credit", "transfer"], {
     required_error: "Payment method is required",
   }),
-  payment_status: z.enum(["pending", "completed", "failed"], {
-    required_error: "Payment status is required",
-  }),
+  employee_id: z.string({ required_error: "Employee is required" }),
 });
 
 type FuelSaleFormValues = z.infer<typeof fuelSaleSchema>;
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
-  const { data, error } = await supabase
-    .from("fuel_tanks")
-    .select("id, name, fuel_type")
-    .order("name");
-
-  if (error) throw error;
-  return data;
+  const response = await tanksApi.getAll();
+  if (response.error) throw new Error(response.error);
+  
+  const tanks = response.data || [];
+  return tanks.map((tank) => ({
+    id: tank.id,
+    name: tank.name,
+    fuel_type: tank.fuel_type?.name || 'Unknown',
+  }));
 }
 
 export function FuelSalesFormStandardized({
@@ -70,19 +70,20 @@ export function FuelSalesFormStandardized({
   initialData,
 }: FuelSalesFormStandardizedProps) {
   const { toast } = useToast();
-  const { createSale, updateSale } = useFuelSales();
+  const createSale = useCreateFuelSale();
+  const updateSale = useUpdateFuelSale();
 
   const form = useZodForm({
     schema: fuelSaleSchema,
     defaultValues: {
-      sale_date:
-        initialData?.sale_date || new Date().toISOString().split("T")[0],
-      tank_id: initialData?.tank_id || "",
-      customer_name: initialData?.customer_name || "",
+      transaction_date:
+        initialData?.transaction_date || new Date().toISOString().split("T")[0],
+      filling_system_id: initialData?.filling_system_id || "",
+      fuel_type_id: initialData?.fuel_type_id || "",
       quantity: initialData?.quantity || 0,
-      price_per_unit: initialData?.price_per_unit || 0,
-      payment_method: initialData?.payment_method || "cash",
-      payment_status: initialData?.payment_status || "pending",
+      price_per_liter: initialData?.price_per_liter || 0,
+      payment_method: (initialData?.payment_method as "cash" | "card" | "credit" | "transfer") || "cash",
+      employee_id: initialData?.employee_id || "",
     },
   });
 
@@ -101,13 +102,13 @@ export function FuelSalesFormStandardized({
     useFormSubmitHandler<FuelSaleFormValues>(form, async (data) => {
       try {
         const fuelSaleData: FuelSaleFormData = {
-          sale_date: data.sale_date,
-          tank_id: data.tank_id,
-          customer_name: data.customer_name,
+          filling_system_id: data.filling_system_id,
+          fuel_type_id: data.fuel_type_id,
           quantity: data.quantity,
-          price_per_unit: data.price_per_unit,
+          price_per_liter: data.price_per_liter,
+          total_price: data.quantity * data.price_per_liter,
           payment_method: data.payment_method,
-          payment_status: data.payment_status,
+          employee_id: data.employee_id,
         };
 
         if (initialData) {
@@ -156,7 +157,7 @@ export function FuelSalesFormStandardized({
 
   return (
     <StandardDialog
-      open={open}
+      isOpen={open}
       onOpenChange={onOpenChange}
       title={initialData ? "Edit Fuel Sale" : "Add New Fuel Sale"}
       description={
@@ -164,34 +165,36 @@ export function FuelSalesFormStandardized({
           ? "Update existing fuel sale record"
           : "Create a new fuel sale record"
       }
-      maxWidth="sm:max-w-[600px]"
-      actions={formActions}
+      width="lg"
+      footer={formActions}
     >
       <form id="fuel-sale-form" onSubmit={handleSubmit} className="space-y-4">
-        <FormInput name="sale_date" label="Sale Date" form={form} type="date" />
+        <FormInput name="transaction_date" label="Sale Date" form={form} type="date" />
         <FormSelect
-          name="tank_id"
+          name="filling_system_id"
           label="Tank"
           form={form}
           options={tankOptions}
           placeholder="Select a tank"
         />
         <FormInput
-          name="customer_name"
-          label="Customer Name"
+          name="fuel_type_id"
+          label="Fuel Type ID"
           form={form}
-          placeholder="Enter customer name"
+          placeholder="Enter fuel type ID"
         />
         <FormInput
-          name="quantity_liters"
+          name="quantity"
           label="Quantity (Liters)"
           form={form}
+          type="number"
           placeholder="Enter quantity in liters"
         />
         <FormInput
           name="price_per_liter"
           label="Price per Liter"
           form={form}
+          type="number"
           placeholder="Enter price per liter"
         />
         <FormSelect
@@ -201,20 +204,16 @@ export function FuelSalesFormStandardized({
           options={[
             { value: "cash", label: "Cash" },
             { value: "card", label: "Card" },
-            { value: "bank_transfer", label: "Bank Transfer" },
+            { value: "credit", label: "Credit" },
+            { value: "transfer", label: "Bank Transfer" },
           ]}
           placeholder="Select payment method"
         />
-        <FormSelect
-          name="payment_status"
-          label="Payment Status"
+        <FormInput
+          name="employee_id"
+          label="Employee ID"
           form={form}
-          options={[
-            { value: "pending", label: "Pending" },
-            { value: "completed", label: "Completed" },
-            { value: "failed", label: "Failed" },
-          ]}
-          placeholder="Select payment status"
+          placeholder="Enter employee ID"
         />
       </form>
     </StandardDialog>

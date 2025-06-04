@@ -96,7 +96,7 @@ export async function exportExpenses(filters?: {
 }): Promise<string> {
   const response = await fetchFromFunction<string>(`${ENDPOINT}/export`, {
     queryParams: filters,
-    responseType: "text"
+    responseType: "json"
   });
   
   if (response instanceof Response) {

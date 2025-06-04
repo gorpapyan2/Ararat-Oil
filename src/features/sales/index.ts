@@ -36,10 +36,9 @@ export {
   createSale,
   updateSale,
   deleteSale,
-  fetchSales,
-  exportSales,
-  fetchSale,
-} from "./services/sales";
+  getSales as fetchSales,
+  getSaleById as fetchSale,
+} from "./services";
 
 // Types
 export type {

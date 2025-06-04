@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.39.3';
+import { getCorsHeaders, handleCors } from '../_shared/cors.ts';
 
 // ---- START INLINED CODE FROM SHARED MODULES ----
 
@@ -89,13 +90,6 @@ const getUserFromRequest = async (request: Request) => {
 };
 
 // API utilities
-function handleCors(req: Request): Response | null {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-  return null;
-}
-
 function createJsonResponse<T>(data: { data?: T; error?: string }, status = 200): Response {
   return new Response(
     JSON.stringify(data),
@@ -180,14 +174,39 @@ interface SaleValidation {
 console.info('Sales Edge Function started');
 
 // Handle sales operations
-serve(async (req: Request) => {
-  // Handle CORS
+serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
 
-  // Get URL path
+  // Robust path parsing
   const url = new URL(req.url);
-  const path = url.pathname.replace('/sales', '');
+  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  const mainRoute = pathParts[0];
+  const subRoute = pathParts[1] || '';
+
+  if (mainRoute !== 'sales') {
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Example: /sales/summary
+  if (subRoute === 'summary') {
+    if (req.method === 'GET') {
+      // Replace with actual logic
+      return new Response(JSON.stringify({ summary: {} }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   // Authentication check
   const user = await getUserFromRequest(req);

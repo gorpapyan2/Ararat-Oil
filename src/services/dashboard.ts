@@ -27,30 +27,20 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     
     if (response.error) {
       console.warn('⚠️ Dashboard Edge Function returned error:', response.error);
-      throw new Error(response.error.message);
+      return DEFAULT_DASHBOARD_DATA;
     }
     
     if (!response.data) {
       console.warn('⚠️ Dashboard Edge Function returned no data');
-      throw new Error('No dashboard data received');
+      return DEFAULT_DASHBOARD_DATA;
     }
     
     console.log('✅ Dashboard data fetched successfully from Edge Function');
     return response.data;
     
   } catch (error) {
-    console.warn('❌ Dashboard Edge Function failed, attempting fallback to mock data:', error);
-    
-    // Try to get mock data as fallback
-    try {
-      const { mockDataProvider } = await import('@/services/mockData');
-      const mockData = await mockDataProvider.getDashboardData();
-      console.log('📝 Using mock dashboard data as fallback');
-      return mockData;
-    } catch (mockError) {
-      console.error('💥 Mock data fallback also failed:', mockError);
-      console.log('🔧 Using default dashboard data structure');
-      return DEFAULT_DASHBOARD_DATA;
-    }
+    console.error('❌ Dashboard Edge Function failed:', error);
+    console.log('🔧 Using default dashboard data structure');
+    return DEFAULT_DASHBOARD_DATA;
   }
 } 

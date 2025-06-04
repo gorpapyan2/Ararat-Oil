@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // Layout Components
 import { MainLayout } from "@/layouts/MainLayout";
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
+import { AuthGuard } from "@/features/auth/components/AuthGuard";
 import { ThemeProvider } from "@/core/providers/theme-provider";
 
 // Loading Component
@@ -14,9 +15,7 @@ import { Loading } from "@/core/components/ui/loading";
 // Lazy load components for better performance
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const AuthPage = lazy(() => import('@/features/auth/pages/AuthPage').then(m => ({ default: m.AuthPage })));
-const NavigationPage = lazy(() => import('@/features/dashboard/pages/NavigationPage').then(m => ({ default: m.NavigationPage })));
 const ReportsPage = lazy(() => import('@/features/reports/pages/ReportsPage').then(m => ({ default: m.ReportsPage })));
-const DataSyncPage = lazy(() => import('@/features/data-sync/pages/DataSyncPage').then(m => ({ default: m.DataSyncPage })));
 
 // Employees
 const EmployeesPage = lazy(() => import("@/features/employees/pages/EmployeesPage").then(m => ({ default: m.EmployeesPage })));
@@ -38,6 +37,14 @@ const FuelSuppliesPage = lazy(() => import("@/features/fuel-management/pages/Fue
 const FillingSystemsPage = lazy(() => import("@/features/fuel-management/pages/FillingSystemsPage"));
 const ProvidersPage = lazy(() => import("@/features/fuel-management/pages/ProvidersPage"));
 const FuelSalesPage = lazy(() => import("@/features/fuel-management/pages/FuelSalesPage"));
+
+// Management
+const ManagementPage = lazy(() => import("@/features/management/ManagementPage").then(m => ({ default: m.default })));
+const ManagementTanksPage = lazy(() => import("@/features/fuel-management/pages/TanksPage").then(m => ({ default: m.default })));
+const ManagementFuelSuppliesPage = lazy(() => import("@/features/fuel-management/pages/FuelSuppliesPage").then(m => ({ default: m.default })));
+const ManagementEmployeesPage = lazy(() => import("@/features/employees/pages/EmployeesPage").then(m => ({ default: m.EmployeesPage })));
+const ManagementFuelSystemsPage = lazy(() => import("@/features/fuel-management/pages/FillingSystemsPage").then(m => ({ default: m.default })));
+const ManagementFuelPricesPage = lazy(() => import("@/features/fuel-management/pages/FuelPricesPage").then(m => ({ default: m.default })));
 
 // Error Boundary Component
 interface ErrorFallbackProps {
@@ -161,11 +168,13 @@ function LoadingFallback() {
 // Protected Route Component
 function ProtectedRoute({ children }: { children: ReactNode }) {
   return (
-    <MainLayout>
-      <Suspense fallback={<LoadingFallback />}>
-        {children}
-      </Suspense>
-    </MainLayout>
+    <AuthGuard>
+      <MainLayout>
+        <Suspense fallback={<LoadingFallback />}>
+          {children}
+        </Suspense>
+      </MainLayout>
+    </AuthGuard>
   );
 }
 
@@ -205,10 +214,6 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
-                  path="/dashboard" 
-                  element={<Navigate to="/" replace />} 
-                />
 
                 {/* Employees */}
                 <Route 
@@ -221,38 +226,6 @@ function App() {
                 />
 
                 {/* Fuel Management Routes */}
-                <Route 
-                  path="/fuel" 
-                  element={
-                    <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel/tanks" 
-                  element={
-                    <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel/inventory" 
-                  element={
-                    <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel/pumps" 
-                  element={
-                    <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
                 <Route 
                   path="/fuel-management" 
                   element={
@@ -349,7 +322,7 @@ function App() {
                   path="/management" 
                   element={
                     <ProtectedRoute>
-                      <EmployeesPage />
+                      <ManagementPage />
                     </ProtectedRoute>
                   } 
                 />
@@ -358,6 +331,46 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ShiftsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/tanks" 
+                  element={
+                    <ProtectedRoute>
+                      <ManagementTanksPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/fuel-supplies" 
+                  element={
+                    <ProtectedRoute>
+                      <ManagementFuelSuppliesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/employees" 
+                  element={
+                    <ProtectedRoute>
+                      <ManagementEmployeesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/fuel-systems" 
+                  element={
+                    <ProtectedRoute>
+                      <ManagementFuelSystemsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/fuel-prices" 
+                  element={
+                    <ProtectedRoute>
+                      <ManagementFuelPricesPage />
                     </ProtectedRoute>
                   } 
                 />
@@ -371,71 +384,13 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                <Route 
-                  path="/reports/daily" 
-                  element={
-                    <ProtectedRoute>
-                      <ReportsPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/reports/monthly" 
-                  element={
-                    <ProtectedRoute>
-                      <ReportsPage />
-                    </ProtectedRoute>
-                  } 
-                />
 
                 {/* Settings Routes */}
                 <Route 
                   path="/settings" 
                   element={
                     <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/settings/system" 
-                  element={
-                    <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/settings/users" 
-                  element={
-                    <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/settings/backup" 
-                  element={
-                    <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/settings/integrations" 
-                  element={
-                    <ProtectedRoute>
-                      <DataSyncPage />
-                    </ProtectedRoute>
-                  } 
-                />
-
-                {/* Navigation Page */}
-                <Route 
-                  path="/navigation" 
-                  element={
-                    <ProtectedRoute>
-                      <NavigationPage />
+                      <SettingsPage />
                     </ProtectedRoute>
                   } 
                 />

@@ -1,14 +1,32 @@
 import { cn } from "@/shared/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { Progress } from "@/core/components/ui/progress";
-import { Badge } from "@/core/components/ui/badge";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { DollarSign, TrendingUp, TrendingDown, Users, ShoppingCart, CreditCard, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
+
+interface SalesDashboardData {
+  totalRevenue?: number;
+  transactions?: number;
+  avgTransactionValue?: number;
+  customerCount?: number;
+  weeklyGrowth?: number;
+  topProducts?: Array<{
+    name: string;
+    sales: number;
+    percentage: number;
+  }>;
+  paymentMethods?: Array<{
+    method: string;
+    count: number;
+    percentage: number;
+  }>;
+}
 
 interface SalesDashboardProps {
   className?: string;
   isLoading?: boolean;
-  data?: any;
+  data?: SalesDashboardData;
   expanded?: boolean;
   startDate?: string;
   endDate?: string;

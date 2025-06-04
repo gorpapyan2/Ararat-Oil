@@ -5,27 +5,21 @@ import {
   ExpensesData,
   FinancialDashboard,
 } from "@/core/api";
-import { mockDataProvider } from "@/services/mockData";
 
 export const fetchProfitLoss = async (): Promise<ProfitLoss[]> => {
   try {
     const response = await financialsApi.getProfitLoss();
 
     if (response.error) {
-      console.warn("API error, using mock data:", response.error);
-      return await mockDataProvider.getProfitLoss();
-    }
-
-    return response.data || [];
-  } catch (err: unknown) {
-    console.warn("Network error, using mock data:", err);
-    // Fallback to mock data when API fails
-    try {
-      return await mockDataProvider.getProfitLoss();
-    } catch (mockError) {
-      console.error("Failed to get mock data:", mockError);
+      console.warn("Failed to fetch profit/loss data:", response.error);
       return [];
     }
+
+    const data = response.data;
+    return Array.isArray(data) ? data : (data ? [data] : []);
+  } catch (err: unknown) {
+    console.error("Network error fetching profit/loss data:", err);
+    return [];
   }
 };
 
@@ -34,20 +28,14 @@ export const fetchRevenue = async (period?: string): Promise<RevenueData> => {
     const response = await financialsApi.getRevenue(period);
 
     if (response.error) {
-      console.warn("API error, using mock data:", response.error);
-      return await mockDataProvider.getRevenue(period);
+      console.warn("Failed to fetch revenue data:", response.error);
+      return { total: 0, breakdown: {} };
     }
 
     return response.data || { total: 0, breakdown: {} };
   } catch (err: unknown) {
-    console.warn("Network error, using mock data:", err);
-    // Fallback to mock data when API fails
-    try {
-      return await mockDataProvider.getRevenue(period);
-    } catch (mockError) {
-      console.error("Failed to get mock data:", mockError);
-      return { total: 0, breakdown: {} };
-    }
+    console.error("Network error fetching revenue data:", err);
+    return { total: 0, breakdown: {} };
   }
 };
 
@@ -56,52 +44,43 @@ export const fetchExpenses = async (period?: string): Promise<ExpensesData> => {
     const response = await financialsApi.getExpenses(period);
 
     if (response.error) {
-      console.warn("API error, using mock data:", response.error);
-      return await mockDataProvider.getExpenses(period);
+      console.warn("Failed to fetch expenses data:", response.error);
+      return { total: 0, breakdown: {} };
     }
 
     return response.data || { total: 0, breakdown: {} };
   } catch (err: unknown) {
-    console.warn("Network error, using mock data:", err);
-    // Fallback to mock data when API fails
-    try {
-      return await mockDataProvider.getExpenses(period);
-    } catch (mockError) {
-      console.error("Failed to get mock data:", mockError);
-      return { total: 0, breakdown: {} };
-    }
+    console.error("Network error fetching expenses data:", err);
+    return { total: 0, breakdown: {} };
   }
 };
 
-export const fetchFinancialDashboard =
-  async (): Promise<FinancialDashboard> => {
-    try {
-      const response = await financialsApi.getDashboard();
+export const fetchFinancialDashboard = async (): Promise<FinancialDashboard> => {
+  try {
+    const response = await financialsApi.getDashboard();
 
-      if (response.error) {
-        console.warn("API error, using mock data:", response.error);
-        return await mockDataProvider.getFinancialDashboard();
-      }
-
-      return (
-        response.data || {
-          revenue: { total: 0, trend: [] },
-          expenses: { total: 0, trend: [] },
-          profit: { total: 0, trend: [] },
-        }
-      );
-    } catch (err: unknown) {
-      console.warn("Network error, using mock data:", err);
-      // Fallback to mock data when API fails
-      try {
-        return await mockDataProvider.getFinancialDashboard();
-      } catch (mockError) {
-        console.error("Failed to get mock data:", mockError);
-        return {
-          revenue: { total: 0, trend: [] },
-          expenses: { total: 0, trend: [] },
-          profit: { total: 0, trend: [] },
-        };
-      }
+    if (response.error) {
+      console.warn("Failed to fetch financial dashboard:", response.error);
+      return {
+        revenue: { total: 0, trend: [] },
+        expenses: { total: 0, trend: [] },
+        profit: { total: 0, trend: [] },
+      };
     }
-  };
+
+    return (
+      response.data || {
+        revenue: { total: 0, trend: [] },
+        expenses: { total: 0, trend: [] },
+        profit: { total: 0, trend: [] },
+      }
+    );
+  } catch (err: unknown) {
+    console.error("Network error fetching financial dashboard:", err);
+    return {
+      revenue: { total: 0, trend: [] },
+      expenses: { total: 0, trend: [] },
+      profit: { total: 0, trend: [] },
+    };
+  }
+};

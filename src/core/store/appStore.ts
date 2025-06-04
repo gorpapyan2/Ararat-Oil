@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { logger } from "@/core/api";
-import { Toast, ToastType } from "@/types/toast";
+import { Toast } from "@/core/components/ui/toast";
 import { Theme, THEME_CONFIG } from "@/core/config";
 
 /**

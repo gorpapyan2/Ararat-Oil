@@ -12,11 +12,6 @@ import {
 import {
   Code,
   Database,
-  RefreshCw,
-  Layers,
-  PanelTop,
-  Layout,
-  Bell,
 } from "lucide-react";
 
 export function DevMenu() {
@@ -30,26 +25,6 @@ export function DevMenu() {
       name: "Connection Info",
       path: "/dev/connection-info",
       icon: <Database className="h-4 w-4 mr-2" />,
-    },
-    {
-      name: "Toast Tester",
-      path: "/dev/toast-test",
-      icon: <Bell className="h-4 w-4 mr-2" />,
-    },
-    {
-      name: "Responsive Test",
-      path: "/dev/responsive-test",
-      icon: <Layout className="h-4 w-4 mr-2" />,
-    },
-    {
-      name: "Card Components",
-      path: "/dev/card-components",
-      icon: <Layers className="h-4 w-4 mr-2" />,
-    },
-    {
-      name: "Button Components",
-      path: "/dev/button-components",
-      icon: <PanelTop className="h-4 w-4 mr-2" />,
     },
   ];
 

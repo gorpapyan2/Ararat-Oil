@@ -1,9 +1,9 @@
-import { Button } from "@/core/components/ui/button";
-import { Plus } from "lucide-react";
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { tanksService } from "../services";
+import { Button } from "@/core/components/ui/button";
 import { TankFormDialog } from "./TankFormDialog";
-import { tanksService } from "../services/tanksService";
 
 interface TankControllerProps {
   onSuccess?: () => void;

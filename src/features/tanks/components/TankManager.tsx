@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getTanks, getFuelTypes } from "../services";
 import { TankList } from "./TankList";
 import { TankFormDialog } from "./TankFormDialog";
 import { Button } from "@/core/components/ui/button";
 import { Plus, Gauge } from "lucide-react";
-import { useDialog } from "@/hooks/useDialog";
+import { useDialog } from "@/core/hooks/useDialog";
 import { useTranslation } from "react-i18next";
 
 interface TankManagerProps {

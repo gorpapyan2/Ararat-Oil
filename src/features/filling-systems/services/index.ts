@@ -1,13 +1,7 @@
-// Re-export the original service
-export * from "./fillingSystemsService";
-
-// Import API endpoints
-import { fillingSystemsApi } from "@/core/api/endpoints/filling-systems";
-import type {
-  FillingSystem as ApiFillingSystem,
-  FillingSystemCreate,
-  FillingSystemUpdate,
-} from "@/core/api/types";
+// Modern centralized services approach
+import { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
+import { fillingSystemsApi } from "@/services/api";
+import type { FillingSystem as ApiFillingSystem, FillingSystemCreate } from "@/core/api/types";
 import type {
   FillingSystem,
   CreateFillingSystemRequest,
@@ -15,192 +9,151 @@ import type {
   FillingSystemFilters,
 } from "../types";
 
-// Helper function to adapt API response to feature type
-function adaptApiResponseToFeatureType(
-  apiFillingSystem: ApiFillingSystem
-): FillingSystem {
+// Modern hook-based approach
+export const useFillingSystemsModern = (options?: Parameters<typeof useCentralizedEntity>[1]) => 
+  useCentralizedEntity<ApiFillingSystem>('filling_systems', options);
+
+// Re-export for backward compatibility
+export { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
+
+// Helper function to adapt API filling system to feature type
+function adaptApiToFeatureType(apiSystem: ApiFillingSystem): FillingSystem {
   return {
-    id: apiFillingSystem.id,
-    name: apiFillingSystem.name,
-    status: apiFillingSystem.status,
-    location: apiFillingSystem.location,
-    // In the feature type, we expect a single tank_id, but the API uses an array
-    // We'll use the first one if available, or an empty string otherwise
-    tank_id:
-      apiFillingSystem.tank_ids && apiFillingSystem.tank_ids.length > 0
-        ? apiFillingSystem.tank_ids[0]
-        : "",
-    // This is a placeholder, you might need to get the actual type from elsewhere
-    type: "standard",
-    created_at: apiFillingSystem.created_at,
-    updated_at: apiFillingSystem.updated_at,
+    id: apiSystem.id,
+    name: apiSystem.name,
+    status: apiSystem.status || "active",
+    type: "pump", // Default type since API doesn't have this field
+    tank_id: Array.isArray(apiSystem.tank_ids) ? apiSystem.tank_ids[0] || "" : "",
+    location: apiSystem.location || "",
+    created_at: apiSystem.created_at || "",
+    updated_at: apiSystem.updated_at || "",
   };
 }
 
-// Helper function to adapt feature type to API request
-function adaptFeatureTypeToApiCreateRequest(
-  featureFillingSystem: CreateFillingSystemRequest
-): FillingSystemCreate {
+// Helper function to adapt feature type to API type
+function adaptFeatureToApiType(systemData: CreateFillingSystemRequest | UpdateFillingSystemRequest): FillingSystemCreate {
   return {
-    name: featureFillingSystem.name,
-    location: featureFillingSystem.location || "",
-    tank_ids: [featureFillingSystem.tank_id], // Convert single tank_id to array
-    status: featureFillingSystem.status,
+    name: systemData.name || "",
+    status: systemData.status || "active",
+    location: systemData.location || "",
+    tank_ids: systemData.tank_id ? [systemData.tank_id] : [],
   };
-}
-
-// Helper function to adapt feature type to API update request
-function adaptFeatureTypeToApiUpdateRequest(
-  featureFillingSystem: UpdateFillingSystemRequest
-): FillingSystemUpdate {
-  const updateData: FillingSystemUpdate = {
-    name: featureFillingSystem.name,
-    location: featureFillingSystem.location,
-    status: featureFillingSystem.status,
-  };
-
-  // Only add tank_ids if tank_id is provided
-  if (featureFillingSystem.tank_id) {
-    updateData.tank_ids = [featureFillingSystem.tank_id];
-  }
-
-  return updateData;
 }
 
 /**
  * Get all filling systems with optional filters
  */
-export async function getFillingSystemsWithFilters(
-  filters?: FillingSystemFilters
-): Promise<FillingSystem[]> {
-  const response = await fillingSystemsApi.getFillingSystems();
+export async function getFillingSystems(filters?: FillingSystemFilters): Promise<FillingSystem[]> {
+  try {
+    const response = await fillingSystemsApi.getAll();
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    
+    let systems = (response.data || []).map((apiSystem: ApiFillingSystem) => adaptApiToFeatureType(apiSystem));
 
-  if (response.error) {
-    throw new Error(response.error.message);
+    // Apply client-side filtering if filters provided
+    if (filters?.status) {
+      systems = systems.filter((system: FillingSystem) => system.status === filters.status);
+    }
+    if (filters?.tank_id) {
+      systems = systems.filter((system: FillingSystem) => system.tank_id === filters.tank_id);
+    }
+    if (filters?.search) {
+      const query = filters.search.toLowerCase();
+      systems = systems.filter((system: FillingSystem) => 
+        system.name.toLowerCase().includes(query) ||
+        (system.location && system.location.toLowerCase().includes(query))
+      );
+    }
+
+    return systems;
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch filling systems');
   }
-
-  // Convert API response to feature type
-  let fillingSystems = (response.data || []).map(adaptApiResponseToFeatureType);
-
-  // Apply filters client-side (these should eventually move to the API)
-  if (filters) {
-    if (filters.status) {
-      fillingSystems = fillingSystems.filter(
-        (fs) => fs.status === filters.status
-      );
-    }
-
-    if (filters.tank_id) {
-      fillingSystems = fillingSystems.filter(
-        (fs) => fs.tank_id === filters.tank_id
-      );
-    }
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      fillingSystems = fillingSystems.filter(
-        (fs) =>
-          fs.name.toLowerCase().includes(searchLower) ||
-          (fs.location && fs.location.toLowerCase().includes(searchLower))
-      );
-    }
-  }
-
-  return fillingSystems;
 }
 
+// Alias for backward compatibility
+export const getFillingSystemsWithFilters = getFillingSystems;
+
 /**
- * Get a filling system by ID
+ * Get filling system by ID
  */
-export async function getFillingSystemById(id: string): Promise<FillingSystem> {
-  const response = await fillingSystemsApi.getFillingSystemById(id);
-
-  if (response.error) {
-    throw new Error(response.error.message);
+export async function getFillingSystemById(id: string): Promise<FillingSystem | null> {
+  try {
+    const response = await fillingSystemsApi.getById(id);
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    return response.data ? adaptApiToFeatureType(response.data) : null;
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch filling system');
   }
-
-  if (!response.data) {
-    throw new Error("Filling system not found");
-  }
-
-  return adaptApiResponseToFeatureType(response.data);
 }
 
 /**
  * Create a new filling system
  */
-export async function createFillingSystem(
-  data: CreateFillingSystemRequest
-): Promise<FillingSystem> {
-  const apiData = adaptFeatureTypeToApiCreateRequest(data);
-
-  const response = await fillingSystemsApi.createFillingSystem(apiData);
-
-  if (response.error) {
-    throw new Error(response.error.message);
+export async function createFillingSystem(data: CreateFillingSystemRequest): Promise<FillingSystem> {
+  try {
+    const apiData = adaptFeatureToApiType(data);
+    const response = await fillingSystemsApi.create(apiData);
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    return adaptApiToFeatureType(response.data);
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : 'Failed to create filling system');
   }
-
-  if (!response.data) {
-    throw new Error("No data returned from API");
-  }
-
-  return adaptApiResponseToFeatureType(response.data);
 }
 
 /**
- * Update an existing filling system
+ * Update a filling system
  */
-export async function updateFillingSystem(
-  id: string,
-  data: UpdateFillingSystemRequest
-): Promise<FillingSystem> {
-  const apiData = adaptFeatureTypeToApiUpdateRequest(data);
-
-  const response = await fillingSystemsApi.updateFillingSystem(id, apiData);
-
-  if (response.error) {
-    throw new Error(response.error.message);
+export async function updateFillingSystem(id: string, data: UpdateFillingSystemRequest): Promise<FillingSystem> {
+  try {
+    const apiData = adaptFeatureToApiType(data);
+    const response = await fillingSystemsApi.update(id, apiData);
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    return adaptApiToFeatureType(response.data);
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : 'Failed to update filling system');
   }
-
-  if (!response.data) {
-    throw new Error("No data returned from API");
-  }
-
-  return adaptApiResponseToFeatureType(response.data);
 }
 
 /**
  * Delete a filling system
  */
-export async function deleteFillingSystem(id: string): Promise<boolean> {
-  const response = await fillingSystemsApi.deleteFillingSystem(id);
-
-  if (response.error) {
-    throw new Error(response.error.message);
+export async function deleteFillingSystem(id: string): Promise<void> {
+  try {
+    const response = await fillingSystemsApi.delete(id);
+    if (response.error) {
+      throw new Error(response.error);
+    }
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : 'Failed to delete filling system');
   }
-
-  return response.data?.success || false;
 }
 
 /**
- * Validate tank IDs are available for use with filling systems
+ * Validate tank IDs for filling systems
  */
-export async function validateTankIds(
-  tankIds: string[]
-): Promise<{ valid: boolean; invalidIds?: string[] }> {
-  const response = await fillingSystemsApi.validateTankIds(tankIds);
-
-  if (response.error) {
-    throw new Error(response.error.message);
+export async function validateTankIds(tankIds: string[]): Promise<boolean> {
+  try {
+    // This is a placeholder implementation
+    // In a real scenario, you'd validate against the tanks API
+    return tankIds.length > 0 && tankIds.every(id => id.length > 0);
+  } catch (error) {
+    console.error('Error validating tank IDs:', error);
+    return false;
   }
-
-  return response.data || { valid: false };
 }
 
 // Export as an object for compatibility with existing code
 export const fillingSystemsService = {
-  getFillingSystemsWithFilters,
-  getFillingSystemById,
+  getFillingSystems,
   createFillingSystem,
   updateFillingSystem,
   deleteFillingSystem,

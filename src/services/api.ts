@@ -24,9 +24,7 @@ import type {
 } from "@/core/api/types";
 
 // Base URL for all Edge Function calls
-const EDGE_FUNCTION_URL =
-  import.meta.env.VITE_SUPABASE_FUNCTIONS_URL ||
-  "http://localhost:54321/functions/v1";
+const EDGE_FUNCTION_URL = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL
 
 // Helper to handle errors
 const handleError = (error: unknown) => {
@@ -195,6 +193,15 @@ export const tanksApi = {
       method: "POST",
       body: { change_amount: changeAmount, change_type: changeType, reason },
     }),
+  getSummary: () =>
+    fetchFromFunction<{
+      totalTanks: number;
+      activeTanks: number;
+      totalCapacity: number;
+      totalCurrentLevel: number;
+      lowLevelTanks: number;
+      criticalLevelTanks: number;
+    }>("tanks/summary"),
 };
 
 // API Functions for Filling Systems
@@ -425,4 +432,24 @@ export const financialsApi = {
       queryParams: { period },
     }),
   getDashboard: () => fetchFromFunction<unknown>("financials/dashboard"),
+};
+
+// API Functions for Business Analytics
+export const businessAnalyticsApi = {
+  getMetrics: (timeframe?: string) =>
+    fetchFromFunction<unknown>("business-analytics/metrics", {
+      queryParams: { timeframe },
+    }),
+  getQuickActions: () =>
+    fetchFromFunction<unknown>("business-analytics/quick-actions"),
+  getRecentActivity: (limit?: number) =>
+    fetchFromFunction<unknown>("business-analytics/recent-activity", {
+      queryParams: { limit },
+    }),
+  getSystemHealth: () =>
+    fetchFromFunction<unknown>("business-analytics/system-health"),
+  getSummary: (timeframe?: string) =>
+    fetchFromFunction<unknown>("business-analytics/summary", {
+      queryParams: { timeframe },
+    }),
 };

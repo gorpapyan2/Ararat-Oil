@@ -6,7 +6,7 @@ import { cn } from "@/shared/utils";
 /**
  * Props for the CreateButton component
  */
-export interface CreateButtonProps extends Omit<ButtonProps, "startIcon"> {
+export interface CreateButtonProps extends ButtonProps {
   /**
    * Label to display on the button
    * @default "Create New"
@@ -29,18 +29,18 @@ export const CreateButton = React.forwardRef<
   CreateButtonProps
 >(
   (
-    { className, label = "Create New", icon, variant = "default", ...props },
+    { className, label = "Create New", icon, variant = "default", children, ...props },
     ref
   ) => {
     return (
       <Button
-        className={cn("gap-1", className)}
+        className={cn("gap-2", className)}
         ref={ref}
         variant={variant}
-        startIcon={icon || <PlusIcon className="h-4 w-4" />}
         {...props}
       >
-        {label}
+        {icon || <PlusIcon className="h-4 w-4" />}
+        {children || label}
       </Button>
     );
   }

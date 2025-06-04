@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.39.3';
+import { getCorsHeaders, handleCors } from '../_shared/cors.ts';
 
 // ---- START INLINED CODE FROM SHARED MODULES ----
 
@@ -93,13 +94,6 @@ const getUserFromRequest = async (request: Request) => {
 };
 
 // API utilities
-function handleCors(req: Request): Response | null {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-  return null;
-}
-
 function createJsonResponse<T>(data: { data?: T; error?: string }, status = 200): Response {
   return new Response(
     JSON.stringify(data),
@@ -151,14 +145,39 @@ function notFound(resource = 'Resource'): Response {
 // ---- END INLINED CODE FROM SHARED MODULES ----
 
 // Handle shifts operations
-serve(async (req: Request) => {
-  // Handle CORS
+serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
 
-  // Get URL path
+  // Robust path parsing
   const url = new URL(req.url);
-  const path = url.pathname.replace('/shifts', '');
+  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  const mainRoute = pathParts[0];
+  const subRoute = pathParts[1] || '';
+
+  if (mainRoute !== 'shifts') {
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Example: /shifts/summary
+  if (subRoute === 'summary') {
+    if (req.method === 'GET') {
+      // Replace with actual logic
+      return new Response(JSON.stringify({ summary: {} }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   // Authentication check
   const user = await getUserFromRequest(req);
@@ -169,32 +188,32 @@ serve(async (req: Request) => {
   try {
     // Route handling
     if (req.method === 'GET') {
-      if (path === '' || path === '/') {
+      if (subRoute === '') {
         return await getShifts();
-      } else if (path === '/active') {
+      } else if (subRoute === 'active') {
         return await getActiveShift(user.id);
-      } else if (path.match(/^\/[a-zA-Z0-9-]+$/)) {
-        const id = path.split('/')[1];
+      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+$/)) {
+        const id = subRoute.split('/')[1];
         return await getShiftById(id);
-      } else if (path.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
-        const id = path.split('/')[1];
+      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
+        const id = subRoute.split('/')[1];
         return await getShiftPaymentMethods(id);
       }
     } else if (req.method === 'POST') {
-      if (path === '' || path === '/') {
+      if (subRoute === '') {
         const data = await parseRequestBody<{ openingCash: number; employeeIds?: string[] }>(req);
         return await startShift(data.openingCash, data.employeeIds, user.id);
-      } else if (path.match(/^\/[a-zA-Z0-9-]+\/close$/)) {
-        const id = path.split('/')[1];
+      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+\/close$/)) {
+        const id = subRoute.split('/')[1];
         const data = await parseRequestBody<{ closingCash: number; paymentMethods?: ShiftPaymentMethod[] }>(req);
         return await closeShift(id, data.closingCash, data.paymentMethods);
-      } else if (path.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
-        const id = path.split('/')[1];
+      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
+        const id = subRoute.split('/')[1];
         const data = await parseRequestBody<Omit<ShiftPaymentMethod, 'id' | 'created_at' | 'shift_id'>[]>(req);
         return await addShiftPaymentMethods(id, data);
       }
-    } else if (req.method === 'DELETE' && path.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
-      const id = path.split('/')[1];
+    } else if (req.method === 'DELETE' && subRoute.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
+      const id = subRoute.split('/')[1];
       return await deleteShiftPaymentMethods(id);
     }
   } catch (error) {

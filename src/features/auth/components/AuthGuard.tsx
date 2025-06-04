@@ -1,17 +1,14 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import type { AuthConfig } from "../types/auth.types";
+import { useAuth } from "@/core/hooks/useAuth";
 import { Loading } from "@/core/components/ui/loading";
-import { APP_ROUTES } from "@/core/config/routes";
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  config?: AuthConfig;
 }
 
-export function AuthGuard({ children, config }: AuthGuardProps) {
-  const { user, isLoading } = useAuth();
+export function AuthGuard({ children }: AuthGuardProps) {
+  const { user, isLoading, isOffline } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -20,8 +17,13 @@ export function AuthGuard({ children, config }: AuthGuardProps) {
     );
   }
 
+  // If offline, let the user continue to see cached content
+  if (isOffline && !user) {
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
   if (!user) {
-    return <Navigate to={APP_ROUTES.AUTH.path} state={{ from: location }} replace />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

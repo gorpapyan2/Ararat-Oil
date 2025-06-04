@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getCorsHeaders, handleCors } from '../_shared/cors.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -366,113 +367,44 @@ function generateScheduleOptimization() {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Robust path parsing
+  const url = new URL(req.url);
+  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  const mainRoute = pathParts[0];
+  const subRoute = pathParts[1] || '';
+
+  if (mainRoute !== 'shifts-analytics') {
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
-  try {
-    const { action, shift_id, employee_id, date_range, status }: ShiftRequest = await req.json();
-
-    let response;
-
-    switch (action) {
-      case 'get_metrics':
-        response = generateShiftMetrics();
-        break;
-        
-      case 'get_employees':
-        response = generateEmployees();
-        break;
-        
-      case 'get_shifts':
-        response = generateShifts();
-        break;
-        
-      case 'get_analytics':
-        response = generateShiftAnalytics();
-        break;
-        
-      case 'get_payroll_summary':
-        response = generatePayrollSummary();
-        break;
-        
-      case 'get_schedule_optimization':
-        response = generateScheduleOptimization();
-        break;
-        
-      case 'clock_in':
-        response = {
-          success: true,
-          employee_id,
-          clock_in_time: new Date().toISOString(),
-          message: 'Successfully clocked in'
-        };
-        break;
-        
-      case 'clock_out':
-        response = {
-          success: true,
-          employee_id,
-          clock_out_time: new Date().toISOString(),
-          total_hours: 8.5,
-          overtime_hours: 0.5,
-          message: 'Successfully clocked out'
-        };
-        break;
-        
-      case 'update_shift':
-        response = {
-          success: true,
-          shift_id,
-          message: 'Shift updated successfully'
-        };
-        break;
-        
-      case 'create_shift':
-        response = {
-          success: true,
-          shift_id: `shift-${Date.now()}`,
-          message: 'Shift created successfully'
-        };
-        break;
-        
-      case 'get_employee_schedule':
-        response = {
-          employee_id,
-          upcoming_shifts: generateShifts().filter(shift => 
-            shift.employee_id === employee_id && 
-            shift.status === 'scheduled'
-          ).slice(0, 5),
-          total_scheduled_hours: 40,
-          overtime_hours: 2.5
-        };
-        break;
-        
-      default:
-        return new Response(
-          JSON.stringify({ error: 'Invalid action' }),
-          { 
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
+  // Example: /shifts-analytics/metrics
+  if (subRoute === 'metrics') {
+    if (req.method === 'GET') {
+      const metrics = generateShiftMetrics();
+      return new Response(JSON.stringify({ metrics }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
     }
-
-    return new Response(
-      JSON.stringify(response),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
-
-  } catch (error) {
-    console.error('Shifts analytics error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
+
+  // ...repeat for other subroutes, always using ...corsHeaders...
+
+  // Not found
+  return new Response(
+    JSON.stringify({ error: 'Not found' }),
+    { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
 }); 

@@ -1,13 +1,7 @@
-// Re-export the original service
-export * from "./petrolProvidersService";
-
-// Import API endpoints
-import { petrolProvidersApi } from "@/core/api/endpoints/petrol-providers";
-import type {
-  PetrolProvider as ApiPetrolProvider,
-  PetrolProviderCreate,
-  PetrolProviderUpdate,
-} from "@/core/api/types";
+// Modern centralized services approach
+import { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
+import { petrolProvidersApi } from "@/services/api";
+import type { PetrolProvider as ApiPetrolProvider } from "@/core/api/types";
 import type {
   PetrolProvider,
   PetrolProviderFormData,
@@ -15,10 +9,15 @@ import type {
   PetrolProviderSummary,
 } from "../types/petrol-providers.types";
 
-// Helper function to adapt API response to feature type
-function adaptApiResponseToFeatureType(
-  apiProvider: ApiPetrolProvider
-): PetrolProvider {
+// Modern hook-based approach
+export const usePetrolProviders = (options?: Parameters<typeof useCentralizedEntity>[1]) => 
+  useCentralizedEntity<ApiPetrolProvider>('petrol_providers', options);
+
+// Re-export for backward compatibility
+export { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
+
+// Helper function to adapt API provider to feature type
+function adaptApiToFeatureType(apiProvider: ApiPetrolProvider): PetrolProvider {
   return {
     id: apiProvider.id,
     name: apiProvider.name,
@@ -29,72 +28,68 @@ function adaptApiResponseToFeatureType(
     tax_id: "", // Not in API type, providing default
     bank_account: "", // Not in API type, providing default
     notes: "", // Not in API type, providing default
-    created_at: apiProvider.created_at,
-    updated_at: apiProvider.updated_at,
+    created_at: apiProvider.created_at || "",
+    updated_at: apiProvider.updated_at || "",
   };
 }
 
 // Helper function to adapt feature type to API request
-function adaptFeatureTypeToApiRequest(
-  providerData: PetrolProviderFormData
-): PetrolProviderCreate {
+function adaptFeatureTypeToApiRequest(providerData: PetrolProviderFormData) {
   return {
     name: providerData.name,
     contact_person: providerData.contact_person,
     email: providerData.email,
     phone: providerData.phone,
     address: providerData.address,
-    status: "active", // Default status
+    status: "active" as const,
   };
 }
 
 /**
  * Get all petrol providers with optional filters
  */
-export async function getProviders(
-  filters?: PetrolProviderFilters
-): Promise<PetrolProvider[]> {
-  const response = await petrolProvidersApi.getPetrolProviders();
+export async function getProviders(filters?: PetrolProviderFilters): Promise<PetrolProvider[]> {
+  try {
+    const response = await petrolProvidersApi.getAll();
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    
+    let providers = (response.data || []).map(adaptApiToFeatureType);
 
-  if (response.error) {
-    throw new Error(response.error.message);
+    // Apply client-side filtering if filters provided
+    if (filters?.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      providers = providers.filter(
+        (provider) =>
+          provider.name.toLowerCase().includes(query) ||
+          provider.contact_person.toLowerCase().includes(query) ||
+          provider.email.toLowerCase().includes(query)
+      );
+    }
+
+    return providers;
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch providers');
   }
-
-  let providers = (response.data || []).map(adaptApiResponseToFeatureType);
-
-  // Apply client-side filtering if filters provided
-  if (filters && filters.searchQuery) {
-    const query = filters.searchQuery.toLowerCase();
-    providers = providers.filter(
-      (p) =>
-        p.name.toLowerCase().includes(query) ||
-        p.contact_person.toLowerCase().includes(query) ||
-        p.email.toLowerCase().includes(query)
-    );
-  }
-
-  return providers;
 }
 
 /**
  * Create a new petrol provider
  */
-export async function createProvider(
-  providerData: PetrolProviderFormData
-): Promise<PetrolProvider> {
-  const apiData = adaptFeatureTypeToApiRequest(providerData);
-
-  const response = await petrolProvidersApi.createPetrolProvider(apiData);
-
-  if (response.error) {
-    throw new Error(response.error.message);
+export async function createProvider(providerData: PetrolProviderFormData): Promise<PetrolProvider> {
+  try {
+    const apiData = adaptFeatureTypeToApiRequest(providerData);
+    const response = await petrolProvidersApi.create(apiData);
+    
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    
+    return adaptApiToFeatureType(response.data!);
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : 'Failed to create provider');
   }
-
-  if (!response.data) {
-    throw new Error("No data returned from API");
-  }
-
-  return adaptApiResponseToFeatureType(response.data);
 }
 
 /**
@@ -104,41 +99,38 @@ export async function updateProvider(
   id: string,
   providerData: Partial<PetrolProviderFormData>
 ): Promise<PetrolProvider> {
-  // For partial updates, we only include the fields that were provided
-  const apiData: PetrolProviderUpdate = {};
+  try {
+    const apiData: Record<string, unknown> = {};
 
-  if (providerData.name !== undefined) apiData.name = providerData.name;
-  if (providerData.contact_person !== undefined)
-    apiData.contact_person = providerData.contact_person;
-  if (providerData.email !== undefined) apiData.email = providerData.email;
-  if (providerData.phone !== undefined) apiData.phone = providerData.phone;
-  if (providerData.address !== undefined)
-    apiData.address = providerData.address;
+    if (providerData.name !== undefined) apiData.name = providerData.name;
+    if (providerData.contact_person !== undefined) apiData.contact_person = providerData.contact_person;
+    if (providerData.email !== undefined) apiData.email = providerData.email;
+    if (providerData.phone !== undefined) apiData.phone = providerData.phone;
+    if (providerData.address !== undefined) apiData.address = providerData.address;
 
-  const response = await petrolProvidersApi.updatePetrolProvider(id, apiData);
-
-  if (response.error) {
-    throw new Error(response.error.message);
+    const response = await petrolProvidersApi.update(id, apiData);
+    
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    
+    return adaptApiToFeatureType(response.data!);
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : 'Failed to update provider');
   }
-
-  if (!response.data) {
-    throw new Error("No data returned from API");
-  }
-
-  return adaptApiResponseToFeatureType(response.data);
 }
 
 /**
  * Delete a petrol provider
  */
 export async function deleteProvider(id: string): Promise<boolean> {
-  const response = await petrolProvidersApi.deletePetrolProvider(id);
-
-  if (response.error) {
-    throw new Error(response.error.message);
+  try {
+    const response = await petrolProvidersApi.delete(id);
+    return !response.error;
+  } catch (error) {
+    console.error('Error deleting provider:', error);
+    return false;
   }
-
-  return response.data?.success || false;
 }
 
 /**
@@ -147,18 +139,11 @@ export async function deleteProvider(id: string): Promise<boolean> {
 export async function getSummary(): Promise<PetrolProviderSummary> {
   try {
     const providers = await getProviders();
-
-    // Calculate summary statistics
+    
     return {
       totalProviders: providers.length,
-      activeProviders: providers.length, // Assuming all are active
-      recentProviders: providers.filter((p) => {
-        // Providers created in the last 30 days
-        const createdDate = new Date(p.created_at);
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return createdDate >= thirtyDaysAgo;
-      }).length,
+      activeProviders: providers.length, // All fetched providers are active
+      recentProviders: 0, // Would need additional API endpoint for this
     };
   } catch (error) {
     console.error("Error calculating provider summary:", error);
@@ -177,4 +162,4 @@ export const petrolProvidersService = {
   updateProvider,
   deleteProvider,
   getSummary,
-};
+}; 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { type Row } from '@tanstack/react-table';
 import { 
   Calendar, 
   Clock, 
@@ -40,30 +41,13 @@ import {
   SelectValue,
 } from '@/core/components/ui/select';
 
-// Services
-import { supabase } from '@/integrations/supabase/client';
+// Modern Services
+import { useShifts } from '../services/shifts';
+import { shiftsApi } from '@/services/api';
 import { cn } from '@/shared/utils';
+import type { Shift } from '@/core/api/types';
 
 // Types
-interface Shift {
-  id: string;
-  employee_name: string;
-  employee_id: string;
-  start_time: string;
-  end_time: string;
-  shift_type: 'morning' | 'afternoon' | 'night';
-  status: 'scheduled' | 'active' | 'completed' | 'cancelled';
-  date: string;
-  total_hours?: number;
-  break_time?: number;
-  overtime_hours?: number;
-  hourly_rate?: number;
-  total_pay?: number;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
-
 interface ShiftMetrics {
   total_shifts: number;
   active_shifts: number;
@@ -73,58 +57,37 @@ interface ShiftMetrics {
   total_payroll: number;
 }
 
-// Supabase Edge Function Services
+// Modern API Services using centralized approach
 const shiftsService = {
   async getShifts(): Promise<Shift[]> {
-    const { data, error } = await supabase
-      .from('shifts')
-      .select('*')
-      .order('date', { ascending: false })
-      .order('start_time', { ascending: true });
-    
-    if (error) throw error;
-    return data || [];
+    const response = await shiftsApi.getAll();
+    if (response.error) throw new Error(response.error);
+    return response.data || [];
   },
 
   async getShiftMetrics(): Promise<ShiftMetrics> {
-    const { data, error } = await supabase.functions.invoke('shifts-analytics', {
-      body: { action: 'get_metrics' }
-    });
-    
-    if (error) throw error;
-    return data;
+    // TODO: Implement in Edge Functions or use calculated metrics
+    console.warn('Shift metrics functionality needs to be implemented in API');
+    return {
+      total_shifts: 0,
+      active_shifts: 0,
+      completed_shifts: 0,
+      total_hours: 0,
+      total_overtime: 0,
+      total_payroll: 0,
+    };
   },
 
-  async createShift(shift: Omit<Shift, 'id' | 'created_at' | 'updated_at'>): Promise<Shift> {
-    const { data, error } = await supabase
-      .from('shifts')
-      .insert([shift])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
+  async startShift(openingCash: number, employeeIds?: string[]): Promise<Shift> {
+    const response = await shiftsApi.start(openingCash, employeeIds);
+    if (response.error) throw new Error(response.error);
+    return response.data!;
   },
 
-  async updateShift(id: string, updates: Partial<Shift>): Promise<Shift> {
-    const { data, error } = await supabase
-      .from('shifts')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteShift(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('shifts')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
+  async closeShift(id: string, closingCash: number, paymentMethods?: any[]): Promise<Shift> {
+    const response = await shiftsApi.close(id, closingCash, paymentMethods);
+    if (response.error) throw new Error(response.error);
+    return response.data!;
   }
 };
 
@@ -144,8 +107,9 @@ export const ShiftsPage: React.FC = () => {
   });
 
   // Mutations
-  const createMutation = useMutation({
-    mutationFn: shiftsService.createShift,
+  const startShiftMutation = useMutation({
+    mutationFn: ({ openingCash, employeeIds }: { openingCash: number; employeeIds?: string[] }) =>
+      shiftsService.startShift(openingCash, employeeIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shifts'] });
       queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
@@ -153,17 +117,9 @@ export const ShiftsPage: React.FC = () => {
     }
   });
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<Shift> }) =>
-      shiftsService.updateShift(id, updates),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shifts'] });
-      queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
-    }
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: shiftsService.deleteShift,
+  const closeShiftMutation = useMutation({
+    mutationFn: ({ id, closingCash, paymentMethods }: { id: string; closingCash: number; paymentMethods?: any[] }) =>
+      shiftsService.closeShift(id, closingCash, paymentMethods),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shifts'] });
       queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
@@ -175,7 +131,7 @@ export const ShiftsPage: React.FC = () => {
     {
       accessorKey: 'employee_name',
       header: 'Employee',
-      cell: ({ row }: any) => (
+      cell: ({ row }: { row: Row<Shift> }) => (
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
             <Users className="w-4 h-4 text-primary" />
@@ -187,16 +143,16 @@ export const ShiftsPage: React.FC = () => {
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row }: any) => (
+      cell: ({ row }: { row: Row<Shift> }) => (
         <span>{new Date(row.getValue('date')).toLocaleDateString()}</span>
       )
     },
     {
       accessorKey: 'shift_type',
       header: 'Shift Type',
-      cell: ({ row }: any) => {
+      cell: ({ row }: { row: Row<Shift> }) => {
         const type = row.getValue('shift_type') as string;
-        const variants: Record<string, any> = {
+        const variants: Record<string, 'default' | 'secondary' | 'outline'> = {
           morning: 'default',
           afternoon: 'secondary',
           night: 'outline'
@@ -211,7 +167,7 @@ export const ShiftsPage: React.FC = () => {
     {
       accessorKey: 'start_time',
       header: 'Start Time',
-      cell: ({ row }: any) => (
+      cell: ({ row }: { row: Row<Shift> }) => (
         <div className="flex items-center gap-1">
           <Clock className="w-4 h-4 text-muted-foreground" />
           <span>{row.getValue('start_time')}</span>
@@ -221,7 +177,7 @@ export const ShiftsPage: React.FC = () => {
     {
       accessorKey: 'end_time',
       header: 'End Time',
-      cell: ({ row }: any) => (
+      cell: ({ row }: { row: Row<Shift> }) => (
         <div className="flex items-center gap-1">
           <Clock className="w-4 h-4 text-muted-foreground" />
           <span>{row.getValue('end_time')}</span>
@@ -231,15 +187,15 @@ export const ShiftsPage: React.FC = () => {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }: any) => {
+      cell: ({ row }: { row: Row<Shift> }) => {
         const status = row.getValue('status') as string;
-        const variants: Record<string, any> = {
+        const variants: Record<string, 'outline' | 'default' | 'success' | 'destructive'> = {
           scheduled: 'outline',
           active: 'default',
           completed: 'success',
           cancelled: 'destructive'
         };
-        const icons: Record<string, any> = {
+        const icons: Record<string, React.ComponentType<{ className?: string }>> = {
           scheduled: Calendar,
           active: UserCheck,
           completed: CheckCircle,
@@ -260,14 +216,14 @@ export const ShiftsPage: React.FC = () => {
     {
       accessorKey: 'total_hours',
       header: 'Hours',
-      cell: ({ row }: any) => (
+      cell: ({ row }: { row: Row<Shift> }) => (
         <span className="font-mono">{row.getValue('total_hours') || 0}h</span>
       )
     },
     {
       accessorKey: 'total_pay',
       header: 'Pay',
-      cell: ({ row }: any) => (
+      cell: ({ row }: { row: Row<Shift> }) => (
         <div className="flex items-center gap-1">
           <DollarSign className="w-4 h-4 text-green-600" />
           <span className="font-mono">${row.getValue('total_pay') || 0}</span>

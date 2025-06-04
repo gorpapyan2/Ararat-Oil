@@ -126,10 +126,32 @@ export async function fetchFromFunction<
   options: ApiRequestOptions & { responseType?: R } = {}
 ): Promise<ApiResult<T, R>> {
   try {
-    // Get current session for auth token
-    const { data: sessionData } = await supabase.auth.getSession();
-    // Use the user access token if available, otherwise fall back to the public anon key.
-    const token = sessionData?.session?.access_token || API_CONFIG.SUPABASE_ANON_KEY;
+    // Attempt to get a fresh session token
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    
+    let currentSession = sessionData?.session;
+    
+    if (sessionError) {
+      console.warn('Session retrieval error:', sessionError);
+      // Try to refresh the token if there's a session error
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      
+      if (refreshError) {
+        console.error('Failed to refresh auth token:', refreshError);
+        return {
+          error: createApiError(
+            API_ERROR_TYPE.AUTH,
+            'Authentication failed: ' + refreshError.message
+          ),
+        } as ApiResult<T, R>;
+      }
+      
+      // Use the refreshed session
+      currentSession = refreshData.session;
+    }
+    
+    // Use the user access token if available, otherwise fall back to the public anon key
+    const token = currentSession?.access_token || API_CONFIG.SUPABASE_ANON_KEY;
 
     // Set up headers
     const headers: HeadersInit = {
@@ -163,6 +185,7 @@ export async function fetchFromFunction<
       method: options.method || "GET",
       headers,
       cache: options.cache,
+      // credentials: 'include', // Temporarily removed to avoid preflight CORS issues
       signal: options.timeout
         ? AbortSignal.timeout(options.timeout)
         : undefined,
@@ -172,20 +195,37 @@ export async function fetchFromFunction<
         : {}),
     };
 
+    console.log(`Making ${requestOptions.method} request to ${url}`);
+    
     // Make the fetch request
     const response = await fetch(url, requestOptions);
 
+    // Log response status
+    console.log(`Response from ${functionPath}: ${response.status} ${response.statusText}`);
+    
     // Handle different response types
     let result;
-    if (options.responseType === "text") {
-      result = await response.text();
-    } else if (options.responseType === "blob") {
-      result = await response.blob();
-    } else if (options.responseType === "arraybuffer") {
-      result = await response.arrayBuffer();
-    } else {
-      // Default to JSON
-      result = await response.json();
+    try {
+      if (options.responseType === "text") {
+        result = await response.text();
+      } else if (options.responseType === "blob") {
+        result = await response.blob();
+      } else if (options.responseType === "arraybuffer") {
+        result = await response.arrayBuffer();
+      } else {
+        // Default to JSON
+        result = await response.json();
+      }
+    } catch (error) {
+      console.error(`Error parsing response from ${functionPath}:`, error);
+      return {
+        error: createApiError(
+          API_ERROR_TYPE.SERVER,
+          `Failed to parse response: ${error.message}`,
+          response.status
+        ),
+        status: response.status,
+      } as ApiResult<T, R>;
     }
 
     // For non-JSON responses, return the raw result if response is OK

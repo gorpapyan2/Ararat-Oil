@@ -1,4 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCors } from '../_shared/cors.ts';
 
 interface SalesRequest {
   action: string;
@@ -243,80 +244,44 @@ const generateSalesAnalytics = () => ({
 });
 
 serve(async (req) => {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  };
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
 
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+  // Robust path parsing
+  const url = new URL(req.url);
+  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  const mainRoute = pathParts[0];
+  const subRoute = pathParts[1] || '';
+
+  if (mainRoute !== 'sales-analytics') {
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
-  try {
-    const { action, ...params }: SalesRequest = await req.json();
-
-    switch (action) {
-      case 'get_metrics':
-        return new Response(JSON.stringify(generateSalesMetrics()), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-
-      case 'get_sales':
-        return new Response(JSON.stringify(generateSales()), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-
-      case 'get_customers':
-        return new Response(JSON.stringify(generateCustomers()), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-
-      case 'get_products':
-        return new Response(JSON.stringify(generateProducts()), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-
-      case 'get_analytics':
-        return new Response(JSON.stringify(generateSalesAnalytics()), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-
-      case 'create_sale':
-        // Mock creating a sale
-        const newSale = {
-          id: `sale_${Date.now()}`,
-          transaction_id: `TXN${Date.now()}`,
-          ...params,
-          created_at: new Date().toISOString(),
-          status: 'completed'
-        };
-        return new Response(JSON.stringify(newSale), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-
-      case 'refund_sale':
-        // Mock refunding a sale
-        return new Response(JSON.stringify({ success: true, refund_id: `REF${Date.now()}` }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-
-      case 'update_customer':
-        // Mock updating customer
-        return new Response(JSON.stringify({ success: true, customer_id: params.customer_id }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-
-      default:
-        return new Response(JSON.stringify({ error: 'Invalid action' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+  // Example: /sales-analytics/metrics
+  if (subRoute === 'metrics') {
+    if (req.method === 'GET') {
+      const metrics = generateSalesMetrics();
+      return new Response(JSON.stringify({ metrics }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
     }
-  } catch (error) {
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+
+  // ...repeat for other subroutes, always using ...corsHeaders...
+
+  // Not found
+  return new Response(
+    JSON.stringify({ error: 'Not found' }),
+    { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
 }); 

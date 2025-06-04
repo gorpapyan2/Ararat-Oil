@@ -1,4 +1,4 @@
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/core/api";
 import type {
   FuelSale,
   FuelSaleFormData,
@@ -11,17 +11,17 @@ export const fuelSalesService = {
   async getSales(filters?: FuelSaleFilters) {
     const queryParams = new URLSearchParams();
 
-    if (filters?.shiftId) {
-      queryParams.append("shift_id", filters.shiftId);
+    if (filters?.shift_id) {
+      queryParams.append("shift_id", filters.shift_id);
     }
-    if (filters?.startDate) {
-      queryParams.append("start_date", filters.startDate);
+    if (filters?.date_range?.start) {
+      queryParams.append("start_date", filters.date_range.start);
     }
-    if (filters?.endDate) {
-      queryParams.append("end_date", filters.endDate);
+    if (filters?.date_range?.end) {
+      queryParams.append("end_date", filters.date_range.end);
     }
-    if (filters?.employeeId) {
-      queryParams.append("employee", filters.employeeId);
+    if (filters?.employee_id) {
+      queryParams.append("employee", filters.employee_id);
     }
 
     const { data, error } = await supabase.functions.invoke(EDGE_FUNCTION_URL, {

@@ -2,11 +2,12 @@ import * as React from "react";
 import { useState, useCallback } from "react";
 import { Button, ButtonProps } from "@/core/components/ui/button";
 import { cn } from "@/shared/utils";
+import { Loader2 } from "lucide-react";
 
 /**
  * Props for the LoadingButton component
  */
-export interface LoadingButtonProps extends Omit<ButtonProps, "isLoading"> {
+export interface LoadingButtonProps extends ButtonProps {
   /**
    * Function to execute when the button is clicked
    * Will automatically set loading state during execution
@@ -70,16 +71,15 @@ export const LoadingButton = React.forwardRef<
 
     return (
       <Button
-        className={className}
+        className={cn("gap-2", className)}
         ref={ref}
         onClick={handleClick}
-        isLoading={isLoading}
-        loadingText={loadingText}
         disabled={disabled || isLoading}
         aria-disabled={disabled || isLoading}
         {...props}
       >
-        {children}
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isLoading ? loadingText || children : children}
       </Button>
     );
   }

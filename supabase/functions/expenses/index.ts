@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.39.3';
+import { getCorsHeaders, handleCors } from '../_shared/cors.ts';
 
 // ---- START INLINED CODE FROM SHARED MODULES ----
 
@@ -86,13 +87,6 @@ const getUserFromRequest = async (request: Request) => {
 };
 
 // API utilities
-function handleCors(req: Request): Response | null {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-  return null;
-}
-
 function createJsonResponse<T>(data: { data?: T; error?: string }, status = 200): Response {
   return new Response(
     JSON.stringify(data),
@@ -183,14 +177,39 @@ interface TransactionData {
 console.info('Expenses Edge Function started');
 
 // Handle expenses operations
-serve(async (req: Request) => {
-  // Handle CORS
+serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
 
-  // Get URL path
+  // Robust path parsing
   const url = new URL(req.url);
-  const path = url.pathname.replace('/expenses', '');
+  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  const mainRoute = pathParts[0];
+  const subRoute = pathParts[1] || '';
+
+  if (mainRoute !== 'expenses') {
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Example: /expenses/summary
+  if (subRoute === 'summary') {
+    if (req.method === 'GET') {
+      // Replace with actual logic
+      return new Response(JSON.stringify({ summary: {} }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   // Authentication check
   const user = await getUserFromRequest(req);
@@ -201,7 +220,7 @@ serve(async (req: Request) => {
   try {
     // Route handling
     if (req.method === 'GET') {
-      if (path === '' || path === '/') {
+      if (subRoute === '' || subRoute === '/') {
         const params = getUrlParams(req);
         const filters: ExpenseFilters = {
           category: params.get('category') as ExpenseCategory || undefined,
@@ -211,21 +230,21 @@ serve(async (req: Request) => {
         };
         
         return await getExpenses(filters);
-      } else if (path === '/categories') {
+      } else if (subRoute === '/categories') {
         return await getExpenseCategories();
-      } else if (path.match(/^\/[a-zA-Z0-9-]+$/)) {
-        const id = path.split('/')[1];
+      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+$/)) {
+        const id = subRoute.split('/')[1];
         return await getExpenseById(id);
       }
-    } else if (req.method === 'POST' && (path === '' || path === '/')) {
+    } else if (req.method === 'POST' && (subRoute === '' || subRoute === '/')) {
       const data = await parseRequestBody<Omit<Expense, 'id' | 'created_at'>>(req);
       return await createExpense(data, user.id);
-    } else if (req.method === 'PUT' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
-      const id = path.split('/')[1];
+    } else if (req.method === 'PUT' && subRoute.match(/^\/[a-zA-Z0-9-]+$/)) {
+      const id = subRoute.split('/')[1];
       const data = await parseRequestBody<Partial<Omit<Expense, 'id' | 'created_at'>>>(req);
       return await updateExpense(id, data);
-    } else if (req.method === 'DELETE' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
-      const id = path.split('/')[1];
+    } else if (req.method === 'DELETE' && subRoute.match(/^\/[a-zA-Z0-9-]+$/)) {
+      const id = subRoute.split('/')[1];
       return await deleteExpense(id);
     }
   } catch (error) {

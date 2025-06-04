@@ -1,8 +1,8 @@
-import { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks";
-import { useDialog } from "@/hooks/useDialog";
-import { supabase } from "@/core/api/supabase";
+import { useDialog } from "@/core/hooks/useDialog";
+import { tanksApi } from "@/services/api";
 import { FuelSalesTable } from "./FuelSalesTable";
 import { FuelSalesFormStandardized } from "./FuelSalesFormStandardized";
 import { ConfirmDeleteDialogStandardized } from "./ConfirmDeleteDialogStandardized";
@@ -10,6 +10,8 @@ import { FuelSalesSummary } from "./summary/FuelSalesSummary";
 import { FuelSalesFilter } from "./FuelSalesFilter";
 import { useFuelSales } from "../hooks/useFuelSales";
 import type { FuelSale, FuelSaleFilters } from "../types/fuel-sales.types";
+import type { Tank } from "@/core/api/types";
+import { useCreateFuelSale, useUpdateFuelSale, useDeleteFuelSale } from "../hooks/useFuelSales";
 
 interface FuelSalesManagerStandardizedProps {
   onRenderAction?: (action: React.ReactNode) => void;
@@ -22,13 +24,15 @@ interface FuelTank {
 }
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
-  const { data, error } = await supabase
-    .from("fuel_tanks")
-    .select("id, name, fuel_type")
-    .order("name");
-
-  if (error) throw error;
-  return data;
+  const response = await tanksApi.getAll();
+  if (response.error) throw new Error(response.error);
+  
+  const tanks = response.data || [];
+  return tanks.map((tank: Tank) => ({
+    id: tank.id,
+    name: tank.name,
+    fuel_type: tank.fuel_type?.name || 'Unknown',
+  }));
 }
 
 export function FuelSalesManagerStandardized({
@@ -55,12 +59,13 @@ export function FuelSalesManagerStandardized({
   });
 
   const {
-    sales,
+    data: sales = [],
     isLoading: isSalesLoading,
-    createSale,
-    updateSale,
-    deleteSale,
   } = useFuelSales(filters);
+
+  const createSale = useCreateFuelSale();
+  const updateSale = useUpdateFuelSale();
+  const deleteSale = useDeleteFuelSale();
 
   const handleAddSale = useCallback(() => {
     setEditingSale(undefined);
@@ -69,7 +74,7 @@ export function FuelSalesManagerStandardized({
 
   const handleEditSale = useCallback(
     (id: string) => {
-      const sale = sales.find((s) => s.id === id);
+      const sale = sales.find((s: FuelSale) => s.id === id);
       if (sale) {
         setEditingSale(sale);
         onEditDialogOpenChange(true);
@@ -80,7 +85,7 @@ export function FuelSalesManagerStandardized({
 
   const handleDeleteSale = useCallback(
     (id: string) => {
-      const sale = sales.find((s) => s.id === id);
+      const sale = sales.find((s: FuelSale) => s.id === id);
       if (sale) {
         setDeletingSale(sale);
         onDeleteDialogOpenChange(true);

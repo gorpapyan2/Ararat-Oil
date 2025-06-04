@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fuelPricesApi, FuelPrice, FuelPriceCreate, FuelPriceUpdate } from "@/core/api";
 import {
   getFuelPrices,
   getFuelPriceById,
@@ -9,7 +10,6 @@ import {
   getPriceSummary,
 } from "../services";
 import {
-  FuelPrice,
   FuelPriceFormData,
   FuelPriceFilters,
   FuelPriceSummary,
@@ -60,7 +60,27 @@ export function useCurrentPrices() {
 export function usePriceSummary() {
   return useQuery<FuelPriceSummary>({
     queryKey: [QUERY_KEYS.priceSummary],
-    queryFn: getPriceSummary,
+    queryFn: async (): Promise<FuelPriceSummary> => {
+      const response = await fuelPricesApi.getFuelPrices();
+      const prices = response.data || [];
+      
+      // Create summary from fuel prices data
+      const current_prices: Record<string, number> = {};
+      prices.forEach(price => {
+        if (price.status === 'active') {
+          current_prices[price.fuel_type] = price.price_per_liter;
+        }
+      });
+
+      return {
+        current_prices,
+        price_changes: {
+          last_24h: 0,
+          last_7d: 0,
+          last_30d: 0,
+        },
+      };
+    },
   });
 }
 

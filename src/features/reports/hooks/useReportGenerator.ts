@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useToast } from "@/core/hooks/use-toast";
+import { useToast } from "@/core/hooks/useToast";
 import { z } from "zod";
 
 // Types for report parameters

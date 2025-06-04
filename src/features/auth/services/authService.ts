@@ -1,4 +1,4 @@
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/core/api";
 import type {
   AuthResponse,
   AuthError,
@@ -7,6 +7,7 @@ import type {
   PasswordResetRequest,
   SessionDevice,
 } from "../types/auth.types";
+import type { Session } from "@supabase/supabase-js";
 
 const EDGE_FUNCTION_URL = "/functions/auth";
 
@@ -19,15 +20,24 @@ export const authService = {
       });
 
       if (error) {
-        return { error: new Error(error.message) };
+        return {
+          user: null,
+          session: null,
+          error: new Error(error.message),
+        };
       }
 
       return {
         user: data.user,
         session: data.session,
+        error: null,
       };
     } catch (error) {
-      return { error: error as Error };
+      return {
+        user: null,
+        session: null,
+        error: error as Error,
+      };
     }
   },
 
@@ -44,15 +54,24 @@ export const authService = {
       });
 
       if (error) {
-        return { error: new Error(error.message) };
+        return {
+          user: null,
+          session: null,
+          error: new Error(error.message),
+        };
       }
 
       return {
         user: data.user,
         session: data.session,
+        error: null,
       };
     } catch (error) {
-      return { error: error as Error };
+      return {
+        user: null,
+        session: null,
+        error: error as Error,
+      };
     }
   },
 
@@ -70,7 +89,7 @@ export const authService = {
     }
   },
 
-  async getSessions(): Promise<{ sessions?: any[]; error?: Error }> {
+  async getSessions(): Promise<{ sessions?: Session[]; error?: Error }> {
     try {
       const { data, error } = await supabase.auth.getSession();
 

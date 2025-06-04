@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from "react";
-import { useDialog } from "@/hooks/useDialog";
+import { useDialog } from "@/core/hooks/useDialog";
 import { useFillingSystem } from "../hooks/useFillingSystem";
 import { FillingSystem } from "../types";
 
@@ -7,7 +7,6 @@ import { FillingSystem } from "../types";
 import { FillingSystemHeader } from "./FillingSystemHeader";
 import { FillingSystemList } from "./FillingSystemList";
 import { FillingSystemFormStandardized } from "./FillingSystemFormStandardized";
-import { TankDiagnostics } from "./TankDiagnostics";
 
 interface FillingSystemManagerStandardizedProps {
   onRenderAction?: (actionElement: React.ReactNode) => void;
@@ -90,8 +89,6 @@ export function FillingSystemManagerStandardized({
         onSuccess={handleSuccess}
       />
 
-      {/* Diagnostic tools */}
-      <TankDiagnostics />
     </div>
   );
 }

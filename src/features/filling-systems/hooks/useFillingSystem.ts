@@ -4,7 +4,7 @@
  * Custom hook for working with filling systems data using React Query
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/core/hooks/use-toast";
+import { useToast } from "@/core/hooks/useToast";
 import {
   apiNamespaces,
   getApiErrorMessage,

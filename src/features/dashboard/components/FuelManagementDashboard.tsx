@@ -1,15 +1,35 @@
 import { cn } from "@/shared/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { Progress } from "@/core/components/ui/progress";
-import { Badge } from "@/core/components/ui/badge";
+import { Badge } from "@/core/components/ui/primitives/badge";
 import { Fuel, TrendingUp, TrendingDown, AlertTriangle, BarChart3, Droplets } from "lucide-react";
 import { useTranslation } from "react-i18next";
+
+interface FuelManagementDashboardData {
+  totalInventory?: number;
+  lowStockItems?: number;
+  fuelDeliveries?: number;
+  avgConsumption?: number;
+  tanks?: Array<{
+    name: string;
+    level: number;
+    capacity: number;
+    status: string;
+  }>;
+  alerts?: Array<{
+    type: string;
+    message: string;
+    priority: 'low' | 'medium' | 'high';
+  }>;
+}
 
 interface FuelManagementDashboardProps {
   className?: string;
   isLoading?: boolean;
-  data?: any;
+  data?: FuelManagementDashboardData;
   expanded?: boolean;
+  startDate?: string;
+  endDate?: string;
 }
 
 // Progress Bar Component

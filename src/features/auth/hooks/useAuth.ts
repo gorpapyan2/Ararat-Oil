@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/services/supabase";
+import { supabase } from "@/core/api";
 import { authService } from "../services/authService";
 import type {
   AuthState,

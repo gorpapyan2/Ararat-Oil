@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { getCorsHeaders, handleCors } from '../_shared/cors.ts'
 import { Database } from '../_shared/database.types.ts'
 
 interface Transaction {
@@ -37,10 +37,10 @@ interface ProfitLoss {
 }
 
 serve(async (req) => {
-  // Handle CORS
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
 
   try {
     const supabaseClient = createClient<Database>(
@@ -58,262 +58,156 @@ serve(async (req) => {
       data: { user },
       error: userError,
     } = await supabaseClient.auth.getUser()
-
     if (userError) throw userError
 
+    // Robust path parsing
     const url = new URL(req.url)
-    const path = url.pathname.split('/').pop()
+    const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/')
+    const mainRoute = pathParts[0]
+    const subRoute = pathParts[1] || ''
 
-    switch (path) {
-      case 'transactions': {
-        if (!user) throw new Error('Unauthorized')
-
-        if (req.method === 'GET') {
-          const { data, error } = await supabaseClient
-            .from('transactions')
-            .select('*')
-            .order('created_at', { ascending: false })
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ transactions: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          })
-        }
-
-        if (req.method === 'POST') {
-          const transaction = await req.json()
-          const { data, error } = await supabaseClient
-            .from('transactions')
-            .insert(transaction)
-            .select()
-            .single()
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ transaction: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 201,
-          })
-        }
-
-        if (req.method === 'PUT') {
-          const { id, ...updates } = await req.json()
-          const { data, error } = await supabaseClient
-            .from('transactions')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single()
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ transaction: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          })
-        }
-
-        throw new Error('Method not allowed')
-      }
-
-      case 'expenses': {
-        if (!user) throw new Error('Unauthorized')
-
-        if (req.method === 'GET') {
-          const { data, error } = await supabaseClient
-            .from('expenses')
-            .select('*')
-            .order('created_at', { ascending: false })
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ expenses: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          })
-        }
-
-        if (req.method === 'POST') {
-          const expense = await req.json()
-          const { data, error } = await supabaseClient
-            .from('expenses')
-            .insert(expense)
-            .select()
-            .single()
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ expense: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 201,
-          })
-        }
-
-        if (req.method === 'PUT') {
-          const { id, ...updates } = await req.json()
-          const { data, error } = await supabaseClient
-            .from('expenses')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single()
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ expense: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          })
-        }
-
-        throw new Error('Method not allowed')
-      }
-
-      case 'profit-loss': {
-        if (!user) throw new Error('Unauthorized')
-
-        if (req.method === 'GET') {
-          const { data, error } = await supabaseClient
-            .from('profit_loss_summary')
-            .select('*')
-            .order('period', { ascending: false })
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ profitLoss: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          })
-        }
-
-        if (req.method === 'POST') {
-          const profitLoss = await req.json()
-          const { data, error } = await supabaseClient
-            .from('profit_loss_summary')
-            .insert(profitLoss)
-            .select()
-            .single()
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ profitLoss: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 201,
-          })
-        }
-
-        if (req.method === 'PUT') {
-          const { id, ...updates } = await req.json()
-          const { data, error } = await supabaseClient
-            .from('profit_loss_summary')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single()
-
-          if (error) throw error
-
-          return new Response(JSON.stringify({ profitLoss: data }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          })
-        }
-
-        throw new Error('Method not allowed')
-      }
-
-      case 'overview': {
-        if (!user) throw new Error('Unauthorized')
-
-        if (req.method === 'GET') {
-          // Get total sales from the last 30 days
-          const thirtyDaysAgo = new Date()
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-          
-          const [salesResult, expensesResult] = await Promise.all([
-            // Get sales data
-            supabaseClient
-              .from('sales')
-              .select('total_price, created_at, fuel_type_id, quantity, price_per_liter')
-              .gte('created_at', thirtyDaysAgo.toISOString())
-              .order('created_at', { ascending: false }),
-            
-            // Get expenses data
-            supabaseClient
-              .from('expenses')
-              .select('amount, created_at, category, description')
-              .gte('created_at', thirtyDaysAgo.toISOString())
-              .order('created_at', { ascending: false })
-          ])
-
-          if (salesResult.error) throw salesResult.error
-          if (expensesResult.error) throw expensesResult.error
-
-          const sales = salesResult.data || []
-          const expenses = expensesResult.data || []
-
-          // Calculate totals
-          const total_sales = sales.reduce((sum, sale) => sum + (sale.total_price || 0), 0)
-          const total_expenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0)
-          const net_profit = total_sales - total_expenses
-
-          // Get recent transactions (top 5)
-          const recent_transactions = [
-            ...sales.slice(0, 3).map(sale => ({
-              id: `sale_${sale.created_at}`,
-              type: 'income' as const,
-              amount: sale.total_price || 0,
-              description: `Fuel sale - ${sale.quantity || 0}L`,
-              date: sale.created_at
-            })),
-            ...expenses.slice(0, 2).map(expense => ({
-              id: `expense_${expense.created_at}`,
-              type: 'expense' as const,
-              amount: expense.amount || 0,
-              description: expense.description || expense.category || 'Expense',
-              date: expense.created_at
-            }))
-          ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5)
-
-          // Get top expense categories
-          const expenseCategories: Record<string, number> = {}
-          expenses.forEach(expense => {
-            const category = expense.category || 'Other'
-            expenseCategories[category] = (expenseCategories[category] || 0) + (expense.amount || 0)
-          })
-
-          const top_expenses = Object.entries(expenseCategories)
-            .map(([category, amount]) => ({ category, amount }))
-            .sort((a, b) => b.amount - a.amount)
-            .slice(0, 5)
-
-          const overview = {
-            total_sales,
-            total_expenses,
-            net_profit,
-            recent_transactions,
-            top_expenses
-          }
-
-          return new Response(JSON.stringify({ data: overview }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          })
-        }
-
-        throw new Error('Method not allowed')
-      }
-
-      default:
-        throw new Error('Not found')
+    if (mainRoute !== 'finance') {
+      return new Response(
+        JSON.stringify({ error: 'Not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
+
+    // /finance/transactions
+    if (subRoute === 'transactions') {
+      if (!user) throw new Error('Unauthorized')
+      if (req.method === 'GET') {
+        const { data, error } = await supabaseClient
+          .from('transactions')
+          .select('*')
+          .order('created_at', { ascending: false })
+        if (error) throw error
+        return new Response(JSON.stringify({ transactions: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+      if (req.method === 'POST') {
+        const transaction = await req.json()
+        const { data, error } = await supabaseClient
+          .from('transactions')
+          .insert(transaction)
+          .select()
+          .single()
+        if (error) throw error
+        return new Response(JSON.stringify({ transaction: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 201,
+        })
+      }
+      if (req.method === 'PUT') {
+        const { id, ...updates } = await req.json()
+        const { data, error } = await supabaseClient
+          .from('transactions')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single()
+        if (error) throw error
+        return new Response(JSON.stringify({ transaction: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // /finance/expenses
+    if (subRoute === 'expenses') {
+      if (!user) throw new Error('Unauthorized')
+      if (req.method === 'GET') {
+        const { data, error } = await supabaseClient
+          .from('expenses')
+          .select('*')
+          .order('created_at', { ascending: false })
+        if (error) throw error
+        return new Response(JSON.stringify({ expenses: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+      if (req.method === 'POST') {
+        const expense = await req.json()
+        const { data, error } = await supabaseClient
+          .from('expenses')
+          .insert(expense)
+          .select()
+          .single()
+        if (error) throw error
+        return new Response(JSON.stringify({ expense: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 201,
+        })
+      }
+      if (req.method === 'PUT') {
+        const { id, ...updates } = await req.json()
+        const { data, error } = await supabaseClient
+          .from('expenses')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single()
+        if (error) throw error
+        return new Response(JSON.stringify({ expense: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // /finance/profit-loss
+    if (subRoute === 'profit-loss') {
+      if (!user) throw new Error('Unauthorized')
+      if (req.method === 'GET') {
+        const { data, error } = await supabaseClient
+          .from('profit_loss_summary')
+          .select('*')
+          .order('period', { ascending: false })
+        if (error) throw error
+        return new Response(JSON.stringify({ profitLoss: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+      if (req.method === 'POST') {
+        const profitLoss = await req.json()
+        const { data, error } = await supabaseClient
+          .from('profit_loss_summary')
+          .insert(profitLoss)
+          .select()
+          .single()
+        if (error) throw error
+        return new Response(JSON.stringify({ profitLoss: data }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 201,
+        })
+      }
+      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Not found
+    return new Response(
+      JSON.stringify({ error: 'Not found' }),
+      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
     return new Response(
-      JSON.stringify({
-        error: error.message,
-      }),
+      JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
