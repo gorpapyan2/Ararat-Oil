@@ -1,6 +1,9 @@
 import { LucideIcon } from "lucide-react";
 import { type Icon } from "@/core/components/ui/icons";
 
+// Better type definition for icons that supports both systems
+export type IconType = LucideIcon | Icon | React.ComponentType<{ className?: string }> | string;
+
 export type NavigationCategory = 
   | 'overview'
   | 'operations'
@@ -8,25 +11,52 @@ export type NavigationCategory =
   | 'management'
   | 'reports'
   | 'settings'
-  | 'development';
+  | 'development'
+  | 'fuel';
 
 export type FeatureStatus = 'active' | 'beta' | 'coming-soon' | 'deprecated' | 'maintenance';
 
 export type MetricTrend = 'up' | 'down' | 'stable';
+
+// Navigation structure interfaces
+export interface NavigationItem {
+  id: string;
+  name: string;
+  nameAm?: string;
+  icon: IconType;
+  path: string;
+  description?: string;
+  descriptionAm?: string;
+  children?: NavigationItem[];
+  category?: NavigationCategory;
+  priority?: number;
+  permissions?: string[];
+}
+
+export interface NavigationCategoryConfig {
+  id: NavigationCategory;
+  title: string;
+  titleAm?: string;
+  description: string;
+  descriptionAm?: string;
+  icon: IconType;
+  color: string;
+  priority: number;
+}
 
 export interface FeatureMetric {
   label: string;
   value: string | number;
   trend?: MetricTrend;
   percentage?: number;
-  icon?: LucideIcon;
+  icon?: IconType;
 }
 
 export interface NavigationFeature {
   id: string;
   title: string;
   description: string;
-  icon: LucideIcon | string;
+  icon: IconType;
   path: string;
   color: string;
   category: NavigationCategory;
@@ -46,7 +76,7 @@ export interface FeatureCategory {
   id: NavigationCategory;
   title: string;
   description: string;
-  icon: LucideIcon | string;
+  icon: IconType;
   color: string;
   features: NavigationFeature[];
 }
@@ -59,7 +89,7 @@ export interface NavigationConfig {
 export interface BreadcrumbItem {
   label: string;
   href?: string;
-  icon?: LucideIcon | string;
+  icon?: IconType;
   current?: boolean;
 }
 
@@ -106,11 +136,15 @@ export interface UserPermissions {
 export interface QuickAction {
   id: string;
   title: string;
+  name?: string;
+  nameAm?: string;
   description?: string;
-  icon: LucideIcon | string;
+  icon: IconType;
   action: () => void;
   shortcut?: string;
   category: string;
+  path?: string;
+  color?: string;
 }
 
 export interface NavigationState {
@@ -215,7 +249,7 @@ export const isFeatureCategory = (obj: unknown): obj is FeatureCategory => {
 };
 
 export const isValidCategory = (category: string): category is NavigationCategory => {
-  return ['overview', 'operations', 'finance', 'management', 'reports', 'settings', 'development'].includes(category);
+  return ['overview', 'operations', 'finance', 'management', 'reports', 'settings', 'development', 'fuel'].includes(category);
 };
 
 export const isValidStatus = (status: string): status is FeatureStatus => {

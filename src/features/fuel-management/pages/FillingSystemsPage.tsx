@@ -1,70 +1,116 @@
-import React, { useState, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { PageHeader } from "@/core/components/ui/page-header";
-import { Home, Fuel, Settings } from "lucide-react";
-import { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
-import { apiNamespaces, getApiActionLabel } from "@/i18n/i18n";
-import { FillingSystemManagerStandardized } from "@/features/filling-systems";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  Settings, 
+  Activity, 
+  Wrench, 
+  BarChart3,
+  AlertTriangle,
+  CheckCircle,
+  TrendingUp,
+  Monitor
+} from 'lucide-react';
+import { NavigationCard } from '../../../shared/components/navigation/NavigationCard';
+
+interface FillingSystemModule {
+  id: string;
+  title: string;
+  description: string;
+  path: string;
+  color: string;
+  icon: React.ComponentType<any>;
+}
+
+const fillingSystemModules: FillingSystemModule[] = [
+  {
+    id: 'pump-control',
+    title: 'Pump Control',
+    description: 'Monitor and control fuel dispensing pumps',
+    path: '/fuel/filling-systems/pumps',
+    color: '#43E6A0',
+    icon: Settings
+  },
+  {
+    id: 'system-monitoring',
+    title: 'System Monitoring',
+    description: 'Real-time filling system status and performance',
+    path: '/fuel/filling-systems/monitoring',
+    color: '#4F8CFF',
+    icon: Monitor
+  },
+  {
+    id: 'dispensing-analytics',
+    title: 'Dispensing Analytics',
+    description: 'Fuel dispensing patterns and usage analytics',
+    path: '/fuel/filling-systems/analytics',
+    color: '#6C63FF',
+    icon: BarChart3
+  },
+  {
+    id: 'maintenance',
+    title: 'Maintenance',
+    description: 'Pump maintenance schedules and service records',
+    path: '/fuel/filling-systems/maintenance',
+    color: '#FFA500',
+    icon: Wrench
+  },
+  {
+    id: 'system-alerts',
+    title: 'System Alerts',
+    description: 'Equipment alerts and malfunction notifications',
+    path: '/fuel/filling-systems/alerts',
+    color: '#FF6584',
+    icon: AlertTriangle
+  },
+  {
+    id: 'calibration',
+    title: 'Calibration',
+    description: 'Pump calibration and accuracy verification',
+    path: '/fuel/filling-systems/calibration',
+    color: '#9D4EDD',
+    icon: CheckCircle
+  },
+  {
+    id: 'performance',
+    title: 'Performance Metrics',
+    description: 'System efficiency and performance tracking',
+    path: '/fuel/filling-systems/performance',
+    color: '#20B2AA',
+    icon: TrendingUp
+  },
+  {
+    id: 'activity-logs',
+    title: 'Activity Logs',
+    description: 'Transaction logs and system activity history',
+    path: '/fuel/filling-systems/logs',
+    color: '#32CD32',
+    icon: Activity
+  }
+];
 
 export default function FillingSystemsPage() {
-  const { t } = useTranslation();
-  const [action, setAction] = useState<React.ReactNode>(null);
-
-  // Memoize breadcrumb segments to prevent unnecessary re-renders
-  const breadcrumbSegments = useMemo(
-    () => [
-      {
-        name: t("common.dashboard"),
-        href: "/",
-        icon: <Home className="h-4 w-4" />,
-      },
-      {
-        name: t("common.fuelManagement"),
-        href: "/fuel-management",
-        icon: <Fuel className="h-4 w-4" />,
-      },
-      {
-        name: t("common.fillingSystems"),
-        href: "/fuel-management/filling-systems",
-        isCurrent: true,
-        icon: <Settings className="h-4 w-4" />,
-      },
-    ],
-    [t]
-  );
-
-  // Configure breadcrumb navigation with icons
-  usePageBreadcrumbs({
-    segments: breadcrumbSegments,
-    title: t("common.fillingSystems"),
-  });
-
-  // Memoize the action setter to prevent unnecessary re-renders
-  const handleRenderAction = useMemo(
-    () => (actionNode: React.ReactNode) => {
-      setAction(actionNode);
-    },
-    []
-  );
-
-  // Get translated page title and description using the API translation helpers
-  const pageTitle =
-    t("common.fillingSystems") ||
-    getApiActionLabel(apiNamespaces.fillingSystems, "list");
-  const pageDescription =
-    t("fillingSystems.description") || "Manage your fuel dispensers and pumps";
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
-      <div className="container mx-auto p-6 space-y-6">
-        <PageHeader
-          title={pageTitle}
-          description={pageDescription}
-          actions={action}
-          className="text-white"
-        />
-
-        <FillingSystemManagerStandardized onRenderAction={handleRenderAction} />
+    <div className="management-container">
+      <nav className="breadcrumbs">
+        <Link to="/">Home</Link> <span> &gt; </span> 
+        <Link to="/fuel">Fuel Operations</Link> <span> &gt; </span> 
+        <span>Filling Systems</span>
+      </nav>
+      <h1 className="management-title">Filling Systems Management</h1>
+      <p className="management-desc">
+        Comprehensive pump and dispenser management systems for fuel dispensing operations and equipment maintenance.
+      </p>
+      <div className="management-cards">
+        {fillingSystemModules.map((module) => (
+          <NavigationCard
+            key={module.id}
+            title={module.title}
+            href={module.path}
+            color={module.color}
+            icon={module.icon}
+            variant="management"
+          />
+        ))}
       </div>
     </div>
   );

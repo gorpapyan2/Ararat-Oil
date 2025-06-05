@@ -1,14 +1,15 @@
 import React, { Suspense, lazy } from 'react';
-import { Link } from 'react-router-dom';
+import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
 const RealFuelSystemsPage = lazy(() => import('@/features/fuel-management/pages/FillingSystemsPage').then(m => ({ default: m.default })));
 
 const FuelSystemsPage = () => (
   <div className="management-container">
-    <nav className="breadcrumbs">
-      <Link to="/">Home</Link> <span> &gt; </span>
-      <Link to="/management">Management</Link> <span> &gt; </span>
-      <span>Fuel Systems</span>
-    </nav>
+    <Breadcrumb 
+      items={[
+        { label: 'Management', href: '/management' },
+        { label: 'Fuel Systems' }
+      ]}
+    />
     <h1 className="management-title">Fuel Systems</h1>
     <Suspense fallback={<div>Loading...</div>}>
       <RealFuelSystemsPage />

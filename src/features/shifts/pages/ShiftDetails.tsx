@@ -14,7 +14,7 @@ import { PageLayout } from "@/layouts/PageLayout";
 import { ButtonLink } from "@/core/components/ui/primitives/button";
 
 // Services
-import { shiftsApi, salesApi, employeesApi } from "@/services/api";
+import { shiftsApi, salesApi, employeesApi } from "@/core/api";
 import type { Shift, Sale, Employee, ShiftPaymentMethod } from "@/core/api/types";
 import { formatDateTime } from "@/shared/utils";
 
@@ -116,9 +116,9 @@ export default function ShiftDetails() {
         setError(null);
 
         // Fetch the shift data using modern API
-        const shiftResponse = await shiftsApi.getById(id || "");
+        const shiftResponse = await shiftsApi.getShiftById(id || "");
         if (shiftResponse.error) {
-          throw new Error(shiftResponse.error);
+          throw new Error(shiftResponse.error.message || 'Failed to fetch shift');
         }
 
         if (!shiftResponse.data) {
@@ -132,7 +132,7 @@ export default function ShiftDetails() {
         try {
           if (shiftData.employee_id) {
             // Get employee by ID
-            const employeeResponse = await employeesApi.getById(shiftData.employee_id);
+            const employeeResponse = await employeesApi.getEmployeeById(shiftData.employee_id);
             if (employeeResponse.data) {
               employeeName = employeeResponse.data.name;
             }
@@ -144,7 +144,7 @@ export default function ShiftDetails() {
         // Fetch payment methods if the shift is closed
         let paymentMethods: ExtendedShiftPaymentMethod[] = [];
         if (shiftData.is_active === false && id) {
-          const paymentMethodsResponse = await shiftsApi.getPaymentMethods(id);
+          const paymentMethodsResponse = await shiftsApi.getShiftPaymentMethods(id);
           if (paymentMethodsResponse.data) {
             paymentMethods = paymentMethodsResponse.data as unknown as ExtendedShiftPaymentMethod[];
           }
@@ -153,10 +153,10 @@ export default function ShiftDetails() {
         // Calculate sales total using sales API
         let salesTotal = 0;
         try {
-          const salesResponse = await salesApi.getAll({ shift_id: id });
+          const salesResponse = await salesApi.getSales({ shift_id: id });
           if (salesResponse.data) {
             salesTotal = salesResponse.data.reduce(
-              (sum, sale) => sum + (sale.total_price || 0),
+              (sum: number, sale: Sale) => sum + (sale.total_amount || 0),
               0
             );
           }

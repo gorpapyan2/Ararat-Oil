@@ -1,30 +1,63 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './ManagementPage.css'; // Optional: for custom styles
+import { Clock, Users, TrendingUp, Settings } from 'lucide-react';
+import { NavigationCard } from '@/shared/components/navigation/NavigationCard';
+import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
 
-const subSections = [
-  { name: 'Tanks', route: '/management/tanks', color: '#4F8CFF' },
-  { name: 'Fuel Supplies', route: '/management/fuel-supplies', color: '#6C63FF' },
-  { name: 'Employees', route: '/management/employees', color: '#FF6584' },
-  { name: 'Fuel Systems', route: '/management/fuel-systems', color: '#43E6A0' },
-  { name: 'Fuel Prices', route: '/management/fuel-prices', color: '#FFA500' },
+interface ManagementModule {
+  id: string;
+  title: string;
+  description: string;
+  path: string;
+  color: string;
+  icon: React.ComponentType<any>;
+}
+
+const managementModules: ManagementModule[] = [
+  {
+    id: 'shifts',
+    title: 'Shifts',
+    description: 'Manage work shifts, opening/closing cash, and shift operations',
+    path: '/management/shifts',
+    color: '#4F8CFF',
+    icon: Clock
+  },
+  {
+    id: 'employees',
+    title: 'Employees',
+    description: 'Human resources and staff management',
+    path: '/management/employees',
+    color: '#43E6A0',
+    icon: Users
+  }
 ];
 
 const ManagementPage = () => {
   return (
     <div className="management-container">
-      <nav className="breadcrumbs">
-        <Link to="/">Home</Link> <span> &gt; </span> <span>Management</span>
-      </nav>
-      <h1 className="management-title">Management</h1>
-      <p className="management-desc">Manage tanks, fuel supplies, employees, fuel systems, and fuel prices.</p>
+      <Breadcrumb 
+        items={[{ label: 'Management' }]}
+      />
+      <h1 className="management-title">Management Dashboard</h1>
+      <div className="management-desc">
+        Comprehensive management system for coordinating work shifts, employee operations, and operational oversight across all departments.
+      </div>
       <div className="management-cards">
-        {subSections.map((section) => (
-          <Link to={section.route} className="management-card" key={section.name} style={{ backgroundColor: section.color }}>
-            <span className="management-card-initial">{section.name[0]}</span>
-            <span className="management-card-title">{section.name}</span>
-          </Link>
+        {managementModules.map((module) => (
+          <NavigationCard
+            key={module.id}
+            title={module.title}
+            href={module.path}
+            color={module.color}
+            icon={module.icon}
+            variant="management"
+          />
         ))}
+        {/* Placeholder for future modules */}
+        <div className="management-card" style={{ backgroundColor: '#6B7280' }}>
+          <Settings className="management-card-icon" />
+          <span className="management-card-title">More Modules</span>
+        </div>
       </div>
     </div>
   );

@@ -13,38 +13,41 @@ import { ThemeProvider } from "@/core/providers/theme-provider";
 import { Loading } from "@/core/components/ui/loading";
 
 // Lazy load components for better performance
-const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const NavigationPage = lazy(() => import('@/features/navigations/pages/NavigationPage').then(m => ({ default: m.NavigationPage })));
 const AuthPage = lazy(() => import('@/features/auth/pages/AuthPage').then(m => ({ default: m.AuthPage })));
 const ReportsPage = lazy(() => import('@/features/reports/pages/ReportsPage').then(m => ({ default: m.ReportsPage })));
 
-// Employees
-const EmployeesPage = lazy(() => import("@/features/employees/pages/EmployeesPage").then(m => ({ default: m.EmployeesPage })));
+// Management Module Components
+const ManagementPage = lazy(() => import("@/features/management/ManagementPage"));
+const ManagementEmployeesPage = lazy(() => import("@/features/management/EmployeesPage"));
 
-// Finance
+// Shifts Module Components
+const ShiftsManagementPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftsManagementPage })));
+const ShiftsPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftsPage })));
+const ShiftsDashboardPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftsDashboard })));
+const ShiftOpenPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftOpen })));
+const ShiftClosePage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftClose })));
+const ShiftDetailsPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftDetails })));
+
+// Finance Module Components
 const FinancePage = lazy(() => import("@/features/finance/pages/FinancePage").then(m => ({ default: m.FinancePage })));
-const SalesPage = lazy(() => import("@/features/sales/pages/SalesPage").then(m => ({ default: m.SalesPage })));
-const ShiftsPage = lazy(() => import("@/features/shifts/pages/ShiftsPage").then(m => ({ default: m.ShiftsPage })));
-const ExpensesPage = lazy(() => import("@/features/expenses/pages/ExpensesPage").then(m => ({ default: m.ExpensesPage })));
+const FinanceDashboardPage = lazy(() => import("@/features/finance/pages/FinanceDashboard"));
+const ExpensesPage = lazy(() => import("@/features/finance/pages/ExpensesPage"));
+const RevenuePage = lazy(() => import("@/features/finance/pages/RevenuePage"));
+const PaymentMethodsPage = lazy(() => import("@/features/finance/pages/PaymentMethodsPage"));
+
+// Fuel Module Components (reorganized from fuel-management)
+const FuelManagementPage = lazy(() => import("@/features/fuel-management/pages/FuelManagementPage").then(m => ({ default: m.FuelManagementPage })));
+const FuelDashboardPage = lazy(() => import("@/features/fuel-management/pages/FuelDashboardPage"));
+const TanksPage = lazy(() => import("@/features/fuel-management/pages/TanksPage"));
+const FuelSuppliesPage = lazy(() => import("@/features/fuel-management/pages/FuelSuppliesPage"));
+const FuelPricesPage = lazy(() => import("@/features/fuel-management/pages/FuelPricesPage"));
+const FuelTypesPage = lazy(() => import("@/features/fuel-management/pages/FuelTypesPage"));
+const FillingSystemsPage = lazy(() => import("@/features/fuel-management/pages/FillingSystemsPage"));
+const ProvidersPage = lazy(() => import("@/features/fuel-management/pages/ProvidersPage"));
 
 // Settings
 const SettingsPage = lazy(() => import("@/features/settings/pages/SettingsPage").then(m => ({ default: m.SettingsPage })));
-
-// Fuel Management
-const FuelManagementDashboard = lazy(() => import("@/features/fuel-management/pages/FuelManagementDashboard").then(m => ({ default: m.FuelManagementDashboard })));
-const FuelPricesPage = lazy(() => import("@/features/fuel-management/pages/FuelPricesPage"));
-const TanksPage = lazy(() => import("@/features/fuel-management/pages/TanksPage"));
-const FuelSuppliesPage = lazy(() => import("@/features/fuel-management/pages/FuelSuppliesPage"));
-const FillingSystemsPage = lazy(() => import("@/features/fuel-management/pages/FillingSystemsPage"));
-const ProvidersPage = lazy(() => import("@/features/fuel-management/pages/ProvidersPage"));
-const FuelSalesPage = lazy(() => import("@/features/fuel-management/pages/FuelSalesPage"));
-
-// Management
-const ManagementPage = lazy(() => import("@/features/management/ManagementPage").then(m => ({ default: m.default })));
-const ManagementTanksPage = lazy(() => import("@/features/fuel-management/pages/TanksPage").then(m => ({ default: m.default })));
-const ManagementFuelSuppliesPage = lazy(() => import("@/features/fuel-management/pages/FuelSuppliesPage").then(m => ({ default: m.default })));
-const ManagementEmployeesPage = lazy(() => import("@/features/employees/pages/EmployeesPage").then(m => ({ default: m.EmployeesPage })));
-const ManagementFuelSystemsPage = lazy(() => import("@/features/fuel-management/pages/FillingSystemsPage").then(m => ({ default: m.default })));
-const ManagementFuelPricesPage = lazy(() => import("@/features/fuel-management/pages/FuelPricesPage").then(m => ({ default: m.default })));
 
 // Error Boundary Component
 interface ErrorFallbackProps {
@@ -192,7 +195,12 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <Router>
+          <Router
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
             <AuthProvider>
               <Routes>
                 {/* Authentication Routes */}
@@ -205,148 +213,22 @@ function App() {
                   } 
                 />
 
-                {/* Dashboard */}
+                {/* Main Navigation/Dashboard */}
                 <Route 
                   path="/" 
                   element={
                     <ProtectedRoute>
-                      <DashboardPage />
+                      <NavigationPage />
                     </ProtectedRoute>
                   } 
                 />
 
-                {/* Employees */}
-                <Route 
-                  path="/employees" 
-                  element={
-                    <ProtectedRoute>
-                      <EmployeesPage />
-                    </ProtectedRoute>
-                  } 
-                />
-
-                {/* Fuel Management Routes */}
-                <Route 
-                  path="/fuel-management" 
-                  element={
-                    <ProtectedRoute>
-                      <FuelManagementDashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel-management/tanks" 
-                  element={
-                    <ProtectedRoute>
-                      <TanksPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel-management/filling-systems" 
-                  element={
-                    <ProtectedRoute>
-                      <FillingSystemsPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel-management/fuel-supplies" 
-                  element={
-                    <ProtectedRoute>
-                      <FuelSuppliesPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel-management/providers" 
-                  element={
-                    <ProtectedRoute>
-                      <ProvidersPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel-management/prices" 
-                  element={
-                    <ProtectedRoute>
-                      <FuelPricesPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/fuel-management/sales" 
-                  element={
-                    <ProtectedRoute>
-                      <FuelSalesPage />
-                    </ProtectedRoute>
-                  } 
-                />
-
-                {/* Finance Routes */}
-                <Route 
-                  path="/finance" 
-                  element={
-                    <ProtectedRoute>
-                      <FinancePage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/finance/reports" 
-                  element={
-                    <ProtectedRoute>
-                      <ReportsPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/finance/expenses" 
-                  element={
-                    <ProtectedRoute>
-                      <ExpensesPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/finance/sales" 
-                  element={
-                    <ProtectedRoute>
-                      <SalesPage />
-                    </ProtectedRoute>
-                  } 
-                />
-
-                {/* Management Routes */}
+                {/* Management Module Routes */}
                 <Route 
                   path="/management" 
                   element={
                     <ProtectedRoute>
                       <ManagementPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/management/shifts" 
-                  element={
-                    <ProtectedRoute>
-                      <ShiftsPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/management/tanks" 
-                  element={
-                    <ProtectedRoute>
-                      <ManagementTanksPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/management/fuel-supplies" 
-                  element={
-                    <ProtectedRoute>
-                      <ManagementFuelSuppliesPage />
                     </ProtectedRoute>
                   } 
                 />
@@ -359,18 +241,216 @@ function App() {
                   } 
                 />
                 <Route 
-                  path="/management/fuel-systems" 
+                  path="/management/shifts" 
                   element={
                     <ProtectedRoute>
-                      <ManagementFuelSystemsPage />
+                      <ShiftsManagementPage />
                     </ProtectedRoute>
                   } 
                 />
                 <Route 
-                  path="/management/fuel-prices" 
+                  path="/management/shifts/overview" 
                   element={
                     <ProtectedRoute>
-                      <ManagementFuelPricesPage />
+                      <ShiftsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/shifts/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftsDashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/shifts/open" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftOpenPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/shifts/close" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftClosePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/management/shifts/details" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftDetailsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                {/* Shifts Module Routes (alternative access) */}
+                <Route 
+                  path="/shifts" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftsManagementPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/shifts/management" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftsManagementPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/shifts/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftsDashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/shifts/open" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftOpenPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/shifts/close" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftClosePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/shifts/details" 
+                  element={
+                    <ProtectedRoute>
+                      <ShiftDetailsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                {/* Finance Module Routes */}
+                <Route 
+                  path="/finance" 
+                  element={
+                    <ProtectedRoute>
+                      <FinancePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/finance/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <FinanceDashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/finance/expenses" 
+                  element={
+                    <ProtectedRoute>
+                      <ExpensesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/finance/revenue" 
+                  element={
+                    <ProtectedRoute>
+                      <RevenuePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/finance/payment-methods" 
+                  element={
+                    <ProtectedRoute>
+                      <PaymentMethodsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                {/* Fuel Module Routes */}
+                <Route 
+                  path="/fuel" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelManagementPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/management" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelManagementPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelDashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/tanks" 
+                  element={
+                    <ProtectedRoute>
+                      <TanksPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/supplies" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelSuppliesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/prices" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelPricesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/types" 
+                  element={
+                    <ProtectedRoute>
+                      <FuelTypesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/filling-systems" 
+                  element={
+                    <ProtectedRoute>
+                      <FillingSystemsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/fuel/providers" 
+                  element={
+                    <ProtectedRoute>
+                      <ProvidersPage />
                     </ProtectedRoute>
                   } 
                 />
@@ -395,13 +475,13 @@ function App() {
                   } 
                 />
 
-                {/* Catch all - redirect to dashboard */}
+                {/* Catch all routes */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
-              <ReactQueryDevtools initialIsOpen={false} />
             </AuthProvider>
           </Router>
         </ThemeProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ErrorBoundary>
   );

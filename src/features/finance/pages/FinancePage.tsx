@@ -1,103 +1,115 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/core/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/core/components/ui/card";
-import { FinanceManagerStandardized } from "@/features/finance/components/FinanceManagerStandardized";
-import { ExpenseManagerStandardized } from "@/features/finance/components/ExpenseManagerStandardized";
-import { ProfitLossManagerStandardized } from "@/features/finance/components/ProfitLossManagerStandardized";
-import { apiNamespaces, getApiActionLabel } from "@/i18n/i18n";
-import { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  DollarSign, 
+  Receipt, 
+  TrendingDown, 
+  BarChart3, 
+  CreditCard, 
+  FileText,
+  Calculator,
+  PieChart
+} from 'lucide-react';
+import { NavigationCard } from '../../../shared/components/navigation/NavigationCard';
+import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
+
+interface FinanceModule {
+  id: string;
+  title: string;
+  description: string;
+  path: string;
+  color: string;
+  icon: React.ComponentType<any>;
+}
+
+const financeModules: FinanceModule[] = [
+  {
+    id: 'dashboard',
+    title: 'Dashboard',
+    description: 'Financial overview and key performance indicators',
+    path: '/finance/dashboard',
+    color: '#43E6A0',
+    icon: BarChart3
+  },
+  {
+    id: 'sales',
+    title: 'Sales',
+    description: 'Revenue tracking and sales transaction management',
+    path: '/finance/sales',
+    color: '#4F8CFF',
+    icon: DollarSign
+  },
+  {
+    id: 'expenses',
+    title: 'Expenses',
+    description: 'Business expense tracking and cost management',
+    path: '/finance/expenses',
+    color: '#6C63FF',
+    icon: TrendingDown
+  },
+  {
+    id: 'revenue',
+    title: 'Revenue',
+    description: 'Income analysis and revenue stream monitoring',
+    path: '/finance/revenue',
+    color: '#FFA500',
+    icon: Receipt
+  },
+  {
+    id: 'payment-methods',
+    title: 'Payment Methods',
+    description: 'Payment processing and transaction methods',
+    path: '/finance/payment-methods',
+    color: '#FF6584',
+    icon: CreditCard
+  },
+  {
+    id: 'shifts',
+    title: 'Shifts',
+    description: 'Work shift management and cash handling',
+    path: '/finance/shifts',
+    color: '#9D4EDD',
+    icon: FileText
+  },
+  {
+    id: 'profit-loss',
+    title: 'Profit & Loss',
+    description: 'Financial performance analysis and reporting',
+    path: '/finance/profit-loss',
+    color: '#20B2AA',
+    icon: PieChart
+  },
+  {
+    id: 'reports',
+    title: 'Financial Reports',
+    description: 'Comprehensive financial reports and analytics',
+    path: '/finance/reports',
+    color: '#32CD32',
+    icon: Calculator
+  }
+];
 
 export function FinancePage() {
-  const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState("finance");
-
-  // Set up breadcrumbs
-  const breadcrumbSegments = [
-    { name: t("common.dashboard"), href: "/" },
-    { name: t("finance.title"), href: "/finance", isCurrent: true },
-  ];
-
-  usePageBreadcrumbs({ segments: breadcrumbSegments });
-
-  // Get translated page title and tab titles using the API translation helpers
-  const pageTitle =
-    t("finance.title") || getApiActionLabel(apiNamespaces.finances, "list");
-  const financeTabTitle = t("finance.tabs.finance") || "Finance";
-  const expensesTabTitle = t("finance.tabs.expenses") || "Expenses";
-  const profitLossTabTitle = t("finance.tabs.profitLoss") || "Profit & Loss";
-
-  // Get translated section titles
-  const financeOverviewTitle = t("finance.finance.title") || "Finance Overview";
-  const expenseManagementTitle =
-    t("finance.expenses.title") || "Expense Management";
-  const profitLossTitle =
-    t("finance.profitLoss.title") || "Profit & Loss Analysis";
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
-      <div className="container mx-auto py-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold tracking-tight text-white">{pageTitle}</h1>
-        </div>
-
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="space-y-4"
-        >
-          <TabsList className="bg-gray-800/50 border border-gray-700/50">
-            <TabsTrigger value="finance" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">{financeTabTitle}</TabsTrigger>
-            <TabsTrigger value="expenses" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">{expensesTabTitle}</TabsTrigger>
-            <TabsTrigger value="profit-loss" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">{profitLossTabTitle}</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="finance" className="space-y-4">
-            <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
-              <CardHeader>
-                <CardTitle className="text-white">{financeOverviewTitle}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FinanceManagerStandardized />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="expenses" className="space-y-4">
-            <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
-              <CardHeader>
-                <CardTitle className="text-white">{expenseManagementTitle}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ExpenseManagerStandardized expenses={[]} isLoading={false} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="profit-loss" className="space-y-4">
-            <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
-              <CardHeader>
-                <CardTitle className="text-white">{profitLossTitle}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ProfitLossManagerStandardized
-                  profitLoss={[]}
-                  isLoading={false}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+    <div className="management-container">
+      <Breadcrumb 
+        items={[{ label: 'Financial Management' }]}
+      />
+      <h1 className="management-title">Financial Management Dashboard</h1>
+      <p className="management-desc">
+        Comprehensive financial tracking, budgeting, and analytics for complete business financial oversight and strategic planning.
+      </p>
+      <div className="management-cards">
+        {financeModules.map((module) => (
+          <NavigationCard
+            key={module.id}
+            title={module.title}
+            href={module.path}
+            color={module.color}
+            icon={module.icon}
+            variant="management"
+          />
+        ))}
       </div>
     </div>
   );

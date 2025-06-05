@@ -17,71 +17,160 @@ import { useNavigate } from 'react-router-dom';
 
 import { cn } from '@/shared/utils';
 
-interface AppCard {
+interface SubModule {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  path: string;
+}
+
+interface MainModule {
   id: string;
   title: string;
   description: string;
-  color: string;
-  href: string;
-  letter: string;
+  icon: string;
+  iconBg: string;
+  path: string;
+  subModules: SubModule[];
 }
 
 export function DashboardPage() {
   const navigate = useNavigate();
 
-  const appCards: AppCard[] = [
+  const modules: MainModule[] = [
     {
       id: 'management',
       title: 'Management',
       description: 'Manage employees, shifts, and operations.',
-      color: 'bg-gray-500',
-      href: '/management',
-      letter: 'M'
-    },
-    {
-      id: 'sales',
-      title: 'Sales',
-      description: 'Track fuel sales and daily transactions.',
-      color: 'bg-pink-500',
-      href: '/finance/sales',
-      letter: 'S'
-    },
-    {
-      id: 'reports',
-      title: 'Reports',
-      description: 'Generate financial and operational reports.',
-      color: 'bg-orange-500',
-      href: '/reports',
-      letter: 'R'
-    },
-    {
-      id: 'fuel',
-      title: 'Fuel Management',
-      description: 'Monitor tanks, inventory, and fuel supplies.',
-      color: 'bg-blue-500',
-      href: '/fuel-management',
-      letter: 'F'
+      icon: 'M',
+      iconBg: 'bg-gray-500',
+      path: '/management',
+      subModules: [
+        {
+          id: 'shifts',
+          name: 'Shifts',
+          description: 'Employee shift management and scheduling',
+          icon: '🕐',
+          path: '/management/shifts'
+        },
+        {
+          id: 'employees',
+          name: 'Employees',
+          description: 'Staff management and employee records',
+          icon: '👥',
+          path: '/management/employees'
+        }
+      ]
     },
     {
       id: 'finance',
       title: 'Finance',
-      description: 'Track expenses, revenue, and profitability.',
-      color: 'bg-green-500',
-      href: '/finance',
-      letter: 'F'
+      description: 'Complete financial management system.',
+      icon: 'F',
+      iconBg: 'bg-green-500',
+      path: '/finance',
+      subModules: [
+        {
+          id: 'finance-dashboard',
+          name: 'Finance Dashboard',
+          description: 'Financial overview and analytics',
+          icon: '📊',
+          path: '/finance/dashboard'
+        },
+        {
+          id: 'sales',
+          name: 'Sales',
+          description: 'Track fuel sales and daily transactions',
+          icon: '💰',
+          path: '/finance/sales'
+        },
+        {
+          id: 'expenses',
+          name: 'Expenses',
+          description: 'Cost management and expense tracking',
+          icon: '💸',
+          path: '/finance/expenses'
+        },
+        {
+          id: 'revenue',
+          name: 'Revenue',
+          description: 'Income tracking and revenue analysis',
+          icon: '📈',
+          path: '/finance/revenue'
+        },
+        {
+          id: 'payment-methods',
+          name: 'Payment Methods',
+          description: 'Payment processing options and methods',
+          icon: '💳',
+          path: '/finance/payment-methods'
+        }
+      ]
     },
     {
-      id: 'settings',
-      title: 'Settings',
-      description: 'System configuration and preferences.',
-      color: 'bg-purple-500',
-      href: '/settings',
-      letter: 'S'
+      id: 'fuel',
+      title: 'Fuel',
+      description: 'Complete fuel management and operations.',
+      icon: 'F',
+      iconBg: 'bg-blue-500',
+      path: '/fuel',
+      subModules: [
+        {
+          id: 'fuel-dashboard',
+          name: 'Fuel Dashboard',
+          description: 'Fuel analytics and overview',
+          icon: '⛽',
+          path: '/fuel/dashboard'
+        },
+        {
+          id: 'tanks',
+          name: 'Tanks',
+          description: 'Storage tank management and monitoring',
+          icon: '🛢️',
+          path: '/fuel/tanks'
+        },
+        {
+          id: 'fuel-supplies',
+          name: 'Fuel Supplies',
+          description: 'Inventory management and fuel supplies',
+          icon: '📦',
+          path: '/fuel/supplies'
+        },
+        {
+          id: 'fuel-prices',
+          name: 'Fuel Prices',
+          description: 'Pricing management and fuel rates',
+          icon: '🏷️',
+          path: '/fuel/prices'
+        },
+        {
+          id: 'fuel-types',
+          name: 'Fuel Types',
+          description: 'Product catalog and fuel type management',
+          icon: '🔬',
+          path: '/fuel/types'
+        },
+        {
+          id: 'filling-systems',
+          name: 'Filling Systems',
+          description: 'Pump and dispenser management',
+          icon: '⚙️',
+          path: '/fuel/filling-systems'
+        },
+        {
+          id: 'petrol-providers',
+          name: 'Petrol Providers',
+          description: 'Supplier management and provider relationships',
+          icon: '🚛',
+          path: '/fuel/providers'
+        }
+      ]
     }
   ];
 
-  const handleCardClick = (href: string) => {
-    navigate(href);
+  const handleCardClick = (path: string) => {
+    navigate(path);
   };
 
   return (
@@ -101,32 +190,37 @@ export function DashboardPage() {
 
           {/* App Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
-            {appCards.map((card) => (
+            {modules.map((module) => (
               <div
-                key={card.id}
-                onClick={() => handleCardClick(card.href)}
+                key={module.id}
+                onClick={() => handleCardClick(module.path)}
                 className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
               >
                 <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-3xl p-6 lg:p-8 h-56 lg:h-64 flex flex-col items-center justify-center text-center hover:bg-white/90 dark:hover:bg-slate-800/60 transition-all duration-300 shadow-lg">
                   {/* Icon Container */}
                   <div className={cn(
                     "w-16 lg:w-20 h-16 lg:h-20 rounded-2xl flex items-center justify-center mb-4 lg:mb-6 shadow-lg",
-                    card.color
+                    module.iconBg
                   )}>
                     <span className="text-2xl lg:text-3xl font-bold text-white">
-                      {card.letter}
+                      {module.icon}
                     </span>
                   </div>
 
                   {/* Title */}
                   <h3 className="text-xl lg:text-2xl font-bold text-slate-800 dark:text-white mb-2 lg:mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
-                    {card.title}
+                    {module.title}
                   </h3>
 
                   {/* Description */}
                   <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
-                    {card.description}
+                    {module.description}
                   </p>
+
+                  {/* Sub-modules count indicator */}
+                  <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    {module.subModules.length} modules
+                  </div>
                 </div>
               </div>
             ))}

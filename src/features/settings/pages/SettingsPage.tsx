@@ -1,125 +1,134 @@
-import { useState, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { PageHeader } from "@/core/components/ui/page-header";
-import { Button } from "@/core/components/ui/button";
-import { Settings, User, Bell, Lock, Palette } from "lucide-react";
-import { BreadcrumbItem, Breadcrumbs } from "@/core/components/ui/breadcrumbs";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/core/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/core/components/ui/card";
-import { ProfileSettings } from "@/features/settings/components/ProfileSettings";
-import { NotificationSettings } from "@/features/settings/components/NotificationSettings";
-import { SecuritySettings } from "@/features/settings/components/SecuritySettings";
-import { ThemeSettings } from "@/features/settings/components/ThemeSettings";
-import { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
-import { useAuth } from "@/features/auth";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  Settings, 
+  User, 
+  Bell, 
+  Lock, 
+  Palette,
+  Shield,
+  Database,
+  Monitor,
+  Key,
+  FileText
+} from 'lucide-react';
+import { NavigationCard } from '../../../shared/components/navigation/NavigationCard';
+import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
+
+interface SettingsModule {
+  id: string;
+  title: string;
+  description: string;
+  path: string;
+  color: string;
+  icon: React.ComponentType<any>;
+}
+
+const settingsModules: SettingsModule[] = [
+  {
+    id: 'profile',
+    title: 'Profile Settings',
+    description: 'Manage your personal information and account details',
+    path: '/settings/profile',
+    color: '#43E6A0',
+    icon: User
+  },
+  {
+    id: 'security',
+    title: 'Security Settings',
+    description: 'Password, two-factor authentication, and security options',
+    path: '/settings/security',
+    color: '#4F8CFF',
+    icon: Lock
+  },
+  {
+    id: 'notifications',
+    title: 'Notifications',
+    description: 'Configure email, SMS, and push notification preferences',
+    path: '/settings/notifications',
+    color: '#6C63FF',
+    icon: Bell
+  },
+  {
+    id: 'appearance',
+    title: 'Appearance',
+    description: 'Theme preferences, dark mode, and display settings',
+    path: '/settings/appearance',
+    color: '#FFA500',
+    icon: Palette
+  },
+  {
+    id: 'privacy',
+    title: 'Privacy Settings',
+    description: 'Data privacy, cookie preferences, and sharing options',
+    path: '/settings/privacy',
+    color: '#FF6584',
+    icon: Shield
+  },
+  {
+    id: 'account',
+    title: 'Account Settings',
+    description: 'Account management, billing, and subscription details',
+    path: '/settings/account',
+    color: '#9D4EDD',
+    icon: Settings
+  },
+  {
+    id: 'system',
+    title: 'System Settings',
+    description: 'Application preferences and system configuration',
+    path: '/settings/system',
+    color: '#20B2AA',
+    icon: Monitor
+  },
+  {
+    id: 'data',
+    title: 'Data Management',
+    description: 'Export data, backup settings, and data retention',
+    path: '/settings/data',
+    color: '#32CD32',
+    icon: Database
+  },
+  {
+    id: 'api',
+    title: 'API & Integrations',
+    description: 'API keys, webhooks, and third-party integrations',
+    path: '/settings/api',
+    color: '#FFD700',
+    icon: Key
+  },
+  {
+    id: 'logs',
+    title: 'Activity Logs',
+    description: 'View system logs, audit trails, and activity history',
+    path: '/settings/logs',
+    color: '#FF69B4',
+    icon: FileText
+  }
+];
 
 export function SettingsPage() {
-  const { t } = useTranslation();
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("profile");
-
-  // Configure breadcrumbs
-  const breadcrumbSegments = useMemo(
-    () => [
-      {
-        name: t("common.dashboard"),
-        href: "/",
-        icon: <Settings className="h-4 w-4" />,
-      },
-      {
-        name: t("common.settings"),
-        href: "/settings",
-        isCurrent: true,
-        icon: <Settings className="h-4 w-4" />,
-      },
-    ],
-    [t]
-  );
-
-  usePageBreadcrumbs({
-    segments: breadcrumbSegments,
-    title: t("common.settings"),
-  });
-
-  const tabItems = [
-    {
-      value: "profile",
-      label: t("settings.profile"),
-      icon: <User className="h-4 w-4" />,
-      component: <ProfileSettings />,
-    },
-    {
-      value: "notifications",
-      label: t("settings.notifications"),
-      icon: <Bell className="h-4 w-4" />,
-      component: <NotificationSettings />,
-    },
-    {
-      value: "security",
-      label: t("settings.security"),
-      icon: <Lock className="h-4 w-4" />,
-      component: <SecuritySettings />,
-    },
-    {
-      value: "appearance",
-      label: t("settings.appearance"),
-      icon: <Palette className="h-4 w-4" />,
-      component: <ThemeSettings />,
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 space-y-6">
-      <PageHeader
-        title={t("common.settings")}
-        description={t("settings.description", "Manage your account settings and preferences")}
-        className="text-white"
+    <div className="management-container">
+      <Breadcrumb 
+        items={[{ label: 'System Settings' }]}
       />
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-800/50 border border-gray-700/50">
-          {tabItems.map((tab) => (
-            <TabsTrigger 
-              key={tab.value} 
-              value={tab.value} 
-              className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
-            >
-              {tab.icon}
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        {tabItems.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value} className="space-y-4">
-            <Card className="bg-gray-800/50 backdrop-blur border border-gray-700/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
-                  {tab.icon}
-                  {tab.label}
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  {t(`settings.${tab.value}Description`, `Configure your ${tab.label.toLowerCase()} settings`)}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {tab.component}
-              </CardContent>
-            </Card>
-          </TabsContent>
+      <h1 className="management-title">System Settings Dashboard</h1>
+      <p className="management-desc">
+        Application settings, user permissions, and system configuration for comprehensive platform management.
+      </p>
+      <div className="management-cards">
+        {settingsModules.map((module) => (
+          <NavigationCard
+            key={module.id}
+            title={module.title}
+            href={module.path}
+            color={module.color}
+            icon={module.icon}
+            variant="management"
+          />
         ))}
-      </Tabs>
+      </div>
     </div>
   );
 }

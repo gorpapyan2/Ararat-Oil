@@ -67,7 +67,10 @@ export async function startShift(
 ): Promise<ApiResponse<Shift>> {
   return fetchFromFunction<Shift>(ENDPOINT, {
     method: "POST",
-    body: { openingCash, employeeIds },
+    body: { 
+      opening_cash: openingCash, 
+      employee_ids: employeeIds 
+    },
   });
 }
 

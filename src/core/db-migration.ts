@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/core/api";
 import fs from "fs";
 import path from "path";
 

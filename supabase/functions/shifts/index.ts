@@ -1,547 +1,388 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'npm:@supabase/supabase-js@2.39.3';
-import { getCorsHeaders, handleCors } from '../_shared/cors.ts';
+// Setup type definitions for built-in Supabase Runtime APIs
+import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import { createClient } from 'npm:@supabase/supabase-js@2.39.3'
 
-// ---- START INLINED CODE FROM SHARED MODULES ----
+console.log("Shifts function loaded!")
 
-// CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-};
+}
 
-// Shared types
-type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
-type PaymentMethod = "cash" | "card" | "bank_transfer" | "mobile_payment";
+interface ShiftData {
+  opening_cash: number;
+  employee_ids?: string[];
+  sales_total?: number;
+  closing_cash?: number;
+  payment_methods?: Array<{
+    payment_method: string;
+    amount: number;
+    reference?: string;
+  }>;
+}
 
-interface Shift {
+interface ShiftEmployee {
   id: string;
   employee_id: string;
+  employee_name: string;
+  employee_position: string;
+  employee_status: string;
+  created_at: string;
+}
+
+interface ShiftWithEmployees {
+  id: string;
   start_time: string;
   end_time?: string;
+  is_active: boolean;
   opening_cash: number;
   closing_cash?: number;
   sales_total: number;
-  status: "OPEN" | "CLOSED";
-  created_at?: string;
-  updated_at?: string;
+  status: string;
+  employee_id?: string;
+  employees?: ShiftEmployee[];
+  created_at: string;
+  updated_at: string;
 }
 
-interface ShiftPaymentMethod {
-  id: string;
-  shift_id: string;
-  payment_method: PaymentMethod;
-  amount: number;
-  reference?: string;
-  created_at?: string;
+// Database operations
+async function getShifts(supabase: any): Promise<ShiftWithEmployees[]> {
+  try {
+    // First try to get shifts with employees using the new table structure
+    let shifts, shiftsError;
+    
+    try {
+      // Try new structure with shift_employees table
+      const response = await supabase
+        .from('shifts')
+        .select(`
+          *,
+          shift_employees!left(
+            id,
+            employee_id,
+            created_at,
+            employees(
+              id,
+              name,
+              position,
+              status
+            )
+          )
+        `)
+        .order('start_time', { ascending: false })
+        .limit(50);
+      
+      shifts = response.data;
+      shiftsError = response.error;
+  } catch (error) {
+      console.log('shift_employees table not available, falling back to basic query');
+      // Fallback to basic shifts query
+      const response = await supabase
+        .from('shifts')
+        .select('*')
+        .order('start_time', { ascending: false })
+        .limit(50);
+      
+      shifts = response.data;
+      shiftsError = response.error;
+    }
+
+    if (shiftsError) {
+      console.error('Database error:', shiftsError);
+      throw shiftsError;
+    }
+
+    // Transform the data to match our expected format
+    const transformedShifts = shifts?.map((shift: any) => {
+      let employees: ShiftEmployee[] = [];
+      
+      // If we have shift_employees data, use it
+      if (shift.shift_employees && Array.isArray(shift.shift_employees)) {
+        employees = shift.shift_employees
+          .filter((se: any) => se.employees) // Only include entries with valid employee data
+          .map((se: any) => ({
+            id: se.id,
+            employee_id: se.employee_id,
+            employee_name: se.employees?.name || 'Unknown',
+            employee_position: se.employees?.position || 'Unknown',
+            employee_status: se.employees?.status || 'active',
+            created_at: se.created_at
+          }));
+      }
+      
+      // Fallback: if no employees from new structure but has employee_id, create a basic employee entry
+      if (employees.length === 0 && shift.employee_id) {
+        employees = [{
+          id: `${shift.id}-${shift.employee_id}`,
+          employee_id: shift.employee_id,
+          employee_name: `Employee ${shift.employee_id.slice(-4)}`,
+          employee_position: 'Unknown',
+          employee_status: 'active',
+          created_at: shift.created_at
+        }];
+      }
+
+      return {
+      ...shift,
+        is_active: shift.status === 'OPEN',
+        employees,
+        employee_name: employees.length > 0 ? employees.map(e => e.employee_name).join(', ') : 'No employees'
+      };
+    }) || [];
+
+    console.log('Successfully fetched shifts:', transformedShifts.length);
+    console.log('Sample shift data:', transformedShifts[0]);
+    return transformedShifts;
+  } catch (error) {
+    console.error('Error in getShifts:', error);
+    throw error;
+  }
 }
 
-// Database utilities
-const createServiceClient = () => {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
-  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
+async function startShift(shiftData: ShiftData, supabase: any) {
+  console.log('Starting shift with data:', shiftData);
   
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase URL or service role key environment variables');
+  const { opening_cash, employee_ids } = shiftData;
+  
+  // Validate input
+  if (!opening_cash || opening_cash < 0) {
+    throw new Error('Opening cash amount is required and must be positive');
   }
-  
-  return createClient(supabaseUrl, supabaseServiceKey);
-};
 
-const createAnonClient = () => {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
-  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') as string;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase URL or anon key environment variables');
+  // Create new shift first
+  const { data: shift, error: shiftError } = await supabase
+    .from('shifts')
+    .insert({
+      opening_cash,
+      sales_total: 0,
+      status: 'OPEN',
+      employee_id: employee_ids && employee_ids.length > 0 ? employee_ids[0] : null // Set first employee as primary for backward compatibility
+    })
+    .select()
+      .single();
+
+  if (shiftError) {
+    console.error('Error creating shift:', shiftError);
+    throw shiftError;
   }
-  
-  return createClient(supabaseUrl, supabaseAnonKey);
-};
 
-const handleError = (error: unknown): { error: string; details?: unknown } => {
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-    return {
-      error: String(error.message),
-      details: error
+  // If no employees provided, return shift without employees
+  if (!employee_ids || employee_ids.length === 0) {
+    console.log('Created shift without employees');
+    return { 
+      message: 'Shift started successfully without employees', 
+      shift: {
+        ...shift,
+        is_active: true,
+        employees: []
+      }
     };
   }
-  
-  return {
-    error: 'An unknown error occurred',
-    details: error
-  };
-};
 
-const getUserFromRequest = async (request: Request) => {
-  const authHeader = request.headers.get('Authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
-  }
-  
-  const token = authHeader.replace('Bearer ', '');
-  const supabase = createAnonClient();
-  
-  const { data, error } = await supabase.auth.getUser(token);
-  
-  if (error || !data.user) {
-    return null;
-  }
-  
-  return data.user;
-};
-
-// API utilities
-function createJsonResponse<T>(data: { data?: T; error?: string }, status = 200): Response {
-  return new Response(
-    JSON.stringify(data),
-    {
-      status,
-      headers: {
-        'Content-Type': 'application/json',
-        ...corsHeaders
+  // Try to add employees to shift_employees table if it exists
+  let employees: ShiftEmployee[] = [];
+  try {
+    // Check if any of the employees already have an open shift
+    for (const employeeId of employee_ids) {
+      // Try using the function if it exists, otherwise use a direct query
+      let hasOpenShift = false;
+      try {
+        const { data: openShifts } = await supabase
+          .rpc('employee_has_open_shift', { employee_id_param: employeeId });
+        hasOpenShift = openShifts;
+  } catch (error) {
+        // Fallback to direct query
+        const { data: openShifts } = await supabase
+          .from('shifts')
+          .select('id')
+          .eq('employee_id', employeeId)
+          .eq('status', 'OPEN');
+        hasOpenShift = openShifts && openShifts.length > 0;
       }
-    }
-  );
-}
 
-function successResponse<T>(data: T, status = 200): Response {
-  return createJsonResponse({ data }, status);
-}
-
-function errorResponse(error: unknown, status = 400): Response {
-  const errorData = handleError(error);
-  return createJsonResponse(errorData, status);
-}
-
-async function parseRequestBody<T>(request: Request): Promise<T> {
-  try {
-    const contentType = request.headers.get('content-type');
-    
-    if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Content-Type must be application/json');
-    }
-    
-    return await request.json() as T;
-  } catch (error) {
-    throw new Error(`Failed to parse request body: ${error instanceof Error ? error.message : String(error)}`);
-  }
-}
-
-function methodNotAllowed(): Response {
-  return errorResponse({ message: 'Method not allowed' }, 405);
-}
-
-function unauthorized(): Response {
-  return errorResponse({ message: 'Unauthorized' }, 401);
-}
-
-function notFound(resource = 'Resource'): Response {
-  return errorResponse({ message: `${resource} not found` }, 404);
-}
-
-// ---- END INLINED CODE FROM SHARED MODULES ----
-
-// Handle shifts operations
-serve(async (req) => {
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
-  const origin = req.headers.get('origin');
-  const corsHeaders = getCorsHeaders(origin);
-
-  // Robust path parsing
-  const url = new URL(req.url);
-  const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
-  const mainRoute = pathParts[0];
-  const subRoute = pathParts[1] || '';
-
-  if (mainRoute !== 'shifts') {
-    return new Response(
-      JSON.stringify({ error: 'Not found' }),
-      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-
-  // Example: /shifts/summary
-  if (subRoute === 'summary') {
-    if (req.method === 'GET') {
-      // Replace with actual logic
-      return new Response(JSON.stringify({ summary: {} }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    }
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-
-  // Authentication check
-  const user = await getUserFromRequest(req);
-  if (!user) {
-    return unauthorized();
-  }
-
-  try {
-    // Route handling
-    if (req.method === 'GET') {
-      if (subRoute === '') {
-        return await getShifts();
-      } else if (subRoute === 'active') {
-        return await getActiveShift(user.id);
-      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+$/)) {
-        const id = subRoute.split('/')[1];
-        return await getShiftById(id);
-      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
-        const id = subRoute.split('/')[1];
-        return await getShiftPaymentMethods(id);
-      }
-    } else if (req.method === 'POST') {
-      if (subRoute === '') {
-        const data = await parseRequestBody<{ openingCash: number; employeeIds?: string[] }>(req);
-        return await startShift(data.openingCash, data.employeeIds, user.id);
-      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+\/close$/)) {
-        const id = subRoute.split('/')[1];
-        const data = await parseRequestBody<{ closingCash: number; paymentMethods?: ShiftPaymentMethod[] }>(req);
-        return await closeShift(id, data.closingCash, data.paymentMethods);
-      } else if (subRoute.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
-        const id = subRoute.split('/')[1];
-        const data = await parseRequestBody<Omit<ShiftPaymentMethod, 'id' | 'created_at' | 'shift_id'>[]>(req);
-        return await addShiftPaymentMethods(id, data);
-      }
-    } else if (req.method === 'DELETE' && subRoute.match(/^\/[a-zA-Z0-9-]+\/payment-methods$/)) {
-      const id = subRoute.split('/')[1];
-      return await deleteShiftPaymentMethods(id);
-    }
-  } catch (error) {
-    return errorResponse(error);
-  }
-
-  return methodNotAllowed();
-});
-
-/**
- * Get all shifts
- */
-async function getShifts(): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("shifts")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Get a shift by ID
- */
-async function getShiftById(id: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("shifts")
-      .select(`
-        *,
-        employee:employees!employee_id(id, name)
-      `)
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return notFound('Shift');
-      }
-      throw error;
-    }
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Get currently active shift for a user
- */
-async function getActiveShift(employeeId: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("shifts")
-      .select(`
-        *,
-        employee:employees!employee_id(id, name)
-      `)
-      .eq("employee_id", employeeId)
-      .eq("status", "OPEN")
-      .order("start_time", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (error) throw error;
-
-    // If there's no active shift, return null
-    if (!data) {
-      return successResponse(null);
-    }
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Start a new shift
- */
-async function startShift(
-  openingCash: number, 
-  employeeIds: string[] = [],
-  userId: string
-): Promise<Response> {
-  const supabase = createServiceClient();
-
-  try {
-    // First check if there are any active shifts in the system
-    const { data: existingShifts, error: shiftCheckError } = await supabase
-      .from("shifts")
-      .select("id, employee_id")
-      .eq("status", "OPEN");
-
-    if (shiftCheckError) throw shiftCheckError;
-
-    if (existingShifts && existingShifts.length > 0) {
-      // There's at least one active shift
-      const userShift = existingShifts.find(shift => shift.employee_id === userId);
-      
-      if (userShift) {
-        throw new Error("You already have an active shift open. Please close it before starting a new one.");
-      } else {
-        throw new Error("Another employee has an active shift open. Only one shift can be active at a time.");
+      if (hasOpenShift) {
+        // Get employee name for better error message
+        const { data: employee } = await supabase
+          .from('employees')
+          .select('name')
+          .eq('id', employeeId)
+          .single();
+        
+        // Clean up the shift we just created
+        await supabase.from('shifts').delete().eq('id', shift.id);
+        throw new Error(`Employee ${employee?.name || employeeId} already has an open shift`);
       }
     }
 
-    // Check if user exists in employees table
-    const { data: existingEmployee, error: employeeCheckError } = await supabase
-      .from("employees")
-      .select("id")
-      .eq("id", userId)
-      .maybeSingle();
-
-    // If user doesn't exist in employees table, create a new employee record
-    if (employeeCheckError || !existingEmployee) {
-      const { data: userProfile, error: profileError } = await supabase
-        .from("profiles")
-        .select("full_name, email")
-        .eq("id", userId)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-
-      // Create an employee record for this user
-      const { error: createError } = await supabase
-        .from("employees")
-        .insert({
-          id: userId,
-          name: userProfile?.full_name || "Unknown User",
-          position: "Staff",
-          contact: userProfile?.email || "",
-          salary: 0,
-          hire_date: new Date().toISOString().split("T")[0],
-          status: "active",
-        });
-
-      if (createError) throw createError;
-    }
-
-    // Create the shift
-    const { data, error } = await supabase
-      .from("shifts")
-      .insert({
-        employee_id: userId,
-        opening_cash: openingCash,
-        status: "OPEN",
-        start_time: new Date().toISOString(),
-        sales_total: 0,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    // Store associated employees in shift_employees table if needed
-    if (employeeIds.length > 0) {
-      const allEmployeeIds = [...new Set([userId, ...employeeIds])]; // Remove duplicates
-      
-      // Store additional employees in metadata or a related table if needed
-      // This could be implemented based on how your system handles multiple employees per shift
-    }
-
-    return successResponse(data, 201);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Close a shift
- */
-async function closeShift(
-  shiftId: string,
-  closingCash: number,
-  paymentMethods?: ShiftPaymentMethod[]
-): Promise<Response> {
-  const supabase = createServiceClient();
-
-  try {
-    // First update the shift status
-    const { data: updatedShift, error: updateError } = await supabase
-      .from("shifts")
-      .update({
-        status: "CLOSED",
-        end_time: new Date().toISOString(),
-        closing_cash: closingCash,
-      })
-      .eq("id", shiftId)
-      .select()
-      .single();
-
-    if (updateError) throw updateError;
-
-    // Then add payment methods if provided
-    if (paymentMethods && paymentMethods.length > 0) {
-      const paymentData = paymentMethods.map((method) => ({
-        shift_id: shiftId,
-        payment_method: method.payment_method,
-        amount: method.amount,
-        reference: method.reference || "",
-      }));
-
-      // Insert payment methods
-      const { error: paymentError } = await supabase
-        .from("shift_payment_methods")
-        .insert(paymentData);
-
-      if (paymentError) throw paymentError;
-    }
-
-    return successResponse(updatedShift);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Get payment methods for a shift
- */
-async function getShiftPaymentMethods(shiftId: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    const { data, error } = await supabase
-      .from("shift_payment_methods")
-      .select("*")
-      .eq("shift_id", shiftId)
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Add payment methods to a shift
- */
-async function addShiftPaymentMethods(
-  shiftId: string,
-  methods: Omit<ShiftPaymentMethod, 'id' | 'created_at' | 'shift_id'>[]
-): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Check if shift exists
-    const { data: shift, error: shiftError } = await supabase
-      .from("shifts")
-      .select("id")
-      .eq("id", shiftId)
-      .single();
-
-    if (shiftError) {
-      if (shiftError.code === 'PGRST116') {
-        return notFound('Shift');
-      }
-      throw shiftError;
-    }
-
-    // Prepare data for insertion
-    const paymentData = methods.map((method) => ({
-      shift_id: shiftId,
-      payment_method: method.payment_method,
-      amount: method.amount,
-      reference: method.reference || "",
+    // Add employees to shift_employees table
+    const shiftEmployeesData = employee_ids.map(employeeId => ({
+      shift_id: shift.id,
+      employee_id: employeeId
     }));
 
-    // Insert payment methods
-    const { data, error } = await supabase
-      .from("shift_payment_methods")
-      .insert(paymentData)
-      .select();
+    const { error: employeesError } = await supabase
+      .from('shift_employees')
+      .insert(shiftEmployeesData);
 
-    if (error) throw error;
-
-    return successResponse(data);
-  } catch (error) {
-    return errorResponse(error);
-  }
-}
-
-/**
- * Delete all payment methods for a shift
- */
-async function deleteShiftPaymentMethods(shiftId: string): Promise<Response> {
-  try {
-    const supabase = createServiceClient();
-    
-    // Check if shift exists
-    const { data: shift, error: shiftError } = await supabase
-      .from("shifts")
-      .select("id")
-      .eq("id", shiftId)
-      .single();
-
-    if (shiftError) {
-      if (shiftError.code === 'PGRST116') {
-        return notFound('Shift');
-      }
-      throw shiftError;
+    if (employeesError) {
+      console.error('Error adding employees to shift (table might not exist):', employeesError);
+      // Don't throw error, just continue without shift_employees table
     }
 
-    // Delete payment methods
-    const { error } = await supabase
-      .from("shift_payment_methods")
-      .delete()
-      .eq("shift_id", shiftId);
+    // Try to fetch the complete shift data with employees
+    try {
+      const { data: completeShift } = await supabase
+        .rpc('get_shift_employees', { shift_id_param: shift.id });
 
-    if (error) throw error;
+      employees = completeShift?.map((emp: any) => ({
+        id: `${shift.id}-${emp.employee_id}`,
+        employee_id: emp.employee_id,
+        employee_name: emp.employee_name,
+        employee_position: emp.employee_position,
+        employee_status: emp.employee_status,
+        created_at: new Date().toISOString()
+      })) || [];
+    } catch (error) {
+      console.log('get_shift_employees function not available, using fallback');
+      // Fallback: create basic employee entries
+      for (const employeeId of employee_ids) {
+        const { data: employee } = await supabase
+          .from('employees')
+          .select('name, position, status')
+          .eq('id', employeeId)
+      .single();
 
-    return successResponse({ success: true });
+        if (employee) {
+          employees.push({
+            id: `${shift.id}-${employeeId}`,
+            employee_id: employeeId,
+            employee_name: employee.name || 'Unknown',
+            employee_position: employee.position || 'Unknown',
+            employee_status: employee.status || 'active',
+            created_at: new Date().toISOString()
+          });
+        }
+      }
+    }
   } catch (error) {
-    return errorResponse(error);
+    console.error('Error handling employees:', error);
+    // Continue without failing the entire operation
   }
+
+  return { 
+    message: 'Shift started successfully', 
+    shift: {
+      ...shift,
+      is_active: true,
+      employees
+    }
+  };
 }
+
+async function closeShift(shiftId: string, shiftData: ShiftData, supabase: any) {
+  // Update the shift
+  const { data: shift, error: shiftError } = await supabase
+    .from('shifts')
+      .update({
+        end_time: new Date().toISOString(),
+      closing_cash: shiftData.closing_cash,
+      sales_total: shiftData.sales_total,
+      status: 'CLOSED'
+      })
+    .eq('id', shiftId)
+    .eq('status', 'OPEN')
+      .select()
+      .single();
+
+  if (shiftError) throw shiftError;
+
+  if (!shift) {
+    throw new Error('Shift not found or already closed');
+  }
+
+  // Add payment methods if provided
+  if (shiftData.payment_methods && shiftData.payment_methods.length > 0) {
+    const paymentMethodsData = shiftData.payment_methods.map(pm => ({
+      shift_id: shiftId,
+      payment_method: pm.payment_method,
+      amount: pm.amount,
+      reference: pm.reference
+    }));
+
+    const { error: pmError } = await supabase
+      .from('shift_payment_methods')
+      .insert(paymentMethodsData);
+
+    if (pmError) {
+      console.error('Error inserting payment methods:', pmError);
+    }
+  }
+
+  return { message: 'Shift closed successfully', shift };
+}
+
+Deno.serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
+
+    const url = new URL(req.url);
+    const pathname = url.pathname;
+    
+    // Remove the base function path to get the route
+    const route = pathname.replace('/functions/v1/shifts', '').replace(/^\/+|\/+$/g, '');
+    
+    console.log('Request method:', req.method);
+    console.log('Full pathname:', pathname);
+    console.log('Extracted route:', route);
+
+    let data;
+    
+    if (req.method === 'GET' && (route === '' || route === '/' || route === 'shifts')) {
+      // GET /shifts - get all shifts
+      console.log('Handling GET /shifts');
+      data = await getShifts(supabase);
+    } else if (req.method === 'POST' && (route === '' || route === '/' || route === 'shifts')) {
+      // POST /shifts - start new shift
+      console.log('Handling POST /shifts');
+      const body = await req.json();
+      data = await startShift(body, supabase);
+    } else if (req.method === 'POST' && route.includes('/close')) {
+      // POST /shifts/:id/close - close shift
+      const pathParts = route.split('/');
+      const shiftId = pathParts[0];
+      console.log('Handling POST /shifts/:id/close with ID:', shiftId);
+      const body = await req.json();
+      data = await closeShift(shiftId, body, supabase);
+    } else {
+      console.log('No matching route found');
+      return new Response(JSON.stringify({ error: 'Not found', route, method: req.method }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    return new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    });
+  }
+}) 

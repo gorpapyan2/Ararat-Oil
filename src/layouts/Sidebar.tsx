@@ -1,10 +1,8 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/shared/utils";
-import { useAuth } from "@/features/auth";
 import { 
   Compass, 
-  LogOut,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -27,7 +25,6 @@ export function Sidebar({
   isOpen = false,
   onToggle,
 }: SidebarProps) {
-  const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,7 +34,7 @@ export function Sidebar({
       label: 'Navigation',
       path: '/dashboard/navigation',
       icon: Compass,
-      color: 'from-purple-500 to-purple-600',
+      color: '#6366f1',
       description: 'Business modules'
     }
   ];
@@ -77,8 +74,9 @@ export function Sidebar({
       <aside
         className={cn(
           "h-screen z-50 transition-all duration-300 ease-in-out flex flex-col",
-          "bg-slate-900/98 backdrop-blur-xl border-r border-slate-700/50",
-          "shadow-2xl shadow-black/20",
+          "bg-gradient-to-b from-slate-800 via-slate-850 to-slate-900",
+          "border-r border-slate-700/50 shadow-2xl",
+          "backdrop-blur-sm bg-opacity-95",
           "w-20", // Always collapsed width
           // Mobile positioning
           isMobile && "fixed top-0 left-0",
@@ -88,95 +86,70 @@ export function Sidebar({
         aria-label="Main navigation"
       >
         {/* Header */}
-        <div className="h-24 flex items-center px-6 border-b border-slate-700/50 bg-slate-800/30">
-          <div className="w-full flex justify-center">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">AO</span>
-            </div>
+        <div className="h-16 flex items-center justify-center border-b border-slate-700/50 bg-slate-800/30 relative">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+            <span className="text-white font-bold text-lg drop-shadow-sm">AO</span>
           </div>
+          
+          {/* Subtle glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none" />
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-3">
-            {navItems.map((item, index) => {
+            {navItems.map((item) => {
               const isActive = isActivePath(item.path);
               const Icon = item.icon;
 
               return (
-                <div key={item.id} className="relative">
+                <div key={item.id} className="group">
                   <button
                     onClick={() => handleNavigate(item.path)}
-                    className="w-full group transition-all duration-300 ease-in-out flex items-center gap-4"
+                    className={cn(
+                      "w-full transition-all duration-500 ease-out",
+                      "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 rounded-2xl"
+                    )}
                     title={item.label}
                   >
                     <div className={cn(
-                      "relative flex items-center w-full rounded-2xl transition-all duration-300 ease-in-out transform",
-                      "p-3 justify-center",
-                      "bg-slate-800/30 backdrop-blur-sm border border-slate-700/40",
-                      "hover:bg-slate-700/40 hover:border-slate-600/60 hover:shadow-xl hover:shadow-purple-500/10",
-                      "group-hover:scale-[1.02]",
-                      isActive && "bg-gradient-to-r from-purple-500/20 to-purple-500/20 border-purple-500/50 shadow-xl shadow-purple-500/20"
+                      "flex items-center justify-center w-full rounded-2xl transition-all duration-500 transform",
+                      "p-4 backdrop-blur-sm relative overflow-hidden",
+                      "border border-slate-600/30",
+                      isActive 
+                        ? "bg-blue-500/20 border-blue-400/50 shadow-xl shadow-blue-500/20 scale-105"
+                        : "bg-slate-700/20 hover:bg-slate-600/30 hover:border-slate-500/50 hover:shadow-lg hover:-translate-y-1 hover:scale-105",
+                      "group-hover:backdrop-blur-md"
                     )}>
-                      {/* Active indicator */}
-                      {isActive && (
-                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full"></div>
-                      )}
-
-                      {/* Icon */}
+                      {/* Icon Container */}
                       <div className={cn(
-                        "relative flex items-center justify-center rounded-xl shadow-lg transition-all duration-300",
-                        "w-8 h-8",
-                        `bg-gradient-to-br ${item.color}`,
-                        isActive && "scale-110 shadow-2xl",
-                        "group-hover:scale-105"
+                        "flex items-center justify-center rounded-xl w-8 h-8 transition-all duration-500",
+                        "shadow-lg relative z-10",
+                        isActive 
+                          ? "bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-blue-500/40 scale-110"
+                          : "bg-gradient-to-br from-slate-600 to-slate-700 text-slate-300 group-hover:from-slate-500 group-hover:to-slate-600 group-hover:scale-110"
                       )}>
-                        <Icon className={cn(
-                          "text-white transition-all duration-300",
-                          "w-4 h-4",
-                          isActive && "drop-shadow-sm"
-                        )} />
+                        <Icon className="w-4 h-4 drop-shadow-sm" />
                         
-                        {/* Subtle glow effect */}
-                        <div className={cn(
-                          "absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300",
-                          `bg-gradient-to-br ${item.color}`,
-                          "group-hover:opacity-20"
-                        )}></div>
+                        {/* Subtle inner glow */}
+                        {isActive && (
+                          <div className="absolute inset-0 rounded-xl bg-blue-300 opacity-20 blur-sm" />
+                        )}
                       </div>
+
+                      {/* Background glow effect */}
+                      <div className={cn(
+                        "absolute inset-0 rounded-2xl transition-opacity duration-500 blur-md",
+                        isActive 
+                          ? "bg-gradient-to-br from-blue-500/20 to-transparent opacity-100"
+                          : "bg-gradient-to-br from-slate-500/10 to-transparent opacity-0 group-hover:opacity-100"
+                      )} />
                     </div>
                   </button>
                 </div>
               );
             })}
           </div>
-        </div>
-
-        {/* Footer - Logout */}
-        <div className="border-t border-slate-700/50 p-6 bg-slate-800/20">
-          <button
-            onClick={logout}
-            className="w-full group transition-all duration-300 flex items-center gap-4"
-            title="Sign Out"
-          >
-            <div className={cn(
-              "flex items-center w-full rounded-2xl transition-all duration-300 transform",
-              "p-3 justify-center",
-              "bg-red-500/10 backdrop-blur-sm border border-red-500/30",
-              "hover:bg-red-500/20 hover:border-red-500/50 hover:shadow-xl hover:shadow-red-500/20",
-              "group-hover:scale-[1.02]"
-            )}>
-              {/* Icon */}
-              <div className={cn(
-                "flex items-center justify-center rounded-xl shadow-lg transition-all duration-300",
-                "w-8 h-8",
-                "bg-gradient-to-br from-red-500 to-red-600",
-                "group-hover:scale-105"
-              )}>
-                <LogOut className="text-white w-4 h-4" />
-              </div>
-            </div>
-          </button>
         </div>
       </aside>
     </>

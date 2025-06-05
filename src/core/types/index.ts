@@ -209,18 +209,30 @@ export interface ProfitLoss {
   created_at?: string;
 }
 
-// Shift type
+// Shift type - Updated to support multiple employees
 export interface Shift {
   id: string;
-  employee_id: string;
   start_time: string;
   end_time?: string;
+  is_active: boolean;
   opening_cash: number;
   closing_cash?: number;
   sales_total: number;
   status: "OPEN" | "CLOSED";
+  employee_id?: string; // Kept for backward compatibility
+  employees?: ShiftEmployee[]; // New: array of employees
   created_at?: string;
   updated_at?: string;
+}
+
+// Shift employee interface
+export interface ShiftEmployee {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  employee_position: string;
+  employee_status: string;
+  created_at: string;
 }
 
 // Shift payment method relationship

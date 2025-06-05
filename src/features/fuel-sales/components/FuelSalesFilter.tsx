@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { tanksApi } from "@/services/api";
+import { tanksApi } from "@/core/api";
 import { Card, CardContent } from "@/core/components/ui/card";
 import { Input } from "@/core/components/ui/primitives/input";
 import {
@@ -25,8 +25,8 @@ interface FuelSalesFilterProps {
 }
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
-  const response = await tanksApi.getAll();
-  if (response.error) throw new Error(response.error);
+  const response = await tanksApi.getTanks();
+  if (response.error) throw new Error(response.error.message || 'Failed to fetch tanks');
   
   const tanks = response.data || [];
   return tanks.map((tank) => ({

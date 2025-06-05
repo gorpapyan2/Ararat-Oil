@@ -1,16 +1,11 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/features/auth";
-import { useToast } from "@/hooks";
+import { useAuth, useToast } from "@/hooks";
 import { DashboardMetrics, IncomeExpenseOverview } from "@/features/dashboard";
 import { fetchDashboardData } from "@/features/dashboard/services/dashboard";
 import type { DashboardData } from "@/features/dashboard/types";
 
 function DashboardNew() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
 

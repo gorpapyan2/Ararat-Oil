@@ -44,7 +44,11 @@
     "fix:opacity-syntax": "node scripts/fix-opacity-syntax.mjs",
     "check:tailwind-v4": "node scripts/check-tailwind-v4-compatibility.mjs",
     "check:duplicates": "jscpd src --threshold 5",
-    "lint:full": "eslint src --ext .ts,.tsx,.js,.jsx && npm run check:duplicates"
+    "lint:full": "eslint src --ext .ts,.tsx,.js,.jsx && npm run check:duplicates",
+    "supabase:deploy": "supabase functions deploy",
+    "supabase:deploy:shifts": "supabase functions deploy shifts",
+    "supabase:deploy:all": "supabase functions deploy --no-verify-jwt",
+    "supabase:status": "supabase functions list"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

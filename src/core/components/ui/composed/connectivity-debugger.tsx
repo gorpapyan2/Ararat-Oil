@@ -17,8 +17,18 @@ import {
 } from "@/core/components/ui/primitives/tabs";
 import { CheckCircle, XCircle, RefreshCw, Database } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { checkSupabaseConnection } from "@/utils/supabase-helpers";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/core/api";
+
+// Local helper function to check Supabase connection
+const checkSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.from("employees").select("count").limit(1);
+    return !error;
+  } catch (error) {
+    console.error("Failed to check Supabase connection:", error);
+    return false;
+  }
+};
 
 export function ConnectivityDebugger() {
   const [activeTab, setActiveTab] = useState("env");
@@ -96,11 +106,11 @@ export function ConnectivityDebugger() {
       const start = performance.now();
 
       // Refresh the fuel supplies query
-      await queryClient.fetchQuery({
-        queryKey: ["fuel-supplies"],
+      const data = await queryClient.fetchQuery({
+        queryKey: ["employees"],
         queryFn: async () => {
           const { data, error } = await supabase
-            .from("fuel_supplies")
+            .from("employees")
             .select("*")
             .limit(1);
           if (error) throw error;

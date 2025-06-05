@@ -1,6 +1,8 @@
 // Page Components
 export {
   ShiftsPage,
+  ShiftsManagementPage,
+  ShiftsDashboard,
   ShiftOpen,
   ShiftClose,
   ShiftDetails,

@@ -4,6 +4,14 @@
  * This file contains type definitions for the API client.
  */
 
+import type { Tank, TankCreate, TankUpdate, TankLevelChange, FuelType } from "@/shared/types/tank.types";
+
+// Export tank types for backward compatibility
+export type { Tank, TankCreate, TankUpdate, TankLevelChange, FuelType };
+
+// Backward compatibility alias
+export type FuelTank = Tank;
+
 // Fuel Supply Types
 export interface FuelSupply {
   id: string;
@@ -50,8 +58,18 @@ export interface Shift {
   opening_cash: number;
   closing_cash?: number;
   employee_id?: string;
+  employees?: ShiftEmployee[];
   created_at: string;
   updated_at: string;
+}
+
+export interface ShiftEmployee {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  employee_position: string;
+  employee_status: string;
+  created_at: string;
 }
 
 export interface ShiftPaymentMethod {
@@ -64,76 +82,30 @@ export interface ShiftPaymentMethod {
   updated_at: string;
 }
 
-// Tank Types
-export interface Tank {
-  id: string;
-  name: string;
-  capacity: number;
-  current_level: number;
-  fuel_type_id: string;
-  fuel_type?: {
-    id: string;
-    name: string;
-  };
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+// New types for shift creation with multiple employees
+export interface ShiftCreateRequest {
+  opening_cash: number;
+  employee_ids?: string[];
 }
 
-// Backward compatibility alias
-export type FuelTank = Tank;
-
-export interface TankCreate {
-  name: string;
-  capacity: number;
-  current_level: number;
-  fuel_type_id: string;
-  is_active: boolean;
+export interface ShiftCloseRequest {
+  closing_cash: number;
+  payment_methods?: ShiftPaymentMethod[];
 }
 
-export interface TankUpdate {
-  name?: string;
-  capacity?: number;
-  current_level?: number;
-  fuel_type_id?: string;
-  is_active?: boolean;
-}
-
-export interface TankLevelChange {
-  id: string;
-  tank_id: string;
-  previous_level: number;
-  new_level: number;
-  change_amount: number;
-  change_type: "add" | "subtract";
-  reason?: string;
-  created_at: string;
-  created_by: string;
-}
-
-// Fuel Type Types
-export interface FuelType {
-  id: string;
-  name: string;
-  color: string;
-  price_per_liter: number;
-  status: "active" | "inactive";
-  created_at: string;
-  updated_at: string;
-}
+// Fuel Type Types - Base interface imported from shared/types/tank.types
+// Only keeping create/update interfaces here
 
 export interface FuelTypeCreate {
   name: string;
-  color: string;
-  price_per_liter: number;
-  status: "active" | "inactive";
+  code?: string;
+  description?: string;
 }
 
 export interface FuelTypeUpdate {
   name?: string;
-  color?: string;
-  price_per_liter?: number;
-  status?: "active" | "inactive";
+  code?: string;
+  description?: string;
 }
 
 // Filling System Types
@@ -192,16 +164,28 @@ export interface Employee {
 export interface Sale {
   id: string;
   filling_system_id: string;
-  fuel_type_id: string;
-  quantity: number;
+  quantity_liters: number;
   price_per_liter: number;
-  total_price: number;
-  payment_method: string;
-  payment_status?: string;
-  employee_id: string;
-  shift_id?: string;
+  total_amount: number;
+  sale_date: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface SaleCreate {
+  filling_system_id: string;
+  quantity_liters: number;
+  price_per_liter: number;
+  total_amount: number;
+  sale_date: string;
+}
+
+export interface SaleUpdate {
+  filling_system_id?: string;
+  quantity_liters?: number;
+  price_per_liter?: number;
+  total_amount?: number;
+  sale_date?: string;
 }
 
 // Expense Types
@@ -304,31 +288,25 @@ export interface FinancialDashboard {
 export interface PetrolProvider {
   id: string;
   name: string;
-  contact_person: string;
-  email: string;
-  phone: string;
-  address: string;
-  status: "active" | "inactive";
+  contact_info?: string;
+  rating?: number;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
 
 export interface PetrolProviderCreate {
   name: string;
-  contact_person: string;
-  email: string;
-  phone: string;
-  address: string;
-  status: "active" | "inactive";
+  contact_info?: string;
+  rating?: number;
+  is_active: boolean;
 }
 
 export interface PetrolProviderUpdate {
   name?: string;
-  contact_person?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  status?: "active" | "inactive";
+  contact_info?: string;
+  rating?: number;
+  is_active?: boolean;
 }
 
 // Type aliases for backward compatibility and consistency
@@ -347,9 +325,31 @@ export type FuelPriceCreate = {
 };
 export type FuelPriceUpdate = Partial<FuelPriceCreate>;
 
-// Sale type aliases
-export type SaleCreate = Omit<Sale, "id" | "created_at" | "updated_at">;
-export type SaleUpdate = Partial<SaleCreate>;
-
 // Filling System type aliases
 export type fillingsApi = any; // Placeholder for filling systems API
+
+export interface BaseEntity {
+  id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QueryParams {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+  order?: "asc" | "desc";
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  hasMore: boolean;
+  nextOffset?: number;
+}
+
+export interface ApiResult<T> {
+  data?: T;
+  error?: string;
+  status?: number;
+}
