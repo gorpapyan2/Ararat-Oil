@@ -1,13 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { 
-  ShoppingCart, 
-  Plus, 
-  DollarSign, 
-  TrendingUp, 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/card';
+import { Badge } from '@/core/components/ui/badge';
+import { Button } from '@/core/components/ui/button';
+import {
+  ShoppingCart,
+  Plus,
+  DollarSign,
+  TrendingUp,
   TrendingDown,
   Target,
   Receipt,
@@ -21,11 +21,10 @@ import {
   Download,
   RefreshCw,
   Zap,
-  Clock
+  Clock,
 } from 'lucide-react';
-import { DashboardCard } from '@/components/ui/dashboard-card';
-import { DashboardGrid } from '@/components/ui/dashboard-grid';
-import { CardContainer } from '@/components/ui/card-container';
+import { DashboardCard } from '@/shared/components/cards/DashboardCard';
+import { DashboardGrid, CardContainer } from '@/shared/components/layout/DashboardGrid';
 import { cn } from '@/shared/utils';
 
 const SalesMainPage: React.FC = () => {

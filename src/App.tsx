@@ -1,7 +1,8 @@
 import React, { Component, ErrorInfo, ReactNode, Suspense, lazy } from "react";
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"; 
+import ShiftsMainPage from '@/features/shifts/pages/ShiftsMainPage';
 
 // Layout Components
 import { MainLayout } from "@/layouts/MainLayout";
@@ -22,7 +23,6 @@ const ManagementPage = lazy(() => import("@/features/management/ManagementPage")
 const ManagementEmployeesPage = lazy(() => import("@/features/management/EmployeesPage"));
 
 // Shifts Module Components
-const ShiftsMainPage = lazy(() => import("@/features/shifts/pages/ShiftsMainPage"));
 const ShiftsManagementPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftsManagementPage })));
 const ShiftsPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftsPage })));
 const ShiftsDashboardPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftsDashboard })));
@@ -204,12 +204,7 @@ function App() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <Router
-              future={{
-                v7_startTransition: true,
-                v7_relativeSplatPath: true,
-              }}
-            >
+            <Router>
               <AuthProvider>
                 <Routes>
                   {/* Authentication Routes */}

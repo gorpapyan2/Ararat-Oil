@@ -1,44 +1,48 @@
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Users,
+  AlertTriangle,
   Clock,
+  Users,
   Calendar,
-  DollarSign,
-  UserCheck,
-  UserX,
+  Activity,
   TrendingUp,
   TrendingDown,
-  RefreshCw,
-  Plus,
-  Filter,
   Search,
-  MoreVertical,
+  Filter,
+  RefreshCw,
+  Play,
+  Pause,
+  Square,
+  Edit3,
+  MessageSquare,
+  Star,
+  UserCheck,
+  UserX,
+  Clock3,
+  Timer,
   MapPin,
   Phone,
   Mail,
-  Award,
-  AlertCircle,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
-  Pause,
-  Play,
+  AlertCircle,
+  Loader2,
+  Plus,
+  Minus,
+  Archive,
   BarChart3,
-  Settings,
-  Timer,
-  Target,
-  Activity,
-  Percent,
-  Calculator,
-  FileText,
-  Download,
-  Bell,
-  Shield,
-  ClockIcon,
-  UserPlus,
-  CalendarPlus,
   PieChart,
-  Zap
+  Zap,
+  Bell,
+  DollarSign,
+  Eye,
+  CalendarPlus,
+  UserPlus,
+  Settings,
+  User
+} from 'lucide-react';
 import { Badge } from '../../../core/components/ui/primitives/badge';
 import { Card } from '../../../core/components/ui/card';
 import { Button } from '../../../core/components/ui/button';
@@ -95,6 +99,18 @@ interface ShiftAlert {
   shift_id?: string;
 }
 
+interface ShiftMetrics {
+  total_employees_on_shift: number;
+  total_employees: number;
+  employees_on_shift: number;
+  total_labor_cost_today: number;
+  labor_efficiency: number;
+  shifts_completed_today: number;
+  average_shift_rating: number;
+  overtime_hours_today: number;
+  attendance_rate: number;
+}
+
 // Shifts service for Supabase integration
 const shiftsService = {
   getMetrics: async (): Promise<ShiftMetrics> => {
@@ -143,6 +159,86 @@ const shiftsService = {
     });
     if (error) throw error;
     return data;
+  }
+};
+
+// Mock data
+const mockAlerts: ShiftAlert[] = [
+  {
+    id: '1',
+    type: 'critical',
+    title: 'Overtime Alert',
+    description: 'John Doe has exceeded 8 hours',
+    employee: 'John Doe',
+    time: '2 hours ago',
+    shift_id: 'shift-123'
+  },
+  {
+    id: '2',
+    type: 'warning',
+    title: 'Break Overdue',
+    description: 'Jane Smith hasn\'t taken a break in 6 hours',
+    employee: 'Jane Smith',
+    time: '30 minutes ago',
+    shift_id: 'shift-124'
+  }
+];
+
+const performanceStats = [
+  {
+    title: 'Average Shift Rating',
+    value: '4.2/5',
+    icon: BarChart3,
+    color: 'blue',
+    description: 'Employee performance'
+  },
+  {
+    title: 'On-Time Rate',
+    value: '92%',
+    icon: Clock,
+    color: 'green',
+    description: 'Punctuality score'
+  },
+  {
+    title: 'Labor Efficiency',
+    value: '87%',
+    icon: TrendingUp,
+    color: 'orange',
+    description: 'Productivity measure'
+  },
+  {
+    title: 'Total Hours Today',
+    value: '156h',
+    icon: Users,
+    color: 'purple',
+    description: 'Combined work time'
+  }
+];
+
+// Helper functions
+const getAlertColor = (type: string) => {
+  switch (type) {
+    case 'critical':
+      return 'bg-red-50 border-red-200';
+    case 'warning':
+      return 'bg-yellow-50 border-yellow-200';
+    case 'info':
+      return 'bg-blue-50 border-blue-200';
+    default:
+      return 'bg-gray-50 border-gray-200';
+  }
+};
+
+const getAlertIcon = (type: string) => {
+  switch (type) {
+    case 'critical':
+      return <XCircle className="w-4 h-4 text-red-500" />;
+    case 'warning':
+      return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+    case 'info':
+      return <Bell className="w-4 h-4 text-blue-500" />;
+    default:
+      return <Bell className="w-4 h-4 text-gray-500" />;
   }
 };
 
@@ -302,19 +398,19 @@ export default function ShiftsDashboard() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'on_shift':
-        return <CheckCircle className="w-4 h-4" />;
+        return <CheckCircle2 className="w-4 h-4" />;
       case 'break':
         return <Pause className="w-4 h-4" />;
       case 'overtime':
-        return <AlertCircle className="w-4 h-4" />;
+        return <AlertTriangle className="w-4 h-4" />;
       case 'active':
-        return <Users className="w-4 h-4" />;
+        return <Play className="w-4 h-4" />;
       case 'inactive':
-        return <XCircle className="w-4 h-4" />;
+        return <Pause className="w-4 h-4" />;
       case 'scheduled':
         return <Calendar className="w-4 h-4" />;
       case 'completed':
-        return <CheckCircle className="w-4 h-4" />;
+        return <CheckCircle2 className="w-4 h-4" />;
       case 'missed':
         return <XCircle className="w-4 h-4" />;
       case 'cancelled':
@@ -487,7 +583,7 @@ export default function ShiftsDashboard() {
                       <div>
                         <span className="text-muted-foreground">Rating:</span>
                         <div className="font-medium flex items-center gap-1">
-                          <Award className="w-3 h-3 text-yellow-500" />
+                          <Star className="w-3 h-3 text-yellow-500" />
                           {employee.performance_rating}/5
                         </div>
                       </div>
@@ -561,7 +657,7 @@ export default function ShiftsDashboard() {
                       
                       {shift.shift_rating && (
                         <div className="flex items-center gap-1 text-xs">
-                          <Award className="w-3 h-3 text-yellow-500" />
+                          <Star className="w-3 h-3 text-yellow-500" />
                           <span>{shift.shift_rating}/5</span>
                         </div>
                       )}

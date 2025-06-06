@@ -14,13 +14,22 @@ import {
   FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
-import { useProfileDialog } from '@/hooks/useProfileDialog';
-import { useProfileDialog, ProfileFormData } from "@/hooks/useProfileDialog";
+import { useProfileDialog } from '@/hooks/useProfileDialog';  
+import { ProfileFormData } from "@/hooks/useProfileDialog";
 import { IconCamera, IconX } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
 import type { User } from "@supabase/supabase-js";
-import type { UserProfile } from "./ProfileController";
+import { z } from "zod";
+
+
+interface UserProfile {
+  id: string;
+  full_name?: string;
+  avatar_url?: string;
+  phone?: string;
+  position?: string;
+}
 
 interface ProfileDialogStandardizedProps {
   user?: User;
@@ -141,8 +150,6 @@ export function ProfileDialogStandardized({
                 <div className="flex gap-2">
                   <Button
                     type="button"
-                    variant="outline"
-                    size="sm"
                     onClick={handleChangeAvatar}
                   >
                     <IconCamera className="h-4 w-4 mr-2" />
@@ -150,8 +157,6 @@ export function ProfileDialogStandardized({
                   </Button>
                   <Button
                     type="button"
-                    variant="outline"
-                    size="sm"
                     onClick={handleRemoveAvatar}
                   >
                     <IconX className="h-4 w-4 mr-2" />

@@ -24,7 +24,7 @@ import {
   deleteEmployee,
 } from "@/features/employees/services";
 import { Employee } from "@/features/employees/types/employees.types";
-import { EmployeeDialogStandardized } from "@/features/employees/components/EmployeeDialogStandardized";
+import { EmployeeDialogStandardized, EmployeeFormValues } from "@/features/employees/components/EmployeeDialogStandardized";
 import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
 import {
@@ -32,6 +32,7 @@ import {
   getApiErrorMessage,
   getApiSuccessMessage,
 } from "@/i18n/i18n";
+import { EmployeesTableStandardized } from "@/features/management/components/EmployeesTableStandardized";
 
 // Create a function to convert between Employee types
 function convertToFeatureEmployee(employee: Employee): EmployeeFeature {

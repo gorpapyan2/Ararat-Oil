@@ -8,20 +8,16 @@ import {
   FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
+import { Textarea } from "@/core/components/ui/primitives/textarea";
 import { z } from "zod";
 import { useToast } from "@/hooks";
 import { Sale } from "@/types";
 import { Employee } from "@/core/api/types";
-import {
-  FormCurrencyInput,
-  FormSelect,
-import { PriceAndEmployeeInputs } from "@/shared/components/form/PriceAndEmployeeInputs";
 import { FillingSystemSelect } from "./form/FillingSystemSelect";
 import { useTranslation } from "react-i18next";
 import { StandardForm } from "@/core/components/ui/composed/base-form";
 import { Control, useWatch, UseFormReturn } from 'react-hook-form';
 import { SalesFormData, FuelTypeCode, PaymentMethod, PaymentStatus } from "@/features/sales/types";
-
 // Base schema - aligned with SalesFormData interface
 export const baseSalesFormSchema = z.object({
   amount: z
@@ -71,6 +67,7 @@ export function SalesFormStandardized({
   employees,
 }: SalesFormStandardizedProps) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [totalSales, setTotalSales] = useState<number>(0);
   
   // Create schema inside the component where hooks can be called
@@ -105,11 +102,10 @@ export function SalesFormStandardized({
     const success = await onSubmit(submissionData);
 
     if (success) {
-      sonnerToast.success(
-        sale
-          ? t("sales.updated", "Sale updated.")
-          : t("sales.created", "Sale created.")
-      );
+      toast({
+        title: sale ? t("sales.updated", "Sale updated.") : t("sales.created", "Sale created."),
+        description: "The operation completed successfully.",
+      });
     }
 
     return success;
@@ -161,6 +157,21 @@ function SalesFormContent({ control, form, employees, totalSales, setTotalSales 
     setTotalSales(calculatedTotal || 0);
   }, [quantityLiters, unitPrice, setTotalSales]);
 
+  // Simple select options component
+  const SelectOptions = ({ options, placeholder, field }: any) => (
+    <select 
+      {...field}
+      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <option value="">{placeholder}</option>
+      {options.map((option: any) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -190,8 +201,8 @@ function SalesFormContent({ control, form, employees, totalSales, setTotalSales 
             <FormItem>
               <FormLabel>{t("sales.fuelType", "Fuel Type")}</FormLabel>
               <FormControl>
-                <FormSelect
-                  form={form}
+                <SelectOptions
+                  field={field}
                   placeholder={t("sales.selectFuelType", "Select fuel type")}
                   options={[
                     { value: "diesel", label: "Diesel" },
@@ -199,7 +210,6 @@ function SalesFormContent({ control, form, employees, totalSales, setTotalSales 
                     { value: "petrol_regular", label: "Petrol Regular" },
                     { value: "petrol_premium", label: "Petrol Premium" },
                   ]}
-                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -292,8 +302,8 @@ function SalesFormContent({ control, form, employees, totalSales, setTotalSales 
             <FormItem>
               <FormLabel>{t("sales.paymentMethod", "Payment Method")}</FormLabel>
               <FormControl>
-                <FormSelect
-                  form={form}
+                <SelectOptions
+                  field={field}
                   placeholder={t("sales.selectPaymentMethod", "Select payment method")}
                   options={[
                     { value: "cash", label: "Cash" },
@@ -304,7 +314,6 @@ function SalesFormContent({ control, form, employees, totalSales, setTotalSales 
                     { value: "bank_transfer", label: "Bank Transfer" },
                     { value: "other", label: "Other" },
                   ]}
-                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -328,3 +337,4 @@ function SalesFormContent({ control, form, employees, totalSales, setTotalSales 
       />
     </>
   );
+}

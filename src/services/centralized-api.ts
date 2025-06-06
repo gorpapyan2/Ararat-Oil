@@ -5,7 +5,8 @@
  * eliminating duplicated code patterns across entity services.
  */
 
-import { fetchFromFunction } from "./api";
+import { fetchFromFunction } from "@/core/api";
+import type { ApiResponse } from "@/core/api";
 
 // Base entity interface
 export interface BaseEntity {
@@ -13,14 +14,6 @@ export interface BaseEntity {
   created_at?: string;
   updated_at?: string;
   status?: string;
-}
-
-// API response interface
-export interface ApiResponse<T = unknown> {
-  data?: T;
-  error?: string;
-  message?: string;
-  status?: number;
 }
 
 // Pagination parameters
@@ -206,7 +199,10 @@ export class EntityService<T extends BaseEntity> {
       const response = await apiCall();
       
       if (response.error) {
-        throw new Error(response.error);
+        const message = typeof response.error === 'string'
+          ? response.error
+          : response.error.message ?? 'Unknown API error';
+        throw new Error(message);
       }
 
       return response.data!;

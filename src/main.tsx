@@ -6,16 +6,14 @@ import ReactDOM from "react-dom/client";
 // App component import
 import App from "./App";
 
+// Import global styles – ensures CSS is bundled and applied
+import "./index.css";
+
 // Performance optimizations
 // Preload critical resources
-const preloadCriticalResources = () => {
-  // Create link elements for critical CSS preloading
-  const cssPreload = document.createElement('link');
-  cssPreload.rel = 'preload';
-  cssPreload.as = 'style';
-  cssPreload.href = '/src/index.css';
-  document.head.appendChild(cssPreload);
-};
+// Removed manual preload logic – the above import guarantees
+// that Vite (or the chosen bundler) handles optimal injection of
+// compiled CSS with proper hashing and prioritisation.
 
 // Error boundary for initialization errors
 const AppWithErrorBoundary = () => (
@@ -27,8 +25,8 @@ const AppWithErrorBoundary = () => (
 // Initialize the app with proper error handling
 async function initializeApp() {
   try {
-    // Preload critical resources
-    preloadCriticalResources();
+    // Global styles are already imported at module scope; no
+    // additional manual preloading is required.
     
     // Try to load i18n if available
     try {

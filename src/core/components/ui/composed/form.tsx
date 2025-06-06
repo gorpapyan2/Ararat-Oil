@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { cn } from "@/shared/utils/cn";
 import {
   useForm,
@@ -10,9 +10,8 @@ import {
   FieldErrors,
   Controller,
   ControllerRenderProps,
+} from "react-hook-form";
 import { Label } from "@/core/components/ui/label";
-import { Checkbox } from "@/core/components/ui/checkbox";
-import { Select } from "@/core/components/ui/primitives/select";
 
 /**
  * Base props for all Form Field components

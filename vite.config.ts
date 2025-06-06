@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcssVite from '@tailwindcss/vite';
 import { resolve } from 'path';
 
 export default defineConfig(({ mode }) => {
@@ -7,10 +8,14 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [
+      // React support
       react({
         // Remove problematic babel plugins
         babel: undefined,
       }),
+
+      // Tailwind CSS v4 integration (ensures CSS generation & HMR)
+      tailwindcssVite(),
     ],
     
     css: {

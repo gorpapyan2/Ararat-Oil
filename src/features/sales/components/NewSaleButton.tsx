@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { CreateButton } from "@/core/components/ui/create-button";
 import { Sale } from "@/core/api/types";
+import { SalesFormStandardized } from "@/features/sales/components/SalesFormStandardized";
 
 interface NewSaleButtonProps {
   className?: string;
@@ -73,3 +74,4 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
       </StandardDialog>
     </>
   );
+}

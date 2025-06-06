@@ -136,7 +136,7 @@ export function SalesPage() {
                     <span>{t("common.filter")}</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="sm:max-w-md bg-gray-900 border-gray-700">
+                <SheetContent className="sm:max-w-md bg-gray-900 border-gray-700">
                   <ScrollArea className="h-[calc(100vh-80px)] pr-4">
                     <SalesFilterPanel
                       onClose={() => setIsFilterOpen(false)}

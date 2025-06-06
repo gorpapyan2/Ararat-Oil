@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, AlertCircle, DollarSign, Clock, CreditCard, FileCheck, Receipt, Users, CalendarClock } from 'lucide-react';
-import { ArrowLeft, AlertCircle, DollarSign, Clock, User, CreditCard, Calendar, CheckCircle, XCircle, FileCheck, Receipt, Users, CalendarClock } from "lucide-react";
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/core/components/ui/card";
@@ -10,7 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/alert"
 import { Separator } from "@/core/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/tabs";
 import { PageLayout } from "@/layouts/PageLayout";
-import { ButtonLink } from "@/core/components/ui/primitives/button";
+import { ButtonLink } from "@/core/components/ui/button";
 
 // Services
 import { shiftsApi, salesApi, employeesApi } from "@/core/api";
@@ -155,7 +155,7 @@ export default function ShiftDetails() {
           const salesResponse = await salesApi.getSales({ shift_id: id });
           if (salesResponse.data) {
             salesTotal = salesResponse.data.reduce(
-              (sum: number, sale: Sale) => sum + (sale.total_amount || 0),
+              (sum: number, sale: Sale) => sum + (sale.total_sales || 0),
               0
             );
           }
@@ -195,7 +195,6 @@ export default function ShiftDetails() {
         action={
           <ButtonLink
             to="/finance/shifts"
-            variant="outline"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("common.backToShifts")}
@@ -237,7 +236,6 @@ export default function ShiftDetails() {
         action={
           <ButtonLink
             to="/finance/shifts"
-            variant="outline"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("common.backToShifts")}
@@ -263,7 +261,6 @@ export default function ShiftDetails() {
         action={
           <ButtonLink
             to="/finance/shifts"
-            variant="outline"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("common.backToShifts")}
@@ -287,7 +284,6 @@ export default function ShiftDetails() {
       action={
         <ButtonLink
           to="/finance/shifts"
-          variant="outline"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           {t("common.backToShifts")}

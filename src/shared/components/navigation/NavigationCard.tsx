@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { LucideIcon, MoreHorizontal } from 'lucide-react';
-import { cn } from '../../utils/cn';
+import { cn } from '@/shared/utils/cn';
+import { Icon } from '@tabler/icons-react';
 
 // Better type definition for icons that supports both systems
 type IconType = LucideIcon | Icon | React.ComponentType<{ className?: string }>;

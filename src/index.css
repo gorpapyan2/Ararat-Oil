@@ -95,48 +95,48 @@
 }
 
 /* === DARK MODE THEME === */
-@custom-variant dark (&:where(.dark, .dark *));
-
-.dark {
-  /* Enhanced Dark Mode Core Colors - Better contrast */
-  --color-background: 6 6 9;                     /* #060609 - Deeper black for better contrast */
-  --color-foreground: 253 253 253;               /* #FDFDFD - Brighter white for better readability */
-  --color-card: 15 15 18;                        /* #0F0F12 - Darker cards with subtle blue undertone */
-  --color-card-foreground: 250 250 250;          /* #FAFAFA - Bright card text */
-  --color-popover: 15 15 18;                     /* Match card background */
-  --color-popover-foreground: 250 250 250;
-  
-  /* Enhanced Dark Mode Primary Colors */
-  --color-primary: 245 245 245;                  /* #F5F5F5 - Very light for contrast */
-  --color-primary-foreground: 6 6 9;             /* #060609 - Dark on light */
-  --color-secondary: 30 30 35;                   /* #1E1E23 - Darker secondary with blue hint */
-  --color-secondary-foreground: 245 245 245;
-  
-  /* Enhanced Dark Mode Accent - More vibrant */
-  --color-accent: 255 214 10;                    /* #FFD60A - Bright yellow for better visibility */
-  --color-accent-foreground: 6 6 9;              /* Dark text on bright accent */
-  --color-muted: 30 30 35;                       /* #1E1E23 - Darker muted background */
-  --color-muted-foreground: 180 180 190;         /* #B4B4BE - Better contrast for muted text */
-  
-  /* Enhanced Dark Mode Status Colors - Improved visibility */
-  --color-status-operational: 46 213 115;        /* #2ED573 - Brighter green for dark mode */
-  --color-status-warning: 255 214 10;            /* #FFD60A - Bright yellow warning */
-  --color-status-critical: 255 107 107;          /* #FF6B6B - Brighter red for visibility */
-  --color-status-maintenance: 116 185 255;       /* #74B9FF - Brighter blue */
-  --color-status-offline: 130 130 140;           /* #828284 - Better contrast gray */
-  
-  /* Enhanced Dark Mode Fuel Colors - Better contrast */
-  --color-fuel-gasoline: 255 107 107;            /* #FF6B6B - Bright red */
-  --color-fuel-diesel: 255 214 10;               /* #FFD60A - Bright yellow */
-  --color-fuel-premium: 255 82 82;               /* #FF5252 - Vibrant red */
-  --color-fuel-electric: 116 185 255;            /* #74B9FF - Bright blue */
-  --color-fuel-hybrid: 180 180 190;              /* #B4B4BE - Light gray */
-  --color-fuel-renewable: 46 213 115;            /* #2ED573 - Bright green */
-  
-  /* Enhanced Dark Mode Borders - Better definition */
-  --color-border: 45 45 50;                      /* #2D2D32 - Lighter border for definition */
-  --color-input: 45 45 50;                       /* #2D2D32 - Input borders */
-  --color-ring: 255 214 10;                      /* #FFD60A - Bright accent for focus rings */
+@variant dark {
+  @theme {
+    /* Enhanced Dark Mode Core Colors - Better contrast */
+    --color-background: 6 6 9;                     /* #060609 - Deeper black for better contrast */
+    --color-foreground: 253 253 253;               /* #FDFDFD - Brighter white for better readability */
+    --color-card: 15 15 18;                        /* #0F0F12 - Darker cards with subtle blue undertone */
+    --color-card-foreground: 250 250 250;          /* #FAFAFA - Bright card text */
+    --color-popover: 15 15 18;                     /* Match card background */
+    --color-popover-foreground: 250 250 250;
+    
+    /* Enhanced Dark Mode Primary Colors */
+    --color-primary: 245 245 245;                  /* #F5F5F5 - Very light for contrast */
+    --color-primary-foreground: 6 6 9;             /* #060609 - Dark on light */
+    --color-secondary: 30 30 35;                   /* #1E1E23 - Darker secondary with blue hint */
+    --color-secondary-foreground: 245 245 245;
+    
+    /* Enhanced Dark Mode Accent - More vibrant */
+    --color-accent: 255 214 10;                    /* #FFD60A - Bright yellow for better visibility */
+    --color-accent-foreground: 6 6 9;              /* Dark text on bright accent */
+    --color-muted: 30 30 35;                       /* #1E1E23 - Darker muted background */
+    --color-muted-foreground: 180 180 190;         /* #B4B4BE - Better contrast for muted text */
+    
+    /* Enhanced Dark Mode Status Colors - Improved visibility */
+    --color-status-operational: 46 213 115;        /* #2ED573 - Brighter green for dark mode */
+    --color-status-warning: 255 214 10;            /* #FFD60A - Bright yellow warning */
+    --color-status-critical: 255 107 107;          /* #FF6B6B - Brighter red for visibility */
+    --color-status-maintenance: 116 185 255;       /* #74B9FF - Brighter blue */
+    --color-status-offline: 130 130 140;           /* #828284 - Better contrast gray */
+    
+    /* Enhanced Dark Mode Fuel Colors - Better contrast */
+    --color-fuel-gasoline: 255 107 107;            /* #FF6B6B - Bright red */
+    --color-fuel-diesel: 255 214 10;               /* #FFD60A - Bright yellow */
+    --color-fuel-premium: 255 82 82;               /* #FF5252 - Vibrant red */
+    --color-fuel-electric: 116 185 255;            /* #74B9FF - Bright blue */
+    --color-fuel-hybrid: 180 180 190;              /* #B4B4BE - Light gray */
+    --color-fuel-renewable: 46 213 115;            /* #2ED573 - Bright green */
+    
+    /* Enhanced Dark Mode Borders - Better definition */
+    --color-border: 45 45 50;                      /* #2D2D32 - Lighter border for definition */
+    --color-input: 45 45 50;                       /* #2D2D32 - Input borders */
+    --color-ring: 255 214 10;                      /* #FFD60A - Bright accent for focus rings */
+  }
 }
 
 @layer utilities {
@@ -304,46 +304,49 @@
   
   /* Glass Effect */
   .glass-effect {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgb(255 255 255 / 0.1);
+    border: 1px solid rgb(255 255 255 / 0.2);
   }
   
-  .dark .glass-effect {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  @variant dark {
+    .glass-effect {
+      backdrop-filter: blur(16px) saturate(180%);
+      background-color: rgb(0 0 0 / 0.2);
+      border: 1px solid rgb(255 255 255 / 0.1);
+    }
   }
   
   /* Enhanced Typography */
   .text-display {
-    font-size: 3rem;
-    font-weight: 800;
+    font-size: clamp(2.5rem, 5vw, 4rem);
     line-height: 1.1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    font-weight: 800;
   }
   
   .text-heading-1 {
-    font-size: 2.25rem;
-    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3rem);
     line-height: 1.2;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
   
   .text-heading-2 {
-    font-size: 1.875rem;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    line-height: 1.25;
     font-weight: 600;
-    line-height: 1.3;
   }
   
   .text-heading-3 {
-    font-size: 1.5rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.3;
     font-weight: 600;
-    line-height: 1.4;
   }
   
   .text-body-large {
     font-size: 1.125rem;
-    line-height: 1.7;
+    line-height: 1.6;
   }
   
   .text-body {
@@ -359,9 +362,7 @@
   .text-caption {
     font-size: 0.75rem;
     line-height: 1.4;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.025em;
   }
   
   /* Enhanced Focus States */
@@ -373,11 +374,11 @@
   
   /* Professional Animations */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.5s ease-in-out;
   }
   
   .animate-slide-up {
-    animation: slideUp 0.5s ease-out;
+    animation: slideUp 0.4s ease-out;
   }
   
   .animate-scale-in {
@@ -385,7 +386,7 @@
   }
   
   .animate-shimmer {
-    animation: shimmer 2s infinite;
+    animation: shimmer 2s linear infinite;
   }
   
   /* Text Content Utilities */
@@ -866,23 +867,45 @@ body {
 
 /* === KEYFRAMES === */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(100%); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from { 
+    opacity: 0; 
+    transform: scale(0.9); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% { 
+    background-position: -200px 0; 
+  }
+  100% { 
+    background-position: calc(200px + 100%) 0; 
+  }
 }
 
 /* === RESPONSIVE UTILITIES === */

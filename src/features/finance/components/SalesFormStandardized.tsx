@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { z } from "zod";
 import { Button } from "@/core/components/ui/primitives/button";
 import {
   FormControl,
@@ -7,19 +9,20 @@ import {
   FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
+import { Textarea } from "@/core/components/ui/primitives/textarea";
 import { useToast } from "@/hooks";
-import { useEffect, useState } from "react";
 import { Sale } from "@/types";
-import { Employee } from "@/core/api";
+import { Employee } from "@/core/api/types";
 import {
-  FormCurrencyInput,
+  FormInput,
   FormSelect,
 } from "@/core/components/ui/composed/form-fields";
-import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
-import { FillingSystemSelect } from "./form/FillingSystemSelect";
+import { PriceAndEmployeeInputs } from "@/features/sales/components/PriceAndEmployeeInputs";
+import { FillingSystemSelect } from "@/features/sales/components/FillingSystemSelect";
 import { useTranslation } from "react-i18next";
 import { StandardForm } from "@/core/components/ui/composed/base-form";
-import { Control, useWatch } from 'react-hook-form';
+import { Control, useWatch, UseFormReturn } from 'react-hook-form';
+import { toast as sonnerToast } from "sonner";
 
 // Export the base schema to derive the type
 const baseSalesFormSchema = z.object({
@@ -340,3 +343,4 @@ function SalesFormContent({ control, employees, totalSales, setTotalSales }: Sal
       />
     </>
   );
+}

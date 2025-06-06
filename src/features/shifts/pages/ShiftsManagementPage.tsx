@@ -51,7 +51,7 @@ import {
   DropdownMenuTrigger,
 } from '@/core/components/ui/dropdown-menu';
 import { MetricCard } from '@/shared/components/unified/MetricCard';
-import { PageContainer } from '@/shared/components/layout/PageContainer';
+import { WindowContainer } from '@/shared/components/layout/WindowContainer';
 
 // Services and Types
 import { shiftsApi, employeesApi } from '@/core/api';
@@ -364,12 +364,12 @@ const ShiftsManagementContent: React.FC = () => {
   // Loading state
   if (metricsLoading && shiftsLoading) {
     return (
-      <PageContainer
+      <WindowContainer
         title="Shifts Management"
-        description="Manage employee shifts, track working hours, and monitor cash flow"
+        subtitle="Manage employee shifts, track working hours, and monitor cash flow"
         breadcrumbItems={[
           { label: 'Management', href: '/management' },
-          { label: 'Shifts' }
+          { label: 'Shifts', href: '#' }
         ]}
       >
         <div className="space-y-6">
@@ -388,19 +388,19 @@ const ShiftsManagementContent: React.FC = () => {
           </div>
           <Loading />
         </div>
-      </PageContainer>
+      </WindowContainer>
     );
   }
 
   // Error state
   if (metricsError || shiftsError) {
     return (
-      <PageContainer
+      <WindowContainer
         title="Shifts Management"
-        description="Manage employee shifts, track working hours, and monitor cash flow"
+        subtitle="Manage employee shifts, track working hours, and monitor cash flow"
         breadcrumbItems={[
           { label: 'Management', href: '/management' },
-          { label: 'Shifts' }
+          { label: 'Shifts', href: '#' }
         ]}
       >
         <Alert variant="destructive">
@@ -408,39 +408,39 @@ const ShiftsManagementContent: React.FC = () => {
             Failed to load shifts data. Please try refreshing the page.
           </AlertDescription>
         </Alert>
-      </PageContainer>
+      </WindowContainer>
     );
   }
 
   return (
-    <PageContainer
+    <WindowContainer
       title="Shifts Management"
-      description="Manage employee shifts, track working hours, and monitor cash flow"
+      subtitle="Manage employee shifts, track working hours, and monitor cash flow"
       breadcrumbItems={[
         { label: 'Management', href: '/management' },
-        { label: 'Shifts' }
+        { label: 'Shifts', href: '#' }
       ]}
-      action={
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={metricsLoading || shiftsLoading}
-          >
-            <RefreshCw className={cn("h-4 w-4 mr-2", (metricsLoading || shiftsLoading) && "animate-spin")} />
-            Refresh
-          </Button>
-          <Button
-            onClick={() => navigate('/finance/shifts/open')}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Start Shift
-          </Button>
-        </div>
-      }
     >
+      {/* Action Buttons */}
+      <div className="flex items-center gap-3 mb-6">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={metricsLoading || shiftsLoading}
+        >
+          <RefreshCw className={cn("h-4 w-4 mr-2", (metricsLoading || shiftsLoading) && "animate-spin")} />
+          Refresh
+        </Button>
+        <Button
+          onClick={() => navigate('/finance/shifts/open')}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Start Shift
+        </Button>
+      </div>
+
       {/* Metrics Cards */}
       {metricsData && (
         <div className="metric-cards-grid">
@@ -547,7 +547,7 @@ const ShiftsManagementContent: React.FC = () => {
           />
         </CardContent>
       </Card>
-    </PageContainer>
+    </WindowContainer>
   );
 };
 

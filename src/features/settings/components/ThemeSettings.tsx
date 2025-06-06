@@ -1,13 +1,11 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
-import { z } from "zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/core/components/ui/form";
 import { Label } from "@/core/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { Switch } from "@/core/components/ui/switch";
 import { Button } from "@/core/components/ui/button";
 import { Separator } from "@/core/components/ui/separator";
-import { Alert } from '@/core/components/ui/alert';
 import { Palette, Monitor } from 'lucide-react';
 import { useTheme } from "@/hooks";
 import { useToast } from "@/hooks";
@@ -303,4 +301,5 @@ export function ThemeSettings() {
         </Button>
       </div>
     </div>
+  );
 } 

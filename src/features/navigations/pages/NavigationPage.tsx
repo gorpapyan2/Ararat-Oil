@@ -36,6 +36,7 @@ import {
   Cog
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { cn } from '@/shared/utils/cn';
 
 // Import shimmer components
 import { 
