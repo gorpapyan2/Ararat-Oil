@@ -2,7 +2,7 @@
  * DOM manipulation and UI utility functions
  */
 
-import { type ClassValue, clsx } from "clsx";
+import { clsx } from 'clsx';
 import { twMerge } from "tailwind-merge";
 
 /**

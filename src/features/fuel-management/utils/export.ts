@@ -1,7 +1,6 @@
 import { FuelSupply } from "../types";
 import { format } from "date-fns";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
 
 export function exportToCsv(supplies: FuelSupply[], filename: string) {
   const headers = [

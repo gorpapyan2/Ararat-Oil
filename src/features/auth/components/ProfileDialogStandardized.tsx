@@ -14,11 +14,10 @@ import {
   FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
-import { z } from "zod";
+import { useProfileDialog } from '@/hooks/useProfileDialog';
 import { useProfileDialog, ProfileFormData } from "@/hooks/useProfileDialog";
 import { IconCamera, IconX } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { toast as sonnerToast } from "sonner";
 import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
 import type { User } from "@supabase/supabase-js";
 import type { UserProfile } from "./ProfileController";

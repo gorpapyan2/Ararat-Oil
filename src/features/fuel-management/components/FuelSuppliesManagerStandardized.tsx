@@ -4,7 +4,6 @@ import { FuelSuppliesSummary } from "./summary/FuelSuppliesSummary";
 import { Button } from "@/core/components/ui/button";
 import { Plus } from "lucide-react";
 import { useFuelSupplies } from "../hooks/useFuelSupplies";
-import { FuelSupply } from "../types";
 
 interface FuelSuppliesManagerStandardizedProps {
   onRenderAction?: (action: React.ReactNode) => void;

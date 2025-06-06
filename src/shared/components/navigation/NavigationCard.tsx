@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { LucideIcon, MoreHorizontal } from 'lucide-react';
-import { type Icon } from '@/core/components/ui/icons';
 import { cn } from '../../utils/cn';
 
 // Better type definition for icons that supports both systems

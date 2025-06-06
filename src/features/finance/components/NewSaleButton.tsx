@@ -1,11 +1,10 @@
 import { Button } from "@/core/components/ui/button";
-import { StandardDialog } from "@/shared/components/common/dialog/StandardDialog";
+import { SalesFormStandardized } from './SalesFormStandardized';
 import { SalesFormStandardized, SalesFormData } from "./SalesFormStandardized";
 import { useState, useRef } from "react";
 import { salesApi } from "@/core/api";
 import { useToast } from "@/hooks";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import React from "react";
 import { CreateButton } from "@/core/components/ui/create-button";
 import { Sale } from "@/core/api/types";

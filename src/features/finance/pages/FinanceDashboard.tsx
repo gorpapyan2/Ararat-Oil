@@ -22,7 +22,6 @@ import {
   ChevronRight,
   Plus,
 } from "lucide-react";
-import { Skeleton } from "@/core/components/ui/skeleton";
 
 export default function FinanceDashboard() {
   const { t } = useTranslation();

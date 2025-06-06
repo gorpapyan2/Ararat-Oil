@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/shared/utils";
 import { X } from "lucide-react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from 'class-variance-authority';
 import { Button } from "./button";
 
 const drawerVariants = cva(

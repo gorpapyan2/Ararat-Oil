@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Button } from "@/core/components/ui/primitives/button";
-import { Plus, Trash } from "lucide-react";
+import { Plus } from 'lucide-react';
 import { useSalesDialog } from "../hooks/useSalesDialog";
 import type { Sale, CreateSaleRequest } from "../types";
 import {

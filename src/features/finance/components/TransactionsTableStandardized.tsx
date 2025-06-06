@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
+import { CreditCard } from 'lucide-react';
 import { Calendar, CreditCard, BadgeCheck } from "lucide-react";
 import {
   StandardizedDataTable,
@@ -9,7 +8,6 @@ import {
   createDateCell,
   createCurrencyCell,
 } from "@/shared/components/unified/StandardizedDataTable";
-import { Badge } from "@/core/components/ui/primitives/badge";
 import type { Transaction } from "../types/finance.types";
 
 interface TransactionsTableStandardizedProps {

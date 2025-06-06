@@ -4,7 +4,7 @@ import { Breadcrumb } from './Breadcrumb';
 interface WindowContainerProps {
   title: string;
   subtitle?: string;
-  breadcrumbItems: Array<{ label: string; href: string }>;
+  breadcrumbItems?: Array<{ label: string; href: string }>;
   children: React.ReactNode;
   className?: string;
 }
@@ -12,10 +12,16 @@ interface WindowContainerProps {
 export const WindowContainer: React.FC<WindowContainerProps> = ({
   title,
   subtitle,
-  breadcrumbItems,
+  breadcrumbItems = [],
   children,
   className = ""
 }) => {
+  // Generate default breadcrumbs if none provided
+  const defaultBreadcrumbs = breadcrumbItems.length > 0 ? breadcrumbItems : [
+    { label: 'Dashboard', href: '/' },
+    { label: title, href: '#' }
+  ];
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-[#EEEFE7] via-[#EEEFE7]/80 to-[#A6A698]/20 dark:from-black dark:via-[#57575E] dark:to-[#717181] p-4 ${className}`}>
       {/* Window Container */}
@@ -46,7 +52,7 @@ export const WindowContainer: React.FC<WindowContainerProps> = ({
               
               {/* Breadcrumbs in top-right */}
               <div className="flex items-center space-x-4">
-                <Breadcrumb items={breadcrumbItems} />
+                <Breadcrumb items={defaultBreadcrumbs} />
               </div>
             </div>
           </div>

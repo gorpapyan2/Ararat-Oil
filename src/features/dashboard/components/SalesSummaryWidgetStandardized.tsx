@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/core/components/ui/primitives/select";
-import { format, subDays } from "date-fns";
+import { format } from 'date-fns';
 import {
   Table,
   TableBody,

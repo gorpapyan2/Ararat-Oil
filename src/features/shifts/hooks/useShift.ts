@@ -3,9 +3,7 @@ import { Shift, ShiftPaymentMethod, PaymentMethod } from "@/types";
 import { shiftsApi } from "@/core/api";
 import { useAuth } from "@/features/auth";
 import { useToast } from "@/core/hooks/useToast";
-import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
 
 export function useShift() {
   const [activeShift, setActiveShift] = useState<Shift | null>(null);

@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { IconSend, IconArrowLeft } from "@tabler/icons-react";
+import { IconArrowLeft } from '@tabler/icons-react';
 
 // Import components
 import { PageHeader } from "@/core/components/ui/page-header";
@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/core/components/ui/card";
 import { SalesFormStandardized, ShiftControl } from "@/features/sales";
 import { createSale } from "@/features/sales/services";
 import { useToast } from "@/hooks";
-import { CreateSaleRequest, SalesFormData, FuelTypeCode, Sale } from '@/features/sales/types';
+import { SalesFormData, FuelTypeCode, Sale } from '@/features/sales/types';
 
 export default function SalesCreate() {
   const { t } = useTranslation();

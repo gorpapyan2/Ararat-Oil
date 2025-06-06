@@ -1,5 +1,5 @@
 import { Button } from "@/core/components/ui/button";
-import { useProfileDialog, ProfileFormData } from "@/hooks/useProfileDialog";
+import { useProfileDialog } from '@/hooks/useProfileDialog';
 import { ProfileDialogStandardized } from "./ProfileDialogStandardized";
 import { IconUserCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";

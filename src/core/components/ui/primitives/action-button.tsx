@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Button, ButtonProps } from "@/core/components/ui/button";
-import { cn } from "@/shared/utils";
 
 /**
  * Props for the ActionButton component

@@ -1,7 +1,7 @@
 /**
  * Centralized export point for UI components
  * This allows importing components from a single point, reducing duplication:
- * import { Button, TextField, StandardForm } from '@/core/components/ui';
+import { Button } from '@/core/components/ui';
  */
 
 /**

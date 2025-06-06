@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 // CSS imports - Load in optimal order for performance
-import "./index.css"; // Main CSS first for critical styles
 
 // App component import
 import App from "./App";

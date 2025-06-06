@@ -25,7 +25,6 @@ import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Switch } from "@/core/components/ui/switch";
 import { Label } from "@/core/components/ui/label";
-import { Separator } from "@/core/components/ui/separator";
 import {
   Select,
   SelectContent,

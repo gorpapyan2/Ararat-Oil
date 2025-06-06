@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -40,11 +39,9 @@ import {
   CalendarPlus,
   PieChart,
   Zap
-} from 'lucide-react';
 import { Badge } from '../../../core/components/ui/primitives/badge';
 import { Card } from '../../../core/components/ui/card';
 import { Button } from '../../../core/components/ui/button';
-import { Input } from '../../../core/components/ui/input';
 import { useToast } from '../../../core/hooks/useToast';
 import { supabase } from '../../../core/api/supabase';
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';

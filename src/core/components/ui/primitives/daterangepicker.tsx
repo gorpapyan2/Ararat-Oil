@@ -1,7 +1,6 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
 import { cn } from "@/shared/utils";
 import { Button } from "@/core/components/ui/button";
 import { Calendar } from "@/core/components/ui/primitives/calendar";

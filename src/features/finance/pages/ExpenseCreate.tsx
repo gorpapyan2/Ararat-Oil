@@ -21,7 +21,7 @@ import { useToast } from "@/hooks";
 import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
 
 // Import our standalone expense form
-import { ExpenseForm, ExpenseFormValues } from "./ExpenseForm";
+import { ExpenseForm } from './ExpenseForm';
 
 export default function ExpenseCreate() {
   const { t } = useTranslation();

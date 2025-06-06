@@ -7,7 +7,6 @@ import {
   FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
-import { z } from "zod";
 import { useToast } from "@/hooks";
 import { useEffect, useState } from "react";
 import { Sale } from "@/types";
@@ -20,8 +19,7 @@ import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
 import { FillingSystemSelect } from "./form/FillingSystemSelect";
 import { useTranslation } from "react-i18next";
 import { StandardForm } from "@/core/components/ui/composed/base-form";
-import { toast as sonnerToast } from "sonner";
-import { Control, FieldValues, useWatch } from "react-hook-form";
+import { Control, useWatch } from 'react-hook-form';
 
 // Export the base schema to derive the type
 const baseSalesFormSchema = z.object({
@@ -342,4 +340,3 @@ function SalesFormContent({ control, employees, totalSales, setTotalSales }: Sal
       />
     </>
   );
-}

@@ -26,7 +26,7 @@ const tankFormSchema = z.object({
 type TankFormData = z.infer<typeof tankFormSchema>;
 
 // Import from core/api instead of services
-import { tanksApi, Tank, TankCreate, TankUpdate } from "@/core/api";
+import { tanksApi, Tank } from '@/core/api';
 import { useToast } from "@/hooks/useToast";
 
 interface TankFormDialogProps {

@@ -1,8 +1,8 @@
 import { cn } from "@/shared/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Card } from '@/core/components/ui/card';
 import { Progress } from "@/core/components/ui/progress";
 import { Badge } from "@/core/components/ui/primitives/badge";
-import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, Target, Wallet } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, CreditCard, Wallet } from 'lucide-react';
 import { useTranslation } from "react-i18next";
 
 interface FinanceDashboardData {

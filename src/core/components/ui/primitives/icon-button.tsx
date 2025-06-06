@@ -1,11 +1,9 @@
-import * as React from "react";
 import { cn } from "@/shared/utils";
 import {
   Button,
   ButtonProps,
   buttonVariants,
 } from "@/core/components/ui/button";
-import { VariantProps } from "class-variance-authority";
 
 /**
  * Props for the IconButton component

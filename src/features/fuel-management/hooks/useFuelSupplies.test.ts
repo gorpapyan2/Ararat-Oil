@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { waitFor } from '@testing-library/react';
 import { vi } from "vitest";
 import { useFuelSupplies } from "./useFuelSupplies";
 import { fuelSuppliesService } from "../services";

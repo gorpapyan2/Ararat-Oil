@@ -1,5 +1,4 @@
 import { LucideIcon } from "lucide-react";
-import { type Icon } from "@/core/components/ui/icons";
 
 // Better type definition for icons that supports both systems
 export type IconType = LucideIcon | Icon | React.ComponentType<{ className?: string }> | string;

@@ -1,4 +1,4 @@
-import { petrolProvidersApi, PetrolProvider, CreateProviderRequest, UpdateProviderRequest } from "@/core/api";
+import { petrolProvidersApi, CreateProviderRequest } from '@/core/api';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   PetrolProviderFormData,

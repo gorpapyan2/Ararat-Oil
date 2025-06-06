@@ -17,7 +17,6 @@ import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
 import { toast } from "sonner";
 import { Employee } from "@/core/api";
 import { useWatch } from "react-hook-form";
-import { UpdateSaleRequest } from '../types';
 import { Control } from "react-hook-form";
 
 // Extend the Sale type to include the properties needed by SalesFormStandardized

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/core/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { tanksApi } from '@/core/api';
 import { tanksApi, fuelSuppliesApi } from "@/core/api";
 import type { Tank } from "@/core/api/types";
-import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { ErrorBoundary } from "@sentry/react";
 import { KpiCardGrid } from "./KpiCardGrid";

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useForm, Controller, FieldError } from 'react-hook-form';
 import { useForm, Controller, FieldError, UseFormProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,7 +28,6 @@ import { Switch } from '@/core/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/core/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/card';
-import { Badge } from '@/core/components/ui/primitives/badge';
 import { Progress } from '@/core/components/ui/progress';
 
 export type FieldType = 

@@ -5,7 +5,7 @@
  * based on environment, user role, or other conditions.
  */
 
-import { getEnvironment, isProduction } from "./environment";
+import { isProduction } from './environment';
 
 /**
  * Feature flag definitions

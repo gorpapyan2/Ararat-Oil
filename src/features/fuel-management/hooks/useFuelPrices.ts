@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fuelPricesApi, FuelPrice, FuelPriceCreate, FuelPriceUpdate } from "@/core/api";
+import { fuelPricesApi } from '@/core/api';
 import {
   getFuelPrices,
   getFuelPriceById,

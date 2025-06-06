@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { act, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useFuelSuppliesFilters } from "./useFuelSuppliesFilters";
 import { setupHookTest } from "@/test/utils/test-setup";

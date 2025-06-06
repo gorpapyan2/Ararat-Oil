@@ -2,7 +2,6 @@
 import { transactionsApi } from "@/core/api/endpoints/transactions";
 import { expensesApi } from "@/core/api/endpoints/expenses";
 import { profitLossApi } from "@/core/api/endpoints/profit-loss";
-import { financialsApi } from "@/core/api/endpoints/financials";
 import { fetchJson } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/config/api';
 

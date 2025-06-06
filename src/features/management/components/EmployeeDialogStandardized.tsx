@@ -9,7 +9,6 @@ import {
 import { Input } from "@/core/components/ui/primitives/input";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { toast as sonnerToast } from "sonner";
 import { Employee } from "@/features/employees/types/employees.types";
 import { Control, FieldValues } from "react-hook-form";
 import { FormDialog } from "@/shared/components/common/dialog/FormDialog";

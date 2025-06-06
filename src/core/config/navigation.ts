@@ -1,5 +1,4 @@
-import { LucideIcon } from "lucide-react";
-import { BarChart3, Users, Settings, CreditCard, CalendarClock, Database, Bug, Grid3X3 } from "lucide-react";
+import { BarChart3, Users, CreditCard, CalendarClock, Database } from 'lucide-react';
 import {
   IconGasStation,
   IconUser,

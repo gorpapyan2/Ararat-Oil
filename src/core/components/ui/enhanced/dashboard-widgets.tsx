@@ -36,7 +36,6 @@ import {
 } from '@/core/components/ui/dropdownmenu';
 import { Progress } from '@/core/components/ui/progress';
 import { Skeleton } from '@/core/components/ui/skeleton';
-import { MetricCard } from './metric-card';
 
 export type WidgetType = 
   | 'metric' 

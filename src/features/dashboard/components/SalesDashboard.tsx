@@ -1,8 +1,7 @@
-import { cn } from "@/shared/utils";
+import { Card } from '@/core/components/ui/card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { Progress } from "@/core/components/ui/progress";
-import { Badge } from "@/core/components/ui/primitives/badge";
-import { DollarSign, TrendingUp, TrendingDown, Users, ShoppingCart, CreditCard, Target } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, Users, ShoppingCart, Target } from 'lucide-react';
 import { useTranslation } from "react-i18next";
 
 interface SalesDashboardData {

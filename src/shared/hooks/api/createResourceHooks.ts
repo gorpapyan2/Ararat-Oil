@@ -5,10 +5,9 @@
  * reducing duplication across features and ensuring consistent patterns.
  */
 
-import { QueryClient } from "@tanstack/react-query";
 import useApiQuery from "./useApiQuery";
 import useApiMutation from "./useApiMutation";
-import { createQueryKeys, createInvalidations } from "./cache-utils";
+import { createQueryKeys } from './cache-utils';
 import type {
   ResourceService,
   ResourceHooksOptions,

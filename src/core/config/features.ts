@@ -32,7 +32,7 @@ import {
   IconCoin,
   IconTank,
 } from "@/core/components/ui/icons";
-import { NavigationFeature, NavigationConfig, FeatureCategory } from "@/core/types/navigation";
+import { NavigationConfig } from '@/core/types/navigation';
 
 export const featuresConfig: NavigationConfig = {
   categories: [

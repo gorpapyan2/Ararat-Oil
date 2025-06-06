@@ -8,7 +8,6 @@ import {
   getApiErrorMessage,
   getApiSuccessMessage,
 } from "@/i18n/i18n";
-import { ProfileFormData } from '@/hooks/useProfileDialog';
 
 function ProfileSettings() {
   const { user, profile } = useAuth();

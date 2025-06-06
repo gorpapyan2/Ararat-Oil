@@ -7,7 +7,6 @@
 
 import React from 'react';
 import { Button } from '@/core/components/ui/buttons/button';
-import { Badge } from '@/core/components/ui/primitives/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { 
   Fuel, 

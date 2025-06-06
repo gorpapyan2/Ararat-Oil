@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { TankFormDialog } from "@/features/fuel-management/components/TankFormDialog";
-import { tanksApi, fuelTypesApi } from "@/core/api";
+import { fuelTypesApi } from '@/core/api';
 
 interface SalesControllerProps {
   onSuccess?: () => void;

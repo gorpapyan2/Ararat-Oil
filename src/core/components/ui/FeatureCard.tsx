@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/shared/utils';
-import { NavigationFeature } from '@/core/types/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
-import { Button } from '@/core/components/ui/button';
 import { Badge } from '@/core/components/ui/primitives/badge';
 
 interface FeatureCardProps {

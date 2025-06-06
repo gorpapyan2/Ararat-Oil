@@ -1,5 +1,5 @@
 import { cn } from "@/shared/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Card } from '@/core/components/ui/card';
 import { Progress } from "@/core/components/ui/progress";
 import { Badge } from "@/core/components/ui/primitives/badge";
 import { Fuel, TrendingUp, TrendingDown, AlertTriangle, BarChart3, Droplets } from "lucide-react";

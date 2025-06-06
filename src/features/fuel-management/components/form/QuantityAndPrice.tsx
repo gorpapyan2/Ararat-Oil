@@ -8,7 +8,6 @@ import {
 import { Input } from "@/core/components/ui/primitives/input";
 import { Control, useWatch, FieldValues } from "react-hook-form";
 import { useMemo } from "react";
-import { FormCurrencyInput } from "@/core/components/ui/composed/form-fields";
 import { CurrencyInput } from "@/core/components/ui/currency-input";
 import { useTranslation } from "react-i18next";
 

@@ -1,5 +1,4 @@
 import { transactionsApi, Transaction } from "@/core/api";
-import { PaymentMethod, PaymentStatus } from "@/types";
 
 export const fetchTransactions = async (filters?: {
   entity_type?: string;

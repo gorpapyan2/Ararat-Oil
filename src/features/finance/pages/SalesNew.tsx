@@ -22,14 +22,12 @@ import {
   ShiftControl,
   SalesTable,
 } from "@/features/sales";
-
+import { useQueryClient } from '@tanstack/react-query';
 // Import necessary services
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createSale } from "@/features/sales/services";
 import { useToast } from "@/hooks";
 import { useShift } from "@/features/shifts/hooks/useShift";
 import { Sale } from "@/types";
-import { SalesFilters } from "@/features/sales/types";
 
 export default function SalesNew() {
   const { t } = useTranslation();

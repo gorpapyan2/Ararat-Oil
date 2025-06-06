@@ -8,7 +8,6 @@ import {
   FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
-import { Textarea } from "@/core/components/ui/primitives/textarea";
 import { z } from "zod";
 import { useToast } from "@/hooks";
 import { Sale } from "@/types";
@@ -16,13 +15,11 @@ import { Employee } from "@/core/api/types";
 import {
   FormCurrencyInput,
   FormSelect,
-} from "@/core/components/ui/composed/form-fields";
 import { PriceAndEmployeeInputs } from "@/shared/components/form/PriceAndEmployeeInputs";
 import { FillingSystemSelect } from "./form/FillingSystemSelect";
 import { useTranslation } from "react-i18next";
 import { StandardForm } from "@/core/components/ui/composed/base-form";
-import { toast as sonnerToast } from "sonner";
-import { Control, FieldValues, useWatch, UseFormReturn } from "react-hook-form";
+import { Control, useWatch, UseFormReturn } from 'react-hook-form';
 import { SalesFormData, FuelTypeCode, PaymentMethod, PaymentStatus } from "@/features/sales/types";
 
 // Base schema - aligned with SalesFormData interface
@@ -331,4 +328,3 @@ function SalesFormContent({ control, form, employees, totalSales, setTotalSales 
       />
     </>
   );
-}

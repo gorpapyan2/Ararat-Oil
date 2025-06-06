@@ -1,4 +1,3 @@
-import { ShiftControl } from "@/features/sales";
 import { PageLayout } from "@/layouts/PageLayout";
 import {
   CalendarClock,
@@ -51,7 +50,7 @@ import {
 import { useShift } from "@/features/shifts/hooks/useShift";
 import { useNavigate } from "react-router-dom";
 import { formatDateTime, calculateDuration } from "@/shared/utils";
-import { ArrowRight, DollarSign } from "lucide-react";
+import { DollarSign } from 'lucide-react';
 import { cn } from "@/shared/utils";
 
 // Local InputWithIcon implementation

@@ -5,7 +5,7 @@
  * to ensure consistent data fetching across the application.
  */
 
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query';
 import { UseApiQueryOptions, UseApiQueryResult } from "./types";
 
 /**

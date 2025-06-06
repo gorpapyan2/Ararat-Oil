@@ -13,7 +13,6 @@ import { useToast } from "@/hooks";
 import { CardGrid } from "@/core/components/ui/cards/card-grid";
 import { MetricCard } from "@/core/components/ui/cards/metric-card";
 import { MetricCardProps } from "@/core/components/ui/cards/types";
-import { Skeleton } from "@/core/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { fetchDashboardData } from "../services/dashboard";
 import type { DashboardData } from "../types";

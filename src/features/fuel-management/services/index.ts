@@ -3,7 +3,7 @@ export * from "./fuel-sales.service";
 export * from "./adapters";
 
 // Import types for additional functions
-import { FuelSale, FuelSaleSummary } from "../types";
+import { FuelSaleSummary } from '../types';
 import {
   getFuelSales,
   fuelSalesService as originalService,

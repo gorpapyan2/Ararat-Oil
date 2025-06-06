@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Check, AlertCircle, Info } from "lucide-react";
+import { useAppStore } from '@/core/store';
 import { useAppStore, selectToasts } from "@/core/store";
 import { useToast } from "@/hooks";
 import { cn } from "@/shared/utils";
-import { Toast as ToastType } from "@/types/toast";
 
 interface ToastContainerProps {
   className?: string;

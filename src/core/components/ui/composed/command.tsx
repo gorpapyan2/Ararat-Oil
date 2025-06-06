@@ -1,5 +1,4 @@
 import * as React from "react";
-import { type DialogProps } from "@radix-ui/react-dialog";
 import { Search, Loader2 } from "lucide-react";
 
 import { cn } from "@/shared/utils";

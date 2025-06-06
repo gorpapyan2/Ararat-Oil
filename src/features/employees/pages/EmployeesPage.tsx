@@ -13,9 +13,7 @@ import {
 } from "@/core/components/ui/card";
 
 // Import our specialized data table component
-import { EmployeesTableStandardized } from "@/features/employees/components/EmployeesTableStandardized";
 import { type Employee as EmployeeFeature } from "@/features/employees/types/employees.types";
-import { type EmployeeFormValues } from "@/features/employees/components/EmployeeDialogStandardized";
 
 // Import employee-related components and services
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";

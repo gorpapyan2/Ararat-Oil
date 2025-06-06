@@ -1,8 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from '@/core/components/ui/page-header';
 import { usePageBreadcrumbs } from '@/shared/hooks/usePageBreadcrumbs';
-import { Home, Fuel, TrendingUp, BarChart3 } from 'lucide-react';
+import { Fuel, BarChart3 } from 'lucide-react';
 import { NavigationCard } from '@/shared/components/navigation/NavigationCard';
 import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
 

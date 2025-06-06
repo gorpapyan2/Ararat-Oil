@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/shared/utils";
 import { AlertTriangle } from "lucide-react";
-import { Button, ButtonProps } from "@/core/components/ui/button";
+import { Button } from '@/core/components/ui/button';
 import { StandardDialog } from "./StandardDialog";
 
 /**

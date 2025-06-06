@@ -4,7 +4,6 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/shared/utils';
 import { Card, CardContent } from '@/core/components/ui/card';
 import { Badge } from '@/core/components/ui/primitives/badge';
-import { Button } from '@/core/components/ui/button';
 
 export interface MetricCardProps {
   title: string;

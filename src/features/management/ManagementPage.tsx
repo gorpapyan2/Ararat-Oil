@@ -14,9 +14,7 @@ import {
   Briefcase,
   UserCheck,
   ArrowRight
-} from 'lucide-react';
 import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
-import { cn } from '@/shared/utils';
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';
 import { ModuleCard, StatsCard } from '@/shared/components/cards';
 
@@ -318,5 +316,3 @@ const ManagementPage = () => {
     </WindowContainer>
   );
 };
-
-export default ManagementPage; 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DollarSign,
   TrendingUp,
@@ -43,13 +43,19 @@ import {
   Phone,
   MapPin,
   Archive,
-  Bookmark
+  Bookmark,
+  X,
+  Save,
+  Table
 } from 'lucide-react';
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';
 import { StatsCard } from '@/shared/components/cards';
+import { fetchExpenses, createExpense, fetchExpenseCategories } from '@/features/finance/services/expenses';
+import type { Expense } from '@/core/api';
+import type { ExpenseCategory } from '@/core/types';
 
 // Types
-interface ExpenseCategory {
+interface ExpenseCategoryData {
   id: string;
   name: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -61,34 +67,37 @@ interface ExpenseCategory {
   description: string;
 }
 
-interface ExpenseTransaction {
-  id: string;
-  description: string;
-  amount: number;
-  category: string;
-  vendor: string;
+interface CreateExpenseForm {
   date: string;
-  method: 'cash' | 'card' | 'transfer' | 'check';
-  status: 'pending' | 'approved' | 'paid' | 'overdue';
-  receipt?: string;
-  tags: string[];
+  amount: number;
+  category: ExpenseCategory;
+  description: string;
+  payment_status: 'pending' | 'paid' | 'cancelled';
+  payment_method: 'cash' | 'card' | 'bank_transfer' | 'mobile_payment';
+  invoice_number?: string;
   notes?: string;
-  approver?: string;
-  department: string;
 }
 
-// Mock Data
-const expenseCategories: ExpenseCategory[] = [
+// Mock Data for categories (with icons)
+const expenseCategoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  utilities: Lightbulb,
+  supplies: ShoppingCart,
+  maintenance: Wrench,
+  salary: Users,
+  other: Archive
+};
+
+const expenseCategories: ExpenseCategoryData[] = [
   {
-    id: 'fuel',
-    name: 'Fuel Purchases',
-    icon: Fuel,
-    color: 'blue',
-    budget: 45000,
-    spent: 38750,
-    transactions: 127,
-    trend: 5.2,
-    description: 'Wholesale fuel procurement'
+    id: 'utilities',
+    name: 'Utilities',
+    icon: Lightbulb,
+    color: 'yellow',
+    budget: 8000,
+    spent: 6890,
+    transactions: 18,
+    trend: 3.1,
+    description: 'Electricity, water, gas'
   },
   {
     id: 'maintenance',
@@ -102,18 +111,7 @@ const expenseCategories: ExpenseCategory[] = [
     description: 'Pump and equipment repairs'
   },
   {
-    id: 'utilities',
-    name: 'Utilities',
-    icon: Lightbulb,
-    color: 'yellow',
-    budget: 8000,
-    spent: 6890,
-    transactions: 18,
-    trend: 3.1,
-    description: 'Electricity, water, gas'
-  },
-  {
-    id: 'salaries',
+    id: 'salary',
     name: 'Staff Salaries',
     icon: Users,
     color: 'green',
@@ -135,253 +133,169 @@ const expenseCategories: ExpenseCategory[] = [
     description: 'Stationery, cleaning supplies'
   },
   {
-    id: 'transport',
-    name: 'Transportation',
-    icon: Truck,
-    color: 'red',
-    budget: 7500,
-    spent: 5420,
-    transactions: 19,
-    trend: 15.4,
-    description: 'Delivery and transport costs'
-  },
-  {
-    id: 'rent',
-    name: 'Rent & Insurance',
-    icon: Building,
-    color: 'indigo',
-    budget: 15000,
-    spent: 15000,
-    transactions: 4,
-    trend: 0,
-    description: 'Property rent and insurance'
-  },
-  {
-    id: 'marketing',
-    name: 'Marketing',
-    icon: Target,
+    id: 'other',
+    name: 'Other Expenses',
+    icon: Archive,
     color: 'pink',
     budget: 5000,
     spent: 2340,
     transactions: 12,
     trend: 28.5,
-    description: 'Advertising and promotions'
-  }
-];
-
-const recentTransactions: ExpenseTransaction[] = [
-  {
-    id: '1',
-    description: 'Wholesale Fuel Purchase - Premium 95',
-    amount: 8750,
-    category: 'Fuel Purchases',
-    vendor: 'TÜPRAŞ',
-    date: '2024-01-15',
-    method: 'transfer',
-    status: 'paid',
-    receipt: 'RCP001234',
-    tags: ['wholesale', 'premium', 'urgent'],
-    department: 'Operations',
-    approver: 'Gor Petrosyan'
-  },
-  {
-    id: '2',
-    description: 'Pump Maintenance - Station 3',
-    amount: 1250,
-    category: 'Equipment Maintenance',
-    vendor: 'TechnoCare Solutions',
-    date: '2024-01-14',
-    method: 'card',
-    status: 'approved',
-    tags: ['maintenance', 'pump', 'station3'],
-    department: 'Maintenance',
-    notes: 'Routine quarterly maintenance'
-  },
-  {
-    id: '3',
-    description: 'Electricity Bill - January',
-    amount: 2890,
-    category: 'Utilities',
-    vendor: 'BEDAŞ',
-    date: '2024-01-13',
-    method: 'transfer',
-    status: 'paid',
-    receipt: 'ELC2024001',
-    tags: ['utilities', 'electricity', 'monthly'],
-    department: 'Operations'
-  },
-  {
-    id: '4',
-    description: 'Staff Salaries - January',
-    amount: 24500,
-    category: 'Staff Salaries',
-    vendor: 'Payroll Department',
-    date: '2024-01-12',
-    method: 'transfer',
-    status: 'paid',
-    tags: ['payroll', 'monthly', 'staff'],
-    department: 'HR'
-  },
-  {
-    id: '5',
-    description: 'Office Cleaning Supplies',
-    amount: 340,
-    category: 'Office Supplies',
-    vendor: 'CleanCorp Ltd',
-    date: '2024-01-11',
-    method: 'cash',
-    status: 'pending',
-    tags: ['supplies', 'cleaning', 'office'],
-    department: 'Administration'
-  },
-  {
-    id: '6',
-    description: 'Fuel Delivery Transport',
-    amount: 890,
-    category: 'Transportation',
-    vendor: 'FastTrans Logistics',
-    date: '2024-01-10',
-    method: 'card',
-    status: 'paid',
-    receipt: 'TRP567890',
-    tags: ['transport', 'delivery', 'fuel'],
-    department: 'Logistics'
-  }
-];
-
-// Calculate totals and metrics
-const totalBudget = expenseCategories.reduce((sum, cat) => sum + cat.budget, 0);
-const totalSpent = expenseCategories.reduce((sum, cat) => sum + cat.spent, 0);
-const totalTransactions = expenseCategories.reduce((sum, cat) => sum + cat.transactions, 0);
-const budgetUtilization = (totalSpent / totalBudget) * 100;
-const avgTransactionValue = totalSpent / totalTransactions;
-const monthlyGrowth = 8.4;
-
-// Quick Stats
-const quickStats = [
-  {
-    title: 'Total Expenses',
-    value: `₺${totalSpent.toLocaleString()}`,
-    icon: DollarSign,
-    color: 'blue',
-    description: 'This month'
-  },
-  {
-    title: 'Budget Remaining',
-    value: `₺${(totalBudget - totalSpent).toLocaleString()}`,
-    icon: Wallet,
-    color: 'green',
-    description: `${(100 - budgetUtilization).toFixed(1)}% left`
-  },
-  {
-    title: 'Transactions',
-    value: totalTransactions.toString(),
-    icon: Receipt,
-    color: 'purple',
-    description: 'This month'
-  },
-  {
-    title: 'Avg. Transaction',
-    value: `₺${avgTransactionValue.toFixed(0)}`,
-    icon: Calculator,
-    color: 'orange',
-    description: 'Per transaction'
-  }
-];
-
-// Overall Stats
-const overallStats = [
-  {
-    title: 'Budget Utilization',
-    value: `${budgetUtilization.toFixed(1)}%`,
-    icon: PieChart,
-    color: 'blue',
-    description: 'Of total budget used'
-  },
-  {
-    title: 'Monthly Growth',
-    value: `${monthlyGrowth > 0 ? '+' : ''}${monthlyGrowth}%`,
-    icon: monthlyGrowth > 0 ? TrendingUp : TrendingDown,
-    color: monthlyGrowth > 0 ? 'red' : 'green',
-    description: 'vs last month'
-  },
-  {
-    title: 'Categories Active',
-    value: expenseCategories.length.toString(),
-    icon: Tag,
-    color: 'purple',
-    description: 'Expense categories'
-  },
-  {
-    title: 'Cost Efficiency',
-    value: '94.2%',
-    icon: Target,
-    color: 'green',
-    description: 'Efficiency score'
-  }
-];
-
-// Performance Stats
-const performanceStats = [
-  {
-    title: 'Pending Approvals',
-    value: recentTransactions.filter(t => t.status === 'pending').length.toString(),
-    icon: Clock,
-    color: 'yellow',
-    description: 'Awaiting approval'
-  },
-  {
-    title: 'Overdue Payments',
-    value: recentTransactions.filter(t => t.status === 'overdue').length.toString(),
-    icon: AlertCircle,
-    color: 'red',
-    description: 'Need attention'
-  },
-  {
-    title: 'Top Category',
-    value: 'Fuel Purchases',
-    icon: Fuel,
-    color: 'blue',
-    description: `₺${expenseCategories[0].spent.toLocaleString()}`
-  },
-  {
-    title: 'Cost Savings',
-    value: '₺3,420',
-    icon: TrendingDown,
-    color: 'green',
-    description: 'vs budget'
+    description: 'Miscellaneous expenses'
   }
 ];
 
 export default function ExpensesPage() {
-  const [viewMode, setViewMode] = useState<'categories' | 'transactions'>('categories');
+  const [viewMode, setViewMode] = useState<'categories' | 'transactions' | 'table'>('categories');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<ExpenseCategory[]>([]);
+  
+  const [createForm, setCreateForm] = useState<CreateExpenseForm>({
+    date: new Date().toISOString().split('T')[0],
+    amount: 0,
+    category: 'utilities' as ExpenseCategory,
+    description: '',
+    payment_status: 'pending',
+    payment_method: 'cash',
+    invoice_number: '',
+    notes: ''
+  });
+
+  // Load expenses and categories on component mount
+  useEffect(() => {
+    loadExpenses();
+    loadCategories();
+  }, []);
+
+  const loadExpenses = async () => {
+    try {
+      setLoading(true);
+      const expensesData = await fetchExpenses();
+      setExpenses(expensesData);
+    } catch (error) {
+      console.error('Failed to load expenses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const categoriesData = await fetchExpenseCategories();
+      setAvailableCategories(categoriesData as ExpenseCategory[]);
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+      // Fallback to default categories
+      const fallbackCategories: ExpenseCategory[] = ['utilities', 'supplies', 'maintenance', 'salary', 'other'];
+      setAvailableCategories(fallbackCategories);
+    }
+  };
+
+  const handleCreateExpense = async () => {
+    try {
+      if (!createForm.description || createForm.amount <= 0) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      setLoading(true);
+      const newExpense = await createExpense({
+        date: createForm.date,
+        amount: createForm.amount,
+        category: createForm.category,
+        description: createForm.description,
+        payment_status: createForm.payment_status,
+        payment_method: createForm.payment_method,
+        invoice_number: createForm.invoice_number,
+        notes: createForm.notes
+      });
+      
+      // Add to expenses list
+      setExpenses(prev => [newExpense, ...prev]);
+      setShowCreateModal(false);
+      setCreateForm({
+        date: new Date().toISOString().split('T')[0],
+        amount: 0,
+        category: 'utilities' as ExpenseCategory,
+        description: '',
+        payment_status: 'pending',
+        payment_method: 'cash',
+        invoice_number: '',
+        notes: ''
+      });
+    } catch (error) {
+      console.error('Failed to create expense:', error);
+      alert('Failed to create expense. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Calculate quick stats
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const pendingExpenses = expenses.filter(e => e.payment_status === 'pending').length;
+  const completedExpenses = expenses.filter(e => e.payment_status === 'paid').length;
+  const monthlyExpenses = expenses.filter(e => {
+    const expenseDate = new Date(e.payment_date || e.created_at);
+    const now = new Date();
+    return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
+  }).reduce((sum, expense) => sum + expense.amount, 0);
+
+  const quickStats = [
+    {
+      title: 'Total Expenses',
+      value: `₺${totalExpenses.toLocaleString()}`,
+      icon: DollarSign,
+      color: 'blue' as const,
+      description: 'All time total'
+    },
+    {
+      title: 'This Month',
+      value: `₺${monthlyExpenses.toLocaleString()}`,
+      icon: Calendar,
+      color: 'green' as const,
+      description: 'Current month expenses'
+    },
+    {
+      title: 'Pending',
+      value: pendingExpenses.toString(),
+      icon: Clock,
+      color: 'orange' as const,
+      description: 'Awaiting payment'
+    },
+    {
+      title: 'Completed',
+      value: completedExpenses.toString(),
+      icon: CheckCircle,
+      color: 'purple' as const,
+      description: 'Successfully paid'
+    }
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'paid':
-        return 'text-green-600 bg-green-50 border-green-200';
-      case 'approved':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
       case 'pending':
-        return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'overdue':
-        return 'text-red-600 bg-red-50 border-red-200';
+        return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+      case 'paid':
+        return 'bg-green-50 text-green-700 border-green-200';
+      case 'cancelled':
+        return 'bg-red-50 text-red-700 border-red-200';
       default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'paid':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'approved':
-        return <CheckCircle className="w-4 h-4" />;
       case 'pending':
         return <Clock className="w-4 h-4" />;
-      case 'overdue':
+      case 'paid':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'cancelled':
         return <AlertCircle className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
@@ -394,19 +308,18 @@ export default function ExpensesPage() {
         return <Banknote className="w-4 h-4" />;
       case 'card':
         return <CreditCard className="w-4 h-4" />;
-      case 'transfer':
+      case 'bank_transfer':
         return <Building2 className="w-4 h-4" />;
-      case 'check':
-        return <FileText className="w-4 h-4" />;
+      case 'mobile_payment':
+        return <Phone className="w-4 h-4" />;
       default:
-        return <DollarSign className="w-4 h-4" />;
+        return <Wallet className="w-4 h-4" />;
     }
   };
 
-  const filteredTransactions = recentTransactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         transaction.vendor.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || transaction.category === selectedCategory;
+  const filteredExpenses = expenses.filter(expense => {
+    const matchesSearch = expense.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || expense.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -422,11 +335,18 @@ export default function ExpensesPage() {
             Expense Overview
           </h3>
           <div className="flex gap-2">
-            <button className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-card border border-border rounded-lg hover:shadow-md transition-all duration-200">
-              <RefreshCw className="w-4 h-4" />
+            <button 
+              onClick={loadExpenses}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-card border border-border rounded-lg hover:shadow-md transition-all duration-200 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
-            <button className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-200">
+            <button 
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-200"
+            >
               <Plus className="w-4 h-4" />
               New Expense
             </button>
@@ -470,16 +390,39 @@ export default function ExpensesPage() {
               }`}
             >
               <Receipt className="h-4 w-4 mr-2 inline" />
-              Transactions
+              List View
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'table'
+                  ? 'bg-card text-card-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Table className="h-4 w-4 mr-2 inline" />
+              Table View
             </button>
           </div>
 
           <div className="flex items-center gap-3">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 bg-card border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+            >
+              <option value="all">All Categories</option>
+              {availableCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </option>
+              ))}
+            </select>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder={`Search ${viewMode}...`}
+                placeholder={`Search expenses...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 bg-card border border-border rounded-lg text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
@@ -558,181 +501,322 @@ export default function ExpensesPage() {
               })}
             </div>
           </div>
-        ) : (
+        ) : viewMode === 'transactions' ? (
           <div className="space-y-4">
             <h4 className="text-md font-semibold text-card-foreground mb-4">
-              Recent Transactions ({filteredTransactions.length})
+              Recent Expenses ({filteredExpenses.length})
             </h4>
-            {filteredTransactions.map((transaction) => (
-              <div
-                key={transaction.id}
-                className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      {getMethodIcon(transaction.method)}
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Loading expenses...
+              </div>
+            ) : filteredExpenses.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No expenses found. Create your first expense!
+              </div>
+            ) : (
+              filteredExpenses.map((expense) => (
+                <div
+                  key={expense.id}
+                  className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Receipt className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h5 className="font-semibold text-card-foreground">{expense.description}</h5>
+                        <p className="text-sm text-muted-foreground">
+                          {expense.category}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <div className="font-semibold text-lg text-card-foreground">
+                        ₺{expense.amount.toLocaleString()}
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor(expense.payment_status)}`}>
+                        {getStatusIcon(expense.payment_status)}
+                        <span className="ml-1 capitalize">{expense.payment_status}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                    <div>
+                      <span className="text-muted-foreground">Category:</span>
+                      <div className="font-medium capitalize">{expense.category}</div>
                     </div>
                     <div>
-                      <h5 className="font-semibold text-card-foreground">{transaction.description}</h5>
-                      <p className="text-sm text-muted-foreground">
-                        {transaction.vendor} • {transaction.department}
-                      </p>
+                      <span className="text-muted-foreground">Date:</span>
+                      <div className="font-medium">{new Date(expense.payment_date || expense.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Status:</span>
+                      <div className="font-medium capitalize">{expense.payment_status}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Invoice:</span>
+                      <div className="font-medium">{expense.receipt_number || 'N/A'}</div>
                     </div>
                   </div>
-                  
-                  <div className="text-right">
-                    <div className="font-semibold text-lg text-card-foreground">
-                      ₺{transaction.amount.toLocaleString()}
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-muted-foreground">
+                      Created: {new Date(expense.created_at).toLocaleString()}
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor(transaction.status)}`}>
-                      {getStatusIcon(transaction.status)}
-                      <span className="ml-1 capitalize">{transaction.status}</span>
-                    </span>
+                    <div className="flex gap-2">
+                      <button className="p-2 text-muted-foreground hover:text-card-foreground rounded-lg hover:bg-muted transition-colors">
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button className="p-2 text-muted-foreground hover:text-card-foreground rounded-lg hover:bg-muted transition-colors">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button className="p-2 text-muted-foreground hover:text-card-foreground rounded-lg hover:bg-muted transition-colors">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
-                  <div>
-                    <span className="text-muted-foreground">Category:</span>
-                    <div className="font-medium">{transaction.category}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Date:</span>
-                    <div className="font-medium">{new Date(transaction.date).toLocaleDateString()}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Method:</span>
-                    <div className="font-medium capitalize">{transaction.method}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Receipt:</span>
-                    <div className="font-medium">{transaction.receipt || 'N/A'}</div>
-                  </div>
-                </div>
-
-                {transaction.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {transaction.tags.map((tag, index) => (
-                      <span 
-                        key={index}
-                        className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  {transaction.notes && (
-                    <p className="text-xs text-muted-foreground italic">
-                      {transaction.notes}
-                    </p>
-                  )}
-                  <div className="flex gap-2">
-                    <button className="p-2 text-muted-foreground hover:text-card-foreground rounded-lg hover:bg-muted transition-colors">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-muted-foreground hover:text-card-foreground rounded-lg hover:bg-muted transition-colors">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-muted-foreground hover:text-card-foreground rounded-lg hover:bg-muted transition-colors">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </div>
+              ))
+            )}
+          </div>
+        ) : (
+          // Table View
+          <div className="space-y-4">
+            <h4 className="text-md font-semibold text-card-foreground mb-4">
+              Expenses Table ({filteredExpenses.length})
+            </h4>
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Loading expenses...
+              </div>
+            ) : (
+              <div className="bg-card border border-border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Date</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Description</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Category</th>
+                        <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Amount</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Invoice</th>
+                        <th className="px-4 py-3 text-center text-sm font-medium text-muted-foreground">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {filteredExpenses.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                            No expenses found. Create your first expense!
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredExpenses.map((expense) => (
+                          <tr key={expense.id} className="hover:bg-muted/50">
+                            <td className="px-4 py-3 text-sm text-card-foreground">
+                              {new Date(expense.payment_date || expense.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-card-foreground">
+                              <div className="max-w-xs truncate" title={expense.description}>
+                                {expense.description}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-card-foreground capitalize">
+                              {expense.category}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-card-foreground text-right font-medium">
+                              ₺{expense.amount.toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <span className={`px-2 py-1 rounded-full text-xs border inline-flex items-center gap-1 ${getStatusColor(expense.payment_status)}`}>
+                                {getStatusIcon(expense.payment_status)}
+                                <span className="capitalize">{expense.payment_status}</span>
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-card-foreground">
+                              {expense.receipt_number || 'N/A'}
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <div className="flex items-center justify-center gap-1">
+                                <button className="p-1 text-muted-foreground hover:text-card-foreground rounded transition-colors">
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                <button className="p-1 text-muted-foreground hover:text-card-foreground rounded transition-colors">
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button className="p-1 text-muted-foreground hover:text-red-600 rounded transition-colors">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
 
-      {/* Overall Performance Analytics */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
-          Performance Analytics
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {overallStats.map((stat, index) => (
-            <StatsCard
-              key={index}
-              title={stat.title}
-              value={stat.value}
-              icon={stat.icon}
-              color={stat.color}
-              description={stat.description}
-            />
-          ))}
-        </div>
-      </div>
+      {/* Create Expense Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-card-foreground">Create New Expense</h3>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="p-2 text-muted-foreground hover:text-card-foreground rounded-lg hover:bg-muted transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-      {/* Management Tools */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
-          Expense Management Tools
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <Plus className="w-5 h-5 text-blue-500" />
-            </div>
-            <div>
-              <div className="font-medium text-card-foreground">Add Expense</div>
-              <div className="text-xs text-muted-foreground">Record new expense</div>
-            </div>
-          </button>
-          
-          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
-            <div className="p-2 bg-green-500/10 rounded-lg">
-              <Upload className="w-5 h-5 text-green-500" />
-            </div>
-            <div>
-              <div className="font-medium text-card-foreground">Import Data</div>
-              <div className="text-xs text-muted-foreground">Bulk import expenses</div>
-            </div>
-          </button>
-          
-          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
-            <div className="p-2 bg-purple-500/10 rounded-lg">
-              <BarChart3 className="w-5 h-5 text-purple-500" />
-            </div>
-            <div>
-              <div className="font-medium text-card-foreground">Analytics</div>
-              <div className="text-xs text-muted-foreground">Detailed reports</div>
-            </div>
-          </button>
-          
-          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
-            <div className="p-2 bg-amber-500/10 rounded-lg">
-              <Download className="w-5 h-5 text-amber-500" />
-            </div>
-            <div>
-              <div className="font-medium text-card-foreground">Export</div>
-              <div className="text-xs text-muted-foreground">Download reports</div>
-            </div>
-          </button>
-        </div>
-      </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={createForm.date}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, date: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                  />
+                </div>
 
-      {/* Additional Performance Metrics */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
-          Financial Performance
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {performanceStats.map((stat, index) => (
-            <StatsCard
-              key={index}
-              title={stat.title}
-              value={stat.value}
-              icon={stat.icon}
-              color={stat.color}
-              description={stat.description}
-            />
-          ))}
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Amount (₺) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={createForm.amount}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Category *
+                  </label>
+                  <select
+                    value={createForm.category}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, category: e.target.value as ExpenseCategory }))}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                  >
+                    {availableCategories.map((category) => (
+                      <option key={category} value={category}>
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Payment Method
+                  </label>
+                  <select
+                    value={createForm.payment_method}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, payment_method: e.target.value as any }))}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="mobile_payment">Mobile Payment</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Description *
+                  </label>
+                  <input
+                    type="text"
+                    value={createForm.description}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    placeholder="Enter expense description..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Payment Status
+                  </label>
+                  <select
+                    value={createForm.payment_status}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, payment_status: e.target.value as any }))}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Invoice Number
+                  </label>
+                  <input
+                    type="text"
+                    value={createForm.invoice_number}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, invoice_number: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    placeholder="Optional invoice number..."
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Notes
+                  </label>
+                  <textarea
+                    value={createForm.notes}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, notes: e.target.value }))}
+                    rows={3}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+                    placeholder="Additional notes..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-8">
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="flex-1 px-6 py-2.5 text-sm text-muted-foreground border border-border rounded-lg hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateExpense}
+                  disabled={loading || !createForm.description || createForm.amount <= 0}
+                  className="flex-1 px-6 py-2.5 text-sm bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {loading ? 'Creating...' : 'Create Expense'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </WindowContainer>
   );
 }

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { cn } from "@/shared/utils";
-import { buttonVariants } from "@/core/components/ui/button";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from 'class-variance-authority';
 
 /**
  * Props for the ButtonGroup component

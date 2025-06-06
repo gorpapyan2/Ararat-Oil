@@ -1,13 +1,9 @@
-import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
-import { Button } from "@/core/components/ui/button";
-import { Badge } from "@/core/components/ui/badge";
+import { Edit, Trash2 } from 'lucide-react';
 import { Separator } from "@/core/components/ui/separator";
-import { Edit, Trash2, Fuel, AlertTriangle, CheckCircle } from "lucide-react";
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FillingSystemFormDialog } from "./FillingSystemFormDialog";
-import { ConfirmDialog } from "@/shared/components/common/dialog/ConfirmDialog";
 import { toast } from "sonner";
 import { fillingsApi, FillingSystem } from "@/core/api";
 

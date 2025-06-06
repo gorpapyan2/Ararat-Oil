@@ -1,4 +1,4 @@
-import { PostgrestError, PostgrestSingleResponse } from "@supabase/supabase-js";
+import { PostgrestSingleResponse } from '@supabase/supabase-js';
 import { supabase } from "@/core/api/supabase";
 
 /**

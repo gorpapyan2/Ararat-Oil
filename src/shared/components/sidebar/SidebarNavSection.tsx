@@ -1,7 +1,6 @@
 import { NavItem } from "@/core/components/ui/nav-item";
 import { SidebarSection } from "@/core/components/ui/sidebar-section";
 import { useLocation } from "react-router-dom";
-import { LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createFocusTrap } from "focus-trap";
 import { motion } from "framer-motion";

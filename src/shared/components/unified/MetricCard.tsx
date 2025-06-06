@@ -7,7 +7,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
+import { Card, CardContent } from '@/core/components/ui/card';
 import { Badge } from '@/core/components/ui/primitives/badge';
 import { cn } from '@/shared/utils';
 

@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/core/components/ui/button";
-import { Input } from "@/core/components/ui/primitives/input";
 import { Checkbox } from "@/core/components/ui/checkbox";
 import {
   Table,

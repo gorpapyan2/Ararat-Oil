@@ -1,8 +1,6 @@
 /**
  * Tanks Management Page
- * 
  * Comprehensive tank management interface with real-time data,
- * inline editing, and tank level history functionality.
  */
 
 import React, { useState } from 'react';
@@ -11,15 +9,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   useTanks, 
   useTankLevelChanges, 
-  useTankMutations,
   TANK_QUERY_KEYS 
-} from "@/shared/hooks/useTanks";
 import type { Tank as FuelTank, TankLevelChange } from "@/shared/types/tank.types";
-import { Button } from "@/core/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
-import { Input } from "@/core/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/core/components/ui/dialog";
-import { useToast } from "@/hooks/useToast";
 import { 
   Activity,
   AlertTriangle,

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from 'react';
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/core/components/ui/page-header";
 import { Home, DollarSign } from "lucide-react";

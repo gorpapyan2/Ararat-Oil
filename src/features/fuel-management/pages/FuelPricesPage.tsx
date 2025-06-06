@@ -14,7 +14,6 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fuelPricesApi } from '@/core/api';
 import type { FuelPrice as ApiFuelPrice } from '@/core/api';
-import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
 
 type FuelPrice = ApiFuelPrice;
 

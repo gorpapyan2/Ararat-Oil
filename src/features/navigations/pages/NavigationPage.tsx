@@ -35,7 +35,6 @@ import {
   Activity,
   Cog
 } from 'lucide-react';
-import { cn } from '@/utils/cn';
 import { motion } from 'framer-motion';
 
 // Import shimmer components
@@ -44,7 +43,6 @@ import {
   ShimmerStats, 
   ShimmerDashboardCard 
 } from '@/shared/components/ui';
-import { ColorAndShimmerDemo } from '@/components/demo/ColorAndShimmerDemo';
 
 interface NavigationModule {
   id: string;
@@ -387,16 +385,11 @@ export function NavigationPage() {
 
   return (
     <div className="navigation-page">
-      {/* Demo Component - Remove this in production */}
-      <div className="mb-8">
-        <ColorAndShimmerDemo />
-      </div>
-      
       <div className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-bold mb-4 gradient-text-primary">
-            {t('navigation.title', 'Ararat Oil - ツヴァイツェンロット Operations Center')}
+            {t('navigation.title', 'Ararat Oil - Operations Center')}
           </h1>
           <p className="text-xl text-muted-foreground">
             {t('navigation.subtitle', 'Comprehensive Fuel Management & Operations Dashboard')}

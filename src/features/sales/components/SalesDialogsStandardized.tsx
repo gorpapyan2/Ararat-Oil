@@ -17,7 +17,7 @@ import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
 import { toast } from "sonner";
 import { Employee } from "@/core/api";
 import { useWatch } from "react-hook-form";
-import { UpdateSaleRequest, SalesFormData } from '../types';
+import { SalesFormData } from '../types';
 import { Control } from "react-hook-form";
 import { FuelTypeCode, PaymentMethod, PaymentStatus } from "@/core/types";
 

@@ -1,18 +1,14 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { z } from "zod";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/core/components/ui/form";
 import { Label } from "@/core/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/core/components/ui/select";
 import { Switch } from "@/core/components/ui/switch";
 import { Button } from "@/core/components/ui/button";
-import { Badge } from "@/core/components/ui/primitives/badge";
 import { Separator } from "@/core/components/ui/separator";
-import { Alert, AlertDescription } from "@/core/components/ui/alert";
-import { Info, Palette, Monitor } from "lucide-react";
+import { Alert } from '@/core/components/ui/alert';
+import { Palette, Monitor } from 'lucide-react';
 import { useTheme } from "@/hooks";
 import { useToast } from "@/hooks";
 import { Palette as LucidePalette, Sun, Moon, Globe, Type, Layout } from "lucide-react";
@@ -307,5 +303,4 @@ export function ThemeSettings() {
         </Button>
       </div>
     </div>
-  );
 } 

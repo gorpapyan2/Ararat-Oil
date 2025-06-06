@@ -10,16 +10,19 @@ interface BreadcrumbItem {
 }
 
 interface BreadcrumbProps {
-  items: BreadcrumbItem[];
+  items?: BreadcrumbItem[];
   className?: string;
   showHome?: boolean;
 }
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({ 
-  items, 
+  items = [], 
   className,
   showHome = true
 }) => {
+  // Ensure items is always an array
+  const breadcrumbItems = items || [];
+
   return (
     <nav 
       className={cn(
@@ -39,15 +42,15 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
             >
               <Home className="w-4 h-4" />
             </Link>
-            {items.length > 0 && (
+            {breadcrumbItems.length > 0 && (
               <ChevronRight className="w-3 h-3 text-muted-foreground" />
             )}
           </>
         )}
         
         {/* Dynamic Items */}
-        {items.map((item, index) => {
-          const isLast = index === items.length - 1;
+        {breadcrumbItems.map((item, index) => {
+          const isLast = index === breadcrumbItems.length - 1;
           
           return (
             <React.Fragment key={`${item.label}-${index}`}>

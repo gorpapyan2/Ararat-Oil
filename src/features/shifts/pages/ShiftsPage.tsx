@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { type Row } from '@tanstack/react-table';
@@ -22,9 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/c
 import { Button } from '@/core/components/ui/button';
 import { Badge } from '@/core/components/ui/primitives/badge';
 import { StandardizedDataTable } from '@/shared/components/unified/StandardizedDataTable';
-import { Loading } from '@/core/components/ui/loading';
 import { Alert, AlertDescription } from '@/core/components/ui/alert';
-import { Input } from '@/core/components/ui/input';
 import { Label } from '@/core/components/ui/label';
 import { 
   Dialog, 
@@ -42,7 +39,6 @@ import {
 } from '@/core/components/ui/select';
 
 // Modern Services
-import { useShifts } from '../services/shifts';
 import { 
   getShifts,
   startShift as startShiftAPI,

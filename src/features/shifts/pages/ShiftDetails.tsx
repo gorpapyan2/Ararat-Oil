@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { ArrowLeft, AlertCircle, DollarSign, Clock, CreditCard, FileCheck, Receipt, Users, CalendarClock } from 'lucide-react';
 import { ArrowLeft, AlertCircle, DollarSign, Clock, User, CreditCard, Calendar, CheckCircle, XCircle, FileCheck, Receipt, Users, CalendarClock } from "lucide-react";
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/core/components/ui/card";
-import { Badge } from "@/core/components/ui/primitives/badge";
 import { Skeleton } from "@/core/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/alert";
 import { Separator } from "@/core/components/ui/separator";

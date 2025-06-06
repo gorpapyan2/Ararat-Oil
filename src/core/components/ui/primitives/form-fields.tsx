@@ -7,7 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/core/components/ui/form";
-import { Input, type InputProps } from "@/core/components/ui/primitives/input";
+import { Input } from '@/core/components/ui/primitives/input';
 import {
   Select,
   SelectContent,

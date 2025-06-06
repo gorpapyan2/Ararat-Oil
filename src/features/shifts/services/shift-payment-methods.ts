@@ -1,5 +1,4 @@
 import { shiftsApi, ShiftPaymentMethod } from "@/core/api";
-import { PaymentMethod } from "@/types";
 import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
 
 // Type that matches what the edge function expects

@@ -11,7 +11,6 @@ import {
 } from "@/shared/components/unified/StandardizedDataTable";
 import { useSuppliesFilters } from "../store/useSuppliesFilters";
 import { FuelSupply } from "../types";
-import { exportToCsv, exportToPdf } from "../utils/export";
 import type { Tank, PetrolProvider } from "@/core/api/types";
 
 // Define the shape of filter data that comes from the data table

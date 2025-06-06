@@ -1,11 +1,8 @@
 import React, { useState, useMemo } from "react";
 import {
-  StandardizedDataTable,
   StandardizedDataTableColumn,
 } from "@/shared/components/unified/StandardizedDataTable";
-import { Card, CardContent } from "@/core/components/ui/card";
 import { Badge } from "@/core/components/ui/primitives/badge";
-import { Button } from "@/core/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Trash2,
@@ -38,7 +35,6 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/core/components/ui/tooltip";
-import { cn } from "@/shared/utils";
 
 // Use FuelSupply directly since it already has the optional relations
 // interface FuelSupplyWithRelations extends FuelSupply {

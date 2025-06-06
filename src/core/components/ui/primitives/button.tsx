@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from 'class-variance-authority';
 import { cn } from "@/shared/utils";
 import { Slot } from "@radix-ui/react-slot";
 

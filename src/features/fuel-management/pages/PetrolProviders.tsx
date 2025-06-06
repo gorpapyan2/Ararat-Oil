@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Pencil, Trash2 } from 'lucide-react';
 import { PlusIcon, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import {
   Table,
@@ -22,7 +21,7 @@ import {
   AlertDialogAction,
 } from "@/core/components/ui/alert-dialog";
 import { ProviderDialogStandardized } from "../components/ProviderDialogStandardized";
-import { petrolProvidersApi, type PetrolProvider } from "@/core/api";
+import { petrolProvidersApi } from '@/core/api';
 import { useTranslation } from "react-i18next";
 import { CreateButton } from "@/core/components/ui/create-button";
 import { IconButton } from "@/core/components/ui/icon-button";
