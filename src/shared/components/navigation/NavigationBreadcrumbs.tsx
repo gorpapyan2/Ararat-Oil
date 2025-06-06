@@ -12,68 +12,76 @@ export interface BreadcrumbItem {
 interface NavigationBreadcrumbsProps {
   items: BreadcrumbItem[];
   className?: string;
-  showHomeIcon?: boolean;
 }
 
 export const NavigationBreadcrumbs: React.FC<NavigationBreadcrumbsProps> = ({
   items,
   className,
-  showHomeIcon = true
 }) => {
+  if (!items || items.length === 0) {
+    return null;
+  }
+
   return (
-    <nav 
-      aria-label="Breadcrumb" 
+    <nav
       className={cn(
-        'flex items-center space-x-2 mb-6',
-        'text-sm font-medium',
-        'text-slate-600 dark:text-slate-400',
+        'flex items-center space-x-1 text-sm',
+        'text-muted-foreground',
         className
       )}
+      aria-label="Breadcrumb"
     >
-      <ol className="flex items-center space-x-2">
-        {items.map((item, index) => (
-          <li key={index} className="flex items-center space-x-2">
-            {index > 0 && (
-              <ChevronRight 
-                className="w-4 h-4 text-slate-400 dark:text-slate-500" 
-                aria-hidden="true"
-              />
-            )}
-            
-            {index === 0 && showHomeIcon && (
-              <Home 
-                className="w-4 h-4 text-slate-500 dark:text-slate-400 mr-1" 
-                aria-hidden="true"
-              />
-            )}
-            
-            {item.href && !item.isActive ? (
-              <Link
-                to={item.href}
+      {items.map((item, index) => (
+        <React.Fragment key={index}>
+          {/* Separator */}
+          {index > 0 && (
+            <ChevronRight
+              className="w-4 h-4 text-border"
+              aria-hidden="true"
+            />
+          )}
+
+          {/* Home icon for first item */}
+          {index === 0 && (
+            <Home
+              className="w-4 h-4 text-muted-foreground mr-1"
+              aria-hidden="true"
+            />
+          )}
+
+          {/* Breadcrumb item */}
+          {item.href && !item.isActive ? (
+            <Link
+              to={item.href}
+              className={cn(
+                'hover:text-accent transition-colors duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2',
+                'focus:ring-offset-background rounded-sm px-1 py-0.5'
+              )}
+            >
+              <span
                 className={cn(
-                  'hover:text-blue-600 dark:hover:text-blue-400',
-                  'transition-colors duration-150',
-                  'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                  'dark:focus:ring-offset-slate-800 rounded-sm px-1 py-0.5'
+                  'transition-colors duration-200',
+                  'hover:text-accent'
                 )}
-              >
-                {item.label}
-              </Link>
-            ) : (
-              <span 
-                className={cn(
-                  item.isActive 
-                    ? 'text-slate-900 dark:text-slate-100 font-semibold' 
-                    : 'text-slate-600 dark:text-slate-400'
-                )}
-                aria-current={item.isActive ? 'page' : undefined}
               >
                 {item.label}
               </span>
-            )}
-          </li>
-        ))}
-      </ol>
+            </Link>
+          ) : (
+            <span
+              className={cn(
+                item.isActive
+                  ? 'text-foreground font-semibold'
+                  : 'text-muted-foreground'
+              )}
+              aria-current={item.isActive ? 'page' : undefined}
+            >
+              {item.label}
+            </span>
+          )}
+        </React.Fragment>
+      ))}
     </nav>
   );
 }; 

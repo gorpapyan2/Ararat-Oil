@@ -1,5 +1,14 @@
 // Re-export from centralized API for compatibility
-import { shiftsApi } from "@/services/api";
+import { 
+  getShifts,
+  getShiftById,
+  getShiftPaymentMethods,
+  addShiftPaymentMethods,
+  deleteShiftPaymentMethods,
+  startShift as apiStartShift,
+  closeShift as apiCloseShift,
+  getActiveShift as apiGetActiveShift
+} from "@/core/api/endpoints/shifts";
 import { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
 import type { Shift, ShiftPaymentMethod } from "@/core/api/types";
 import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
@@ -9,13 +18,13 @@ export const useShifts = (options?: Parameters<typeof useCentralizedEntity>[1]) 
   useCentralizedEntity<Shift>('shifts', options);
 
 // Legacy API re-exports for backward compatibility
-export const {
-  getAll: getShifts,
-  getById: getShiftById,
-  getPaymentMethods: getShiftPaymentMethods,
-  addPaymentMethods: addShiftPaymentMethods,
-  deletePaymentMethods: deleteShiftPaymentMethods,
-} = shiftsApi;
+export {
+  getShifts,
+  getShiftById,
+  getShiftPaymentMethods,
+  addShiftPaymentMethods,
+  deleteShiftPaymentMethods,
+};
 
 export async function startShift(
   openingCash: number,
@@ -24,9 +33,9 @@ export async function startShift(
   try {
     console.log("Starting shift using modern API...");
 
-    const response = await shiftsApi.start(openingCash, employeeIds);
+    const response = await apiStartShift(openingCash, employeeIds);
     if (response.error) {
-      throw new Error(response.error);
+      throw new Error(response.error.message);
     }
     
     if (!response.data) {
@@ -63,9 +72,9 @@ export async function closeShift(
       }));
     }
 
-    const response = await shiftsApi.close(shiftId, closingCash, shiftPaymentMethods);
+    const response = await apiCloseShift(shiftId, closingCash, shiftPaymentMethods);
     if (response.error) {
-      throw new Error(response.error);
+      throw new Error(response.error.message);
     }
     
     if (!response.data) {
@@ -84,9 +93,9 @@ export async function getActiveShift(): Promise<Shift | null> {
   try {
     console.log("Getting active shift using modern API...");
 
-    const response = await shiftsApi.getActive();
+    const response = await apiGetActiveShift();
     if (response.error) {
-      console.error("Error getting active shift:", response.error);
+      console.error("Error getting active shift:", response.error.message);
       return null;
     }
 
@@ -106,7 +115,7 @@ export async function getActiveShift(): Promise<Shift | null> {
 // Updated function to get the employees associated with a shift - now supports multiple employees
 export async function getShiftEmployees(shiftId: string): Promise<string[]> {
   try {
-    const response = await shiftsApi.getById(shiftId);
+    const response = await getShiftById(shiftId);
     if (response.data) {
       // First try the new employees array
       if (response.data.employees && response.data.employees.length > 0) {
@@ -169,9 +178,9 @@ export async function getActiveShiftForUser(
 // Updated function to get shifts by employee - now supports multiple employees per shift
 export async function getShiftsByEmployee(employeeId: string): Promise<Shift[]> {
   try {
-    const response = await shiftsApi.getAll();
+    const response = await getShifts();
     if (response.error) {
-      throw new Error(response.error);
+      throw new Error(response.error.message);
     }
     
     const data = response.data;

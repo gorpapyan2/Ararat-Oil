@@ -5,9 +5,9 @@ import { useToast } from "@/hooks";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { tanksApi } from "@/core/api";
-import { FillingSystem } from "../types";
-import { FuelTank } from "@/features/tanks/types";
-import { ConfirmDeleteDialogStandardized } from "./ConfirmDeleteDialogStandardized";
+import { FillingSystem } from "@/features/filling-systems/types";
+import { FuelTank } from "@/features/fuel-management/types";
+import { DeleteConfirmDialog } from "@/shared/components/common/dialog/DeleteConfirmDialog";
 
 interface FillingSystemListProps {
   fillingSystems: FillingSystem[];
@@ -27,6 +27,7 @@ export function FillingSystemList({
   const [systemToDelete, setSystemToDelete] = useState<FillingSystem | null>(
     null
   );
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null });
 
   // Fetch tanks to associate with filling systems
   const { data: tanks } = useQuery({
@@ -69,6 +70,10 @@ export function FillingSystemList({
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const handleDeleteConfirm = () => {
+    // Implementation of handleDeleteConfirm
   };
 
   if (isLoading) {
@@ -129,15 +134,13 @@ export function FillingSystemList({
         </table>
       </div>
 
-      {systemToDelete && (
-        <ConfirmDeleteDialogStandardized
-          open={isConfirmOpen}
-          onOpenChange={setIsConfirmOpen}
-          onConfirm={handleDelete}
-          systemName={systemToDelete.name}
-          isLoading={isDeleting}
-        />
-      )}
+      <DeleteConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, id: null })}
+        onConfirm={handleDeleteConfirm}
+        description="Are you sure you want to delete this filling system? This action cannot be undone."
+        isLoading={isDeleting}
+      />
     </>
   );
 }

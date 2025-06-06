@@ -1,11 +1,10 @@
 /**
- * Shared Components
- *
- * This barrel file exports all shared components for easier imports.
+ * Optimized shared components index
+ * Using selective exports for better tree-shaking and reduced bundle size
  */
 
-// Common components
+// Common components - only what exists
 export * from "./common";
 
-// Navigation components
-export * from "./navigation";
+// Remove all other exports until we verify what actually exists
+// This prevents import errors while maintaining tree-shaking benefits

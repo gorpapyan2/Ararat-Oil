@@ -43,7 +43,11 @@ import {
 
 // Modern Services
 import { useShifts } from '../services/shifts';
-import { shiftsApi } from '@/services/api';
+import { 
+  getShifts,
+  startShift as startShiftAPI,
+  closeShift as closeShiftAPI
+} from '@/core/api/endpoints/shifts';
 import { cn } from '@/shared/utils';
 import type { Shift } from '@/core/api/types';
 
@@ -60,8 +64,8 @@ interface ShiftMetrics {
 // Modern API Services using centralized approach
 const shiftsService = {
   async getShifts(): Promise<Shift[]> {
-    const response = await shiftsApi.getAll();
-    if (response.error) throw new Error(response.error);
+    const response = await getShifts();
+    if (response.error) throw new Error(response.error.message);
     return response.data || [];
   },
 
@@ -79,14 +83,14 @@ const shiftsService = {
   },
 
   async startShift(openingCash: number, employeeIds?: string[]): Promise<Shift> {
-    const response = await shiftsApi.start(openingCash, employeeIds);
-    if (response.error) throw new Error(response.error);
+    const response = await startShiftAPI(openingCash, employeeIds);
+    if (response.error) throw new Error(response.error.message);
     return response.data!;
   },
 
   async closeShift(id: string, closingCash: number, paymentMethods?: any[]): Promise<Shift> {
-    const response = await shiftsApi.close(id, closingCash, paymentMethods);
-    if (response.error) throw new Error(response.error);
+    const response = await closeShiftAPI(id, closingCash, paymentMethods);
+    if (response.error) throw new Error(response.error.message);
     return response.data!;
   }
 };
@@ -381,4 +385,6 @@ export const ShiftsPage: React.FC = () => {
       </Card>
     </div>
   );
-}; 
+};
+
+export default ShiftsPage; 

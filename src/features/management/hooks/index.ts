@@ -1,2 +1,2 @@
-// Export all shift-related hooks
-export * from "./useShift"; 
+// Export management-related hooks
+// useShift has been moved to features/shifts 

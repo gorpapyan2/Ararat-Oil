@@ -32,27 +32,27 @@ interface FuelManagementDashboardProps {
   endDate?: string;
 }
 
-// Progress Bar Component
-const ProgressBar = ({ value, max, color = "blue", label }: { value: number; max: number; color?: "blue" | "orange" | "green" | "red"; label?: string }) => {
+// Progress Bar Component with Natural Colors
+const ProgressBar = ({ value, max, color = "natural", label }: { value: number; max: number; color?: "natural" | "warning" | "success" | "critical"; label?: string }) => {
   const percentage = Math.min((value / max) * 100, 100);
   const colorClasses = {
-    blue: "bg-blue-500",
-    orange: "bg-orange-500", 
-    green: "bg-emerald-500",
-    red: "bg-red-500"
+    natural: "bg-gradient-natural",
+    warning: "bg-status-warning", 
+    success: "bg-status-operational",
+    critical: "bg-status-critical"
   };
 
   return (
     <div className="space-y-2">
       {label && (
         <div className="flex justify-between text-sm">
-          <span className="text-gray-300">{label}</span>
-          <span className="text-gray-100 font-medium">{Math.round(percentage)}%</span>
+          <span className="text-muted-foreground">{label}</span>
+          <span className="text-foreground font-medium">{Math.round(percentage)}%</span>
         </div>
       )}
-      <div className="w-full bg-gray-700 rounded-full h-2">
+      <div className="w-full bg-muted rounded-full h-2.5 shadow-inner">
         <div
-          className={`h-2 rounded-full transition-all duration-300 ${colorClasses[color]}`}
+          className={`h-2.5 rounded-full transition-all duration-500 ${colorClasses[color]} shadow-sm`}
           style={{ width: `${percentage}%` }}
         />
       </div>
@@ -60,7 +60,7 @@ const ProgressBar = ({ value, max, color = "blue", label }: { value: number; max
   );
 };
 
-// Dashboard Card Component
+// Dashboard Card Component with Natural Styling
 const DashboardCard = ({ 
   title, 
   value, 
@@ -78,27 +78,35 @@ const DashboardCard = ({
   children?: React.ReactNode;
   className?: string;
 }) => (
-  <div className={`bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-xl p-6 hover:bg-gray-800/70 transition-all duration-300 ${className}`}>
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-gray-400 text-sm font-medium uppercase tracking-wide">{title}</h3>
-      {icon && <div className="text-gray-400">{icon}</div>}
+  <div className={`group relative bg-card border border-border rounded-xl p-6 
+    hover:bg-gradient-natural-light hover:border-accent/20 
+    transition-all duration-300 hover:scale-[1.01] hover:shadow-lg 
+    backdrop-blur-sm ${className}`}>
+    {/* Gradient accent overlay */}
+    <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    
+    <div className="relative z-10">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-muted-foreground text-sm font-medium uppercase tracking-wide">{title}</h3>
+        {icon && <div className="text-accent group-hover:text-accent/80 transition-colors">{icon}</div>}
+      </div>
+      
+      {value && (
+        <div className="flex items-baseline gap-2 mb-3">
+          <span className="text-3xl font-bold text-foreground group-hover:text-accent transition-colors">{value}</span>
+          {unit && <span className="text-lg text-muted-foreground">{unit}</span>}
+        </div>
+      )}
+      
+      {trend && (
+        <div className={`flex items-center gap-2 text-sm ${trend.isPositive ? 'text-status-operational' : 'text-status-critical'}`}>
+          {trend.isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+          {trend.value}
+        </div>
+      )}
+      
+      {children}
     </div>
-    
-    {value && (
-      <div className="flex items-baseline gap-2 mb-3">
-        <span className="text-3xl font-bold text-white">{value}</span>
-        {unit && <span className="text-lg text-gray-400">{unit}</span>}
-      </div>
-    )}
-    
-    {trend && (
-      <div className={`flex items-center gap-2 text-sm ${trend.isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
-        {trend.isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-        {trend.value}
-      </div>
-    )}
-    
-    {children}
   </div>
 );
 
@@ -137,7 +145,7 @@ export function FuelManagementDashboard({
       <div className={cn("animate-pulse space-y-4", className)} {...props}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-800/30 rounded-xl"></div>
+            <div key={i} className="h-32 bg-muted/30 rounded-xl animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -145,7 +153,10 @@ export function FuelManagementDashboard({
   }
 
   return (
-    <div className={cn("fuel-management-dashboard space-y-6", className)} {...props}>
+    <div className={cn("fuel-management-dashboard space-y-6 relative", className)} {...props}>
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/5 rounded-2xl -z-10" />
+      
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Tank Capacity */}
@@ -156,9 +167,12 @@ export function FuelManagementDashboard({
           icon={<Fuel className="h-5 w-5" />}
         >
           <div className="mt-4">
-            <div className="text-sm text-emerald-400 mb-3">↑ Tanks active</div>
-            <ProgressBar value={11} max={100} color="blue" />
-            <div className="text-center text-white font-bold text-lg mt-2">11%</div>
+            <div className="text-sm text-status-operational mb-3 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" />
+              Tanks active
+            </div>
+            <ProgressBar value={11} max={100} color="natural" />
+            <div className="text-center text-foreground font-bold text-lg mt-2">11%</div>
           </div>
         </DashboardCard>
 
@@ -171,11 +185,14 @@ export function FuelManagementDashboard({
           className="md:col-span-2"
         >
           <div className="mt-4 space-y-3">
-            <div className="text-sm text-emerald-400 mb-4">↑ 8.3% from last week</div>
-            <ProgressBar value={85} max={100} color="blue" label="A-1" />
-            <ProgressBar value={23} max={100} color="orange" label="A-2" />
-            <ProgressBar value={67} max={100} color="green" label="B-1" />
-            <ProgressBar value={12} max={100} color="red" label="B-2" />
+            <div className="text-sm text-status-operational mb-4 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" />
+              8.3% from last week
+            </div>
+            <ProgressBar value={85} max={100} color="success" label="A-1" />
+            <ProgressBar value={23} max={100} color="warning" label="A-2" />
+            <ProgressBar value={67} max={100} color="success" label="B-1" />
+            <ProgressBar value={12} max={100} color="critical" label="B-2" />
           </div>
         </DashboardCard>
 
@@ -192,91 +209,88 @@ export function FuelManagementDashboard({
       {expanded && (
         <>
           {/* Tank Details */}
-          <div className="bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white text-lg font-semibold">Tank Status Details</h3>
-              <div className="flex items-center gap-2 text-orange-400">
-                <AlertTriangle className="h-4 w-4" />
-                <span className="text-sm">2 alerts requiring attention</span>
-              </div>
-            </div>
+          <div className="group relative bg-card border border-border rounded-xl p-6 
+            hover:bg-gradient-natural-light hover:border-accent/20 
+            transition-all duration-300 backdrop-blur-sm">
+            {/* Gradient accent overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {fuelMetrics.tanks.map((tank, index) => (
-                <div key={tank.id} className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/30">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <h4 className="text-white font-medium">Tank {tank.id}</h4>
-                      <p className="text-gray-400 text-sm">{tank.type}</p>
-                    </div>
-                    <Badge 
-                      className={`${
-                        tank.status === "Critical" ? "bg-red-500/20 text-red-400 border-red-500/30" :
-                        tank.status === "Low" ? "bg-orange-500/20 text-orange-400 border-orange-500/30" :
-                        "bg-green-500/20 text-green-400 border-green-500/30"
-                      }`}
-                    >
-                      {tank.status}
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-300">Level</span>
-                      <span className="text-white font-medium">{tank.level}%</span>
-                    </div>
-                    <ProgressBar 
-                      value={tank.level} 
-                      max={100} 
-                      color={
-                        tank.status === "Critical" ? "red" :
-                        tank.status === "Low" ? "orange" :
-                        tank.level > 70 ? "green" : "blue"
-                      }
-                    />
-                    <div className="flex justify-between text-xs text-gray-400">
-                      <span>{Math.round(tank.capacity * tank.level / 100).toLocaleString()}L</span>
-                      <span>{tank.capacity.toLocaleString()}L</span>
-                    </div>
-                  </div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-foreground text-lg font-semibold">Tank Status Details</h3>
+                <div className="flex items-center gap-2 text-status-warning">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="text-sm">2 alerts requiring attention</span>
                 </div>
-              ))}
+              </div>
+
+              {/* Tank Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {fuelMetrics.tanks.map((tank, index) => {
+                  const getStatusColor = (status: string) => {
+                    switch (status.toLowerCase()) {
+                      case 'normal': return 'text-status-operational';
+                      case 'low': return 'text-status-warning';
+                      case 'critical': return 'text-status-critical';
+                      default: return 'text-muted-foreground';
+                    }
+                  };
+
+                  const getProgressColor = (level: number) => {
+                    if (level > 50) return 'success';
+                    if (level > 20) return 'warning';
+                    return 'critical';
+                  };
+
+                  return (
+                    <div key={tank.id} className="bg-muted/50 rounded-lg p-4 border border-border hover:bg-muted/70 transition-colors">
+                      <div className="flex justify-between items-center mb-3">
+                        <div>
+                          <h4 className="font-semibold text-foreground">{tank.id}</h4>
+                          <p className="text-sm text-muted-foreground">{tank.type}</p>
+                        </div>
+                        <Badge variant="outline" className={getStatusColor(tank.status)}>
+                          {tank.status}
+                        </Badge>
+                      </div>
+                      <ProgressBar 
+                        value={tank.level} 
+                        max={100} 
+                        color={getProgressColor(tank.level)}
+                        label={`${tank.level}% (${Math.round(tank.capacity * tank.level / 100).toLocaleString()}L)`}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Recent Activity */}
-          <div className="bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-xl p-6">
-            <h3 className="text-white text-lg font-semibold mb-4">Recent Fuel Activity</h3>
-            <div className="space-y-3">
-              {[
-                { time: "14:30", activity: "Tank A-1 refilled", amount: "+15,000L", type: "refill" },
-                { time: "12:15", activity: "Tank B-2 low level alert", amount: "12%", type: "alert" },
-                { time: "10:45", activity: "Fuel dispensed", amount: "-2,450L", type: "dispense" },
-                { time: "09:20", activity: "Tank B-1 maintenance", amount: "Completed", type: "maintenance" }
-              ].map((activity, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-700/30 last:border-b-0">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${
-                      activity.type === "refill" ? "bg-green-400" :
-                      activity.type === "alert" ? "bg-red-400" :
-                      activity.type === "dispense" ? "bg-blue-400" :
-                      "bg-yellow-400"
-                    }`} />
-                    <div>
-                      <p className="text-white text-sm">{activity.activity}</p>
-                      <p className="text-gray-400 text-xs">{activity.time}</p>
-                    </div>
+          {/* Alerts Section */}
+          <div className="group relative bg-card border border-border rounded-xl p-6 
+            hover:bg-gradient-natural-light hover:border-accent/20 
+            transition-all duration-300 backdrop-blur-sm">
+            {/* Gradient accent overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            <div className="relative z-10">
+              <h3 className="text-foreground text-lg font-semibold mb-4">Active Alerts</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-status-critical/10 border border-status-critical/20 rounded-lg">
+                  <AlertTriangle className="h-5 w-5 text-status-critical" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Tank B-2 Critical Level</p>
+                    <p className="text-xs text-muted-foreground">Premium fuel at 12% capacity - immediate refill required</p>
                   </div>
-                  <span className={`text-sm font-medium ${
-                    activity.type === "refill" ? "text-green-400" :
-                    activity.type === "alert" ? "text-red-400" :
-                    activity.type === "dispense" ? "text-blue-400" :
-                    "text-yellow-400"
-                  }`}>
-                    {activity.amount}
-                  </span>
                 </div>
-              ))}
+                <div className="flex items-center gap-3 p-3 bg-status-warning/10 border border-status-warning/20 rounded-lg">
+                  <AlertTriangle className="h-5 w-5 text-status-warning" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Tank A-2 Low Level</p>
+                    <p className="text-xs text-muted-foreground">Regular fuel at 23% capacity - refill recommended</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </>

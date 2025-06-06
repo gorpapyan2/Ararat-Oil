@@ -1,19 +1,19 @@
 // Page Components
-export {
-  ShiftsPage,
-  ShiftOpen,
-  ShiftClose,
-  ShiftDetails,
-} from "./pages";
+export { default as ManagementPage } from "./ManagementPage";
+export { default as FinancePage } from "./FinancePage";
+export { default as SettingsPage } from "./SettingsPage";
+export { default as FuelSystemsPage } from "./FuelSystemsPage";
+export { default as TanksPage } from "./TanksPage";
+export { default as EmployeesPage } from "./EmployeesPage";
 
-// Services
-export * from "./services";
+// Components
+export * from "./components";
 
-// Export all shift-related hooks
+// Types
+export * from "./types";
+
+// Hooks
 export * from "./hooks";
 
-// Only export what actually exists - removing non-existent module exports for now
-// TODO: Create these directories and their index files as needed:
-// - ./components
-// - ./types
-// - ./hooks 
+// Services
+export * from "./services"; 

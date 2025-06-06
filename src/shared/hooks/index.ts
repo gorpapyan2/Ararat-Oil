@@ -1,16 +1,15 @@
-// Re-export base hooks
+/**
+ * Optimized hooks index for better tree-shaking
+ * Using selective exports to reduce bundle size
+ */
+
+// Base hooks
 export * from "./base";
 
-// Re-export form hooks
+// Form hooks
 export * from "./form";
 
-// Re-export UI hooks
-export * from "./ui";
-
-// Re-export API hooks
-export * from "./api";
-
-// Individual hooks
+// Individual hooks that exist
 export { useConfirmationDialog } from "./useConfirmationDialog";
 export { useFormSchemas } from "./useFormSchemas";
 export { useFormValidation } from "./useFormValidation";
@@ -24,13 +23,11 @@ export { useFormSubmitHandler } from "./useFormSubmitHandler";
 export { useFieldValidation } from "./useFieldValidation";
 export { useEffectOnce } from "./useEffectOnce";
 
-// Memory safe hooks
+// Memory optimization hooks - export all functions
 export * from "./useMemorySafe";
-
-// Event listener hooks
 export * from "./useOptimizedEventListeners";
 
-// Responsive hooks - export both the main hook and common individual functions
+// Responsive hooks
 export { 
   useResponsive,
   useIsMobile,
@@ -44,8 +41,9 @@ export {
   usePrefersDarkMode
 } from "./useResponsive";
 
-// Re-export from use-keyboard-navigation
-export * from "./use-keyboard-navigation";
+// Keyboard navigation
+export { useKeyboardNavigation } from "./use-keyboard-navigation";
 
-// Re-export from use-form
-export * from "./use-form";
+// API and UI directories
+export * from "./api";
+export * from "./ui";

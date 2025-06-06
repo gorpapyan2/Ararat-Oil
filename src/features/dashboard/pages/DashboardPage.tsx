@@ -1,169 +1,266 @@
 /**
- * App Selector Landing Page - Ararat Oil Management System
+ * Dashboard Landing Page - Ararat Oil Management System
  * 
  * Features:
- * - Card-based app selection interface
- * - Dark theme with glassmorphism effects
- * - Hover animations and transitions
- * - Simple navigation to different modules
+ * - Modern card-based interface with new design system
+ * - Full Armenian translation support
+ * - Gradient backgrounds and smooth animations
+ * - Responsive layout with breadcrumbs
+ * - Status indicators and quick actions
  * 
- * @version 2.0.0
+ * @version 3.0.0
  * @author Ararat Oil Development Team
  * @last-updated 2024
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import type { LucideIcon } from 'lucide-react';
+import { 
+  Users, 
+  DollarSign, 
+  Fuel,
+  BarChart3,
+  Settings,
+  Building2,
+  TrendingUp,
+  Activity,
+  Gauge,
+  Zap,
+  Plus,
+  Eye
+} from 'lucide-react';
 
-import { cn } from '@/shared/utils';
+import { PageLayout } from '@/layouts/PageLayout';
+import { DashboardCard } from '@/shared/components/cards/DashboardCard';
+import { MainDashboardGrid, QuickStatsGrid, CardContainer } from '@/shared/components/layout/DashboardGrid';
+import { Button } from '@/core/components/ui/button';
 
-interface SubModule {
+interface ModuleCard {
   id: string;
-  name: string;
-  description: string;
-  icon: string;
+  titleKey: string;
+  descriptionKey: string;
+  icon: LucideIcon;
   path: string;
+  variant: 'fuel' | 'finance' | 'management' | 'reports' | 'default';
+  status?: 'active' | 'warning' | 'inactive' | 'error';
+  statusTextKey?: string;
+  value?: string | number;
+  valueLabelKey?: string;
+  quickActions?: Array<{
+    labelKey: string;
+    icon?: LucideIcon;
+    path: string;
+  }>;
 }
 
-interface MainModule {
+interface QuickStat {
   id: string;
-  title: string;
-  description: string;
-  icon: string;
-  iconBg: string;
-  path: string;
-  subModules: SubModule[];
+  titleKey: string;
+  value: string | number;
+  valueLabelKey: string;
+  icon: LucideIcon;
+  trend?: {
+    value: number;
+    labelKey: string;
+    direction: 'up' | 'down' | 'neutral';
+  };
+  variant: 'fuel' | 'finance' | 'management' | 'reports';
 }
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const modules: MainModule[] = [
+  // Quick stats data
+  const quickStats: QuickStat[] = [
     {
-      id: 'management',
-      title: 'Management',
-      description: 'Manage employees, shifts, and operations.',
-      icon: 'M',
-      iconBg: 'bg-gray-500',
+      id: 'daily-sales',
+      titleKey: 'dashboard.stats.dailySales',
+      value: '₴125,430',
+      valueLabelKey: 'dashboard.stats.today',
+      icon: DollarSign,
+      trend: {
+        value: 12.5,
+        labelKey: 'dashboard.stats.fromYesterday',
+        direction: 'up'
+      },
+      variant: 'finance'
+    },
+    {
+      id: 'fuel-level',
+      titleKey: 'dashboard.stats.fuelLevel',
+      value: '87%',
+      valueLabelKey: 'dashboard.stats.totalCapacity',
+      icon: Gauge,
+      trend: {
+        value: -3.2,
+        labelKey: 'dashboard.stats.fromLastWeek',
+        direction: 'down'
+      },
+      variant: 'fuel'
+    },
+    {
+      id: 'active-employees',
+      titleKey: 'dashboard.stats.activeEmployees',
+      value: '24',
+      valueLabelKey: 'dashboard.stats.onShift',
+      icon: Users,
+      variant: 'management'
+    },
+    {
+      id: 'system-status',
+      titleKey: 'dashboard.stats.systemStatus',
+      value: '99.9%',
+      valueLabelKey: 'dashboard.stats.uptime',
+      icon: Activity,
+      trend: {
+        value: 0.1,
+        labelKey: 'dashboard.stats.thisMonth',
+        direction: 'up'
+      },
+      variant: 'reports'
+    }
+  ];
+
+  // Main module cards
+  const modules: ModuleCard[] = [
+    {
+      id: 'human-resources',
+      titleKey: 'modules.humanResources.title',
+      descriptionKey: 'modules.humanResources.description',
+      icon: Users,
       path: '/management',
-      subModules: [
+      variant: 'management',
+      status: 'active',
+      statusTextKey: 'status.online',
+      value: '24',
+      valueLabelKey: 'modules.humanResources.activeEmployees',
+      quickActions: [
         {
-          id: 'shifts',
-          name: 'Shifts',
-          description: 'Employee shift management and scheduling',
-          icon: '🕐',
-          path: '/management/shifts'
+          labelKey: 'quickActions.addEmployee',
+          icon: Plus,
+          path: '/management/employees/new'
         },
         {
-          id: 'employees',
-          name: 'Employees',
-          description: 'Staff management and employee records',
-          icon: '👥',
-          path: '/management/employees'
+          labelKey: 'quickActions.viewShifts',
+          icon: Eye,
+          path: '/management/shifts'
         }
       ]
     },
     {
       id: 'finance',
-      title: 'Finance',
-      description: 'Complete financial management system.',
-      icon: 'F',
-      iconBg: 'bg-green-500',
+      titleKey: 'modules.finance.title',
+      descriptionKey: 'modules.finance.description',
+      icon: DollarSign,
       path: '/finance',
-      subModules: [
+      variant: 'finance',
+      status: 'active',
+      statusTextKey: 'status.syncing',
+      value: '₴125,430',
+      valueLabelKey: 'modules.finance.todayRevenue',
+      quickActions: [
         {
-          id: 'finance-dashboard',
-          name: 'Finance Dashboard',
-          description: 'Financial overview and analytics',
-          icon: '📊',
-          path: '/finance/dashboard'
+          labelKey: 'quickActions.recordSale',
+          icon: Plus,
+          path: '/finance/sales/new'
         },
         {
-          id: 'sales',
-          name: 'Sales',
-          description: 'Track fuel sales and daily transactions',
-          icon: '💰',
-          path: '/finance/sales'
-        },
-        {
-          id: 'expenses',
-          name: 'Expenses',
-          description: 'Cost management and expense tracking',
-          icon: '💸',
-          path: '/finance/expenses'
-        },
-        {
-          id: 'revenue',
-          name: 'Revenue',
-          description: 'Income tracking and revenue analysis',
-          icon: '📈',
-          path: '/finance/revenue'
-        },
-        {
-          id: 'payment-methods',
-          name: 'Payment Methods',
-          description: 'Payment processing options and methods',
-          icon: '💳',
-          path: '/finance/payment-methods'
+          labelKey: 'quickActions.viewReports',
+          icon: BarChart3,
+          path: '/finance/reports'
         }
       ]
     },
     {
-      id: 'fuel',
-      title: 'Fuel',
-      description: 'Complete fuel management and operations.',
-      icon: 'F',
-      iconBg: 'bg-blue-500',
+      id: 'fuel-operations',
+      titleKey: 'modules.fuel.title',
+      descriptionKey: 'modules.fuel.description',
+      icon: Fuel,
       path: '/fuel',
-      subModules: [
+      variant: 'fuel',
+      status: 'warning',
+      statusTextKey: 'status.maintenance',
+      value: '87%',
+      valueLabelKey: 'modules.fuel.tankCapacity',
+      quickActions: [
         {
-          id: 'fuel-dashboard',
-          name: 'Fuel Dashboard',
-          description: 'Fuel analytics and overview',
-          icon: '⛽',
-          path: '/fuel/dashboard'
-        },
-        {
-          id: 'tanks',
-          name: 'Tanks',
-          description: 'Storage tank management and monitoring',
-          icon: '🛢️',
+          labelKey: 'quickActions.checkTankStatus',
+          icon: Gauge,
           path: '/fuel/tanks'
         },
         {
-          id: 'fuel-supplies',
-          name: 'Fuel Supplies',
-          description: 'Inventory management and fuel supplies',
-          icon: '📦',
-          path: '/fuel/supplies'
-        },
-        {
-          id: 'fuel-prices',
-          name: 'Fuel Prices',
-          description: 'Pricing management and fuel rates',
-          icon: '🏷️',
+          labelKey: 'quickActions.updatePrices',
+          icon: Settings,
           path: '/fuel/prices'
+        }
+      ]
+    },
+    {
+      id: 'reports-analytics',
+      titleKey: 'modules.reports.title',
+      descriptionKey: 'modules.reports.description',
+      icon: BarChart3,
+      path: '/reports',
+      variant: 'reports',
+      status: 'active',
+      statusTextKey: 'status.online',
+      quickActions: [
+        {
+          labelKey: 'quickActions.generateReport',
+          icon: Plus,
+          path: '/reports/generate'
         },
         {
-          id: 'fuel-types',
-          name: 'Fuel Types',
-          description: 'Product catalog and fuel type management',
-          icon: '🔬',
-          path: '/fuel/types'
+          labelKey: 'quickActions.viewAnalytics',
+          icon: TrendingUp,
+          path: '/reports/analytics'
+        }
+      ]
+    },
+    {
+      id: 'system-management',
+      titleKey: 'modules.system.title',
+      descriptionKey: 'modules.system.description',
+      icon: Settings,
+      path: '/settings',
+      variant: 'default',
+      status: 'active',
+      statusTextKey: 'status.online',
+      quickActions: [
+        {
+          labelKey: 'quickActions.userSettings',
+          icon: Users,
+          path: '/settings/users'
         },
         {
-          id: 'filling-systems',
-          name: 'Filling Systems',
-          description: 'Pump and dispenser management',
-          icon: '⚙️',
-          path: '/fuel/filling-systems'
+          labelKey: 'quickActions.systemConfig',
+          icon: Settings,
+          path: '/settings/system'
+        }
+      ]
+    },
+    {
+      id: 'facility-management',
+      titleKey: 'modules.facility.title',
+      descriptionKey: 'modules.facility.description',
+      icon: Building2,
+      path: '/facility',
+      variant: 'management',
+      status: 'active',
+      statusTextKey: 'status.online',
+      quickActions: [
+        {
+          labelKey: 'quickActions.facilityStatus',
+          icon: Activity,
+          path: '/facility/status'
         },
         {
-          id: 'petrol-providers',
-          name: 'Petrol Providers',
-          description: 'Supplier management and provider relationships',
-          icon: '🚛',
-          path: '/fuel/providers'
+          labelKey: 'quickActions.maintenance',
+          icon: Settings,
+          path: '/facility/maintenance'
         }
       ]
     }
@@ -173,67 +270,104 @@ export function DashboardPage() {
     navigate(path);
   };
 
+  const handleQuickAction = (path: string) => {
+    navigate(path);
+  };
+
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Content Container - Properly centered within MainLayout */}
-      <div className="flex-1 flex flex-col items-center justify-center py-8">
-        <div className="w-full max-w-6xl mx-auto px-4">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl lg:text-5xl font-bold text-slate-800 dark:text-white mb-4">
-              Hey there!
-            </h1>
-            <p className="text-lg lg:text-xl text-slate-600 dark:text-slate-300">
-              Select an app below to get started.
-            </p>
+    <PageLayout
+      titleKey="navigation.dashboard"
+      descriptionKey="dashboard.welcome"
+      icon={BarChart3}
+      showBreadcrumbs={false}
+      action={
+        <Button
+          variant="outline"
+          onClick={() => navigate('/settings')}
+          className="gap-2"
+        >
+          <Settings className="h-4 w-4" />
+          {t('navigation.settings')}
+        </Button>
+      }
+    >
+      {/* Quick Stats Section */}
+      <CardContainer
+        title={t('dashboard.quickStats')}
+        description={t('dashboard.quickStatsDescription')}
+      >
+        <QuickStatsGrid>
+          {quickStats.map((stat) => (
+            <DashboardCard
+              key={stat.id}
+              title={t(stat.titleKey)}
+              icon={stat.icon}
+              variant={stat.variant}
+              value={stat.value}
+              valueLabel={t(stat.valueLabelKey)}
+              trend={stat.trend ? {
+                ...stat.trend,
+                label: t(stat.trend.labelKey)
+              } : undefined}
+              className="hover:scale-105"
+            />
+          ))}
+        </QuickStatsGrid>
+      </CardContainer>
+
+      {/* Main Modules Section */}
+      <CardContainer
+        title={t('dashboard.modules')}
+        description={t('dashboard.modulesDescription')}
+        action={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/reports/overview')}
+            className="gap-2"
+          >
+            <TrendingUp className="h-4 w-4" />
+            {t('dashboard.viewOverview')}
+          </Button>
+        }
+      >
+        <MainDashboardGrid>
+          {modules.map((module) => (
+            <DashboardCard
+              key={module.id}
+              title={t(module.titleKey)}
+              description={t(module.descriptionKey)}
+              icon={module.icon}
+              href={module.path}
+              variant={module.variant}
+              status={module.status}
+              statusText={module.statusTextKey ? t(module.statusTextKey) : undefined}
+              value={module.value}
+              valueLabel={module.valueLabelKey ? t(module.valueLabelKey) : undefined}
+              quickActions={module.quickActions?.map(action => ({
+                label: t(action.labelKey),
+                icon: action.icon,
+                onClick: () => handleQuickAction(action.path)
+              }))}
+            />
+          ))}
+        </MainDashboardGrid>
+      </CardContainer>
+
+      {/* System Status Footer */}
+      <div className="mt-12 pt-8 border-t border-border/50">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-success" />
+            <span>{t('dashboard.systemStatus.allSystemsOperational')}</span>
           </div>
-
-          {/* App Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
-            {modules.map((module) => (
-              <div
-                key={module.id}
-                onClick={() => handleCardClick(module.path)}
-                className="group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-              >
-                <div className="bg-white/80 dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-3xl p-6 lg:p-8 h-56 lg:h-64 flex flex-col items-center justify-center text-center hover:bg-white/90 dark:hover:bg-slate-800/60 transition-all duration-300 shadow-lg">
-                  {/* Icon Container */}
-                  <div className={cn(
-                    "w-16 lg:w-20 h-16 lg:h-20 rounded-2xl flex items-center justify-center mb-4 lg:mb-6 shadow-lg",
-                    module.iconBg
-                  )}>
-                    <span className="text-2xl lg:text-3xl font-bold text-white">
-                      {module.icon}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-xl lg:text-2xl font-bold text-slate-800 dark:text-white mb-2 lg:mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
-                    {module.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
-                    {module.description}
-                  </p>
-
-                  {/* Sub-modules count indicator */}
-                  <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    {module.subModules.length} modules
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Additional Info */}
-          <div className="text-center">
-            <p className="text-slate-500 dark:text-slate-500 text-sm">
-              Ararat Oil Management System • Version 2.0.0
-            </p>
+          <div className="flex items-center gap-4">
+            <span>{t('dashboard.version')} 3.0.0</span>
+            <span>•</span>
+            <span>{t('dashboard.lastUpdate')}: {new Date().toLocaleDateString('hy-AM')}</span>
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

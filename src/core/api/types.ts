@@ -164,28 +164,31 @@ export interface Employee {
 export interface Sale {
   id: string;
   filling_system_id: string;
-  quantity_liters: number;
-  price_per_liter: number;
-  total_amount: number;
-  sale_date: string;
+  fuel_type: string;
+  liters: number;
+  price_per_unit: number;
+  total_sales?: number;
+  date: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface SaleCreate {
   filling_system_id: string;
-  quantity_liters: number;
-  price_per_liter: number;
-  total_amount: number;
-  sale_date: string;
+  fuel_type: string;
+  liters: number;
+  price_per_unit: number;
+  total_sales?: number;
+  date: string;
 }
 
 export interface SaleUpdate {
   filling_system_id?: string;
-  quantity_liters?: number;
-  price_per_liter?: number;
-  total_amount?: number;
-  sale_date?: string;
+  fuel_type?: string;
+  liters?: number;
+  price_per_unit?: number;
+  total_sales?: number;
+  date?: string;
 }
 
 // Expense Types

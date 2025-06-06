@@ -15,7 +15,6 @@ export { FillingSystemSelect } from "./components/FillingSystemSelect";
 export { SalesFilterPanel } from "./components/SalesFilterPanel";
 
 // Form Components
-export { PriceAndEmployeeInputs } from "./components/form/PriceAndEmployeeInputs";
 export { FillingSystemSelect as FormFillingSystemSelect } from "./components/form/FillingSystemSelect";
 
 // Page Components

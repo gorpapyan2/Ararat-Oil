@@ -189,7 +189,7 @@ export default function SalesNew() {
         setIsEditDialogOpen={setIsEditDialogOpen}
         isDeleteDialogOpen={isDeleteDialogOpen}
         setIsDeleteDialogOpen={setIsDeleteDialogOpen}
-        updateSale={(data) => updateMutation.mutate(data)}
+        updateSale={(data) => updateMutation.mutate({ id: selectedSale!.id, updates: data })}
         confirmDelete={confirmDelete}
         isLoading={deleteMutation.isPending}
       />

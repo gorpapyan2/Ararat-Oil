@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { StandardDialog } from "@/core/components/ui/composed/base-dialog";
 import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
@@ -116,12 +116,12 @@ export function FillingSystemFormStandardized({
 
   return (
     <StandardDialog
-      open={open}
+      isOpen={open}
       onOpenChange={onOpenChange}
       title={title}
       description={description}
-      maxWidth="sm:max-w-[425px]"
-      actions={formActions}
+      className="sm:max-w-[425px]"
+      footer={formActions}
     >
       <form
         id="filling-system-form"
@@ -133,7 +133,6 @@ export function FillingSystemFormStandardized({
           label={systemNameLabel}
           form={form}
           placeholder={systemNamePlaceholder}
-          autoComplete="off"
         />
 
         <FormSelect

@@ -210,6 +210,11 @@ export const fuelTypesApi = {
 // ❌ DEPRECATED: Use import { fillingSystemsApi } from "@/core/api" instead
 // Note: fillingSystemsApi has been moved to src/core/api/endpoints/filling-systems.ts
 
+// Re-export from centralized API for compatibility (will be removed in v2.0.0)
+export { employeesApi } from "@/core/api";
+export { salesApi } from "@/core/api";
+export { tanksApi } from "@/core/api";
+
 // Legacy functions maintained for backward compatibility (will be removed in v2.0.0)
 
 // API Functions for Filling Systems (DEPRECATED)

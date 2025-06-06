@@ -3,7 +3,5 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export {
-  ButtonGroupProps,
-  ButtonGroup,
-} from "@/core/components/ui/primitives/button-group";
+export type { ButtonGroupProps } from "@/core/components/ui/primitives/button-group";
+export { ButtonGroup } from "@/core/components/ui/primitives/button-group";

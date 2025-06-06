@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { StandardDialog } from "@/core/components/ui/composed/base-dialog";
 import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +11,7 @@ import {
 } from "@/core/components/ui/composed/form-fields";
 import { useZodForm, useFormSubmitHandler } from "@/shared/hooks/use-form";
 import { useCreateFuelSale, useUpdateFuelSale } from "../hooks/useFuelSales";
-import { tanksApi } from "@/services/api";
+import { tanksApi } from "@/core/api";
 import type { FuelSale, FuelSaleFormData } from "../types/fuel-sales.types";
 
 interface FuelTank {
@@ -52,11 +52,11 @@ const fuelSaleSchema = z.object({
 type FuelSaleFormValues = z.infer<typeof fuelSaleSchema>;
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
-  const response = await tanksApi.getAll();
-  if (response.error) throw new Error(response.error);
+  const response = await tanksApi.getTanks();
+  if (response.error) throw new Error(response.error.message || 'Failed to fetch tanks');
   
   const tanks = response.data || [];
-  return tanks.map((tank) => ({
+  return tanks.map((tank: any) => ({
     id: tank.id,
     name: tank.name,
     fuel_type: tank.fuel_type?.name || 'Unknown',
@@ -165,7 +165,7 @@ export function FuelSalesFormStandardized({
           ? "Update existing fuel sale record"
           : "Create a new fuel sale record"
       }
-      width="lg"
+      className="lg:max-w-4xl"
       footer={formActions}
     >
       <form id="fuel-sale-form" onSubmit={handleSubmit} className="space-y-4">

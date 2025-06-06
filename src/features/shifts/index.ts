@@ -6,16 +6,14 @@ export {
   ShiftOpen,
   ShiftClose,
   ShiftDetails,
+  ShiftsMainPage
 } from "./pages";
+
+// Components
+export * from "./components";
 
 // Services
 export * from "./services";
 
-// Export all shift-related hooks
-export * from "./hooks";
-
-// Only export what actually exists - removing non-existent module exports for now
-// TODO: Create these directories and their index files as needed:
-// - ./components
-// - ./types
-// - ./hooks 
+// Hooks
+export * from "./hooks"; 

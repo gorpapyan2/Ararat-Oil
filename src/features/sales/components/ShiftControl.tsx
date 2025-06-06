@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { StandardDialog } from "@/core/components/ui/composed/base-dialog";
 import { Button } from "@/core/components/ui/button";
 
 interface ShiftControlProps {
@@ -30,10 +30,10 @@ export function ShiftControl({
       </Button>
 
       <StandardDialog
-        open={isOpen}
+        isOpen={isOpen}
         onOpenChange={setIsOpen}
         title={isShiftOpen ? "Close Shift" : "Open Shift"}
-        actions={
+        footer={
           <div className="flex justify-end space-x-2">
             <Button variant="secondary" onClick={() => setIsOpen(false)}>
               Cancel

@@ -1,5 +1,27 @@
 import { FuelTypeCode, PaymentMethod, PaymentStatus } from "@/types";
 
+// Re-export types that are used in this module
+export type { FuelTypeCode, PaymentMethod, PaymentStatus };
+
+// Form data interface for sales forms - updated to match Sale interface
+export interface SalesFormData {
+  amount: number;
+  quantityLiters: number;
+  unitPrice: number;
+  saleDate: Date | string;
+  fuelType: FuelTypeCode;
+  vehiclePlate?: string;
+  customerName?: string;
+  paymentMethod: PaymentMethod;
+  paymentStatus?: PaymentStatus;
+  notes?: string;
+  employeeId?: string;
+  fillingSystemId?: string;
+  meterStart?: number;
+  meterEnd?: number;
+  shiftId?: string;
+}
+
 // Main Sale interface
 export interface Sale {
   id: string;
@@ -34,6 +56,7 @@ export interface CreateSaleRequest {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   notes?: string;
+  employeeId?: string;
   fillingSystemId?: string;
   meterStart?: number;
   meterEnd?: number;

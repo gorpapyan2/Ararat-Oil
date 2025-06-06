@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import { Button } from "@/core/components/ui/primitives/button";
 import {
   FormControl,
@@ -7,52 +8,58 @@ import {
   FormMessage,
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
+import { Textarea } from "@/core/components/ui/primitives/textarea";
 import { z } from "zod";
 import { useToast } from "@/hooks";
-import { useEffect, useState } from "react";
 import { Sale } from "@/types";
-import { Employee } from "@/core/api";
+import { Employee } from "@/core/api/types";
 import {
   FormCurrencyInput,
   FormSelect,
 } from "@/core/components/ui/composed/form-fields";
-import { PriceAndEmployeeInputs } from "./form/PriceAndEmployeeInputs";
+import { PriceAndEmployeeInputs } from "@/shared/components/form/PriceAndEmployeeInputs";
 import { FillingSystemSelect } from "./form/FillingSystemSelect";
 import { useTranslation } from "react-i18next";
 import { StandardForm } from "@/core/components/ui/composed/base-form";
 import { toast as sonnerToast } from "sonner";
-import { Control, FieldValues, useWatch } from "react-hook-form";
+import { Control, FieldValues, useWatch, UseFormReturn } from "react-hook-form";
+import { SalesFormData, FuelTypeCode, PaymentMethod, PaymentStatus } from "@/features/sales/types";
 
-// Export the base schema to derive the type
-const baseSalesFormSchema = z.object({
-  quantity: z.number().min(0.01),
-  unit_price: z.number().min(1),
-  total_sales: z.number().optional(),
-  shift_id: z.string(),
-  filling_system_id: z.string(),
-  meter_start: z.number().nonnegative(),
-  meter_end: z.number().nonnegative(),
-  date: z.string().optional(),
-  comments: z.string().optional(),
-}).refine((data) => data.meter_end >= data.meter_start, {
-  path: ["meter_end"],
+// Base schema - aligned with SalesFormData interface
+export const baseSalesFormSchema = z.object({
+  amount: z
+    .number()
+    .min(0.01, "Amount must be greater than 0"),
+  quantityLiters: z
+    .number()
+    .min(0.01, "Quantity must be greater than 0"),
+  unitPrice: z
+    .number()
+    .min(0.01, "Unit price must be greater than 0"),
+  saleDate: z.date(),
+  fuelType: z.enum(["diesel", "gas", "petrol_regular", "petrol_premium"] as const),
+  customerName: z.string().optional(),
+  paymentMethod: z.enum(["cash", "credit_card", "debit_card", "mobile_payment", "card", "bank_transfer", "other"] as const),
+  paymentStatus: z.enum(["pending", "completed", "cancelled", "paid", "failed", "refunded"] as const),
+  notes: z.string().optional(),
+  employeeId: z.string().optional(),
+  fillingSystemId: z.string().min(1, "Filling system is required"),
 });
-
-// Export the type for use in other components
-export type SalesFormData = z.infer<typeof baseSalesFormSchema>;
 
 // Define a proper interface for the Sales form that includes all needed fields
 interface SaleFormModel {
   id?: string;
-  quantity: number;
-  price_per_unit: number;
-  total_sales: number;
-  shift_id: string;
-  filling_system_id: string;
-  meter_start: number;
-  meter_end: number;
-  date?: string;
-  comments?: string;
+  fuelType?: FuelTypeCode;
+  quantityLiters: number;
+  unitPrice: number;
+  amount: number;
+  saleDate: Date;
+  fillingSystemId: string;
+  customerName?: string;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  notes?: string;
+  employeeId?: string;
 }
 
 interface SalesFormStandardizedProps {
@@ -70,91 +77,32 @@ export function SalesFormStandardized({
   const [totalSales, setTotalSales] = useState<number>(0);
   
   // Create schema inside the component where hooks can be called
-  const salesFormSchema = z
-    .object({
-      quantity: z
-        .number({
-          required_error: t("sales.quantityRequired", "Quantity is required."),
-        })
-        .min(
-          0.01,
-          t("sales.quantityPositive", "Quantity must be greater than 0")
-        ),
-      unit_price: z
-        .number({
-          required_error: t("sales.priceRequired", "Unit price is required."),
-        })
-        .min(1, t("sales.priceMinimum", "Price must be at least 1")),
-      total_sales: z.number().optional(),
-      shift_id: z.string({
-        required_error: t("sales.shiftRequired", "Shift is required"),
-      }),
-      filling_system_id: z.string({
-        required_error: t(
-          "sales.fillingSystemRequired",
-          "Please select a filling system."
-        ),
-      }),
-      meter_start: z
-        .number({
-          required_error: t(
-            "sales.meterStartRequired",
-            "Starting meter reading is required."
-          ),
-        })
-        .nonnegative(
-          t(
-            "sales.meterStartPositive",
-            "Starting meter reading must be a positive number"
-          )
-        ),
-      meter_end: z
-        .number({
-          required_error: t(
-            "sales.meterEndRequired",
-            "Ending meter reading is required."
-          ),
-        })
-        .nonnegative(
-          t(
-            "sales.meterEndPositive",
-            "Ending meter reading must be a positive number"
-          )
-        ),
-      date: z.string().optional(),
-      comments: z.string().optional(),
-    })
-    .refine((data) => data.meter_end >= data.meter_start, {
-      message: t(
-        "sales.meterEndGreater",
-        "Ending meter reading must be greater than or equal to starting meter reading"
-      ),
-      path: ["meter_end"],
-    });
+  const salesFormSchema = baseSalesFormSchema;
 
-  // Create and export the type for use in other components
-  type SalesFormData = z.infer<typeof salesFormSchema>;
+  // Use the refined schema type
+  type FormDataType = z.infer<typeof salesFormSchema>;
 
   // Prepare default values
-  const defaultValues: Partial<SalesFormData> = {
-    quantity: sale?.quantity || 0,
-    unit_price: sale?.price_per_unit || 0,
-    total_sales: sale?.total_sales || 0,
-    shift_id: sale?.shift_id || "",
-    filling_system_id: sale?.filling_system_id || "",
-    meter_start: sale?.meter_start || 0,
-    meter_end: sale?.meter_end || 0,
-    date: sale?.date || new Date().toISOString(),
-    comments: sale?.comments || "",
+  const defaultValues: Partial<FormDataType> = {
+    quantityLiters: sale?.quantityLiters || 0,
+    unitPrice: sale?.unitPrice || 0,
+    amount: sale?.amount || 0,
+    saleDate: sale?.saleDate || new Date(),
+    fillingSystemId: sale?.fillingSystemId || "",
+    fuelType: sale?.fuelType || "petrol_regular",
+    customerName: sale?.customerName || "",
+    paymentMethod: sale?.paymentMethod || "cash",
+    paymentStatus: sale?.paymentStatus || "pending",
+    notes: sale?.notes || "",
+    employeeId: sale?.employeeId || "",
   };
 
   // Handler for form submission
-  const handleSubmit = async (data: SalesFormData) => {
+  const handleSubmit = async (data: FormDataType) => {
     // Calculate total sales
-    const submissionData = {
+    const submissionData: SalesFormData = {
       ...data,
-      total_sales: data.quantity * data.unit_price,
-      id: sale?.id,
+      amount: data.quantityLiters * data.unitPrice,
     };
 
     const success = await onSubmit(submissionData);
@@ -173,7 +121,7 @@ export function SalesFormStandardized({
   return (
     <StandardForm
       schema={salesFormSchema}
-      defaultValues={defaultValues as SalesFormData}
+      defaultValues={defaultValues as FormDataType}
       onSubmit={handleSubmit}
       submitText={
         sale ? t("common.update", "Update") : t("common.create", "Create")
@@ -182,7 +130,8 @@ export function SalesFormStandardized({
     >
       {(methods) => (
         <SalesFormContent 
-          control={methods.control as unknown as Control<SalesFormData>} 
+          control={methods.control}
+          form={methods}
           employees={employees} 
           totalSales={totalSales}
           setTotalSales={setTotalSales}
@@ -194,86 +143,42 @@ export function SalesFormStandardized({
 
 // Separate component to handle form content with hooks
 interface SalesFormContentProps {
-  control: Control<SalesFormData>;
+  control: Control<any>;
+  form: UseFormReturn<any>;
   employees?: Employee[];
   totalSales: number;
   setTotalSales: (value: number) => void;
 }
 
-function SalesFormContent({ control, employees, totalSales, setTotalSales }: SalesFormContentProps) {
+function SalesFormContent({ control, form, employees, totalSales, setTotalSales }: SalesFormContentProps) {
   const { t } = useTranslation();
 
   // Watch for changes to calculate derived values
-  const unitPrice = useWatch({ control, name: "unit_price" });
-  const meterStart = useWatch({ control, name: "meter_start" });
-  const meterEnd = useWatch({ control, name: "meter_end" });
+  const unitPrice = useWatch({ control, name: "unitPrice" });
+  const quantityLiters = useWatch({ control, name: "quantityLiters" });
 
-  // Calculate quantity and total sales when meter values or unit price changes
+  // Calculate total sales when quantity or unit price changes
   useEffect(() => {
-    // Calculate quantity from meter readings
-    const calculatedQuantity = Math.max(0, meterEnd - meterStart);
-
     // Calculate total sales
-    const calculatedTotal = calculatedQuantity * unitPrice;
+    const calculatedTotal = quantityLiters * unitPrice;
     setTotalSales(calculatedTotal || 0);
-  }, [meterStart, meterEnd, unitPrice, setTotalSales]);
+  }, [quantityLiters, unitPrice, setTotalSales]);
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={control}
-          name="quantity"
+          name="saleDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                {t("sales.quantity", "Quantity")} (
-                {t("common.calculated", "Calculated")})
-              </FormLabel>
+              <FormLabel>{t("sales.date", "Sale Date")}</FormLabel>
               <FormControl>
                 <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="0"
+                  type="date"
                   {...field}
-                  value={field.value}
-                  disabled
-                  className="bg-muted"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <PriceAndEmployeeInputs
-          control={control}
-          employees={employees as Employee[]}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          control={control}
-          name="meter_start"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                {t("sales.meterStart", "Meter Start")}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder={t(
-                    "sales.startingMeterReading",
-                    "Starting meter reading"
-                  )}
-                  {...field}
-                  value={field.value || 0}
-                  onChange={(e) =>
-                    field.onChange(parseFloat(e.target.value) || 0)
-                  }
+                  value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : field.value}
+                  onChange={(e) => field.onChange(new Date(e.target.value))}
                 />
               </FormControl>
               <FormMessage />
@@ -283,58 +188,142 @@ function SalesFormContent({ control, employees, totalSales, setTotalSales }: Sal
 
         <FormField
           control={control}
-          name="meter_end"
+          name="fuelType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("sales.meterEnd", "Meter End")}</FormLabel>
+              <FormLabel>{t("sales.fuelType", "Fuel Type")}</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder={t(
-                    "sales.endingMeterReading",
-                    "Ending meter reading"
-                  )}
+                <FormSelect
+                  form={form}
+                  placeholder={t("sales.selectFuelType", "Select fuel type")}
+                  options={[
+                    { value: "diesel", label: "Diesel" },
+                    { value: "gas", label: "Gas" },
+                    { value: "petrol_regular", label: "Petrol Regular" },
+                    { value: "petrol_premium", label: "Petrol Premium" },
+                  ]}
                   {...field}
-                  value={field.value || 0}
-                  onChange={(e) =>
-                    field.onChange(parseFloat(e.target.value) || 0)
-                  }
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-      </div>
-
-      {/* Display calculated total sales */}
-      <div className="bg-muted/30 p-3 rounded-md text-sm">
-        <div className="font-medium">
-          {t("sales.totalSales", "Total Sales")}: {totalSales.toFixed(2)} ֏
-        </div>
-        <div className="text-muted-foreground text-xs">
-          {t("sales.calculatedAs", "Calculated as")}{" "}
-          {t("sales.quantity", "Quantity")} (
-          {(meterEnd - meterStart).toFixed(2)}) × {t("sales.unitPrice", "Unit Price")} ({unitPrice.toFixed(2)})
-        </div>
       </div>
 
       <FillingSystemSelect control={control} />
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={control}
+          name="quantityLiters"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("sales.quantity", "Quantity (Liters)")}</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="unitPrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("sales.unitPrice", "Unit Price")}</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
       <FormField
         control={control}
-        name="comments"
+        name="amount"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t("common.comments", "Comments")}</FormLabel>
+            <FormLabel>{t("sales.amount", "Total Amount")}</FormLabel>
             <FormControl>
               <Input
-                type="text"
-                placeholder={t("common.comments", "Comments")}
+                type="number"
+                step="0.01"
                 {...field}
-                value={field.value || ""}
+                value={totalSales}
+                readOnly
               />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={control}
+          name="customerName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("sales.customerName", "Customer Name")}</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="paymentMethod"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("sales.paymentMethod", "Payment Method")}</FormLabel>
+              <FormControl>
+                <FormSelect
+                  form={form}
+                  placeholder={t("sales.selectPaymentMethod", "Select payment method")}
+                  options={[
+                    { value: "cash", label: "Cash" },
+                    { value: "credit_card", label: "Credit Card" },
+                    { value: "debit_card", label: "Debit Card" },
+                    { value: "mobile_payment", label: "Mobile Payment" },
+                    { value: "card", label: "Card" },
+                    { value: "bank_transfer", label: "Bank Transfer" },
+                    { value: "other", label: "Other" },
+                  ]}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <FormField
+        control={control}
+        name="notes"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t("sales.notes", "Notes")}</FormLabel>
+            <FormControl>
+              <Textarea {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

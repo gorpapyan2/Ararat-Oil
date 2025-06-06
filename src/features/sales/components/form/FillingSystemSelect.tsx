@@ -11,19 +11,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
-
-// Define the form data structure for sales
-interface SalesFormData {
-  quantity: number;
-  unit_price: number;
-  total_sales?: number;
-  shift_id: string;
-  filling_system_id: string;
-  meter_start: number;
-  meter_end: number;
-  date?: string;
-  comments?: string;
-}
+import { SalesFormData } from "@/features/sales/types";
 
 interface FillingSystemSelectProps {
   control: Control<SalesFormData>;
@@ -87,7 +75,7 @@ export function FillingSystemSelect({
   // Watch for field changes - must be called in every render path
   const selectedValue = useWatch({
     control,
-    name: "filling_system_id",
+    name: "fillingSystemId",
   }) as string;
 
   // Call callbacks when the value changes
@@ -167,7 +155,7 @@ export function FillingSystemSelect({
     <div className="space-y-4">
       {content}
       <FormSelect
-        name="filling_system_id"
+        name="fillingSystemId"
         label={t("sales.fillingSystem")}
         form={formObject}
         options={options}

@@ -90,7 +90,7 @@ export function SalesManager({
       {/* Delete confirmation dialog */}
       <AlertDialog
         open={salesDialog.isDeleteDialogOpen}
-        onOpenChange={(open) => !open && salesDialog.closeDeleteDialog()}
+        onOpenChange={(open) => !open && salesDialog.setIsDeleteDialogOpen(false)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>

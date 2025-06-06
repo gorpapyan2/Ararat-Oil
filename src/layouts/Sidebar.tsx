@@ -2,8 +2,99 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/shared/utils";
 import { 
-  Compass, 
+  Users, 
+  DollarSign, 
+  Fuel, 
+  BarChart3, 
+  Settings,
+  Moon,
+  Sun,
+  LogOut,
+  Home,
 } from "lucide-react";
+import { useTheme } from "@/shared/components/ui/theme-provider";
+import { useAuth } from "@/core/hooks/useAuth";
+
+const ThemeToggleButton: React.FC = () => {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  
+  const cycleTheme = () => {
+    if (theme === 'light') setTheme('dark');
+    else if (theme === 'dark') setTheme('system');
+    else setTheme('light');
+  };
+  
+  return (
+    <button
+      onClick={cycleTheme}
+      className={cn(
+        "w-full transition-all duration-200 ease-out group",
+        "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card rounded-lg"
+      )}
+      title={`Theme: ${theme} (click to change)`}
+    >
+      <div className={cn(
+        "flex items-center justify-center w-full rounded-lg transition-all duration-200",
+        "p-3 relative hover:bg-gradient-natural-light"
+      )}>
+        {/* Icon Container */}
+        <div className={cn(
+          "flex items-center justify-center rounded-lg w-8 h-8 transition-all duration-200 relative",
+          "bg-secondary hover:bg-gradient-accent group-hover:scale-105"
+        )}>
+          {resolvedTheme === 'dark' ? (
+            <Moon className="w-4 h-4 text-foreground" />
+          ) : (
+            <Sun className="w-4 h-4 text-foreground" />
+          )}
+          {/* System indicator */}
+          {theme === 'system' && (
+            <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-accent animate-pulse" />
+          )}
+        </div>
+      </div>
+    </button>
+  );
+};
+
+const SignOutButton: React.FC = () => {
+  const { signOut, isLoading } = useAuth();
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+  
+  return (
+    <button
+      onClick={handleSignOut}
+      disabled={isLoading}
+      className={cn(
+        "w-full transition-all duration-200 ease-out group",
+        "focus:outline-none focus:ring-2 focus:ring-status-critical focus:ring-offset-2 focus:ring-offset-card rounded-lg",
+        "hover:bg-status-critical/10 text-status-critical",
+        isLoading && "opacity-50 cursor-not-allowed"
+      )}
+      title="Sign Out"
+    >
+      <div className={cn(
+        "flex items-center justify-center w-full rounded-lg transition-all duration-200",
+        "p-3 relative"
+      )}>
+        {/* Icon Container */}
+        <div className={cn(
+          "flex items-center justify-center rounded-lg w-8 h-8 transition-all duration-200",
+          "bg-status-critical/10 group-hover:bg-status-critical/20 group-hover:scale-105"
+        )}>
+          <LogOut className="w-4 h-4" />
+        </div>
+      </div>
+    </button>
+  );
+};
 
 interface SidebarProps {
   isMobile?: boolean;
@@ -16,8 +107,8 @@ interface NavItem {
   label: string;
   path: string;
   icon: React.ComponentType<{ className?: string }>;
-  color: string;
   description?: string;
+  color?: string;
 }
 
 export function Sidebar({
@@ -28,14 +119,55 @@ export function Sidebar({
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Navigation items with natural color scheme
   const navItems: NavItem[] = [
     {
-      id: 'navigation',
-      label: 'Navigation',
-      path: '/dashboard/navigation',
-      icon: Compass,
-      color: '#6366f1',
-      description: 'Business modules'
+      id: 'home',
+      label: 'Dashboard',
+      path: '/',
+      icon: Home,
+      description: 'Main Dashboard',
+      color: 'primary'
+    },
+    {
+      id: 'management',
+      label: 'Management',
+      path: '/management',
+      icon: Users,
+      description: 'HR & Operations',
+      color: 'fuel-premium'
+    },
+    {
+      id: 'finance',
+      label: 'Finance',
+      path: '/finance',
+      icon: DollarSign,
+      description: 'Financial Management',
+      color: 'fuel-diesel'
+    },
+    {
+      id: 'fuel',
+      label: 'Fuel',
+      path: '/fuel',
+      icon: Fuel,
+      description: 'Fuel Operations',
+      color: 'status-operational'
+    },
+    {
+      id: 'reports',
+      label: 'Reports',
+      path: '/reports',
+      icon: BarChart3,
+      description: 'Business Intelligence',
+      color: 'accent'
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      path: '/settings',
+      icon: Settings,
+      description: 'System Configuration',
+      color: 'secondary'
     }
   ];
 
@@ -55,11 +187,6 @@ export function Sidebar({
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
-  // Don't show on mobile when closed
-  if (isMobile && !isOpen) {
-    return null;
-  }
-
   return (
     <>
       {/* Mobile backdrop */}
@@ -74,82 +201,99 @@ export function Sidebar({
       <aside
         className={cn(
           "h-screen z-50 transition-all duration-300 ease-in-out flex flex-col",
-          "bg-gradient-to-b from-slate-800 via-slate-850 to-slate-900",
-          "border-r border-slate-700/50 shadow-2xl",
-          "backdrop-blur-sm bg-opacity-95",
-          "w-20", // Always collapsed width
-          // Mobile positioning
-          isMobile && "fixed top-0 left-0",
-          isMobile && !isOpen && "-translate-x-full"
+          "bg-card border-r border-border shadow-lg",
+          "w-20", // Always collapsed width - 80px total
+          // Mobile specific styles
+          isMobile && [
+            "fixed top-0 left-0",
+            "shadow-2xl bg-card/95 backdrop-blur-md",
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          ],
+          // Desktop specific styles
+          !isMobile && [
+            "relative bg-card/80 backdrop-blur-sm"
+          ]
         )}
         id="sidebar"
         aria-label="Main navigation"
+        style={{
+          minWidth: '80px',
+          maxWidth: '80px',
+          flexShrink: 0
+        }}
       >
-        {/* Header */}
-        <div className="h-16 flex items-center justify-center border-b border-slate-700/50 bg-slate-800/30 relative">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <span className="text-white font-bold text-lg drop-shadow-sm">AO</span>
-          </div>
-          
-          {/* Subtle glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none" />
+        {/* Logo Header */}
+        <div className="h-16 flex items-center justify-center border-b border-border flex-shrink-0 bg-gradient-accent/5">
+          <button
+            onClick={() => handleNavigate('/')}
+            className={cn(
+              "w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 group",
+              "bg-gradient-accent hover:bg-gradient-primary",
+              "shadow-md hover:shadow-lg hover:scale-105"
+            )}
+            title="Ararat Oil - Home Dashboard"
+          >
+            <span className="text-white dark:text-black font-bold text-lg group-hover:scale-110 transition-transform">
+              AO
+            </span>
+          </button>
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-3">
+        <div className="flex-1 overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+          <div className="space-y-2">
             {navItems.map((item) => {
               const isActive = isActivePath(item.path);
               const Icon = item.icon;
 
               return (
-                <div key={item.id} className="group">
+                <div key={item.id}>
                   <button
                     onClick={() => handleNavigate(item.path)}
                     className={cn(
-                      "w-full transition-all duration-500 ease-out",
-                      "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 rounded-2xl"
+                      "w-full transition-all duration-200 ease-out group",
+                      "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card rounded-lg"
                     )}
-                    title={item.label}
+                    title={`${item.label} - ${item.description}`}
                   >
                     <div className={cn(
-                      "flex items-center justify-center w-full rounded-2xl transition-all duration-500 transform",
-                      "p-4 backdrop-blur-sm relative overflow-hidden",
-                      "border border-slate-600/30",
+                      "flex items-center justify-center w-full rounded-lg transition-all duration-200 relative",
+                      "p-3",
                       isActive 
-                        ? "bg-blue-500/20 border-blue-400/50 shadow-xl shadow-blue-500/20 scale-105"
-                        : "bg-slate-700/20 hover:bg-slate-600/30 hover:border-slate-500/50 hover:shadow-lg hover:-translate-y-1 hover:scale-105",
-                      "group-hover:backdrop-blur-md"
+                        ? "bg-gradient-accent shadow-md" 
+                        : "hover:bg-gradient-natural-light group-hover:shadow-sm"
                     )}>
+                      {/* Active indicator */}
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-accent rounded-r-full" />
+                      )}
+                      
                       {/* Icon Container */}
                       <div className={cn(
-                        "flex items-center justify-center rounded-xl w-8 h-8 transition-all duration-500",
-                        "shadow-lg relative z-10",
+                        "flex items-center justify-center rounded-lg w-8 h-8 transition-all duration-200 relative",
                         isActive 
-                          ? "bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-blue-500/40 scale-110"
-                          : "bg-gradient-to-br from-slate-600 to-slate-700 text-slate-300 group-hover:from-slate-500 group-hover:to-slate-600 group-hover:scale-110"
+                          ? "bg-white/20 dark:bg-black/20 text-white dark:text-black" 
+                          : "bg-secondary text-foreground group-hover:bg-accent/20 group-hover:text-accent group-hover:scale-105"
                       )}>
-                        <Icon className="w-4 h-4 drop-shadow-sm" />
+                        <Icon className="w-4 h-4" />
                         
-                        {/* Subtle inner glow */}
-                        {isActive && (
-                          <div className="absolute inset-0 rounded-xl bg-blue-300 opacity-20 blur-sm" />
+                        {/* Hover glow effect */}
+                        {!isActive && (
+                          <div className="absolute inset-0 bg-gradient-accent opacity-0 group-hover:opacity-10 rounded-lg blur-sm transition-opacity duration-300" />
                         )}
                       </div>
-
-                      {/* Background glow effect */}
-                      <div className={cn(
-                        "absolute inset-0 rounded-2xl transition-opacity duration-500 blur-md",
-                        isActive 
-                          ? "bg-gradient-to-br from-blue-500/20 to-transparent opacity-100"
-                          : "bg-gradient-to-br from-slate-500/10 to-transparent opacity-0 group-hover:opacity-100"
-                      )} />
                     </div>
                   </button>
                 </div>
               );
             })}
           </div>
+        </div>
+
+        {/* Footer with Theme Toggle and Sign Out */}
+        <div className="p-3 border-t border-border space-y-2 flex-shrink-0 bg-gradient-natural-light/5">
+          <ThemeToggleButton />
+          <SignOutButton />
         </div>
       </aside>
     </>

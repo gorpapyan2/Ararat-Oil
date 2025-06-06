@@ -17,20 +17,23 @@ import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
 import { toast } from "sonner";
 import { Employee } from "@/core/api";
 import { useWatch } from "react-hook-form";
-import { UpdateSaleRequest } from '../types';
+import { UpdateSaleRequest, SalesFormData } from '../types';
 import { Control } from "react-hook-form";
+import { FuelTypeCode, PaymentMethod, PaymentStatus } from "@/core/types";
 
 // Extend the Sale type to include the properties needed by SalesFormStandardized
 interface ExtendedSale extends Sale {
-  quantity: number;
-  total_sales: number;
-  shift_id: string;
-  filling_system_id: string;
-  meter_start: number;
-  meter_end: number;
-  date: string;
-  unit_price?: number;
-  comments?: string;
+  amount: number;
+  quantityLiters: number;
+  unitPrice: number;
+  saleDate: Date;
+  fuelType: FuelTypeCode;
+  customerName?: string;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  notes?: string;
+  employeeId?: string;
+  fillingSystemId?: string;
 }
 
 interface SalesDialogsProps {
@@ -59,10 +62,18 @@ export function SalesDialogsStandardized({
   const { t } = useTranslation();
   const [totalSales, setTotalSales] = useState<number>(0);
 
-  // Define the form schema using zod
+  // Define the form schema using zod that matches SalesFormData structure
   const salesFormSchema = z
     .object({
-      quantity: z
+      amount: z
+        .number({
+          required_error: t("sales.amountRequired", "Amount is required."),
+        })
+        .min(
+          0.01,
+          t("sales.amountPositive", "Amount must be greater than 0")
+        ),
+      quantityLiters: z
         .number({
           required_error: t("sales.quantityRequired", "Quantity is required."),
         })
@@ -70,81 +81,76 @@ export function SalesDialogsStandardized({
           0.01,
           t("sales.quantityPositive", "Quantity must be greater than 0")
         ),
-      unit_price: z
+      unitPrice: z
         .number({
           required_error: t("sales.priceRequired", "Unit price is required."),
         })
         .min(1, t("sales.priceMinimum", "Price must be at least 1")),
-      total_sales: z.number().optional(),
-      shift_id: z.string({
-        required_error: t("sales.shiftRequired", "Shift is required"),
+      saleDate: z.union([z.date(), z.string().transform(val => new Date(val))], {
+        required_error: t("sales.dateRequired", "Sale date is required"),
       }),
-      filling_system_id: z.string({
-        required_error: t(
-          "sales.fillingSystemRequired",
-          "Please select a filling system."
-        ),
+      fuelType: z.enum(["diesel", "gas", "petrol_regular", "petrol_premium"], {
+        required_error: t("sales.fuelTypeRequired", "Fuel type is required"),
       }),
-      meter_start: z
-        .number({
-          required_error: t(
-            "sales.meterStartRequired",
-            "Starting meter reading is required."
-          ),
-        })
-        .nonnegative(
-          t(
-            "sales.meterStartPositive",
-            "Starting meter reading must be a positive number"
-          )
-        ),
-      meter_end: z
-        .number({
-          required_error: t(
-            "sales.meterEndRequired",
-            "Ending meter reading is required."
-          ),
-        })
-        .nonnegative(
-          t(
-            "sales.meterEndPositive",
-            "Ending meter reading must be a positive number"
-          )
-        ),
-      date: z.string().optional(),
-      comments: z.string().optional(),
-    })
-    .refine((data) => data.meter_end >= data.meter_start, {
-      message: t(
-        "sales.meterEndGreater",
-        "Ending meter reading must be greater than or equal to starting meter reading"
-      ),
-      path: ["meter_end"],
+      customerName: z.string().optional(),
+      paymentMethod: z.enum(["cash", "credit_card", "debit_card", "mobile_payment", "card", "bank_transfer", "other"]),
+      paymentStatus: z.enum(["pending", "completed", "cancelled", "paid", "failed", "refunded"]).optional(),
+      notes: z.string().optional(),
+      employeeId: z.string().optional(),
+      fillingSystemId: z.string().optional(),
+      vehiclePlate: z.string().optional(),
+      meterStart: z.number().optional(),
+      meterEnd: z.number().optional(),
+      shiftId: z.string().optional(),
     });
 
-  // Create and export the type for use in other components
-  type SalesFormData = z.infer<typeof salesFormSchema>;
+  // Use the schema type for internal consistency
+  type FormSchemaType = z.infer<typeof salesFormSchema>;
 
-  // Prepare default values
-  const defaultValues: Partial<SalesFormData> = {
-    quantity: (selectedSale as ExtendedSale)?.quantity || 0,
-    unit_price: (selectedSale as ExtendedSale)?.unit_price || 0,
-    total_sales: (selectedSale as ExtendedSale)?.total_sales || 0,
-    shift_id: (selectedSale as ExtendedSale)?.shift_id || "",
-    filling_system_id: (selectedSale as ExtendedSale)?.filling_system_id || "",
-    meter_start: (selectedSale as ExtendedSale)?.meter_start || 0,
-    meter_end: (selectedSale as ExtendedSale)?.meter_end || 0,
-    date: (selectedSale as ExtendedSale)?.date || new Date().toISOString(),
-    comments: (selectedSale as ExtendedSale)?.comments || "",
+  // Convert selectedSale to proper date format
+  const convertSaleDate = (sale: Sale | null): Date => {
+    if (!sale) return new Date();
+    const saleDate = (sale as ExtendedSale).saleDate;
+    if (saleDate instanceof Date) return saleDate;
+    if (typeof saleDate === 'string') return new Date(saleDate);
+    return new Date();
+  };
+
+  // Prepare default values with proper typing
+  const defaultValues: Partial<FormSchemaType> = {
+    amount: (selectedSale as ExtendedSale)?.amount || 0,
+    quantityLiters: (selectedSale as ExtendedSale)?.quantityLiters || 0,
+    unitPrice: (selectedSale as ExtendedSale)?.unitPrice || 0,
+    saleDate: convertSaleDate(selectedSale),
+    fuelType: (selectedSale as ExtendedSale)?.fuelType || "petrol_regular",
+    customerName: (selectedSale as ExtendedSale)?.customerName || "",
+    paymentMethod: (selectedSale as ExtendedSale)?.paymentMethod || "cash",
+    paymentStatus: (selectedSale as ExtendedSale)?.paymentStatus || "completed",
+    notes: (selectedSale as ExtendedSale)?.notes || "",
+    employeeId: (selectedSale as ExtendedSale)?.employeeId || "",
+    fillingSystemId: (selectedSale as ExtendedSale)?.fillingSystemId || "",
   };
 
   // Handler for form submission
-  const handleSubmit = async (data: SalesFormData) => {
+  const handleSubmit = async (data: FormSchemaType): Promise<boolean> => {
     try {
-      // Calculate total sales
-      const submissionData = {
-        ...data,
-        total_sales: data.quantity * data.unit_price,
+      // Convert schema data to SalesFormData format
+      const submissionData: SalesFormData = {
+        amount: data.quantityLiters * data.unitPrice,
+        quantityLiters: data.quantityLiters,
+        unitPrice: data.unitPrice,
+        saleDate: data.saleDate,
+        fuelType: data.fuelType as FuelTypeCode,
+        customerName: data.customerName,
+        paymentMethod: data.paymentMethod as PaymentMethod,
+        paymentStatus: data.paymentStatus as PaymentStatus,
+        notes: data.notes,
+        employeeId: data.employeeId,
+        fillingSystemId: data.fillingSystemId,
+        vehiclePlate: data.vehiclePlate,
+        meterStart: data.meterStart,
+        meterEnd: data.meterEnd,
+        shiftId: data.shiftId,
       };
 
       if (selectedSale?.id) {
@@ -184,7 +190,7 @@ export function SalesDialogsStandardized({
       >
         {({ control }) => (
           <SalesFormContent 
-            control={control} 
+            control={control as Control<SalesFormData>} 
             employees={employees} 
             totalSales={totalSales}
             setTotalSales={setTotalSales}
@@ -193,12 +199,11 @@ export function SalesDialogsStandardized({
       </FormDialog>
 
       <DeleteConfirmDialog
-        open={isDeleteDialogOpen}
+        isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        title="Delete Sale Record"
-        description="This will delete the sale record and restore the fuel to the tank. This action cannot be undone."
+        itemName="this sale"
         onConfirm={confirmDelete}
-        isLoading={isLoading}
+        isSubmitting={isLoading}
       />
     </>
   );
@@ -206,17 +211,7 @@ export function SalesDialogsStandardized({
 
 // Separate component to handle the form content with hooks
 interface SalesFormContentProps {
-  control: Control<{
-    quantity: number;
-    unit_price: number;
-    total_sales?: number;
-    shift_id: string;
-    filling_system_id: string;
-    meter_start: number;
-    meter_end: number;
-    date?: string;
-    comments?: string;
-  }>;
+  control: Control<SalesFormData>;
   employees?: Employee[];
   totalSales: number;
   setTotalSales: (value: number) => void;
@@ -226,26 +221,22 @@ function SalesFormContent({ control, employees, totalSales, setTotalSales }: Sal
   const { t } = useTranslation();
 
   // Watch for changes to calculate derived values
-  const unitPrice = useWatch({ control, name: "unit_price" });
-  const meterStart = useWatch({ control, name: "meter_start" });
-  const meterEnd = useWatch({ control, name: "meter_end" });
+  const unitPrice = useWatch({ control, name: "unitPrice" });
+  const quantityLiters = useWatch({ control, name: "quantityLiters" });
 
-  // Calculate quantity and total sales when meter values or unit price changes
+  // Calculate total sales when quantity or unit price changes
   useEffect(() => {
-    // Calculate quantity from meter readings
-    const calculatedQuantity = Math.max(0, meterEnd - meterStart);
-
     // Calculate total sales
-    const calculatedTotal = calculatedQuantity * unitPrice;
+    const calculatedTotal = quantityLiters * unitPrice;
     setTotalSales(calculatedTotal || 0);
-  }, [meterStart, meterEnd, unitPrice, setTotalSales]);
+  }, [quantityLiters, unitPrice, setTotalSales]);
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={control}
-          name="quantity"
+          name="quantityLiters"
           render={({ field }) => (
             <FormItem>
               <FormLabel>
@@ -270,51 +261,26 @@ function SalesFormContent({ control, employees, totalSales, setTotalSales }: Sal
 
         <PriceAndEmployeeInputs
           control={control}
-          employees={employees}
+          form={{ control } as any}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={control}
-          name="meter_start"
+          name="unitPrice"
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                {t("sales.meterStart", "Meter Start")}
+                {t("sales.price", "Unit Price")}
               </FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   step="0.01"
                   placeholder={t(
-                    "sales.startingMeterReading",
-                    "Starting meter reading"
-                  )}
-                  {...field}
-                  onChange={(e) =>
-                    field.onChange(parseFloat(e.target.value) || 0)
-                  }
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="meter_end"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("sales.meterEnd", "Meter End")}</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder={t(
-                    "sales.endingMeterReading",
-                    "Ending meter reading"
+                    "sales.unitPricePlaceholder",
+                    "Unit price"
                   )}
                   {...field}
                   onChange={(e) =>
@@ -340,7 +306,7 @@ function SalesFormContent({ control, employees, totalSales, setTotalSales }: Sal
 
       <FormField
         control={control}
-        name="comments"
+        name="notes"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{t("common.comments", "Comments")}</FormLabel>

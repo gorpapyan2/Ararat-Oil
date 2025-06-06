@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import { Employee } from "@/types";
+import { Employee } from "../types/employees.types";
 import { useToast } from "@/hooks";
 
 /**
@@ -77,9 +77,10 @@ export function useEmployeeDialog(options?: {
           // Here you would typically make an API call to update the employee
           // await updateEmployee(updatedEmployee);
 
+          const displayName = `${updatedEmployee.first_name} ${updatedEmployee.last_name}`;
           toast({
             title: "Employee updated",
-            description: `Successfully updated ${updatedEmployee.name}.`,
+            description: `Successfully updated ${displayName}.`,
           });
 
           if (options?.onUpdateSuccess) {
@@ -97,9 +98,10 @@ export function useEmployeeDialog(options?: {
           // Here you would typically make an API call to create the employee
           // await createEmployee(newEmployee);
 
+          const displayName = `${newEmployee.first_name} ${newEmployee.last_name}`;
           toast({
             title: "Employee created",
-            description: `Successfully added ${newEmployee.name}.`,
+            description: `Successfully added ${displayName}.`,
           });
 
           if (options?.onCreateSuccess) {
@@ -130,7 +132,7 @@ export function useEmployeeDialog(options?: {
         setIsSubmitting(false);
       }
     },
-    [selectedEmployee, options]
+    [selectedEmployee, options, toast]
   );
 
   return {

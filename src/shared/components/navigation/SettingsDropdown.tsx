@@ -1,11 +1,6 @@
-import React, { useState } from 'react';
-import { Settings, LogOut, Sun, Moon, Monitor, User } from 'lucide-react';
-import { useAuth } from '@/features/auth';
-import { useTheme } from '@/core/hooks/useTheme';
-import { useTranslation } from 'react-i18next';
-import { SessionLogoutDialogStandardized } from '@/features/auth/components/SessionLogoutDialogStandardized';
+import React from 'react';
 import { cn } from '@/shared/utils';
-import {
+import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -14,6 +9,17 @@ import {
   DropdownMenuTrigger,
 } from '@/core/components/ui/dropdown-menu';
 import { Button } from '@/core/components/ui/button';
+import { 
+  Settings, 
+  User, 
+  HelpCircle, 
+  Palette, 
+  Shield, 
+  Bell,
+  LogOut 
+} from 'lucide-react';
+import { useAuth } from '@/core/hooks/useAuth';
+import { ThemeToggle } from '@/shared/components/ui/theme-toggle';
 
 interface SettingsDropdownProps {
   className?: string;
@@ -22,153 +28,102 @@ interface SettingsDropdownProps {
 export const SettingsDropdown: React.FC<SettingsDropdownProps> = ({
   className
 }) => {
-  const { logout, user, isLoading } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const { t } = useTranslation();
-  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const { signOut } = useAuth();
 
-  const handleLogout = () => {
-    setIsLogoutDialogOpen(true);
-  };
-
-  const handleConfirmLogout = () => {
-    logout();
-  };
-
-  const getThemeIcon = () => {
-    switch (theme) {
-      case 'light':
-        return <Sun className="h-4 w-4" />;
-      case 'dark':
-        return <Moon className="h-4 w-4" />;
-      case 'system':
-        return <Monitor className="h-4 w-4" />;
-      default:
-        return <Sun className="h-4 w-4" />;
-    }
-  };
-
-  const getThemeLabel = () => {
-    switch (theme) {
-      case 'light':
-        return t('settings.light', 'Light');
-      case 'dark':
-        return t('settings.dark', 'Dark');
-      case 'system':
-        return t('settings.system', 'System');
-      default:
-        return t('settings.light', 'Light');
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
     }
   };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              'h-9 w-9 rounded-md',
-              'hover:bg-slate-100 dark:hover:bg-slate-800',
-              'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-              'transition-colors duration-200',
-              className
-            )}
-            aria-label={t('settings.settings', 'Settings')}
-          >
-            <Settings className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-          </Button>
-        </DropdownMenuTrigger>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+            'hover:bg-accent hover:text-accent-foreground',
+            'transition-all duration-200',
+            className
+          )}
+          aria-label="Settings and options"
+        >
+          <Settings className="h-4 w-4 text-foreground" />
+        </Button>
+      </DropdownMenuTrigger>
+      
+      <DropdownMenuContent 
+        align="end"
+        className={cn(
+          'w-64 bg-card border-border shadow-xl',
+          'backdrop-blur-sm'
+        )}
+      >
+        <DropdownMenuLabel className="text-foreground">
+          Settings & Options
+        </DropdownMenuLabel>
         
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {user?.email || t('common.user', 'User')}
-              </p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {t('settings.userSettings', 'User Settings')}
-              </p>
+        <DropdownMenuSeparator className="bg-border" />
+        
+        <DropdownMenuItem 
+          className="hover:bg-accent hover:text-accent-foreground cursor-pointer"
+        >
+          <User className="mr-2 h-4 w-4" />
+          <span>Profile Settings</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem 
+          className="hover:bg-accent hover:text-accent-foreground cursor-pointer"
+        >
+          <Shield className="mr-2 h-4 w-4" />
+          <span>Security</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem 
+          className="hover:bg-accent hover:text-accent-foreground cursor-pointer"
+        >
+          <Bell className="mr-2 h-4 w-4" />
+          <span>Notifications</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator className="bg-border" />
+        
+        {/* Theme Toggle Section */}
+        <div className="p-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Palette className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-foreground">Theme</span>
             </div>
-          </DropdownMenuLabel>
-          
-          <DropdownMenuSeparator />
-          
-          {/* Theme Options */}
-          <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            {t('settings.theme', 'Theme')}
-          </DropdownMenuLabel>
-          
-          <DropdownMenuItem
-            onClick={() => setTheme('light')}
-            className={cn(
-              'flex items-center gap-2 cursor-pointer',
-              theme === 'light' && 'bg-accent/50 text-accent-foreground'
-            )}
-          >
-            <Sun className="h-4 w-4" />
-            <span>{t('settings.light', 'Light')}</span>
-            {theme === 'light' && (
-              <div className="ml-auto h-2 w-2 rounded-full bg-primary" />
-            )}
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem
-            onClick={() => setTheme('dark')}
-            className={cn(
-              'flex items-center gap-2 cursor-pointer',
-              theme === 'dark' && 'bg-accent/50 text-accent-foreground'
-            )}
-          >
-            <Moon className="h-4 w-4" />
-            <span>{t('settings.dark', 'Dark')}</span>
-            {theme === 'dark' && (
-              <div className="ml-auto h-2 w-2 rounded-full bg-primary" />
-            )}
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem
-            onClick={() => setTheme('system')}
-            className={cn(
-              'flex items-center gap-2 cursor-pointer',
-              theme === 'system' && 'bg-accent/50 text-accent-foreground'
-            )}
-          >
-            <Monitor className="h-4 w-4" />
-            <span>{t('settings.system', 'System')}</span>
-            {theme === 'system' && (
-              <div className="ml-auto h-2 w-2 rounded-full bg-primary" />
-            )}
-          </DropdownMenuItem>
-          
-          <DropdownMenuSeparator />
-          
-          {/* Account Actions */}
-          <DropdownMenuItem
-            onClick={handleLogout}
-            className="flex items-center gap-2 cursor-pointer text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/50"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>{t('settings.logout', 'Sign Out')}</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {/* Logout Confirmation Dialog */}
-      <SessionLogoutDialogStandardized
-        open={isLogoutDialogOpen}
-        onOpenChange={setIsLogoutDialogOpen}
-        onConfirm={handleConfirmLogout}
-        isLoading={isLoading}
-        confirmText={t('settings.confirmLogout', 'Sign Out')}
-        cancelText={t('common.cancel', 'Cancel')}
-        title={t('settings.logout', 'Sign Out')}
-        description={t('settings.logoutConfirmation', 'Are you sure you want to sign out?')}
-        confirmButtonProps={{
-          className: 'bg-destructive hover:bg-destructive/90 text-destructive-foreground',
-        }}
-      />
-    </>
+            <ThemeToggle variant="dropdown" size="sm" />
+          </div>
+        </div>
+        
+        <DropdownMenuSeparator className="bg-border" />
+        
+        <DropdownMenuItem 
+          className="hover:bg-accent hover:text-accent-foreground cursor-pointer"
+        >
+          <HelpCircle className="mr-2 h-4 w-4" />
+          <span>Help & Support</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator className="bg-border" />
+        
+        <DropdownMenuItem 
+          onClick={handleSignOut}
+          className={cn(
+            "hover:bg-status-critical/10 text-status-critical hover:text-status-critical",
+            "cursor-pointer"
+          )}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Sign Out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }; 

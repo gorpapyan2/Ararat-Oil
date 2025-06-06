@@ -1,13 +1,14 @@
 import React from 'react';
 import { cn } from '@/shared/utils';
 import { SettingsDropdown } from '@/shared/components/navigation/SettingsDropdown';
+import { ThemeToggle } from '@/shared/components/ui/theme-toggle';
 
 // Simple breadcrumb component that doesn't depend on BreadcrumbProvider
 function SimpleBreadcrumb() {
   // For now, we'll just show a simple title
   // In the future, this can be enhanced to show actual breadcrumbs
   return (
-    <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+    <div className="flex items-center text-sm text-foreground/60">
       <span>Ararat Oil Management</span>
     </div>
   );
@@ -30,10 +31,12 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     <header
       className={cn(
         'sticky top-0 z-40 w-full',
-        'bg-white/95 dark:bg-slate-900/95',
-        'backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60',
-        'border-b border-slate-200 dark:border-slate-800',
-        'transition-colors duration-200',
+        'bg-background/95 dark:bg-background/95',
+        'backdrop-blur-md supports-[backdrop-filter]:bg-background/80',
+        'border-b border-border',
+        'transition-all duration-300',
+        // Natural color enhancements
+        'shadow-sm shadow-shadow/5',
         className
       )}
     >
@@ -52,9 +55,17 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           )}
         </div>
 
-        {/* Right side - Settings dropdown */}
+        {/* Right side - Theme toggle and Settings dropdown */}
         {showSettings && (
-          <div className="flex items-center space-x-2 ml-4">
+          <div className="flex items-center space-x-1 ml-4">
+            {/* Theme Toggle */}
+            <ThemeToggle 
+              variant="button" 
+              size="default"
+              className="mr-2"
+            />
+            
+            {/* Settings Dropdown */}
             <SettingsDropdown />
           </div>
         )}

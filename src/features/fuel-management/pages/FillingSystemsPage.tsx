@@ -10,7 +10,8 @@ import {
   TrendingUp,
   Monitor
 } from 'lucide-react';
-import { NavigationCard } from '../../../shared/components/navigation/NavigationCard';
+import { NavigationCard } from '@/shared/components/navigation/NavigationCard';
+import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
 
 interface FillingSystemModule {
   id: string;
@@ -89,28 +90,53 @@ const fillingSystemModules: FillingSystemModule[] = [
 ];
 
 export default function FillingSystemsPage() {
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Fuel Operations', href: '/fuel' },
+    { label: 'Filling Systems', href: '/fuel/filling-systems' }
+  ];
+
   return (
-    <div className="management-container">
-      <nav className="breadcrumbs">
-        <Link to="/">Home</Link> <span> &gt; </span> 
-        <Link to="/fuel">Fuel Operations</Link> <span> &gt; </span> 
-        <span>Filling Systems</span>
-      </nav>
-      <h1 className="management-title">Filling Systems Management</h1>
-      <p className="management-desc">
-        Comprehensive pump and dispenser management systems for fuel dispensing operations and equipment maintenance.
-      </p>
-      <div className="management-cards">
-        {fillingSystemModules.map((module) => (
-          <NavigationCard
-            key={module.id}
-            title={module.title}
-            href={module.path}
-            color={module.color}
-            icon={module.icon}
-            variant="management"
-          />
-        ))}
+    <div className="subnav-container">
+      <div className="subnav-card-window">
+        {/* Header with Breadcrumb */}
+        <div className="subnav-header">
+          <div className="subnav-header-content">
+            <div className="subnav-breadcrumb">
+              <Breadcrumb items={breadcrumbItems} />
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="subnav-body">
+          <div className="subnav-content">
+            {/* Page Title Section */}
+            <div className="page-title-section">
+              <h1 className="page-title">
+                Filling Systems Management
+              </h1>
+              <p className="page-description">
+                Monitor and manage fuel dispensing systems, pump maintenance, and operational efficiency.
+              </p>
+            </div>
+
+            {/* Module Cards */}
+            <div className="management-cards">
+              {fillingSystemModules.map((module) => (
+                <NavigationCard
+                  key={module.id}
+                  title={module.title}
+                  description={module.description}
+                  href={module.path}
+                  color={module.color}
+                  icon={module.icon}
+                  variant="management"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

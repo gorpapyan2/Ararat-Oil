@@ -3,7 +3,5 @@
  * This helps maintain backward compatibility with existing imports.
  */
 
-export {
-  ActionButtonProps,
-  ActionButton,
-} from "@/core/components/ui/primitives/action-button";
+export type { ActionButtonProps } from "@/core/components/ui/primitives/action-button";
+export { ActionButton } from "@/core/components/ui/primitives/action-button";

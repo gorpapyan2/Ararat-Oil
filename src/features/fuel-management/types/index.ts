@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// Export tank types
+export * from "./tanks.types";
+
 export interface FuelSupply {
   supplier_id: string;
   fuel_type_id: string;

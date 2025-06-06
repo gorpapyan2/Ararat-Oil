@@ -28,14 +28,12 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   offset?: number;
-  [key: string]: string | number | boolean | null | undefined;
 }
 
 // Search parameters
 export interface SearchParams extends PaginationParams {
   q?: string;
   fields?: string[];
-  [key: string]: string | number | boolean | string[] | null | undefined;
 }
 
 // Entity statistics
@@ -55,11 +53,30 @@ export class CentralizedApiService<T extends BaseEntity> {
   constructor(private entityType: string) {}
 
   /**
-   * Get all entities with optional filtering and pagination
+   * Get all entities with optional filters and pagination
    */
   async getAll(filters?: Record<string, string | number | boolean>, pagination?: PaginationParams): Promise<ApiResponse<T[]>> {
-    const queryParams: Record<string, string | number | boolean> = { ...filters, ...pagination };
-    return fetchFromFunction<T[]>(`centralized-crud/${this.entityType}`, { queryParams });
+    const params = new URLSearchParams();
+    
+    // Add filters to params
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+    
+    // Add pagination to params
+    if (pagination) {
+      Object.entries(pagination).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+
+    return fetchFromFunction<T[]>(`centralized-crud/${this.entityType}?${params.toString()}`);
   }
 
   /**
@@ -67,7 +84,7 @@ export class CentralizedApiService<T extends BaseEntity> {
    */
   async getActive(pagination?: PaginationParams): Promise<ApiResponse<T[]>> {
     return fetchFromFunction<T[]>(`centralized-crud/${this.entityType}/active`, { 
-      queryParams: pagination || {} 
+      queryParams: pagination as Record<string, string | number | boolean | null | undefined>
     });
   }
 
@@ -79,16 +96,22 @@ export class CentralizedApiService<T extends BaseEntity> {
   }
 
   /**
-   * Search entities
+   * Search entities with text query
    */
   async search(params: SearchParams): Promise<ApiResponse<T[]>> {
-    const { q, fields, ...otherParams } = params;
-    const queryParams: Record<string, string | number | boolean> = { ...otherParams };
+    const searchParams = new URLSearchParams();
     
-    if (q) queryParams.q = q;
-    if (fields) queryParams.fields = fields.join(',');
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          value.forEach(v => searchParams.append(key, String(v)));
+        } else {
+          searchParams.append(key, String(value));
+        }
+      }
+    });
 
-    return fetchFromFunction<T[]>(`centralized-crud/${this.entityType}/search`, { queryParams });
+    return fetchFromFunction<T[]>(`centralized-crud/${this.entityType}/search?${searchParams.toString()}`);
   }
 
   /**
@@ -273,150 +296,10 @@ export class EntityService<T extends BaseEntity> {
 }
 
 // Pre-configured entity services
-export const employeeService = new EntityService('employees');
-export const fuelTypeService = new EntityService('fuel_types');
-export const tankService = new EntityService('tanks');
-export const petrolProviderService = new EntityService('petrol_providers');
 export const fillingSystemService = new EntityService('filling_systems');
 export const fuelPriceService = new EntityService('fuel_prices');
 export const salesService = new EntityService('sales');
 export const shiftService = new EntityService('shifts');
 
-// Export individual services for backward compatibility
-export const centralizedEmployeesApi = {
-  getAll: (filters?: Record<string, string | number | boolean>, pagination?: PaginationParams) => 
-    employeeService.fetchAll(filters, pagination),
-  getActive: (pagination?: PaginationParams) => 
-    employeeService.fetchActive(pagination),
-  getById: (id: string) => 
-    employeeService.fetchById(id),
-  search: (params: SearchParams) => 
-    employeeService.search(params),
-  getStats: () => 
-    employeeService.getStats(),
-  create: (data: Partial<BaseEntity>) => 
-    employeeService.create(data),
-  bulkCreate: (items: Partial<BaseEntity>[]) => 
-    employeeService.bulkCreate(items),
-  update: (id: string, data: Partial<BaseEntity>) => 
-    employeeService.update(id, data),
-  delete: (id: string) => 
-    employeeService.delete(id),
-  softDelete: (id: string) => 
-    employeeService.softDelete(id),
-};
-
-export const centralizedFuelTypesApi = {
-  getAll: (filters?: Record<string, string | number | boolean>, pagination?: PaginationParams) => 
-    fuelTypeService.fetchAll(filters, pagination),
-  getActive: (pagination?: PaginationParams) => 
-    fuelTypeService.fetchActive(pagination),
-  getById: (id: string) => 
-    fuelTypeService.fetchById(id),
-  search: (params: SearchParams) => 
-    fuelTypeService.search(params),
-  getStats: () => 
-    fuelTypeService.getStats(),
-  create: (data: Partial<BaseEntity>) => 
-    fuelTypeService.create(data),
-  bulkCreate: (items: Partial<BaseEntity>[]) => 
-    fuelTypeService.bulkCreate(items),
-  update: (id: string, data: Partial<BaseEntity>) => 
-    fuelTypeService.update(id, data),
-  delete: (id: string) => 
-    fuelTypeService.delete(id),
-  softDelete: (id: string) => 
-    fuelTypeService.softDelete(id),
-};
-
-export const centralizedTanksApi = {
-  getAll: (filters?: Record<string, string | number | boolean>, pagination?: PaginationParams) => 
-    tankService.fetchAll(filters, pagination),
-  getActive: (pagination?: PaginationParams) => 
-    tankService.fetchActive(pagination),
-  getById: (id: string) => 
-    tankService.fetchById(id),
-  search: (params: SearchParams) => 
-    tankService.search(params),
-  getStats: () => 
-    tankService.getStats(),
-  create: (data: Partial<BaseEntity>) => 
-    tankService.create(data),
-  bulkCreate: (items: Partial<BaseEntity>[]) => 
-    tankService.bulkCreate(items),
-  update: (id: string, data: Partial<BaseEntity>) => 
-    tankService.update(id, data),
-  delete: (id: string) => 
-    tankService.delete(id),
-  softDelete: (id: string) => 
-    tankService.softDelete(id),
-};
-
-export const centralizedPetrolProvidersApi = {
-  getAll: (filters?: Record<string, string | number | boolean>, pagination?: PaginationParams) => 
-    petrolProviderService.fetchAll(filters, pagination),
-  getActive: (pagination?: PaginationParams) => 
-    petrolProviderService.fetchActive(pagination),
-  getById: (id: string) => 
-    petrolProviderService.fetchById(id),
-  search: (params: SearchParams) => 
-    petrolProviderService.search(params),
-  getStats: () => 
-    petrolProviderService.getStats(),
-  create: (data: Partial<BaseEntity>) => 
-    petrolProviderService.create(data),
-  bulkCreate: (items: Partial<BaseEntity>[]) => 
-    petrolProviderService.bulkCreate(items),
-  update: (id: string, data: Partial<BaseEntity>) => 
-    petrolProviderService.update(id, data),
-  delete: (id: string) => 
-    petrolProviderService.delete(id),
-  softDelete: (id: string) => 
-    petrolProviderService.softDelete(id),
-};
-
-export const centralizedFillingSystemsApi = {
-  getAll: (filters?: Record<string, string | number | boolean>, pagination?: PaginationParams) => 
-    fillingSystemService.fetchAll(filters, pagination),
-  getActive: (pagination?: PaginationParams) => 
-    fillingSystemService.fetchActive(pagination),
-  getById: (id: string) => 
-    fillingSystemService.fetchById(id),
-  search: (params: SearchParams) => 
-    fillingSystemService.search(params),
-  getStats: () => 
-    fillingSystemService.getStats(),
-  create: (data: Partial<BaseEntity>) => 
-    fillingSystemService.create(data),
-  bulkCreate: (items: Partial<BaseEntity>[]) => 
-    fillingSystemService.bulkCreate(items),
-  update: (id: string, data: Partial<BaseEntity>) => 
-    fillingSystemService.update(id, data),
-  delete: (id: string) => 
-    fillingSystemService.delete(id),
-  softDelete: (id: string) => 
-    fillingSystemService.softDelete(id),
-};
-
-export const centralizedShiftsApi = {
-  getAll: (filters?: Record<string, string | number | boolean>, pagination?: PaginationParams) => 
-    shiftService.fetchAll(filters, pagination),
-  getActive: (pagination?: PaginationParams) => 
-    shiftService.fetchActive(pagination),
-  getById: (id: string) => 
-    shiftService.fetchById(id),
-  search: (params: SearchParams) => 
-    shiftService.search(params),
-  getStats: () => 
-    shiftService.getStats(),
-  create: (data: Partial<BaseEntity>) => 
-    shiftService.create(data),
-  bulkCreate: (items: Partial<BaseEntity>[]) => 
-    shiftService.bulkCreate(items),
-  update: (id: string, data: Partial<BaseEntity>) => 
-    shiftService.update(id, data),
-  delete: (id: string) => 
-    shiftService.delete(id),
-  softDelete: (id: string) => 
-    shiftService.softDelete(id),
-}; 
+// Note: Removed unused centralized API exports that were not being used anywhere in the codebase
+// This reduces code duplication and maintenance overhead 

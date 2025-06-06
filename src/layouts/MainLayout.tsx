@@ -36,7 +36,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   // Use a different layout for the auth page
   if (isAuthPage) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
+      <div className="min-h-screen bg-gradient-natural">
         <main
           id="main-content"
           className="flex min-h-screen flex-col items-center justify-center"
@@ -50,97 +50,100 @@ export function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-background text-foreground">
       <SkipToContent />
 
-      {/* CSS Grid Layout Container */}
-      <div 
-        className={cn(
-          "min-h-screen grid transition-all duration-300 ease-in-out",
-          isMobile ? "grid-cols-1" : `grid-cols-[${sidebarWidth}px_1fr]`
-        )}
-        style={{
-          gridTemplateColumns: isMobile ? "1fr" : `${sidebarWidth}px 1fr`
-        }}
-      >
-        {/* Sidebar - Grid Area 1 */}
-        <div 
-          className={cn(
-            "relative",
-            isMobile ? "fixed inset-y-0 left-0 z-50" : "z-10"
-          )}
-        >
+      {/* Fixed Sidebar */}
+      {!isMobile && (
+        <div className="fixed top-0 left-0 z-50 h-screen">
           <Sidebar
-            isMobile={isMobile}
-            isOpen={mobileSidebarOpen}
+            isMobile={false}
+            isOpen={false}
             onToggle={toggleMobileSidebar}
           />
         </div>
+      )}
 
-        {/* Main Content Area - Grid Area 2 */}
-        <main
-          id="main-content"
-          className={cn(
-            "relative z-0 flex flex-col min-h-screen overflow-hidden",
-            // Ensure content is positioned correctly
-            isMobile ? "col-span-1" : "col-start-2"
+      {/* Mobile Sidebar */}
+      {isMobile && (
+        <>
+          {/* Mobile Overlay */}
+          {mobileSidebarOpen && (
+            <div 
+              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity"
+              onClick={() => setMobileSidebarOpen(false)}
+              aria-hidden="true"
+            />
           )}
-          tabIndex={-1}
-        >
-          {/* Mobile menu toggle button - Positioned relative to main content */}
-          {isMobile && (
-            <Button
-              onClick={toggleMobileSidebar}
-              className={cn(
-                "absolute top-6 left-6 z-20 md:hidden",
-                "flex items-center justify-center",
-                "h-12 w-12 rounded-2xl",
-                "bg-slate-900/90 backdrop-blur-xl",
-                "text-white",
-                "shadow-2xl shadow-black/30",
-                "border border-slate-700/50",
-                "transition-all duration-300 ease-in-out",
-                "hover:bg-slate-800/90 hover:scale-105",
-                "focus:outline-none focus:ring-2 focus:ring-blue-500/50",
-                mobileSidebarOpen && "rotate-180 bg-blue-600/90 border-blue-500/50"
-              )}
-              aria-label={mobileSidebarOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileSidebarOpen}
-              aria-controls="sidebar"
-              size="icon"
-              variant="ghost"
-            >
-              {mobileSidebarOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </Button>
-          )}
+          
+          {/* Mobile Sidebar */}
+          <div 
+            className={cn(
+              "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out",
+              mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            )}
+          >
+            <Sidebar
+              isMobile={true}
+              isOpen={mobileSidebarOpen}
+              onToggle={toggleMobileSidebar}
+            />
+          </div>
+        </>
+      )}
 
-          {/* Content wrapper with proper padding and overflow handling */}
-          <div className={cn(
-            "flex-1 w-full h-full relative",
-            "p-6 sm:p-8 lg:p-10",
-            // Add padding-top on mobile to account for menu button
-            isMobile && "pt-20"
-          )}>
-            {/* Inner content container */}
-            <div className="w-full h-full relative z-0">
-              {children}
-            </div>
-
-            {/* Overlay elements container - Always visible, proper z-index */}
-            <div className="absolute inset-0 pointer-events-none z-30">
-              {/* This is where prompt cursors, tooltips, etc. would go */}
-              {/* They will always be above content but below modals */}
+      {/* Main Content Area */}
+      <main
+        id="main-content"
+        className={cn(
+          "relative z-0 flex flex-col min-h-screen",
+          "bg-gradient-to-br from-background via-background to-secondary/5",
+          "transition-all duration-300",
+          // Add left margin for fixed sidebar on desktop
+          !isMobile && `ml-[${sidebarWidth}px]`,
+          isMobile && "col-span-1"
+        )}
+        style={{
+          marginLeft: !isMobile ? `${sidebarWidth}px` : 0
+        }}
+        tabIndex={-1}
+      >
+        {/* Mobile menu toggle button - Positioned relative to main content */}
+        {isMobile && (
+          <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border">
+            <div className="flex h-16 items-center px-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleMobileSidebar}
+                className="hover:bg-accent hover:text-accent-foreground"
+                aria-label="Toggle navigation menu"
+              >
+                {mobileSidebarOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+              
+              {/* Mobile header title */}
+              <div className="ml-4 flex-1">
+                <h1 className="text-lg font-semibold text-foreground">
+                  Ararat Oil Management
+                </h1>
+              </div>
             </div>
           </div>
-        </main>
-      </div>
+        )}
 
-      {/* Toast notifications - Highest z-index */}
-      <Toaster />
+        {/* Page Content */}
+        <div className="flex-1 relative">
+          {children}
+        </div>
+        
+        {/* Toast Container */}
+        <Toaster />
+      </main>
     </div>
   );
 }

@@ -44,7 +44,7 @@ export const salesKeys = {
 export function useSalesQuery(filters?: SalesFilters) {
   return useQuery({
     queryKey: salesKeys.list(filters || {}),
-    queryFn: () => getSales(filters),
+    queryFn: () => getSales(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -62,8 +62,22 @@ export function useSalesMutations() {
   const queryClient = useQueryClient();
 
   const createSaleMutation = useMutation({
-    mutationFn: (newSale: CreateSaleRequest) =>
-      createSale(adaptCreateSaleRequest(newSale)),
+    mutationFn: (newSale: CreateSaleRequest) => {
+      // Convert CreateSaleRequest to the format expected by createSale
+      const saleData: Partial<Sale> = {
+        amount: newSale.amount,
+        quantityLiters: newSale.quantityLiters,
+        unitPrice: newSale.unitPrice,
+        saleDate: typeof newSale.saleDate === 'string' ? new Date(newSale.saleDate) : newSale.saleDate,
+        fuelType: newSale.fuelType,
+        customerName: newSale.customerName,
+        paymentMethod: newSale.paymentMethod,
+        notes: newSale.notes,
+        employeeId: newSale.employeeId,
+        fillingSystemId: newSale.fillingSystemId,
+      };
+      return createSale(saleData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: salesKeys.lists() });
       toast.success("Sale created successfully");
@@ -74,8 +88,22 @@ export function useSalesMutations() {
   });
 
   const updateSaleMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateSaleRequest }) =>
-      updateSale(id, adaptUpdateSaleRequest(data)),
+    mutationFn: ({ id, data }: { id: string; data: UpdateSaleRequest }) => {
+      // Convert UpdateSaleRequest to the format expected by updateSale
+      const saleData: Partial<Sale> = {
+        amount: data.amount,
+        quantityLiters: data.quantityLiters,
+        unitPrice: data.unitPrice,
+        saleDate: typeof data.saleDate === 'string' ? new Date(data.saleDate) : data.saleDate,
+        fuelType: data.fuelType,
+        customerName: data.customerName,
+        paymentMethod: data.paymentMethod,
+        notes: data.notes,
+        employeeId: data.employeeId,
+        fillingSystemId: data.fillingSystemId,
+      };
+      return updateSale(id, saleData);
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: salesKeys.lists() });
       queryClient.invalidateQueries({

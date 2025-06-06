@@ -1,56 +1,64 @@
 // Modern centralized services approach
 import { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
-import { fillingSystemsApi } from "@/services/api";
+import { 
+  getFillingSystems,
+  getFillingSystemById,
+  createFillingSystem,
+  updateFillingSystem,
+  deleteFillingSystem
+} from "@/core/api/endpoints/filling-systems";
 import type { FillingSystem as ApiFillingSystem, FillingSystemCreate } from "@/core/api/types";
 import type {
   FillingSystem,
   CreateFillingSystemRequest,
   UpdateFillingSystemRequest,
   FillingSystemFilters,
+  FillingSystemStats,
 } from "../types";
 
 // Modern hook-based approach
 export const useFillingSystemsModern = (options?: Parameters<typeof useCentralizedEntity>[1]) => 
-  useCentralizedEntity<ApiFillingSystem>('filling_systems', options);
+  useCentralizedEntity<ApiFillingSystem>('filling-systems', options);
 
 // Re-export for backward compatibility
 export { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
 
-// Helper function to adapt API filling system to feature type
+// Helper function to adapt API system to feature type
 function adaptApiToFeatureType(apiSystem: ApiFillingSystem): FillingSystem {
   return {
     id: apiSystem.id,
     name: apiSystem.name,
-    status: apiSystem.status || "active",
-    type: "pump", // Default type since API doesn't have this field
-    tank_id: Array.isArray(apiSystem.tank_ids) ? apiSystem.tank_ids[0] || "" : "",
-    location: apiSystem.location || "",
+    status: apiSystem.status as "active" | "inactive" | "maintenance",
+    type: "", // Not in API type, providing default
+    tank_id: apiSystem.tank_ids?.[0] || "", // Use first tank_id from array
+    tank_name: undefined, // Optional property, can be undefined
+    location: apiSystem.location, // API has required location, feature type has optional
     created_at: apiSystem.created_at || "",
     updated_at: apiSystem.updated_at || "",
   };
 }
 
-// Helper function to adapt feature type to API type
-function adaptFeatureToApiType(systemData: CreateFillingSystemRequest | UpdateFillingSystemRequest): FillingSystemCreate {
+// Helper function to adapt feature type to API request
+function adaptFeatureToApiType(systemData: CreateFillingSystemRequest): FillingSystemCreate {
   return {
-    name: systemData.name || "",
-    status: systemData.status || "active",
-    location: systemData.location || "",
-    tank_ids: systemData.tank_id ? [systemData.tank_id] : [],
+    name: systemData.name,
+    location: systemData.location || "", // Provide default empty string for undefined location
+    tank_ids: [systemData.tank_id], // Convert single tank_id to array
+    status: systemData.status as "active" | "inactive" | "maintenance",
   };
 }
 
 /**
  * Get all filling systems with optional filters
  */
-export async function getFillingSystems(filters?: FillingSystemFilters): Promise<FillingSystem[]> {
+export async function getFillingSystems_Legacy(filters?: FillingSystemFilters): Promise<FillingSystem[]> {
   try {
-    const response = await fillingSystemsApi.getAll();
+    const response = await getFillingSystems();
     if (response.error) {
-      throw new Error(response.error);
+      throw new Error(response.error.message);
     }
     
-    let systems = (response.data || []).map((apiSystem: ApiFillingSystem) => adaptApiToFeatureType(apiSystem));
+    let systems = (response.data || []).map(adaptApiToFeatureType);
 
     // Apply client-side filtering if filters provided
     if (filters?.status) {
@@ -60,10 +68,10 @@ export async function getFillingSystems(filters?: FillingSystemFilters): Promise
       systems = systems.filter((system: FillingSystem) => system.tank_id === filters.tank_id);
     }
     if (filters?.search) {
-      const query = filters.search.toLowerCase();
+      const searchLower = filters.search.toLowerCase();
       systems = systems.filter((system: FillingSystem) => 
-        system.name.toLowerCase().includes(query) ||
-        (system.location && system.location.toLowerCase().includes(query))
+        system.name.toLowerCase().includes(searchLower) ||
+        (system.location && system.location.toLowerCase().includes(searchLower))
       );
     }
 
@@ -73,18 +81,16 @@ export async function getFillingSystems(filters?: FillingSystemFilters): Promise
   }
 }
 
-// Alias for backward compatibility
-export const getFillingSystemsWithFilters = getFillingSystems;
-
 /**
  * Get filling system by ID
  */
-export async function getFillingSystemById(id: string): Promise<FillingSystem | null> {
+export async function getFillingSystemById_Legacy(id: string): Promise<FillingSystem | null> {
   try {
-    const response = await fillingSystemsApi.getById(id);
+    const response = await getFillingSystemById(id);
     if (response.error) {
-      throw new Error(response.error);
+      throw new Error(response.error.message);
     }
+    
     return response.data ? adaptApiToFeatureType(response.data) : null;
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : 'Failed to fetch filling system');
@@ -94,13 +100,19 @@ export async function getFillingSystemById(id: string): Promise<FillingSystem | 
 /**
  * Create a new filling system
  */
-export async function createFillingSystem(data: CreateFillingSystemRequest): Promise<FillingSystem> {
+export async function createFillingSystem_Legacy(systemData: CreateFillingSystemRequest): Promise<FillingSystem> {
   try {
-    const apiData = adaptFeatureToApiType(data);
-    const response = await fillingSystemsApi.create(apiData);
+    const apiData = adaptFeatureToApiType(systemData);
+    const response = await createFillingSystem(apiData);
+    
     if (response.error) {
-      throw new Error(response.error);
+      throw new Error(response.error.message);
     }
+    
+    if (!response.data) {
+      throw new Error('No data returned from create operation');
+    }
+    
     return adaptApiToFeatureType(response.data);
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : 'Failed to create filling system');
@@ -108,15 +120,20 @@ export async function createFillingSystem(data: CreateFillingSystemRequest): Pro
 }
 
 /**
- * Update a filling system
+ * Update an existing filling system
  */
-export async function updateFillingSystem(id: string, data: UpdateFillingSystemRequest): Promise<FillingSystem> {
+export async function updateFillingSystem_Legacy(id: string, systemData: Partial<UpdateFillingSystemRequest>): Promise<FillingSystem> {
   try {
-    const apiData = adaptFeatureToApiType(data);
-    const response = await fillingSystemsApi.update(id, apiData);
+    const response = await updateFillingSystem(id, systemData);
+    
     if (response.error) {
-      throw new Error(response.error);
+      throw new Error(response.error.message);
     }
+    
+    if (!response.data) {
+      throw new Error('No data returned from update operation');
+    }
+    
     return adaptApiToFeatureType(response.data);
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : 'Failed to update filling system');
@@ -126,36 +143,46 @@ export async function updateFillingSystem(id: string, data: UpdateFillingSystemR
 /**
  * Delete a filling system
  */
-export async function deleteFillingSystem(id: string): Promise<void> {
+export async function deleteFillingSystem_Legacy(id: string): Promise<boolean> {
   try {
-    const response = await fillingSystemsApi.delete(id);
-    if (response.error) {
-      throw new Error(response.error);
-    }
+    const response = await deleteFillingSystem(id);
+    return !response.error;
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Failed to delete filling system');
+    console.error('Error deleting filling system:', error);
+    return false;
   }
 }
 
 /**
- * Validate tank IDs for filling systems
+ * Get filling systems summary
  */
-export async function validateTankIds(tankIds: string[]): Promise<boolean> {
+export async function getSystemsSummary(): Promise<FillingSystemStats> {
   try {
-    // This is a placeholder implementation
-    // In a real scenario, you'd validate against the tanks API
-    return tankIds.length > 0 && tankIds.every(id => id.length > 0);
+    const systems = await getFillingSystems_Legacy();
+    
+    return {
+      total_sales: 0, // Would need API support for sales data
+      total_volume: 0, // Would need API support for volume data
+      average_daily_sales: 0, // Would need API support for calculations
+      last_maintenance: undefined, // Would need API support for maintenance data
+    };
   } catch (error) {
-    console.error('Error validating tank IDs:', error);
-    return false;
+    console.error("Error calculating systems summary:", error);
+    return {
+      total_sales: 0,
+      total_volume: 0,
+      average_daily_sales: 0,
+      last_maintenance: undefined,
+    };
   }
 }
 
 // Export as an object for compatibility with existing code
 export const fillingSystemsService = {
-  getFillingSystems,
-  createFillingSystem,
-  updateFillingSystem,
-  deleteFillingSystem,
-  validateTankIds,
+  getFillingSystems: getFillingSystems_Legacy,
+  getFillingSystemById: getFillingSystemById_Legacy,
+  createFillingSystem: createFillingSystem_Legacy,
+  updateFillingSystem: updateFillingSystem_Legacy,
+  deleteFillingSystem: deleteFillingSystem_Legacy,
+  getSystemsSummary,
 };

@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { StandardDialog } from "@/core/components/ui/composed/base-dialog";
 import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import {
@@ -63,7 +63,13 @@ export function TankFormDialogStandardized({
       try {
         const tankData: Omit<FuelTank, "id" | "created_at"> = {
           name: data.name,
-          fuel_type: data.fuel_type as FuelTypeCode,
+          fuel_type: {
+            id: data.fuel_type,
+            name: data.fuel_type,
+            code: data.fuel_type as FuelTypeCode,
+            price: 0,
+            color: "#000000",
+          },
           capacity: data.capacity,
           current_level: tank?.current_level || 0,
         };
@@ -108,12 +114,12 @@ export function TankFormDialogStandardized({
 
   return (
     <StandardDialog
-      open={open}
+      isOpen={open}
       onOpenChange={onOpenChange}
       title={tank?.id ? "Edit Tank" : "Add New Tank"}
       description={tank?.id ? "Update tank details" : "Create a new fuel tank"}
-      maxWidth="sm:max-w-[425px]"
-      actions={formActions}
+      className="sm:max-w-[425px]"
+      footer={formActions}
     >
       <form id="tank-form" onSubmit={handleSubmit} className="space-y-4">
         <FormInput
@@ -121,7 +127,6 @@ export function TankFormDialogStandardized({
           label="Tank Name"
           form={form}
           placeholder="Enter tank name"
-          autoComplete="off"
         />
 
         <FormSelect

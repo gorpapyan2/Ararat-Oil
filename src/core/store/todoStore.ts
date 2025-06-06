@@ -1,12 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { v4 as uuidv4 } from "uuid";
-import {
+import type {
   TodoItem,
-  FilterType,
-  SortType,
   PriorityType,
-  PRIORITY_ORDER,
 } from "@/types/todo";
 
 /**
@@ -20,8 +16,8 @@ const STORAGE_KEY = "todo-storage";
 export interface TodoState {
   // State
   todos: TodoItem[];
-  filter: FilterType;
-  sort: SortType;
+  filter: "all" | "active" | "completed";
+  sort: "date" | "priority" | "alphabetical";
   search: string;
 
   // Actions
@@ -29,11 +25,12 @@ export interface TodoState {
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
   editTodo: (id: string, text: string) => void;
-  clearCompleted: () => void;
-  setFilter: (filter: FilterType) => void;
-  setSort: (sort: SortType) => void;
+  setFilter: (filter: "all" | "active" | "completed") => void;
+  setSort: (sort: "date" | "priority" | "alphabetical") => void;
   setSearch: (search: string) => void;
-  updatePriority: (id: string, priority: PriorityType) => void;
+  clearCompleted: () => void;
+  setPriority: (id: string, priority: PriorityType) => void;
+  getTodos: () => TodoItem[];
 }
 
 /**
@@ -41,26 +38,26 @@ export interface TodoState {
  *
  * Manages todo items including:
  * - Todo CRUD operations
- * - Filtering, sorting, and search functionality
+ * - Filtering and searching
  * - Priority management
  */
 export const useTodoStore = create<TodoState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       todos: [],
       filter: "all",
-      sort: "newest",
+      sort: "date",
       search: "",
 
       addTodo: (text, priority = "medium") =>
         set((state) => ({
           todos: [
             {
-              id: uuidv4(),
+              id: crypto.randomUUID(),
               text,
               completed: false,
-              createdAt: Date.now(),
               priority,
+              createdAt: Date.now(),
             },
             ...state.todos,
           ],
@@ -91,29 +88,29 @@ export const useTodoStore = create<TodoState>()(
           ),
         })),
 
+      setFilter: (filter) => set({ filter }),
+      setSort: (sort) => set({ sort }),
+      setSearch: (search) => set({ search }),
+
       clearCompleted: () =>
         set((state) => ({
           todos: state.todos.filter((todo) => !todo.completed),
         })),
 
-      setFilter: (filter) => set({ filter }),
-
-      setSort: (sort) => set({ sort }),
-
-      setSearch: (search) => set({ search }),
-
-      updatePriority: (id, priority) =>
+      setPriority: (id, priority) =>
         set((state) => ({
           todos: state.todos.map((todo) =>
             todo.id === id ? { ...todo, priority } : todo
           ),
         })),
+
+      getTodos: () => {
+        const state = get();
+        return getFilteredTodos(state);
+      },
     }),
     {
       name: STORAGE_KEY,
-      partialize: (state) => ({
-        todos: state.todos,
-      }),
     }
   )
 );
@@ -159,30 +156,33 @@ export const getFilteredTodos = (state: TodoState): TodoItem[] => {
   let filteredTodos = todos;
 
   if (filter === "active") {
-    filteredTodos = filteredTodos.filter((todo) => !todo.completed);
+    filteredTodos = todos.filter((todo) => !todo.completed);
   } else if (filter === "completed") {
-    filteredTodos = filteredTodos.filter((todo) => todo.completed);
+    filteredTodos = todos.filter((todo) => todo.completed);
   }
 
-  // Apply search
+  // Search todos
   if (search) {
-    const searchLower = search.toLowerCase();
     filteredTodos = filteredTodos.filter((todo) =>
-      todo.text.toLowerCase().includes(searchLower)
+      todo.text.toLowerCase().includes(search.toLowerCase())
     );
   }
 
   // Sort todos
-  return [...filteredTodos].sort((a, b) => {
-    if (sort === "oldest") {
-      return a.createdAt - b.createdAt;
-    } else if (sort === "alphabetical") {
-      return a.text.localeCompare(b.text);
-    } else if (sort === "priority") {
-      return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
-    } else {
-      // Default: newest
-      return b.createdAt - a.createdAt;
+  filteredTodos.sort((a, b) => {
+    switch (sort) {
+      case "date":
+        return b.createdAt - a.createdAt;
+      case "priority": {
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        return priorityOrder[b.priority] - priorityOrder[a.priority];
+      }
+      case "alphabetical":
+        return a.text.localeCompare(b.text);
+      default:
+        return 0;
     }
   });
-};
+
+  return filteredTodos;
+}; 

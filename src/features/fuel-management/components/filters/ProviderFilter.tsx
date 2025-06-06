@@ -65,7 +65,7 @@ export function ProviderFilter({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-full p-2 bg-gray-50 border shadow-lg shadow-primary/5 z-50"
+          className="w-full p-2 bg-gray-50 border shadow-lg shadow-black/5 z-50"
           sideOffset={4}
         >
           <div className="flex flex-col space-y-2">

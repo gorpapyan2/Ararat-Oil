@@ -21,12 +21,12 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/core/components/ui/alert-dialog";
-import { ProviderDialogStandardized } from "@/features/petrol-providers/components/ProviderDialogStandardized";
+import { ProviderDialogStandardized } from "../components/ProviderDialogStandardized";
 import { petrolProvidersApi, type PetrolProvider } from "@/core/api";
 import { useTranslation } from "react-i18next";
 import { CreateButton } from "@/core/components/ui/create-button";
 import { IconButton } from "@/core/components/ui/icon-button";
-import { usePageBreadcrumbs } from "@/hooks/usePageBreadcrumbs";
+import { usePageBreadcrumbs } from "@/hooks";
 
 export default function PetrolProviders() {
   const [selectedProvider, setSelectedProvider] =
@@ -39,10 +39,13 @@ export default function PetrolProviders() {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  const { data: providers = [] } = useQuery({
+  const { data: providersResponse } = useQuery({
     queryKey: ["petrol-providers"],
     queryFn: petrolProvidersApi.getPetrolProviders,
   });
+
+  // Extract providers from the API response
+  const providers = providersResponse?.data || [];
 
   const createMutation = useMutation({
     mutationFn: petrolProvidersApi.createPetrolProvider,
@@ -102,6 +105,29 @@ export default function PetrolProviders() {
     }
   }, [selectedProvider, deleteMutation]);
 
+  // Handle form submission for create
+  const handleCreateSubmit = async (data: { name: string; contact?: string }) => {
+    const result = await createMutation.mutateAsync({
+      name: data.name,
+      contact_info: data.contact,
+      is_active: true,
+    });
+    // No need to return anything - mutations handle success/error
+  };
+
+  // Handle form submission for update  
+  const handleUpdateSubmit = async (data: { name: string; contact?: string }) => {
+    if (!selectedProvider) return;
+    const result = await updateMutation.mutateAsync({
+      id: selectedProvider.id,
+      data: {
+        name: data.name,
+        contact_info: data.contact,
+      },
+    });
+    // No need to return anything - mutations handle success/error
+  };
+
   usePageBreadcrumbs({
     segments: [
       { name: "Dashboard", href: "/" },
@@ -129,10 +155,10 @@ export default function PetrolProviders() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {providers.map((provider) => (
+          {providers.map((provider: PetrolProvider) => (
             <TableRow key={provider.id}>
               <TableCell>{provider.name}</TableCell>
-              <TableCell>{provider.contact}</TableCell>
+              <TableCell>{provider.contact_info}</TableCell>
               <TableCell className="space-x-2">
                 <IconButton
                   variant="outline"
@@ -157,7 +183,7 @@ export default function PetrolProviders() {
       <ProviderDialogStandardized
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
-        onSubmit={createMutation.mutateAsync}
+        onSubmit={handleCreateSubmit}
         title={t("petrolProviders.addProvider")}
       />
 
@@ -167,13 +193,11 @@ export default function PetrolProviders() {
           setIsEditDialogOpen(open);
           if (!open) setSelectedProvider(null);
         }}
-        onSubmit={(data) =>
-          updateMutation.mutateAsync({
-            id: selectedProvider!.id,
-            data,
-          })
-        }
-        initialData={selectedProvider ?? undefined}
+        onSubmit={handleUpdateSubmit}
+        initialData={selectedProvider ? {
+          name: selectedProvider.name,
+          contact: selectedProvider.contact_info,
+        } : undefined}
         title={t("petrolProviders.editProvider")}
       />
 

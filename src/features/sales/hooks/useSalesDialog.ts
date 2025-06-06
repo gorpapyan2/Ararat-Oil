@@ -57,9 +57,25 @@ export function useSalesDialog({
       setIsSubmitting(true);
 
       try {
+        // Convert saleDate if it's a string and ensure proper format for service
+        const processedData = {
+          ...data,
+          saleDate: typeof data.saleDate === 'string' ? new Date(data.saleDate) : data.saleDate
+        };
+
         if (selectedSale?.id) {
-          // Update existing sale
-          const updateData: UpdateSaleRequest = { ...data, id: selectedSale.id };
+          // Update existing sale - convert to Partial<Sale> format
+          const updateData: Partial<Sale> = {
+            amount: processedData.amount,
+            quantityLiters: processedData.quantityLiters,
+            unitPrice: processedData.unitPrice,
+            saleDate: processedData.saleDate,
+            fuelType: processedData.fuelType,
+            customerName: processedData.customerName,
+            paymentMethod: processedData.paymentMethod,
+            notes: processedData.notes,
+          };
+          
           const updatedSale = await updateSale(selectedSale.id, updateData);
 
           queryClient.invalidateQueries({ queryKey: ["sales"] });
@@ -73,8 +89,19 @@ export function useSalesDialog({
 
           onUpdateSuccess?.(updatedSale);
         } else {
-          // Create new sale
-          const newSale = await createSale(data);
+          // Create new sale - convert to Partial<Sale> format
+          const createData: Partial<Sale> = {
+            amount: processedData.amount,
+            quantityLiters: processedData.quantityLiters,
+            unitPrice: processedData.unitPrice,
+            saleDate: processedData.saleDate,
+            fuelType: processedData.fuelType,
+            customerName: processedData.customerName,
+            paymentMethod: processedData.paymentMethod,
+            notes: processedData.notes,
+          };
+
+          const newSale = await createSale(createData);
 
           queryClient.invalidateQueries({ queryKey: ["sales"] });
           queryClient.invalidateQueries({ queryKey: ["fuel-tanks"] });

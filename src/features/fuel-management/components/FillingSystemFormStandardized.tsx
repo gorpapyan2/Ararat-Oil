@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { StandardDialog } from "@/core/components/ui/composed/base-dialog";
 import { Button } from "@/core/components/ui/button";
 import { useToast } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";

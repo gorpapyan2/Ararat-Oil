@@ -2,10 +2,10 @@ import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks";
 import { useDialog } from "@/core/hooks/useDialog";
-import { tanksApi } from "@/services/api";
+import { tanksApi } from "@/core/api";
 import { FuelSalesTable } from "./FuelSalesTable";
 import { FuelSalesFormStandardized } from "./FuelSalesFormStandardized";
-import { ConfirmDeleteDialogStandardized } from "./ConfirmDeleteDialogStandardized";
+import { DeleteConfirmDialog } from "@/shared/components/common/dialog/DeleteConfirmDialog";
 import { FuelSalesSummary } from "./summary/FuelSalesSummary";
 import { FuelSalesFilter } from "./FuelSalesFilter";
 import { useFuelSales } from "../hooks/useFuelSales";
@@ -24,8 +24,8 @@ interface FuelTank {
 }
 
 async function fetchFuelTanks(): Promise<FuelTank[]> {
-  const response = await tanksApi.getAll();
-  if (response.error) throw new Error(response.error);
+  const response = await tanksApi.getTanks();
+  if (response.error) throw new Error(response.error.message || 'Failed to fetch tanks');
   
   const tanks = response.data || [];
   return tanks.map((tank: Tank) => ({
@@ -186,10 +186,11 @@ export function FuelSalesManagerStandardized({
         initialData={editingSale}
       />
 
-      <ConfirmDeleteDialogStandardized
+      <DeleteConfirmDialog
         open={isDeleteDialogOpen}
         onOpenChange={onDeleteDialogOpenChange}
         onConfirm={handleDeleteConfirm}
+        description="Are you sure you want to delete this fuel sale? This action cannot be undone."
         isLoading={isLoading}
       />
     </div>

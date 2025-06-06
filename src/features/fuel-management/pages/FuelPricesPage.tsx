@@ -7,11 +7,14 @@ import {
   X, 
   History,
   Fuel,
-  TrendingUp
+  TrendingUp,
+  Plus,
+  Clock
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fuelPricesApi } from '@/core/api';
 import type { FuelPrice as ApiFuelPrice } from '@/core/api';
+import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
 
 type FuelPrice = ApiFuelPrice;
 
@@ -106,6 +109,18 @@ export default function FuelPricesPage() {
     if (change < 0) return <TrendingUp className="h-4 w-4 text-red-400 rotate-180" />;
     return <div className="h-4 w-4" />;
   };
+
+  const breadcrumbItems = [
+    { label: 'Home', to: '/' },
+    { label: 'Fuel Operations', to: '/fuel' },
+    { label: 'Fuel Prices', to: '/fuel/prices' },
+  ];
+
+  const fuelTypes = [
+    { id: 'type1', name: 'Fuel Type 1', description: 'Description for Fuel Type 1' },
+    { id: 'type2', name: 'Fuel Type 2', description: 'Description for Fuel Type 2' },
+    { id: 'type3', name: 'Fuel Type 3', description: 'Description for Fuel Type 3' },
+  ];
 
   return (
     <div className="management-container">

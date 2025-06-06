@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/core/components/ui/card";
 import { SalesFormStandardized, ShiftControl } from "@/features/sales";
 import { createSale } from "@/features/sales/services";
 import { useToast } from "@/hooks";
-import { CreateSaleRequest } from '@/features/sales/types';
+import { CreateSaleRequest, SalesFormData, FuelTypeCode, Sale } from '@/features/sales/types';
 
 export default function SalesCreate() {
   const { t } = useTranslation();
@@ -45,9 +45,23 @@ export default function SalesCreate() {
     },
   });
 
-  const handleSubmit = async (data: CreateSaleRequest): Promise<boolean> => {
+  const handleSubmit = async (data: SalesFormData): Promise<boolean> => {
     try {
-      await createSaleMutation.mutateAsync(data);
+      // Convert SalesFormData to Partial<Sale> format that createSale expects
+      const saleData: Partial<Sale> = {
+        amount: data.amount || (data.quantityLiters * data.unitPrice),
+        quantityLiters: data.quantityLiters,
+        unitPrice: data.unitPrice,
+        saleDate: data.saleDate instanceof Date ? data.saleDate : new Date(data.saleDate || new Date()),
+        fuelType: data.fuelType as FuelTypeCode,
+        customerName: data.customerName || "Walk-in Customer", // Default for gas station sales
+        paymentMethod: data.paymentMethod || "cash" as const,
+        paymentStatus: data.paymentStatus || "completed" as const,
+        notes: data.notes,
+        fillingSystemId: data.fillingSystemId,
+      };
+      
+      await createSaleMutation.mutateAsync(saleData);
       return true; // Indicate submission was successful
     } catch (error) {
       // Error is already handled by createSaleMutation.onError

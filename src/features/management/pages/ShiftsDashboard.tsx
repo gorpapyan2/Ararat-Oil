@@ -25,7 +25,21 @@ import {
   Pause,
   Play,
   BarChart3,
-  Settings
+  Settings,
+  Timer,
+  Target,
+  Activity,
+  Percent,
+  Calculator,
+  FileText,
+  Download,
+  Bell,
+  Shield,
+  ClockIcon,
+  UserPlus,
+  CalendarPlus,
+  PieChart,
+  Zap
 } from 'lucide-react';
 import { Badge } from '../../../core/components/ui/primitives/badge';
 import { Card } from '../../../core/components/ui/card';
@@ -33,6 +47,8 @@ import { Button } from '../../../core/components/ui/button';
 import { Input } from '../../../core/components/ui/input';
 import { useToast } from '../../../core/hooks/useToast';
 import { supabase } from '../../../core/api/supabase';
+import { WindowContainer } from '@/shared/components/layout/WindowContainer';
+import { StatsCard } from '@/shared/components/cards';
 
 // Types
 interface Employee {
@@ -43,15 +59,19 @@ interface Employee {
   hourly_rate: number;
   phone: string;
   avatar_url?: string;
-  status: 'active' | 'inactive' | 'on_shift';
+  status: 'active' | 'inactive' | 'on_shift' | 'break' | 'overtime';
   hire_date: string;
   performance_rating: number;
+  current_shift_start?: string;
+  total_hours_week: number;
+  overtime_hours: number;
 }
 
 interface Shift {
   id: string;
   employee_id: string;
   employee_name: string;
+  employee_role: string;
   start_time: string;
   end_time: string;
   scheduled_hours: number;
@@ -65,21 +85,17 @@ interface Shift {
   overtime_hours: number;
   total_pay: number;
   shift_rating?: number;
+  location: string;
 }
 
-interface ShiftMetrics {
-  total_employees: number;
-  employees_on_shift: number;
-  scheduled_shifts_today: number;
-  completed_shifts_today: number;
-  attendance_rate: number;
-  average_hours_per_employee: number;
-  overtime_hours_this_week: number;
-  total_labor_cost_today: number;
-  shift_coverage: number;
-  no_show_rate: number;
-  average_shift_rating: number;
-  labor_efficiency: number;
+interface ShiftAlert {
+  id: string;
+  type: 'critical' | 'warning' | 'info';
+  title: string;
+  description: string;
+  employee?: string;
+  time: string;
+  shift_id?: string;
 }
 
 // Shifts service for Supabase integration
@@ -133,10 +149,10 @@ const shiftsService = {
   }
 };
 
-export const ShiftsDashboard: React.FC = () => {
+export default function ShiftsDashboard() {
+  const [viewMode, setViewMode] = useState<'employees' | 'shifts'>('employees');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'scheduled' | 'completed'>('all');
-  const [viewMode, setViewMode] = useState<'employees' | 'shifts'>('employees');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -263,27 +279,51 @@ export const ShiftsDashboard: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
       case 'on_shift':
-      case 'completed': return 'default';
-      case 'scheduled': return 'default';
+        return 'text-green-600 bg-green-50 border-green-200';
+      case 'break':
+        return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'overtime':
+        return 'text-orange-600 bg-orange-50 border-orange-200';
+      case 'active':
+        return 'text-blue-600 bg-blue-50 border-blue-200';
+      case 'inactive':
+        return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'scheduled':
+        return 'text-purple-600 bg-purple-50 border-purple-200';
+      case 'completed':
+        return 'text-green-600 bg-green-50 border-green-200';
       case 'missed':
-      case 'cancelled': return 'destructive';
-      case 'inactive': return 'default';
-      default: return 'default';
+        return 'text-red-600 bg-red-50 border-red-200';
+      case 'cancelled':
+        return 'text-gray-600 bg-gray-50 border-gray-200';
+      default:
+        return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case 'on_shift':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'break':
+        return <Pause className="w-4 h-4" />;
+      case 'overtime':
+        return <AlertCircle className="w-4 h-4" />;
       case 'active':
-      case 'on_shift': return CheckCircle;
-      case 'scheduled': return Clock;
-      case 'completed': return CheckCircle;
+        return <Users className="w-4 h-4" />;
+      case 'inactive':
+        return <XCircle className="w-4 h-4" />;
+      case 'scheduled':
+        return <Calendar className="w-4 h-4" />;
+      case 'completed':
+        return <CheckCircle className="w-4 h-4" />;
       case 'missed':
-      case 'cancelled': return XCircle;
-      case 'inactive': return Pause;
-      default: return Clock;
+        return <XCircle className="w-4 h-4" />;
+      case 'cancelled':
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
     }
   };
 
@@ -322,89 +362,51 @@ export const ShiftsDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Shift Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Monitor employee schedules, attendance, and workforce analytics
-          </p>
+    <WindowContainer
+      title="Shift Management Dashboard"
+      subtitle="Comprehensive workforce management, scheduling, and performance tracking for optimal operations"
+    >
+      {/* Main Stats */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7]">
+            Workforce Overview
+          </h3>
+          <div className="flex gap-2">
+            <button className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-card border border-border rounded-lg hover:shadow-md transition-all duration-200">
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </button>
+            <button className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-200">
+              <Plus className="w-4 h-4" />
+              New Shift
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={handleRefresh}
-            disabled={metricsLoading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${metricsLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Shift
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {metricCards.map((metric, index) => (
+            <StatsCard
+              key={index}
+              title={metric.title}
+              value={metric.value}
+              icon={metric.icon}
+              color={metric.color}
+              description={metric.description}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {metricCards.map((metric, index) => (
-          <motion.div
-            key={metric.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-lg bg-${metric.color}-100 dark:bg-${metric.color}-900/20`}>
-                    <metric.icon className={`h-5 w-5 text-${metric.color}-600 dark:text-${metric.color}-400`} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      {metric.title}
-                    </p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {metricsLoading ? '...' : metric.value}
-                    </p>
-                  </div>
-                </div>
-                {metric.trend && (
-                  <div className={`flex items-center space-x-1 ${metric.trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {metric.trend > 0 ? (
-                      <TrendingUp className="h-4 w-4" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4" />
-                    )}
-                    <span className="text-sm font-medium">
-                      {Math.abs(metric.trend)}%
-                    </span>
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                {metric.description}
-              </p>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* View Mode Toggle */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+      {/* View Mode Toggle & Search */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex bg-muted rounded-lg p-1">
             <button
               onClick={() => setViewMode('employees')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 viewMode === 'employees'
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  ? 'bg-card text-card-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Users className="h-4 w-4 mr-2 inline" />
@@ -414,287 +416,276 @@ export const ShiftsDashboard: React.FC = () => {
               onClick={() => setViewMode('shifts')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 viewMode === 'shifts'
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  ? 'bg-card text-card-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Clock className="h-4 w-4 mr-2 inline" />
-              Shifts
+              Active Shifts
             </button>
           </div>
-        </div>
 
-        {/* Search and Filter */}
-        <div className="flex items-center space-x-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder={`Search ${viewMode}...`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-64"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-gray-400" />
-            <select
-              value={selectedFilter}
-              onChange={(e) => setSelectedFilter(e.target.value as any)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-            >
-              <option value="all">All {viewMode === 'employees' ? 'Employees' : 'Shifts'}</option>
-              {viewMode === 'employees' ? (
-                <>
-                  <option value="active">Active</option>
-                  <option value="on_shift">On Shift</option>
-                  <option value="inactive">Inactive</option>
-                </>
-              ) : (
-                <>
-                  <option value="active">Active</option>
-                  <option value="scheduled">Scheduled</option>
-                  <option value="completed">Completed</option>
-                </>
-              )}
-            </select>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder={`Search ${viewMode}...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 bg-card border border-border rounded-lg text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Content based on view mode */}
-      {viewMode === 'employees' ? (
-        // Employees View
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <AnimatePresence>
-            {filteredEmployees.map((employee, index) => {
-              const StatusIcon = getStatusIcon(employee.status);
-              return (
-                <motion.div
-                  key={employee.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                          <span className="text-lg font-semibold text-gray-600 dark:text-gray-300">
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {viewMode === 'employees' ? (
+              <div className="space-y-4">
+                <h4 className="text-md font-semibold text-card-foreground mb-4">
+                  Employee Status ({filteredEmployees.length})
+                </h4>
+                {filteredEmployees.map((employee) => (
+                  <div
+                    key={employee.id}
+                    className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                          <span className="text-lg font-semibold text-muted-foreground">
                             {employee.name.split(' ').map(n => n[0]).join('')}
                           </span>
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                            {employee.name}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {employee.role}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant={getStatusColor(employee.status) as any} className="capitalize">
-                          <StatusIcon className="h-3 w-3 mr-1" />
-                          {employee.status.replace('_', ' ')}
-                        </Badge>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Employee Details */}
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Mail className="h-4 w-4" />
-                        <span>{employee.email}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Phone className="h-4 w-4" />
-                        <span>{employee.phone}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                          <DollarSign className="h-4 w-4" />
-                          <span>${employee.hourly_rate.toFixed(2)}/hr</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Award className="h-4 w-4 text-yellow-500" />
-                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {employee.performance_rating.toFixed(1)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex space-x-2 mt-4">
-                      {employee.status === 'on_shift' ? (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => clockOutMutation.mutate({ employeeId: employee.id })}
-                          disabled={clockOutMutation.isPending}
-                        >
-                          <Pause className="h-4 w-4 mr-2" />
-                          Clock Out
-                        </Button>
-                      ) : employee.status === 'active' ? (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => clockInMutation.mutate({ employeeId: employee.id })}
-                          disabled={clockInMutation.isPending}
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Clock In
-                        </Button>
-                      ) : (
-                        <Button variant="outline" size="sm" className="flex-1" disabled>
-                          <UserX className="h-4 w-4 mr-2" />
-                          Inactive
-                        </Button>
-                      )}
-                      <Button variant="outline" size="sm">
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      ) : (
-        // Shifts View
-        <div className="space-y-4">
-          <AnimatePresence>
-            {filteredShifts.map((shift, index) => {
-              const StatusIcon = getStatusIcon(shift.status);
-              return (
-                <motion.div
-                  key={shift.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                            {shift.employee_name.split(' ').map(n => n[0]).join('')}
-                          </span>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                            {shift.employee_name}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {shift.position}
-                          </p>
+                          <h5 className="font-semibold text-card-foreground">{employee.name}</h5>
+                          <p className="text-sm text-muted-foreground">{employee.role}</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center space-x-6">
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Start</p>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">
-                            {formatTime(shift.start_time)}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {formatDate(shift.start_time)}
-                          </p>
-                        </div>
-                        
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">End</p>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">
-                            {formatTime(shift.end_time)}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {formatDate(shift.end_time)}
-                          </p>
-                        </div>
-                        
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Hours</p>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">
-                            {shift.actual_hours || shift.scheduled_hours}h
-                          </p>
-                          {shift.overtime_hours > 0 && (
-                            <p className="text-xs text-orange-600">
-                              +{shift.overtime_hours}h OT
-                            </p>
-                          )}
-                        </div>
-                        
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Pay</p>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">
-                            ${shift.total_pay.toFixed(2)}
-                          </p>
-                        </div>
-                        
-                        <Badge variant={getStatusColor(shift.status) as any} className="capitalize">
-                          <StatusIcon className="h-3 w-3 mr-1" />
-                          {shift.status}
-                        </Badge>
-                        
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor(employee.status)}`}>
+                          {getStatusIcon(employee.status)}
+                          <span className="ml-1 capitalize">{employee.status.replace('_', ' ')}</span>
+                        </span>
                       </div>
                     </div>
-                    
-                    {shift.notes && (
-                      <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          <strong>Notes:</strong> {shift.notes}
-                        </p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Rate:</span>
+                        <div className="font-medium">₺{employee.hourly_rate}/hr</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">This Week:</span>
+                        <div className="font-medium">{employee.total_hours_week}h</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Overtime:</span>
+                        <div className="font-medium">{employee.overtime_hours}h</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Rating:</span>
+                        <div className="font-medium flex items-center gap-1">
+                          <Award className="w-3 h-3 text-yellow-500" />
+                          {employee.performance_rating}/5
+                        </div>
+                      </div>
+                    </div>
+
+                    {employee.current_shift_start && (
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          <span>Started at {employee.current_shift_start}</span>
+                        </div>
                       </div>
                     )}
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <h4 className="text-md font-semibold text-card-foreground mb-4">
+                  Active Shifts ({filteredShifts.length})
+                </h4>
+                {filteredShifts.map((shift) => (
+                  <div
+                    key={shift.id}
+                    className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h5 className="font-semibold text-card-foreground">{shift.employee_name}</h5>
+                        <p className="text-sm text-muted-foreground">{shift.employee_role} • {shift.position}</p>
+                      </div>
+                      
+                      <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor(shift.status)}`}>
+                        {getStatusIcon(shift.status)}
+                        <span className="ml-1 capitalize">{shift.status}</span>
+                      </span>
+                    </div>
 
-      {/* Loading State */}
-      {(employeesLoading || shiftsLoading || metricsLoading) && (
-        <div className="text-center py-8">
-          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Loading shift management data...</p>
-        </div>
-      )}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                      <div>
+                        <span className="text-muted-foreground">Time:</span>
+                        <div className="font-medium">{shift.start_time} - {shift.end_time}</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Hours:</span>
+                        <div className="font-medium">{shift.actual_hours}h / {shift.scheduled_hours}h</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Overtime:</span>
+                        <div className="font-medium">{shift.overtime_hours}h</div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Pay:</span>
+                        <div className="font-medium">₺{shift.total_pay}</div>
+                      </div>
+                    </div>
 
-      {/* Empty State */}
-      {!employeesLoading && !shiftsLoading && 
-       ((viewMode === 'employees' && filteredEmployees.length === 0) || 
-        (viewMode === 'shifts' && filteredShifts.length === 0)) && (
-        <Card className="p-8 text-center">
-          <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            No {viewMode} Found
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {searchTerm || selectedFilter !== 'all' 
-              ? `Try adjusting your search or filter criteria.` 
-              : `Start by adding your first ${viewMode === 'employees' ? 'employee' : 'shift'}.`
-            }
-          </p>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add {viewMode === 'employees' ? 'Employee' : 'Shift'}
-          </Button>
-        </Card>
-      )}
-    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          <span>{shift.location}</span>
+                        </div>
+                        {shift.clock_in_time && (
+                          <div className="flex items-center gap-1">
+                            <Timer className="w-3 h-3" />
+                            <span>Clocked in: {shift.clock_in_time}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {shift.shift_rating && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <Award className="w-3 h-3 text-yellow-500" />
+                          <span>{shift.shift_rating}/5</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Alerts Sidebar */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-md font-semibold text-card-foreground">
+                Shift Alerts
+              </h4>
+              <span className="text-sm text-muted-foreground">
+                {mockAlerts.length} alerts
+              </span>
+            </div>
+            
+            <div className="space-y-3">
+              {mockAlerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  className={`border rounded-lg p-3 ${getAlertColor(alert.type)}`}
+                >
+                  <div className="flex items-start gap-2">
+                    {getAlertIcon(alert.type)}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="text-sm font-medium text-card-foreground">
+                          {alert.title}
+                        </h5>
+                        <span className="text-xs text-muted-foreground">
+                          {alert.time}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        {alert.description}
+                      </p>
+                      {alert.employee && (
+                        <div className="text-xs font-medium text-card-foreground">
+                          {alert.employee}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Performance Analytics */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
+          Performance Analytics
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {performanceStats.map((stat, index) => (
+            <StatsCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={stat.color}
+              description={stat.description}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
+          Shift Management Tools
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
+            <div className="p-2 bg-blue-500/10 rounded-lg">
+              <CalendarPlus className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+              <div className="font-medium text-card-foreground">Schedule Shift</div>
+              <div className="text-xs text-muted-foreground">Add new shifts</div>
+            </div>
+          </button>
+          
+          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
+            <div className="p-2 bg-green-500/10 rounded-lg">
+              <UserPlus className="w-5 h-5 text-green-500" />
+            </div>
+            <div>
+              <div className="font-medium text-card-foreground">Add Employee</div>
+              <div className="text-xs text-muted-foreground">New team member</div>
+            </div>
+          </button>
+          
+          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
+            <div className="p-2 bg-purple-500/10 rounded-lg">
+              <BarChart3 className="w-5 h-5 text-purple-500" />
+            </div>
+            <div>
+              <div className="font-medium text-card-foreground">Analytics</div>
+              <div className="text-xs text-muted-foreground">Performance reports</div>
+            </div>
+          </button>
+          
+          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
+            <div className="p-2 bg-amber-500/10 rounded-lg">
+              <Settings className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <div className="font-medium text-card-foreground">Settings</div>
+              <div className="text-xs text-muted-foreground">Shift policies</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </WindowContainer>
   );
-}; 
+} 

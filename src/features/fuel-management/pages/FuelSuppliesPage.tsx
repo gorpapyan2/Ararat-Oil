@@ -11,6 +11,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { NavigationCard } from '../../../shared/components/navigation/NavigationCard';
+import { Breadcrumb } from '../../../shared/components/layout/Breadcrumb';
 
 interface SuppliesModule {
   id: string;
@@ -89,28 +90,53 @@ const suppliesModules: SuppliesModule[] = [
 ];
 
 export default function FuelSuppliesPage() {
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Fuel Operations', href: '/fuel' },
+    { label: 'Fuel Supplies', href: '/fuel/supplies' }
+  ];
+
   return (
-    <div className="management-container">
-      <nav className="breadcrumbs">
-        <Link to="/">Home</Link> <span> &gt; </span> 
-        <Link to="/fuel">Fuel Operations</Link> <span> &gt; </span> 
-        <span>Fuel Supplies</span>
-      </nav>
-      <h1 className="management-title">Fuel Supplies Dashboard</h1>
-      <p className="management-desc">
-        Comprehensive fuel inventory management, supply chain monitoring, and procurement analytics for optimal stock control.
-      </p>
-      <div className="management-cards">
-        {suppliesModules.map((module) => (
-          <NavigationCard
-            key={module.id}
-            title={module.title}
-            href={module.path}
-            color={module.color}
-            icon={module.icon}
-            variant="management"
-          />
-        ))}
+    <div className="subnav-container">
+      <div className="subnav-card-window">
+        {/* Header with Breadcrumb */}
+        <div className="subnav-header">
+          <div className="subnav-header-content">
+            <div className="subnav-breadcrumb">
+              <Breadcrumb items={breadcrumbItems} />
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="subnav-body">
+          <div className="subnav-content">
+            {/* Page Title Section */}
+            <div className="page-title-section">
+              <h1 className="page-title">
+                Fuel Supplies Dashboard
+              </h1>
+              <p className="page-description">
+                Comprehensive fuel supply management for inventory tracking, delivery coordination, and operational efficiency.
+              </p>
+            </div>
+
+            {/* Module Cards */}
+            <div className="management-cards">
+              {suppliesModules.map((module) => (
+                <NavigationCard
+                  key={module.id}
+                  title={module.title}
+                  description={module.description}
+                  href={module.path}
+                  color={module.color}
+                  icon={module.icon}
+                  variant="management"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

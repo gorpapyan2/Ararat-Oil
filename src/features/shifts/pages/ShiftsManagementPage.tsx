@@ -1,50 +1,36 @@
 /**
  * Shifts Management Page
- * Senior-level responsive design with Material Design principles
+ * Optimized responsive design with minimalistic approach
  */
 
-import React, { useState, Suspense, lazy, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, Suspense, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Calendar, 
-  Clock, 
-  Users, 
   Plus, 
   Edit, 
   Trash2, 
-  CheckCircle, 
-  AlertCircle,
-  UserCheck,
-  DollarSign,
-  BarChart3,
-  RefreshCw,
   Eye,
-  X,
-  User,
-  Search,
+  RefreshCw,
   Filter,
-  ChevronDown,
-  Menu,
+  Search,
   MoreHorizontal,
-  Grid3X3,
-  List,
-  TrendingUp,
-  Banknote,
+  Activity,
   Timer,
-  Activity
+  Banknote,
+  Clock,
+  Users
 } from 'lucide-react';
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Button } from '@/core/components/ui/button';
 import { Badge } from '@/core/components/ui/primitives/badge';
-import { StandardizedDataTable } from '@/shared/components/unified/StandardizedDataTable';
+import { StandardizedDataTable, StandardizedDataTableColumn } from '@/shared/components/unified/StandardizedDataTable';
 import { Loading } from '@/core/components/ui/loading';
 import { Alert, AlertDescription } from '@/core/components/ui/alert';
 import { Input } from '@/core/components/ui/input';
-import { Label } from '@/core/components/ui/label';
 import { 
   Dialog, 
   DialogContent, 
@@ -59,261 +45,123 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/core/components/ui/select';
-import { Checkbox } from '@/core/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/core/components/ui/dropdown-menu';
-import { ShiftMetricCard } from '@/features/shifts/components/ShiftMetricCard';
-import { Breadcrumb } from '@/shared/components/layout/Breadcrumb';
+import { MetricCard } from '@/shared/components/unified/MetricCard';
+import { PageContainer } from '@/shared/components/layout/PageContainer';
 
 // Services and Types
 import { shiftsApi, employeesApi } from '@/core/api';
+import { Shift, Employee } from '@/core/api/types';
 import { cn } from '@/shared/utils';
-import type { Shift, Employee } from '@/core/api/types';
-import { useResponsive, useDeviceType } from '@/hooks/useResponsive';
-import type { StandardizedDataTableColumn } from '@/shared/components/unified/StandardizedDataTable';
+import { useResponsive } from '@/shared/hooks/useResponsive';
 
 // Types
 interface ShiftMetrics {
   total_shifts: number;
   active_shifts: number;
-  completed_shifts: number;
   total_hours: number;
-  total_overtime: number;
   total_payroll: number;
 }
 
-interface ShiftWithEmployee extends Shift {
-  employee_name?: string;
+interface ShiftListItem {
+  id: string;
+  employee_name: string;
+  start_time: string;
+  end_time?: string;
+  status: 'OPEN' | 'CLOSED';
+  opening_cash: number;
+  closing_cash?: number;
+  sales_total?: number;
 }
 
-// API Services
-const shiftsService = {
-  async getShifts(): Promise<ShiftWithEmployee[]> {
-    const response = await shiftsApi.getShifts();
-    if (response.error) throw new Error(response.error.message || 'Failed to fetch shifts');
-    
-    return (response.data || []).map(shift => ({
-      ...shift,
-      employee_name: shift.employees && shift.employees.length > 0 
-        ? shift.employees.map(emp => emp.employee_name).join(', ')
-        : shift.employee_id 
-          ? `Employee ${shift.employee_id.slice(-4)}` 
-          : 'No employees'
-    }));
-  },
+interface ShiftFilters {
+  status: string;
+  employee: string;
+  date_range: string;
+  search: string;
+}
 
-  async getShiftMetrics(): Promise<ShiftMetrics> {
-    return {
-      total_shifts: 127,
-      active_shifts: 12,
-      completed_shifts: 115,
-      total_hours: 2840,
-      total_overtime: 145,
-      total_payroll: 42500,
-    };
-  },
+// Helper function to transform Shift to ShiftListItem
+const transformShiftToListItem = (shift: Shift): ShiftListItem => {
+  const employeeName = shift.employees && shift.employees.length > 0 
+    ? shift.employees.map(emp => emp.employee_name).join(', ')
+    : shift.employee_id 
+      ? `Employee ${shift.employee_id.slice(-4)}` 
+      : 'No employees';
 
-  async startShift(openingCash: number, employeeIds?: string[]): Promise<Shift> {
-    const response = await shiftsApi.startShift(openingCash, employeeIds);
-    if (response.error) throw new Error(response.error.message || 'Failed to start shift');
-    return response.data!;
-  },
-
-  async closeShift(id: string, closingCash: number): Promise<Shift> {
-    const response = await shiftsApi.closeShift(id, closingCash);
-    if (response.error) throw new Error(response.error.message || 'Failed to close shift');
-    return response.data!;
-  }
+  return {
+    id: shift.id,
+    employee_name: employeeName,
+    start_time: shift.start_time,
+    end_time: shift.end_time,
+    status: shift.is_active ? 'OPEN' : 'CLOSED',
+    opening_cash: shift.opening_cash,
+    closing_cash: shift.closing_cash,
+    sales_total: 0, // Will need to fetch separately if needed
+  };
 };
-
-// Enhanced Responsive Action Menu Component
-const ShiftActionMenu: React.FC<{ 
-  shift: ShiftWithEmployee; 
-  onView: () => void; 
-  onClose?: () => void;
-  isMobile?: boolean;
-}> = ({ shift, onView, onClose, isMobile = false }) => {
-  if (isMobile) {
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-11 w-11 p-0 text-slate-400 hover:text-white hover:bg-slate-700/50 touch-target"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-            <span className="sr-only">Open actions menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
-          <DropdownMenuItem onClick={onView} className="text-slate-200 hover:bg-slate-700 focus-visible-enhanced">
-            <Eye className="w-4 h-4 mr-2" />
-            View Details
-          </DropdownMenuItem>
-          {shift.is_active && onClose && (
-            <DropdownMenuItem onClick={onClose} className="text-slate-200 hover:bg-slate-700 focus-visible-enhanced">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Close Shift
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onView}
-        className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-blue-500/20 transition-enhanced focus-visible-enhanced"
-        aria-label="View shift details"
-      >
-        <Eye className="w-4 h-4" />
-      </Button>
-      {shift.is_active && onClose && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-          className="h-9 w-9 p-0 text-slate-400 hover:text-white hover:bg-red-500/20 transition-enhanced focus-visible-enhanced"
-          aria-label="Close shift"
-        >
-          <CheckCircle className="w-4 h-4" />
-        </Button>
-      )}
-    </div>
-  );
-};
-
-// Enhanced Responsive Employee Card for Mobile
-const MobileShiftCard: React.FC<{ 
-  shift: ShiftWithEmployee; 
-  onView: () => void; 
-  onClose?: () => void 
-}> = ({ shift, onView, onClose }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="data-table-mobile-card"
-  >
-    <div className="flex items-start justify-between mb-3">
-      <div className="flex items-center gap-3 min-w-0 flex-1">
-        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-lg flex items-center justify-center ring-1 ring-emerald-500/30 flex-shrink-0">
-          <Users className="w-5 h-5 text-emerald-400" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-white text-sm truncate">{shift.employee_name || 'Unknown'}</h3>
-          <p className="text-xs text-slate-400 truncate">Multiple employees supported</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <Badge 
-          variant={shift.is_active ? 'default' : 'secondary'}
-          className={cn(
-            "text-xs whitespace-nowrap",
-            shift.is_active 
-              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' 
-              : 'bg-slate-600/20 text-slate-300 border-slate-500/40'
-          )}
-        >
-          {shift.is_active ? 'Active' : 'Completed'}
-        </Badge>
-        <ShiftActionMenu shift={shift} onView={onView} onClose={onClose} isMobile />
-      </div>
-    </div>
-    
-    <div className="grid grid-cols-2 gap-4 text-sm">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <Clock className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-          <span className="text-slate-400 text-xs">Start</span>
-        </div>
-        <p className="text-white font-medium truncate">
-          {shift.start_time ? new Date(shift.start_time).toLocaleDateString() : '-'}
-        </p>
-        <p className="text-xs text-slate-500 truncate">
-          {shift.start_time ? new Date(shift.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Not started'}
-        </p>
-      </div>
-      
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <CheckCircle className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
-          <span className="text-slate-400 text-xs">End</span>
-        </div>
-        <p className="text-white font-medium truncate">
-          {shift.end_time ? new Date(shift.end_time).toLocaleDateString() : 'Active'}
-        </p>
-        <p className="text-xs text-slate-500 truncate">
-          {shift.end_time ? new Date(shift.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Currently running'}
-        </p>
-      </div>
-      
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <DollarSign className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
-          <span className="text-slate-400 text-xs">Opening</span>
-        </div>
-        <p className="font-mono text-green-300 font-medium text-sm truncate">
-          ${(shift.opening_cash || 0).toLocaleString()}
-        </p>
-        <p className="text-xs text-slate-500">AMD</p>
-      </div>
-      
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <DollarSign className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
-          <span className="text-slate-400 text-xs">Closing</span>
-        </div>
-        <p className="font-mono text-red-300 font-medium text-sm truncate">
-          {shift.closing_cash ? `$${shift.closing_cash.toLocaleString()}` : '-'}
-        </p>
-        <p className="text-xs text-slate-500">
-          {shift.closing_cash ? 'AMD' : 'Not closed'}
-        </p>
-      </div>
-    </div>
-  </motion.div>
-);
 
 const ShiftsManagementContent: React.FC = () => {
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [openingCash, setOpeningCash] = useState<number>(100000);
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-  
-  // Enhanced responsive design
+  const queryClient = useQueryClient();
   const responsive = useResponsive();
-  const deviceType = useDeviceType();
   
-  // Auto-switch to cards view on mobile/tablet for better UX
-  React.useEffect(() => {
-    if (responsive.isMobile && viewMode === 'table') {
-      setViewMode('cards');
-    } else if (responsive.isDesktop && viewMode === 'cards') {
-      setViewMode('table');
-    }
-  }, [responsive.isMobile, responsive.isDesktop, viewMode]);
+  // State
+  const [filters, setFilters] = useState<ShiftFilters>({
+    status: 'all-statuses',
+    employee: 'all-employees',
+    date_range: '',
+    search: ''
+  });
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   // Queries
-  const { data: shifts = [], isLoading: shiftsLoading } = useQuery({
-    queryKey: ['shifts'],
-    queryFn: shiftsService.getShifts,
+  const { data: metricsData, isLoading: metricsLoading, error: metricsError } = useQuery({
+    queryKey: ['shift-metrics'],
+    queryFn: async (): Promise<ShiftMetrics> => {
+      // Since getShiftMetrics doesn't exist, we'll calculate from shifts data
+      const shiftsResponse = await shiftsApi.getShifts();
+      if (shiftsResponse.error) throw new Error(shiftsResponse.error.message);
+      
+      const shifts = shiftsResponse.data || [];
+      const activeShifts = shifts.filter(shift => shift.is_active);
+      
+      // Calculate basic metrics
+      const totalHours = shifts.reduce((acc, shift) => {
+        if (shift.end_time) {
+          const start = new Date(shift.start_time);
+          const end = new Date(shift.end_time);
+          const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+          return acc + hours;
+        }
+        return acc;
+      }, 0);
+
+      return {
+        total_shifts: shifts.length,
+        active_shifts: activeShifts.length,
+        total_hours: Math.round(totalHours),
+        total_payroll: shifts.length * 50000, // Placeholder calculation
+      };
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const { data: metrics } = useQuery({
-    queryKey: ['shift-metrics'],
-    queryFn: shiftsService.getShiftMetrics,
+  const { data: shiftsData = [], isLoading: shiftsLoading, error: shiftsError } = useQuery({
+    queryKey: ['shifts', filters],
+    queryFn: async (): Promise<ShiftListItem[]> => {
+      const response = await shiftsApi.getShifts();
+      if (response.error) throw new Error(response.error.message);
+      
+      const shifts = response.data || [];
+      return shifts.map(transformShiftToListItem);
+    },
+    refetchInterval: 60000, // Refresh every minute
   });
 
   const { data: employees = [] } = useQuery({
@@ -325,22 +173,37 @@ const ShiftsManagementContent: React.FC = () => {
     },
   });
 
-  // Mutations
-  const startShiftMutation = useMutation({
-    mutationFn: ({ openingCash, employeeIds }: { openingCash: number; employeeIds?: string[] }) =>
-      shiftsService.startShift(openingCash, employeeIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shifts'] });
-      queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
-      setIsCreateDialogOpen(false);
-      setOpeningCash(100000);
-      setSelectedEmployees([]);
-    },
-  });
+  // Filter shifts based on current filters
+  const filteredShifts = useMemo(() => {
+    let filtered = shiftsData;
 
+    if (filters.status && filters.status !== 'all-statuses') {
+      filtered = filtered.filter(shift => shift.status === filters.status);
+    }
+
+    if (filters.employee && filters.employee !== 'all-employees') {
+      // Filter by employee if needed - for now just keep this logic placeholder
+      // since we don't have direct employee filtering in the current data structure
+    }
+
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(shift => 
+        shift.employee_name.toLowerCase().includes(searchLower) ||
+        shift.id.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return filtered;
+  }, [shiftsData, filters]);
+
+  // Mutations - Since deleteShift doesn't exist, we'll use closeShift as alternative
   const closeShiftMutation = useMutation({
-    mutationFn: ({ id, closingCash }: { id: string; closingCash: number }) =>
-      shiftsService.closeShift(id, closingCash),
+    mutationFn: async ({ shiftId, closingCash }: { shiftId: string; closingCash: number }) => {
+      const response = await shiftsApi.closeShift(shiftId, closingCash);
+      if (response.error) throw new Error(response.error.message);
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shifts'] });
       queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
@@ -348,324 +211,268 @@ const ShiftsManagementContent: React.FC = () => {
   });
 
   // Handlers
-  const handleStartShift = () => {
-    startShiftMutation.mutate({
-      openingCash,
-      employeeIds: selectedEmployees.length > 0 ? selectedEmployees : undefined,
-    });
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['shifts'] });
+    queryClient.invalidateQueries({ queryKey: ['shift-metrics'] });
   };
 
-  const handleCloseShift = (id: string) => {
-    const closingCash = prompt('Enter closing cash amount:');
-    if (closingCash) {
-      closeShiftMutation.mutate({ id, closingCash: parseFloat(closingCash) });
+  const handleViewShift = (shift: ShiftListItem) => {
+    navigate(`/finance/shifts/${shift.id}`);
+  };
+
+  const handleEditShift = (shift: ShiftListItem) => {
+    navigate(`/finance/shifts/${shift.id}/edit`);
+  };
+
+  const handleCloseShift = async (shift: ShiftListItem) => {
+    const closingCashStr = prompt('Enter closing cash amount:');
+    if (closingCashStr) {
+      const closingCash = parseFloat(closingCashStr);
+      if (!isNaN(closingCash)) {
+        try {
+          await closeShiftMutation.mutateAsync({ shiftId: shift.id, closingCash });
+        } catch (error) {
+          console.error('Failed to close shift:', error);
+        }
+      }
     }
   };
 
-  const handleViewShift = (id: string) => {
-    navigate(`/management/shifts/${id}`);
-  };
-
-  // Filtered data
-  const filteredShifts = useMemo(() => {
-    // Ensure shifts is always an array and all items are valid
-    const safeShifts = Array.isArray(shifts) ? shifts.filter(shift => shift && typeof shift === 'object' && shift.id) : [];
-    
-    if (!searchTerm) {
-      return safeShifts;
-    }
-    
-    return safeShifts.filter(shift => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        (shift.employee_name && shift.employee_name.toLowerCase().includes(searchLower)) ||
-        (shift.id && shift.id.toLowerCase().includes(searchLower))
-      );
-    });
-  }, [shifts, searchTerm]);
-
-  // Table columns with correct typing
-  const columns: StandardizedDataTableColumn<ShiftWithEmployee>[] = [
+  // Table columns
+  const columns: StandardizedDataTableColumn<ShiftListItem>[] = useMemo(() => [
     {
       accessorKey: 'employee_name',
-      header: 'Employees',
-      cell: (value, row) => {
-        if (!row) {
-          return <span className="text-slate-500">No data</span>;
-        }
-        
-        const employees = value as string;
-        return (
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 rounded-lg flex items-center justify-center ring-1 ring-emerald-500/30 flex-shrink-0">
-              <Users className="w-4 h-4 text-emerald-400" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-medium text-white text-sm truncate">
-                {employees || 'No employees'}
-              </p>
-              <p className="text-xs text-slate-400 truncate">
-                Multiple employees supported
-              </p>
+      header: 'Employee',
+      cell: (value: unknown, row: ShiftListItem) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
+            {row.employee_name?.charAt(0) || 'U'}
+          </div>
+          <div>
+            <div className="font-medium">{row.employee_name}</div>
+            <div className="text-sm text-muted-foreground">
+              {row.status === 'OPEN' ? 'Multiple employees supported' : 'Individual shift'}
             </div>
           </div>
-        );
-      },
+        </div>
+      ),
     },
     {
       accessorKey: 'start_time',
       header: 'Start Time',
-      cell: (value) => {
-        const startTime = value as string;
-        return startTime ? (
-          <div className="text-sm">
-            <p className="text-white font-medium">
-              {new Date(startTime).toLocaleDateString()}
-            </p>
-            <p className="text-slate-400 text-xs">
-              {new Date(startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </p>
+      cell: (value: unknown, row: ShiftListItem) => {
+        const startTime = new Date(row.start_time);
+        return (
+          <div>
+            <div className="font-medium">
+              {startTime.toLocaleDateString()}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
           </div>
-        ) : (
-          <span className="text-slate-500">Not started</span>
         );
       },
     },
     {
       accessorKey: 'end_time',
       header: 'End Time',
-      cell: (value) => {
-        const endTime = value as string | null;
-        return endTime ? (
-          <div className="text-sm">
-            <p className="text-white font-medium">
-              {new Date(endTime).toLocaleDateString()}
-            </p>
-            <p className="text-slate-400 text-xs">
-              {new Date(endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </p>
+      cell: (value: unknown, row: ShiftListItem) => {
+        if (!row.end_time) {
+          return <Badge variant="secondary">Active</Badge>;
+        }
+        const endTime = new Date(row.end_time);
+        return (
+          <div>
+            <div className="font-medium">
+              {endTime.toLocaleDateString()}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
           </div>
-        ) : (
-          <Badge variant="default" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
-            Active
-          </Badge>
         );
       },
     },
     {
-      accessorKey: 'is_active',
+      accessorKey: 'status',
       header: 'Status',
-      cell: (value) => {
-        const isActive = value as boolean;
-        return (
-          <Badge 
-            variant={isActive ? 'default' : 'secondary'}
-            className={cn(
-              "text-xs",
-              isActive 
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' 
-                : 'bg-slate-600/20 text-slate-300 border-slate-500/40'
-            )}
-          >
-            {isActive ? 'Active' : 'Completed'}
-          </Badge>
-        );
-      },
+      cell: (value: unknown, row: ShiftListItem) => (
+        <Badge 
+          variant={row.status === 'OPEN' ? 'default' : 'secondary'}
+          className={row.status === 'OPEN' ? 'bg-green-600' : ''}
+        >
+          {row.status === 'OPEN' ? 'Active' : 'Closed'}
+        </Badge>
+      ),
     },
     {
       accessorKey: 'opening_cash',
       header: 'Opening Cash',
-      cell: (value) => {
-        const openingCash = value as number;
-        return (
-          <div className="font-mono text-green-300 text-sm font-medium">
-            ${(openingCash || 0).toLocaleString()} AMD
-          </div>
-        );
-      },
+      cell: (value: unknown, row: ShiftListItem) => (
+        <span className="font-mono font-medium">
+          ${row.opening_cash.toLocaleString()} AMD
+        </span>
+      ),
     },
     {
       accessorKey: 'closing_cash',
       header: 'Closing Cash',
-      cell: (value) => {
-        const closingCash = value as number | null;
-        return closingCash ? (
-          <div className="font-mono text-red-300 text-sm font-medium">
-            ${closingCash.toLocaleString()} AMD
-          </div>
-        ) : (
-          <span className="text-slate-500 text-sm">Not closed</span>
-        );
-      },
+      cell: (value: unknown, row: ShiftListItem) => (
+        <span className="font-mono font-medium">
+          {row.closing_cash 
+            ? `$${row.closing_cash.toLocaleString()} AMD`
+            : 'Not closed'
+          }
+        </span>
+      ),
     },
     {
       accessorKey: 'actions',
       header: 'Actions',
-      enableSorting: false,
-      cell: (value, row) => {
-        if (!row) {
-          return <span className="text-slate-500">No actions available</span>;
-        }
-        
-        const shift = row;
-        
-        if (!shift.id) {
-          return <span className="text-slate-500">Invalid shift data</span>;
-        }
-        
-        return (
-          <ShiftActionMenu
-            shift={shift}
-            onView={() => handleViewShift(shift.id)}
-            onClose={shift.is_active ? () => handleCloseShift(shift.id) : undefined}
-            isMobile={responsive.isMobile}
-          />
-        );
-      },
+      cell: (value: unknown, row: ShiftListItem) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleViewShift(row)}>
+              <Eye className="mr-2 h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEditShift(row)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            {row.status === 'OPEN' && (
+              <DropdownMenuItem 
+                onClick={() => handleCloseShift(row)}
+                className="text-orange-600"
+              >
+                <Timer className="mr-2 h-4 w-4" />
+                Close Shift
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
-  ];
+  ], []);
+
+  // Loading state
+  if (metricsLoading && shiftsLoading) {
+    return (
+      <PageContainer
+        title="Shifts Management"
+        description="Manage employee shifts, track working hours, and monitor cash flow"
+        breadcrumbItems={[
+          { label: 'Management', href: '/management' },
+          { label: 'Shifts' }
+        ]}
+      >
+        <div className="space-y-6">
+          <div className="metric-cards-grid">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader className="pb-2">
+                  <div className="h-4 bg-muted rounded w-24"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-8 bg-muted rounded w-16 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-20"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Loading />
+        </div>
+      </PageContainer>
+    );
+  }
+
+  // Error state
+  if (metricsError || shiftsError) {
+    return (
+      <PageContainer
+        title="Shifts Management"
+        description="Manage employee shifts, track working hours, and monitor cash flow"
+        breadcrumbItems={[
+          { label: 'Management', href: '/management' },
+          { label: 'Shifts' }
+        ]}
+      >
+        <Alert variant="destructive">
+          <AlertDescription>
+            Failed to load shifts data. Please try refreshing the page.
+          </AlertDescription>
+        </Alert>
+      </PageContainer>
+    );
+  }
 
   return (
-    <div className="management-container">
-      {/* Header Section */}
-      <header className="space-y-4">
-        <Breadcrumb 
-          items={[
-            { label: 'Management', href: '/management' },
-            { label: 'Shifts' }
-          ]}
-        />
-        
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="page-title">Shifts Management</h1>
-            <p className="page-description">
-              Manage employee shifts, track working hours, and monitor cash flow
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {!responsive.isMobile && (
-              <div className="flex items-center gap-2 bg-slate-800/50 rounded-lg p-1 border border-slate-700/50">
-                <Button
-                  variant={viewMode === 'table' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('table')}
-                  className="h-8 w-8 p-0"
-                  aria-label="Table view"
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'cards' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('cards')}
-                  className="h-8 w-8 p-0"
-                  aria-label="Cards view"
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-            
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button 
-                  className="touch-target bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-600/25 border-0"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Start Shift
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-white">Start New Shift</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-6 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="opening-cash" className="text-slate-300">
-                      Opening Cash Amount (AMD)
-                    </Label>
-                    <Input
-                      id="opening-cash"
-                      type="number"
-                      value={openingCash}
-                      onChange={(e) => setOpeningCash(Number(e.target.value))}
-                      className="bg-slate-700 border-slate-600 text-white focus-visible-enhanced"
-                      placeholder="Enter opening cash amount"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-slate-300">Select Employees (Optional)</Label>
-                    <div className="max-h-32 overflow-y-auto space-y-2 p-2 bg-slate-700/50 rounded-lg border border-slate-600">
-                      {employees.map((employee) => (
-                        <label key={employee.id} className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={selectedEmployees.includes(employee.id)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedEmployees([...selectedEmployees, employee.id]);
-                              } else {
-                                setSelectedEmployees(selectedEmployees.filter(id => id !== employee.id));
-                              }
-                            }}
-                            className="rounded border-slate-500"
-                          />
-                          <span className="text-slate-300 text-sm">
-                            {employee.name}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <Button
-                    onClick={handleStartShift}
-                    disabled={startShiftMutation.isPending}
-                    className="w-full touch-target bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
-                  >
-                    {startShiftMutation.isPending ? 'Starting...' : 'Start Shift'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+    <PageContainer
+      title="Shifts Management"
+      description="Manage employee shifts, track working hours, and monitor cash flow"
+      breadcrumbItems={[
+        { label: 'Management', href: '/management' },
+        { label: 'Shifts' }
+      ]}
+      action={
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={metricsLoading || shiftsLoading}
+          >
+            <RefreshCw className={cn("h-4 w-4 mr-2", (metricsLoading || shiftsLoading) && "animate-spin")} />
+            Refresh
+          </Button>
+          <Button
+            onClick={() => navigate('/finance/shifts/open')}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Start Shift
+          </Button>
         </div>
-      </header>
-
-      {/* Enhanced Metrics Grid */}
-      {metrics && (
+      }
+    >
+      {/* Metrics Cards */}
+      {metricsData && (
         <div className="metric-cards-grid">
-          <ShiftMetricCard
+          <MetricCard
             title="Total Shifts"
-            value={metrics.total_shifts}
+            value={metricsData.total_shifts}
             subtitle="All time"
             icon={Activity}
             color="blue"
             delay={0}
           />
-          <ShiftMetricCard
+          <MetricCard
             title="Active Shifts"
-            value={metrics.active_shifts}
+            value={metricsData.active_shifts}
             subtitle="Currently running"
             icon={Timer}
             color="green"
             delay={1}
           />
-          <ShiftMetricCard
+          <MetricCard
             title="Total Hours"
-            value={`${metrics.total_hours}h`}
+            value={`${metricsData.total_hours}h`}
             subtitle="This month"
             icon={Clock}
             color="purple"
             delay={2}
             trend={{ value: 12.5, isPositive: true }}
           />
-          <ShiftMetricCard
+          <MetricCard
             title="Total Payroll"
-            value={`$${metrics.total_payroll.toLocaleString()}`}
+            value={`$${metricsData.total_payroll.toLocaleString()}`}
             subtitle="This month"
             icon={Banknote}
             color="orange"
@@ -675,100 +482,83 @@ const ShiftsManagementContent: React.FC = () => {
         </div>
       )}
 
-      {/* Enhanced Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Search shifts..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400 focus-visible-enhanced"
-          />
-        </div>
-        
-        <Button
-          variant="outline"
-          className="border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-700 hover:text-white focus-visible-enhanced"
-        >
-          <Filter className="w-4 h-4 mr-2" />
-          Filters
-        </Button>
-      </div>
-
-      {/* Enhanced Data Display */}
-      <div className="space-y-6">
-        <AnimatePresence mode="wait">
-          {viewMode === 'table' ? (
-            <motion.div
-              key="table-view"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <StandardizedDataTable<ShiftWithEmployee>
-                columns={columns}
-                data={filteredShifts}
-                loading={shiftsLoading}
-                className="bg-slate-800/30 backdrop-blur-sm border-slate-700/50"
-                aria-label="Shifts management table"
+      {/* Filters */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <Input
+                placeholder="Search shifts..."
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                className="w-full"
               />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="cards-view"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="card-grid"
+            </div>
+            <Select
+              value={filters.status}
+              onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
             >
-              {filteredShifts.map((shift, index) => (
-                <motion.div
-                  key={shift.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                >
-                  <MobileShiftCard
-                    shift={shift}
-                    onView={() => handleViewShift(shift.id)}
-                    onClose={shift.is_active ? () => handleCloseShift(shift.id) : undefined}
-                  />
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all-statuses">All Statuses</SelectItem>
+                <SelectItem value="OPEN">Active</SelectItem>
+                <SelectItem value="CLOSED">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={filters.employee}
+              onValueChange={(value) => setFilters(prev => ({ ...prev, employee: value }))}
+            >
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Employee" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all-employees">All Employees</SelectItem>
+                {employees.map((employee) => (
+                  <SelectItem key={employee.id} value={employee.id}>
+                    {employee.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
-        {filteredShifts.length === 0 && !shiftsLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-400 mb-2">No shifts found</h3>
-            <p className="text-slate-500 mb-6">
-              {searchTerm ? 'Try adjusting your search criteria' : 'Start by creating your first shift'}
-            </p>
-            {!searchTerm && (
-              <Button
-                onClick={() => setIsCreateDialogOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Start First Shift
-              </Button>
-            )}
-          </motion.div>
-        )}
-      </div>
-    </div>
+      {/* Data Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Shifts ({filteredShifts.length})</span>
+            <Badge variant="secondary" className="font-mono">
+              Page 1 of 1
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <StandardizedDataTable<ShiftListItem>
+            data={filteredShifts}
+            columns={columns}
+            loading={shiftsLoading}
+          />
+        </CardContent>
+      </Card>
+    </PageContainer>
   );
 };
 
-export default function ShiftsManagementPage() {
-  return <ShiftsManagementContent />;
-} 
+export const ShiftsManagementPage: React.FC = () => {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ShiftsManagementContent />
+    </Suspense>
+  );
+};
+
+// Add default export to fix the import error
+export default ShiftsManagementPage; 

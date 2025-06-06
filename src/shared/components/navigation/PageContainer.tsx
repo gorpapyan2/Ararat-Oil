@@ -33,7 +33,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   return (
     <div className={cn(
       'w-full min-h-screen',
-      'bg-slate-50 dark:bg-slate-900',
+      'bg-background text-foreground',
       'transition-colors duration-200',
       className
     )}>

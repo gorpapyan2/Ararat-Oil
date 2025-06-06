@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { StandardDialog } from "@/core/components/ui/composed/dialog";
+import { StandardDialog } from "@/core/components/ui/composed/base-dialog";
 import {
   PaymentMethodFormStandardized as PaymentMethodForm,
   PaymentFormData,
@@ -57,6 +57,8 @@ export function InvoiceFormStandardized({
           entityDetails.description || `Payment for ${entityDetails.type}`,
         entity_type: entityDetails.type as "sale" | "expense" | "fuel_supply",
         entity_id: entityDetails.id,
+        type: "income",
+        created_by: employeeId,
       });
 
       toast({
@@ -83,10 +85,10 @@ export function InvoiceFormStandardized({
 
   return (
     <StandardDialog
-      open={open}
+      isOpen={open}
       onOpenChange={onOpenChange}
       title={title}
-      maxWidth="sm:max-w-md"
+      className="sm:max-w-md"
     >
       {isProcessing ? (
         <div className="flex flex-col items-center justify-center py-8">

@@ -1,6 +1,7 @@
 import { Button } from "@/core/components/ui/button";
 import { StandardDialog } from "@/shared/components/common/dialog/StandardDialog";
-import { SalesFormStandardized, SalesFormData } from "./SalesFormStandardized";
+import { SalesFormStandardized } from "./SalesFormStandardized";
+import { SalesFormData } from "../types";
 import { useState, useRef } from "react";
 import { salesApi } from "@/core/api";
 import { useToast } from "@/hooks";
@@ -24,14 +25,14 @@ export function NewSaleButton({ className }: NewSaleButtonProps = {}) {
     try {
       // Map form data to API format
       const saleData: Omit<Sale, "id" | "created_at" | "updated_at"> = {
-        filling_system_id: data.filling_system_id,
-        fuel_type_id: "1", // This should come from the filling system
-        quantity: data.quantity,
-        price_per_liter: data.unit_price,
-        total_price: data.total_sales || 0,
-        payment_method: "cash", // This should come from the form
-        employee_id: "1", // This should come from the current user
-        shift_id: data.shift_id,
+        filling_system_id: data.fillingSystemId || "",
+        fuel_type: data.fuelType || "regular",
+        liters: data.quantityLiters,
+        price_per_unit: data.unitPrice,
+        total_sales: data.amount || 0,
+        date: data.saleDate instanceof Date 
+          ? data.saleDate.toISOString().split('T')[0] 
+          : new Date().toISOString().split('T')[0],
       };
 
       await salesApi.createSale(saleData);
