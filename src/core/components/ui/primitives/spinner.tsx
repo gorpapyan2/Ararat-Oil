@@ -1,6 +1,7 @@
+
 import * as React from "react";
 import { cn } from "@/shared/utils";
-import { LoadingSpinnerPrimitive } from "@/core/components/ui/button";
+import { LoadingSpinnerPrimitive } from "@/core/components/ui/primitives/button";
 
 export interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   /**

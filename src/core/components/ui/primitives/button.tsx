@@ -1,90 +1,10 @@
+
 import * as React from "react";
-import { Link } from "react-router-dom";
-import { cva } from 'class-variance-authority';
-import { cn } from "@/shared/utils";
 import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
-/**
- * Props for the ButtonPrimitive component.
- * This is the basic button without styling.
- */
-export interface ButtonPrimitiveProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  /**
-   * Forward ref to the root button element
-   */
-  ref?: React.ForwardedRef<HTMLButtonElement>;
-}
+import { cn } from "@/shared/utils";
 
-/**
- * Base primitive Button component
- * Handles basic button functionality without styling
- */
-export const ButtonPrimitive = React.forwardRef<
-  HTMLButtonElement,
-  ButtonPrimitiveProps
->(({ className, ...props }, ref) => {
-  return <button ref={ref} className={className} {...props} />;
-});
-ButtonPrimitive.displayName = "ButtonPrimitive";
-
-/**
- * Props for the AnchorButtonPrimitive component.
- * This is for link elements that should look like buttons.
- */
-export interface AnchorButtonPrimitiveProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  /**
-   * Forward ref to the root anchor element
-   */
-  ref?: React.ForwardedRef<HTMLAnchorElement>;
-}
-
-/**
- * Base primitive Anchor Button component
- * For creating anchor links styled as buttons
- */
-export const AnchorButtonPrimitive = React.forwardRef<
-  HTMLAnchorElement,
-  AnchorButtonPrimitiveProps
->(({ className, ...props }, ref) => {
-  return <a ref={ref} className={className} {...props} />;
-});
-AnchorButtonPrimitive.displayName = "AnchorButtonPrimitive";
-
-/**
- * Props for the LoadingSpinnerPrimitive component.
- */
-export interface LoadingSpinnerPrimitiveProps
-  extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Forward ref to the root spinner element
-   */
-  ref?: React.ForwardedRef<HTMLDivElement>;
-}
-
-/**
- * Base primitive Loading Spinner component for buttons
- */
-export const LoadingSpinnerPrimitive = React.forwardRef<
-  HTMLDivElement,
-  LoadingSpinnerPrimitiveProps
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      role="status"
-      aria-label="Loading"
-      className={className}
-      {...props}
-    />
-  );
-});
-LoadingSpinnerPrimitive.displayName = "LoadingSpinnerPrimitive";
-
-/**
- * Button variants using class-variance-authority
- */
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
@@ -94,7 +14,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-gray-50 hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
@@ -120,10 +40,7 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
-/**
- * Button component with styling variants
- */
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
@@ -137,25 +54,29 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-/**
- * Button Link component - behaves like a button but navigates like a link
- */
+// Loading spinner primitive component
+export const LoadingSpinnerPrimitive = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent", className)}
+    {...props}
+  />
+));
+LoadingSpinnerPrimitive.displayName = "LoadingSpinnerPrimitive";
+
+// Button link component
 export interface ButtonLinkProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    VariantProps<typeof buttonVariants> {
-  to: string;
-  disabled?: boolean;
-}
+    VariantProps<typeof buttonVariants> {}
 
-export const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
-  ({ className, to, variant, size, disabled, ...props }, ref) => {
+const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  ({ className, variant, size, ...props }, ref) => {
     return (
-      <Link
-        to={to}
-        className={cn(
-          buttonVariants({ variant, size, className }),
-          disabled && "pointer-events-none opacity-50"
-        )}
+      <a
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
       />
@@ -164,4 +85,4 @@ export const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
 );
 ButtonLink.displayName = "ButtonLink";
 
-export { buttonVariants };
+export { Button, ButtonLink, buttonVariants };

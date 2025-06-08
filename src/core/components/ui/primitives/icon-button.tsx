@@ -1,9 +1,11 @@
+
+import * as React from "react";
 import { cn } from "@/shared/utils";
 import {
   Button,
   ButtonProps,
   buttonVariants,
-} from "@/core/components/ui/button";
+} from "@/core/components/ui/primitives/button";
 
 /**
  * Props for the IconButton component

@@ -1,117 +1,83 @@
-import React, { useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { useAppStore } from '@/core/store';
-import { useAppStore, selectToasts } from "@/core/store";
-import { useToast } from "@/hooks";
+
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { useToast } from "@/hooks/use-toast";
+import { Check, AlertCircle, Info, X } from "lucide-react";
 import { cn } from "@/shared/utils";
 
-interface ToastContainerProps {
-  className?: string;
-  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
+export interface ToastContainerProps {
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 }
 
-export function ToastContainer({
-  className,
-  position = "bottom-right",
+export function ToastContainer({ 
+  position = "bottom-right" 
 }: ToastContainerProps) {
-  // Use our consolidated hook to access toasts
-  const { dismiss } = useToast();
+  const [mounted, setMounted] = useState(false);
+  const { toasts, dismiss } = useToast();
 
-  // Use selector to access toasts from store
-  const toasts = useAppStore(selectToasts);
-
-  // Position classes
-  const positionClasses = {
-    "top-right": "top-0 right-0",
-    "top-left": "top-0 left-0",
-    "bottom-right": "bottom-0 right-0",
-    "bottom-left": "bottom-0 left-0",
-  } as const;
-
-  // Handle keyboard navigation and accessibility
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Close most recent toast on Escape
-      if (e.key === "Escape" && toasts.length > 0) {
-        dismiss(toasts[0].id);
-      }
-    };
+    setMounted(true);
+  }, []);
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [toasts, dismiss]);
+  if (!mounted) return null;
 
-  if (toasts.length === 0) return null;
+  const positionClasses = {
+    "top-left": "top-4 left-4",
+    "top-right": "top-4 right-4", 
+    "bottom-left": "bottom-4 left-4",
+    "bottom-right": "bottom-4 right-4",
+  };
 
-  return (
+  const toastsToShow = Array.isArray(toasts) ? toasts : [];
+
+  return createPortal(
     <div
       className={cn(
-        "fixed z-50 p-4 space-y-4 max-h-screen overflow-hidden pointer-events-none",
-        positionClasses[position],
-        className
+        "fixed z-50 flex flex-col gap-2 w-full max-w-sm",
+        positionClasses[position]
       )}
-      role="region"
-      aria-label="Notifications"
     >
-      <AnimatePresence>
-        {toasts.map((toast) => (
-          <motion.div
-            key={toast.id}
-            initial={{
-              opacity: 0,
-              y: position.startsWith("top") ? -50 : 50,
-              scale: 0.8,
-            }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-            className={cn(
-              "pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg shadow-lg",
-              "border p-4  flex items-start",
-              toast.type === "success" &&
-                "bg-green-800/90 border-green-700 text-white",
-              toast.type === "error" &&
-                "bg-destructive/90 border-destructive/70 text-white",
-              toast.type === "warning" &&
-                "bg-amber-600/90 border-amber-500 text-white",
-              toast.type === "info" &&
-                "bg-primary/90 border-primary/70 text-white"
-            )}
-            role="alert"
-            aria-atomic="true"
-          >
-            <div className="shrink-0 pt-0.5 mr-3">
-              {toast.type === "success" && <Check className="h-5 w-5" />}
-              {toast.type === "error" && <AlertCircle className="h-5 w-5" />}
-              {toast.type === "warning" && <AlertCircle className="h-5 w-5" />}
-              {toast.type === "info" && <Info className="h-5 w-5" />}
-            </div>
+      {toastsToShow.map((toast) => {
+        const Icon = {
+          success: Check,
+          error: AlertCircle,
+          warning: AlertCircle,
+          info: Info,
+        }[toast.variant || "info"];
 
+        return (
+          <div
+            key={toast.id}
+            className={cn(
+              "flex items-center gap-3 rounded-lg border p-4 shadow-lg",
+              "bg-background text-foreground",
+              "animate-in slide-in-from-right-full",
+              toast.variant === "error" && "border-red-500 bg-red-50 text-red-900",
+              toast.variant === "success" && "border-green-500 bg-green-50 text-green-900",
+              toast.variant === "warning" && "border-yellow-500 bg-yellow-50 text-yellow-900"
+            )}
+          >
+            <Icon className="h-5 w-5 shrink-0" />
+            
             <div className="flex-1">
               {toast.title && (
-                <p className="text-sm font-medium">{toast.title}</p>
+                <div className="font-medium">{toast.title}</div>
               )}
-              <p className={cn("text-sm", toast.title && "mt-1")}>
-                {toast.message || toast.description}
-              </p>
-              {toast.action && <div className="mt-2">{toast.action}</div>}
+              {toast.description && (
+                <div className="text-sm opacity-90">{toast.description}</div>
+              )}
             </div>
 
             <button
-              type="button"
-              className="ml-4 shrink-0 rounded-md p-1 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-white"
-              onClick={() => {
-                dismiss(toast.id);
-                toast.onOpenChange?.(false);
-              }}
-              aria-label="Close notification"
+              onClick={() => dismiss(toast.id)}
+              className="shrink-0 rounded-sm opacity-70 hover:opacity-100"
             >
               <X className="h-4 w-4" />
             </button>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </div>
+          </div>
+        );
+      })}
+    </div>,
+    document.body
   );
 }
