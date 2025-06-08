@@ -1,49 +1,19 @@
-/**
- * Optimized hooks index for better tree-shaking
- * Using selective exports to reduce bundle size
- */
 
-// Base hooks
-export * from "./base";
+// Core hooks
+export { useLocalStorage } from '@/core/hooks/useLocalStorage';
+export { useToast } from '@/core/hooks/useToast';
+export { useDialog } from '@/core/hooks/useDialog';
 
-// Form hooks
-export * from "./form";
-
-// Individual hooks that exist
-export { useConfirmationDialog } from "./useConfirmationDialog";
-export { useFormSchemas } from "./useFormSchemas";
-export { useFormValidation } from "./useFormValidation";
-export { useBreadcrumbs } from "./useBreadcrumbs";
-export { useRoutePrefetch } from "./useRoutePrefetch";
-export { useCommonValidation } from "./useCommonValidation";
-export { useMultiStepDialog } from "./useMultiStepDialog";
-export { useZodForm } from "./useZodForm";
-export { usePageBreadcrumbs } from "./usePageBreadcrumbs";
-export { useFormSubmitHandler } from "./useFormSubmitHandler";
-export { useFieldValidation } from "./useFieldValidation";
-export { useEffectOnce } from "./useEffectOnce";
-
-// Memory optimization hooks - export all functions
-export * from "./useMemorySafe";
-export * from "./useOptimizedEventListeners";
-
-// Responsive hooks
+// Form hooks - use the consolidated versions from form directory
 export { 
-  useResponsive,
-  useIsMobile,
-  useIsTablet,
-  useIsDesktop,
-  useMediaQuery,
-  useBreakpoint,
-  useIsPortrait,
-  useHasHover,
-  usePrefersReducedMotion,
-  usePrefersDarkMode
-} from "./useResponsive";
+  useZodForm, 
+  useFormSubmitHandler, 
+  useFormValidation,
+  useCommonValidation 
+} from './form';
 
-// Keyboard navigation
-export { useKeyboardNavigation } from "./use-keyboard-navigation";
+// Field validation hook
+export { useFieldValidation } from './useFieldValidation';
 
-// API and UI directories
-export * from "./api";
-export * from "./ui";
+// Form schemas hook  
+export { useFormSchemas } from './useFormSchemas';

@@ -23,7 +23,7 @@ export function setupHookTest() {
     </QueryClientProvider>
   );
 
-  const renderTestHook = (hook: () => any) => {
+  const renderTestHook = <T,>(hook: () => T) => {
     return renderHook(hook, { wrapper });
   };
 
@@ -50,7 +50,7 @@ export function setupErrorTest() {
     </QueryClientProvider>
   );
 
-  const renderTestHook = (hook: () => any) => {
+  const renderTestHook = <T,>(hook: () => T) => {
     return renderHook(hook, { wrapper });
   };
 
@@ -80,7 +80,7 @@ export function setupMutationTest() {
     </QueryClientProvider>
   );
 
-  const renderTestHook = (hook: () => any) => {
+  const renderTestHook = <T,>(hook: () => T) => {
     return renderHook(hook, { wrapper });
   };
 

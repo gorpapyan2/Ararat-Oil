@@ -9,34 +9,22 @@ import EmployeeDialogStandardized, {
 } from "../../management/components/EmployeeDialogStandardized";
 
 interface EmployeeManagerProps {
-  /**
-   * Callback when an employee is created
-   */
   onEmployeeCreated?: (employee: Employee) => void;
-
-  /**
-   * Callback when an employee is updated
-   */
   onEmployeeUpdated?: (employee: Employee) => void;
 }
 
 /**
- * Employee management component that demonstrates using the refactored hooks
- *
- * This component shows how to use the new hooks architecture to manage employee operations
- * with significantly less boilerplate code.
+ * Employee management component - simplified version that uses the management feature hooks
  */
 export function EmployeeManager({
   onEmployeeCreated,
   onEmployeeUpdated,
 }: EmployeeManagerProps) {
-  // Use our new hook with much less boilerplate
   const employeeDialog = useEmployeeDialog({
     onCreateSuccess: onEmployeeCreated,
     onUpdateSuccess: onEmployeeUpdated,
   });
 
-  // Handler for form submission - now much simpler with our new hook
   const handleSubmit = useCallback(
     async (data: EmployeeFormValues) => {
       try {
@@ -52,13 +40,11 @@ export function EmployeeManager({
 
   return (
     <div>
-      {/* Add employee button */}
       <Button onClick={employeeDialog.openCreate} className="mb-4">
         <Plus className="mr-2 h-4 w-4" />
         Add Employee
       </Button>
 
-      {/* Employee dialog using our new hook */}
       <EmployeeDialogStandardized
         open={employeeDialog.isOpen}
         onOpenChange={employeeDialog.onOpenChange}
