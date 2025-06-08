@@ -1,12 +1,16 @@
-import { useToast } from "@/hooks";
+
 import { ToastContainer } from "./toast-container";
-import { useIsMobile } from "@/shared/hooks/useResponsive";
+
+// Mock toast system for compatibility
+const mockToasts: any[] = [];
+const mockDismiss = (id: string) => {};
 
 export function Toaster() {
-  const { toasts } = useToast();
-  const isMobile = useIsMobile();
-
   return (
-    <ToastContainer position={isMobile ? "bottom-right" : "bottom-right"} />
+    <ToastContainer 
+      toasts={mockToasts} 
+      dismiss={mockDismiss}
+      position="bottom-right" 
+    />
   );
 }

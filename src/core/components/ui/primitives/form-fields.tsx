@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import {
   FormControl,
@@ -41,6 +42,11 @@ import {
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { Path } from "react-hook-form";
+
+// Define InputProps interface
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  type?: string;
+}
 
 // Common props for all form fields
 interface FormFieldBaseProps<TFieldValues extends FieldValues> {
@@ -197,7 +203,7 @@ export function FormCheckbox<TFieldValues extends FieldValues>({
           <FormControl>
             <Checkbox
               checked={field.value}
-              onChange={field.onChange}
+              onCheckedChange={field.onChange}
               disabled={disabled}
             />
           </FormControl>
@@ -396,7 +402,7 @@ export function FormCurrencyInput<TFieldValues extends FieldValues>({
 export interface FormDatePickerProps<TFieldValues extends FieldValues>
   extends FormFieldBaseProps<TFieldValues> {
   placeholder?: string;
-  disabled?: (date: Date) => boolean;
+  disabledDates?: (date: Date) => boolean;
   buttonClassName?: string;
 }
 
@@ -406,7 +412,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
   description,
   form,
   placeholder = "Select date",
-  disabled,
+  disabledDates,
   className,
   buttonClassName,
 }: FormDatePickerProps<TFieldValues>) {
@@ -447,7 +453,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
                   field.onChange(date);
                   setIsOpen(false);
                 }}
-                disabled={disabled}
+                disabledDates={disabledDates}
                 initialFocus
               />
             </PopoverContent>

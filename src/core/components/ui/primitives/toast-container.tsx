@@ -1,19 +1,28 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useToast } from "@/hooks/use-toast";
 import { Check, AlertCircle, Info, X } from "lucide-react";
 import { cn } from "@/shared/utils";
 
+export interface Toast {
+  id: string;
+  title?: string;
+  description?: string;
+  variant?: 'success' | 'error' | 'warning' | 'info';
+}
+
 export interface ToastContainerProps {
   position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  toasts: Toast[];
+  dismiss: (id: string) => void;
 }
 
 export function ToastContainer({ 
-  position = "bottom-right" 
+  position = "bottom-right",
+  toasts = [],
+  dismiss
 }: ToastContainerProps) {
   const [mounted, setMounted] = useState(false);
-  const { toasts, dismiss } = useToast();
 
   useEffect(() => {
     setMounted(true);
@@ -28,7 +37,12 @@ export function ToastContainer({
     "bottom-right": "bottom-4 right-4",
   };
 
-  const toastsToShow = Array.isArray(toasts) ? toasts : [];
+  const iconMap = {
+    success: Check,
+    error: AlertCircle,
+    warning: AlertCircle,
+    info: Info,
+  };
 
   return createPortal(
     <div
@@ -37,13 +51,8 @@ export function ToastContainer({
         positionClasses[position]
       )}
     >
-      {toastsToShow.map((toast) => {
-        const Icon = {
-          success: Check,
-          error: AlertCircle,
-          warning: AlertCircle,
-          info: Info,
-        }[toast.variant || "info"];
+      {toasts.map((toast) => {
+        const Icon = iconMap[toast.variant || 'info'];
 
         return (
           <div

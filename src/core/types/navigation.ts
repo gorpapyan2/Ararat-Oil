@@ -1,29 +1,61 @@
 
-import { LucideIcon } from "lucide-react";
+import { LucideIcon } from 'lucide-react';
 
-export interface NavigationFeature {
+export type IconType = LucideIcon | React.ComponentType<{ className?: string }>;
+
+export interface NavigationItem {
+  id: string;
   title: string;
-  description: string;
-  path: string;
-  icon: LucideIcon;
-  color: string;
-  status: string;
-  metrics?: {
-    label: string;
-    value: string;
-    color?: string;
-    trend?: string;
-  };
-  tags?: string[];
-  children?: NavigationFeature[];
+  href: string;
+  icon?: IconType;
+  description?: string;
+  isActive?: boolean;
+  badge?: string | number;
+  children?: NavigationItem[];
+  roles?: string[];
+  permissions?: string[];
 }
 
-export interface NavigationSection {
+export interface QuickAction {
+  id: string;
   title: string;
-  features: NavigationFeature[];
+  description?: string;
+  icon: IconType;
+  href: string;
+  color?: string;
+  roles?: string[];
+  permissions?: string[];
+}
+
+export interface NavigationCategory {
+  id: string;
+  title: string;
+  description?: string;
+  icon?: IconType;
+  items: NavigationItem[];
+  roles?: string[];
+  permissions?: string[];
+}
+
+export interface NavigationCategoryConfig {
+  categories: NavigationCategory[];
+  quickActions?: QuickAction[];
+}
+
+export interface NavigationConfig {
+  main: NavigationCategoryConfig;
+  settings?: NavigationCategoryConfig;
+  admin?: NavigationCategoryConfig;
 }
 
 export interface BreadcrumbItem {
-  label: string;
+  title: string;
   href?: string;
+}
+
+export interface NavigationState {
+  currentPath: string;
+  breadcrumbs: BreadcrumbItem[];
+  activeCategory?: string;
+  activeItem?: string;
 }
