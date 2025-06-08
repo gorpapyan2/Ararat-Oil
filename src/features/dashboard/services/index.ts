@@ -14,21 +14,6 @@ import { SalesSummary } from '../../../core/api/endpoints/dashboard';
 import { FinancialDashboard } from '../../../core/api/types';
 
 /**
- * Adapts API dashboard data to feature dashboard data
- */
-function adaptApiDashboardData(
-  apiData: ApiDashboardData
-): Partial<DashboardData> {
-  return {
-    // Map API data to feature data as needed
-    // This is a partial mapping as the structure may differ
-    sales: apiData.recent_sales || [],
-    totalSales: apiData.revenue_summary?.monthly || 0,
-    inventoryValue: apiData.inventory_status?.current_level || 0,
-  };
-}
-
-/**
  * Get dashboard data from the API
  */
 export async function getDashboardData(): Promise<DashboardData> {
@@ -55,23 +40,41 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     // Calculate inventory value based on tank levels
     const inventoryValue = tanks.reduce((sum, tank) => {
-      // You may want to get actual fuel prices here if available
       const defaultPricePerLiter = 500; // Example price in AMD
       return sum + tank.current_level * defaultPricePerLiter;
     }, 0);
 
+    // Calculate all required properties for DashboardData
+    const totalSales = financialData?.total_sales || 0;
+    const totalExpenses = financialData?.total_expenses || 0;
+    const netProfit = financialData?.net_profit || 0;
+    
     return {
       sales: sales,
       expenses: [], // Would need to fetch from expenses API if needed
       tanks: tanks,
-      totalSales: financialData?.total_sales || 0,
-      totalExpenses: financialData?.total_expenses || 0,
-      netProfit: financialData?.net_profit || 0,
-      inventoryValue: inventoryValue,
+      totalSales,
+      totalExpenses,
+      netProfit,
+      inventoryValue,
+      revenue: totalSales,
+      revenuePercentChange: 12.5, // Mock data
+      fuelSold: sales.reduce((sum, sale) => sum + (sale.quantityLiters || 0), 0),
+      fuelSoldPercentChange: 8.3, // Mock data
+      expensesPercentChange: -5.2, // Mock data
+      profit: netProfit,
+      profitPercentChange: 15.7, // Mock data
+      totalRevenue: totalSales,
+      revenueChange: 12.5, // Mock data
+      totalLitersSold: sales.reduce((sum, sale) => sum + (sale.quantityLiters || 0), 0),
+      salesVolumeChange: 8.3, // Mock data
+      expensesChange: -5.2, // Mock data
+      efficiencyRatio: totalExpenses > 0 ? totalSales / totalExpenses : 0,
+      efficiencyChange: 3.2, // Mock data
     };
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
-    // Return empty dashboard data structure in case of error
+    // Return complete dashboard data structure in case of error
     return {
       sales: [],
       expenses: [],
@@ -80,6 +83,20 @@ export async function getDashboardData(): Promise<DashboardData> {
       totalExpenses: 0,
       netProfit: 0,
       inventoryValue: 0,
+      revenue: 0,
+      revenuePercentChange: 0,
+      fuelSold: 0,
+      fuelSoldPercentChange: 0,
+      expensesPercentChange: 0,
+      profit: 0,
+      profitPercentChange: 0,
+      totalRevenue: 0,
+      revenueChange: 0,
+      totalLitersSold: 0,
+      salesVolumeChange: 0,
+      expensesChange: 0,
+      efficiencyRatio: 0,
+      efficiencyChange: 0,
     };
   }
 }

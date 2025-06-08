@@ -32,7 +32,6 @@ export class DatabaseMigration {
     }
   }
 
-  // Remove the problematic function call and use available functions only
   async checkTableExists(tableName: string): Promise<boolean> {
     try {
       const { data, error } = await supabase.rpc('check_table_exists', { table_name: tableName });
@@ -56,7 +55,7 @@ export class DatabaseMigration {
 
   async checkEmployeeShift(employeeId: string): Promise<boolean> {
     try {
-      const { data, error } = await supabase.rpc('employee_has_open_shift', { employee_id: employeeId });
+      const { data, error } = await supabase.rpc('employee_has_open_shift', { employee_id_param: employeeId });
       return !error && data;
     } catch {
       return false;
@@ -65,7 +64,7 @@ export class DatabaseMigration {
 
   async getShiftEmployees(shiftId: string): Promise<any[]> {
     try {
-      const { data, error } = await supabase.rpc('get_shift_employees', { shift_id: shiftId });
+      const { data, error } = await supabase.rpc('get_shift_employees', { shift_id_param: shiftId });
       return error ? [] : data || [];
     } catch {
       return [];

@@ -27,8 +27,8 @@ export const fetchDashboardData = async (): Promise<DashboardData> => {
     const expenses: Expense[] = expensesResponse.data || [];
     const tanks: Tank[] = tanksResponse.data || [];
 
-    // Calculate basic totals
-    const totalSales = sales.reduce((sum, sale) => sum + (sale.total_price || 0), 0);
+    // Calculate basic totals using correct Sale properties
+    const totalSales = sales.reduce((sum, sale) => sum + (sale.amount || 0), 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
     const netProfit = totalSales - totalExpenses;
 
@@ -38,10 +38,10 @@ export const fetchDashboardData = async (): Promise<DashboardData> => {
       return sum + (tank.current_level * defaultPricePerLiter);
     }, 0);
 
-    // Calculate additional derived properties
+    // Calculate additional derived properties using correct Sale properties
     const revenue = totalSales;
     const profit = netProfit;
-    const fuelSold = sales.reduce((sum, sale) => sum + (sale.quantity || 0), 0);
+    const fuelSold = sales.reduce((sum, sale) => sum + (sale.quantityLiters || 0), 0);
     const totalLitersSold = fuelSold;
     const totalRevenue = revenue;
     const efficiencyRatio = totalExpenses > 0 ? (totalRevenue / totalExpenses) : 0;
@@ -109,8 +109,8 @@ export const getSalesSummary = async (timeframe: string = 'day') => {
     const salesResponse = await salesApi.getSales();
     const sales = salesResponse.data || [];
     
-    const totalSales = sales.reduce((sum, sale) => sum + (sale.total_price || 0), 0);
-    const totalVolume = sales.reduce((sum, sale) => sum + (sale.quantity || 0), 0);
+    const totalSales = sales.reduce((sum, sale) => sum + (sale.amount || 0), 0);
+    const totalVolume = sales.reduce((sum, sale) => sum + (sale.quantityLiters || 0), 0);
     const averageSale = sales.length > 0 ? totalSales / sales.length : 0;
     
     return {
