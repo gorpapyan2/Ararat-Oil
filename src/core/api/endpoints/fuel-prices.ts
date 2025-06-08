@@ -1,10 +1,11 @@
+
 import { fetchFromFunction, ApiResponse } from "../client";
 import type { FuelPrice } from "../types";
 
 /**
  * Query parameters for fuel prices
  */
-export interface FuelPricesQueryParams {
+export interface FuelPricesQueryParams extends Record<string, string | number | boolean | null | undefined> {
   fuel_type?: string;
   fuel_type_id?: string;
   status?: string;
