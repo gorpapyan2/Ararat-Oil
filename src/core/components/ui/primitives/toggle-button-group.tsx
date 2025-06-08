@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { cn } from "@/shared/utils";
 import {
@@ -86,7 +87,7 @@ export const ToggleButtonGroup = React.forwardRef<
             ? [value]
             : []
         : value
-          ? [value]
+          ? [typeof value === 'string' ? value : value[0] || '']
           : []
     );
 
@@ -100,7 +101,7 @@ export const ToggleButtonGroup = React.forwardRef<
             ? [value]
             : []
         : value
-          ? [value]
+          ? [typeof value === 'string' ? value : value[0] || '']
           : []
       : internalValue;
 
@@ -110,9 +111,10 @@ export const ToggleButtonGroup = React.forwardRef<
 
       if (multiple) {
         // For multiple selection, add or remove from array
-        newValue = isActive
+        const newArray = isActive
           ? [...selectedValues, toggleValue]
           : selectedValues.filter((v) => v !== toggleValue);
+        newValue = newArray;
       } else {
         // For single selection, replace or clear
         newValue = isActive ? toggleValue : "";
@@ -120,7 +122,7 @@ export const ToggleButtonGroup = React.forwardRef<
 
       // Update internal state or call onChange
       if (isControlled) {
-        onChange!(multiple ? newValue : (newValue as string));
+        onChange!(newValue);
       } else {
         setInternalValue(
           multiple ? (newValue as string[]) : [newValue as string]
@@ -135,7 +137,7 @@ export const ToggleButtonGroup = React.forwardRef<
       // Only process ToggleButton children
       if (
         child.type === ToggleButton ||
-        (child.props && child.props.isActive !== undefined)
+        (child.props && 'value' in child.props)
       ) {
         const childValue = child.props.value;
         if (!childValue) {
@@ -147,7 +149,7 @@ export const ToggleButtonGroup = React.forwardRef<
 
         const isActive = selectedValues.includes(childValue);
 
-        return React.cloneElement(child, {
+        return React.cloneElement(child as React.ReactElement<ToggleButtonProps & { value: string }>, {
           isActive,
           onToggle: (active: boolean) => handleToggle(childValue, active),
           activeVariant: child.props.activeVariant || activeVariant,

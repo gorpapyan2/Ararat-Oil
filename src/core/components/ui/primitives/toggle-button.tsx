@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { useState } from "react";
 import { cn } from "@/shared/utils";
@@ -11,7 +12,7 @@ import { VariantProps } from "class-variance-authority";
 /**
  * Props for the ToggleButton component
  */
-export interface ToggleButtonProps extends Omit<ButtonProps, "onClick"> {
+export interface ToggleButtonProps extends Omit<ButtonProps, "onClick" | "variant"> {
   /**
    * Whether the toggle is active (pressed)
    * @default false
@@ -34,6 +35,11 @@ export interface ToggleButtonProps extends Omit<ButtonProps, "onClick"> {
    * @default "outline"
    */
   inactiveVariant?: VariantProps<typeof buttonVariants>["variant"];
+
+  /**
+   * Value for the toggle button (used in groups)
+   */
+  value?: string;
 }
 
 /**
@@ -52,15 +58,15 @@ export const ToggleButton = React.forwardRef<
       onToggle,
       activeVariant = "default",
       inactiveVariant = "outline",
-      variant: _variant, // Ignore passed variant as we use active/inactive variants
       children,
+      value,
       ...props
     },
     ref
   ) => {
     // Use internal state if no external control is provided
     const [internalIsActive, setInternalIsActive] = useState(isActiveProp);
-    const isControlled = isActiveProp !== undefined && onToggle !== undefined;
+    const isControlled = onToggle !== undefined;
     const isActive = isControlled ? isActiveProp : internalIsActive;
 
     // Determine which variant to use based on the active state
@@ -71,11 +77,6 @@ export const ToggleButton = React.forwardRef<
         onToggle(!isActive);
       } else {
         setInternalIsActive(!internalIsActive);
-      }
-
-      // Call original onClick if provided
-      if (props.onClick) {
-        props.onClick(e);
       }
     };
 

@@ -35,6 +35,10 @@ export interface TableProps
   extends React.HTMLAttributes<HTMLTableElement>,
     VariantProps<typeof tableVariants> {}
 
+export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {}
+
+export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {}
+
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
   ({ className, variant, size, density, ...props }, ref) => (
     <div className="relative w-full overflow-auto">
@@ -83,34 +87,32 @@ const TableFooter = React.forwardRef<
 ));
 TableFooter.displayName = "TableFooter";
 
-const TableRow = React.forwardRef<
-  HTMLTableRowElement,
-  React.HTMLAttributes<HTMLTableRowElement>
->(({ className, ...props }, ref) => (
-  <tr
-    ref={ref}
-    className={cn(
-      "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
-      className
-    )}
-    {...props}
-  />
-));
+const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
+  ({ className, ...props }, ref) => (
+    <tr
+      ref={ref}
+      className={cn(
+        "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+        className
+      )}
+      {...props}
+    />
+  )
+);
 TableRow.displayName = "TableRow";
 
-const TableHead = React.forwardRef<
-  HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
-  <th
-    ref={ref}
-    className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
-      className
-    )}
-    {...props}
-  />
-));
+const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
+  ({ className, ...props }, ref) => (
+    <th
+      ref={ref}
+      className={cn(
+        "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+        className
+      )}
+      {...props}
+    />
+  )
+);
 TableHead.displayName = "TableHead";
 
 const TableCell = React.forwardRef<

@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import {
   FormControl,
@@ -453,7 +452,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
                   field.onChange(date);
                   setIsOpen(false);
                 }}
-                disabledDates={disabledDates}
+                disabled={disabledDates}
                 initialFocus
               />
             </PopoverContent>
