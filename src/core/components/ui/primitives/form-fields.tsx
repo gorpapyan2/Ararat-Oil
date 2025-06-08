@@ -401,7 +401,7 @@ export function FormCurrencyInput<TFieldValues extends FieldValues>({
 export interface FormDatePickerProps<TFieldValues extends FieldValues>
   extends FormFieldBaseProps<TFieldValues> {
   placeholder?: string;
-  disabledDates?: (date: Date) => boolean;
+  disableDates?: (date: Date) => boolean;
   buttonClassName?: string;
 }
 
@@ -411,7 +411,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
   description,
   form,
   placeholder = "Select date",
-  disabledDates,
+  disableDates,
   className,
   buttonClassName,
 }: FormDatePickerProps<TFieldValues>) {
@@ -452,7 +452,7 @@ export function FormDatePicker<TFieldValues extends FieldValues>({
                   field.onChange(date);
                   setIsOpen(false);
                 }}
-                disabled={disabledDates}
+                {...(disableDates && { disabled: disableDates })}
                 initialFocus
               />
             </PopoverContent>

@@ -1,8 +1,9 @@
+
 /**
  * Type definitions for form components
  * This file centralizes type definitions to improve type safety across form implementations
  */
-import { z, ZodTypeDef } from "zod";
+import { z } from "zod";
 import {
   FieldValues,
   UseFormReturn,
@@ -79,9 +80,7 @@ export interface ValueFieldProps<
 /**
  * Props for form components using StandardForm
  */
-export interface StandardFormComponentProps<
-  TSchema extends z.ZodType<ZodTypeDef, unknown>,
-> {
+export interface StandardFormComponentProps<TSchema extends z.ZodSchema> {
   /** Zod schema for form validation */
   schema: TSchema;
   /** Default values for form fields */
@@ -98,7 +97,7 @@ export interface StandardFormComponentProps<
 /**
  * Props for rendered form components
  */
-export interface FormRenderProps<TSchema extends z.ZodType<unknown, unknown>>
+export interface FormRenderProps<TSchema extends z.ZodSchema>
   extends StandardFormComponentProps<TSchema> {
   /** Form methods from react-hook-form */
   form: UseFormReturn<z.infer<TSchema>>;

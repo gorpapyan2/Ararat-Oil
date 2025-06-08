@@ -14,7 +14,10 @@ export interface NavigationItem {
   children?: NavigationItem[];
   roles?: string[];
   permissions?: string[];
-  name?: string; // Add for backward compatibility
+  name?: string;
+  nameAm?: string;
+  descriptionAm?: string;
+  path?: string;
 }
 
 export interface NavigationFeature {
@@ -44,6 +47,7 @@ export interface QuickAction {
   color?: string;
   roles?: string[];
   permissions?: string[];
+  name?: string;
 }
 
 export interface NavigationCategory {
@@ -57,7 +61,8 @@ export interface NavigationCategory {
 }
 
 export interface NavigationCategoryConfig {
-  id?: string; // Add for backward compatibility
+  id?: string;
+  title?: string;
   categories: NavigationCategory[];
   quickActions?: QuickAction[];
 }
@@ -66,6 +71,8 @@ export interface NavigationConfig {
   main: NavigationCategoryConfig;
   settings?: NavigationCategoryConfig;
   admin?: NavigationCategoryConfig;
+  categories?: NavigationCategory[];
+  features?: NavigationFeature[];
 }
 
 export interface BreadcrumbItem {
