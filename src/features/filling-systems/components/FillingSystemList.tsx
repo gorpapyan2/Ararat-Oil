@@ -11,21 +11,7 @@ import { useToast } from "@/hooks/useToast";
 import { fillingSystemsApi } from "@/core/api/endpoints/filling-systems";
 import { tanksApi } from "@/core/api/endpoints/tanks";
 import { FillingSystemFormStandardized } from "./FillingSystemFormStandardized";
-
-interface FillingSystem {
-  id: string;
-  name: string;
-  tank_id: string;
-  created_at: string;
-}
-
-interface Tank {
-  id: string;
-  name: string;
-  fuel_type: string;
-  capacity: number;
-  current_level: number;
-}
+import type { FillingSystem, Tank } from "@/core/api/types";
 
 export function FillingSystemList() {
   const { toast } = useToast();
@@ -131,7 +117,7 @@ export function FillingSystemList() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredSystems.map((system: FillingSystem) => {
-          const tankInfo = getTankInfo(system.tank_id);
+          const tankInfo = getTankInfo(system.tank_id || "");
           
           return (
             <Card key={system.id} className="hover:shadow-md transition-shadow">

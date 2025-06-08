@@ -1,11 +1,12 @@
+
 import React, { useCallback } from "react";
 import { Button } from "@/core/components/ui/primitives/button";
 import { Plus } from "lucide-react";
-import { useEmployeeDialog } from "../hooks/useEmployeeDialog";
-import { Employee } from "../types/employees.types";
+import { useEmployeeDialog } from "../../management/hooks/useEmployeeDialog";
+import { Employee } from "../../management/types/employees.types";
 import EmployeeDialogStandardized, {
   EmployeeFormValues,
-} from "./EmployeeDialogStandardized";
+} from "../../management/components/EmployeeDialogStandardized";
 
 interface EmployeeManagerProps {
   /**
@@ -61,7 +62,7 @@ export function EmployeeManager({
       <EmployeeDialogStandardized
         open={employeeDialog.isOpen}
         onOpenChange={employeeDialog.onOpenChange}
-        employee={employeeDialog.selectedEmployee as Employee}
+        employee={employeeDialog.selectedEmployee}
         onSubmit={handleSubmit}
         isLoading={employeeDialog.isSubmitting}
       />

@@ -1,4 +1,5 @@
-// Export all components from the employees feature
-export * from "./EmployeesTable";
-export * from "./EmployeesTableStandardized";
-export * from "./EmployeeManager";
+
+export { EmployeeManager } from "./EmployeeManager";
+export { default as EmployeeDialogStandardized } from "./EmployeeDialogStandardized";
+export { default as DeleteConfirmDialogStandardized } from "./DeleteConfirmDialogStandardized";
+// Note: EmployeesTable has been moved to management feature

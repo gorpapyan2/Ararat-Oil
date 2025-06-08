@@ -5,6 +5,7 @@ import { Button } from "@/core/components/ui/button";
 import { Badge } from "@/core/components/ui/primitives/badge";
 import { Trash2, Edit } from "lucide-react";
 import { FillingSystemFormStandardized } from "./FillingSystemFormStandardized";
+import { fillingSystemsApi } from "@/core/api/endpoints/filling-systems";
 
 interface FillingSystem {
   id: string;

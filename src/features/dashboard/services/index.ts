@@ -1,3 +1,4 @@
+
 // Re-export the original service for backwards compatibility
 export * from "./dashboard";
 
@@ -48,7 +49,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     const totalSales = financialData?.total_sales || 0;
     const totalExpenses = financialData?.total_expenses || 0;
     const netProfit = financialData?.net_profit || 0;
-    // Use quantity_liters instead of total_sold_liters
+    // Use quantity_liters property from Sale type
     const totalLitersSold = sales.reduce((sum, sale) => sum + (sale.quantity_liters || 0), 0);
     
     return {
