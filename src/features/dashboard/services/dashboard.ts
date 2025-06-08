@@ -26,7 +26,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     const totalSales = financialData?.total_sales || 0;
     const totalExpenses = financialData?.total_expenses || 0;
     const netProfit = financialData?.net_profit || 0;
-    const totalLitersSold = sales.reduce((sum, sale) => sum + (sale.total_sold_liters || 0), 0);
+    // Use quantity_liters instead of total_sold_liters
+    const totalLitersSold = sales.reduce((sum, sale) => sum + (sale.quantity_liters || 0), 0);
 
     return {
       sales,
@@ -79,3 +80,6 @@ export async function getDashboardData(): Promise<DashboardData> {
     };
   }
 }
+
+// Export as fetchDashboardData for backwards compatibility
+export const fetchDashboardData = getDashboardData;

@@ -1,6 +1,9 @@
 
 import type { Sale, Expense, Tank } from '../../../core/api/types';
 
+// Export Sale type for use in other modules
+export type { Sale, Expense, Tank };
+
 export interface DashboardData {
   sales: Sale[];
   expenses: Expense[];

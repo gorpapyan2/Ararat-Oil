@@ -80,8 +80,8 @@ export function FillingSystemCard({ system, onEdit, onDelete }: FillingSystemCar
 
       {isEditDialogOpen && (
         <FillingSystemFormStandardized
-          isOpen={isEditDialogOpen}
-          onClose={() => setIsEditDialogOpen(false)}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
           fillingSystem={system}
           onSuccess={() => setIsEditDialogOpen(false)}
         />

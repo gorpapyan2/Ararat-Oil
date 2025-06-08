@@ -1,3 +1,4 @@
+
 /**
  * Filling Systems API
  *
@@ -21,6 +22,15 @@ export async function getFillingSystems(): Promise<
   ApiResponse<FillingSystem[]>
 > {
   return fetchFromFunction<FillingSystem[]>(ENDPOINT);
+}
+
+/**
+ * Fetches filling systems by tank (alias for getFillingSystems for backwards compatibility)
+ */
+export async function getFillingSystemsByTank(): Promise<
+  ApiResponse<FillingSystem[]>
+> {
+  return getFillingSystems();
 }
 
 /**
@@ -87,6 +97,7 @@ export async function validateTankIds(
  */
 export const fillingSystemsApi = {
   getFillingSystems,
+  getFillingSystemsByTank,
   getFillingSystemById,
   createFillingSystem,
   updateFillingSystem,

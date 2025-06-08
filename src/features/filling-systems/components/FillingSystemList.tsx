@@ -19,7 +19,7 @@ interface FillingSystem {
   created_at: string;
 }
 
-interface FuelTank {
+interface Tank {
   id: string;
   name: string;
   fuel_type: string;
@@ -41,7 +41,7 @@ export function FillingSystemList() {
   } = useQuery({
     queryKey: ["filling-systems"],
     queryFn: async () => {
-      const response = await fillingSystemsApi.getFillingSystemsByTank();
+      const response = await fillingSystemsApi.getFillingSystems();
       return response.data || [];
     },
   });
@@ -88,7 +88,7 @@ export function FillingSystemList() {
   };
 
   const getTankInfo = (tankId: string) => {
-    const tank = tanks.find((t: FuelTank) => t.id === tankId);
+    const tank = tanks.find((t: Tank) => t.id === tankId);
     return tank || { name: "Unknown", fuel_type: "Unknown" };
   };
 
@@ -158,7 +158,7 @@ export function FillingSystemList() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Fuel Type:</span>
-                    <Badge variant="outline">{tankInfo.fuel_type}</Badge>
+                    <Badge variant="outline">{String(tankInfo.fuel_type || "Unknown")}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Created:</span>
@@ -178,15 +178,15 @@ export function FillingSystemList() {
       )}
 
       <FillingSystemFormStandardized
-        isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
         onSuccess={handleSuccess}
       />
 
       {editingSystem && (
         <FillingSystemFormStandardized
-          isOpen={!!editingSystem}
-          onClose={() => setEditingSystem(null)}
+          open={!!editingSystem}
+          onOpenChange={() => setEditingSystem(null)}
           fillingSystem={editingSystem}
           onSuccess={handleSuccess}
         />
