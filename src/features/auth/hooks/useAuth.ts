@@ -17,6 +17,7 @@ export function useAuth() {
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
+    isAuthenticated: false,
     isLoading: true,
     error: null,
   });

@@ -10,7 +10,7 @@ interface MigrationResult {
 export class DatabaseMigration {
   private async executeFunction(functionName: string, params?: Record<string, any>): Promise<MigrationResult> {
     try {
-      const { data, error } = await supabase.rpc(functionName, params);
+      const { data, error } = await supabase.rpc(functionName as any, params);
       
       if (error) {
         return {

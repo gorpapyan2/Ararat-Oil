@@ -1,3 +1,4 @@
+
 // Re-export the original service for backwards compatibility
 export * from "./dashboard";
 
@@ -59,14 +60,14 @@ export async function getDashboardData(): Promise<DashboardData> {
       inventoryValue,
       revenue: totalSales,
       revenuePercentChange: 12.5, // Mock data
-      fuelSold: sales.reduce((sum, sale) => sum + (sale.quantityLiters || 0), 0),
+      fuelSold: sales.reduce((sum, sale) => sum + (sale.total_sold_liters || 0), 0),
       fuelSoldPercentChange: 8.3, // Mock data
       expensesPercentChange: -5.2, // Mock data
       profit: netProfit,
       profitPercentChange: 15.7, // Mock data
       totalRevenue: totalSales,
       revenueChange: 12.5, // Mock data
-      totalLitersSold: sales.reduce((sum, sale) => sum + (sale.quantityLiters || 0), 0),
+      totalLitersSold: sales.reduce((sum, sale) => sum + (sale.total_sold_liters || 0), 0),
       salesVolumeChange: 8.3, // Mock data
       expensesChange: -5.2, // Mock data
       efficiencyRatio: totalExpenses > 0 ? totalSales / totalExpenses : 0,

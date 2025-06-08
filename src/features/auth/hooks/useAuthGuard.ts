@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
@@ -16,7 +17,15 @@ export function useAuthGuard(config: AuthConfig = {}) {
         return;
       }
 
-      if (config.requiredRole && !hasRequiredRole(user, config.requiredRole)) {
+      // Convert Supabase user to AuthUser format for role checking
+      const authUser = user ? {
+        id: user.id,
+        email: user.email || '',
+        role: user.user_metadata?.role,
+        permissions: user.user_metadata?.permissions || []
+      } : null;
+
+      if (config.requiredRole && !hasRequiredRole(authUser, config.requiredRole)) {
         navigate(config.redirectTo || "/unauthorized");
       }
     }

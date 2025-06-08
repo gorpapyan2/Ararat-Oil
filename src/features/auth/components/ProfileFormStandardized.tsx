@@ -1,224 +1,177 @@
-import { memo } from "react";
+
+import { useState } from "react";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { useToast } from "@/hooks";
-import { useRenderCount } from "@/utils/performance";
-import { User } from "@supabase/supabase-js";
+import { StandardForm } from "@/core/components/ui/composed/base-form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/core/components/ui/primitives/form";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Alert, AlertDescription } from "@/core/components/ui/primitives/alert";
 import { UserProfile } from "./ProfileController";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
-// Icons
-import { IconCamera, IconCheck, IconX } from "@tabler/icons-react";
-
-// UI Components
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from "@/core/components/ui/card";
-import { Button } from "@/core/components/ui/button";
-import { Separator } from "@/core/components/ui/separator";
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "@/core/components/ui/avatar";
-import { FormInput } from "@/core/components/ui/composed/form-fields";
-import { useZodForm, useFormSubmitHandler } from "@/shared/hooks/use-form";
-
-// Define the form validation schema
-const profileSchema = z.object({
-  fullName: z
-    .string({ required_error: "Full name is required" })
-    .min(2, "Full name must be at least 2 characters"),
-  email: z
-    .string({ required_error: "Email is required" })
-    .email("Please enter a valid email address"),
-  phone: z.string().optional(),
-  position: z.string().optional(),
-});
-
-// Infer the form data type from the schema
-type ProfileFormData = z.infer<typeof profileSchema>;
-
-interface ProfileFormProps {
-  user: User;
-  profile: UserProfile;
-  onSubmit: (data: ProfileFormData) => Promise<void>;
-  avatarUrl?: string;
-  onChangeAvatar?: () => void;
-  onRemoveAvatar?: () => void;
+interface ProfileFormStandardizedProps {
+  profile?: UserProfile | null;
+  onSubmit: (data: ProfileFormData) => Promise<boolean>;
+  isLoading?: boolean;
 }
 
-function ProfileFormStandardized({
-  user,
+export function ProfileFormStandardized({
   profile,
   onSubmit,
-  avatarUrl,
-  onChangeAvatar,
-  onRemoveAvatar,
-}: ProfileFormProps) {
+  isLoading = false,
+}: ProfileFormStandardizedProps) {
   const { t } = useTranslation();
-  const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
 
-  // Log render count in development
-  useRenderCount("ProfileFormStandardized");
-
-  // Initialize form with Zod
-  const form = useZodForm({
-    schema: profileSchema,
-    defaultValues: {
-      fullName: profile?.full_name || user?.user_metadata?.full_name || "",
-      email: user?.email || "",
-      phone: profile?.phone || "",
-      position: profile?.position || "",
-    },
+  // Create schema inside the component where hooks can be called
+  const profileSchema = z.object({
+    full_name: z
+      .string()
+      .min(2, t("profile.fullNameMinLength", "Full name must be at least 2 characters"))
+      .optional(),
+    email: z
+      .string()
+      .email(t("profile.invalidEmail", "Invalid email address"))
+      .optional(),
+    phone: z
+      .string()
+      .min(8, t("profile.phoneMinLength", "Phone number must be at least 8 characters"))
+      .optional()
+      .or(z.literal("")),
+    position: z
+      .string()
+      .optional()
+      .or(z.literal("")),
   });
 
-  // Get form submission handler
-  const { isSubmitting, onSubmit: handleSubmit } =
-    useFormSubmitHandler<ProfileFormData>(form, async (data) => {
-      try {
-        await onSubmit(data);
-        toast({
-          title: "Profile updated",
-          description:
-            "Your profile information has been updated successfully.",
-        });
-        return true;
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to update profile. Please try again.",
-          variant: "destructive",
-        });
-        return false;
-      }
-    });
+  // Type for the form values based on the schema
+  type ProfileFormData = z.infer<typeof profileSchema>;
 
-  // Reset form to initial values
-  const resetForm = () => {
-    form.reset({
-      fullName: profile?.full_name || user?.user_metadata?.full_name || "",
-      email: user?.email || "",
-      phone: profile?.phone || "",
-      position: profile?.position || "",
-    });
+  // Default values from profile
+  const defaultValues: ProfileFormData = {
+    full_name: profile?.full_name || "",
+    email: profile?.email || "",
+    phone: profile?.phone || "",
+    position: profile?.position || "",
   };
 
-  // Get initials for avatar fallback
-  const getInitials = () => {
-    const name = form.getValues().fullName || user?.email || "User";
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
+  // Submit handler
+  const handleSubmit = async (data: ProfileFormData) => {
+    setError(null);
+
+    try {
+      const success = await onSubmit(data);
+      return success;
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "An error occurred");
+      return false;
+    }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("settings.profile.title")}</CardTitle>
-        <CardDescription>{t("settings.profile.description")}</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-6">
-          {/* Avatar Section */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <Avatar className="h-20 w-20">
-              <AvatarImage
-                src={avatarUrl || profile?.avatar_url}
-                alt={form.getValues().fullName}
-              />
-              <AvatarFallback className="text-lg">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium">
-                {t("settings.profile.photo")}
-              </h3>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onChangeAvatar}
-                >
-                  <IconCamera className="h-4 w-4 mr-2" />
-                  {t("settings.profile.change")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onRemoveAvatar}
-                >
-                  <IconX className="h-4 w-4 mr-2" />
-                  {t("settings.profile.remove")}
-                </Button>
-              </div>
-            </div>
-          </div>
+    <StandardForm
+      schema={profileSchema}
+      defaultValues={defaultValues}
+      onSubmit={handleSubmit}
+      submitText={
+        isLoading
+          ? t("profile.updating", "Updating...")
+          : t("profile.updateProfile", "Update Profile")
+      }
+      className="space-y-4"
+    >
+      {({ control }) => (
+        <>
+          {error && (
+            <Alert variant="destructive">
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-          <Separator />
+          <FormField
+            control={control}
+            name="full_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("profile.fullName", "Full Name")}</FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    value={field.value || ""} 
+                    onChange={(e) => field.onChange(e.target.value || "")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-          {/* Form Fields */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormInput
-              name="fullName"
-              label={t("settings.profile.fullName")}
-              form={form}
-              placeholder={t("settings.profile.fullName")}
-            />
+          <FormField
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("profile.email", "Email")}</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="email" 
+                    {...field} 
+                    value={field.value || ""} 
+                    onChange={(e) => field.onChange(e.target.value || "")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormInput
-              name="email"
-              label={t("settings.profile.email")}
-              form={form}
-              type="email"
-              placeholder={t("settings.profile.email")}
-            />
+          <FormField
+            control={control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("profile.phone", "Phone")}</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="tel" 
+                    {...field} 
+                    value={field.value || ""} 
+                    onChange={(e) => field.onChange(e.target.value || "")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormInput
-              name="phone"
-              label={t("settings.profile.phone")}
-              form={form}
-              placeholder={t("settings.profile.phone")}
-            />
-
-            <FormInput
-              name="position"
-              label={t("settings.profile.position")}
-              form={form}
-              placeholder={t("settings.profile.position")}
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-end gap-2 border-t px-6 py-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={resetForm}
-            disabled={isSubmitting}
-          >
-            {t("settings.profile.cancel")}
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting
-              ? t("settings.profile.saving")
-              : t("settings.profile.saveChanges")}
-            {!isSubmitting && <IconCheck className="ml-2 h-4 w-4" />}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+          <FormField
+            control={control}
+            name="position"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("profile.position", "Position")}</FormLabel>
+                <FormControl>
+                  <Input 
+                    {...field} 
+                    value={field.value || ""} 
+                    onChange={(e) => field.onChange(e.target.value || "")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
+    </StandardForm>
   );
 }
 
-// Export a memoized version for better performance
-export default memo(ProfileFormStandardized);
+export type { ProfileFormData };

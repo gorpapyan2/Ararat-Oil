@@ -19,5 +19,4 @@ export function ProfileController({ children }: ProfileControllerProps) {
   return <div>{children}</div>;
 }
 
-export { UserProfile };
 export default ProfileController;

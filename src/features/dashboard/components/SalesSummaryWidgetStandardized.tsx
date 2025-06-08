@@ -79,7 +79,7 @@ export function SalesSummaryWidgetStandardized() {
               {t("dashboard.totalVolume")}
             </p>
             <p className="text-2xl font-bold">
-              {salesSummary?.totalVolume?.toLocaleString() || 0} L
+              {salesSummary?.total_revenue?.toLocaleString() || 0} L
             </p>
           </div>
           <div className="space-y-1">
@@ -87,7 +87,7 @@ export function SalesSummaryWidgetStandardized() {
               {t("dashboard.averageSale")}
             </p>
             <p className="text-2xl font-bold">
-              {salesSummary?.averageSale?.toLocaleString() || 0}֏
+              {((salesSummary?.total_sales || 0) / Math.max(recentSales.length, 1)).toLocaleString()}֏
             </p>
           </div>
         </div>
