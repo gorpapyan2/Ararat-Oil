@@ -1,3 +1,4 @@
+
 import React from "react";
 import { cn } from "@/shared/utils/cn";
 import {
@@ -25,7 +26,7 @@ interface FormFieldContextValue<
 }
 
 // Create a properly typed context that can handle generic types
-const FormFieldContext = React.createContext<FormFieldContextValue<FieldValues, FieldPath<FieldValues>> | null>(null);
+const FormFieldContext = React.createContext<FormFieldContextValue | null>(null);
 
 /**
  * Form component that provides context for form fields
@@ -77,7 +78,7 @@ const FormField = <
   const contextValue = { name, form } as FormFieldContextValue<TFieldValues, TName>;
   
   return (
-    <FormFieldContext.Provider value={contextValue}>
+    <FormFieldContext.Provider value={contextValue as FormFieldContextValue}>
       {children}
     </FormFieldContext.Provider>
   );

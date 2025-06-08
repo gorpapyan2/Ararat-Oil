@@ -1,20 +1,41 @@
+
 import * as React from "react";
+import { Drawer as DrawerPrimitive } from "vaul";
+import { cva, type VariantProps } from "class-variance-authority";
+
 import { cn } from "@/shared/utils";
-import { X } from "lucide-react";
-import { cva } from 'class-variance-authority';
-import { Button } from "./button";
+
+const Drawer = DrawerPrimitive.Root;
+
+const DrawerTrigger = DrawerPrimitive.Trigger;
+
+const DrawerPortal = DrawerPrimitive.Portal;
+
+const DrawerClose = DrawerPrimitive.Close;
+
+const DrawerOverlay = React.forwardRef<
+  React.ElementRef<typeof DrawerPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <DrawerPrimitive.Overlay
+    ref={ref}
+    className={cn("fixed inset-0 z-50 bg-black/80", className)}
+    {...props}
+  />
+));
+DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
 const drawerVariants = cva(
-  "fixed z-50 bg-background shadow-lg transition-transform duration-300 ease-in-out",
+  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
   {
     variants: {
       position: {
-        top: "inset-x-0 top-0 border-b h-[var(--drawer-height,20rem)] translate-y-0",
+        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
         bottom:
-          "inset-x-0 bottom-0 border-t h-[var(--drawer-height,20rem)] translate-y-0",
-        left: "inset-y-0 left-0 border-r w-[var(--drawer-width,30rem)] translate-x-0",
+          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+        left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
         right:
-          "inset-y-0 right-0 border-l w-[var(--drawer-width,30rem)] translate-x-0",
+          "inset-y-0 right-0 h-full w-3/4  border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
       },
     },
     defaultVariants: {
@@ -23,182 +44,59 @@ const drawerVariants = cva(
   }
 );
 
-export interface DrawerProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+interface DrawerContentProps
+  extends React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>,
     VariantProps<typeof drawerVariants> {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  closeOnClickOutside?: boolean;
+  position?: "top" | "bottom" | "left" | "right";
 }
 
-const Drawer = React.forwardRef<HTMLDivElement, DrawerProps>(
-  (
-    {
-      className,
-      position,
-      open,
-      onOpenChange,
-      closeOnClickOutside = true,
-      children,
-      ...props
-    },
-    ref
-  ) => {
-    const [isOpen, setIsOpen] = React.useState(open);
-
-    React.useEffect(() => {
-      setIsOpen(open);
-    }, [open]);
-
-    React.useEffect(() => {
-      const handleEsc = (e: KeyboardEvent) => {
-        if (e.key === "Escape" && isOpen) {
-          setIsOpen(false);
-          onOpenChange?.(false);
-        }
-      };
-
-      const handleClickOutside = (e: MouseEvent) => {
-        if (closeOnClickOutside && isOpen) {
-          const drawerEl = document.getElementById("drawer-content");
-          if (drawerEl && !drawerEl.contains(e.target as Node)) {
-            setIsOpen(false);
-            onOpenChange?.(false);
-          }
-        }
-      };
-
-      document.addEventListener("keydown", handleEsc);
-      if (closeOnClickOutside) {
-        document.addEventListener("mousedown", handleClickOutside);
-      }
-
-      return () => {
-        document.removeEventListener("keydown", handleEsc);
-        if (closeOnClickOutside) {
-          document.removeEventListener("mousedown", handleClickOutside);
-        }
-      };
-    }, [isOpen, onOpenChange, closeOnClickOutside]);
-
-    // Add overflow hidden to body when drawer is open
-    React.useEffect(() => {
-      if (isOpen) {
-        document.body.style.overflow = "hidden";
-      } else {
-        document.body.style.overflow = "";
-      }
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }, [isOpen]);
-
-    const positionStyles = {
-      top: "translate-y-[-100%]",
-      bottom: "translate-y-[100%]",
-      left: "translate-x-[-100%]",
-      right: "translate-x-[100%]",
-    };
-
-    return (
-      <>
-        {isOpen && (
-          <div className="fixed inset-0 z-40 bg-black/50" aria-hidden="true" />
-        )}
-        <div
-          className={cn(
-            drawerVariants({ position }),
-            isOpen ? "" : positionStyles[position || "right"],
-            className
-          )}
-          ref={ref}
-          id="drawer-content"
-          role="dialog"
-          aria-modal="true"
-          tabIndex={-1}
-          {...props}
-        >
-          {children}
-        </div>
-      </>
-    );
-  }
-);
-Drawer.displayName = "Drawer";
-
-const DrawerTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, ...props }, ref) => (
-  <button ref={ref} {...props}>
-    {children}
-  </button>
-));
-DrawerTrigger.displayName = "DrawerTrigger";
-
-const DrawerClose = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ className, ...props }, ref) => (
-  <Button
-    variant="ghost"
-    size="icon"
-    className={cn("absolute right-4 top-4", className)}
-    ref={ref}
-    {...props}
-  >
-    <X className="h-4 w-4" aria-hidden="true" />
-    <span className="sr-only">Close</span>
-  </Button>
-));
-DrawerClose.displayName = "DrawerClose";
-
 const DrawerContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("p-6 overflow-auto h-full", className)}
-    {...props}
-  >
-    {children}
-  </div>
+  React.ElementRef<typeof DrawerPrimitive.Content>,
+  DrawerContentProps
+>(({ position = "right", className, children, ...props }, ref) => (
+  <DrawerPortal>
+    <DrawerOverlay />
+    <DrawerPrimitive.Content
+      ref={ref}
+      className={cn(drawerVariants({ position }), className)}
+      {...props}
+    >
+      {children}
+    </DrawerPrimitive.Content>
+  </DrawerPortal>
 ));
 DrawerContent.displayName = "DrawerContent";
 
-const DrawerHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+const DrawerHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    ref={ref}
-    className={cn("flex flex-col space-y-2 pb-4", className)}
-    {...props}
-  />
-));
-DrawerHeader.displayName = "DrawerHeader";
-
-const DrawerFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 pt-4",
+      "flex flex-col space-y-1.5 text-center sm:text-left",
       className
     )}
     {...props}
   />
-));
+);
+DrawerHeader.displayName = "DrawerHeader";
+
+const DrawerFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn("flex flex-col gap-2 p-4", className)}
+    {...props}
+  />
+);
 DrawerFooter.displayName = "DrawerFooter";
 
 const DrawerTitle = React.forwardRef<
-  HTMLHeadingElement,
-  React.HTMLAttributes<HTMLHeadingElement>
+  React.ElementRef<typeof DrawerPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title>
 >(({ className, ...props }, ref) => (
-  <h2
+  <DrawerPrimitive.Title
     ref={ref}
     className={cn(
       "text-lg font-semibold leading-none tracking-tight",
@@ -207,27 +105,29 @@ const DrawerTitle = React.forwardRef<
     {...props}
   />
 ));
-DrawerTitle.displayName = "DrawerTitle";
+DrawerTitle.displayName = DrawerPrimitive.Title.displayName;
 
 const DrawerDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
+  React.ElementRef<typeof DrawerPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <p
+  <DrawerPrimitive.Description
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ));
-DrawerDescription.displayName = "DrawerDescription";
+DrawerDescription.displayName = DrawerPrimitive.Description.displayName;
 
 export {
   Drawer,
+  DrawerPortal,
+  DrawerOverlay,
+  DrawerTrigger,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
+  DrawerFooter,
   DrawerTitle,
-  DrawerTrigger,
+  DrawerDescription,
 };

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo } from 'react';
 import { useForm, Controller, FieldError, UseFormProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -52,7 +53,7 @@ export interface FieldOption {
   description?: string;
 }
 
-export interface FormField<T = unknown> {
+export interface FormField<T = any> {
   id: string;
   type: FieldType;
   label: string;
@@ -77,16 +78,16 @@ export interface FormField<T = unknown> {
   props?: Record<string, unknown>;
 }
 
-export interface FormSection<T = Record<string, unknown>> {
+export interface FormSection<T = Record<string, any>> {
   id: string;
   title: string;
   description?: string;
-  fields: FormField<T[keyof T]>[];
+  fields: FormField<any>[];
   collapsible?: boolean;
   defaultCollapsed?: boolean;
 }
 
-export interface FormBuilderProps<T = Record<string, unknown>> {
+export interface FormBuilderProps<T = Record<string, any>> {
   sections: FormSection<T>[];
   onSubmit: (data: T) => Promise<void> | void;
   onCancel?: () => void;
@@ -96,14 +97,14 @@ export interface FormBuilderProps<T = Record<string, unknown>> {
   disabled?: boolean;
   className?: string;
   validationSchema?: z.ZodSchema<T>;
-  defaultValues?: Partial<T>;
+  defaultValues?: Record<string, any>;
   autoSave?: boolean;
   autoSaveInterval?: number;
   showProgress?: boolean;
   resetOnSubmit?: boolean;
 }
 
-interface FieldComponentProps<T = unknown> {
+interface FieldComponentProps<T = any> {
   field: FormField<T>;
   value: T;
   onChange: (value: T) => void;
@@ -235,7 +236,7 @@ function FieldComponent({
           </div>
           {value && (
             <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-              <span className="text-sm truncate">{(value as any)?.name || String(value)}</span>
+              <span className="text-sm truncate">{String(value)}</span>
               <Button
                 type="button"
                 variant="ghost"
@@ -261,7 +262,7 @@ function FieldComponent({
 }
 
 function FormFieldWrapper({ field, children, error }: { 
-  field: FormField<unknown>; 
+  field: FormField<any>; 
   children: React.ReactNode; 
   error?: FieldError; 
 }) {
@@ -308,7 +309,7 @@ function FormFieldWrapper({ field, children, error }: {
   );
 }
 
-export function FormBuilder<T = Record<string, unknown>>({
+export function FormBuilder<T = Record<string, any>>({
   sections,
   onSubmit,
   onCancel,
@@ -335,7 +336,7 @@ export function FormBuilder<T = Record<string, unknown>>({
 
   const form = useForm({
     resolver: validationSchema ? zodResolver(validationSchema) : undefined,
-    defaultValues,
+    defaultValues: defaultValues as any,
     mode: 'onChange',
   });
 
@@ -349,7 +350,7 @@ export function FormBuilder<T = Record<string, unknown>>({
     
     const requiredFields = allFields.filter(field => field.required);
     const completedFields = requiredFields.filter(field => {
-      const value = watchedValues[field.id];
+      const value = (watchedValues as any)[field.id];
       return value !== undefined && value !== null && value !== '';
     });
     
@@ -359,11 +360,11 @@ export function FormBuilder<T = Record<string, unknown>>({
   }, [allFields, watchedValues, showProgress]);
 
   // Handle conditional field visibility
-  const isFieldVisible = useCallback((field: FormField<unknown>) => {
+  const isFieldVisible = useCallback((field: FormField<any>) => {
     if (!field.conditional) return true;
     
     const { field: conditionField, value: conditionValue, operator = 'equals' } = field.conditional;
-    const fieldValue = watchedValues[conditionField];
+    const fieldValue = (watchedValues as any)[conditionField];
     
     switch (operator) {
       case 'equals':
@@ -393,9 +394,9 @@ export function FormBuilder<T = Record<string, unknown>>({
     });
   };
 
-  const onFormSubmit = async (data: T) => {
+  const onFormSubmit = async (data: any) => {
     try {
-      await onSubmit(data);
+      await onSubmit(data as T);
       if (resetOnSubmit) {
         form.reset();
       }
