@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useForm, Controller, FieldError } from 'react-hook-form';
 import { useForm, Controller, FieldError, UseFormProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,7 +18,8 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/shared/utils';
-import { Button } from '@/core/components/ui/button';
+import { Button } from '@/core/components/ui/buttons/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Input } from '@/core/components/ui/input';
 import { Label } from '@/core/components/ui/label';
 import { Textarea } from '@/core/components/ui/textarea';
@@ -27,8 +27,8 @@ import { Checkbox } from '@/core/components/ui/checkbox';
 import { Switch } from '@/core/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/core/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/ui/card';
 import { Progress } from '@/core/components/ui/progress';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export type FieldType = 
   | 'text' 
@@ -145,21 +145,23 @@ function FieldComponent({
     case 'email':
     case 'number':
       return (
-        <Input
+        <input
           {...baseInputProps}
           type={field.type}
-          step={field.type === 'number' ? field.props?.step : undefined}
-          min={field.type === 'number' ? field.props?.min : undefined}
-          max={field.type === 'number' ? field.props?.max : undefined}
+          step={field.type === 'number' ? (field.props?.step as number) : undefined}
+          min={field.type === 'number' ? (field.props?.min as number) : undefined}
+          max={field.type === 'number' ? (field.props?.max as number) : undefined}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       );
 
     case 'password':
       return (
         <div className="relative">
-          <Input
+          <input
             {...baseInputProps}
             type={showPassword ? 'text' : 'password'}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Button
             type="button"
@@ -180,145 +182,20 @@ function FieldComponent({
 
     case 'textarea':
       return (
-        <Textarea
+        <textarea
           {...baseInputProps}
-          rows={field.props?.rows || 4}
-          resize={field.props?.resize || 'both'}
+          rows={(field.props?.rows as number) || 4}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-both"
         />
-      );
-
-    case 'select':
-      return (
-        <Select
-          value={value}
-          onValueChange={onChange}
-          disabled={disabled}
-        >
-          <SelectTrigger className={cn(error && 'border-red-500')}>
-            <SelectValue placeholder={field.placeholder} />
-          </SelectTrigger>
-          <SelectContent>
-            {field.options?.map((option) => (
-              <SelectItem
-                key={option.value}
-                value={String(option.value)}
-                disabled={option.disabled}
-              >
-                <div className="flex flex-col">
-                  <span>{option.label}</span>
-                  {option.description && (
-                    <span className="text-sm text-gray-500">{option.description}</span>
-                  )}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-
-    case 'radio':
-      return (
-        <RadioGroup
-          value={value}
-          onValueChange={onChange}
-          disabled={disabled}
-          className="space-y-2"
-        >
-          {field.options?.map((option) => (
-            <div key={option.value} className="flex items-center space-x-2">
-              <RadioGroupItem
-                value={String(option.value)}
-                id={`${field.id}-${option.value}`}
-                disabled={option.disabled}
-              />
-              <Label
-                htmlFor={`${field.id}-${option.value}`}
-                className={cn(
-                  'cursor-pointer',
-                  option.disabled && 'opacity-50 cursor-not-allowed'
-                )}
-              >
-                <div className="flex flex-col">
-                  <span>{option.label}</span>
-                  {option.description && (
-                    <span className="text-sm text-gray-500">{option.description}</span>
-                  )}
-                </div>
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
-      );
-
-    case 'checkbox':
-      return (
-        <div className="space-y-2">
-          {field.options?.map((option) => (
-            <div key={option.value} className="flex items-center space-x-2">
-              <Checkbox
-                id={`${field.id}-${option.value}`}
-                checked={Array.isArray(value) ? value.includes(option.value) : false}
-                onCheckedChange={(checked) => {
-                  const currentValues = Array.isArray(value) ? value : [];
-                  if (checked) {
-                    onChange([...currentValues, option.value]);
-                  } else {
-                    onChange(currentValues.filter((v: any) => v !== option.value));
-                  }
-                }}
-                disabled={disabled || option.disabled}
-              />
-              <Label
-                htmlFor={`${field.id}-${option.value}`}
-                className={cn(
-                  'cursor-pointer',
-                  (disabled || option.disabled) && 'opacity-50 cursor-not-allowed'
-                )}
-              >
-                <div className="flex flex-col">
-                  <span>{option.label}</span>
-                  {option.description && (
-                    <span className="text-sm text-gray-500">{option.description}</span>
-                  )}
-                </div>
-              </Label>
-            </div>
-          )) || (
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id={field.id}
-                checked={!!value}
-                onCheckedChange={onChange}
-                disabled={disabled}
-              />
-              <Label htmlFor={field.id} className="cursor-pointer">
-                {field.label}
-              </Label>
-            </div>
-          )}
-        </div>
-      );
-
-    case 'switch':
-      return (
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={!!value}
-            onCheckedChange={onChange}
-            disabled={disabled}
-          />
-          <Label htmlFor={field.id} className="cursor-pointer">
-            {field.label}
-          </Label>
-        </div>
       );
 
     case 'date':
       return (
         <div className="relative">
-          <Input
+          <input
             {...baseInputProps}
             type="date"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Calendar className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
@@ -328,10 +205,10 @@ function FieldComponent({
       return (
         <div className="space-y-2">
           <div className="flex items-center justify-center w-full">
-            <Label
+            <label
               htmlFor={field.id}
               className={cn(
-                'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800',
+                'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50',
                 error ? 'border-red-300' : 'border-gray-300',
                 disabled && 'opacity-50 cursor-not-allowed'
               )}
@@ -342,23 +219,23 @@ function FieldComponent({
                   <span className="font-semibold">Click to upload</span> or drag and drop
                 </p>
                 <p className="text-xs text-gray-500">
-                  {field.props?.accept || 'Any file type'}
+                  {(field.props?.accept as string) || 'Any file type'}
                 </p>
               </div>
-              <Input
+              <input
                 id={field.id}
                 type="file"
                 className="hidden"
                 onChange={(e) => onChange(e.target.files?.[0] as any)}
-                accept={field.props?.accept}
-                multiple={field.props?.multiple}
+                accept={field.props?.accept as string}
+                multiple={field.props?.multiple as boolean}
                 disabled={disabled}
               />
-            </Label>
+            </label>
           </div>
           {value && (
-            <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-              <span className="text-sm truncate">{value.name || value}</span>
+            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+              <span className="text-sm truncate">{(value as any)?.name || String(value)}</span>
               <Button
                 type="button"
                 variant="ghost"
@@ -373,25 +250,13 @@ function FieldComponent({
         </div>
       );
 
-    case 'custom':
-      if (field.customComponent) {
-        const CustomComponent = field.customComponent;
-        return (
-          <CustomComponent
-            value={value}
-            onChange={onChange}
-            onBlur={onBlur}
-            error={error}
-            disabled={disabled}
-            field={field}
-            {...field.props}
-          />
-        );
-      }
-      return null;
-
     default:
-      return <Input {...baseInputProps} />;
+      return (
+        <input
+          {...baseInputProps}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      );
   }
 }
 
@@ -664,4 +529,4 @@ export function FormBuilder<T = Record<string, unknown>>({
       </CardContent>
     </Card>
   );
-} 
+}

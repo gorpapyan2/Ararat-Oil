@@ -1,3 +1,4 @@
+
 /**
  * Icon Button Component
  *
@@ -6,20 +7,32 @@
  */
 
 import * as React from "react";
-import { cn } from "@/utils";
+import { cn } from "@/shared/utils";
 import { Button, ButtonProps } from "./button";
-import { ButtonSizeVariant, IconProps } from "./types";
 
 /**
  * Icon Button Props Interface
  */
-export interface IconButtonProps extends Omit<ButtonProps, "size">, IconProps {
+export interface IconButtonProps extends Omit<ButtonProps, "children"> {
   /**
-   * Button size variant
-   * For icon-only buttons, the "icon" size variant is recommended
-   * @default "default"
+   * The icon to display inside the button
    */
-  size?: ButtonSizeVariant;
+  icon: React.ReactNode;
+  
+  /**
+   * Accessible label for the button (for screen readers)
+   */
+  label?: string;
+  
+  /**
+   * Position of the icon relative to text
+   */
+  iconPosition?: "start" | "end";
+  
+  /**
+   * Optional children (text content)
+   */
+  children?: React.ReactNode;
 }
 
 /**
@@ -27,26 +40,6 @@ export interface IconButtonProps extends Omit<ButtonProps, "size">, IconProps {
  *
  * An accessible button that includes an icon, with optional text.
  * If no children are provided, it renders as an icon-only button and requires an aria-label.
- *
- * @example
- * ```tsx
- * // Icon-only button
- * <IconButton
- *   icon={<PlusIcon />}
- *   label="Add Item"
- *   size="icon"
- *   variant="primary"
- * />
- *
- * // Icon with text
- * <IconButton
- *   icon={<ArrowRightIcon />}
- *   iconPosition="end"
- *   variant="outline"
- * >
- *   Next Step
- * </IconButton>
- * ```
  */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   (
@@ -55,7 +48,6 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       label,
       children,
       className,
-      size = "default",
       iconPosition = "start",
       ...props
     },
@@ -68,13 +60,9 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       );
     }
 
-    // For an icon-only button, use the icon size by default
-    const buttonSize = !children && size === "default" ? "icon" : size;
-
     return (
       <Button
         ref={ref}
-        size={buttonSize}
         className={cn(
           // Add gap between icon and text if children exist
           children && "gap-2",

@@ -1,3 +1,4 @@
+
 /**
  * Base dialog components for standardizing dialog implementations
  * This file provides shared dialog patterns to reduce duplication across the codebase
@@ -11,7 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/core/components/ui/primitives/dialog";
-import { Button } from "@/core/components/ui/primitives/button";
+import { Button } from "@/core/components/ui/buttons/button";
 import { cn } from "@/shared/utils/cn";
 
 /**
