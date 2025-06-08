@@ -1,8 +1,7 @@
+
 import type { Config } from 'tailwindcss';
 
-// Tailwind configuration – uses `satisfies` to ensure correct typing while
-// allowing future Tailwind keys (e.g., `safelist`) not in conservative type.
-
+// Tailwind CSS v4 configuration
 const config = {
   darkMode: 'class',
   content: [
@@ -58,27 +57,8 @@ const config = {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('tailwindcss-animate'),
-    require('tailwind-scrollbar')({ nocompatible: true }),
-  ],
-  // @ts-expect-error – 'safelist' is available in Tailwind v4 but
-  // may not yet be included in the type definitions shipped with the
-  // current installed version. Remove this directive once types catch up.
-  safelist: [
-    // Ensure status & fuel classes generated even when not in markup
-    {
-      pattern: /(bg|text|border)-status-(operational|warning|critical|maintenance|offline)/,
-    },
-    {
-      pattern: /(bg|text|border)-fuel-(gasoline|diesel|premium|electric|hybrid|renewable)/,
-    },
-    {
-      pattern: /(bg|text|border)-(background|foreground|card|popover|primary|secondary|accent|muted|border|input|ring)/,
-    },
-  ],
+  // Remove plugins that are incompatible with Tailwind v4
+  plugins: [],
 } satisfies Config;
 
-export default config; 
+export default config;
