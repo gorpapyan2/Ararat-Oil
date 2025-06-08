@@ -60,3 +60,35 @@ export function setupErrorTest() {
     queryClient,
   };
 }
+
+// Setup mutation test utility
+export function setupMutationTest() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+
+  const renderTestHook = (hook: () => any) => {
+    return renderHook(hook, { wrapper });
+  };
+
+  const mockMutate = vi.fn();
+
+  return {
+    renderTestHook,
+    mockMutate,
+    queryClient,
+  };
+}
