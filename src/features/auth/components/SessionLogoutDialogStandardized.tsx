@@ -1,11 +1,17 @@
+
 import { Button } from "@/core/components/ui/button";
 import {
-  ConfirmDialog,
-  ConfirmDialogProps,
-} from "@/core/components/ui/composed/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/core/components/ui/primitives/alert-dialog";
 
-interface SessionLogoutDialogStandardizedProps
-  extends Omit<ConfirmDialogProps, "children"> {
+interface SessionLogoutDialogStandardizedProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
@@ -29,16 +35,25 @@ export function SessionLogoutDialogStandardized({
   confirmButtonProps = {},
 }: SessionLogoutDialogStandardizedProps) {
   return (
-    <ConfirmDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title={title}
-      description={description}
-      onConfirm={onConfirm}
-      isLoading={isLoading}
-      confirmText={confirmText}
-      cancelText={cancelText}
-      confirmButtonProps={confirmButtonProps}
-    />
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isLoading}>
+            {cancelText}
+          </AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={onConfirm} 
+            disabled={isLoading}
+            {...confirmButtonProps}
+          >
+            {isLoading ? "Loading..." : confirmText}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

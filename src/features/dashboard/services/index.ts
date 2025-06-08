@@ -45,10 +45,11 @@ export async function getDashboardData(): Promise<DashboardData> {
       return sum + tank.current_level * defaultPricePerLiter;
     }, 0);
 
-    // Calculate all required properties for DashboardData
+    // Calculate all required properties for DashboardData using correct property names
     const totalSales = financialData?.total_sales || 0;
     const totalExpenses = financialData?.total_expenses || 0;
     const netProfit = financialData?.net_profit || 0;
+    const totalLitersSold = sales.reduce((sum, sale) => sum + (sale.total_sold_liters || 0), 0);
     
     return {
       sales: sales,
@@ -60,14 +61,14 @@ export async function getDashboardData(): Promise<DashboardData> {
       inventoryValue,
       revenue: totalSales,
       revenuePercentChange: 12.5, // Mock data
-      fuelSold: sales.reduce((sum, sale) => sum + (sale.total_sold_liters || 0), 0),
+      fuelSold: totalLitersSold,
       fuelSoldPercentChange: 8.3, // Mock data
       expensesPercentChange: -5.2, // Mock data
       profit: netProfit,
       profitPercentChange: 15.7, // Mock data
       totalRevenue: totalSales,
       revenueChange: 12.5, // Mock data
-      totalLitersSold: sales.reduce((sum, sale) => sum + (sale.total_sold_liters || 0), 0),
+      totalLitersSold,
       salesVolumeChange: 8.3, // Mock data
       expensesChange: -5.2, // Mock data
       efficiencyRatio: totalExpenses > 0 ? totalSales / totalExpenses : 0,

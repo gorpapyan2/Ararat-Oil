@@ -1,146 +1,196 @@
-import { useState } from "react";
-import { Button } from "@/core/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { useToast } from "@/hooks";
-import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { tanksApi } from "@/core/api";
-import { FillingSystem } from "@/features/filling-systems/types";
-import { FuelTank } from "@/features/fuel-management/types";
-import { DeleteConfirmDialog } from "@/shared/components/common/dialog/DeleteConfirmDialog";
 
-interface FillingSystemListProps {
-  fillingSystems: FillingSystem[];
-  isLoading: boolean;
-  onDelete: () => void;
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card";
+import { Button } from "@/core/components/ui/button";
+import { Badge } from "@/core/components/ui/primitives/badge";
+import { Input } from "@/core/components/ui/primitives/input";
+import { Skeleton } from "@/core/components/ui/primitives/skeleton";
+import { Plus, Search, Trash2, Edit } from "lucide-react";
+import { useToast } from "@/hooks/useToast";
+import { fillingSystemsApi } from "@/core/api/endpoints/filling-systems";
+import { tanksApi } from "@/core/api/endpoints/tanks";
+import { FillingSystemFormStandardized } from "./FillingSystemFormStandardized";
+
+interface FillingSystem {
+  id: string;
+  name: string;
+  tank_id: string;
+  created_at: string;
 }
 
-export function FillingSystemList({
-  fillingSystems,
-  isLoading,
-  onDelete,
-}: FillingSystemListProps) {
-  const { t } = useTranslation();
-  const { toast } = useToast();
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [systemToDelete, setSystemToDelete] = useState<FillingSystem | null>(
-    null
-  );
-  const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null });
+interface FuelTank {
+  id: string;
+  name: string;
+  fuel_type: string;
+  capacity: number;
+  current_level: number;
+}
 
-  // Fetch tanks to associate with filling systems
-  const { data: tanks } = useQuery({
-    queryKey: ["tanks"],
-    queryFn: tanksApi.getTanks,
+export function FillingSystemList() {
+  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingSystem, setEditingSystem] = useState<FillingSystem | null>(null);
+
+  // Fetch filling systems
+  const {
+    data: fillingSystems = [],
+    isLoading: isLoadingSystems,
+    refetch: refetchSystems,
+  } = useQuery({
+    queryKey: ["filling-systems"],
+    queryFn: async () => {
+      const response = await fillingSystemsApi.getFillingSystemsByTank();
+      return response.data || [];
+    },
   });
 
-  // Get tank details for a given tank ID
-  const getTankDetails = (tankId: string): FuelTank | undefined => {
-    return tanks?.data?.find((tank) => tank.id === tankId) as
-      | FuelTank
-      | undefined;
-  };
+  // Fetch tanks for reference
+  const { data: tanks = [] } = useQuery({
+    queryKey: ["tanks"],
+    queryFn: async () => {
+      const response = await tanksApi.getTanks();
+      return response.data || [];
+    },
+  });
 
-  const openDeleteConfirm = (system: FillingSystem) => {
-    setSystemToDelete(system);
-    setIsConfirmOpen(true);
-  };
+  // Filter systems based on search term
+  const filteredSystems = fillingSystems.filter((system: FillingSystem) =>
+    system.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const closeDeleteConfirm = () => {
-    setIsConfirmOpen(false);
-    // Reset system to delete after a brief delay to allow the dialog closing animation
-    setTimeout(() => setSystemToDelete(null), 300);
-  };
-
-  const handleDelete = async () => {
-    if (!systemToDelete) return;
-
-    setIsDeleting(true);
+  const handleDelete = async (id: string) => {
     try {
-      // Note: This would be handled through useFillingSystem in FillingSystemManagerStandardized
-      onDelete();
-      closeDeleteConfirm();
+      await fillingSystemsApi.deleteFillingSystem(id);
+      toast({
+        title: "Success",
+        description: "Filling system deleted successfully",
+      });
+      refetchSystems();
     } catch (error) {
       toast({
-        title: t("common.error"),
-        message: t("fillingSystems.errorAddingSystem"),
-        type: "error",
+        title: "Error",
+        description: "Failed to delete filling system",
+        variant: "destructive",
       });
-    } finally {
-      setIsDeleting(false);
     }
   };
 
-  const handleDeleteConfirm = () => {
-    // Implementation of handleDeleteConfirm
+  const handleEdit = (system: FillingSystem) => {
+    setEditingSystem(system);
   };
 
-  if (isLoading) {
+  const handleSuccess = () => {
+    refetchSystems();
+    setIsCreateDialogOpen(false);
+    setEditingSystem(null);
+  };
+
+  const getTankInfo = (tankId: string) => {
+    const tank = tanks.find((t: FuelTank) => t.id === tankId);
+    return tank || { name: "Unknown", fuel_type: "Unknown" };
+  };
+
+  if (isLoadingSystems) {
     return (
-      <div className="w-full p-8 flex items-center justify-center">
-        <div className="text-muted-foreground">{t("common.loading")}</div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <Skeleton className="h-10 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="overflow-hidden rounded-md border">
-        <table className="w-full table-fixed">
-          <thead className="bg-muted">
-            <tr>
-              <th className="p-3 text-left font-medium">
-                {t("fillingSystems.systemName")}
-              </th>
-              <th className="p-3 text-left font-medium">
-                {t("fillingSystems.connectedTank")}
-              </th>
-              <th className="p-3 text-center w-24">{t("common.actions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fillingSystems.map((system) => (
-              <tr key={system.id} className="border-t">
-                <td className="p-3">{system.name}</td>
-                <td className="p-3">
-                  {system.tank_id
-                    ? (() => {
-                        const tank = getTankDetails(system.tank_id);
-                        if (!tank) return t("common.unknown");
-                        return (
-                          <span className="flex items-center">
-                            {tank.name}
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              ({tank.fuel_type_id})
-                            </span>
-                          </span>
-                        );
-                      })()
-                    : t("common.unknown")}
-                </td>
-                <td className="p-3 text-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => openDeleteConfirm(system)}
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Filling Systems</h2>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add System
+        </Button>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Search filling systems..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredSystems.map((system: FillingSystem) => {
+          const tankInfo = getTankInfo(system.tank_id);
+          
+          return (
+            <Card key={system.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{system.name}</CardTitle>
+                <div className="flex space-x-2">
+                  <Button variant="ghost" size="sm" onClick={() => handleEdit(system)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleDelete(system.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Tank:</span>
+                    <Badge variant="secondary">{tankInfo.name}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Fuel Type:</span>
+                    <Badge variant="outline">{tankInfo.fuel_type}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Created:</span>
+                    <span className="text-sm">{new Date(system.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      <DeleteConfirmDialog
-        open={deleteDialog.open}
-        onOpenChange={(open) => setDeleteDialog({ open, id: null })}
-        onConfirm={handleDeleteConfirm}
-        description="Are you sure you want to delete this filling system? This action cannot be undone."
-        isLoading={isDeleting}
+      {filteredSystems.length === 0 && !isLoadingSystems && (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">No filling systems found</p>
+        </div>
+      )}
+
+      <FillingSystemFormStandardized
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSuccess={handleSuccess}
       />
-    </>
+
+      {editingSystem && (
+        <FillingSystemFormStandardized
+          isOpen={!!editingSystem}
+          onClose={() => setEditingSystem(null)}
+          fillingSystem={editingSystem}
+          onSuccess={handleSuccess}
+        />
+      )}
+    </div>
   );
 }

@@ -15,6 +15,14 @@ import { Alert, AlertDescription } from "@/core/components/ui/primitives/alert";
 import { UserProfile } from "./ProfileController";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
+// Define ProfileFormData type
+export type ProfileFormData = {
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  position?: string;
+};
+
 interface ProfileFormStandardizedProps {
   profile?: UserProfile | null;
   onSubmit: (data: ProfileFormData) => Promise<boolean>;
@@ -49,9 +57,6 @@ export function ProfileFormStandardized({
       .optional()
       .or(z.literal("")),
   });
-
-  // Type for the form values based on the schema
-  type ProfileFormData = z.infer<typeof profileSchema>;
 
   // Default values from profile
   const defaultValues: ProfileFormData = {
@@ -173,5 +178,3 @@ export function ProfileFormStandardized({
     </StandardForm>
   );
 }
-
-export type { ProfileFormData };
