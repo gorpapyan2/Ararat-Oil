@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { z } from 'zod';
 import { FormDialog } from '@/shared/components/common/dialog/FormDialog';
 import {
@@ -93,7 +93,7 @@ export const CreateSupplyDialog: React.FC<CreateSupplyDialogProps> = ({
     payment_status: (createSupplyData.payment_status || 'pending') as "pending" | "paid" | "overdue" | "cancelled",
     payment_method: createSupplyData.payment_method || 'not_specified',
     comments: createSupplyData.comments || '',
-    shift_id: createSupplyData.shift_id || activeShift?.id || '', // Auto-populate with active shift
+    shift_id: activeShift?.id || createSupplyData.shift_id || '', // Always prioritize active shift
   };
 
   const handleSubmit = async (data: CreateSupplyFormData): Promise<boolean> => {
@@ -136,14 +136,7 @@ export const CreateSupplyDialog: React.FC<CreateSupplyDialogProps> = ({
       className="sm:max-w-[600px] bg-background border shadow-xl"
       formClassName="space-y-3"
     >
-      {({ control, form }) => {
-        // Effect to update form when active shift changes
-        useEffect(() => {
-          if (activeShift?.id && form.setValue) {
-            form.setValue('shift_id', activeShift.id);
-          }
-        }, [activeShift?.id, form.setValue]);
-
+      {({ control }) => {
         return (
           <>
             {/* Enhanced Header with Better Contrast */}

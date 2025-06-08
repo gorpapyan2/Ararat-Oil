@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import { useDialog } from "@/core/hooks/useDialog";
 import { useFillingSystem } from "../hooks/useFillingSystem";
-import { FillingSystem } from "../types";
+import { FillingSystem } from "@/features/filling-systems/types";
 
 // Import components within the feature
 import { FillingSystemHeader } from "./FillingSystemHeader";
