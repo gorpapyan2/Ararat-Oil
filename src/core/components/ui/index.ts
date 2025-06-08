@@ -1,77 +1,48 @@
-/**
- * Centralized export point for UI components
- * This allows importing components from a single point, reducing duplication:
-import { Button } from '@/core/components/ui';
- */
 
-/**
- * Optimized UI components index for better tree-shaking and bundle size
- * Using selective imports instead of wildcard exports to reduce unused code inclusion
- */
+// Primitive components (shadcn/ui based)
+export * from "./primitives/button";
+export * from "./primitives/card";
+export * from "./primitives/input";
+export * from "./primitives/select";
+export * from "./primitives/form";
+export * from "./primitives/dialog";
+export * from "./primitives/table";
+export * from "./primitives/badge";
+export * from "./primitives/checkbox";
+export * from "./primitives/textarea";
+export * from "./primitives/switch";
+export * from "./primitives/calendar";
+export * from "./primitives/popover";
+export * from "./primitives/toast";
+export * from "./primitives/skeleton";
+export * from "./primitives/progress";
+export * from "./primitives/tabs";
+export * from "./primitives/alert";
+export * from "./primitives/sheet";
+export * from "./primitives/dropdown-menu";
+export * from "./primitives/navigation-menu";
+export * from "./primitives/accordion";
+export * from "./primitives/avatar";
+export * from "./primitives/breadcrumb";
+export * from "./primitives/label";
+export * from "./primitives/separator";
+export * from "./primitives/slider";
+export * from "./primitives/toggle";
+export * from "./primitives/tooltip";
 
-// Core primitive components - selective exports only
-export {
-  Button,
-  buttonVariants,
-  type ButtonProps
-} from "./button";
+// Form field components
+export * from "./primitives/form-fields";
 
-export {
-  Input,
-  type InputProps
-} from "./input";
+// Composed components
+export * from "./composed/base-dialog";
+export * from "./composed/data-table";
+export * from "./composed/loading";
+export * from "./composed/page-header";
 
-export {
-  Label
-} from "./label";
+// Enhanced components
+export * from "./enhanced/metric-card";
+export * from "./enhanced/loading-states";
 
-export {
-  Textarea
-} from "./textarea";
-
-export {
-  Checkbox
-} from "./checkbox";
-
-// Dialog components - essential exports only
-export {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from "./dialog";
-
-// Form components
-export {
-  StandardizedForm
-} from "./StandardizedForm";
-
-// Card components - using new standardized system
-export * from "./cards";
-
-// Button variants - only what exists
-export {
-  IconButton,
-  LoadingButton,
-  type IconButtonProps,
-  type LoadingButtonProps
-} from "./buttons";
-
-// Utility components - commonly used
-export {
-  Spinner
-} from "./spinner";
-
-export {
-  Skeleton
-} from "./skeleton";
-
-export {
-  Toast
-} from "./toast";
-
-// Only export what's actually needed for tree-shaking optimization
-// Removed all problematic and non-existent exports
+// Specialized components
+export * from "./currency-input";
+export * from "./loading";
