@@ -144,21 +144,21 @@ export function FeatureCard({
         </div>
 
         {/* Metrics */}
-        {showMetrics && feature.metrics && (
+        {showMetrics && feature.metrics && feature.metrics.length > 0 && (
           <div className="flex items-center justify-between mb-4">
             <div>
               <span className={cn("text-muted-foreground", currentSize.metrics)}>
-                {feature.metrics.label}
+                {feature.metrics[0].label}
               </span>
               <div className="flex items-center gap-2 mt-1">
                 <span className={cn(
                   "font-semibold",
-                  feature.metrics.color || "text-foreground",
+                  feature.metrics[0].color || "text-foreground",
                   currentSize.metrics
                 )}>
-                  {feature.metrics.value}
+                  {feature.metrics[0].value}
                 </span>
-                {feature.metrics.trend && getTrendIcon(feature.metrics.trend)}
+                {feature.metrics[0].trend && getTrendIcon(feature.metrics[0].trend)}
               </div>
             </div>
           </div>

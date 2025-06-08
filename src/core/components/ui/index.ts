@@ -36,7 +36,6 @@ export * from "./primitives/form-fields";
 // Composed components
 export * from "./composed/base-dialog";
 export * from "./composed/data-table";
-export * from "./composed/loading";
 export * from "./composed/page-header";
 
 // Enhanced components
@@ -45,4 +44,4 @@ export * from "./enhanced/loading-states";
 
 // Specialized components
 export * from "./currency-input";
-export * from "./loading";
+export { LoadingSpinner } from "./loading";

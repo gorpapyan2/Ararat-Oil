@@ -1,3 +1,4 @@
+
 // Core hooks exports
 export { useToast } from "./useToast";
 export { useAuth } from "./useAuth";
@@ -7,6 +8,3 @@ export { useDialog } from "./useDialog";
 
 // Export types
 export type { ToastOptions, ToastVariant } from "./useToast";
-
-// Re-export from use-local-storage for compatibility
-export * from "./use-local-storage"; 
