@@ -1,16 +1,3 @@
-import type { User, Session } from "@supabase/supabase-js";
-
-export interface AuthUser extends User {
-  role?: string;
-  permissions?: string[];
-}
-
-export interface AuthState {
-  user: User | null;
-  session: Session | null;
-  isLoading: boolean;
-  error: AuthError | null;
-}
 
 export interface LoginCredentials {
   email: string;
@@ -20,36 +7,23 @@ export interface LoginCredentials {
 export interface RegisterCredentials {
   email: string;
   password: string;
-  fullName: string;
+  confirmPassword: string;
+  firstName: string;
+  lastName: string;
 }
 
-export interface PasswordResetRequest {
-  email: string;
-}
-
-export interface SessionDevice {
+export interface User {
   id: string;
-  user_id: string;
-  created_at: string;
-  last_active: string;
-  user_agent: string;
-  ip_address: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role?: string;
 }
 
-export interface AuthError {
-  message: string;
-  status?: number;
-}
-
-export interface AuthResponse {
+export interface AuthState {
   user: User | null;
-  session: Session | null;
-  error: AuthError | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
-export type AuthRole = "admin" | "manager" | "employee" | "user";
-
-export interface AuthConfig {
-  requiredRole?: string;
-  redirectTo?: string;
-}
+export type AuthRole = 'admin' | 'employee' | 'manager';

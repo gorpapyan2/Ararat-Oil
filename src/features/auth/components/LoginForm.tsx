@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { useAuth } from "../hooks/useAuth";
@@ -14,7 +15,6 @@ import {
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Alert, AlertDescription } from "@/core/components/ui/alert";
-import { Control, FieldValues } from "react-hook-form";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 export function LoginForm() {
@@ -40,7 +40,7 @@ export function LoginForm() {
   type LoginFormData = z.infer<typeof loginSchema>;
 
   // Default values
-  const defaultValues = {
+  const defaultValues: LoginFormData = {
     email: "",
     password: "",
   };
@@ -85,7 +85,7 @@ export function LoginForm() {
           )}
 
           <FormField
-            control={control as Control<FieldValues>}
+            control={control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -99,7 +99,7 @@ export function LoginForm() {
           />
 
           <FormField
-            control={control as Control<FieldValues>}
+            control={control}
             name="password"
             render={({ field }) => (
               <FormItem>

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { useAuth } from "../hooks/useAuth";
@@ -14,7 +15,6 @@ import {
 } from "@/core/components/ui/primitives/form";
 import { Input } from "@/core/components/ui/primitives/input";
 import { Alert, AlertDescription } from "@/core/components/ui/primitives/alert";
-import { Control, FieldValues } from "react-hook-form";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 export function RegisterForm() {
@@ -73,7 +73,7 @@ export function RegisterForm() {
   type RegisterFormData = z.infer<typeof registerSchema>;
 
   // Default values
-  const defaultValues = {
+  const defaultValues: RegisterFormData = {
     email: "",
     firstName: "",
     lastName: "",
@@ -124,7 +124,7 @@ export function RegisterForm() {
           )}
 
           <FormField
-            control={control as Control<FieldValues>}
+            control={control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -139,7 +139,7 @@ export function RegisterForm() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              control={control as Control<FieldValues>}
+              control={control}
               name="firstName"
               render={({ field }) => (
                 <FormItem>
@@ -153,7 +153,7 @@ export function RegisterForm() {
             />
 
             <FormField
-              control={control as Control<FieldValues>}
+              control={control}
               name="lastName"
               render={({ field }) => (
                 <FormItem>
@@ -168,7 +168,7 @@ export function RegisterForm() {
           </div>
 
           <FormField
-            control={control as Control<FieldValues>}
+            control={control}
             name="password"
             render={({ field }) => (
               <FormItem>
@@ -182,7 +182,7 @@ export function RegisterForm() {
           />
 
           <FormField
-            control={control as Control<FieldValues>}
+            control={control}
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>

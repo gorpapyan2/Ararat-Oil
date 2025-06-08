@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useForm, FormProvider, FieldValues, UseFormReturn } from 'react-hook-form';
+import { useForm, FormProvider, FieldValues, UseFormReturn, DefaultValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/core/components/ui/primitives/button';
@@ -9,7 +9,7 @@ import { cn } from '@/shared/utils';
 
 interface StandardFormProps<T extends FieldValues> {
   schema: z.ZodSchema<T>;
-  defaultValues: T;
+  defaultValues: DefaultValues<T>;
   onSubmit: (data: T) => Promise<boolean> | boolean;
   submitText?: string;
   className?: string;
