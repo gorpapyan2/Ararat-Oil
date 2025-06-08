@@ -43,13 +43,14 @@ import {
   Settings,
   User
 } from 'lucide-react';
-import { Badge } from '../../../core/components/ui/primitives/badge';
-import { Card } from '../../../core/components/ui/card';
-import { Button } from '../../../core/components/ui/button';
-import { useToast } from '../../../core/hooks/useToast';
-import { supabase } from '../../../core/api/supabase';
+import { Badge } from '@/core/components/ui/primitives/badge';
+import { Card } from '@/core/components/ui/card';
+import { Button } from '@/core/components/ui/button';
+import { useToast } from '@/core/hooks/useToast';
+import { supabase } from '@/core/api/supabase';
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';
 import { StatsCard } from '@/shared/components/cards';
+
 
 // Types
 interface Employee {
@@ -476,7 +477,7 @@ export default function ShiftsDashboard() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {metricCards.map((metric, index) => (
             <StatsCard
               key={index}
@@ -537,63 +538,63 @@ export default function ShiftsDashboard() {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {viewMode === 'employees' ? (
-              <div className="space-y-4">
-                <h4 className="text-md font-semibold text-card-foreground mb-4">
+              <div className="space-y-3">
+                <h4 className="text-md font-semibold text-card-foreground mb-3">
                   Employee Status ({filteredEmployees.length})
                 </h4>
                 {filteredEmployees.map((employee) => (
                   <div
                     key={employee.id}
-                    className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                    className="bg-card border border-border rounded-lg p-3 hover:shadow-md transition-all duration-200 hover:border-accent/30"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                          <span className="text-lg font-semibold text-muted-foreground">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-semibold text-muted-foreground">
                             {employee.name.split(' ').map(n => n[0]).join('')}
                           </span>
                         </div>
-                        <div>
-                          <h5 className="font-semibold text-card-foreground">{employee.name}</h5>
-                          <p className="text-sm text-muted-foreground">{employee.role}</p>
+                        <div className="min-w-0 flex-1">
+                          <h5 className="font-semibold text-card-foreground text-sm truncate">{employee.name}</h5>
+                          <p className="text-xs text-muted-foreground truncate">{employee.role}</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor(employee.status)}`}>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <span className={`px-2 py-1 rounded-full text-xs border flex items-center gap-1 ${getStatusColor(employee.status)}`}>
                           {getStatusIcon(employee.status)}
-                          <span className="ml-1 capitalize">{employee.status.replace('_', ' ')}</span>
+                          <span className="capitalize hidden sm:inline">{employee.status.replace('_', ' ')}</span>
                         </span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Rate:</span>
-                        <div className="font-medium">₺{employee.hourly_rate}/hr</div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block truncate">Rate:</span>
+                        <div className="font-medium truncate">₺{employee.hourly_rate}/hr</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">This Week:</span>
-                        <div className="font-medium">{employee.total_hours_week}h</div>
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block truncate">This Week:</span>
+                        <div className="font-medium truncate">{employee.total_hours_week}h</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Overtime:</span>
-                        <div className="font-medium">{employee.overtime_hours}h</div>
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block truncate">Overtime:</span>
+                        <div className="font-medium truncate">{employee.overtime_hours}h</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Rating:</span>
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block truncate">Rating:</span>
                         <div className="font-medium flex items-center gap-1">
-                          <Star className="w-3 h-3 text-yellow-500" />
-                          {employee.performance_rating}/5
+                          <Star className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                          <span className="truncate">{employee.performance_rating}/5</span>
                         </div>
                       </div>
                     </div>
 
                     {employee.current_shift_start && (
-                      <div className="mt-3 pt-3 border-t border-border">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          <span>Started at {employee.current_shift_start}</span>
+                      <div className="mt-2 pt-2 border-t border-border">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">Started: {employee.current_shift_start}</span>
                         </div>
                       </div>
                     )}
@@ -601,62 +602,62 @@ export default function ShiftsDashboard() {
                 ))}
               </div>
             ) : (
-              <div className="space-y-4">
-                <h4 className="text-md font-semibold text-card-foreground mb-4">
+              <div className="space-y-3">
+                <h4 className="text-md font-semibold text-card-foreground mb-3">
                   Active Shifts ({filteredShifts.length})
                 </h4>
                 {filteredShifts.map((shift) => (
                   <div
                     key={shift.id}
-                    className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                    className="bg-card border border-border rounded-lg p-3 hover:shadow-md transition-all duration-200 hover:border-accent/30"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h5 className="font-semibold text-card-foreground">{shift.employee_name}</h5>
-                        <p className="text-sm text-muted-foreground">{shift.employee_role} • {shift.position}</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="min-w-0 flex-1">
+                        <h5 className="font-semibold text-card-foreground text-sm truncate">{shift.employee_name}</h5>
+                        <p className="text-xs text-muted-foreground truncate">{shift.employee_role} • {shift.position}</p>
                       </div>
                       
-                      <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor(shift.status)}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs border flex items-center gap-1 flex-shrink-0 ${getStatusColor(shift.status)}`}>
                         {getStatusIcon(shift.status)}
-                        <span className="ml-1 capitalize">{shift.status}</span>
+                        <span className="capitalize hidden sm:inline">{shift.status}</span>
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
-                      <div>
-                        <span className="text-muted-foreground">Time:</span>
-                        <div className="font-medium">{shift.start_time} - {shift.end_time}</div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-xs mb-2">
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block truncate">Time:</span>
+                        <div className="font-medium truncate">{shift.start_time} - {shift.end_time}</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Hours:</span>
-                        <div className="font-medium">{shift.actual_hours}h / {shift.scheduled_hours}h</div>
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block truncate">Hours:</span>
+                        <div className="font-medium truncate">{shift.actual_hours}h / {shift.scheduled_hours}h</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Overtime:</span>
-                        <div className="font-medium">{shift.overtime_hours}h</div>
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block truncate">Overtime:</span>
+                        <div className="font-medium truncate">{shift.overtime_hours}h</div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Pay:</span>
-                        <div className="font-medium">₺{shift.total_pay}</div>
+                      <div className="min-w-0">
+                        <span className="text-muted-foreground block truncate">Pay:</span>
+                        <div className="font-medium truncate">₺{shift.total_pay}</div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          <span>{shift.location}</span>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground min-w-0 flex-1">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{shift.location}</span>
                         </div>
                         {shift.clock_in_time && (
-                          <div className="flex items-center gap-1">
-                            <Timer className="w-3 h-3" />
-                            <span>Clocked in: {shift.clock_in_time}</span>
+                          <div className="flex items-center gap-1 min-w-0 hidden sm:flex">
+                            <Timer className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate">In: {shift.clock_in_time}</span>
                           </div>
                         )}
                       </div>
                       
                       {shift.shift_rating && (
-                        <div className="flex items-center gap-1 text-xs">
+                        <div className="flex items-center gap-1 text-xs flex-shrink-0">
                           <Star className="w-3 h-3 text-yellow-500" />
                           <span>{shift.shift_rating}/5</span>
                         </div>
@@ -670,7 +671,7 @@ export default function ShiftsDashboard() {
 
           {/* Alerts Sidebar */}
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <h4 className="text-md font-semibold text-card-foreground">
                 Shift Alerts
               </h4>
@@ -679,28 +680,28 @@ export default function ShiftsDashboard() {
               </span>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-2">
               {mockAlerts.map((alert) => (
                 <div
                   key={alert.id}
-                  className={`border rounded-lg p-3 ${getAlertColor(alert.type)}`}
+                  className={`border rounded-lg p-2 ${getAlertColor(alert.type)}`}
                 >
                   <div className="flex items-start gap-2">
                     {getAlertIcon(alert.type)}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h5 className="text-sm font-medium text-card-foreground">
+                        <h5 className="text-sm font-medium text-card-foreground truncate">
                           {alert.title}
                         </h5>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
                           {alert.time}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-1">
+                      <p className="text-xs text-muted-foreground mb-1 truncate">
                         {alert.description}
                       </p>
                       {alert.employee && (
-                        <div className="text-xs font-medium text-card-foreground">
+                        <div className="text-xs font-medium text-card-foreground truncate">
                           {alert.employee}
                         </div>
                       )}
@@ -714,11 +715,11 @@ export default function ShiftsDashboard() {
       </div>
 
       {/* Performance Analytics */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-3">
           Performance Analytics
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {performanceStats.map((stat, index) => (
             <StatsCard
               key={index}
@@ -733,48 +734,48 @@ export default function ShiftsDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-3">
           Shift Management Tools
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
-            <div className="p-2 bg-blue-500/10 rounded-lg">
-              <CalendarPlus className="w-5 h-5 text-blue-500" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <button className="flex items-center gap-2 p-3 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
+            <div className="p-2 bg-blue-500/10 rounded-lg flex-shrink-0">
+              <CalendarPlus className="w-4 h-4 text-blue-500" />
             </div>
-            <div>
-              <div className="font-medium text-card-foreground">Schedule Shift</div>
-              <div className="text-xs text-muted-foreground">Add new shifts</div>
-            </div>
-          </button>
-          
-          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
-            <div className="p-2 bg-green-500/10 rounded-lg">
-              <UserPlus className="w-5 h-5 text-green-500" />
-            </div>
-            <div>
-              <div className="font-medium text-card-foreground">Add Employee</div>
-              <div className="text-xs text-muted-foreground">New team member</div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-card-foreground text-sm truncate">Schedule Shift</div>
+              <div className="text-xs text-muted-foreground truncate">Add new shifts</div>
             </div>
           </button>
           
-          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
-            <div className="p-2 bg-purple-500/10 rounded-lg">
-              <BarChart3 className="w-5 h-5 text-purple-500" />
+          <button className="flex items-center gap-2 p-3 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
+            <div className="p-2 bg-green-500/10 rounded-lg flex-shrink-0">
+              <UserPlus className="w-4 h-4 text-green-500" />
             </div>
-            <div>
-              <div className="font-medium text-card-foreground">Analytics</div>
-              <div className="text-xs text-muted-foreground">Performance reports</div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-card-foreground text-sm truncate">Add Employee</div>
+              <div className="text-xs text-muted-foreground truncate">New team member</div>
             </div>
           </button>
           
-          <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
-            <div className="p-2 bg-amber-500/10 rounded-lg">
-              <Settings className="w-5 h-5 text-amber-500" />
+          <button className="flex items-center gap-2 p-3 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
+            <div className="p-2 bg-purple-500/10 rounded-lg flex-shrink-0">
+              <BarChart3 className="w-4 h-4 text-purple-500" />
             </div>
-            <div>
-              <div className="font-medium text-card-foreground">Settings</div>
-              <div className="text-xs text-muted-foreground">Shift policies</div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-card-foreground text-sm truncate">Analytics</div>
+              <div className="text-xs text-muted-foreground truncate">Performance reports</div>
+            </div>
+          </button>
+          
+          <button className="flex items-center gap-2 p-3 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
+            <div className="p-2 bg-amber-500/10 rounded-lg flex-shrink-0">
+              <Settings className="w-4 h-4 text-amber-500" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-card-foreground text-sm truncate">Settings</div>
+              <div className="text-xs text-muted-foreground truncate">Shift policies</div>
             </div>
           </button>
         </div>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, Fuel, Lock, Mail, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Fuel, Lock, Mail, AlertCircle, Shield, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/core/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/core/components/ui/card';
 import { Alert, AlertDescription } from '@/core/components/ui/alert';
+import { WindowContainer } from '@/shared/components/layout/WindowContainer';
 import { useAuth } from '@/core/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,6 +23,7 @@ export const AuthPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [loginForm, setLoginForm] = useState<LoginForm>({
     email: '',
@@ -65,13 +67,29 @@ export const AuthPage: React.FC = () => {
     }
   };
 
+  const breadcrumbItems = [
+    { label: 'Ararat Oil Management', href: '/' },
+    { label: 'Authentication', href: '/auth' }
+  ];
+
   const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.6,
+        duration: 0.5,
         ease: "easeOut"
       }
     }
@@ -80,181 +98,262 @@ export const AuthPage: React.FC = () => {
   // Show loading state
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-6">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-4 animate-pulse">
-            <Fuel className="w-6 h-6 text-white" />
-          </div>
-          <p className="text-slate-400 text-sm">Checking authentication...</p>
+      <WindowContainer
+        title="Authentication"
+        subtitle="Verifying your access credentials..."
+        breadcrumbItems={breadcrumbItems}
+      >
+        <div className="flex items-center justify-center py-20">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-natural-accent to-natural-accent/80 rounded-2xl mb-6 shadow-2xl shadow-natural-accent/30 ring-2 ring-natural-accent/20">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              >
+                <Fuel className="w-8 h-8 text-core-primary" />
+              </motion.div>
+            </div>
+            <h3 className="text-lg font-semibold text-core-white mb-2">Checking authentication</h3>
+            <p className="text-core-secondary text-sm font-medium">Please wait while we verify your session...</p>
+          </motion.div>
         </div>
-      </div>
+      </WindowContainer>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-6">
-      <motion.div
+    <WindowContainer
+      title="Authentication Portal"
+      subtitle="Secure access to the Ararat Oil Management System"
+      breadcrumbItems={breadcrumbItems}
+    >
+      <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="w-full max-w-sm"
+        className="max-w-lg mx-auto space-y-8"
       >
-        {/* Logo and Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600 rounded-xl mb-6">
-            <Fuel className="w-6 h-6 text-white" />
+        {/* Header Section */}
+        <motion.div variants={itemVariants} className="text-center space-y-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-natural-accent via-natural-accent/90 to-natural-accent/80 rounded-3xl shadow-2xl shadow-natural-accent/30 ring-2 ring-natural-accent/20 relative">
+            <Fuel className="w-10 h-10 text-core-primary" />
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-status-operational rounded-full flex items-center justify-center ring-2 ring-background">
+              <Shield className="w-3 h-3 text-background" />
+            </div>
           </div>
-          <h1 className="text-2xl font-semibold text-white mb-2">
-            Welcome back
-          </h1>
-          <p className="text-slate-400 text-sm">
-            Sign in to your account to continue
-          </p>
-        </div>
-
-        {/* Error/Success Messages */}
-        {error && (
-          <div className="mb-6">
-            <Alert className="border-red-900/50 bg-red-950/50 text-red-300">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm">{error}</AlertDescription>
-            </Alert>
+          
+          <div className="space-y-3">
+            <h1 className="text-3xl font-bold text-core-white tracking-tight">
+              Welcome Back
+            </h1>
+            <p className="text-core-secondary text-base font-medium max-w-md mx-auto leading-relaxed">
+              Sign in to access your fuel management dashboard and operations center
+            </p>
           </div>
-        )}
+        </motion.div>
 
-        {success && (
-          <div className="mb-6">
-            <Alert className="border-green-900/50 bg-green-950/50 text-green-300">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm">{success}</AlertDescription>
-            </Alert>
-          </div>
-        )}
+        {/* Status Messages */}
+        <motion.div variants={itemVariants} className="space-y-4">
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative"
+            >
+              <Alert className="border-status-critical/40 bg-status-critical/10 text-status-critical backdrop-blur-sm shadow-lg">
+                <AlertCircle className="h-5 w-5" />
+                <AlertDescription className="text-sm font-medium pl-2">{error}</AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
 
-        {isOffline && (
-          <div className="mb-6">
-            <Alert className="border-amber-900/50 bg-amber-950/50 text-amber-300">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm">
-                You are currently offline. Please check your internet connection.
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative"
+            >
+              <Alert className="border-status-operational/40 bg-status-operational/10 text-status-operational backdrop-blur-sm shadow-lg">
+                <CheckCircle2 className="h-5 w-5" />
+                <AlertDescription className="text-sm font-medium pl-2">{success}</AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
 
-        {/* Login Card */}
-        <Card className="border-slate-800/50 bg-slate-900/50 backdrop-blur-xl shadow-2xl">
-          <CardHeader className="space-y-1 pb-6">
-            <h2 className="text-lg font-medium text-white text-center">Sign In</h2>
-          </CardHeader>
+          {isOffline && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative"
+            >
+              <Alert className="border-status-warning/40 bg-status-warning/10 text-status-warning backdrop-blur-sm shadow-lg">
+                <AlertCircle className="h-5 w-5" />
+                <AlertDescription className="text-sm font-medium pl-2">
+                  Connection offline. Please check your internet connection to continue.
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
+        </motion.div>
 
-          <CardContent className="space-y-6">
-            {/* Login Form */}
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              {/* Email Field */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Email
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-4 w-4 text-slate-500 group-focus-within:text-slate-400 transition-colors" />
+        {/* Main Login Card */}
+        <motion.div variants={itemVariants}>
+          <Card className="border-core-tertiary/40 bg-card/90 backdrop-blur-2xl shadow-2xl shadow-black/25 ring-1 ring-core-tertiary/30 relative overflow-hidden">
+            {/* Card Background Pattern */}
+            <div className="absolute inset-0 bg-gradient-to-br from-natural-accent/5 via-transparent to-core-tertiary/5 pointer-events-none" />
+            
+            <CardHeader className="space-y-2 pb-8 text-center relative">
+              <h2 className="text-2xl font-bold text-core-white tracking-tight">Sign In</h2>
+              <p className="text-core-secondary text-sm font-medium">
+                Enter your credentials to access the system
+              </p>
+            </CardHeader>
+
+            <CardContent className="space-y-8 relative">
+              {/* Login Form */}
+              <form onSubmit={handleLoginSubmit} className="space-y-6">
+                {/* Email Field */}
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-core-light flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email Address
+                  </label>
+                  <div className="relative group">
+                    <input
+                      type="email"
+                      placeholder="Enter your email address"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
+                      className="w-full px-4 py-4 bg-background/60 border border-core-tertiary/50 rounded-xl text-core-white placeholder-core-secondary/80 focus:border-natural-accent/60 focus:ring-2 focus:ring-natural-accent/25 focus:outline-none transition-all duration-300 backdrop-blur-sm shadow-inner hover:border-core-tertiary/70"
+                      required
+                      disabled={isLoading || authLoading || isOffline}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <div className="w-2 h-2 bg-natural-accent/60 rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
+                    </div>
                   </div>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={loginForm.email}
-                    onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
-                    required
-                    disabled={isLoading || authLoading || isOffline}
-                  />
                 </div>
-              </div>
 
-              {/* Password Field */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Password
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-4 w-4 text-slate-500 group-focus-within:text-slate-400 transition-colors" />
+                {/* Password Field */}
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-core-light flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Password
+                  </label>
+                  <div className="relative group">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                      className="w-full px-4 py-4 pr-12 bg-background/60 border border-core-tertiary/50 rounded-xl text-core-white placeholder-core-secondary/80 focus:border-natural-accent/60 focus:ring-2 focus:ring-natural-accent/25 focus:outline-none transition-all duration-300 backdrop-blur-sm shadow-inner hover:border-core-tertiary/70"
+                      required
+                      disabled={isLoading || authLoading || isOffline}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-core-secondary hover:text-core-light transition-colors duration-200 group"
+                      disabled={isLoading || authLoading}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                      ) : (
+                        <Eye className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                      )}
+                    </button>
                   </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    value={loginForm.password}
-                    onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                    className="w-full pl-10 pr-12 py-3 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
-                    required
-                    disabled={isLoading || authLoading || isOffline}
-                  />
+                </div>
+
+                {/* Remember Me & Forgot Password */}
+                <div className="flex items-center justify-between pt-2">
+                  <label className="flex items-center space-x-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-5 h-5 rounded-md border-2 border-core-tertiary bg-background/60 text-natural-accent focus:ring-natural-accent/25 focus:ring-offset-0 transition-colors duration-200"
+                      />
+                      {rememberMe && (
+                        <CheckCircle2 className="w-3 h-3 text-natural-accent absolute top-1 left-1 pointer-events-none" />
+                      )}
+                    </div>
+                    <span className="text-sm text-core-secondary group-hover:text-core-light transition-colors duration-200 font-medium">
+                      Remember me for 30 days
+                    </span>
+                  </label>
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-400 transition-colors"
-                    disabled={isLoading || authLoading}
+                    className="text-sm text-natural-accent hover:text-natural-accent/80 transition-colors duration-200 font-semibold hover:underline"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    Forgot password?
                   </button>
                 </div>
-              </div>
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between pt-2">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-blue-600 focus:ring-blue-500/20 focus:ring-offset-0"
-                  />
-                  <span className="text-sm text-slate-400">Remember me</span>
-                </label>
-                <button
-                  type="button"
-                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                {/* Submit Button */}
+                <motion.button
+                  type="submit"
+                  disabled={isLoading || authLoading || isOffline}
+                  whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                  className="w-full py-4 px-6 bg-gradient-to-r from-natural-accent via-natural-accent to-natural-accent/90 hover:from-natural-accent/95 hover:via-natural-accent/90 hover:to-natural-accent/85 disabled:from-core-tertiary disabled:via-core-tertiary disabled:to-core-tertiary disabled:text-core-secondary text-core-primary font-bold rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-natural-accent/50 focus:ring-offset-2 focus:ring-offset-transparent shadow-xl shadow-natural-accent/25 hover:shadow-2xl hover:shadow-natural-accent/40 disabled:shadow-none relative overflow-hidden"
                 >
-                  Forgot password?
-                </button>
+                  {/* Button shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 transition-transform duration-700 hover:translate-x-full" />
+                  
+                  {isLoading ? (
+                    <div className="flex items-center justify-center space-x-3">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-core-primary/30 border-t-core-primary rounded-full"
+                      />
+                      <span>Signing in...</span>
+                    </div>
+                  ) : (
+                    <span>Sign In to Dashboard</span>
+                  )}
+                </motion.button>
+              </form>
+
+              {/* Security Notice */}
+              <div className="pt-6 border-t border-core-tertiary/30">
+                <div className="flex items-center justify-center space-x-2 text-xs text-core-secondary/80 font-medium">
+                  <Shield className="w-4 h-4 text-status-operational" />
+                  <span>Secured by enterprise-grade encryption</span>
+                </div>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isLoading || authLoading || isOffline}
-                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:text-slate-500 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-slate-900"
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Signing in...</span>
-                  </div>
-                ) : (
-                  'Sign In'
-                )}
-              </button>
-            </form>
-
-            {/* Footer */}
-            <div className="pt-4 text-center">
-              <p className="text-xs text-slate-500">
-                Need access? Contact your system administrator
-              </p>
+        {/* System Information */}
+        <motion.div variants={itemVariants}>
+          <div className="bg-card/50 backdrop-blur-xl border border-core-tertiary/30 rounded-2xl p-6 shadow-xl">
+            <div className="text-center space-y-3">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-status-operational rounded-full animate-pulse" />
+                <p className="text-sm font-semibold text-core-white">
+                  System Status: Online
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-core-secondary font-medium">
+                  © 2024 Ararat Oil Management System
+                </p>
+                <p className="text-xs text-core-secondary/80">
+                  Professional fuel operations management platform
+                </p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Company Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-slate-500">
-            © 2024 Ararat Oil Management System
-          </p>
-        </div>
+          </div>
+        </motion.div>
       </motion.div>
-    </div>
+    </WindowContainer>
   );
-}; 
+};

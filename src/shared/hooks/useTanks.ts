@@ -91,16 +91,28 @@ export function useTankSummary() {
  * @returns Query object for fuel types
  */
 export function useFuelTypes() {
+  const { data: tanks = [] } = useTanks();
+  
   return useQuery({
     queryKey: TANK_QUERY_KEYS.fuelTypes,
     queryFn: async () => {
-      // TODO: Replace with actual API call when fuel types API is implemented
-      return [
-        { id: "1", name: "Petrol", code: "PET" },
-        { id: "2", name: "Diesel", code: "DSL" },
-        { id: "3", name: "Gas", code: "GAS" },
-      ] as FuelType[];
+      // Extract unique fuel types from existing tank data
+      const fuelTypesMap = new Map();
+      
+      tanks.forEach(tank => {
+        if (tank.fuel_type && tank.fuel_type.id) {
+          fuelTypesMap.set(tank.fuel_type.id, {
+            id: tank.fuel_type.id,
+            name: tank.fuel_type.name,
+            code: tank.fuel_type.code || tank.fuel_type.name?.substring(0, 3).toUpperCase()
+          });
+        }
+      });
+      
+      const uniqueFuelTypes = Array.from(fuelTypesMap.values());
+      return uniqueFuelTypes as FuelType[];
     },
+    enabled: tanks.length > 0, // Only run when we have tank data
   });
 }
 

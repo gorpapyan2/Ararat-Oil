@@ -27,7 +27,7 @@ export interface TankLevelChange {
   change_type: 'add' | 'subtract';
   reason?: string;
   created_at: string;
-  created_by: string;
+  created_by?: string;
 }
 
 /**

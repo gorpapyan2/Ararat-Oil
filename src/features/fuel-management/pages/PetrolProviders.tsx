@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { Pencil, Trash2 } from 'lucide-react';
-import { PlusIcon, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks";
 import {
   Table,
@@ -21,11 +20,13 @@ import {
   AlertDialogAction,
 } from "@/core/components/ui/alert-dialog";
 import { ProviderDialogStandardized } from "../components/ProviderDialogStandardized";
-import { petrolProvidersApi } from '@/core/api';
+import { PetrolProvider, petrolProvidersApi } from '@/core/api';
 import { useTranslation } from "react-i18next";
 import { CreateButton } from "@/core/components/ui/create-button";
 import { IconButton } from "@/core/components/ui/icon-button";
 import { usePageBreadcrumbs } from "@/hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 export default function PetrolProviders() {
   const [selectedProvider, setSelectedProvider] =

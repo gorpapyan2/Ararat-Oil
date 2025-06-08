@@ -254,6 +254,7 @@ export interface TankLevelChange {
   new_level: number;
   change_type: "add" | "subtract";
   created_at?: string;
+  created_by?: string; // Made optional to match current DB schema
 }
 
 // Add this to the file, preserving existing exports

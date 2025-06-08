@@ -35,71 +35,14 @@ interface ManagementModule {
   bgGradient: string;
   iconGradient: string;
   textColor: string;
+  disabled?: boolean;
 }
 
 const managementModules: ManagementModule[] = [
-  // Executive Dashboard
-  {
-    id: 'dashboard',
-    title: 'Management Dashboard',
-    description: 'Comprehensive overview of operations, key performance indicators, and management analytics.',
-    path: '/management/dashboard',
-    icon: BarChart3,
-    category: 'Executive Dashboard',
-    badge: 'Important',
-    stats: { count: '98.5%', label: 'Operational Efficiency' },
-    color: 'border-black/30',
-    bgGradient: 'bg-gradient-to-br from-black/5 to-black/10',
-    iconGradient: 'from-black/80 to-black',
-    textColor: 'text-black'
-  },
-  {
-    id: 'performance',
-    title: 'Performance Analytics',
-    description: 'Track team performance, productivity metrics, and operational efficiency indicators.',
-    path: '/management/performance',
-    icon: TrendingUp,
-    category: 'Executive Dashboard',
-    badge: 'New',
-    stats: { count: '24.6%', label: 'Performance Increase' },
-    color: 'border-[#E3E263]/30',
-    bgGradient: 'bg-gradient-to-br from-[#E3E263]/5 to-[#E3E263]/10',
-    iconGradient: 'from-[#E3E263]/80 to-[#E3E263]',
-    textColor: 'text-[#E3E263]'
-  },
-  {
-    id: 'objectives',
-    title: 'Strategic Objectives',
-    description: 'Set and track strategic goals, KPIs, and organizational performance targets.',
-    path: '/management/objectives',
-    icon: Target,
-    category: 'Executive Dashboard',
-    badge: 'New',
-    stats: { count: '12 Goals', label: 'Active Targets' },
-    color: 'border-[#A6A698]/30',
-    bgGradient: 'bg-gradient-to-br from-[#A6A698]/5 to-[#A6A698]/10',
-    iconGradient: 'from-[#A6A698]/80 to-[#A6A698]',
-    textColor: 'text-[#A6A698]'
-  },
-
   // Operations Management
   {
-    id: 'operations',
-    title: 'Operations Center',
-    description: 'Central hub for daily operations, workflow management, and process optimization.',
-    path: '/management/operations',
-    icon: Briefcase,
-    category: 'Operations Management',
-    badge: 'Important',
-    stats: { count: '15 Tasks', label: 'Pending Actions' },
-    color: 'border-black/30',
-    bgGradient: 'bg-gradient-to-br from-black/5 to-black/10',
-    iconGradient: 'from-black/80 to-black',
-    textColor: 'text-black'
-  },
-  {
     id: 'shifts',
-    title: 'Shifts Management',
+    title: 'Sifts Management',
     description: 'Manage work shifts, opening/closing procedures, and shift-based operations.',
     path: '/management/shifts',
     icon: Clock,
@@ -112,17 +55,19 @@ const managementModules: ManagementModule[] = [
     textColor: 'text-[#E3E263]'
   },
   {
-    id: 'quality',
-    title: 'Quality Management',
-    description: 'Quality assurance processes, standards compliance, and continuous improvement.',
-    path: '/management/quality',
-    icon: Award,
+    id: 'operations',
+    title: 'Operations Center',
+    description: 'Central hub for daily operations, workflow management, and process optimization.',
+    path: '/management/operations',
+    icon: Briefcase,
     category: 'Operations Management',
-    stats: { count: '96%', label: 'Quality Score' },
-    color: 'border-[#717181]/30',
-    bgGradient: 'bg-gradient-to-br from-[#717181]/5 to-[#717181]/10',
-    iconGradient: 'from-[#717181]/80 to-[#717181]',
-    textColor: 'text-[#717181]'
+    badge: 'TBD',
+    stats: { count: 'Coming', label: 'Soon' },
+    color: 'border-gray-400/30',
+    bgGradient: 'bg-gradient-to-br from-gray-400/5 to-gray-400/10',
+    iconGradient: 'from-gray-400/80 to-gray-400',
+    textColor: 'text-gray-400',
+    disabled: true
   },
 
   // Human Resources
@@ -140,33 +85,6 @@ const managementModules: ManagementModule[] = [
     iconGradient: 'from-black/80 to-black',
     textColor: 'text-black'
   },
-  {
-    id: 'security',
-    title: 'Security & Access',
-    description: 'Manage access controls, security protocols, and user permissions across systems.',
-    path: '/management/security',
-    icon: Shield,
-    category: 'Human Resources',
-    badge: 'Important',
-    stats: { count: 'All Secure', label: 'System Status' },
-    color: 'border-[#57575E]/30',
-    bgGradient: 'bg-gradient-to-br from-[#57575E]/5 to-[#57575E]/10',
-    iconGradient: 'from-[#57575E]/80 to-[#57575E]',
-    textColor: 'text-[#57575E]'
-  },
-  {
-    id: 'compliance',
-    title: 'Compliance Monitoring',
-    description: 'Ensure regulatory compliance, audit management, and policy adherence tracking.',
-    path: '/management/compliance',
-    icon: UserCheck,
-    category: 'Human Resources',
-    stats: { count: '100%', label: 'Compliance Rate' },
-    color: 'border-[#A6A698]/30',
-    bgGradient: 'bg-gradient-to-br from-[#A6A698]/5 to-[#A6A698]/10',
-    iconGradient: 'from-[#A6A698]/80 to-[#A6A698]',
-    textColor: 'text-[#A6A698]'
-  },
 
   // Finance & Reporting
   {
@@ -176,40 +94,13 @@ const managementModules: ManagementModule[] = [
     path: '/management/budgeting',
     icon: Calculator,
     category: 'Finance & Reporting',
-    badge: 'New',
-    stats: { count: '$2.4M', label: 'Budget Managed' },
-    color: 'border-black/30',
-    bgGradient: 'bg-gradient-to-br from-black/5 to-black/10',
-    iconGradient: 'from-black/80 to-black',
-    textColor: 'text-black'
-  },
-  {
-    id: 'reports',
-    title: 'Management Reports',
-    description: 'Generate comprehensive reports on operations, finance, and strategic performance.',
-    path: '/management/reports',
-    icon: FileText,
-    category: 'Finance & Reporting',
-    badge: 'Analytics',
-    stats: { count: '12 New', label: 'Reports Ready' },
-    color: 'border-[#717181]/30',
-    bgGradient: 'bg-gradient-to-br from-[#717181]/5 to-[#717181]/10',
-    iconGradient: 'from-[#717181]/80 to-[#717181]',
-    textColor: 'text-[#717181]'
-  },
-  {
-    id: 'settings',
-    title: 'Management Settings',
-    description: 'Configure management system parameters, preferences, and organizational settings.',
-    path: '/management/settings',
-    icon: Settings,
-    category: 'Finance & Reporting',
-    badge: 'Admin',
-    stats: { count: '2 Updates', label: 'Available' },
-    color: 'border-[#57575E]/30',
-    bgGradient: 'bg-gradient-to-br from-[#57575E]/5 to-[#57575E]/10',
-    iconGradient: 'from-[#57575E]/80 to-[#57575E]',
-    textColor: 'text-[#57575E]'
+    badge: 'TBD',
+    stats: { count: 'Coming', label: 'Soon' },
+    color: 'border-gray-400/30',
+    bgGradient: 'bg-gradient-to-br from-gray-400/5 to-gray-400/10',
+    iconGradient: 'from-gray-400/80 to-gray-400',
+    textColor: 'text-gray-400',
+    disabled: true
   }
 ];
 
@@ -308,6 +199,7 @@ const ManagementPage = () => {
                   bgGradient={module.bgGradient}
                   iconGradient={module.iconGradient}
                   textColor={module.textColor}
+                  disabled={module.disabled}
                 />
               ))}
             </div>

@@ -15,10 +15,21 @@ const ENDPOINT = API_ENDPOINTS.FUNCTIONS.TANKS;
  * Fetches all tanks
  */
 export async function getTanks(): Promise<ApiResponse<Tank[]>> {
-  const response = await fetchFromFunction<{ tanks: Tank[] }>(ENDPOINT);
+  const response = await fetchFromFunction<Tank[] | { tanks: Tank[] }>(ENDPOINT);
+  
+  // Handle both direct array response and nested response
+  let tanks: Tank[] = [];
+  if (Array.isArray(response.data)) {
+    // Direct array response
+    tanks = response.data;
+  } else if (response.data && typeof response.data === 'object' && 'tanks' in response.data) {
+    // Nested response
+    tanks = response.data.tanks || [];
+  }
+  
   return {
     ...response,
-    data: response.data?.tanks || []
+    data: tanks
   };
 }
 

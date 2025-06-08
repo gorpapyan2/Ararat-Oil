@@ -19,6 +19,8 @@ export { useIsMobile } from "@/shared/hooks/useIsMobile";
 export { useMediaQuery } from "@/shared/hooks/useMediaQuery";
 export { usePageBreadcrumbs } from "@/shared/hooks/usePageBreadcrumbs";
 export { useZodForm, useFormSubmitHandler, useZodFormWithSubmit } from "@/shared/hooks/use-form";
+export { useFieldValidation } from "@/shared/hooks/useFieldValidation";
+export { useFormSchemas } from "@/shared/hooks/useFormSchemas";
 
 // Export types that components might need
 export type ToastVariant = "default" | "success" | "error" | "warning";

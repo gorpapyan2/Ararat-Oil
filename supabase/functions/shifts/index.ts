@@ -150,6 +150,18 @@ async function startShift(shiftData: ShiftData, supabase: any) {
     throw new Error('Opening cash amount is required and must be positive');
   }
 
+  // Validate that at least one employee is provided
+  if (!employee_ids || employee_ids.length === 0) {
+    throw new Error('At least one employee must be assigned to the shift');
+  }
+
+  // Validate that employee IDs are valid UUIDs
+  for (const employeeId of employee_ids) {
+    if (!employeeId || typeof employeeId !== 'string') {
+      throw new Error('Invalid employee ID provided');
+    }
+  }
+
   // Create new shift first
   const { data: shift, error: shiftError } = await supabase
     .from('shifts')
@@ -157,7 +169,7 @@ async function startShift(shiftData: ShiftData, supabase: any) {
       opening_cash,
       sales_total: 0,
       status: 'OPEN',
-      employee_id: employee_ids && employee_ids.length > 0 ? employee_ids[0] : null // Set first employee as primary for backward compatibility
+      employee_id: employee_ids[0] // Set first employee as primary - this is now guaranteed to exist
     })
     .select()
       .single();
@@ -165,19 +177,6 @@ async function startShift(shiftData: ShiftData, supabase: any) {
   if (shiftError) {
     console.error('Error creating shift:', shiftError);
     throw shiftError;
-  }
-
-  // If no employees provided, return shift without employees
-  if (!employee_ids || employee_ids.length === 0) {
-    console.log('Created shift without employees');
-    return { 
-      message: 'Shift started successfully without employees', 
-      shift: {
-        ...shift,
-        is_active: true,
-        employees: []
-      }
-    };
   }
 
   // Try to add employees to shift_employees table if it exists
@@ -281,13 +280,36 @@ async function startShift(shiftData: ShiftData, supabase: any) {
 }
 
 async function closeShift(shiftId: string, shiftData: ShiftData, supabase: any) {
+  console.log('Closing shift with ID:', shiftId, 'and data:', shiftData);
+  
+  // Validate closing cash
+  if (shiftData.closing_cash === undefined || shiftData.closing_cash < 0) {
+    throw new Error('Closing cash amount is required and must be non-negative');
+  }
+  
+  // Get current sales total for this shift
+  let salesTotal = 0;
+  try {
+    const { data: sales, error: salesError } = await supabase
+      .from('sales')
+      .select('total_sales')
+      .eq('shift_id', shiftId);
+    
+    if (!salesError && sales) {
+      salesTotal = sales.reduce((total: number, sale: any) => total + (sale.total_sales || 0), 0);
+    }
+  } catch (error) {
+    console.log('Could not fetch sales data, using provided sales_total or 0');
+    salesTotal = shiftData.sales_total || 0;
+  }
+
   // Update the shift
   const { data: shift, error: shiftError } = await supabase
     .from('shifts')
       .update({
         end_time: new Date().toISOString(),
       closing_cash: shiftData.closing_cash,
-      sales_total: shiftData.sales_total,
+      sales_total: salesTotal,
       status: 'CLOSED'
       })
     .eq('id', shiftId)
@@ -295,7 +317,10 @@ async function closeShift(shiftId: string, shiftData: ShiftData, supabase: any) 
       .select()
       .single();
 
-  if (shiftError) throw shiftError;
+  if (shiftError) {
+    console.error('Error closing shift:', shiftError);
+    throw shiftError;
+  }
 
   if (!shift) {
     throw new Error('Shift not found or already closed');
@@ -365,6 +390,13 @@ Deno.serve(async (req) => {
       const pathParts = route.split('/');
       const shiftId = pathParts[0];
       console.log('Handling POST /shifts/:id/close with ID:', shiftId);
+      console.log('Route parts:', pathParts);
+      
+      // Additional validation to ensure we have a valid UUID
+      if (!shiftId || shiftId === 'shifts' || !shiftId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        throw new Error(`Invalid shift ID: ${shiftId}`);
+      }
+      
       const body = await req.json();
       data = await closeShift(shiftId, body, supabase);
     } else {

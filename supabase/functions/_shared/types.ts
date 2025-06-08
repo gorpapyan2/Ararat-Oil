@@ -191,6 +191,7 @@ export interface TankLevelChange {
   new_level: number;
   change_type: "add" | "subtract";
   created_at?: string;
+  created_by?: string;
 }
 
 // Response type for edge functions

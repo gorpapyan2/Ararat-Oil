@@ -196,12 +196,15 @@ export async function fetchFromFunction<
     };
 
     console.log(`Making ${requestOptions.method} request to ${url}`);
+    console.log('Request headers:', headers);
+    console.log('Request body:', options.body);
     
     // Make the fetch request
     const response = await fetch(url, requestOptions);
 
     // Log response status
     console.log(`Response from ${functionPath}: ${response.status} ${response.statusText}`);
+    console.log(`Response headers:`, Object.fromEntries(response.headers.entries()));
     
     // Handle different response types
     let result;
@@ -215,6 +218,9 @@ export async function fetchFromFunction<
       } else {
         // Default to JSON
         result = await response.json();
+        console.log(`Raw result from ${functionPath}:`, result);
+        console.log(`Type of result:`, typeof result);
+        console.log(`Is result an array:`, Array.isArray(result));
       }
     } catch (error) {
       console.error(`Error parsing response from ${functionPath}:`, error);

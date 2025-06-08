@@ -28,12 +28,12 @@ async function initializeApp() {
     // Global styles are already imported at module scope; no
     // additional manual preloading is required.
     
-    // Try to load i18n if available
+    // Try to load i18n if available (non-blocking)
     try {
-      await import("./i18n/i18n");
+      const i18nModule = await import("./i18n/i18n");
       console.log("✅ Internationalization loaded successfully");
     } catch (error) {
-      console.warn("⚠️ i18n not available, continuing without internationalization");
+      console.warn("⚠️ i18n not available, continuing without internationalization:", error);
     }
 
     // Get root element with validation

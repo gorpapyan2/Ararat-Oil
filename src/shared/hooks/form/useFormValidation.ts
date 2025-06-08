@@ -5,8 +5,8 @@ import type { UseFormProps } from "react-hook-form";
 import { useZodForm } from "./useZodForm";
 import { useFormSubmitHandler } from "./useFormSubmitHandler";
 import { useCommonValidation } from "./useCommonValidation";
-import { useFieldValidation } from "@/hooks";
-import { useFormSchemas } from "@/hooks";
+import { useFieldValidation } from "@/shared/hooks";
+import { useFormSchemas } from "@/shared/hooks";
 
 /**
  * Options for the form validation hook

@@ -3,9 +3,10 @@ import { Edit, Trash2 } from 'lucide-react';
 import { Separator } from "@/core/components/ui/separator";
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from "react-i18next";
-import { FillingSystemFormDialog } from "./FillingSystemFormDialog";
 import { toast } from "sonner";
 import { fillingsApi, FillingSystem } from "@/core/api";
+import { Button } from "@/core/components/ui/primitives/button";
+import { useState } from "react";
 
 const FillingSystemCard: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);

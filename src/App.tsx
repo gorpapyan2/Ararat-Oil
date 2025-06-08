@@ -48,7 +48,7 @@ const SalesPage = lazy(() => import("@/features/sales/pages/SalesPage").then(m =
 const FuelManagementPage = lazy(() => import("@/features/fuel-management/pages/FuelManagementPage").then(m => ({ default: m.FuelManagementPage })));
 const FuelDashboardPage = lazy(() => import("@/features/fuel-management/pages/FuelDashboardPage"));
 const TanksPage = lazy(() => import("@/features/fuel-management/pages/TanksPage"));
-const FuelSuppliesPage = lazy(() => import("@/features/fuel-management/pages/FuelSuppliesPage"));
+const FuelSuppliesPage = lazy(() => import("@/features/fuel-management/pages/FuelSuppliesPage").then(m => ({ default: m.FuelSuppliesPage })));
 const FuelPricesPage = lazy(() => import("@/features/fuel-management/pages/FuelPricesPage"));
 const FuelTypesPage = lazy(() => import("@/features/fuel-management/pages/FuelTypesPage"));
 const FillingSystemsPage = lazy(() => import("@/features/fuel-management/pages/FillingSystemsPage"));

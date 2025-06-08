@@ -84,7 +84,10 @@ export async function closeShift(
 ): Promise<ApiResponse<Shift>> {
   return fetchFromFunction<Shift>(`${ENDPOINT}/${id}/close`, {
     method: "POST",
-    body: { closingCash, paymentMethods },
+    body: { 
+      closing_cash: closingCash, 
+      payment_methods: paymentMethods 
+    },
   });
 }
 

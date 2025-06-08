@@ -1,7 +1,90 @@
 import { z } from "zod";
 
-// Export tank types
-export * from "./tanks.types";
+// Export specific types from fuel-sales without conflicts
+export type {
+  FuelSaleFormData,
+  FuelSaleFilters,
+  FuelSaleExportOptions,
+  FuelSaleSummary
+} from "./fuel-sales.types";
+
+// Export all from supplies
+export * from "./fuel-supplies.types";
+
+// Export all from petrol providers
+export * from "./petrol-providers.types";
+
+// Export all from fuel prices
+export * from "./fuel-prices.types";
+
+// Export all from fuel types (main FuelSale interface)
+export * from "./fuel.types";
+
+// Base interfaces for other exports
+interface RefuelEntry {
+  id: string;
+  vehicle_id: string;
+  tank_id: string;
+  fuel_type: string;
+  quantity: number;
+  unit_price: number;
+  total_cost: number;
+  timestamp: string;
+  notes?: string;
+}
+
+interface FuelTransfer {
+  id: string;
+  from_tank: {
+    id: string;
+    name: string;
+  };
+  to_tank: {
+    id: string;
+    name: string;
+  };
+  fuel_type: string;
+  quantity: number;
+  timestamp: string;
+  notes?: string;
+}
+
+interface BatchOperation {
+  id: string;
+  type: 'refuel' | 'transfer' | 'delivery';
+  tankId?: string;
+  quantity: number;
+  timestamp: string;
+  status: 'pending' | 'completed' | 'failed';
+}
+
+interface TankSafetyMetrics {
+  id: string;
+  tank_id: string;
+  safety_check_date: string;
+  pressure_reading: number;
+  temperature_reading: number;
+  leak_detection_status: 'normal' | 'warning' | 'critical';
+  currentTankLevel: number;
+  tankCapacity: number;
+  notes?: string;
+}
+
+// Common schemas
+export const fuelRefillSchema = z.object({
+  tank_id: z.string({ required_error: "Tank is required" }),
+  quantity: z
+    .number({ required_error: "Quantity is required" })
+    .min(1, "Quantity must be at least 1 liter"),
+  unit_price: z
+    .number({ required_error: "Unit price is required" })
+    .min(0.01, "Unit price must be greater than 0"),
+  supplier_id: z.string({ required_error: "Supplier is required" }),
+  delivery_date: z.date({ required_error: "Delivery date is required" }),
+  notes: z.string().optional(),
+});
+
+export type FuelRefillFormData = z.infer<typeof fuelRefillSchema>;
 
 export interface FuelSupply {
   supplier_id: string;

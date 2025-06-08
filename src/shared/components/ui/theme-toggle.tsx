@@ -8,7 +8,7 @@
 import React from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from './theme-provider';
-import { Button } from '@/core/components/ui/buttons/button';
+import { Button } from '@/core/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,9 +45,9 @@ export function ThemeToggle({
     return (
       <Button
         variant="ghost"
-        size={size === 'sm' ? 'icon-sm' : size === 'lg' ? 'icon-lg' : 'icon'}
+        size="icon"
         onClick={cycleTheme}
-        className={`hover:bg-gradient-natural-light hover:scale-105 transition-all duration-300 ${className}`}
+        className={`hover:bg-core-light dark:hover:bg-muted hover:scale-105 transition-all duration-300 text-core-secondary dark:text-muted-foreground hover:text-core-primary dark:hover:text-card-foreground ${className}`}
         aria-label={`Switch to ${
           theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
         } theme`}
@@ -55,7 +55,7 @@ export function ThemeToggle({
         <div className="relative">
           {getIcon()}
           {/* Subtle glow effect */}
-          <div className="absolute inset-0 bg-gradient-accent opacity-0 group-hover:opacity-20 rounded-full blur-sm transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-natural-accent dark:bg-accent opacity-0 group-hover:opacity-20 rounded-full blur-sm transition-opacity duration-300" />
         </div>
       </Button>
     );
@@ -67,8 +67,8 @@ export function ThemeToggle({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size={size === 'sm' ? 'icon-sm' : size === 'lg' ? 'icon-lg' : 'icon'}
-          className={`hover:bg-gradient-natural-light hover:scale-105 transition-all duration-300 ${className}`}
+          size="icon"
+          className={`hover:bg-core-light dark:hover:bg-muted hover:scale-105 transition-all duration-300 text-core-secondary dark:text-muted-foreground hover:text-core-primary dark:hover:text-card-foreground ${className}`}
           aria-label="Toggle theme"
         >
           <div className="relative">
@@ -78,61 +78,61 @@ export function ThemeToggle({
               <Sun className="h-4 w-4" />
             )}
             {theme === 'system' && (
-              <Monitor className="absolute -bottom-0.5 -right-0.5 h-2 w-2 text-accent" />
+              <Monitor className="absolute -bottom-0.5 -right-0.5 h-2 w-2 text-natural-accent dark:text-accent" />
             )}
             
             {/* Rotating animation for theme change */}
-            <div className="absolute inset-0 bg-gradient-accent opacity-0 group-hover:opacity-20 rounded-full blur-sm transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-natural-accent dark:bg-accent opacity-0 group-hover:opacity-20 rounded-full blur-sm transition-opacity duration-300" />
           </div>
         </Button>
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent 
+      <DropdownMenuContent
         align="end"
-        className="bg-card border-border shadow-xl backdrop-blur-sm"
+        className="bg-core-white dark:bg-card border border-core-tertiary dark:border-border shadow-xl backdrop-blur-sm"
       >
         <DropdownMenuItem
           onClick={() => setTheme('light')}
-          className={`flex items-center gap-2 cursor-pointer transition-colors duration-200 ${
+          className={`flex items-center gap-2 cursor-pointer transition-colors duration-200 text-core-primary dark:text-card-foreground hover:bg-core-light dark:hover:bg-muted ${
             theme === 'light' 
-              ? 'bg-gradient-natural-light text-accent' 
-              : 'hover:bg-gradient-natural-light'
+              ? 'bg-natural-accent/20 dark:bg-accent/20 text-core-primary dark:text-accent font-medium' 
+              : ''
           }`}
         >
           <Sun className="h-4 w-4" />
           <span>Light</span>
           {theme === 'light' && (
-            <div className="ml-auto w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <div className="ml-auto w-2 h-2 rounded-full bg-natural-accent dark:bg-accent animate-pulse" />
           )}
         </DropdownMenuItem>
         
         <DropdownMenuItem
           onClick={() => setTheme('dark')}
-          className={`flex items-center gap-2 cursor-pointer transition-colors duration-200 ${
+          className={`flex items-center gap-2 cursor-pointer transition-colors duration-200 text-core-primary dark:text-card-foreground hover:bg-core-light dark:hover:bg-muted ${
             theme === 'dark' 
-              ? 'bg-gradient-natural-light text-accent' 
-              : 'hover:bg-gradient-natural-light'
+              ? 'bg-natural-accent/20 dark:bg-accent/20 text-core-primary dark:text-accent font-medium' 
+              : ''
           }`}
         >
           <Moon className="h-4 w-4" />
           <span>Dark</span>
           {theme === 'dark' && (
-            <div className="ml-auto w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <div className="ml-auto w-2 h-2 rounded-full bg-natural-accent dark:bg-accent animate-pulse" />
           )}
         </DropdownMenuItem>
         
         <DropdownMenuItem
           onClick={() => setTheme('system')}
-          className={`flex items-center gap-2 cursor-pointer transition-colors duration-200 ${
+          className={`flex items-center gap-2 cursor-pointer transition-colors duration-200 text-core-primary dark:text-card-foreground hover:bg-core-light dark:hover:bg-muted ${
             theme === 'system' 
-              ? 'bg-gradient-natural-light text-accent' 
-              : 'hover:bg-gradient-natural-light'
+              ? 'bg-natural-accent/20 dark:bg-accent/20 text-core-primary dark:text-accent font-medium' 
+              : ''
           }`}
         >
           <Monitor className="h-4 w-4" />
           <span>System</span>
           {theme === 'system' && (
-            <div className="ml-auto w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <div className="ml-auto w-2 h-2 rounded-full bg-natural-accent dark:bg-accent animate-pulse" />
           )}
         </DropdownMenuItem>
       </DropdownMenuContent>

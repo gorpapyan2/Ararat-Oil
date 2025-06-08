@@ -23,7 +23,12 @@ interface FuelSupply {
   quantity_liters: number;
   price_per_liter: number;
   total_cost: number;
+  shift_id?: string;
   comments?: string;
+  payment_method?: string;
+  payment_status?: string;
+  created_at: string;
+  updated_at: string;
   provider?: {
     id: string;
     name: string;
@@ -33,9 +38,16 @@ interface FuelSupply {
     name: string;
     fuel_type: string;
   };
-  employee?: {
+  shift?: {
     id: string;
-    name: string;
+    start_time: string;
+    end_time?: string;
+    employee_id?: string;
+    employees?: {
+      id: string;
+      name: string;
+      position: string;
+    };
   };
 }
 
@@ -53,71 +65,179 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     const url = new URL(req.url);
-    const path = url.pathname.split("/").pop();
+    const pathSegments = url.pathname.split('/').filter(Boolean);
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    const secondLastSegment = pathSegments.length > 1 ? pathSegments[pathSegments.length - 2] : null;
+    
+    // Check if this is the fuel-supplies endpoint (either direct call or with ID)
+    const isFuelSuppliesEndpoint = lastSegment === 'fuel-supplies' || secondLastSegment === 'fuel-supplies';
+    const resourceId = secondLastSegment === 'fuel-supplies' ? lastSegment : null;
 
-    // GET /fuel-supplies
-    if (req.method === "GET" && !path) {
-      const { data, error } = await supabaseClient
-        .from("fuel_supplies")
-        .select(`
-          *,
-          provider:providers(id, name),
-          tank:tanks(id, name, fuel_type),
-          employee:employees(id, name)
-        `)
-        .order("delivery_date", { ascending: false });
+    if (isFuelSuppliesEndpoint) {
+      // GET /fuel-supplies
+      if (req.method === "GET" && !resourceId) {
+        const { data, error } = await supabaseClient
+          .from("fuel_supplies")
+          .select(`
+            *,
+            petrol_providers(id, name),
+            fuel_tanks(
+              id, 
+              name, 
+              fuel_types(id, name, code)
+            ),
+            shifts(
+              id,
+              start_time,
+              end_time,
+              employees(id, name, position)
+            )
+          `)
+          .order("delivery_date", { ascending: false });
 
-      if (error) throw error;
+        if (error) {
+          console.error('Database error:', error);
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
 
-      return createResponse<FuelSupply[]>(data);
-    }
+        console.log('Raw data from database:', JSON.stringify(data, null, 2));
+        return new Response(
+          JSON.stringify(data),
+          { status: 200, headers: corsHeaders }
+        );
+      }
 
-    // POST /fuel-supplies
-    if (req.method === "POST" && !path) {
-      const body = await req.json();
-      const { data, error } = await supabaseClient
-        .from("fuel_supplies")
-        .insert(body)
-        .select()
-        .single();
+      // GET /fuel-supplies/:id
+      if (req.method === "GET" && resourceId) {
+        const { data, error } = await supabaseClient
+          .from("fuel_supplies")
+          .select(`
+            *,
+            petrol_providers(id, name),
+            fuel_tanks(
+              id, 
+              name, 
+              fuel_types(id, name, code)
+            ),
+            shifts(
+              id,
+              start_time,
+              end_time,
+              employees(id, name, position)
+            )
+          `)
+          .eq("id", resourceId)
+          .single();
 
-      if (error) throw error;
+        if (error) {
+          console.error('Database error for single record:', error);
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 404, headers: corsHeaders }
+          );
+        }
 
-      return createResponse<FuelSupply>(data);
-    }
+        console.log('Single record data:', JSON.stringify(data, null, 2));
+        return new Response(
+          JSON.stringify(data),
+          { status: 200, headers: corsHeaders }
+        );
+      }
 
-    // PATCH /fuel-supplies/:id
-    if (req.method === "PATCH" && path) {
-      const body = await req.json();
-      const { data, error } = await supabaseClient
-        .from("fuel_supplies")
-        .update(body)
-        .eq("id", path)
-        .select()
-        .single();
+      // POST /fuel-supplies
+      if (req.method === "POST" && !resourceId) {
+        const body = await req.json();
+        const { data, error } = await supabaseClient
+          .from("fuel_supplies")
+          .insert(body)
+          .select("*")
+          .single();
 
-      if (error) throw error;
+        if (error) {
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
 
-      return createResponse<FuelSupply>(data);
-    }
+        return new Response(
+          JSON.stringify(data),
+          { status: 201, headers: corsHeaders }
+        );
+      }
 
-    // DELETE /fuel-supplies/:id
-    if (req.method === "DELETE" && path) {
-      const { error } = await supabaseClient
-        .from("fuel_supplies")
-        .delete()
-        .eq("id", path);
+      // PATCH /fuel-supplies/:id
+      if (req.method === "PATCH" && resourceId) {
+        const body = await req.json();
+        const { data, error } = await supabaseClient
+          .from("fuel_supplies")
+          .update(body)
+          .eq("id", resourceId)
+          .select("*")
+          .single();
 
-      if (error) throw error;
+        if (error) {
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
 
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders,
-      });
+        return new Response(
+          JSON.stringify(data),
+          { status: 200, headers: corsHeaders }
+        );
+      }
+
+      // PUT /fuel-supplies/:id (for compatibility)
+      if (req.method === "PUT" && resourceId) {
+        const body = await req.json();
+        const { data, error } = await supabaseClient
+          .from("fuel_supplies")
+          .update(body)
+          .eq("id", resourceId)
+          .select("*")
+          .single();
+
+        if (error) {
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        return new Response(
+          JSON.stringify(data),
+          { status: 200, headers: corsHeaders }
+        );
+      }
+
+      // DELETE /fuel-supplies/:id
+      if (req.method === "DELETE" && resourceId) {
+        const { error } = await supabaseClient
+          .from("fuel_supplies")
+          .delete()
+          .eq("id", resourceId);
+
+        if (error) {
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ message: 'Fuel supply deleted successfully' }),
+          { status: 200, headers: corsHeaders }
+        );
+      }
     }
 
     return new Response("Not Found", { status: 404, headers: corsHeaders });

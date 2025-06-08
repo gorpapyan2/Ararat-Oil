@@ -39,10 +39,20 @@ const createServiceClient = () => {
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
   
   if (!supabaseUrl || !supabaseServiceKey) {
+    console.error('Missing environment variables:', {
+      hasUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey
+    });
     throw new Error('Missing Supabase URL or service role key environment variables');
   }
   
-  return createClient(supabaseUrl, supabaseServiceKey);
+  console.log('Creating service client with URL:', supabaseUrl);
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
 };
 
 const createAnonClient = () => {
@@ -71,21 +81,29 @@ const handleError = (error: unknown): { error: string; details?: unknown } => {
 };
 
 const getUserFromRequest = async (request: Request) => {
+  console.log('getUserFromRequest called');
   const authHeader = request.headers.get('Authorization');
+  console.log('Authorization header:', authHeader ? 'Present' : 'Missing');
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('No valid authorization header found');
     return null;
   }
   
   const token = authHeader.replace('Bearer ', '');
+  console.log('Token extracted, length:', token.length);
+  
   const supabase = createAnonClient();
+  console.log('Anon client created for user verification');
   
   const { data, error } = await supabase.auth.getUser(token);
   
   if (error || !data.user) {
+    console.log('User verification failed:', error?.message || 'No user data');
     return null;
   }
   
+  console.log('User verification successful:', data.user.id);
   return data.user;
 };
 
@@ -175,26 +193,50 @@ console.info('Sales Edge Function started');
 
 // Handle sales operations
 serve(async (req) => {
+  console.log('=== Sales function called ===');
   const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+  if (corsResponse) {
+    console.log('CORS preflight handled');
+    return corsResponse;
+  }
   const origin = req.headers.get('origin');
   const corsHeaders = getCorsHeaders(origin);
 
-  // Robust path parsing
+  // Robust path parsing with debugging
   const url = new URL(req.url);
+  console.log('Full URL:', req.url);
+  console.log('URL pathname:', url.pathname);
+  console.log('URL search params:', url.search);
+  
   const pathParts = url.pathname.replace(/^\/functions\/v1\//, '').split('/');
+  console.log('Path parts after processing:', pathParts);
+  
   const mainRoute = pathParts[0];
   const subRoute = pathParts[1] || '';
+  
+  console.log('Route parsing result:', {
+    mainRoute,
+    subRoute,
+    method: req.method,
+    hasQueryParams: !!url.search
+  });
+  
+  // Extract the path after the main route for handling subroutes
+  const path = '/' + pathParts.slice(1).join('/');
 
   if (mainRoute !== 'sales') {
+    console.log('❌ Main route mismatch, returning 404. Expected: sales, Got:', mainRoute);
     return new Response(
       JSON.stringify({ error: 'Not found' }),
       { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
+  console.log('✅ Main route matched: sales');
+
   // Example: /sales/summary
   if (subRoute === 'summary') {
+    console.log('Summary route matched');
     if (req.method === 'GET') {
       // Replace with actual logic
       return new Response(JSON.stringify({ summary: {} }), {
@@ -209,15 +251,30 @@ serve(async (req) => {
   }
 
   // Authentication check
+  console.log('🔐 Checking authentication...');
   const user = await getUserFromRequest(req);
   if (!user) {
+    console.log('❌ Authentication failed, returning 401');
     return unauthorized();
   }
+  console.log('✅ Authentication successful, user:', user.id);
 
   try {
-    // Route handling
+    // Route handling - handle the main sales route (no subRoute)
+    console.log('🛣️ Processing route with method:', req.method, 'subRoute:', `"${subRoute}"`);
+    
     if (req.method === 'GET') {
-      if (path === '' || path === '/') {
+      console.log('📥 GET request detected');
+      
+      const isMainRoute = subRoute === '' || subRoute === '/' || subRoute === 'sales';
+      console.log('Is main route?', isMainRoute, 'subRoute conditions:', {
+        isEmpty: subRoute === '',
+        isSlash: subRoute === '/',
+        isSales: subRoute === 'sales'
+      });
+      
+      if (isMainRoute) {
+        console.log('✅ Main sales route matched, parsing filters...');
         const params = getUrlParams(req);
         const filters: SaleFilters = {
           shiftId: params.get('shift_id') || undefined,
@@ -226,27 +283,35 @@ serve(async (req) => {
           employee: params.get('employee') || undefined
         };
         
+        console.log('🔍 Calling getSales with filters:', filters);
         return await getSales(filters);
-      } else if (path.match(/^\/[a-zA-Z0-9-]+$/)) {
-        const id = path.split('/')[1];
+      } else if (subRoute.match(/^[a-zA-Z0-9-]+$/)) {
+        console.log('🔍 Individual sale route matched, ID:', subRoute);
+        const id = subRoute;
         return await getSaleById(id);
+      } else {
+        console.log('❌ No GET route matched, subRoute:', `"${subRoute}"`);
       }
-    } else if (req.method === 'POST' && (path === '' || path === '/')) {
+    } else if (req.method === 'POST' && (subRoute === '' || subRoute === '/')) {
+      console.log('📤 POST request to main route');
       const data = await parseRequestBody<Omit<Sale, 'id' | 'created_at'>>(req);
       return await createSale(data, user.id);
-    } else if (req.method === 'PUT' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
-      const id = path.split('/')[1];
+    } else if (req.method === 'PUT' && subRoute.match(/^[a-zA-Z0-9-]+$/)) {
+      console.log('📝 PUT request to specific sale');
+      const id = subRoute;
       const data = await parseRequestBody<Partial<Omit<Sale, 'id' | 'created_at'>>>(req);
       return await updateSale(id, data);
-    } else if (req.method === 'DELETE' && path.match(/^\/[a-zA-Z0-9-]+$/)) {
-      const id = path.split('/')[1];
+    } else if (req.method === 'DELETE' && subRoute.match(/^[a-zA-Z0-9-]+$/)) {
+      console.log('🗑️ DELETE request to specific sale');
+      const id = subRoute;
       return await deleteSale(id);
     }
   } catch (error) {
-    console.error('Sales function error:', error);
+    console.error('💥 Sales function error:', error);
     return errorResponse(error);
   }
 
+  console.log('❌ No route matched, returning 405 Method Not Allowed');
   return methodNotAllowed();
 });
 
@@ -290,7 +355,9 @@ function validateSale(sale: Partial<Sale>): SaleValidation {
  */
 async function getSales(filters: SaleFilters): Promise<Response> {
   try {
+    console.log('getSales called with filters:', filters);
     const supabase = createServiceClient();
+    console.log('Service client created successfully');
     
     // Start with base query
     let query = supabase
@@ -302,29 +369,46 @@ async function getSales(filters: SaleFilters): Promise<Response> {
       `)
       .order("date", { ascending: false });
     
+    console.log('Base query created');
+    
     // Apply filters if provided
     if (filters.shiftId) {
+      console.log('Applying shift_id filter:', filters.shiftId);
       query = query.eq("shift_id", filters.shiftId);
     }
     
     if (filters.startDate) {
+      console.log('Applying start_date filter:', filters.startDate);
       query = query.gte("date", filters.startDate);
     }
     
     if (filters.endDate) {
+      console.log('Applying end_date filter:', filters.endDate);
       query = query.lte("date", filters.endDate);
     }
     
     if (filters.employee) {
+      console.log('Applying employee filter:', filters.employee);
       query = query.eq("employee_id", filters.employee);
     }
     
     // Execute the query
+    console.log('Executing query...');
     const { data, error } = await query;
 
-    if (error) throw error;
+    console.log('Query result - data:', data);
+    console.log('Query result - error:', error);
+    console.log('Query result - data length:', data?.length || 0);
 
-    return successResponse(data as SaleWithRelations[]);
+    if (error) {
+      console.error('Database error in getSales:', error);
+      throw error;
+    }
+
+    // Even if there's no data, return an empty array
+    const result = data as SaleWithRelations[] || [];
+    console.log('Returning success response with data length:', result.length);
+    return successResponse(result);
   } catch (error) {
     console.error('Error fetching sales:', error);
     return errorResponse(error);

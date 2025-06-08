@@ -15,38 +15,92 @@ export type FuelTank = Tank;
 // Fuel Supply Types
 export interface FuelSupply {
   id: string;
-  supplier_id: string;
-  fuel_type_id: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
   delivery_date: string;
-  invoice_number?: string;
-  notes?: string;
+  provider_id: string;
+  tank_id: string;
+  quantity_liters: number;
+  price_per_liter: number;
+  total_cost: number;
+  shift_id?: string;
+  comments?: string;
+  payment_method?: string;
+  payment_status?: string;
   created_at: string;
   updated_at: string;
+  
+  // Legacy joined properties
+  provider?: {
+    id: string;
+    name: string;
+  };
+  tank?: {
+    id: string;
+    name: string;
+    fuel_type: string | { name: string; id: string; code?: string };
+  };
+  shift?: {
+    id: string;
+    start_time: string;
+    end_time?: string;
+    employee_id?: string;
+    employees?: {
+      id: string;
+      name: string;
+      position: string;
+    };
+  };
+  
+  // New joined properties from edge function
+  petrol_providers?: {
+    id: string;
+    name: string;
+    contact?: string;
+  };
+  fuel_tanks?: {
+    id: string;
+    name: string;
+    fuel_types?: {
+      id: string;
+      name: string;
+      code: string;
+    };
+  };
+  shifts?: {
+    id: string;
+    start_time: string;
+    end_time?: string;
+    employees?: {
+      id: string;
+      name: string;
+      position: string;
+    };
+  };
 }
 
 export interface FuelSupplyCreate {
-  supplier_id: string;
-  fuel_type_id: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
   delivery_date: string;
-  invoice_number?: string;
-  notes?: string;
+  provider_id: string;
+  tank_id: string;
+  quantity_liters: number;
+  price_per_liter: number;
+  total_cost: number;
+  shift_id?: string;
+  comments?: string;
+  payment_method?: string;
+  payment_status?: string;
 }
 
 export interface FuelSupplyUpdate {
-  supplier_id?: string;
-  fuel_type_id?: string;
-  quantity?: number;
-  unit_price?: number;
-  total_price?: number;
   delivery_date?: string;
-  invoice_number?: string;
-  notes?: string;
+  provider_id?: string;
+  tank_id?: string;
+  quantity_liters?: number;
+  price_per_liter?: number;
+  total_cost?: number;
+  shift_id?: string;
+  comments?: string;
+  payment_method?: string;
+  payment_status?: string;
 }
 
 // Shift Types

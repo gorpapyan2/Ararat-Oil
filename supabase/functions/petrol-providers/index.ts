@@ -47,7 +47,91 @@ serve(async (req) => {
     if (userError) throw userError
 
     const url = new URL(req.url)
-    const path = url.pathname.split('/').pop()
+    const pathSegments = url.pathname.split('/').filter(Boolean)
+    const path = pathSegments[pathSegments.length - 1] // Get the last segment
+    const subPath = pathSegments.length > 2 ? pathSegments[pathSegments.length - 2] : null // Get second to last segment
+
+    // Handle base petrol-providers endpoint or specific sub-paths
+    if (path === 'petrol-providers' || subPath === 'petrol-providers') {
+      if (!user) throw new Error('Unauthorized')
+
+      if (req.method === 'GET') {
+        const filters: PetrolProviderFilters = {}
+        const searchParams = new URLSearchParams(url.search)
+        const searchQuery = searchParams.get('searchQuery')
+        if (searchQuery) filters.searchQuery = searchQuery
+
+        let query = supabaseClient
+          .from('petrol_providers')
+          .select('*')
+          .order('name')
+
+        if (filters.searchQuery) {
+          query = query.or(
+            `name.ilike.%${filters.searchQuery}%,contact_person.ilike.%${filters.searchQuery}%`
+          )
+        }
+
+        const { data, error } = await query
+
+        if (error) throw error
+
+        return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+
+      if (req.method === 'POST') {
+        const provider = await req.json()
+        const { data, error } = await supabaseClient
+          .from('petrol_providers')
+          .insert(provider)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 201,
+        })
+      }
+
+      if (req.method === 'PUT') {
+        const { id, ...updates } = await req.json()
+        const { data, error } = await supabaseClient
+          .from('petrol_providers')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+
+      if (req.method === 'DELETE') {
+        const { id } = await req.json()
+        const { error } = await supabaseClient
+          .from('petrol_providers')
+          .delete()
+          .eq('id', id)
+
+        if (error) throw error
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+
+      throw new Error('Method not allowed')
+    }
 
     switch (path) {
       case 'providers': {

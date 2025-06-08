@@ -39,61 +39,18 @@ interface FinanceModule {
   bgGradient: string;
   iconGradient: string;
   textColor: string;
+  disabled?: boolean;
 }
 
 const financeModules: FinanceModule[] = [
-  // Revenue & Income
+  // Active Finance Modules
   {
-    id: 'revenue-tracking',
-    title: 'Revenue Tracking',
-    description: 'Monitor income streams, sales performance, and revenue analytics in real-time.',
-    path: '/finance/revenue',
-    icon: TrendingUp,
-    category: 'Revenue & Income',
-    badge: 'Core',
-    stats: { count: '$2.4M', label: 'Total Revenue' },
-    color: 'border-green-500/30',
-    bgGradient: 'bg-gradient-to-br from-green-500/5 to-green-500/10',
-    iconGradient: 'from-green-500/80 to-green-500',
-    textColor: 'text-green-600'
-  },
-  {
-    id: 'cash-flow',
-    title: 'Cash Flow Management',
-    description: 'Monitor cash inflows and outflows, liquidity analysis, and working capital.',
-    path: '/finance/cash-flow',
-    icon: DollarSign,
-    category: 'Revenue & Income',
-    badge: 'Important',
-    stats: { count: '+$590K', label: 'Net Flow' },
-    color: 'border-emerald-500/30',
-    bgGradient: 'bg-gradient-to-br from-emerald-500/5 to-emerald-500/10',
-    iconGradient: 'from-emerald-500/80 to-emerald-500',
-    textColor: 'text-emerald-600'
-  },
-  {
-    id: 'profit-analysis',
-    title: 'Profit & Loss Analysis',
-    description: 'P&L statements, profit margin analysis, and profitability tracking.',
-    path: '/finance/pl-analysis',
-    icon: ChartPie,
-    category: 'Revenue & Income',
-    badge: 'Analytics',
-    stats: { count: '24.6%', label: 'Profit Margin' },
-    color: 'border-blue-500/30',
-    bgGradient: 'bg-gradient-to-br from-blue-500/5 to-blue-500/10',
-    iconGradient: 'from-blue-500/80 to-blue-500',
-    textColor: 'text-blue-600'
-  },
-
-  // Expenses & Payments
-  {
-    id: 'expense-tracking',
+    id: 'expense-management',
     title: 'Expense Management',
     description: 'Monitor and categorize business expenses, operational costs, and overhead.',
     path: '/finance/expenses',
     icon: TrendingDown,
-    category: 'Expenses & Payments',
+    category: 'Financial Management',
     badge: 'Core',
     stats: { count: '$1.8M', label: 'Total Expenses' },
     color: 'border-red-500/30',
@@ -102,133 +59,78 @@ const financeModules: FinanceModule[] = [
     textColor: 'text-red-600'
   },
   {
-    id: 'payment-processing',
-    title: 'Payment Processing',
-    description: 'Secure payment gateway integration and transaction management.',
-    path: '/finance/payments',
+    id: 'sales-management',
+    title: 'Sales Management',
+    description: 'Track and manage all your sales transactions, customer relationships, and sales performance.',
+    path: '/finance/sales',
+    icon: Receipt,
+    category: 'Financial Management',
+    badge: 'Core',
+    stats: { count: '$2.4M', label: 'Total Sales' },
+    color: 'border-green-500/30',
+    bgGradient: 'bg-gradient-to-br from-green-500/5 to-green-500/10',
+    iconGradient: 'from-green-500/80 to-green-500',
+    textColor: 'text-green-600'
+  },
+  {
+    id: 'revenue-tracking',
+    title: 'Revenue Tracking',
+    description: 'Monitor income streams, sales performance, and revenue analytics in real-time.',
+    path: '/finance/revenue',
+    icon: TrendingUp,
+    category: 'Financial Management',
+    badge: 'Core',
+    stats: { count: '$2.4M', label: 'Total Revenue' },
+    color: 'border-blue-500/30',
+    bgGradient: 'bg-gradient-to-br from-blue-500/5 to-blue-500/10',
+    iconGradient: 'from-blue-500/80 to-blue-500',
+    textColor: 'text-blue-600'
+  },
+  {
+    id: 'payment-methods',
+    title: 'Payment Methods',
+    description: 'Manage payment processing options, gateway integration, and transaction methods.',
+    path: '/finance/payment-methods',
     icon: CreditCard,
-    category: 'Expenses & Payments',
-    badge: 'New',
+    category: 'Financial Management',
+    badge: 'Core',
     stats: { count: '1,247', label: 'Transactions' },
     color: 'border-purple-500/30',
     bgGradient: 'bg-gradient-to-br from-purple-500/5 to-purple-500/10',
     iconGradient: 'from-purple-500/80 to-purple-500',
     textColor: 'text-purple-600'
   },
+
+  // Future Features - Disabled TBD
   {
-    id: 'accounts-receivable',
-    title: 'Accounts Receivable',
-    description: 'Customer payment tracking, aging reports, and collection management.',
-    path: '/finance/receivables',
+    id: 'profit-loss-analysis',
+    title: 'Profit & Loss Analysis',
+    description: 'P&L statements, profit margin analysis, and profitability tracking.',
+    path: '/finance/pl-analysis',
+    icon: ChartPie,
+    category: 'Future Features',
+    badge: 'TBD',
+    stats: { count: 'Coming Soon', label: 'Feature' },
+    color: 'border-gray-400/30',
+    bgGradient: 'bg-gradient-to-br from-gray-400/5 to-gray-400/10',
+    iconGradient: 'from-gray-400/60 to-gray-400',
+    textColor: 'text-gray-500',
+    disabled: true
+  },
+  {
+    id: 'debts-management',
+    title: 'Debts Management',
+    description: 'Track debts, payment schedules, and liability management.',
+    path: '/finance/debts',
     icon: Banknote,
-    category: 'Expenses & Payments',
-    stats: { count: '$420K', label: 'Outstanding' },
-    color: 'border-orange-500/30',
-    bgGradient: 'bg-gradient-to-br from-orange-500/5 to-orange-500/10',
-    iconGradient: 'from-orange-500/80 to-orange-500',
-    textColor: 'text-orange-600'
-  },
-
-  // Budgeting & Planning
-  {
-    id: 'budget-management',
-    title: 'Budget Management',
-    description: 'Create budgets, set limits, and monitor spending against targets.',
-    path: '/finance/budgets',
-    icon: Target,
-    category: 'Budgeting & Planning',
-    badge: 'Important',
-    stats: { count: '18 Budgets', label: 'Active' },
-    color: 'border-indigo-500/30',
-    bgGradient: 'bg-gradient-to-br from-indigo-500/5 to-indigo-500/10',
-    iconGradient: 'from-indigo-500/80 to-indigo-500',
-    textColor: 'text-indigo-600'
-  },
-  {
-    id: 'forecasting',
-    title: 'Financial Forecasting',
-    description: 'Predictive financial modeling, cash flow forecasting, and scenario planning.',
-    path: '/finance/forecasting',
-    icon: Activity,
-    category: 'Budgeting & Planning',
-    badge: 'New',
-    stats: { count: '12 Models', label: 'Scenarios' },
-    color: 'border-cyan-500/30',
-    bgGradient: 'bg-gradient-to-br from-cyan-500/5 to-cyan-500/10',
-    iconGradient: 'from-cyan-500/80 to-cyan-500',
-    textColor: 'text-cyan-600'
-  },
-  {
-    id: 'cost-analysis',
-    title: 'Cost Analysis',
-    description: 'Detailed cost breakdown, variance analysis, and optimization insights.',
-    path: '/finance/cost-analysis',
-    icon: Calculator,
-    category: 'Budgeting & Planning',
-    stats: { count: '8.3%', label: 'Cost Reduction' },
-    color: 'border-teal-500/30',
-    bgGradient: 'bg-gradient-to-br from-teal-500/5 to-teal-500/10',
-    iconGradient: 'from-teal-500/80 to-teal-500',
-    textColor: 'text-teal-600'
-  },
-
-  // Operations & Billing
-  {
-    id: 'invoicing',
-    title: 'Invoicing & Billing',
-    description: 'Create, send, and manage invoices with automated billing and payment tracking.',
-    path: '/finance/invoicing',
-    icon: Receipt,
-    category: 'Operations & Billing',
-    badge: 'Core',
-    stats: { count: '247', label: 'This Month' },
-    color: 'border-amber-500/30',
-    bgGradient: 'bg-gradient-to-br from-amber-500/5 to-amber-500/10',
-    iconGradient: 'from-amber-500/80 to-amber-500',
-    textColor: 'text-amber-600'
-  },
-  {
-    id: 'asset-management',
-    title: 'Asset Management',
-    description: 'Track fixed assets, depreciation schedules, and asset lifecycle management.',
-    path: '/finance/assets',
-    icon: Building,
-    category: 'Operations & Billing',
-    stats: { count: '$3.2M', label: 'Asset Value' },
-    color: 'border-slate-500/30',
-    bgGradient: 'bg-gradient-to-br from-slate-500/5 to-slate-500/10',
-    iconGradient: 'from-slate-500/80 to-slate-500',
-    textColor: 'text-slate-600'
-  },
-  {
-    id: 'bank-reconciliation',
-    title: 'Bank Reconciliation',
-    description: 'Automated bank statement reconciliation and transaction matching.',
-    path: '/finance/bank-reconciliation',
-    icon: Wallet,
-    category: 'Operations & Billing',
-    badge: 'Auto',
-    stats: { count: '99.8%', label: 'Match Rate' },
-    color: 'border-violet-500/30',
-    bgGradient: 'bg-gradient-to-br from-violet-500/5 to-violet-500/10',
-    iconGradient: 'from-violet-500/80 to-violet-500',
-    textColor: 'text-violet-600'
-  },
-
-  // Reports & Compliance
-  {
-    id: 'financial-reports',
-    title: 'Financial Reports',
-    description: 'Balance sheets, income statements, and comprehensive financial reporting.',
-    path: '/finance/reports',
-    icon: FileText,
-    category: 'Reports & Compliance',
-    badge: 'Analytics',
-    stats: { count: '45 Reports', label: 'Generated' },
-    color: 'border-gray-500/30',
-    bgGradient: 'bg-gradient-to-br from-gray-500/5 to-gray-500/10',
-    iconGradient: 'from-gray-500/80 to-gray-500',
-    textColor: 'text-gray-600'
+    category: 'Future Features',
+    badge: 'TBD',
+    stats: { count: 'Coming Soon', label: 'Feature' },
+    color: 'border-gray-400/30',
+    bgGradient: 'bg-gradient-to-br from-gray-400/5 to-gray-400/10',
+    iconGradient: 'from-gray-400/60 to-gray-400',
+    textColor: 'text-gray-500',
+    disabled: true
   },
   {
     id: 'tax-management',
@@ -236,27 +138,14 @@ const financeModules: FinanceModule[] = [
     description: 'Tax calculations, compliance tracking, and automated tax reporting.',
     path: '/finance/taxes',
     icon: Percent,
-    category: 'Reports & Compliance',
-    badge: 'Important',
-    stats: { count: '100%', label: 'Compliant' },
-    color: 'border-rose-500/30',
-    bgGradient: 'bg-gradient-to-br from-rose-500/5 to-rose-500/10',
-    iconGradient: 'from-rose-500/80 to-rose-500',
-    textColor: 'text-rose-600'
-  },
-  {
-    id: 'audit-trail',
-    title: 'Audit & Compliance',
-    description: 'Complete financial audit logs, compliance tracking, and regulatory reporting.',
-    path: '/finance/audit',
-    icon: Shield,
-    category: 'Reports & Compliance',
-    badge: 'Security',
-    stats: { count: 'All Clear', label: 'Audit Status' },
-    color: 'border-stone-500/30',
-    bgGradient: 'bg-gradient-to-br from-stone-500/5 to-stone-500/10',
-    iconGradient: 'from-stone-500/80 to-stone-500',
-    textColor: 'text-stone-600'
+    category: 'Future Features',
+    badge: 'TBD',
+    stats: { count: 'Coming Soon', label: 'Feature' },
+    color: 'border-gray-400/30',
+    bgGradient: 'bg-gradient-to-br from-gray-400/5 to-gray-400/10',
+    iconGradient: 'from-gray-400/60 to-gray-400',
+    textColor: 'text-gray-500',
+    disabled: true
   }
 ];
 
@@ -355,6 +244,7 @@ export function FinancePage() {
                   bgGradient={module.bgGradient}
                   iconGradient={module.iconGradient}
                   textColor={module.textColor}
+                  disabled={module.disabled}
                 />
               ))}
             </div>

@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { Employee } from "@/features/employees/types/employees.types";
 import { Control, FieldValues } from "react-hook-form";
 import { FormDialog } from "@/shared/components/common/dialog/FormDialog";
+import { toast } from "sonner";
 
 // Create a base schema type for export
 const baseEmployeeSchema = z.object({
@@ -91,9 +92,8 @@ function EmployeeDialogStandardized({
   const handleSubmit = async (data: EmployeeFormValues) => {
     try {
       const success = await onSubmit(data);
-
       if (success) {
-        sonnerToast.success(
+        toast.success(
           isEditing
             ? t("employees.updateSuccess", "Employee updated successfully")
             : t("employees.createSuccess", "Employee created successfully")
@@ -102,7 +102,7 @@ function EmployeeDialogStandardized({
       }
       return false;
     } catch (error) {
-      sonnerToast.error(t("employees.saveError", "Failed to save employee"));
+      toast.error(t("employees.saveError", "Failed to save employee"));
       return false;
     }
   };
@@ -133,7 +133,7 @@ function EmployeeDialogStandardized({
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              control={control as Control<FieldValues>}
+              control={control as unknown as Control<FieldValues>}
               name="first_name"
               render={({ field }) => (
                 <FormItem>
@@ -147,7 +147,7 @@ function EmployeeDialogStandardized({
             />
 
             <FormField
-              control={control as Control<FieldValues>}
+              control={control as unknown as Control<FieldValues>}
               name="last_name"
               render={({ field }) => (
                 <FormItem>
@@ -162,7 +162,7 @@ function EmployeeDialogStandardized({
           </div>
 
           <FormField
-            control={control as Control<FieldValues>}
+            control={control as unknown as Control<FieldValues>}
             name="position"
             render={({ field }) => (
               <FormItem>
@@ -176,7 +176,7 @@ function EmployeeDialogStandardized({
           />
 
           <FormField
-            control={control as Control<FieldValues>}
+            control={control as unknown as Control<FieldValues>}
             name="department"
             render={({ field }) => (
               <FormItem>
@@ -191,7 +191,7 @@ function EmployeeDialogStandardized({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              control={control as Control<FieldValues>}
+              control={control as unknown as Control<FieldValues>}
               name="hire_date"
               render={({ field }) => (
                 <FormItem>
@@ -205,7 +205,7 @@ function EmployeeDialogStandardized({
             />
 
             <FormField
-              control={control as Control<FieldValues>}
+              control={control as unknown as Control<FieldValues>}
               name="status"
               render={({ field }) => (
                 <FormItem>
@@ -234,7 +234,7 @@ function EmployeeDialogStandardized({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              control={control as Control<FieldValues>}
+              control={control as unknown as Control<FieldValues>}
               name="email"
               render={({ field }) => (
                 <FormItem>
@@ -248,7 +248,7 @@ function EmployeeDialogStandardized({
             />
 
             <FormField
-              control={control as Control<FieldValues>}
+              control={control as unknown as Control<FieldValues>}
               name="phone"
               render={({ field }) => (
                 <FormItem>
@@ -263,7 +263,7 @@ function EmployeeDialogStandardized({
           </div>
 
           <FormField
-            control={control as Control<FieldValues>}
+            control={control as unknown as Control<FieldValues>}
             name="notes"
             render={({ field }) => (
               <FormItem>

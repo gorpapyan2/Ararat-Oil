@@ -760,6 +760,319 @@
     @apply backdrop-blur-sm;
     -webkit-backdrop-filter: blur(8px);
   }
+  
+  /* === COMPACT CARD UTILITIES === */
+  
+  /* Compact metric cards for dashboard */
+  .metric-cards-compact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  /* Compact shift cards */
+  .shift-card-compact {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(var(--color-border));
+    background-color: rgb(var(--color-card));
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .shift-card-compact:hover {
+    box-shadow: 0 4px 6px -1px rgba(15 23 42 / 0.1), 0 2px 4px -2px rgba(15 23 42 / 0.1);
+    border-color: rgb(var(--color-accent) / 0.3);
+  }
+  
+  /* Compact grid layouts */
+  .compact-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .compact-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .compact-grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .compact-grid-4 {
+      grid-template-columns: 1fr;
+    }
+    
+    .compact-grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Compact text utilities */
+  .text-compact {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  
+  .text-compact-title {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+  }
+
+  /* === ENHANCED TABLE STYLES === */
+  
+  /* Professional Table Design */
+  .professional-table {
+    @apply w-full border-collapse;
+    border-spacing: 0;
+  }
+  
+  .professional-table thead th {
+    @apply bg-muted/30 text-muted-foreground font-medium text-xs uppercase tracking-wider;
+    @apply border-b border-border px-4 py-3 text-left;
+    letter-spacing: 0.05em;
+  }
+  
+  .professional-table tbody tr {
+    @apply border-b border-border/50 transition-colors hover:bg-muted/30;
+  }
+  
+  .professional-table tbody tr:last-child {
+    @apply border-b-0;
+  }
+  
+  .professional-table tbody td {
+    @apply px-4 py-4 text-sm;
+    vertical-align: top;
+  }
+  
+  /* Enhanced Filter Bar */
+  .filter-bar {
+    @apply bg-card border border-border rounded-lg overflow-hidden;
+  }
+  
+  .filter-row {
+    @apply flex items-center justify-between gap-4 p-4;
+  }
+  
+  .filter-row:not(:last-child) {
+    @apply border-b border-border;
+  }
+  
+  .filter-group {
+    @apply flex items-center gap-3;
+  }
+  
+  .filter-button {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 text-sm;
+    @apply bg-transparent border border-border rounded-md;
+    @apply hover:bg-muted/50 transition-colors;
+  }
+  
+  .filter-dropdown {
+    @apply min-w-[140px];
+  }
+  
+  .filter-dropdown .select-trigger {
+    @apply border-0 bg-transparent hover:bg-muted/50;
+  }
+  
+  /* Search Input Enhancement */
+  .search-input {
+    @apply relative max-w-sm;
+  }
+  
+  .search-input input {
+    @apply pl-10 bg-muted/30 border-border/50 rounded-md;
+    @apply focus:bg-card focus:border-accent/50;
+  }
+  
+  .search-icon {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2;
+    @apply h-4 w-4 text-muted-foreground;
+  }
+  
+  /* Table Container Enhancement */
+  .table-container {
+    @apply bg-card border border-border rounded-lg overflow-hidden;
+  }
+  
+  .table-header {
+    @apply p-4 border-b border-border bg-muted/20;
+  }
+  
+  .table-content {
+    @apply overflow-x-auto;
+  }
+  
+  /* Professional Badge Styles */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .status-badge.active {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .status-badge.closed {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  .dark .status-badge.active {
+    @apply bg-green-900/30 text-green-400;
+  }
+  
+  .dark .status-badge.closed {
+    @apply bg-gray-900/30 text-gray-400;
+  }
+  
+  /* Enhanced Data Cell Styling */
+  .data-cell {
+    @apply text-sm;
+  }
+  
+  .data-cell .primary-text {
+    @apply font-medium text-foreground;
+  }
+  
+  .data-cell .secondary-text {
+    @apply text-muted-foreground;
+  }
+  
+  .data-cell .currency {
+    @apply font-mono font-medium text-foreground;
+  }
+  
+  /* Column Alignment */
+  .col-left { @apply text-left; }
+  .col-center { @apply text-center; }
+  .col-right { @apply text-right; }
+  
+  /* Row Hover Effects */
+  .table-row {
+    @apply transition-all duration-150 ease-in-out;
+  }
+  
+  .table-row:hover {
+    @apply bg-muted/30;
+  }
+  
+  .table-row:hover .hover-reveal {
+    @apply opacity-100;
+  }
+  
+  .hover-reveal {
+    @apply opacity-0 transition-opacity duration-150;
+  }
+  
+  /* Professional Typography for Tables */
+  .table-title {
+    @apply font-semibold text-foreground text-base;
+  }
+  
+  .table-subtitle {
+    @apply text-sm text-muted-foreground;
+  }
+  
+  .table-meta {
+    @apply text-xs text-muted-foreground;
+  }
+  
+  /* Enhanced Action Buttons */
+  .action-button {
+    @apply inline-flex items-center justify-center;
+    @apply w-8 h-8 rounded-md;
+    @apply hover:bg-muted/50 transition-colors;
+    @apply text-muted-foreground hover:text-foreground;
+  }
+  
+  /* Filter Toggle Styling */
+  .filter-toggle {
+    @apply flex items-center gap-2 text-sm;
+  }
+  
+  .filter-toggle input[type="checkbox"] {
+    @apply w-4 h-4 rounded border-border;
+    @apply text-accent focus:ring-accent/20;
+  }
+  
+  /* Responsive Table Enhancements */
+  @media (max-width: 768px) {
+    .professional-table thead th {
+      @apply px-3 py-2 text-xs;
+    }
+    
+    .professional-table tbody td {
+      @apply px-3 py-3;
+    }
+    
+    .filter-row {
+      @apply flex-col gap-3 p-3;
+    }
+    
+    .filter-group {
+      @apply flex-wrap gap-2;
+    }
+    
+    .filter-dropdown {
+      @apply min-w-[120px];
+    }
+  }
+  
+  /* Dark Mode Table Adjustments */
+  .dark .professional-table thead th {
+    @apply bg-muted/40;
+  }
+  
+  .dark .professional-table tbody tr:hover {
+    @apply bg-muted/40;
+  }
+  
+  .dark .filter-bar {
+    @apply bg-card/95;
+  }
+  
+  .dark .table-container {
+    @apply bg-card/95;
+  }
+  
+  /* Table Loading States */
+  .table-loading {
+    @apply animate-pulse;
+  }
+  
+  .table-loading .skeleton-row {
+    @apply h-12 bg-muted/50 rounded mb-2;
+  }
+  
+  /* Professional Spacing */
+  .table-spacing-sm tbody td { @apply py-2; }
+  .table-spacing-md tbody td { @apply py-3; }
+  .table-spacing-lg tbody td { @apply py-4; }
+  
+  /* Column Width Utilities */
+  .col-w-xs { width: 4rem; }
+  .col-w-sm { width: 8rem; }
+  .col-w-md { width: 12rem; }
+  .col-w-lg { width: 16rem; }
+  .col-w-xl { width: 20rem; }
+  
+  /* Professional Form Controls in Tables */
+  .table-select {
+    @apply text-sm border-0 bg-transparent;
+    @apply focus:bg-muted/30 focus:ring-1 focus:ring-accent/50;
+  }
+  
+  .table-input {
+    @apply text-sm border-0 bg-transparent;
+    @apply focus:bg-muted/30 focus:ring-1 focus:ring-accent/50;
+  }
 }
 
 /* === BASE STYLES === */
