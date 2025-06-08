@@ -1,205 +1,164 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { logger } from "@/core/api";
-import { Toast } from "@/core/components/ui/toast";
-import { Theme, THEME_CONFIG } from "@/core/config";
 
-/**
- * Maximum number of toasts to display at once
- */
-const TOAST_LIMIT = 5;
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { logger } from '@/utils/errorHandling';
 
-/**
- * Storage key for persisting app state
- */
-const STORAGE_KEY = "ararat-oil-app-storage";
-
-/**
- * Application state interface
- */
-export interface AppState {
-  // Theme state
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-
-  // Toast notifications state
-  toasts: Toast[];
-  addToast: (toast: Toast) => void;
-  removeToast: (id: string) => void;
-  updateToast: (id: string, partialToast: Partial<Toast>) => void;
-  clearToasts: () => void;
-
-  // Sidebar state
-  sidebarCollapsed: boolean;
-  setSidebarCollapsed: (collapsed: boolean) => void;
-  mobileSidebarOpen: boolean;
-  setMobileSidebarOpen: (open: boolean) => void;
-
-  // Loading states
-  isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
-  loadingText: string | null;
-  setLoadingText: (text: string | null) => void;
+// Define proper Toast type interface
+export interface ToastType {
+  id: string;
+  title?: string;
+  description?: string;
+  variant?: 'default' | 'destructive' | 'success' | 'warning';
+  duration?: number;
 }
 
-/**
- * Application state store
- *
- * Manages global application state including:
- * - Theme preferences
- * - Toast notifications
- * - Sidebar state
- * - Loading states
- */
+interface AppState {
+  // UI State
+  sidebarCollapsed: boolean;
+  theme: 'light' | 'dark' | 'system';
+  language: string;
+  
+  // Toast State
+  toasts: ToastType[];
+  
+  // Loading States
+  isLoading: boolean;
+  loadingMessage?: string;
+  
+  // Error States
+  error: string | null;
+  
+  // User Preferences
+  preferences: {
+    compactMode: boolean;
+    showTutorials: boolean;
+    autoSave: boolean;
+  };
+  
+  // Actions
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  setLanguage: (language: string) => void;
+  addToast: (toast: Omit<ToastType, 'id'>) => void;
+  removeToast: (id: string) => void;
+  clearToasts: () => void;
+  setLoading: (loading: boolean, message?: string) => void;
+  setError: (error: string | null) => void;
+  updatePreferences: (preferences: Partial<AppState['preferences']>) => void;
+  reset: () => void;
+}
+
+const initialState = {
+  sidebarCollapsed: false,
+  theme: 'system' as const,
+  language: 'hy',
+  toasts: [],
+  isLoading: false,
+  loadingMessage: undefined,
+  error: null,
+  preferences: {
+    compactMode: false,
+    showTutorials: true,
+    autoSave: true,
+  },
+};
+
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
-      // Theme state
-      theme: THEME_CONFIG.DEFAULT_THEME,
-      setTheme: (theme) => {
-        set({ theme });
-
-        // Apply the theme to the document
-        if (theme === "system") {
-          const systemTheme = window.matchMedia(
-            THEME_CONFIG.SYSTEM_DARK_MODE_QUERY
-          ).matches
-            ? THEME_CONFIG.THEME_CLASSES.DARK
-            : THEME_CONFIG.THEME_CLASSES.LIGHT;
-          document.documentElement.className = systemTheme;
-        } else {
-          document.documentElement.className = theme;
-        }
-
-        logger.trackAction("changed_theme", { theme });
+    (set, get) => ({
+      ...initialState,
+      
+      setSidebarCollapsed: (collapsed: boolean) => {
+        logger.info('Sidebar collapsed state changed', { collapsed });
+        set({ sidebarCollapsed: collapsed });
       },
-
-      // Toast notifications state
-      toasts: [],
-      addToast: (toast) => {
+      
+      setTheme: (theme: 'light' | 'dark' | 'system') => {
+        logger.info('Theme changed', { theme });
+        set({ theme });
+      },
+      
+      setLanguage: (language: string) => {
+        logger.info('Language changed', { language });
+        set({ language });
+      },
+      
+      addToast: (toast: Omit<ToastType, 'id'>) => {
+        const id = Math.random().toString(36).substr(2, 9);
+        const newToast: ToastType = { ...toast, id };
+        
         set((state) => ({
-          // Add the toast to the beginning of the array and limit the total number
-          toasts: [toast, ...state.toasts].slice(0, TOAST_LIMIT),
+          toasts: [...state.toasts, newToast]
+        }));
+        
+        // Auto-remove toast after duration
+        if (toast.duration !== 0) {
+          const duration = toast.duration || 5000;
+          setTimeout(() => {
+            get().removeToast(id);
+          }, duration);
+        }
+      },
+      
+      removeToast: (id: string) => {
+        set((state) => ({
+          toasts: state.toasts.filter((toast) => toast.id !== id)
         }));
       },
-      removeToast: (id) =>
+      
+      clearToasts: () => {
+        set({ toasts: [] });
+      },
+      
+      setLoading: (loading: boolean, message?: string) => {
+        set({ isLoading: loading, loadingMessage: message });
+      },
+      
+      setError: (error: string | null) => {
+        logger.error('App error set', { error });
+        set({ error });
+      },
+      
+      updatePreferences: (newPreferences: Partial<AppState['preferences']>) => {
         set((state) => ({
-          toasts: state.toasts.filter((toast) => toast.id !== id),
-        })),
-      updateToast: (id, partialToast) =>
-        set((state) => ({
-          toasts: state.toasts.map((toast) =>
-            toast.id === id ? { ...toast, ...partialToast } : toast
-          ),
-        })),
-      clearToasts: () => set({ toasts: [] }),
-
-      // Sidebar state
-      sidebarCollapsed: false,
-      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
-      mobileSidebarOpen: false,
-      setMobileSidebarOpen: (open) => set({ mobileSidebarOpen: open }),
-
-      // Loading states
-      isLoading: false,
-      setIsLoading: (loading) => set({ isLoading: loading }),
-      loadingText: null,
-      setLoadingText: (text) => set({ loadingText: text }),
+          preferences: { ...state.preferences, ...newPreferences }
+        }));
+      },
+      
+      reset: () => {
+        logger.info('App store reset');
+        set(initialState);
+      },
     }),
     {
-      name: STORAGE_KEY,
+      name: 'app-store',
       partialize: (state) => ({
-        theme: state.theme,
         sidebarCollapsed: state.sidebarCollapsed,
+        theme: state.theme,
+        language: state.language,
+        preferences: state.preferences,
       }),
     }
   )
 );
 
-/**
- * Type-safe selectors for app state
- */
+// Selectors for common use cases
+export const useAppTheme = () => useAppStore((state) => state.theme);
+export const useAppLanguage = () => useAppStore((state) => state.language);
+export const useAppLoading = () => useAppStore((state) => ({ 
+  isLoading: state.isLoading, 
+  message: state.loadingMessage 
+}));
+export const useAppError = () => useAppStore((state) => state.error);
+export const useAppPreferences = () => useAppStore((state) => state.preferences);
+export const useSidebarCollapsed = () => useAppStore((state) => state.sidebarCollapsed);
 
-/**
- * Select current theme
- */
-export const selectTheme = (state: AppState): Theme => state.theme;
-
-/**
- * Select current toasts
- */
-export const selectToasts = (state: AppState): Toast[] => state.toasts;
-
-/**
- * Select sidebar collapsed state
- */
-export const selectSidebarCollapsed = (state: AppState): boolean =>
-  state.sidebarCollapsed;
-
-/**
- * Select mobile sidebar open state
- */
-export const selectMobileSidebarOpen = (state: AppState): boolean =>
-  state.mobileSidebarOpen;
-
-/**
- * Select loading state
- */
-export const selectIsLoading = (state: AppState): boolean => state.isLoading;
-
-/**
- * Select loading text
- */
-export const selectLoadingText = (state: AppState): string | null =>
-  state.loadingText;
-
-/**
- * Initialize theme listener to respond to system theme changes
- *
- * @returns Cleanup function to remove event listeners
- */
-export const initThemeListener = () => {
-  // Get the current theme from storage or use system default
-  const storedTheme = localStorage.getItem(STORAGE_KEY);
-  let initialTheme: Theme = THEME_CONFIG.DEFAULT_THEME;
-
-  if (storedTheme) {
-    try {
-      const parsedState = JSON.parse(storedTheme);
-      if (parsedState.state && parsedState.state.theme) {
-        initialTheme = parsedState.state.theme as Theme;
-      }
-    } catch (e) {
-      console.error("Failed to parse stored theme", e);
-    }
-  }
-
-  // Apply the initial theme
-  if (initialTheme === "system") {
-    const systemTheme = window.matchMedia(THEME_CONFIG.SYSTEM_DARK_MODE_QUERY)
-      .matches
-      ? THEME_CONFIG.THEME_CLASSES.DARK
-      : THEME_CONFIG.THEME_CLASSES.LIGHT;
-    document.documentElement.className = systemTheme;
-
-    // Set up listener for system theme changes
-    const mediaQuery = window.matchMedia(THEME_CONFIG.SYSTEM_DARK_MODE_QUERY);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      const newTheme = e.matches
-        ? THEME_CONFIG.THEME_CLASSES.DARK
-        : THEME_CONFIG.THEME_CLASSES.LIGHT;
-      document.documentElement.className = newTheme;
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-
-    // Return cleanup function
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  } else {
-    // Apply saved theme
-    document.documentElement.className = initialTheme;
-  }
-
-  return () => {}; // No cleanup needed for non-system themes
+// Toast hook for easier usage
+export const useToastStore = () => {
+  const toasts = useAppStore((state) => state.toasts);
+  const addToast = useAppStore((state) => state.addToast);
+  const removeToast = useAppStore((state) => state.removeToast);
+  const clearToasts = useAppStore((state) => state.clearToasts);
+  
+  return { toasts, addToast, removeToast, clearToasts };
 };

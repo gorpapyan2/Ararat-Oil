@@ -44,4 +44,4 @@ export * from "./enhanced/loading-states";
 
 // Specialized components
 export * from "./currency-input";
-export { LoadingSpinner } from "./loading";
+export * from "./composed/loading";

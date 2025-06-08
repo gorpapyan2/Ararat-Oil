@@ -1,414 +1,235 @@
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
 
-type LogLevel = "debug" | "info" | "warn" | "error";
+import { v4 as uuidv4 } from 'uuid';
 
-interface LogMessage {
-  id: string;
-  timestamp: string;
-  level: LogLevel;
-  message: string;
-  details?: unknown;
-  componentStack?: string;
+interface LogLevel {
+  ERROR: 'error';
+  WARN: 'warn';
+  INFO: 'info';
+  DEBUG: 'debug';
 }
 
-// Common React error patterns to filter out from console if desired
-const COMMON_REACT_ERRORS = [
-  // React 18 Strict Mode double mounting warnings
-  /Warning: ReactDOM.render is no longer supported in React 18/,
-  /Warning: findDOMNode is deprecated in StrictMode/,
-  /Warning: Cannot update a component .* while rendering a different component/,
-  // useLayoutEffect SSR warning
-  /Warning: useLayoutEffect does nothing on the server/,
-  // Suspense fallback warnings
-  /Warning: Did not expect server HTML to contain a/,
-  // React Router warnings
-  /No routes matched location/,
-  // React-Query related warnings
-  /Warning: An unhandled error was caught from submitForm/,
-  // Material-UI / Styled Components
-  /Warning: Prop .* did not match/,
-  // Invalid DOM nesting
-  /Warning: validateDOMNesting/,
-];
+const LOG_LEVELS: LogLevel = {
+  ERROR: 'error',
+  WARN: 'warn',
+  INFO: 'info',
+  DEBUG: 'debug',
+};
 
 class Logger {
-  private logs: LogMessage[] = [];
-  private maxLogs: number = 100;
-  private consoleEnabled: boolean = true;
-  private filterPatterns: RegExp[] = [];
+  private isDevelopment = import.meta.env.DEV;
+
+  error(message: string, error?: Error | unknown, context?: Record<string, unknown>) {
+    console.error(message, { error, context });
+    
+    // In production, you might want to send to an error tracking service
+    if (!this.isDevelopment) {
+      // Send to error tracking service like Sentry
+    }
+  }
+
+  warn(message: string, context?: Record<string, unknown>) {
+    console.warn(message, context);
+  }
+
+  info(message: string, context?: Record<string, unknown>) {
+    if (this.isDevelopment) {
+      console.info(message, context);
+    }
+  }
+
+  debug(message: string, context?: Record<string, unknown>) {
+    if (this.isDevelopment) {
+      console.debug(message, context);
+    }
+  }
+
+  trackAction(action: string, data?: Record<string, unknown>) {
+    if (this.isDevelopment) {
+      console.info(`[ACTION] ${action}`, data);
+    }
+  }
+}
+
+export const logger = new Logger();
+
+export function handleAsyncError(error: unknown, context?: string) {
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  logger.error(`Async error${context ? ` in ${context}` : ''}:`, error);
+  return errorMessage;
+}
+
+export function withErrorBoundary<T extends (...args: any[]) => any>(
+  fn: T,
+  context?: string
+): T {
+  return ((...args: Parameters<T>) => {
+    try {
+      const result = fn(...args);
+      
+      // Handle async functions
+      if (result instanceof Promise) {
+        return result.catch((error) => {
+          handleAsyncError(error, context);
+          throw error;
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      handleAsyncError(error, context);
+      throw error;
+    }
+  }) as T;
+}
+
+// Error tracking utilities
+export interface ErrorReport {
+  id: string;
+  timestamp: Date;
+  message: string;
+  stack?: string;
+  context?: Record<string, unknown>;
+  userId?: string;
+  sessionId: string;
+}
+
+class ErrorTracker {
+  private reports: ErrorReport[] = [];
+  private sessionId: string;
 
   constructor() {
-    this.setupConsoleOverrides();
+    this.sessionId = uuidv4();
   }
 
-  /**
-   * Enable or disable console logging (errors will still be tracked internally)
-   */
-  public enableConsole(enabled: boolean): void {
-    this.consoleEnabled = enabled;
-  }
-
-  /**
-   * Add filters to suppress specific console errors that match patterns
-   */
-  public addFilters(patterns: RegExp[]): void {
-    this.filterPatterns = [...this.filterPatterns, ...patterns];
-  }
-
-  /**
-   * Remove all filters
-   */
-  public clearFilters(): void {
-    this.filterPatterns = [];
-  }
-
-  /**
-   * Enable filtering of common React warnings/errors
-   */
-  public filterReactWarnings(enable: boolean): void {
-    if (enable) {
-      this.addFilters(COMMON_REACT_ERRORS);
-    } else {
-      this.clearFilters();
-    }
-  }
-
-  /**
-   * Log a debug message
-   */
-  public debug(message: string, details?: unknown): string {
-    return this.log("debug", message, details);
-  }
-
-  /**
-   * Log an info message
-   */
-  public info(message: string, details?: unknown): string {
-    return this.log("info", message, details);
-  }
-
-  /**
-   * Log a warning message
-   */
-  public warn(message: string, details?: unknown): string {
-    return this.log("warn", message, details);
-  }
-
-  /**
-   * Log an error message
-   */
-  public error(message: string, details?: unknown): string {
-    return this.log("error", message, details);
-  }
-
-  /**
-   * Get all logs (for debugging or displaying in a log viewer)
-   */
-  public getLogs(): LogMessage[] {
-    return [...this.logs];
-  }
-
-  /**
-   * Clear all stored logs
-   */
-  public clearLogs(): void {
-    this.logs = [];
-  }
-
-  /**
-   * Get logs of a specific level
-   */
-  public getLogsByLevel(level: LogLevel): LogMessage[] {
-    return this.logs.filter((log) => log.level === level);
-  }
-
-  /**
-   * Internal log method
-   */
-  private log(level: LogLevel, message: string, details?: unknown): string {
+  track(error: Error | string, context?: Record<string, unknown>, userId?: string): string {
     const id = uuidv4();
-    const timestamp = new Date().toISOString();
+    const report: ErrorReport = {
+      id,
+      timestamp: new Date(),
+      message: typeof error === 'string' ? error : error.message,
+      stack: typeof error === 'object' && error.stack ? error.stack : undefined,
+      context,
+      userId,
+      sessionId: this.sessionId,
+    };
 
-    // Check if this error should be filtered
-    if (level === "error" || level === "warn") {
-      const messageString = String(message);
-      if (this.shouldFilterError(messageString)) {
-        // Still track internally but don't console log
-        const logEntry: LogMessage = { id, timestamp, level, message, details };
-        this.addLogEntry(logEntry);
-        return id;
-      }
+    this.reports.push(report);
+    logger.error('Error tracked', report);
+
+    // In production, send to error tracking service
+    if (!import.meta.env.DEV) {
+      this.sendToErrorService(report);
     }
-
-    // Log to console if enabled
-    if (this.consoleEnabled) {
-      if (level === "debug") console.debug(message, details ?? "");
-      if (level === "info") console.info(message, details ?? "");
-      if (level === "warn") console.warn(message, details ?? "");
-      if (level === "error") console.error(message, details ?? "");
-    }
-
-    // Track internally
-    const logEntry: LogMessage = { id, timestamp, level, message, details };
-    this.addLogEntry(logEntry);
 
     return id;
   }
 
-  /**
-   * Add log entry to internal storage with limit
-   */
-  private addLogEntry(entry: LogMessage): void {
-    this.logs.push(entry);
-
-    // Remove oldest logs if exceeding max
-    if (this.logs.length > this.maxLogs) {
-      this.logs = this.logs.slice(-this.maxLogs);
-    }
+  private sendToErrorService(report: ErrorReport) {
+    // Implementation for sending to error tracking service (e.g., Sentry)
+    console.info('Would send error report to service:', report);
   }
 
-  /**
-   * Check if an error message should be filtered
-   */
-  private shouldFilterError(message: string): boolean {
-    return this.filterPatterns.some((pattern) => pattern.test(message));
+  getReports(): ErrorReport[] {
+    return [...this.reports];
   }
 
-  /**
-   * Override console methods to track all console output
-   */
-  private setupConsoleOverrides(): void {
-    const originalConsoleError = console.error;
-    const originalConsoleWarn = console.warn;
+  clearReports(): void {
+    this.reports = [];
+  }
+}
 
-    // Override console.error
-    console.error = (...args: unknown[]) => {
-      const message = args[0]?.toString() || "Error";
-      const details = args.length > 1 ? args.slice(1) : undefined;
+export const errorTracker = new ErrorTracker();
 
-      // Check if this error should be filtered
-      if (this.shouldFilterError(message)) {
-        // Still track internally but don't console log
-        const id = uuidv4();
-        const timestamp = new Date().toISOString();
-        const logEntry: LogMessage = {
-          id,
-          timestamp,
-          level: "error",
-          message,
-          details,
+// Global error handler
+export function setupGlobalErrorHandling() {
+  window.addEventListener('error', (event) => {
+    errorTracker.track(event.error || event.message, {
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    });
+  });
+
+  window.addEventListener('unhandledrejection', (event) => {
+    const error = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
+    errorTracker.track(error, { type: 'unhandled_promise_rejection' });
+  });
+}
+
+// Enhanced error boundary utilities
+export interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+  errorId?: string;
+}
+
+export function createErrorBoundaryReducer() {
+  return (state: ErrorBoundaryState, action: { type: 'ERROR' | 'RESET'; error?: Error }): ErrorBoundaryState => {
+    switch (action.type) {
+      case 'ERROR':
+        const errorId = action.error ? errorTracker.track(action.error) : uuidv4();
+        return {
+          hasError: true,
+          error: action.error,
+          errorId,
         };
-        this.addLogEntry(logEntry);
-        return;
-      }
-
-      // Call original console.error
-      if (this.consoleEnabled) {
-        originalConsoleError.apply(console, args);
-      }
-
-      // Track internally - without calling console.error again
-      const id = uuidv4();
-      const timestamp = new Date().toISOString();
-      const logEntry: LogMessage = {
-        id,
-        timestamp,
-        level: "error",
-        message,
-        details,
-      };
-      this.addLogEntry(logEntry);
-    };
-
-    // Override console.warn
-    console.warn = (...args: unknown[]) => {
-      const message = args[0]?.toString() || "Warning";
-      const details = args.length > 1 ? args.slice(1) : undefined;
-
-      // Check if this warning should be filtered
-      if (this.shouldFilterError(message)) {
-        // Still track internally but don't console log
-        const id = uuidv4();
-        const timestamp = new Date().toISOString();
-        const logEntry: LogMessage = {
-          id,
-          timestamp,
-          level: "warn",
-          message,
-          details,
+      case 'RESET':
+        return {
+          hasError: false,
+          error: undefined,
+          errorId: undefined,
         };
-        this.addLogEntry(logEntry);
-        return;
-      }
-
-      // Call original console.warn
-      if (this.consoleEnabled) {
-        originalConsoleWarn.apply(console, args);
-      }
-
-      // Track internally - without calling console.warn again
-      const id = uuidv4();
-      const timestamp = new Date().toISOString();
-      const logEntry: LogMessage = {
-        id,
-        timestamp,
-        level: "warn",
-        message,
-        details,
-      };
-      this.addLogEntry(logEntry);
-    };
-  }
-}
-
-// Create a singleton instance
-export const logger = new Logger();
-
-// By default, filter common React warnings in production
-if (process.env.NODE_ENV === "production") {
-  logger.filterReactWarnings(true);
-}
-
-/**
- * Format an error for display/logging
- */
-export function formatError(error: unknown): string {
-  if (error instanceof Error) {
-    return `${error.name}: ${error.message}`;
-  }
-  return String(error);
-}
-
-/**
- * Create a standardized error object with additional metadata
- */
-export function createAppError(
-  message: string,
-  options?: {
-    cause?: Error | unknown;
-    code?: string;
-    context?: Record<string, unknown>;
-  }
-): Error {
-  const error = new Error(message);
-
-  if (options?.cause) {
-    (error as Error & { cause?: unknown }).cause = options.cause;
-  }
-
-  if (options?.code) {
-    (error as Error & { code?: string }).code = options.code;
-  }
-
-  if (options?.context) {
-    (error as Error & { context?: Record<string, unknown> }).context = options.context;
-  }
-
-  return error;
-}
-
-/**
- * Wrap an async function with error handling
- */
-export async function withErrorHandling<T>(
-  fn: () => Promise<T>,
-  errorHandler?: (error: Error) => void
-): Promise<T | undefined> {
-  try {
-    return await fn();
-  } catch (error) {
-    const formattedError =
-      error instanceof Error ? error : new Error(String(error));
-    logger.error("Caught error in withErrorHandling", formattedError);
-
-    if (errorHandler) {
-      errorHandler(formattedError);
+      default:
+        return state;
     }
-
-    return undefined;
-  }
-}
-
-/**
- * A hook that automatically clears the console on route changes
- * to prevent console flooding during navigation
- */
-export function useClearConsoleOnNavigation() {
-  const location = useLocation();
-
-  useEffect(() => {
-    return () => {
-      if (process.env.NODE_ENV === "development") {
-        // Only clear in development to avoid affecting production debugging
-        console.clear();
-      }
-    };
-  }, [location.pathname]);
-}
-
-/**
- * Utility to detect and report circular dependencies
- * This helps identify problematic import cycles that can cause issues
- */
-export function detectCircularDependencies() {
-  if (process.env.NODE_ENV === "development") {
-    const loadedModules = new Set<string>();
-    const moduleStack: string[] = [];
-
-    // This is a simplistic check and would need to be expanded
-    // to be more effective in a real implementation
-    return function trackModule(moduleName: string) {
-      if (moduleStack.includes(moduleName)) {
-        console.warn(
-          `[CIRCULAR DEPENDENCY] Detected cycle: ${moduleStack.join(" -> ")} -> ${moduleName}`
-        );
-      }
-
-      moduleStack.push(moduleName);
-      loadedModules.add(moduleName);
-
-      return () => {
-        moduleStack.pop();
-      };
-    };
-  }
-
-  return () => () => {};
-}
-
-/**
- * Handles cleanup for React component effects to prevent memory leaks
- * @param cleanup The cleanup function to be executed
- */
-export function createSafeEffectCleanup(cleanup: () => void) {
-  let isMounted = true;
-
-  return () => {
-    if (isMounted) {
-      cleanup();
-    }
-    isMounted = false;
   };
 }
 
-/**
- * Monitor React renders to help identify components that are rendering too frequently
- * @param componentName The name of the component to monitor
- */
-export function monitorRenders(componentName: string) {
-  if (process.env.NODE_ENV === "development") {
-    const renderCount = { count: 0 };
+// Performance monitoring
+export class PerformanceMonitor {
+  private measurements: Record<string, number> = {};
 
-    return () => {
-      renderCount.count++;
-      if (renderCount.count > 5) {
-        console.warn(
-          `[PERFORMANCE] Component "${componentName}" has rendered ${renderCount.count} times`
-        );
-      }
-    };
+  start(label: string): void {
+    this.measurements[label] = performance.now();
   }
 
-  return () => {};
+  end(label: string): number {
+    const startTime = this.measurements[label];
+    if (startTime === undefined) {
+      logger.warn(`Performance measurement '${label}' was not started`);
+      return 0;
+    }
+
+    const duration = performance.now() - startTime;
+    delete this.measurements[label];
+    
+    logger.debug(`Performance: ${label} took ${duration.toFixed(2)}ms`);
+    return duration;
+  }
+
+  measure<T>(label: string, fn: () => T): T {
+    this.start(label);
+    try {
+      const result = fn();
+      this.end(label);
+      return result;
+    } catch (error) {
+      this.end(label);
+      throw error;
+    }
+  }
+
+  async measureAsync<T>(label: string, fn: () => Promise<T>): Promise<T> {
+    this.start(label);
+    try {
+      const result = await fn();
+      this.end(label);
+      return result;
+    } catch (error) {
+      this.end(label);
+      throw error;
+    }
+  }
 }
+
+export const performanceMonitor = new PerformanceMonitor();

@@ -1,3 +1,4 @@
+
 import {
   salesApi,
   expensesApi,
@@ -26,7 +27,7 @@ export const fetchDashboardData = async (): Promise<DashboardData> => {
     const expenses: Expense[] = expensesResponse.data || [];
     const tanks: Tank[] = tanksResponse.data || [];
 
-    // Calculate totals
+    // Calculate basic totals
     const totalSales = sales.reduce((sum, sale) => sum + (sale.total_price || 0), 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
     const netProfit = totalSales - totalExpenses;
@@ -37,6 +38,24 @@ export const fetchDashboardData = async (): Promise<DashboardData> => {
       return sum + (tank.current_level * defaultPricePerLiter);
     }, 0);
 
+    // Calculate additional derived properties
+    const revenue = totalSales;
+    const profit = netProfit;
+    const fuelSold = sales.reduce((sum, sale) => sum + (sale.quantity || 0), 0);
+    const totalLitersSold = fuelSold;
+    const totalRevenue = revenue;
+    const efficiencyRatio = totalExpenses > 0 ? (totalRevenue / totalExpenses) : 0;
+
+    // Mock percentage changes (in a real app, you'd compare with previous period)
+    const revenuePercentChange = 12.5;
+    const fuelSoldPercentChange = 8.3;
+    const expensesPercentChange = -5.2;
+    const profitPercentChange = 15.7;
+    const revenueChange = revenuePercentChange;
+    const salesVolumeChange = fuelSoldPercentChange;
+    const expensesChange = expensesPercentChange;
+    const efficiencyChange = 3.2;
+
     return {
       sales,
       expenses,
@@ -44,10 +63,78 @@ export const fetchDashboardData = async (): Promise<DashboardData> => {
       totalSales,
       totalExpenses,
       netProfit,
-      inventoryValue
+      inventoryValue,
+      revenue,
+      revenuePercentChange,
+      fuelSold,
+      fuelSoldPercentChange,
+      expensesPercentChange,
+      profit,
+      profitPercentChange,
+      totalRevenue,
+      revenueChange,
+      totalLitersSold,
+      salesVolumeChange,
+      expensesChange,
+      efficiencyRatio,
+      efficiencyChange
     };
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
+    throw error;
+  }
+};
+
+// Export as getDashboardData for backward compatibility
+export const getDashboardData = fetchDashboardData;
+
+// Mock functions for other dashboard services
+export const getFuelLevels = async (): Promise<Record<string, number>> => {
+  try {
+    const tanksResponse = await tanksApi.getTanks();
+    const tanks = tanksResponse.data || [];
+    
+    return tanks.reduce((levels, tank) => {
+      levels[tank.id] = (tank.current_level / tank.capacity) * 100;
+      return levels;
+    }, {} as Record<string, number>);
+  } catch (error) {
+    console.error('Error fetching fuel levels:', error);
+    return {};
+  }
+};
+
+export const getSalesSummary = async (timeframe: string = 'day') => {
+  try {
+    const salesResponse = await salesApi.getSales();
+    const sales = salesResponse.data || [];
+    
+    const totalSales = sales.reduce((sum, sale) => sum + (sale.total_price || 0), 0);
+    const totalVolume = sales.reduce((sum, sale) => sum + (sale.quantity || 0), 0);
+    const averageSale = sales.length > 0 ? totalSales / sales.length : 0;
+    
+    return {
+      total_sales: totalSales,
+      totalVolume,
+      averageSale,
+      sales
+    };
+  } catch (error) {
+    console.error('Error fetching sales summary:', error);
+    return {
+      total_sales: 0,
+      totalVolume: 0,
+      averageSale: 0,
+      sales: []
+    };
+  }
+};
+
+export const getFinancialDashboard = async () => {
+  try {
+    return await fetchDashboardData();
+  } catch (error) {
+    console.error('Error fetching financial dashboard:', error);
     throw error;
   }
 };
