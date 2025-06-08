@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 
 /**
@@ -52,19 +53,6 @@ export const slugSchema = z
 // Utility functions
 /**
  * Creates a schema for a field that must match another field
- *
- * @param schema The base schema
- * @param matchField The field to match against
- * @param message The error message
- * @returns A refined schema that validates matches
- *
- * @example
- * ```tsx
- * const formSchema = z.object({
- *   password: passwordSchema,
- *   confirmPassword: matchField(passwordSchema, "password", "Passwords must match")
- * });
- * ```
  */
 export function matchField<T extends z.ZodType>(
   schema: T,
@@ -81,23 +69,6 @@ export function matchField<T extends z.ZodType>(
 
 /**
  * Creates a schema for conditional validation
- *
- * @param condition The condition function
- * @param thenSchema The schema to use if condition is true
- * @param elseSchema The schema to use if condition is false
- * @returns A schema that conditionally validates
- *
- * @example
- * ```tsx
- * const formSchema = z.object({
- *   hasDiscount: z.boolean(),
- *   discountAmount: conditionalSchema(
- *     (data) => data.hasDiscount,
- *     z.number().min(1),
- *     z.number().optional()
- *   )
- * });
- * ```
  */
 export function conditionalSchema<T>(
   condition: (data: Record<string, unknown>) => boolean,

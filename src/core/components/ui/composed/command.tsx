@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Search, Loader2 } from "lucide-react";
 
@@ -29,7 +30,12 @@ const Command = React.forwardRef<
 
 Command.displayName = CommandPrimitive.displayName || "Command";
 
-interface CommandDialogProps extends DialogProps {
+interface CommandDialogProps {
+  children: React.ReactNode;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  modal?: boolean;
   commandDialogTitle?: string;
 }
 

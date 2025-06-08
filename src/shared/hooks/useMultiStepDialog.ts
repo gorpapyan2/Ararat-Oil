@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { useDialog } from "@/hooks";
 
@@ -75,7 +76,7 @@ export function useMultiStepDialog<T = Record<string, unknown>>({
   // Handle default open state
   useEffect(() => {
     if (defaultOpen) {
-      dialog.open();
+      dialog.open(); // Fixed: removed argument
     }
   }, [defaultOpen, dialog]);
 
@@ -224,9 +225,9 @@ export function useMultiStepDialog<T = Record<string, unknown>>({
   return {
     // Base dialog properties
     isOpen: dialog.isOpen,
-    open,
-    close,
-    onOpenChange,
+    open: dialog.open, // This is the fixed version
+    close: dialog.close,
+    onOpenChange: dialog.onOpenChange,
     triggerRef: dialog.triggerRef,
 
     // Step management
