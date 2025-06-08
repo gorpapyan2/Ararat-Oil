@@ -1,3 +1,4 @@
+
 import type { AuthUser, AuthRole, AuthError } from "../types/auth.types";
 
 export function isAuthenticated(user: AuthUser | null): boolean {
@@ -31,7 +32,7 @@ export function hasPermission(
   return user.permissions.includes(permission);
 }
 
-export function formatAuthError(error: AuthError): string {
+export function formatAuthError(error: AuthError | Error): string {
   if (error.message.includes("Invalid login credentials")) {
     return "Invalid email or password";
   }

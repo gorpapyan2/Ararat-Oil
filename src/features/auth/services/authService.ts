@@ -1,3 +1,4 @@
+
 import { supabase } from "@/core/api";
 import type {
   AuthResponse,
@@ -48,7 +49,9 @@ export const authService = {
         password: credentials.password,
         options: {
           data: {
-            full_name: credentials.fullName,
+            full_name: `${credentials.firstName} ${credentials.lastName}`,
+            first_name: credentials.firstName,
+            last_name: credentials.lastName,
           },
         },
       });

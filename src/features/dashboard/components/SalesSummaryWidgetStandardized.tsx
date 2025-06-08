@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Card,
@@ -29,8 +30,8 @@ export function SalesSummaryWidgetStandardized() {
   const [period, setPeriod] = useState<"7d" | "14d" | "30d">("7d");
 
   const {
-    recentSales,
-    isLoadingRecentSales,
+    data: dashboardData,
+    isLoading,
     salesSummary,
     isLoadingSalesSummary,
   } = useDashboard();
@@ -39,11 +40,14 @@ export function SalesSummaryWidgetStandardized() {
     setPeriod(value as "7d" | "14d" | "30d");
   };
 
-  const isLoading = isLoadingRecentSales || isLoadingSalesSummary;
+  const isLoadingData = isLoading || isLoadingSalesSummary;
 
-  if (isLoading) {
+  if (isLoadingData) {
     return <div>{t("common.loading")}</div>;
   }
+
+  // Use recent sales from dashboard data
+  const recentSales = dashboardData?.sales?.slice(0, 5) || [];
 
   return (
     <Card className="col-span-3">
@@ -67,7 +71,7 @@ export function SalesSummaryWidgetStandardized() {
               {t("dashboard.totalSales")}
             </p>
             <p className="text-2xl font-bold">
-              {salesSummary?.totalSales?.toLocaleString()}֏
+              {salesSummary?.total_sales?.toLocaleString() || 0}֏
             </p>
           </div>
           <div className="space-y-1">
@@ -75,7 +79,7 @@ export function SalesSummaryWidgetStandardized() {
               {t("dashboard.totalVolume")}
             </p>
             <p className="text-2xl font-bold">
-              {salesSummary?.totalVolume?.toLocaleString()} L
+              {salesSummary?.totalVolume?.toLocaleString() || 0} L
             </p>
           </div>
           <div className="space-y-1">
@@ -83,7 +87,7 @@ export function SalesSummaryWidgetStandardized() {
               {t("dashboard.averageSale")}
             </p>
             <p className="text-2xl font-bold">
-              {salesSummary?.averageSale?.toLocaleString()}֏
+              {salesSummary?.averageSale?.toLocaleString() || 0}֏
             </p>
           </div>
         </div>
@@ -103,15 +107,15 @@ export function SalesSummaryWidgetStandardized() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentSales?.slice(0, 5).map((sale) => (
+              {recentSales.map((sale: any) => (
                 <TableRow key={sale.id}>
                   <TableCell>
-                    {format(new Date(sale.created_at), "MMM dd, yyyy")}
+                    {format(new Date(sale.created_at || sale.date), "MMM dd, yyyy")}
                   </TableCell>
-                  <TableCell>{sale.fuel_type}</TableCell>
-                  <TableCell>{sale.volume.toLocaleString()} L</TableCell>
+                  <TableCell>Fuel</TableCell>
+                  <TableCell>{(sale.total_sold_liters || 0).toLocaleString()} L</TableCell>
                   <TableCell className="text-right">
-                    {sale.total_price.toLocaleString()}֏
+                    {(sale.total_sales || 0).toLocaleString()}֏
                   </TableCell>
                 </TableRow>
               ))}

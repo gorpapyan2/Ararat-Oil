@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/core/api";
@@ -9,6 +10,7 @@ import type {
   PasswordResetRequest,
 } from "../types/auth.types";
 import { APP_ROUTES } from "@/core/config/routes";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
 export function useAuth() {
   const navigate = useNavigate();
@@ -34,12 +36,14 @@ export function useAuth() {
           user: session?.user ?? null,
           session: session,
           isLoading: false,
+          isAuthenticated: !!session?.user,
         }));
       } catch (error) {
         setState((prev) => ({
           ...prev,
           error: error as Error,
           isLoading: false,
+          isAuthenticated: false,
         }));
       }
     };
@@ -54,6 +58,7 @@ export function useAuth() {
         ...prev,
         user: session?.user ?? null,
         session: session,
+        isAuthenticated: !!session?.user,
       }));
     });
 
@@ -75,15 +80,18 @@ export function useAuth() {
           user,
           session,
           isLoading: false,
+          isAuthenticated: !!user,
         }));
 
-        navigate(APP_ROUTES.AUTH.path);
+        navigate(APP_ROUTES.DASHBOARD.path);
       } catch (error) {
         setState((prev) => ({
           ...prev,
           error: error as Error,
           isLoading: false,
+          isAuthenticated: false,
         }));
+        throw error;
       }
     },
     [navigate]
@@ -103,6 +111,7 @@ export function useAuth() {
           user,
           session,
           isLoading: false,
+          isAuthenticated: !!user,
         }));
 
         navigate(APP_ROUTES.DASHBOARD.path);
@@ -111,7 +120,9 @@ export function useAuth() {
           ...prev,
           error: error as Error,
           isLoading: false,
+          isAuthenticated: false,
         }));
+        throw error;
       }
     },
     [navigate]
@@ -129,6 +140,7 @@ export function useAuth() {
         user: null,
         session: null,
         isLoading: false,
+        isAuthenticated: false,
       }));
 
       navigate(APP_ROUTES.AUTH.path);
