@@ -153,15 +153,6 @@ export function StandardizedDataTable<TData extends object>({
   // Ensure data is always an array
   const safeData = useMemo(() => (Array.isArray(data) ? data : []), [data]);
 
-  // Debug data
-  console.log("StandardizedDataTable received data:", {
-    dataLength: data?.length ?? 0,
-    safeDataLength: safeData.length,
-    firstItem: safeData.length > 0 ? JSON.stringify(safeData[0]) : null,
-    columnsCount: columns.length,
-    columnKeys: columns.map((col) => col.accessorKey.toString()),
-  });
-
   // Convert our column format to the format expected by the DataTable
   const tableColumns = useMemo(() => {
     const cols = columns.map((column) => ({
@@ -348,42 +339,33 @@ export function StandardizedDataTable<TData extends object>({
     }
   }, [keyboardNavigation, safeData]);
 
-  return (
-    <DataTable
-      title={title}
-      columns={tableColumns}
-      data={safeData}
-      loading={loading}
-      initialSorting={[]}
-      defaultPageSize={10}
-      pageSizeOptions={[5, 10, 20, 50, 100]}
-      globalFilterPlaceholder="Search all columns..."
-      noResultsMessage="No results found"
-      serverSide={serverSideOptions}
-      export={dataTableExportOptions}
-      className={className}
-      aria-label={ariaLabel}
-      aria-describedby={ariaDescribedby}
-      getRowProps={(row, index) => ({
-        onClick: onRowClick ? () => onRowClick(row) : undefined,
-        tabIndex: keyboardNavigation?.enabled ? 0 : undefined,
-        "data-row-index": index,
-        onKeyDown: keyboardNavigation?.enabled
-          ? (e: KeyboardEvent<HTMLTableRowElement>) => handleKeyDown(e, index)
-          : undefined,
-        "aria-label": getRowAriaLabel ? getRowAriaLabel(row) : undefined,
-        role: "row",
-      })}
-      getCellProps={(cell) => ({
-        role: "cell",
-      })}
-      getHeaderProps={(header) => ({
-        "aria-label": `Sort by ${header.column.columnDef.header}`,
-      })}
-      highlightSearchResults={highlightSearchResults}
-      searchDebounceMs={searchDebounceMs}
-    />
-  );
+  // Memoize the table components to prevent unnecessary re-renders
+  const MemoizedDataTable = useMemo(() => {
+    return (
+      <DataTable
+        columns={tableColumns}
+        data={safeData}
+        loading={loading}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        globalFilter={globalFilter}
+        onGlobalFilterChange={setGlobalFilter}
+        className={className}
+      />
+    );
+  }, [
+    tableColumns,
+    safeData,
+    loading,
+    pagination,
+    sorting,
+    globalFilter,
+    className,
+  ]);
+
+  return MemoizedDataTable;
 }
 
 // Helper functions for creating common table cells

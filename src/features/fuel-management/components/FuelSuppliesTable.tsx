@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Button } from '@/core/components/ui/button';
 import { Badge } from '@/core/components/ui/primitives/badge';
 import { StandardizedDataTable, StandardizedDataTableColumn } from '@/shared/components/unified/StandardizedDataTable';
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/core/components/ui/dropdown-menu';
-import { Edit, Eye, MoreHorizontal, Fuel } from 'lucide-react';
+import { Edit, Eye, MoreHorizontal, Fuel, Trash2 } from 'lucide-react';
 import { cn } from '@/shared/utils';
 
 // Use the same interface as FuelSuppliesMetrics
@@ -28,14 +28,30 @@ interface FuelSuppliesTableProps {
   isLoading: boolean;
   onView: (supply: SupplyListItem) => void;
   onEdit: (supply: SupplyListItem) => void;
+  onDelete?: (supply: SupplyListItem) => void;
 }
 
-export const FuelSuppliesTable: React.FC<FuelSuppliesTableProps> = ({
+// Use React.memo to prevent unnecessary re-renders
+export const FuelSuppliesTable = React.memo<FuelSuppliesTableProps>(({
   data,
   isLoading,
   onView,
   onEdit,
+  onDelete,
 }) => {
+  // Track render count in development
+  const renderCount = useRef(0);
+  
+  // Only log in development environment with reduced verbosity
+  if (import.meta.env.DEV) {
+    renderCount.current++;
+    console.log(`[FuelSuppliesTable] Render #${renderCount.current} with ${data?.length || 0} items`);
+    
+    if (import.meta.env.VITE_DEBUG_RENDER === 'true') {
+      console.log('Component stack:', new Error().stack?.split('\n').slice(2, 6).join('\n'));
+    }
+  }
+
   const columns: StandardizedDataTableColumn<SupplyListItem>[] = useMemo(() => [
     {
       accessorKey: 'supplier',
@@ -75,7 +91,7 @@ export const FuelSuppliesTable: React.FC<FuelSuppliesTableProps> = ({
       header: 'COST/LITER',
       cell: (value: unknown, row: SupplyListItem) => (
         <div className="text-right">
-          <div className="font-medium">${(row.pricePerLiter || 0).toFixed(3)}</div>
+          <div className="font-medium">{(row.pricePerLiter || 0).toFixed(3)} ֏</div>
         </div>
       ),
     },
@@ -84,7 +100,7 @@ export const FuelSuppliesTable: React.FC<FuelSuppliesTableProps> = ({
       header: 'TOTAL COST',
       cell: (value: unknown, row: SupplyListItem) => (
         <div className="text-right">
-          <div className="font-bold">${(row.totalCost || 0).toLocaleString()}</div>
+          <div className="font-bold">{(row.totalCost || 0).toLocaleString()} ֏</div>
         </div>
       ),
     },
@@ -142,11 +158,18 @@ export const FuelSuppliesTable: React.FC<FuelSuppliesTableProps> = ({
               <Edit className="mr-2 h-4 w-4" />
               Edit Supply
             </DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => onDelete?.(row)}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Supply
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     },
-  ], [onView, onEdit]);
+  ], [onView, onEdit, onDelete]);
+
+  // Use memo to prevent unnecessary re-renders of the table component
+  const memoizedData = useMemo(() => data, [data]);
 
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden">
@@ -163,11 +186,11 @@ export const FuelSuppliesTable: React.FC<FuelSuppliesTableProps> = ({
       
       <div className="overflow-x-auto">
         <StandardizedDataTable<SupplyListItem>
-          data={data}
+          data={memoizedData}
           columns={columns}
           loading={isLoading}
         />
       </div>
     </div>
   );
-};
+});

@@ -41,13 +41,13 @@ export const FuelSuppliesMetrics: React.FC<FuelSuppliesMetricsProps> = ({ suppli
       <MetricCard
         title="Total Cost"
         icon={DollarSign}
-        value={isLoading ? '...' : `$${totalCost.toLocaleString()}`}
+        value={isLoading ? '...' : `${totalCost.toLocaleString()} ֏`}
         description="Total value of supplies"
       />
       <MetricCard
         title="Avg. Cost/Liter"
         icon={TrendingDown}
-        value={isLoading ? '...' : `$${averageCostPerLiter.toFixed(3)}`}
+        value={isLoading ? '...' : `${averageCostPerLiter.toFixed(3)} ֏`}
         description="Average price per liter"
       />
     </div>

@@ -3,24 +3,11 @@ import {
   Fuel, 
   TrendingUp, 
   Zap, 
-  Activity, 
-  ShoppingCart, 
   Truck, 
-  BarChart3, 
-  Gauge,
   Package,
-  AlertTriangle,
-  Settings,
-  FileText,
   DollarSign,
-  Target,
-  MapPin,
-  Filter,
-  Users,
-  Clock,
   Shield,
   Database,
-  Thermometer,
   Droplets
 } from 'lucide-react';
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';
@@ -148,36 +135,6 @@ export function FuelManagementPage() {
     return acc;
   }, {} as Record<string, FuelModule[]>);
 
-  const quickStats = [
-    {
-      title: 'Tank Levels',
-      value: '87.5%',
-      icon: Droplets,
-      color: 'from-blue-500/80 to-blue-500',
-      description: '↗ Optimal levels'
-    },
-    {
-      title: 'Daily Sales',
-      value: '₺18.7K',
-      icon: TrendingUp,
-      color: 'from-green-500/80 to-green-500',
-      description: '↗ +12.3% vs yesterday'
-    },
-    {
-      title: 'Active Pumps',
-      value: '8/8',
-      icon: Zap,
-      color: 'from-purple-500/80 to-purple-500',
-      description: '✓ All operational'
-    },
-    {
-      title: 'Quality Score',
-      value: '98.9%',
-      icon: Shield,
-      color: 'from-amber-500/80 to-amber-500',
-      description: '↗ Excellent quality'
-    }
-  ];
 
   return (
     <WindowContainer
@@ -185,22 +142,6 @@ export function FuelManagementPage() {
       subtitle="Comprehensive fuel operations, inventory management, and performance analytics platform"
       breadcrumbItems={breadcrumbItems}
     >
-      {/* Quick Stats Overview */}
-      <div className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {quickStats.map((stat, index) => (
-            <StatsCard
-              key={index}
-              title={stat.title}
-              value={stat.value}
-              icon={stat.icon}
-              color={stat.color}
-              description={stat.description}
-            />
-          ))}
-        </div>
-      </div>
-
       {/* Fuel Management Modules */}
       <div className="space-y-8">
         {Object.entries(groupedModules).map(([category, modules]) => (

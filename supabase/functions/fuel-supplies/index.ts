@@ -62,6 +62,12 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // Enhanced CORS headers with proper content type
+  const jsonHeaders = {
+    ...corsHeaders,
+    'Content-Type': 'application/json'
+  };
+
   try {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -103,14 +109,18 @@ serve(async (req) => {
           console.error('Database error:', error);
           return new Response(
             JSON.stringify({ error: error.message }),
-            { status: 400, headers: corsHeaders }
+            { status: 400, headers: jsonHeaders }
           );
         }
 
-        console.log('Raw data from database:', JSON.stringify(data, null, 2));
+        // Log only in development mode, not in production
+        if (Deno.env.get("ENVIRONMENT") === "development") {
+          console.log(`Retrieved ${data?.length || 0} fuel supplies`);
+        }
+        
         return new Response(
-          JSON.stringify(data),
-          { status: 200, headers: corsHeaders }
+          JSON.stringify(data || []),
+          { status: 200, headers: jsonHeaders }
         );
       }
 
@@ -140,14 +150,13 @@ serve(async (req) => {
           console.error('Database error for single record:', error);
           return new Response(
             JSON.stringify({ error: error.message }),
-            { status: 404, headers: corsHeaders }
+            { status: 404, headers: jsonHeaders }
           );
         }
 
-        console.log('Single record data:', JSON.stringify(data, null, 2));
         return new Response(
-          JSON.stringify(data),
-          { status: 200, headers: corsHeaders }
+          JSON.stringify({ data }),
+          { status: 200, headers: jsonHeaders }
         );
       }
 
@@ -163,13 +172,13 @@ serve(async (req) => {
         if (error) {
           return new Response(
             JSON.stringify({ error: error.message }),
-            { status: 400, headers: corsHeaders }
+            { status: 400, headers: jsonHeaders }
           );
         }
 
         return new Response(
-          JSON.stringify(data),
-          { status: 201, headers: corsHeaders }
+          JSON.stringify({ data }),
+          { status: 201, headers: jsonHeaders }
         );
       }
 
@@ -186,13 +195,13 @@ serve(async (req) => {
         if (error) {
           return new Response(
             JSON.stringify({ error: error.message }),
-            { status: 400, headers: corsHeaders }
+            { status: 400, headers: jsonHeaders }
           );
         }
 
         return new Response(
-          JSON.stringify(data),
-          { status: 200, headers: corsHeaders }
+          JSON.stringify({ data }),
+          { status: 200, headers: jsonHeaders }
         );
       }
 
@@ -209,13 +218,13 @@ serve(async (req) => {
         if (error) {
           return new Response(
             JSON.stringify({ error: error.message }),
-            { status: 400, headers: corsHeaders }
+            { status: 400, headers: jsonHeaders }
           );
         }
 
         return new Response(
-          JSON.stringify(data),
-          { status: 200, headers: corsHeaders }
+          JSON.stringify({ data }),
+          { status: 200, headers: jsonHeaders }
         );
       }
 
@@ -229,18 +238,18 @@ serve(async (req) => {
         if (error) {
           return new Response(
             JSON.stringify({ error: error.message }),
-            { status: 400, headers: corsHeaders }
+            { status: 400, headers: jsonHeaders }
           );
         }
 
         return new Response(
-          JSON.stringify({ message: 'Fuel supply deleted successfully' }),
-          { status: 200, headers: corsHeaders }
+          JSON.stringify({ data: { success: true, message: 'Fuel supply deleted successfully' } }),
+          { status: 200, headers: jsonHeaders }
         );
       }
     }
 
-    return new Response("Not Found", { status: 404, headers: corsHeaders });
+    return new Response("Not Found", { status: 404, headers: jsonHeaders });
   } catch (error) {
     return createResponse<null>(null, error.message);
   }
@@ -250,7 +259,7 @@ function createResponse<T>(data: T | null, error?: string): Response {
   return new Response(
     JSON.stringify({ data, error: error || null }),
     {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: jsonHeaders,
       status: error ? 400 : 200,
     }
   );

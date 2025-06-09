@@ -89,13 +89,16 @@ export default function TanksPage() {
     return Math.round((currentLevel / capacity) * 100);
   };
 
+  // Ensure tanks is always an array
+  const tanksArray = Array.isArray(tanks) ? tanks : [];
+
   // Calculate stats for the overview cards
-  const totalTanks = tanks.length;
-  const activeTanks = tanks.filter(tank => tank.is_active).length;
-  const totalCapacity = tanks.reduce((sum, tank) => sum + tank.capacity, 0);
-  const totalCurrentLevel = tanks.reduce((sum, tank) => sum + tank.current_level, 0);
-  const criticalTanks = tanks.filter(tank => getCapacityPercentage(tank.current_level, tank.capacity) < 10).length;
-  const lowLevelTanks = tanks.filter(tank => getCapacityPercentage(tank.current_level, tank.capacity) < 25).length;
+  const totalTanks = tanksArray.length;
+  const activeTanks = tanksArray.filter(tank => tank.is_active).length;
+  const totalCapacity = tanksArray.reduce((sum, tank) => sum + tank.capacity, 0);
+  const totalCurrentLevel = tanksArray.reduce((sum, tank) => sum + tank.current_level, 0);
+  const criticalTanks = tanksArray.filter(tank => getCapacityPercentage(tank.current_level, tank.capacity) < 10).length;
+  const lowLevelTanks = tanksArray.filter(tank => getCapacityPercentage(tank.current_level, tank.capacity) < 25).length;
   const fillPercentage = totalCapacity > 0 ? Math.round((totalCurrentLevel / totalCapacity) * 100) : 0;
 
   const quickStats = [
@@ -173,8 +176,11 @@ export default function TanksPage() {
     return OperationalIcons.Fuel;
   };
 
+  // Get unique fuel types for filter
+  const fuelTypesForFilter = [...new Set(tanksArray.map(tank => tank.fuel_type?.name).filter((name): name is string => Boolean(name)))];
+
   // Filter tanks based on search and filters
-  const filteredTanks = tanks.filter(tank => {
+  const filteredTanks = tanksArray.filter(tank => {
     const matchesSearch = 
       tank.fuel_type?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tank.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -214,9 +220,6 @@ export default function TanksPage() {
       });
     }
   };
-
-  // Get unique fuel types for filter
-  const fuelTypesForFilter = [...new Set(tanks.map(tank => tank.fuel_type?.name).filter((name): name is string => Boolean(name)))];
 
   return (
     <WindowContainer

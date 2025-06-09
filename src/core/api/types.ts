@@ -345,6 +345,7 @@ export interface FinancialDashboard {
 export interface PetrolProvider {
   id: string;
   name: string;
+  contact?: string;
   contact_info?: string;
   rating?: number;
   is_active: boolean;
@@ -354,6 +355,7 @@ export interface PetrolProvider {
 
 export interface PetrolProviderCreate {
   name: string;
+  contact?: string;
   contact_info?: string;
   rating?: number;
   is_active: boolean;
@@ -361,6 +363,7 @@ export interface PetrolProviderCreate {
 
 export interface PetrolProviderUpdate {
   name?: string;
+  contact?: string;
   contact_info?: string;
   rating?: number;
   is_active?: boolean;

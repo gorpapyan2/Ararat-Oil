@@ -3,7 +3,7 @@ import { Shift, ShiftPaymentMethod, PaymentMethod } from "@/types";
 import { shiftsApi } from "@/core/api";
 import { useAuth } from "@/features/auth";
 import { useToast } from "@/core/hooks/useToast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { PaymentMethodItem } from "@/shared/components/shared/MultiPaymentMethodFormStandardized";
 
 export function useShift() {
   const [activeShift, setActiveShift] = useState<Shift | null>(null);
@@ -76,38 +76,44 @@ export function useShift() {
         try {
           const response = await shiftsApi.getSystemActiveShift();
           if (response.error) {
-            throw new Error(response.error.message);
-          }
+            // Silently handle 404 errors for system active shifts - this just means no active shift exists
+            if (response.error.type === "not_found") {
+              console.log("No system-wide active shift found");
+            } else {
+              throw new Error(response.error.message);
+            }
+          } else if (response.data) {
+            const systemActiveShift = response.data || null;
+            if (systemActiveShift) {
+              console.log(
+                "Found an active shift in the system:",
+                systemActiveShift
+              );
 
-          const systemActiveShift = response.data || null;
-          if (systemActiveShift) {
-            console.log(
-              "Found an active shift in the system:",
-              systemActiveShift
-            );
+              // Always update the activeShift state with any active shift
+              // This ensures we know a shift is active even if it's not for the current user
+              setActiveShift(systemActiveShift as unknown as Shift);
 
-            // Always update the activeShift state with any active shift
-            // This ensures we know a shift is active even if it's not for the current user
-            setActiveShift(systemActiveShift as unknown as Shift);
-
-            // Cache this for the user too, for reference
-            localStorage.setItem(
-              `activeShift_system`,
-              JSON.stringify(systemActiveShift)
-            );
-
-            // If it belongs to the current user, cache it specifically for them
-            if (systemActiveShift.employee_id === (userId || user?.id)) {
+              // Cache this for the user too, for reference
               localStorage.setItem(
-                `activeShift_${userId || user?.id}`,
+                `activeShift_system`,
                 JSON.stringify(systemActiveShift)
               );
-            }
 
-            return systemActiveShift as unknown as Shift;
+              // If it belongs to the current user, cache it specifically for them
+              if (systemActiveShift.employee_id === (userId || user?.id)) {
+                localStorage.setItem(
+                  `activeShift_${userId || user?.id}`,
+                  JSON.stringify(systemActiveShift)
+                );
+              }
+
+              return systemActiveShift as unknown as Shift;
+            }
           }
         } catch (error) {
-          console.error("Error checking for system active shift:", error);
+          // Don't treat this as a critical error - just log it
+          console.log("No system active shift available:", error);
         }
 
         // Implement retry logic with backoff
@@ -122,6 +128,12 @@ export function useShift() {
               userId || user?.id || ""
             );
             if (response.error) {
+              // For 404 errors, just return null without retrying - it just means no active shift
+              if (response.error.type === "not_found") {
+                console.log("No active shift found for user (expected)");
+                setActiveShift(null);
+                return null;
+              }
               throw new Error(response.error.message);
             }
 

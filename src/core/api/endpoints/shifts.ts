@@ -97,7 +97,12 @@ export async function closeShift(
 export async function getShiftPaymentMethods(
   id: string
 ): Promise<ApiResponse<ShiftPaymentMethod[]>> {
-  return fetchFromFunction<ShiftPaymentMethod[]>(`${ENDPOINT}/${id}/payment-methods`);
+  return fetchFromFunction<ShiftPaymentMethod[]>(`payment-methods/shift/${id}`, {
+    cache: "force-cache",
+    queryParams: {
+      _cache: Math.floor(Date.now() / 300000)
+    }
+  });
 }
 
 /**
@@ -107,7 +112,7 @@ export async function addShiftPaymentMethods(
   id: string,
   methods: ShiftPaymentMethod[]
 ): Promise<ApiResponse<ShiftPaymentMethod[]>> {
-  return fetchFromFunction<ShiftPaymentMethod[]>(`${ENDPOINT}/${id}/payment-methods`, {
+  return fetchFromFunction<ShiftPaymentMethod[]>(`payment-methods/shift/${id}`, {
     method: "POST",
     body: methods,
   });
@@ -120,7 +125,7 @@ export async function deleteShiftPaymentMethods(
   id: string
 ): Promise<ApiResponse<{ success: boolean }>> {
   return fetchFromFunction<{ success: boolean }>(
-    `${ENDPOINT}/${id}/payment-methods`,
+    `payment-methods/shift/${id}`,
     {
       method: "DELETE",
     }

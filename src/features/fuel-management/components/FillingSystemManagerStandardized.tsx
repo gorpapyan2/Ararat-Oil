@@ -50,7 +50,7 @@ export function FillingSystemManagerStandardized({
     }
     // Map the API response to our feature's FillingSystem type
     return fillingSystemsResponse.map(
-      (apiSystem) =>
+      (apiSystem: FillingSystem) =>
         ({
           id: apiSystem.id,
           name: apiSystem.name,

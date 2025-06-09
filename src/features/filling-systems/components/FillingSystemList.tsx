@@ -79,31 +79,39 @@ export function FillingSystemList({
   if (isLoading) {
     return (
       <div className="w-full p-8 flex items-center justify-center">
-        <div className="text-muted-foreground">{t("common.loading")}</div>
+        <div className="text-gray-400">{t("common.loading")}</div>
+      </div>
+    );
+  }
+
+  if (fillingSystems.length === 0) {
+    return (
+      <div className="w-full p-8 flex items-center justify-center">
+        <div className="text-gray-400">{t("fillingSystems.noSystems", "No filling systems found")}</div>
       </div>
     );
   }
 
   return (
     <>
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-md border border-gray-700 bg-gray-800/40">
         <table className="w-full table-fixed">
-          <thead className="bg-muted">
+          <thead className="bg-gray-900/50">
             <tr>
-              <th className="p-3 text-left font-medium">
+              <th className="p-3 text-left font-medium text-gray-300">
                 {t("fillingSystems.systemName")}
               </th>
-              <th className="p-3 text-left font-medium">
+              <th className="p-3 text-left font-medium text-gray-300">
                 {t("fillingSystems.connectedTank")}
               </th>
-              <th className="p-3 text-center w-24">{t("common.actions")}</th>
+              <th className="p-3 text-center w-24 text-gray-300">{t("common.actions")}</th>
             </tr>
           </thead>
           <tbody>
             {fillingSystems.map((system) => (
-              <tr key={system.id} className="border-t">
-                <td className="p-3">{system.name}</td>
-                <td className="p-3">
+              <tr key={system.id} className="border-t border-gray-700 hover:bg-gray-700/20">
+                <td className="p-3 text-gray-100">{system.name}</td>
+                <td className="p-3 text-gray-100">
                   {system.tank_id
                     ? (() => {
                         const tank = getTankDetails(system.tank_id);
@@ -111,8 +119,8 @@ export function FillingSystemList({
                         return (
                           <span className="flex items-center">
                             {tank.name}
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              ({tank.fuel_type_id})
+                            <span className="ml-2 text-xs text-gray-400">
+                              ({tank.fuel_type})
                             </span>
                           </span>
                         );
@@ -124,6 +132,7 @@ export function FillingSystemList({
                     variant="ghost"
                     size="icon"
                     onClick={() => openDeleteConfirm(system)}
+                    className="hover:bg-red-900/20 hover:text-red-500 text-gray-400"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -135,10 +144,10 @@ export function FillingSystemList({
       </div>
 
       <DeleteConfirmDialog
-        open={deleteDialog.open}
-        onOpenChange={(open) => setDeleteDialog({ open, id: null })}
-        onConfirm={handleDeleteConfirm}
-        description="Are you sure you want to delete this filling system? This action cannot be undone."
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        onConfirm={handleDelete}
+        description={t("fillingSystems.deleteConfirmation", "Are you sure you want to delete this filling system? This action cannot be undone.")}
         isLoading={isDeleting}
       />
     </>

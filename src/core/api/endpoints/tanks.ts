@@ -15,7 +15,13 @@ const ENDPOINT = API_ENDPOINTS.FUNCTIONS.TANKS;
  * Fetches all tanks
  */
 export async function getTanks(): Promise<ApiResponse<Tank[]>> {
-  const response = await fetchFromFunction<Tank[] | { tanks: Tank[] }>(ENDPOINT);
+  const response = await fetchFromFunction<Tank[] | { tanks: Tank[] }>(ENDPOINT, {
+    cache: "force-cache",
+    queryParams: {
+      // Cache key that changes every 5 minutes (tanks don't change often)
+      _cache: Math.floor(Date.now() / 300000)
+    }
+  });
   
   // Handle both direct array response and nested response
   let tanks: Tank[] = [];

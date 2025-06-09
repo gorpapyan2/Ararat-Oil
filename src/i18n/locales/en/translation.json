@@ -121,7 +121,8 @@
     "fuelManagement": "Fuel Management", 
     "finance": "Finance",
     "employees": "Employees",
-    "settings": "Settings"
+    "settings": "Settings",
+    "fuel": "Fuel Operations"
   },
   "auth": {
     "signIn": "Sign In",
@@ -269,55 +270,142 @@
     "tankConnection": "Tank Connection",
     "systemAdded": "Filling system added successfully",
     "errorAddingSystem": "Error adding filling system",
-    "totalCount": "{{count}} filling systems available"
+    "totalCount": "{{count}} filling systems available",
+    "currentSystems": "Current Filling Systems",
+    "moduleTitle": "Filling System Management Modules",
+    "deleteConfirmation": "Are you sure you want to delete this filling system? This action cannot be undone.",
+    "noSystems": "No filling systems found",
+    "stats": {
+      "totalSystems": "Total Systems",
+      "totalSystemsDesc": "Active dispensing points",
+      "connectedTanks": "Connected Tanks",
+      "connectedTanksDesc": "Linked fuel storage",
+      "performance": "Performance",
+      "performanceDesc": "Operational efficiency"
+    },
+    "modules": {
+      "pump-control": {
+        "title": "Pump Control",
+        "description": "Monitor and control fuel dispensing pumps"
+      },
+      "system-monitoring": {
+        "title": "System Monitoring",
+        "description": "Real-time filling system status and performance"
+      },
+      "dispensing-analytics": {
+        "title": "Dispensing Analytics",
+        "description": "Fuel dispensing patterns and usage analytics"
+      },
+      "maintenance": {
+        "title": "Maintenance",
+        "description": "Pump maintenance schedules and service records"
+      },
+      "system-alerts": {
+        "title": "System Alerts",
+        "description": "Equipment alerts and malfunction notifications"
+      },
+      "calibration": {
+        "title": "Calibration",
+        "description": "Pump calibration and accuracy verification"
+      },
+      "performance": {
+        "title": "Performance Metrics",
+        "description": "System efficiency and performance tracking"
+      },
+      "activity-logs": {
+        "title": "Activity Logs",
+        "description": "Transaction logs and system activity history"
+      }
+    }
   },
   "fuelSupplies": {
     "title": "Fuel Supplies",
-    "description": "Manage fuel supply deliveries and inventory",
+    "subtitle": "Manage fuel inventory and supplier deliveries",
+    "directory": "Supply Directory",
+    "overview": "Supply Overview",
     "addSupply": "Add Supply",
+    "createSupply": "Create Supply",
+    "viewSupply": "View Supply",
     "editSupply": "Edit Supply",
-    "deliveryDate": "Delivery Date",
-    "selectProvider": "Select Provider",
-    "selectTank": "Select Tank",
-    "quantityLiters": "Quantity (liters)",
-    "pricePerLiter": "Price Per Liter",
-    "totalCost": "Total Cost",
-    "confirmFuelSupply": "Confirm Fuel Supply",
-    "confirmDetails": "Please confirm the following fuel supply details:",
-    "employee": "Employee",
-    "selectEmployee": "Select Employee",
-    "tankLevelImpact": "Tank Level Impact",
-    "warningTankCapacity": "Warning: Tank Capacity Exceeded",
-    "currentLevel": "Current level",
-    "afterSupply": "After supply",
-    "tankCapacity": "Tank capacity",
-    "excessAmount": "Excess amount",
-    "comments": "Comments",
-    "addComments": "Add comments (optional)",
-    "processing": "Processing...",
-    "confirmSupply": "Confirm Supply",
-    "supplyAdded": "Fuel supply record created successfully and tank level updated",
-    "supplyUpdated": "Fuel supply record updated successfully",
-    "supplyDeleted": "Fuel supply record deleted successfully",
-    "errorCreatingSupply": "Failed to create fuel supply record",
-    "errorUpdatingSupply": "Failed to update fuel supply record",
-    "errorDeletingSupply": "Failed to delete fuel supply",
-    "summary": "Summary",
-    "totalSupplies": "Total Supplies",
-    "thisMonth": "This Month",
-    "totalLiters": "Total Liters",
-    "avgPricePerLiter": "Avg. Price Per Liter",
-    "provider": "Provider",
-    "tank": "Tank",
-    "quantity": "Quantity",
-    "editTooltip": "Edit this fuel supply",
-    "noSuppliesFound": "No fuel supplies found",
-    "supplies": "Supplies",
-    "manageSupplies": "Manage supplies",
-    "searchProviderPlaceholder": "Search provider...",
-    "totalCount": "{{count}} fuel supply records",
-    "fuelTypeBreakdown": "Fuel Type Breakdown",
-    "tankBreakdown": "Tank Breakdown"
+    "deleteSupply": "Delete Supply",
+    "noSuppliesFound": "No supplies found. Add your first fuel supply!",
+    "loadingSupplies": "Loading supplies...",
+    "errorLoadingSupplies": "Error loading supplies",
+    "retry": "Retry",
+    "status": {
+      "all": "All Statuses",
+      "received": "Received",
+      "pending": "Pending",
+      "verified": "Verified"
+    },
+    "filters": {
+      "allFuelTypes": "All Fuel Types",
+      "search": "Search supplies...",
+      "showPast": "Show past supplies"
+    },
+    "fields": {
+      "supplier": "Supplier",
+      "fuelType": "Fuel Type",
+      "quantity": "Quantity",
+      "pricePerLiter": "Price/Liter",
+      "totalCost": "Total Cost",
+      "deliveryDate": "Delivery Date",
+      "status": "Status",
+      "actions": "Actions",
+      "id": "ID",
+      "comments": "Comments",
+      "provider": "Provider",
+      "tank": "Tank",
+      "paymentStatus": "Payment Status"
+    },
+    "stats": {
+      "totalSupplies": "Total Supplies",
+      "pendingDeliveries": "Pending Deliveries",
+      "received": "Received",
+      "verified": "Verified",
+      "allFuelDeliveries": "All Fuel Deliveries",
+      "awaitingDelivery": "Awaiting Delivery",
+      "successfullyDelivered": "Successfully Delivered",
+      "confirmedDeliveries": "Confirmed Deliveries"
+    },
+    "modal": {
+      "addNewSupply": "Add New Supply",
+      "selectProvider": "Select Provider",
+      "selectTank": "Select Tank",
+      "enterQuantity": "Enter Quantity",
+      "enterPrice": "Enter Price",
+      "quantityLiters": "Quantity (Liters)",
+      "pricePerLiter": "Price per Liter ($)",
+      "deliveryDate": "Delivery Date",
+      "additionalNotes": "Additional notes about the supply...",
+      "creating": "Creating...",
+      "createSuccess": "Supply created successfully",
+      "createError": "Error creating supply",
+      "updateSuccess": "Supply updated successfully",
+      "updateError": "Error updating supply",
+      "deleteSuccess": "Supply deleted successfully",
+      "deleteError": "Error deleting supply",
+      "deleteConfirmationTitle": "Confirm Deletion",
+      "deleteConfirmationMessage": "Are you sure you want to delete this supply? This action cannot be undone.",
+      "deleteConfirm": "Delete",
+      "deleteCancel": "Cancel",
+      "validation": {
+        "selectProvider": "Please select a provider",
+        "selectTank": "Please select a tank",
+        "enterValidQuantity": "Please enter a valid quantity",
+        "enterValidPrice": "Please enter a valid price",
+        "enterValidDate": "Please enter a valid date"
+      }
+    },
+    "paymentStatus": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "cancelled": "Cancelled"
+    },
+    "view": {
+      "grid": "Grid View",
+      "table": "Table View"
+    }
   },
   "sales": {
     "title": "Sales",
@@ -752,5 +840,52 @@
     "resourceSyncFailed": "Resource Sync Failed",
     "unableToSyncResource": "Unable to sync the {{resource}} resource.",
     "syncedResources": "Synced Resources"
+  },
+  "fuelTypes": {
+    "title": "Fuel Types",
+    "addType": "Add Fuel Type",
+    "moduleTitle": "Fuel Type Management Modules",
+    "stats": {
+      "totalTypes": "Total Types",
+      "totalTypesDesc": "Available fuel variants",
+      "activeTypes": "Active Types",
+      "activeTypesDesc": "Currently in use",
+      "avgPrice": "Average Price",
+      "avgPriceDesc": "Per liter"
+    },
+    "modules": {
+      "fuel-catalog": {
+        "title": "Fuel Catalog",
+        "description": "Browse and manage available fuel types"
+      },
+      "add-fuel-type": {
+        "title": "Add Fuel Type",
+        "description": "Create new fuel type specifications"
+      },
+      "pricing-management": {
+        "title": "Pricing Management",
+        "description": "Set and update fuel type pricing"
+      },
+      "specifications": {
+        "title": "Specifications",
+        "description": "Manage fuel specifications and properties"
+      },
+      "quality-standards": {
+        "title": "Quality Standards",
+        "description": "Define quality control standards"
+      },
+      "analytics": {
+        "title": "Type Analytics",
+        "description": "Fuel type performance and usage analytics"
+      },
+      "market-trends": {
+        "title": "Market Trends",
+        "description": "Track fuel type market trends and demand"
+      },
+      "documentation": {
+        "title": "Documentation",
+        "description": "Technical documentation and compliance"
+      }
+    }
   }
 }

@@ -33,11 +33,6 @@ export const WindowContainer: React.FC<WindowContainerProps> = ({
             <div className="flex items-center justify-between">
               {/* Window Title */}
               <div className="flex items-center space-x-4">
-                <div className="flex space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                </div>
                 <div>
                   <h1 className="text-2xl font-bold text-black dark:text-[#EEEFE7]">
                     {title}

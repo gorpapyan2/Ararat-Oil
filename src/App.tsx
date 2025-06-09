@@ -31,8 +31,7 @@ const ShiftClosePage = lazy(() => import('./features/shifts').then(module => ({ 
 const ShiftDetailsPage = lazy(() => import('./features/shifts').then(module => ({ default: module.ShiftDetails })));
 
 // Employees Module Components
-const EmployeesMainPage = lazy(() => import("@/features/employees/pages/EmployeesMainPage"));
-
+const EmployeesPage = lazy(() => import("@/features/employees/pages/EmployeesPage").then(m => ({ default: m.EmployeesPage })));
 // Sales Module Components
 const SalesMainPage = lazy(() => import("@/features/sales/pages/SalesMainPage"));
 
@@ -233,16 +232,6 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <ShiftsMainPage />
-                      </ProtectedRoute>
-                    } 
-                  />
-
-                  {/* Employees Module Routes */}
-                  <Route 
-                    path="/employees" 
-                    element={
-                      <ProtectedRoute>
-                        <EmployeesMainPage />
                       </ProtectedRoute>
                     } 
                   />

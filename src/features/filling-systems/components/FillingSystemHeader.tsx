@@ -26,7 +26,10 @@ export function FillingSystemHeader({
     <div className="flex items-center justify-between">
       <h1 className="text-2xl font-semibold">{title}</h1>
       {showAddButton && (
-        <Button onClick={onAddNew}>
+        <Button 
+          onClick={onAddNew} 
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
           <Plus className="w-4 h-4 mr-2" />
           {addButtonText}
         </Button>

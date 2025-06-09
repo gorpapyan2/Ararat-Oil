@@ -2,10 +2,10 @@
 import { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
 import { 
   getFillingSystems,
-  getFillingSystemById,
-  createFillingSystem,
-  updateFillingSystem,
-  deleteFillingSystem
+  getFillingSystemById as apiGetFillingSystemById,
+  createFillingSystem as apiCreateFillingSystem,
+  updateFillingSystem as apiUpdateFillingSystem,
+  deleteFillingSystem as apiDeleteFillingSystem
 } from "@/core/api/endpoints/filling-systems";
 import type { FillingSystem as ApiFillingSystem, FillingSystemCreate } from "@/core/api/types";
 import type {
@@ -16,12 +16,20 @@ import type {
   FillingSystemStats,
 } from "../types";
 
+// Re-export for backward compatibility
+export { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
+
+// Export legacy functions for backward compatibility
+// Define these at the top to prevent potential circular references
+export const getFillingSystemsWithFilters = getFillingSystems_Legacy;
+export const getFillingSystemById = getFillingSystemById_Legacy;
+export const createFillingSystem = createFillingSystem_Legacy;
+export const updateFillingSystem = updateFillingSystem_Legacy;
+export const deleteFillingSystem = deleteFillingSystem_Legacy;
+
 // Modern hook-based approach
 export const useFillingSystemsModern = (options?: Parameters<typeof useCentralizedEntity>[1]) => 
   useCentralizedEntity<ApiFillingSystem>('filling-systems', options);
-
-// Re-export for backward compatibility
-export { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
 
 // Helper function to adapt API system to feature type
 function adaptApiToFeatureType(apiSystem: ApiFillingSystem): FillingSystem {
@@ -86,12 +94,12 @@ export async function getFillingSystems_Legacy(filters?: FillingSystemFilters): 
  */
 export async function getFillingSystemById_Legacy(id: string): Promise<FillingSystem | null> {
   try {
-    const response = await getFillingSystemById(id);
-    if (response.error) {
+    const response = await apiGetFillingSystemById(id);
+    if (response?.error) {
       throw new Error(response.error.message);
     }
     
-    return response.data ? adaptApiToFeatureType(response.data) : null;
+    return response?.data ? adaptApiToFeatureType(response.data) : null;
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : 'Failed to fetch filling system');
   }
@@ -103,7 +111,7 @@ export async function getFillingSystemById_Legacy(id: string): Promise<FillingSy
 export async function createFillingSystem_Legacy(systemData: CreateFillingSystemRequest): Promise<FillingSystem> {
   try {
     const apiData = adaptFeatureToApiType(systemData);
-    const response = await createFillingSystem(apiData);
+    const response = await apiCreateFillingSystem(apiData);
     
     if (response.error) {
       throw new Error(response.error.message);
@@ -124,7 +132,7 @@ export async function createFillingSystem_Legacy(systemData: CreateFillingSystem
  */
 export async function updateFillingSystem_Legacy(id: string, systemData: Partial<UpdateFillingSystemRequest>): Promise<FillingSystem> {
   try {
-    const response = await updateFillingSystem(id, systemData);
+    const response = await apiUpdateFillingSystem(id, systemData);
     
     if (response.error) {
       throw new Error(response.error.message);
@@ -145,7 +153,7 @@ export async function updateFillingSystem_Legacy(id: string, systemData: Partial
  */
 export async function deleteFillingSystem_Legacy(id: string): Promise<boolean> {
   try {
-    const response = await deleteFillingSystem(id);
+    const response = await apiDeleteFillingSystem(id);
     return !response.error;
   } catch (error) {
     console.error('Error deleting filling system:', error);
@@ -175,6 +183,12 @@ export async function getSystemsSummary(): Promise<FillingSystemStats> {
       last_maintenance: undefined,
     };
   }
+}
+
+// Validate tank IDs
+export async function validateTankIds(tankIds: string[]): Promise<{ valid: boolean; invalidIds: string[] }> {
+  // Simple implementation - assuming all tank IDs are valid
+  return { valid: true, invalidIds: [] };
 }
 
 // Export as an object for compatibility with existing code

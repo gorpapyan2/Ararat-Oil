@@ -16,11 +16,19 @@ import "./index.css";
 // compiled CSS with proper hashing and prioritisation.
 
 // Error boundary for initialization errors
-const AppWithErrorBoundary = () => (
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const AppWithErrorBoundary = () => {
+  // Disable StrictMode when debugging performance to prevent double renders
+  if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_PERFORMANCE === 'true') {
+    console.log('🔍 React StrictMode disabled for performance debugging');
+    return <App />;
+  }
+  
+  return (
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+};
 
 // Initialize the app with proper error handling
 async function initializeApp() {

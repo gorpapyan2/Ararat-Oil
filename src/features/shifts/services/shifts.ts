@@ -7,7 +7,8 @@ import {
   deleteShiftPaymentMethods,
   startShift as apiStartShift,
   closeShift as apiCloseShift,
-  getActiveShift as apiGetActiveShift
+  getActiveShift as apiGetActiveShift,
+  getActiveShiftForUser as apiGetActiveShiftForUser
 } from "@/core/api/endpoints/shifts";
 import { useCentralizedEntity } from "@/hooks/useCentralizedEntity";
 import type { Shift, ShiftPaymentMethod } from "@/core/api/types";
@@ -95,6 +96,11 @@ export async function getActiveShift(): Promise<Shift | null> {
 
     const response = await apiGetActiveShift();
     if (response.error) {
+      // For 404 errors, just return null indicating no active shift
+      if (response.error.type === "not_found" || response.error.status === 404) {
+        console.log("No active shift found (expected response)");
+        return null;
+      }
       console.error("Error getting active shift:", response.error.message);
       return null;
     }
@@ -143,6 +149,7 @@ export async function getShiftEmployees(shiftId: string): Promise<string[]> {
 export async function getSystemActiveShift(): Promise<Shift | null> {
   try {
     console.log("Getting system-wide active shift using modern API...");
+    // This function should not throw exceptions
     return await getActiveShift();
   } catch (error: unknown) {
     console.error("Error fetching system-wide active shift:", error);
@@ -158,17 +165,26 @@ export async function getActiveShiftForUser(
       `Getting active shift for user ${userId} using modern API...`
     );
 
-    // Get shifts by employee and find active ones
-    const userShifts = await getShiftsByEmployee(userId);
-    const activeShift = userShifts.find(shift => shift.is_active);
+    const response = await apiGetActiveShiftForUser(userId);
+    
+    if (response.error) {
+      // For 404 errors, just return null indicating no active shift for user
+      if (response.error.type === "not_found" || response.error.status === 404) {
+        console.log(`No active shift found for user ${userId} (expected response)`);
+        return null;
+      }
+      console.error(`Error getting active shift for user ${userId}:`, response.error.message);
+      return null;
+    }
 
-    if (!activeShift) {
+    if (!response.data) {
       console.log(`No active shift found for user ${userId}`);
       return null;
     }
 
-    console.log(`Found active shift for user ${userId}:`, activeShift);
-    return activeShift;
+    console.log(`Found active shift for user ${userId}:`, response.data);
+    return response.data;
+
   } catch (error: unknown) {
     console.error(`Error fetching active shift for user ${userId}:`, error);
     return null;

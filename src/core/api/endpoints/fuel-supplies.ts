@@ -4,17 +4,70 @@
  * This file provides API functions for working with fuel supplies data.
  */
 
-import { fetchFromFunction, ApiResponse } from "../client";
+import { fetchFromFunction, ApiResponse, createApiError } from "../client";
 import { API_ENDPOINTS } from "@/core/config/api";
+import { API_ERROR_TYPE } from "@/core/config/api";
 import type { FuelSupply, FuelSupplyCreate, FuelSupplyUpdate } from "../types";
-
+  
 const ENDPOINT = API_ENDPOINTS.FUNCTIONS.FUEL_SUPPLIES;
 
 /**
  * Fetches all fuel supplies
  */
 export async function getFuelSupplies(): Promise<ApiResponse<FuelSupply[]>> {
-  return fetchFromFunction<FuelSupply[]>(ENDPOINT);
+  try {
+    // Use a stable timestamp that changes less frequently (every hour)
+    // This ensures the cache key doesn't change with every request
+    const stableTimestamp = Math.floor(Date.now() / (60 * 60 * 1000));
+    
+    // Use 'unknown' for the response type since we need to handle multiple formats
+    const response = await fetchFromFunction<unknown>(ENDPOINT, {
+      // Use cache-first strategy with a reasonable stale time
+      cache: "force-cache",
+      queryParams: {
+        // Set a stable cache key so browser can properly cache responses
+        _cache_key: `supplies_${stableTimestamp}`
+      }
+    });
+
+    // Handle potential response formats:
+    let supplies: FuelSupply[] = [];
+    
+    if (!response.data && Array.isArray(response)) {
+      // Case 1: Direct array in the response itself (rare edge case)
+      supplies = response;
+    } else if (response.data) {
+      if (Array.isArray(response.data)) {
+        // Case 2: Array directly in response.data (expected format)
+        supplies = response.data;
+      } else if (typeof response.data === 'object' && response.data !== null && 'data' in response.data) {
+        // Case 3: Nested data property containing array
+        const nestedData = (response.data as { data: unknown }).data;
+        if (Array.isArray(nestedData)) {
+          supplies = nestedData as FuelSupply[];
+        }
+      }
+    }
+    
+    // Only log empty responses, don't log on successful data retrieval
+    if (supplies.length === 0) {
+      console.warn('Unexpected data format or empty response in fuel supplies:', response);
+    }
+    
+    return {
+      ...response as ApiResponse<unknown>,
+      data: supplies
+    };
+  } catch (error) {
+    return {
+      error: createApiError(
+        API_ERROR_TYPE.UNKNOWN,
+        `Failed to fetch fuel supplies: ${error.message}`,
+        undefined,
+        error
+      )
+    };
+  }
 }
 
 /**

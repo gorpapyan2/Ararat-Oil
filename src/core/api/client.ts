@@ -13,6 +13,7 @@ import {
   getErrorTypeFromStatus,
 } from "@/core/config/api";
 import { isDevelopment } from "@/core/config/environment";
+import { createHash } from 'crypto';
 
 // Helper to handle errors with proper typing and logging
 export interface ApiError {
@@ -72,6 +73,8 @@ export interface ApiResponse<T = unknown> {
   data?: T;
   error?: ApiError;
   status?: number;
+  statusText?: string;
+  headers?: Headers;
   metadata?: {
     requestId?: string;
     timestamp?: number;
@@ -115,6 +118,19 @@ export type ApiResult<
       ? ArrayBuffer
       : ApiResponse<T>;
 
+// Change from RequestCache to ApiRequestCache
+interface ApiRequestCache {
+  [key: string]: {
+    promise: Promise<any>;
+    timestamp: number;
+    expiresAt: number;
+  };
+}
+
+// Update the constant to use the new type
+const ACTIVE_REQUESTS: ApiRequestCache = {};
+const REQUEST_CACHE_DURATION = 5000; // 5 seconds
+
 /**
  * Makes a request to a Supabase Edge Function with proper typing based on responseType
  */
@@ -125,202 +141,289 @@ export async function fetchFromFunction<
   functionPath: string,
   options: ApiRequestOptions & { responseType?: R } = {}
 ): Promise<ApiResult<T, R>> {
-  try {
-    // Attempt to get a fresh session token
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    
-    let currentSession = sessionData?.session;
-    
-    if (sessionError) {
-      console.warn('Session retrieval error:', sessionError);
-      // Try to refresh the token if there's a session error
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+  // Generate a cache key based on the request details
+  const cacheKey = generateCacheKey(functionPath, options);
+  
+  // Check if there's an ongoing request with this exact signature
+  const now = Date.now();
+  const cachedRequest = ACTIVE_REQUESTS[cacheKey];
+  
+  // If we have an ongoing request that isn't expired, reuse it
+  if (cachedRequest && now < cachedRequest.expiresAt) {
+    if (isDevelopment()) {
+      console.log(`Reusing in-flight request for: ${functionPath}`);
+    }
+    return cachedRequest.promise;
+  }
+  
+  // Create the actual request function
+  const requestPromise = (async () => {
+    try {
+      // Attempt to get a fresh session token
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (refreshError) {
-        console.error('Failed to refresh auth token:', refreshError);
+      let currentSession = sessionData?.session;
+      
+      if (sessionError) {
+        console.warn('Session retrieval error:', sessionError);
+        // Try to refresh the token if there's a session error
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (refreshError) {
+          console.error('Failed to refresh auth token:', refreshError);
+          return {
+            error: createApiError(
+              API_ERROR_TYPE.AUTH,
+              'Authentication failed: ' + refreshError.message
+            ),
+          } as ApiResult<T, R>;
+        }
+        
+        // Use the refreshed session
+        currentSession = refreshData.session;
+      }
+      
+      // Use the user access token if available, otherwise fall back to the public anon key
+      const token = currentSession?.access_token || API_CONFIG.SUPABASE_ANON_KEY;
+
+      // Set up headers
+      const headers: HeadersInit = {
+        ...API_CONFIG.DEFAULT_HEADERS,
+        ...options.headers,
+      };
+
+      // Add auth token if available
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      // Add query parameters if provided
+      let url = `${API_CONFIG.FUNCTIONS_URL}/${functionPath}`;
+      if (options.queryParams) {
+        const queryString = Object.entries(options.queryParams)
+          .filter(([_, value]) => value !== undefined && value !== null)
+          .map(
+            ([key, value]) =>
+              `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
+          )
+          .join("&");
+
+        if (queryString) {
+          url += `?${queryString}`;
+        }
+      }
+
+      // Prepare request options
+      const requestOptions: RequestInit = {
+        method: options.method || "GET",
+        headers,
+        cache: options.cache,
+        // Use 'same-origin' for better CORS handling
+        credentials: 'same-origin',
+        signal: options.timeout
+          ? AbortSignal.timeout(options.timeout)
+          : undefined,
+        // Add body for non-GET requests if provided
+        ...(options.method !== "GET" && options.body
+          ? { body: JSON.stringify(options.body) }
+          : {}),
+      };
+
+      // Only log in development mode and if not fetching too frequently
+      if (isDevelopment()) {
+        console.log(`API Request: ${requestOptions.method} ${url}`);
+      }
+      
+      // Make the fetch request
+      const response = await fetch(url, requestOptions).catch(error => {
+        // Handle CORS errors specifically
+        if (error.message && (
+          error.message.includes('CORS') || 
+          error.message.includes('Cross-Origin') ||
+          error.message.includes('Failed to fetch')
+        )) {
+          console.error('CORS error detected:', error);
+          // For development, we could use a CORS proxy here
+          if (isDevelopment()) {
+            console.warn('CORS error in development. Consider using a CORS proxy or adding fallback data.');
+          }
+        }
+        throw error;
+      });
+
+      // Log response status only in critical cases
+      if (isDevelopment() && response.status !== 200) {
+        console.log(`API Response: ${functionPath} [${response.status}]`);
+      }
+      
+      // Handle different response types
+      let result;
+      try {
+        if (options.responseType === "text") {
+          result = await response.text();
+        } else if (options.responseType === "blob") {
+          result = await response.blob();
+        } else if (options.responseType === "arraybuffer") {
+          result = await response.arrayBuffer();
+        } else {
+          // Default to JSON
+          result = await response.json();
+          
+          // Only log detailed results in development and only when explicitly debugging
+          if (isDevelopment() && import.meta.env.VITE_DEBUG_API === 'true') {
+            console.log(`Result from ${functionPath}:`, result);
+          }
+        }
+      } catch (error) {
+        // Only log parsing errors, not normal responses
+        console.error(`Error parsing response from ${functionPath}:`, error);
         return {
           error: createApiError(
-            API_ERROR_TYPE.AUTH,
-            'Authentication failed: ' + refreshError.message
+            API_ERROR_TYPE.SERVER,
+            `Failed to parse response: ${error.message}`,
+            response.status
+          ),
+          status: response.status,
+        } as ApiResult<T, R>;
+      }
+
+      // For non-JSON responses, return the raw result if response is OK
+      if (
+        options.responseType &&
+        options.responseType !== "json" &&
+        response.ok
+      ) {
+        return result as ApiResult<T, R>;
+      }
+
+      // Check for error response
+      if (!response.ok) {
+        const errorType = getErrorTypeFromStatus(response.status);
+        
+        // For Supabase Edge Functions, also check the response body for error information
+        let errorMessage = '';
+        if (result && typeof result === 'object' && 'error' in result) {
+          errorMessage = result.error;
+        } else {
+          errorMessage = `Error ${response.status}: ${response.statusText}`;
+        }
+        
+        // Create a proper API error
+        const apiError = createApiError(
+          errorType, 
+          errorMessage,
+          response.status
+        );
+        
+        return {
+          error: apiError,
+          status: response.status,
+        } as ApiResult<T, R>;
+      }
+
+      // Get request ID safely
+      const requestId = response.headers.get("x-request-id");
+
+      // Return formatted API response
+      const apiResponse: ApiResponse<T> = {
+        data: result.data || result,
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        metadata: {
+          requestId: requestId || undefined,
+          timestamp: Date.now(),
+        },
+      };
+
+      return apiResponse as ApiResult<T, R>;
+    } catch (error: unknown) {
+      // For non-JSON responses, we need to return an error wrapped in the appropriate type
+      if (options.responseType && options.responseType !== "json") {
+        throw error; // Re-throw the error for non-JSON responses to be caught by the caller
+      }
+
+      // Standard error handling for JSON responses
+      // Handle network errors
+      if (isNetworkError(error)) {
+        return {
+          error: createApiError(
+            API_ERROR_TYPE.NETWORK,
+            "Network connection error",
+            undefined,
+            error
           ),
         } as ApiResult<T, R>;
       }
+
+      // Handle timeout errors
+      if (error && typeof error === 'object' && 'name' in error && 
+          (error.name === "TimeoutError" || error.name === "AbortError")) {
+        return {
+          error: createApiError(
+            API_ERROR_TYPE.TIMEOUT,
+            "Request timed out",
+            undefined,
+            error
+          ),
+        } as ApiResult<T, R>;
+      }
+
+      // Already formatted API errors
+      if (error && typeof error === 'object' && "type" in error && "message" in error) {
+        return { error: error as ApiError } as ApiResult<T, R>;
+      }
+
+      // Other errors
+      const errorMessage = error && typeof error === 'object' && 'message' in error 
+        ? String(error.message) 
+        : "An unknown error occurred";
       
-      // Use the refreshed session
-      currentSession = refreshData.session;
-    }
-    
-    // Use the user access token if available, otherwise fall back to the public anon key
-    const token = currentSession?.access_token || API_CONFIG.SUPABASE_ANON_KEY;
-
-    // Set up headers
-    const headers: HeadersInit = {
-      ...API_CONFIG.DEFAULT_HEADERS,
-      ...options.headers,
-    };
-
-    // Add auth token if available
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    // Add query parameters if provided
-    let url = `${API_CONFIG.FUNCTIONS_URL}/${functionPath}`;
-    if (options.queryParams) {
-      const queryString = Object.entries(options.queryParams)
-        .filter(([_, value]) => value !== undefined && value !== null)
-        .map(
-          ([key, value]) =>
-            `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
-        )
-        .join("&");
-
-      if (queryString) {
-        url += `?${queryString}`;
-      }
-    }
-
-    // Prepare request options
-    const requestOptions: RequestInit = {
-      method: options.method || "GET",
-      headers,
-      cache: options.cache,
-      // credentials: 'include', // Temporarily removed to avoid preflight CORS issues
-      signal: options.timeout
-        ? AbortSignal.timeout(options.timeout)
-        : undefined,
-      // Add body for non-GET requests if provided
-      ...(options.method !== "GET" && options.body
-        ? { body: JSON.stringify(options.body) }
-        : {}),
-    };
-
-    console.log(`Making ${requestOptions.method} request to ${url}`);
-    console.log('Request headers:', headers);
-    console.log('Request body:', options.body);
-    
-    // Make the fetch request
-    const response = await fetch(url, requestOptions);
-
-    // Log response status
-    console.log(`Response from ${functionPath}: ${response.status} ${response.statusText}`);
-    console.log(`Response headers:`, Object.fromEntries(response.headers.entries()));
-    
-    // Handle different response types
-    let result;
-    try {
-      if (options.responseType === "text") {
-        result = await response.text();
-      } else if (options.responseType === "blob") {
-        result = await response.blob();
-      } else if (options.responseType === "arraybuffer") {
-        result = await response.arrayBuffer();
-      } else {
-        // Default to JSON
-        result = await response.json();
-        console.log(`Raw result from ${functionPath}:`, result);
-        console.log(`Type of result:`, typeof result);
-        console.log(`Is result an array:`, Array.isArray(result));
-      }
-    } catch (error) {
-      console.error(`Error parsing response from ${functionPath}:`, error);
+      // Always clean up the cache entry on error
+      delete ACTIVE_REQUESTS[cacheKey];
+      
       return {
         error: createApiError(
-          API_ERROR_TYPE.SERVER,
-          `Failed to parse response: ${error.message}`,
-          response.status
-        ),
-        status: response.status,
-      } as ApiResult<T, R>;
-    }
-
-    // For non-JSON responses, return the raw result if response is OK
-    if (
-      options.responseType &&
-      options.responseType !== "json" &&
-      response.ok
-    ) {
-      return result as ApiResult<T, R>;
-    }
-
-    // Check for error response
-    if (!response.ok) {
-      const errorType = getErrorTypeFromStatus(response.status);
-      throw createApiError(
-        errorType,
-        typeof result === "object" && result.error
-          ? result.error
-          : `HTTP error ${response.status}`,
-        response.status,
-        result
-      );
-    }
-
-    // Get request ID safely
-    const requestId = response.headers.get("x-request-id");
-
-    // Return formatted API response
-    const apiResponse: ApiResponse<T> = {
-      data: result.data || result,
-      status: response.status,
-      metadata: {
-        requestId: requestId || undefined,
-        timestamp: Date.now(),
-      },
-    };
-
-    return apiResponse as ApiResult<T, R>;
-  } catch (error: unknown) {
-    // For non-JSON responses, we need to return an error wrapped in the appropriate type
-    if (options.responseType && options.responseType !== "json") {
-      throw error; // Re-throw the error for non-JSON responses to be caught by the caller
-    }
-
-    // Standard error handling for JSON responses
-    // Handle network errors
-    if (isNetworkError(error)) {
-      return {
-        error: createApiError(
-          API_ERROR_TYPE.NETWORK,
-          "Network connection error",
+          API_ERROR_TYPE.UNKNOWN,
+          errorMessage,
           undefined,
           error
         ),
       } as ApiResult<T, R>;
     }
+  })();
+  
+  // Store the request in the cache
+  ACTIVE_REQUESTS[cacheKey] = {
+    promise: requestPromise,
+    timestamp: now,
+    expiresAt: now + REQUEST_CACHE_DURATION
+  };
+  
+  // Set up automatic cache cleanup after the request completes
+  requestPromise.then(() => {
+    // Clean up after a short delay to allow for quick sequential accesses
+    setTimeout(() => {
+      delete ACTIVE_REQUESTS[cacheKey];
+    }, 100);
+  }).catch(() => {
+    // Clean up immediately on error
+    delete ACTIVE_REQUESTS[cacheKey];
+  });
+  
+  return requestPromise;
+}
 
-    // Handle timeout errors
-    if (error && typeof error === 'object' && 'name' in error && 
-        (error.name === "TimeoutError" || error.name === "AbortError")) {
-      return {
-        error: createApiError(
-          API_ERROR_TYPE.TIMEOUT,
-          "Request timed out",
-          undefined,
-          error
-        ),
-      } as ApiResult<T, R>;
-    }
-
-    // Already formatted API errors
-    if (error && typeof error === 'object' && "type" in error && "message" in error) {
-      return { error: error as ApiError } as ApiResult<T, R>;
-    }
-
-    // Other errors
-    const errorMessage = error && typeof error === 'object' && 'message' in error 
-      ? String(error.message) 
-      : "An unknown error occurred";
-    
-    return {
-      error: createApiError(
-        API_ERROR_TYPE.UNKNOWN,
-        errorMessage,
-        undefined,
-        error
-      ),
-    } as ApiResult<T, R>;
-  }
+/**
+ * Generates a cache key for deduplicating requests
+ */
+function generateCacheKey(path: string, options: ApiRequestOptions): string {
+  const method = options.method || 'GET';
+  const queryParams = options.queryParams ? JSON.stringify(options.queryParams) : '';
+  const body = options.body ? JSON.stringify(options.body) : '';
+  
+  // Simplified key for most use cases
+  return `${method}:${path}:${queryParams}:${body}`;
 }
 
 /**

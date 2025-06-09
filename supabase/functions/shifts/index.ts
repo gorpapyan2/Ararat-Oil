@@ -44,6 +44,7 @@ interface ShiftWithEmployees {
   employees?: ShiftEmployee[];
   created_at: string;
   updated_at: string;
+  is_user_specific?: boolean;  // Flag to indicate if this shift is specifically assigned to the requesting user
 }
 
 // Database operations
@@ -347,6 +348,176 @@ async function closeShift(shiftId: string, shiftData: ShiftData, supabase: any) 
   return { message: 'Shift closed successfully', shift };
 }
 
+// Add this function after getShifts function
+async function getActiveShiftForUser(userId: string, supabase: any): Promise<ShiftWithEmployees | null> {
+  try {
+    console.log(`Getting active shift for user ${userId}`);
+    
+    // First try with shift_employees relation
+    try {
+      const { data: shifts, error } = await supabase
+        .from('shifts')
+        .select(`
+          *,
+          shift_employees!inner(
+            id,
+            employee_id,
+            created_at
+          )
+        `)
+        .eq('status', 'OPEN')
+        .eq('shift_employees.employee_id', userId)
+        .order('start_time', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (!error && shifts) {
+        // Transform to expected format
+        return {
+          ...shifts,
+          is_active: true,
+          employees: [{
+            id: shifts.shift_employees[0].id,
+            employee_id: shifts.shift_employees[0].employee_id,
+            employee_name: `Employee ${userId.slice(-4)}`,
+            employee_position: 'Unknown',
+            employee_status: 'active',
+            created_at: shifts.shift_employees[0].created_at
+          }]
+        };
+      }
+    } catch (e) {
+      console.log('Error querying with shift_employees, falling back:', e);
+    }
+    
+    // Fall back to legacy employee_id field
+    try {
+      const { data: shift, error } = await supabase
+        .from('shifts')
+        .select('*')
+        .eq('status', 'OPEN')
+        .eq('employee_id', userId)
+        .order('start_time', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (!error && shift) {
+        // Transform to expected format
+        return {
+          ...shift,
+          is_active: true,
+          employees: [{
+            id: `${shift.id}-${userId}`,
+            employee_id: userId,
+            employee_name: `Employee ${userId.slice(-4)}`,
+            employee_position: 'Unknown',
+            employee_status: 'active',
+            created_at: shift.created_at
+          }]
+        };
+      }
+    } catch (e) {
+      console.log(`No user-specific active shift found for ${userId}, falling back to system active shift:`, e);
+    }
+    
+    // If no user-specific shift is found, return the system-wide active shift
+    try {
+      console.log(`No user-specific shift found for ${userId}, returning system active shift`);
+      const systemShift = await getSystemActiveShift(supabase);
+      if (systemShift) {
+        // Add a flag to indicate this is not a user-specific shift
+        return {
+          ...systemShift,
+          is_user_specific: false
+        };
+      }
+    } catch (e) {
+      console.log('Error getting system active shift:', e);
+    }
+    
+    // If no active shift is found at all
+    return null;
+  } catch (error) {
+    console.error(`Error getting active shift for user ${userId}:`, error);
+    throw error;
+  }
+}
+
+// Add this function after getActiveShiftForUser 
+async function getSystemActiveShift(supabase: any): Promise<ShiftWithEmployees | null> {
+  try {
+    console.log('Getting system-wide active shift');
+    
+    // Get any open shift
+    const { data: shift, error } = await supabase
+      .from('shifts')
+      .select(`
+        *,
+        shift_employees!left(
+          id,
+          employee_id,
+          created_at,
+          employees(
+            id,
+            name,
+            position,
+            status
+          )
+        )
+      `)
+      .eq('status', 'OPEN')
+      .order('start_time', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No results found
+        return null;
+      }
+      throw error;
+    }
+    
+    // Transform the data to match our expected format
+    let employees: ShiftEmployee[] = [];
+      
+    // If we have shift_employees data, use it
+    if (shift.shift_employees && Array.isArray(shift.shift_employees)) {
+      employees = shift.shift_employees
+        .filter((se: any) => se.employees) // Only include entries with valid employee data
+        .map((se: any) => ({
+          id: se.id,
+          employee_id: se.employee_id,
+          employee_name: se.employees?.name || 'Unknown',
+          employee_position: se.employees?.position || 'Unknown',
+          employee_status: se.employees?.status || 'active',
+          created_at: se.created_at
+        }));
+    }
+    
+    // Fallback: if no employees from new structure but has employee_id, create a basic employee entry
+    if (employees.length === 0 && shift.employee_id) {
+      employees = [{
+        id: `${shift.id}-${shift.employee_id}`,
+        employee_id: shift.employee_id,
+        employee_name: `Employee ${shift.employee_id.slice(-4)}`,
+        employee_position: 'Unknown',
+        employee_status: 'active',
+        created_at: shift.created_at
+      }];
+    }
+    
+    return {
+      ...shift,
+      is_active: true,
+      employees
+    };
+  } catch (error) {
+    console.error('Error getting system active shift:', error);
+    throw error;
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -367,27 +538,103 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const pathname = url.pathname;
     
-    // Remove the base function path to get the route
-    const route = pathname.replace('/functions/v1/shifts', '').replace(/^\/+|\/+$/g, '');
-    
+    // Simplified route handling
     console.log('Request method:', req.method);
     console.log('Full pathname:', pathname);
-    console.log('Extracted route:', route);
+    
+    // Directly check for specific endpoints first
+    if (req.method === 'GET' && pathname.includes('/system-active')) {
+      console.log('Handling GET system-active');
+      try {
+        // Get any open shift
+        const { data, error } = await supabase
+          .from('shifts')
+          .select('*')
+          .eq('status', 'OPEN')
+          .order('start_time', { ascending: false })
+          .limit(1)
+          .single();
+          
+        if (error || !data) {
+          return new Response(JSON.stringify({ error: 'Not found', message: 'No active shift found' }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          });
+        }
+        
+        return new Response(JSON.stringify({ data }), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      } catch (error) {
+        console.error('Error in system-active:', error);
+        return new Response(JSON.stringify({ error: 'Not found', message: 'No active shift found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+    } 
+    
+    // Handle active/{userId} endpoint
+    else if (req.method === 'GET' && pathname.includes('/active/')) {
+      const userId = pathname.split('/active/')[1];
+      console.log(`Handling GET active/${userId}`);
+      
+      try {
+        // Try to get user-specific active shift first, with fallback to system active shift
+        const activeShift = await getActiveShiftForUser(userId, supabase);
+        
+        if (!activeShift) {
+          return new Response(JSON.stringify({ error: 'Not found', message: `No active shift found for user ${userId}` }), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          });
+        }
+        
+        // We found a shift (either user-specific or system-wide)
+        return new Response(JSON.stringify({ 
+          data: activeShift,
+          is_user_specific: !!activeShift.is_user_specific 
+        }), {
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      } catch (error) {
+        console.error(`Error in active/${userId}:`, error);
+        return new Response(JSON.stringify({ error: 'Not found', message: `No active shift found for user ${userId}` }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+    }
 
     let data;
     
-    if (req.method === 'GET' && (route === '' || route === '/' || route === 'shifts')) {
+    if (req.method === 'GET' && (pathname === '' || pathname === '/' || pathname === 'shifts')) {
       // GET /shifts - get all shifts
       console.log('Handling GET /shifts');
       data = await getShifts(supabase);
-    } else if (req.method === 'POST' && (route === '' || route === '/' || route === 'shifts')) {
+    } else if (req.method === 'GET' && pathname === 'system-active') {
+      // GET /shifts/system-active - get the system-wide active shift
+      console.log('Handling GET /shifts/system-active');
+      try {
+        data = await getSystemActiveShift(supabase);
+        if (!data) {
+          throw new Error('No active shift found');
+        }
+      } catch (error) {
+        console.log('No active shift found in system, returning 404');
+        return new Response(JSON.stringify({ error: 'Not found', route: pathname, method: req.method }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+    } else if (req.method === 'POST' && (pathname === '' || pathname === '/' || pathname === 'shifts')) {
       // POST /shifts - start new shift
       console.log('Handling POST /shifts');
       const body = await req.json();
       data = await startShift(body, supabase);
-    } else if (req.method === 'POST' && route.includes('/close')) {
+    } else if (req.method === 'POST' && pathname.includes('/close')) {
       // POST /shifts/:id/close - close shift
-      const pathParts = route.split('/');
+      const pathParts = pathname.split('/');
       const shiftId = pathParts[0];
       console.log('Handling POST /shifts/:id/close with ID:', shiftId);
       console.log('Route parts:', pathParts);
@@ -401,7 +648,7 @@ Deno.serve(async (req) => {
       data = await closeShift(shiftId, body, supabase);
     } else {
       console.log('No matching route found');
-      return new Response(JSON.stringify({ error: 'Not found', route, method: req.method }), {
+      return new Response(JSON.stringify({ error: 'Not found', route: pathname, method: req.method }), {
         status: 404,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });

@@ -347,3 +347,52 @@ npm run build:analyze
 **🎉 The Ararat Oil Management System is production-ready and optimized for enterprise use!**
 
 *Built with ❤️ using modern web technologies for optimal performance and developer experience.*
+
+## Development Debugging
+
+This project includes advanced debugging features to help identify performance issues and unnecessary re-renders.
+
+### Debug Environment Variables
+
+Create a `.env.debug` file with the following flags:
+
+```
+# Debug Flags
+VITE_DEBUG_HOOKS=true
+VITE_DEBUG_RENDER=true
+VITE_DEBUG_UI=true
+VITE_DEBUG_PERFORMANCE=true
+```
+
+To use the debug configuration, start the app with:
+
+```bash
+# For npm
+npm run dev -- --mode debug
+
+# For yarn
+yarn dev --mode debug
+```
+
+### Debug Features
+
+1. **StrictMode Control**: When `VITE_DEBUG_PERFORMANCE=true`, React StrictMode is disabled to prevent double renders during debugging.
+
+2. **Hook Usage Tracking**: When `VITE_DEBUG_HOOKS=true`, all custom hooks will log detailed information about renders, mounting, and API calls.
+
+3. **Render Tracking**: When `VITE_DEBUG_RENDER=true`, components will log stack traces showing the component tree that triggered renders.
+
+4. **UI Debug Panel**: When `VITE_DEBUG_UI=true`, pages will display an additional debug panel with real-time render counts and state information.
+
+### Diagnosing Performance Issues
+
+If you're seeing excessive network requests or re-renders:
+
+1. Start the app in debug mode
+2. Check the console for entries like:
+   - `[useFuelSupplies] Instance #1 render #3` (shows hook re-renders)
+   - `[FuelSuppliesPage] Render #5 (total: 12)` (shows component re-renders)
+   - `[useFuelSupplies] Request #1 successful` (tracks API requests)
+
+3. Look for components with unexpectedly high render counts
+4. Use the Debug Panel to see real-time component state
