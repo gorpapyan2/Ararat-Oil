@@ -150,10 +150,6 @@ export const FuelSuppliesTable = React.memo<FuelSuppliesTableProps>(({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onView(row)}>
-              <Eye className="mr-2 h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(row)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit Supply

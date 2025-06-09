@@ -9,6 +9,17 @@ import { PlusCircle, X, Save, AlertCircle, Package, CheckCircle } from 'lucide-r
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';
 import { StatsCard } from '@/shared/components/cards';
 import { useTranslation } from 'react-i18next';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/core/components/ui/primitives/alert-dialog';
+import { useToast } from "@/core/hooks/useToast";
 
 // Import the separated components
 import { FuelSuppliesMetrics } from '@/features/fuel-management/components/FuelSuppliesMetrics';
@@ -54,6 +65,9 @@ export const FuelSuppliesPage: React.FC = () => {
   
   // Initialize i18n
   const { t } = useTranslation();
+  
+  // Initialize toast
+  const { toast } = useToast();
   
   // Use our custom hook for data fetching with built-in caching
   const { supplies, isLoading, error, refreshData } = useFuelSupplies();
@@ -167,31 +181,51 @@ export const FuelSuppliesPage: React.FC = () => {
       
       // Validate required fields
       if (!createSupplyData.provider_id) {
-        alert(t('fuelSupplies.modal.validation.selectProvider'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.selectProvider'),
+          variant: "destructive"
+        });
         setIsCreating(false);
         return;
       }
       
       if (!createSupplyData.tank_id) {
-        alert(t('fuelSupplies.modal.validation.selectTank'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.selectTank'),
+          variant: "destructive"
+        });
         setIsCreating(false);
         return;
       }
       
       if (!createSupplyData.quantity_liters || createSupplyData.quantity_liters <= 0) {
-        alert(t('fuelSupplies.modal.validation.enterValidQuantity'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.enterValidQuantity'),
+          variant: "destructive"
+        });
         setIsCreating(false);
         return;
       }
       
       if (!createSupplyData.price_per_liter || createSupplyData.price_per_liter <= 0) {
-        alert(t('fuelSupplies.modal.validation.enterValidPrice'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.enterValidPrice'),
+          variant: "destructive"
+        });
         setIsCreating(false);
         return;
       }
       
       if (!createSupplyData.delivery_date) {
-        alert(t('fuelSupplies.modal.validation.enterValidDate'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.enterValidDate'),
+          variant: "destructive"
+        });
         setIsCreating(false);
         return;
       }
@@ -237,7 +271,11 @@ export const FuelSuppliesPage: React.FC = () => {
       
       if (response.data) {
         // Show success message
-        alert(t('fuelSupplies.modal.createSuccess'));
+        toast({
+          title: t('common.success'),
+          description: t('fuelSupplies.modal.createSuccess'),
+          variant: "success"
+        });
         
         // Refresh supplies list and reset create form
         refreshData();
@@ -256,11 +294,19 @@ export const FuelSuppliesPage: React.FC = () => {
         setShowCreateModal(false);
       } else {
         // Show error message
-        alert(t('fuelSupplies.modal.createError') + ': ' + response.error?.message || t('common.unknownError'));
+        toast({
+          title: t('common.error'),
+          description: response.error?.message || t('common.unknownError'),
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error('Error creating supply:', error);
-      alert(t('fuelSupplies.modal.createError'));
+      toast({
+        title: t('common.error'),
+        description: t('fuelSupplies.modal.createError'),
+        variant: "destructive"
+      });
     } finally {
       setIsCreating(false);
     }
@@ -309,31 +355,51 @@ export const FuelSuppliesPage: React.FC = () => {
       
       // Validate required fields (similar to create)
       if (!createSupplyData.provider_id) {
-        alert(t('fuelSupplies.modal.validation.selectProvider'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.selectProvider'),
+          variant: "destructive"
+        });
         setIsEditing(false);
         return;
       }
       
       if (!createSupplyData.tank_id) {
-        alert(t('fuelSupplies.modal.validation.selectTank'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.selectTank'),
+          variant: "destructive"
+        });
         setIsEditing(false);
         return;
       }
       
       if (!createSupplyData.quantity_liters || createSupplyData.quantity_liters <= 0) {
-        alert(t('fuelSupplies.modal.validation.enterValidQuantity'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.enterValidQuantity'),
+          variant: "destructive"
+        });
         setIsEditing(false);
         return;
       }
       
       if (!createSupplyData.price_per_liter || createSupplyData.price_per_liter <= 0) {
-        alert(t('fuelSupplies.modal.validation.enterValidPrice'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.enterValidPrice'),
+          variant: "destructive"
+        });
         setIsEditing(false);
         return;
       }
       
       if (!createSupplyData.delivery_date) {
-        alert(t('fuelSupplies.modal.validation.enterValidDate'));
+        toast({
+          title: t('common.error'),
+          description: t('fuelSupplies.modal.validation.enterValidDate'),
+          variant: "destructive"
+        });
         setIsEditing(false);
         return;
       }
@@ -379,7 +445,11 @@ export const FuelSuppliesPage: React.FC = () => {
       
       if (response.data) {
         // Show success message
-        alert(t('fuelSupplies.modal.updateSuccess', 'Supply updated successfully'));
+        toast({
+          title: t('common.success'),
+          description: t('fuelSupplies.modal.updateSuccess', 'Supply updated successfully'),
+          variant: "success"
+        });
         
         // Refresh supplies list and reset form
         refreshData();
@@ -398,11 +468,19 @@ export const FuelSuppliesPage: React.FC = () => {
         setCurrentSupply(null);
       } else {
         // Show error message
-        alert(t('fuelSupplies.modal.updateError', 'Error updating supply') + ': ' + response.error?.message || t('common.unknownError'));
+        toast({
+          title: t('common.error'),
+          description: response.error?.message || t('common.unknownError'),
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error('Error updating supply:', error);
-      alert(t('fuelSupplies.modal.updateError', 'Error updating supply'));
+      toast({
+        title: t('common.error'),
+        description: t('fuelSupplies.modal.updateError', 'Error updating supply'),
+        variant: "destructive"
+      });
     } finally {
       setIsEditing(false);
     }
@@ -426,17 +504,29 @@ export const FuelSuppliesPage: React.FC = () => {
       
       if (response.data?.success) {
         // Show success message
-        alert(t('fuelSupplies.modal.deleteSuccess', 'Supply deleted successfully'));
+        toast({
+          title: t('common.success'),
+          description: t('fuelSupplies.modal.deleteSuccess', 'Supply deleted successfully'),
+          variant: "success"
+        });
         
         // Refresh supplies list
         refreshData();
       } else {
         // Show error message
-        alert(t('fuelSupplies.modal.deleteError', 'Error deleting supply') + ': ' + response.error?.message || t('common.unknownError'));
+        toast({
+          title: t('common.error'),
+          description: response.error?.message || t('common.unknownError'),
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error('Error deleting supply:', error);
-      alert(t('fuelSupplies.modal.deleteError', 'Error deleting supply'));
+      toast({
+        title: t('common.error'),
+        description: t('fuelSupplies.modal.deleteError', 'Error deleting supply'),
+        variant: "destructive"
+      });
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -762,12 +852,6 @@ export const FuelSuppliesPage: React.FC = () => {
 
                   <div className="flex justify-end gap-2 pt-3 border-t border-border">
                     <button
-                      onClick={() => handleViewSupply(supply)}
-                      className="p-2 text-xs text-muted-foreground hover:text-foreground bg-background rounded-md hover:bg-muted transition-colors"
-                    >
-                      <ActionIcons.Eye className="w-4 h-4" />
-                    </button>
-                    <button
                       onClick={() => handleEditSupply(supply)}
                       className="p-2 text-xs text-muted-foreground hover:text-foreground bg-background rounded-md hover:bg-muted transition-colors"
                     >
@@ -819,29 +903,48 @@ export const FuelSuppliesPage: React.FC = () => {
         isCreating={isEditing}
       />
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">{t('fuelSupplies.modal.deleteConfirmationTitle')}</h2>
-            <p className="mb-4">{t('fuelSupplies.modal.deleteConfirmationMessage')}</p>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={confirmDeleteSupply}
-                className="px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90"
-              >
-                {t('fuelSupplies.modal.deleteConfirm')}
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 bg-card text-card-foreground rounded-md hover:bg-card/90"
-              >
-                {t('fuelSupplies.modal.deleteCancel')}
-              </button>
-            </div>
-          </div>
-      </div>
-      )}
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+      >
+        <AlertDialogContent className="bg-background border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-foreground">
+              {t('fuelSupplies.modal.deleteConfirmationTitle')}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              {t('fuelSupplies.modal.deleteConfirmationMessage')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="bg-background text-foreground border-border hover:bg-muted hover:text-foreground">
+              {t('fuelSupplies.modal.deleteCancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteSupply}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground font-medium"
+            >
+              {isDeleting ? (
+                <>
+                  <span className="mr-2">
+                    <svg className="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </span>
+                  {t('common.deleting')}
+                </>
+              ) : (
+                <>
+                  <ActionIcons.Delete className="mr-2 h-4 w-4" />
+                  {t('fuelSupplies.modal.deleteConfirm')}
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </WindowContainer>
   );
 };
