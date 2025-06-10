@@ -3,19 +3,6 @@ import { fuelSuppliesApi } from '@/core/api';
 import { FuelSupply } from '@/core/api/types';
 import { SupplyListItem } from '../components/FuelSuppliesTable';
 
-// Cache duration in milliseconds (10 minutes)
-const CACHE_DURATION = 10 * 60 * 1000;
-
-// Create a stable cache object that persists between renders and component instances
-const globalCache = {
-  data: null as SupplyListItem[] | null,
-  timestamp: 0,
-  isLoading: false,
-  error: null as Error | null,
-  requestId: 0,
-  pendingRequest: null as Promise<void> | null,
-};
-
 // Diagnostic counters for development
 const diagnostics = {
   hookInstances: 0,
@@ -63,12 +50,6 @@ export function useFuelSupplies() {
       `(total: ${diagnostics.renders}, instances: ${diagnostics.hookInstances}, API calls: ${diagnostics.apiCalls})`,
       `in ${callerComponent}`
     );
-    
-    // More detailed logging if debug flag is set
-    if (import.meta.env.VITE_DEBUG_HOOKS === 'true') {
-      console.log('Component stack:', stackTrace.split('\n').slice(2, 6).join('\n'));
-      console.log('Components using hook:', Array.from(diagnostics.componentsUsingHook).join(', '));
-    }
   }
   
   // Transform function for API data
@@ -98,149 +79,62 @@ export function useFuelSupplies() {
     }
   }, []);
 
-  // Fetch data function with improved cache handling and request deduplication
-  const fetchData = useCallback(async (forceRefresh = false) => {
-    // Check if cache is valid and we're not forcing a refresh
-    const now = Date.now();
-    const cacheIsValid = 
-      globalCache.data !== null && 
-      (now - globalCache.timestamp < CACHE_DURATION) && 
-      !forceRefresh;
-
-    // Use cached data if valid
-    if (cacheIsValid) {
-      if (import.meta.env.DEV) {
-        console.log(`[useFuelSupplies] Instance #${instanceId.current} using cached data`);
-      }
-      
-      if (isMounted.current) {
-        setSupplies(globalCache.data || []);
-        setIsLoading(false);
-        setError(globalCache.error);
-      }
-      return;
-    }
-
-    // Set loading state if we need to fetch
-    if (isMounted.current) {
-      setIsLoading(true);
-    }
-
-    // If there's already a request in progress, reuse that promise
-    if (globalCache.pendingRequest) {
-      if (import.meta.env.DEV) {
-        console.log(`[useFuelSupplies] Instance #${instanceId.current} reusing pending request`);
-      }
-      
-      await globalCache.pendingRequest;
-      
-      // After the pending request completes, update component state with latest cache
-      if (isMounted.current) {
-        setSupplies(globalCache.data || []);
-        setIsLoading(false);
-        setError(globalCache.error);
-      }
-      return;
-    }
-
-    // Create a new request
-    const requestId = ++globalCache.requestId;
+  // Simple fetch data function without caching
+  const fetchData = useCallback(async () => {
+    if (!isMounted.current) return;
+    
+    setIsLoading(true);
     
     if (import.meta.env.DEV) {
       diagnostics.apiCalls++;
-      console.log(`[useFuelSupplies] Instance #${instanceId.current} initiating API call #${diagnostics.apiCalls} (request ID: ${requestId})`);
+      console.log(`[useFuelSupplies] Instance #${instanceId.current} fetching fresh data (API call #${diagnostics.apiCalls})`);
     }
     
-    // Create the fetch promise
-    const fetchPromise = (async () => {
-      try {
-        // Mark as loading in the global cache
-        globalCache.isLoading = true;
-        
-        // Fetch data from API
-        const response = await fuelSuppliesApi.getFuelSupplies();
-        
-        // Check if this request is still relevant (not superseded by a newer one)
-        if (requestId !== globalCache.requestId) {
-          if (import.meta.env.DEV) {
-            console.log(`[useFuelSupplies] Request #${requestId} superseded, discarding results`);
-          }
-          return;
-        }
-        
-        if (response.error) {
-          throw new Error(response.error.message || 'Failed to fetch fuel supplies');
-        }
-        
-        // Process data if available
-        if (response.data && Array.isArray(response.data)) {
-          const transformedData = response.data.map(transformSupplyToListItem);
-          
-          if (import.meta.env.DEV) {
-            console.log(`[useFuelSupplies] Request #${requestId} successful, received ${transformedData.length} items`);
-          }
-          
-          // Update cache
-          globalCache.data = transformedData;
-          globalCache.timestamp = now;
-          globalCache.error = null;
-          
-          // Update component state if still mounted
-          if (isMounted.current) {
-            setSupplies(transformedData);
-            setError(null);
-          }
-        } else {
-          // Handle empty data
-          if (import.meta.env.DEV) {
-            console.log(`[useFuelSupplies] Request #${requestId} returned empty data`);
-          }
-          
-          globalCache.data = [];
-          globalCache.timestamp = now;
-          
-          // Update component state if still mounted
-          if (isMounted.current) {
-            setSupplies([]);
-          }
-        }
-      } catch (err) {
-        // Update error state
-        const errorObj = err instanceof Error ? err : new Error('Unknown error occurred');
+    try {
+      const response = await fuelSuppliesApi.getFuelSupplies();
+      
+      if (!isMounted.current) return;
+      
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to fetch fuel supplies');
+      }
+      
+      if (response.data && Array.isArray(response.data)) {
+        const transformedData = response.data.map(transformSupplyToListItem);
         
         if (import.meta.env.DEV) {
-          console.error(`[useFuelSupplies] Request #${requestId} failed:`, errorObj);
+          console.log(`[useFuelSupplies] Received ${transformedData.length} items`);
         }
         
-        globalCache.error = errorObj;
-        
-        if (isMounted.current) {
-          setError(errorObj);
-        }
-      } finally {
-        // Clean up loading state
-        globalCache.isLoading = false;
-        globalCache.pendingRequest = null;
-        
-        if (isMounted.current) {
-          setIsLoading(false);
-        }
+        setSupplies(transformedData);
+        setError(null);
+      } else {
+        // Handle empty data
+        setSupplies([]);
       }
-    })();
-    
-    // Store the promise in the cache so other components can await it
-    globalCache.pendingRequest = fetchPromise;
-    
-    // Await the promise
-    await fetchPromise;
+    } catch (err) {
+      if (!isMounted.current) return;
+      
+      const errorObj = err instanceof Error ? err : new Error('Unknown error occurred');
+      
+      if (import.meta.env.DEV) {
+        console.error(`[useFuelSupplies] Error fetching data:`, errorObj);
+      }
+      
+      setError(errorObj);
+    } finally {
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
+    }
   }, [transformSupplyToListItem]);
 
-  // Refresh function exposed to components
+  // Refresh function exposed to components - same as fetchData
   const refreshData = useCallback(() => {
     if (import.meta.env.DEV) {
-      console.log(`[useFuelSupplies] Instance #${instanceId.current} manual refresh requested`);
+      console.log(`[useFuelSupplies] Instance #${instanceId.current} refresh requested`);
     }
-    return fetchData(true);
+    return fetchData();
   }, [fetchData]);
 
   // Fetch data on mount and clean up on unmount
@@ -248,22 +142,8 @@ export function useFuelSupplies() {
     // Set mounted flag
     isMounted.current = true;
     
-    // Check if we already have data in the cache
-    if (globalCache.data) {
-      setSupplies(globalCache.data);
-      setIsLoading(globalCache.isLoading);
-      setError(globalCache.error);
-      
-      // Only fetch if cache is older than CACHE_DURATION
-      const now = Date.now();
-      if (now - globalCache.timestamp > CACHE_DURATION) {
-        // Use the non-force refresh version to leverage cache if available
-        fetchData(false);
-      }
-    } else {
-      // No cached data, must fetch
-      fetchData(false);
-    }
+    // Initial data fetch
+    fetchData();
     
     // Cleanup function
     return () => {
@@ -273,12 +153,13 @@ export function useFuelSupplies() {
         console.log(`[useFuelSupplies] Instance #${instanceId.current} unmounted`);
       }
     };
-  }, [fetchData]); // Only depend on fetchData
+  }, [fetchData]);
 
   return {
     supplies,
     isLoading,
     error,
-    refreshData
+    refreshData,
+    setSupplies
   };
 }

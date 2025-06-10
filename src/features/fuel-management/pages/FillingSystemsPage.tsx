@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, X } from 'lucide-react';
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
+import { hy } from 'date-fns/locale';
 
 // Import UI components
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';
@@ -31,6 +33,7 @@ export default function FillingSystemsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedEditSystem, setSelectedEditSystem] = useState<FillingSystem | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Get filling systems data
   const { 
@@ -41,8 +44,30 @@ export default function FillingSystemsPage() {
   const {
     data: fillingSystemsData = [],
     isLoading,
-    refetch
+    refetch,
+    error
   } = useFillingSystemsQuery();
+
+  // Enhanced refetch function with loading state
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refetch();
+      toast({
+        title: t('common.success'),
+        message: t('fillingSystems.dataRefreshed', 'Data refreshed successfully'),
+        type: 'success'
+      });
+    } catch (error) {
+      toast({
+        title: t('common.error'),
+        message: t('fillingSystems.refreshError', 'Failed to refresh data'),
+        type: 'error'
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const deleteMutation = useDeleteFillingSystemMutation();
 
@@ -65,7 +90,7 @@ export default function FillingSystemsPage() {
     return fillingSystems.filter(system => {
       const matchesSearch = searchTerm === '' || 
         system.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        system.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (system.location && system.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
         system.id.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = selectedStatus === 'all' || system.status === selectedStatus;
@@ -126,6 +151,16 @@ export default function FillingSystemsPage() {
     }
   };
 
+  // Format the last updated time as a relative time (e.g., "2 minutes ago")
+  const formatLastUpdated = (dateString: string) => {
+    try {
+      const date = parseISO(dateString);
+      return formatDistanceToNow(date, { addSuffix: true, locale: hy });
+    } catch (error) {
+      return "Unknown";
+    }
+  };
+
   return (
     <WindowContainer
       title={t('fillingSystems.title', 'Filling Systems')}
@@ -136,22 +171,30 @@ export default function FillingSystemsPage() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <span><strong className="text-card-foreground">{totalSystems}</strong> {t('fillingSystems.stats.total', 'total')}</span>
-            <span><strong className="text-card-foreground">{activeSystems}</strong> {t('fillingSystems.stats.active', 'active')}</span>
-            {maintenanceSystems > 0 && (
-              <span className="text-yellow-600"><strong>{maintenanceSystems}</strong> {t('fillingSystems.stats.maintenance', 'in maintenance')}</span>
-            )}
-            {inactiveSystems > 0 && (
-              <span className="text-red-600"><strong>{inactiveSystems}</strong> {t('fillingSystems.stats.inactive', 'inactive')}</span>
+            {isLoading ? (
+              <span className="animate-pulse">{t('common.loading')}</span>
+            ) : error ? (
+              <span className="text-red-500">{t('common.error')}</span>
+            ) : (
+              <>
+                <span><strong className="text-card-foreground">{totalSystems}</strong> {t('fillingSystems.stats.total', 'total')}</span>
+                <span><strong className="text-card-foreground">{activeSystems}</strong> {t('fillingSystems.stats.active', 'active')}</span>
+                {maintenanceSystems > 0 && (
+                  <span className="text-yellow-600"><strong>{maintenanceSystems}</strong> {t('fillingSystems.stats.maintenance', 'in maintenance')}</span>
+                )}
+                {inactiveSystems > 0 && (
+                  <span className="text-red-600"><strong>{inactiveSystems}</strong> {t('fillingSystems.stats.inactive', 'inactive')}</span>
+                )}
+              </>
             )}
           </div>
           <div className="flex gap-2">
             <button 
-              onClick={() => refetch()}
-              disabled={isLoading}
+              onClick={handleRefresh}
+              disabled={isLoading || isRefreshing}
               className="p-2 text-muted-foreground hover:text-card-foreground rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
             >
-              <ActionIcons.Refresh className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <ActionIcons.Refresh className={`w-4 h-4 ${isLoading || isRefreshing ? 'animate-spin' : ''}`} />
             </button>
             <button 
               onClick={() => formDialog.open()}

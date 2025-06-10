@@ -37,6 +37,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/shared/utils/cn';
+import { ModuleCard } from '@/shared/components/cards/ModuleCard';
+import { QuickActionCard } from '@/shared/components/cards/QuickActionCard';
 
 // Import shimmer components
 import { 
@@ -398,96 +400,30 @@ export function NavigationPage() {
         </div>
 
         {/* Navigation Modules Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {navigationModules.map((module) => (
-            <Link
-              key={module.id}
-              to={module.path}
-              className="group"
-            >
-              <div
-                className={cn(
-                  'relative overflow-hidden rounded-xl p-6 min-h-[12rem] transition-all duration-300',
-                  'bg-card border border-border',
-                  'backdrop-blur-sm hover:backdrop-blur-md',
-                  'hover:scale-[1.02] hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-white/5',
-                  'hover:border-accent/30',
-                  'flex flex-col',
-                  module.bgGradient
-                )}
-              >
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-20 dark:opacity-30">
-                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-accent/10 to-transparent" />
-                </div>
-
-                {/* Content */}
-                <div className="relative z-10 h-full flex flex-col">
-                  {/* Header with Icon and Badge */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div
-                      className={cn(
-                        'p-3 rounded-lg transition-all duration-300',
-                        'bg-gradient-to-br shadow-sm group-hover:shadow-md',
-                        'group-hover:scale-110 group-hover:rotate-3',
-                        module.iconGradient
-                      )}
-                    >
-                      <module.icon className="h-6 w-6 text-white" />
-                    </div>
-                    
-                    {module.badge && (
-                      <span className={cn(
-                        'px-2 py-1 text-xs font-medium rounded-full',
-                        'bg-accent/20 text-accent border border-accent/30',
-                        'uppercase tracking-wider',
-                        'flex-shrink-0'
-                      )}>
-                        {module.badge}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Title and Description */}
-                  <div className="flex-1 mb-4">
-                    <h3 className="text-lg font-semibold mb-2 text-card-foreground group-hover:text-accent transition-colors duration-300">
-                      {module.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {module.description}
-                    </p>
-                  </div>
-
-                  {/* Stats Footer */}
-                  {module.stats && (
-                    <div className="mt-auto pt-4 border-t border-border/50">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className={cn(
-                            'text-xl font-bold transition-colors duration-300',
-                            module.textColor
-                          )}>
-                            {module.stats.count}
-                          </div>
-                          <div className="text-xs text-muted-foreground uppercase tracking-wide">
-                            {module.stats.label}
-                          </div>
-                        </div>
-                        <div className={cn(
-                          'w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300',
-                          'bg-accent/10 group-hover:bg-accent/20',
-                          'flex-shrink-0 ml-3'
-                        )}>
-                          <ArrowRight className="w-4 h-4 text-accent group-hover:translate-x-0.5 transition-transform duration-300" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Link>
+            <motion.div key={module.id} variants={itemVariants}>
+              <ModuleCard 
+                id={module.id}
+                title={module.title}
+                description={module.description}
+                path={module.path}
+                icon={module.icon}
+                badge={module.badge}
+                stats={module.stats}
+                color={module.color}
+                bgGradient={module.bgGradient}
+                iconGradient={`bg-gradient-to-br ${module.iconGradient}`}
+                textColor={module.textColor}
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Quick Actions */}
         <div className="mb-12">
@@ -500,66 +436,29 @@ export function NavigationPage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            transition={{ delayChildren: 0.4 }}
+          >
             {quickActions.map((action) => (
-              <Link
-                key={action.id}
-                to={action.path}
-                className="group"
-              >
-                <div
-                  className={cn(
-                    'relative overflow-hidden rounded-lg p-6 min-h-[8rem] transition-all duration-300',
-                    'bg-card border border-border',
-                    'hover:scale-[1.02] hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5',
-                    'hover:border-accent/30',
-                    'flex flex-col',
-                    action.bgGradient
-                  )}
-                >
-                  {/* Background Pattern */}
-                  <div className="absolute inset-0 opacity-10 dark:opacity-20">
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-accent/5 to-transparent" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="relative z-10 h-full flex items-start gap-4">
-                    {/* Icon */}
-                    <div
-                      className={cn(
-                        'p-3 rounded-lg transition-all duration-300',
-                        'bg-gradient-to-br shadow-sm group-hover:shadow-md',
-                        'group-hover:scale-110',
-                        'flex-shrink-0',
-                        action.iconGradient
-                      )}
-                    >
-                      <action.icon className="h-5 w-5 text-white" />
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                      <h3 className="text-lg font-semibold text-card-foreground group-hover:text-accent transition-colors duration-300 mb-1">
-                        {action.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {action.description}
-                      </p>
-                    </div>
-
-                    {/* Arrow */}
-                    <div className={cn(
-                      'w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300',
-                      'bg-accent/10 group-hover:bg-accent/20',
-                      'flex-shrink-0 self-center'
-                    )}>
-                      <ArrowRight className="w-3 h-3 text-accent group-hover:translate-x-0.5 transition-transform duration-300" />
-                    </div>
-                  </div>
-                </div>
-              </Link>
+              <motion.div key={action.id} variants={itemVariants}>
+                <QuickActionCard
+                  id={action.id}
+                  title={action.title}
+                  description={action.description}
+                  path={action.path}
+                  icon={action.icon}
+                  color={action.color}
+                  bgGradient={action.bgGradient}
+                  iconGradient={`bg-gradient-to-br ${action.iconGradient}`}
+                  textColor={action.textColor}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

@@ -16,18 +16,10 @@ const ENDPOINT = API_ENDPOINTS.FUNCTIONS.FUEL_SUPPLIES;
  */
 export async function getFuelSupplies(): Promise<ApiResponse<FuelSupply[]>> {
   try {
-    // Use a stable timestamp that changes less frequently (every hour)
-    // This ensures the cache key doesn't change with every request
-    const stableTimestamp = Math.floor(Date.now() / (60 * 60 * 1000));
-    
     // Use 'unknown' for the response type since we need to handle multiple formats
     const response = await fetchFromFunction<unknown>(ENDPOINT, {
-      // Use cache-first strategy with a reasonable stale time
-      cache: "force-cache",
-      queryParams: {
-        // Set a stable cache key so browser can properly cache responses
-        _cache_key: `supplies_${stableTimestamp}`
-      }
+      // Always fetch fresh data, no caching
+      cache: "no-cache"
     });
 
     // Handle potential response formats:

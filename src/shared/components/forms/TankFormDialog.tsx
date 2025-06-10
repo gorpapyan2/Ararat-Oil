@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent } from '@/core/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/ui/dialog';
 import { Button } from '@/core/components/ui/button';
 import { Input } from '@/core/components/ui/input';
 import { Label } from '@/core/components/ui/label';
@@ -144,20 +144,20 @@ export function TankFormDialog({
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-0 bg-core-white dark:bg-card border border-core-tertiary dark:border-border shadow-xl">
         <div className="p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 border-b border-core-light dark:border-border pb-4">
-            <h3 className="text-xl font-semibold text-core-primary dark:text-card-foreground">
+          <DialogHeader className="flex items-center justify-between mb-6 border-b border-core-light dark:border-border pb-4">
+            <DialogTitle className="text-xl font-semibold text-core-primary dark:text-card-foreground">
               {mode === 'edit' 
                 ? t('modules.tanks.modals.edit.title') 
                 : t('modules.tanks.modals.create.title')
               }
-            </h3>
+            </DialogTitle>
             <button 
               onClick={handleClose}
               className="p-2 text-core-secondary dark:text-muted-foreground hover:text-core-primary dark:hover:text-card-foreground rounded-lg hover:bg-core-light dark:hover:bg-muted transition-all duration-200"
             >
               <NavigationIcons.Close className="w-5 h-5" />
             </button>
-          </div>
+          </DialogHeader>
 
           <form onSubmit={handleSubmit}>
             {/* Form Grid */}

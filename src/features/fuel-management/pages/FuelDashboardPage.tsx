@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Gauge, 
   TrendingUp, 
@@ -28,6 +28,9 @@ import {
 } from 'lucide-react';
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';
 import { StatsCard } from '@/shared/components/cards';
+import { useTranslation } from 'react-i18next';
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
+import { hy } from 'date-fns/locale';
 
 interface TankStatus {
   id: string;
@@ -50,6 +53,7 @@ interface AlertItem {
   location?: string;
 }
 
+// Updated mock data with ISO date strings
 const tankData: TankStatus[] = [
   {
     id: 'tank-1',
@@ -60,7 +64,7 @@ const tankData: TankStatus[] = [
     temperature: 18.5,
     pressure: 1.2,
     status: 'optimal',
-    lastUpdated: '2 min ago'
+    lastUpdated: new Date(Date.now() - 2 * 60 * 1000).toISOString() // 2 minutes ago
   },
   {
     id: 'tank-2',
@@ -71,7 +75,7 @@ const tankData: TankStatus[] = [
     temperature: 19.1,
     pressure: 1.1,
     status: 'warning',
-    lastUpdated: '1 min ago'
+    lastUpdated: new Date(Date.now() - 1 * 60 * 1000).toISOString() // 1 minute ago
   },
   {
     id: 'tank-3',
@@ -82,7 +86,7 @@ const tankData: TankStatus[] = [
     temperature: 18.8,
     pressure: 1.3,
     status: 'optimal',
-    lastUpdated: '3 min ago'
+    lastUpdated: new Date(Date.now() - 3 * 60 * 1000).toISOString() // 3 minutes ago
   },
   {
     id: 'tank-4',
@@ -93,7 +97,7 @@ const tankData: TankStatus[] = [
     temperature: 20.2,
     pressure: 1.0,
     status: 'critical',
-    lastUpdated: '1 min ago'
+    lastUpdated: new Date(Date.now() - 1 * 60 * 1000).toISOString() // 1 minute ago
   },
   {
     id: 'tank-5',
@@ -104,7 +108,7 @@ const tankData: TankStatus[] = [
     temperature: 18.9,
     pressure: 1.2,
     status: 'optimal',
-    lastUpdated: '2 min ago'
+    lastUpdated: new Date(Date.now() - 2 * 60 * 1000).toISOString() // 2 minutes ago
   },
   {
     id: 'tank-6',
@@ -115,7 +119,7 @@ const tankData: TankStatus[] = [
     temperature: 19.5,
     pressure: 1.1,
     status: 'optimal',
-    lastUpdated: '4 min ago'
+    lastUpdated: new Date(Date.now() - 4 * 60 * 1000).toISOString() // 4 minutes ago
   }
 ];
 
@@ -125,7 +129,7 @@ const alerts: AlertItem[] = [
     type: 'critical',
     title: 'Low Fuel Level',
     description: 'Tank B2 (Regular 87) is below 25% capacity',
-    time: '2 min ago',
+    time: new Date(Date.now() - 2 * 60 * 1000).toISOString(), // 2 minutes ago
     location: 'Tank B2'
   },
   {
@@ -133,7 +137,7 @@ const alerts: AlertItem[] = [
     type: 'warning',
     title: 'Maintenance Due',
     description: 'Pump #3 scheduled for routine maintenance',
-    time: '15 min ago',
+    time: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
     location: 'Pump Station #3'
   },
   {
@@ -141,7 +145,7 @@ const alerts: AlertItem[] = [
     type: 'info',
     title: 'Delivery Completed',
     description: 'Premium 95 delivery completed successfully',
-    time: '1 hour ago',
+    time: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 1 hour ago
     location: 'Tank A1'
   }
 ];
@@ -186,84 +190,106 @@ const getAlertIcon = (type: string) => {
 };
 
 export default function FuelDashboardPage() {
+  const { t } = useTranslation();
+  const [lastUpdated, setLastUpdated] = useState<string>(new Date().toISOString());
+  
+  // Format date as relative time
+  const formatRelativeTime = (dateString: string) => {
+    try {
+      const date = parseISO(dateString);
+      return formatDistanceToNow(date, { addSuffix: true, locale: hy });
+    } catch (error) {
+      return "Unknown";
+    }
+  };
+  
+  // Update last updated time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastUpdated(new Date().toISOString());
+    }, 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
   const breadcrumbItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Fuel Management', href: '/fuel' },
-    { label: 'Operations Dashboard', href: '/fuel/dashboard' }
+    { label: t('common.home'), href: '/' },
+    { label: t('modules.fuel.title'), href: '/fuel' },
+    { label: t('modules.fuel.dashboard'), href: '/fuel/dashboard' }
   ];
 
   const overallStats = [
     {
-      title: 'Total Volume',
+      title: t('modules.fuel.totalVolume'),
       value: '187.2K L',
       icon: Droplets,
       color: 'from-blue-500/80 to-blue-500',
-      description: '↗ +2.3% from yesterday'
+      description: t('modules.fuel.volumeChange', { change: '+2.3%' })
     },
     {
-      title: 'Daily Sales',
+      title: t('modules.fuel.dailySales'),
       value: '₺18.7K',
       icon: TrendingUp,
       color: 'from-green-500/80 to-green-500',
-      description: '↗ +12.3% vs yesterday'
+      description: t('modules.fuel.salesChange', { change: '+12.3%' })
     },
     {
-      title: 'Active Pumps',
+      title: t('modules.fuel.activePumps'),
       value: '8/8',
       icon: Zap,
       color: 'from-purple-500/80 to-purple-500',
-      description: '✓ All operational'
+      description: t('modules.fuel.pumpsStatus')
     },
     {
-      title: 'Avg. Temperature',
+      title: t('modules.fuel.avgTemperature'),
       value: '18.9°C',
       icon: Thermometer,
       color: 'from-amber-500/80 to-amber-500',
-      description: '↗ Optimal range'
+      description: t('modules.fuel.tempStatus')
     }
   ];
 
   const operationalStats = [
     {
-      title: 'Transactions',
+      title: t('modules.fuel.transactions'),
       value: '1,234',
       icon: BarChart3,
       color: 'from-cyan-500/80 to-cyan-500',
-      description: 'Today'
+      description: t('common.today')
     },
     {
-      title: 'Customers',
+      title: t('modules.fuel.customers'),
       value: '456',
       icon: Users,
       color: 'from-pink-500/80 to-pink-500',
-      description: 'Active today'
+      description: t('modules.fuel.activeToday')
     },
     {
-      title: 'Efficiency',
+      title: t('modules.fuel.efficiency'),
       value: '94.2%',
       icon: Target,
       color: 'from-indigo-500/80 to-indigo-500',
-      description: 'System efficiency'
+      description: t('modules.fuel.systemEfficiency')
     },
     {
-      title: 'Uptime',
+      title: t('modules.fuel.uptime'),
       value: '99.8%',
       icon: Shield,
       color: 'from-emerald-500/80 to-emerald-500',
-      description: 'Last 30 days'
+      description: t('modules.fuel.last30Days')
     }
   ];
 
   return (
     <WindowContainer
-      title="Fuel Operations Dashboard"
-      subtitle="Real-time monitoring and analytics for comprehensive fuel operations management"
+      title={t('modules.fuel.dashboard')}
+      subtitle={t('modules.fuel.dashboardDesc')}
       breadcrumbItems={breadcrumbItems}
     >
       {/* Main KPI Stats */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
-          Key Performance Indicators
+          {t('modules.fuel.keyPerformance')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {overallStats.map((stat, index) => (
@@ -283,10 +309,10 @@ export default function FuelDashboardPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7]">
-            Tank Status Overview
+            {t('modules.fuel.tankStatusOverview')}
           </h3>
           <div className="text-sm text-muted-foreground">
-            Last updated: 1 min ago
+            {t('modules.fuel.lastUpdated')}: {formatRelativeTime(lastUpdated)}
           </div>
         </div>
         
@@ -301,20 +327,20 @@ export default function FuelDashboardPage() {
                   <div className={`w-3 h-3 rounded-full ${getTankStatusColor(tank.status)}`}></div>
                   <h4 className="font-semibold text-card-foreground">{tank.name}</h4>
                 </div>
-                <span className="text-xs text-muted-foreground">{tank.lastUpdated}</span>
+                <span className="text-xs text-muted-foreground">{formatRelativeTime(tank.lastUpdated)}</span>
               </div>
               
               <div className="space-y-2 mb-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Fuel Type:</span>
+                  <span className="text-muted-foreground">{t('modules.fuel.fuelType')}:</span>
                   <span className="font-medium text-card-foreground">{tank.fuelType}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Level:</span>
+                  <span className="text-muted-foreground">{t('modules.fuel.level')}:</span>
                   <span className="font-medium text-card-foreground">{tank.currentLevel}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Volume:</span>
+                  <span className="text-muted-foreground">{t('modules.fuel.volume')}:</span>
                   <span className="font-medium text-card-foreground">
                     {((tank.currentLevel / 100) * tank.capacity).toLocaleString()} L
                   </span>
@@ -355,7 +381,7 @@ export default function FuelDashboardPage() {
         {/* Operational Metrics */}
         <div className="lg:col-span-2">
           <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
-            Operational Metrics
+            {t('modules.fuel.operationalMetrics')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {operationalStats.map((stat, index) => (
@@ -375,10 +401,10 @@ export default function FuelDashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7]">
-              System Alerts
+              {t('modules.fuel.systemAlerts')}
             </h3>
             <span className="text-sm text-muted-foreground">
-              {alerts.length} alerts
+              {alerts.length} {t('modules.fuel.alerts')}
             </span>
           </div>
           
@@ -393,10 +419,10 @@ export default function FuelDashboardPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <h4 className="text-sm font-medium text-card-foreground truncate">
-                        {alert.title}
+                        {t(`modules.fuel.alerts.${alert.title.toLowerCase().replace(/\s+/g, '')}`)}
                       </h4>
                       <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                        {alert.time}
+                        {formatRelativeTime(alert.time)}
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground mb-1">
@@ -414,7 +440,7 @@ export default function FuelDashboardPage() {
             ))}
             
             <button className="w-full text-sm text-accent hover:text-accent/80 py-2 transition-colors">
-              View all alerts →
+              {t('modules.fuel.viewAllAlerts')} →
             </button>
           </div>
         </div>
@@ -423,7 +449,7 @@ export default function FuelDashboardPage() {
       {/* Quick Actions */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7] mb-4">
-          Quick Actions
+          {t('common.quickActions')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <button className="flex items-center gap-3 p-4 bg-card border border-border rounded-lg hover:shadow-md hover:border-accent/30 transition-all duration-200 text-left">
@@ -431,8 +457,8 @@ export default function FuelDashboardPage() {
               <Fuel className="w-5 h-5 text-blue-500" />
             </div>
             <div>
-              <div className="font-medium text-card-foreground">Add Fuel</div>
-              <div className="text-xs text-muted-foreground">Record delivery</div>
+              <div className="font-medium text-card-foreground">{t('modules.fuel.addFuel')}</div>
+              <div className="text-xs text-muted-foreground">{t('modules.fuel.recordDelivery')}</div>
             </div>
           </button>
           
@@ -441,8 +467,8 @@ export default function FuelDashboardPage() {
               <BarChart3 className="w-5 h-5 text-green-500" />
             </div>
             <div>
-              <div className="font-medium text-card-foreground">Generate Report</div>
-              <div className="text-xs text-muted-foreground">Daily summary</div>
+              <div className="font-medium text-card-foreground">{t('modules.fuel.generateReport')}</div>
+              <div className="text-xs text-muted-foreground">{t('modules.fuel.dailySummary')}</div>
             </div>
           </button>
           
@@ -451,8 +477,8 @@ export default function FuelDashboardPage() {
               <Settings className="w-5 h-5 text-purple-500" />
             </div>
             <div>
-              <div className="font-medium text-card-foreground">System Check</div>
-              <div className="text-xs text-muted-foreground">Run diagnostics</div>
+              <div className="font-medium text-card-foreground">{t('modules.fuel.systemCheck')}</div>
+              <div className="text-xs text-muted-foreground">{t('modules.fuel.runDiagnostics')}</div>
             </div>
           </button>
           
@@ -461,8 +487,8 @@ export default function FuelDashboardPage() {
               <Clock className="w-5 h-5 text-amber-500" />
             </div>
             <div>
-              <div className="font-medium text-card-foreground">Schedule Maintenance</div>
-              <div className="text-xs text-muted-foreground">Plan service</div>
+              <div className="font-medium text-card-foreground">{t('modules.fuel.scheduleMaintenance')}</div>
+              <div className="text-xs text-muted-foreground">{t('modules.fuel.planService')}</div>
             </div>
           </button>
         </div>

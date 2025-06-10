@@ -23,12 +23,13 @@ export interface SupplyListItem {
   status: 'received' | 'pending' | 'verified';
 }
 
-interface FuelSuppliesTableProps {
+// Update the props interface to make onView optional
+export interface FuelSuppliesTableProps {
   data: SupplyListItem[];
   isLoading: boolean;
-  onView: (supply: SupplyListItem) => void;
   onEdit: (supply: SupplyListItem) => void;
-  onDelete?: (supply: SupplyListItem) => void;
+  onDelete: (supply: SupplyListItem) => void;
+  onView?: (supply: SupplyListItem) => void;
 }
 
 // Use React.memo to prevent unnecessary re-renders
@@ -149,12 +150,18 @@ export const FuelSuppliesTable = React.memo<FuelSuppliesTableProps>(({
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-[180px]">
+            {onView && (
+              <DropdownMenuItem onClick={() => onView(row)}>
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => onEdit(row)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit Supply
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => onDelete?.(row)}>
+            <DropdownMenuItem onClick={() => onDelete(row)} className="text-red-500 focus:text-red-500">
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Supply
             </DropdownMenuItem>

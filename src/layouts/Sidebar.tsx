@@ -11,6 +11,8 @@ import {
   Sun,
   LogOut,
   Home,
+  Zap,
+  User
 } from "lucide-react";
 import { useTheme } from "@/shared/components/ui/theme-provider";
 import { useAuth } from "@/core/hooks/useAuth";
@@ -35,12 +37,12 @@ const ThemeToggleButton: React.FC = () => {
     >
       <div className={cn(
         "flex items-center justify-center w-full rounded-lg transition-all duration-200",
-        "p-3 relative hover:bg-gradient-natural-light"
+        "p-3 relative hover:bg-background hover:bg-opacity-60"
       )}>
         {/* Icon Container */}
         <div className={cn(
           "flex items-center justify-center rounded-lg w-8 h-8 transition-all duration-200 relative",
-          "bg-secondary hover:bg-gradient-accent group-hover:scale-105"
+          "bg-secondary hover:bg-secondary/80 group-hover:scale-105"
         )}>
           {resolvedTheme === 'dark' ? (
             <Moon className="w-4 h-4 text-foreground" />
@@ -51,6 +53,34 @@ const ThemeToggleButton: React.FC = () => {
           {theme === 'system' && (
             <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-accent animate-pulse" />
           )}
+        </div>
+      </div>
+    </button>
+  );
+};
+
+const ProfileButton: React.FC = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <button
+      onClick={() => navigate('/profile')}
+      className={cn(
+        "w-full transition-all duration-200 ease-out group",
+        "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-card rounded-lg"
+      )}
+      title="Profile"
+    >
+      <div className={cn(
+        "flex items-center justify-center w-full rounded-lg transition-all duration-200",
+        "p-3 relative hover:bg-background hover:bg-opacity-60"
+      )}>
+        {/* Icon Container */}
+        <div className={cn(
+          "flex items-center justify-center rounded-lg w-8 h-8 transition-all duration-200",
+          "bg-secondary hover:bg-accent/20 group-hover:scale-105"
+        )}>
+          <User className="w-4 h-4 text-foreground" />
         </div>
       </div>
     </button>
@@ -109,6 +139,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   description?: string;
   color?: string;
+  hasSubmenu?: boolean;
 }
 
 export function Sidebar({
@@ -130,12 +161,13 @@ export function Sidebar({
       color: 'primary'
     },
     {
-      id: 'management',
-      label: 'Management',
+      id: 'hr',
+      label: 'HR',
       path: '/management',
       icon: Users,
       description: 'HR & Operations',
-      color: 'fuel-premium'
+      color: 'fuel-premium',
+      hasSubmenu: true
     },
     {
       id: 'finance',
@@ -143,7 +175,8 @@ export function Sidebar({
       path: '/finance',
       icon: DollarSign,
       description: 'Financial Management',
-      color: 'fuel-diesel'
+      color: 'fuel-diesel',
+      hasSubmenu: true
     },
     {
       id: 'fuel',
@@ -168,6 +201,14 @@ export function Sidebar({
       icon: Settings,
       description: 'System Configuration',
       color: 'secondary'
+    },
+    {
+      id: 'quick-actions',
+      label: 'Quick Actions',
+      path: '/quick-actions',
+      icon: Zap,
+      description: 'Frequent Operations',
+      color: 'status-warning'
     }
   ];
 
@@ -186,6 +227,10 @@ export function Sidebar({
     }
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
+
+  const handleQuickActionClick = () => {
+    navigate('/shifts/new');
+  }
 
   return (
     <>
@@ -261,7 +306,7 @@ export function Sidebar({
                       "p-3",
                       isActive 
                         ? "bg-gradient-accent shadow-md" 
-                        : "hover:bg-gradient-natural-light group-hover:shadow-sm"
+                        : "hover:bg-background hover:bg-opacity-60 group-hover:shadow-sm"
                     )}>
                       {/* Active indicator */}
                       {isActive && (
@@ -277,6 +322,11 @@ export function Sidebar({
                       )}>
                         <Icon className="w-4 h-4" />
                         
+                        {/* Expandable indicator */}
+                        {item.hasSubmenu && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-accent" />
+                        )}
+                        
                         {/* Hover glow effect */}
                         {!isActive && (
                           <div className="absolute inset-0 bg-gradient-accent opacity-0 group-hover:opacity-10 rounded-lg blur-sm transition-opacity duration-300" />
@@ -290,8 +340,24 @@ export function Sidebar({
           </div>
         </div>
 
-        {/* Footer with Theme Toggle and Sign Out */}
-        <div className="p-3 border-t border-border space-y-2 flex-shrink-0 bg-gradient-natural-light/5">
+        {/* Quick Action Button */}
+        <div className="px-3 pt-4 pb-3">
+          <button
+            onClick={handleQuickActionClick}
+            className={cn(
+              "w-full bg-[#E3E263] hover:bg-[#F8F7C3] text-black rounded-lg py-3 px-4",
+              "font-medium text-xs transition-all duration-300",
+              "hover:shadow-md focus:outline-none focus:ring-2 focus:ring-accent",
+              "whitespace-nowrap text-center"
+            )}
+          >
+            Start Shift | Daily Report
+          </button>
+        </div>
+        
+        {/* Footer with Profile, Theme Toggle, and Sign Out */}
+        <div className="p-3 border-t border-border space-y-2 flex-shrink-0">
+          <ProfileButton />
           <ThemeToggleButton />
           <SignOutButton />
         </div>

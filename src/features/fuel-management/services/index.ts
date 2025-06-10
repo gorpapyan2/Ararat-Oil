@@ -1,6 +1,7 @@
 // Re-export the original service and adapters
 export * from "./fuel-sales.service";
 export * from "./adapters";
+export * from "./filling-systems.service";
 
 // Import types for additional functions
 import { FuelSaleSummary } from '../types';

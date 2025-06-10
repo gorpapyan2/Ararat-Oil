@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/layouts/Sidebar";
 import { useLocation } from "react-router-dom";
-import { Toaster } from "@/core/components/ui/toast";
+import { ToastContainer } from "@/core/components/ui/toast-container";
 import { cn } from "@/shared/utils";
 import { Button } from "@/core/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { SkipToContent } from "@/core/components/ui/skip-to-content";
 import { useIsMobile } from "@/hooks";
+import { Footer } from "@/layouts/Footer";
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -44,7 +45,7 @@ export function MainLayout({ children }: MainLayoutProps) {
         >
           {children}
         </main>
-        <Toaster />
+        <ToastContainer />
       </div>
     );
   }
@@ -142,8 +143,9 @@ export function MainLayout({ children }: MainLayoutProps) {
         </div>
         
         {/* Toast Container */}
-        <Toaster />
+        <ToastContainer />
       </main>
+      <Footer />
     </div>
   );
 }

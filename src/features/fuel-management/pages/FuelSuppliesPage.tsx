@@ -5,35 +5,26 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/core/components/ui/button';
-import { PlusCircle, X, Save, AlertCircle, Package, CheckCircle } from 'lucide-react';
+import { Package, AlertCircle, CheckCircle } from 'lucide-react';
 import { WindowContainer } from '@/shared/components/layout/WindowContainer';
-import { StatsCard } from '@/shared/components/cards';
 import { useTranslation } from 'react-i18next';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/core/components/ui/primitives/alert-dialog';
-import { useToast } from "@/core/hooks/useToast";
 
 // Import the separated components
 import { FuelSuppliesMetrics } from '@/features/fuel-management/components/FuelSuppliesMetrics';
 import { FuelSuppliesFilters, SupplyFilters } from '@/features/fuel-management/components/FuelSuppliesFilters';
 import { FuelSuppliesTable, SupplyListItem } from '@/features/fuel-management/components/FuelSuppliesTable';
 import { CreateSupplyDialog, CreateSupplyData } from '@/features/fuel-management/components/CreateSupplyDialog';
+import { FuelSuppliesHeader } from '@/features/fuel-management/components/FuelSuppliesHeader';
+import { FuelSuppliesGrid } from '@/features/fuel-management/components/FuelSuppliesGrid';
+import { DeleteSupplyDialog } from '@/features/fuel-management/components/DeleteSupplyDialog';
 
 // Import our custom hook for fuel supplies data
 import { useFuelSupplies } from '@/features/fuel-management/hooks/useFuelSupplies';
+import { useFuelSuppliesService } from '@/features/fuel-management/services/fuelSuppliesService';
 
 // API imports for form data
 import { petrolProvidersApi } from '@/core/api/endpoints/petrol-providers';
 import { tanksApi } from '@/core/api/endpoints/tanks';
-import { fuelSuppliesApi } from '@/core/api/endpoints/fuel-supplies';
 import { Tank, PetrolProvider } from '@/core/api/types';
 
 // Optimized icon imports - using centralized icon system
@@ -66,11 +57,11 @@ export const FuelSuppliesPage: React.FC = () => {
   // Initialize i18n
   const { t } = useTranslation();
   
-  // Initialize toast
-  const { toast } = useToast();
-  
   // Use our custom hook for data fetching with built-in caching
   const { supplies, isLoading, error, refreshData } = useFuelSupplies();
+  
+  // Use our service for handling CRUD operations
+  const suppliesService = useFuelSuppliesService();
   
   // View mode state
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -118,17 +109,6 @@ export const FuelSuppliesPage: React.FC = () => {
       console.log('[FuelSuppliesPage] Mount effect executed');
     }
   }, []);
-
-  const loadSupplies = useCallback(async () => {
-    if (import.meta.env.DEV) {
-      console.log('[FuelSuppliesPage] loadSupplies called');
-    }
-    try {
-      await refreshData();
-    } catch (error) {
-      console.error('Failed to load supplies:', error);
-    }
-  }, [refreshData]);
 
   const loadFormData = useCallback(async () => {
     if (import.meta.env.DEV) {
@@ -178,107 +158,10 @@ export const FuelSuppliesPage: React.FC = () => {
   const handleCreateSupply = async () => {
     try {
       setIsCreating(true);
+      const success = await suppliesService.createSupply(createSupplyData);
       
-      // Validate required fields
-      if (!createSupplyData.provider_id) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.selectProvider'),
-          variant: "destructive"
-        });
-        setIsCreating(false);
-        return;
-      }
-      
-      if (!createSupplyData.tank_id) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.selectTank'),
-          variant: "destructive"
-        });
-        setIsCreating(false);
-        return;
-      }
-      
-      if (!createSupplyData.quantity_liters || createSupplyData.quantity_liters <= 0) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.enterValidQuantity'),
-          variant: "destructive"
-        });
-        setIsCreating(false);
-        return;
-      }
-      
-      if (!createSupplyData.price_per_liter || createSupplyData.price_per_liter <= 0) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.enterValidPrice'),
-          variant: "destructive"
-        });
-        setIsCreating(false);
-        return;
-      }
-      
-      if (!createSupplyData.delivery_date) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.enterValidDate'),
-          variant: "destructive"
-        });
-        setIsCreating(false);
-        return;
-      }
-      
-      // Calculate total_cost if not provided and format payload exactly as per FuelSupplyCreate type
-      const totalCost = createSupplyData.quantity_liters * createSupplyData.price_per_liter;
-      
-      // Ensure delivery_date is in ISO format
-      let formattedDeliveryDate = createSupplyData.delivery_date;
-      try {
-        // Handle both date-time and date-only inputs
-        if (!formattedDeliveryDate.includes('T')) {
-          formattedDeliveryDate = new Date(formattedDeliveryDate).toISOString();
-        } else if (!formattedDeliveryDate.includes('Z')) {
-          // Append Z if it's missing to indicate UTC time
-          formattedDeliveryDate = new Date(formattedDeliveryDate).toISOString();
-        }
-      } catch (e) {
-        console.error('Error formatting delivery date:', e);
-        // Fallback to current date if there's an error
-        formattedDeliveryDate = new Date().toISOString();
-      }
-      
-      const supplyData = {
-        provider_id: createSupplyData.provider_id,
-        tank_id: createSupplyData.tank_id,
-        quantity_liters: Number(createSupplyData.quantity_liters),
-        price_per_liter: Number(createSupplyData.price_per_liter),
-        total_cost: Number(totalCost.toFixed(2)),
-        delivery_date: formattedDeliveryDate,
-        payment_status: createSupplyData.payment_status || 'pending',
-        comments: createSupplyData.comments || ''
-      };
-      
-      // Debug info always in console for troubleshooting
-      console.log('Creating supply with data:', JSON.stringify(supplyData, null, 2));
-      
-      // Send API request to create supply
-      const response = await fuelSuppliesApi.createFuelSupply(supplyData);
-      
-      // Log the full response for debugging
-      console.log('Create supply response:', JSON.stringify(response, null, 2));
-      
-      if (response.data) {
-        // Show success message
-        toast({
-          title: t('common.success'),
-          description: t('fuelSupplies.modal.createSuccess'),
-          variant: "success"
-        });
-        
-        // Refresh supplies list and reset create form
-        refreshData();
+      if (success) {
+        // Reset create form
       setCreateSupplyData({
         provider_id: '',
         tank_id: '',
@@ -292,29 +175,10 @@ export const FuelSuppliesPage: React.FC = () => {
         // Close dialogs
         setIsCreateDialogOpen(false);
         setShowCreateModal(false);
-      } else {
-        // Show error message
-        toast({
-          title: t('common.error'),
-          description: response.error?.message || t('common.unknownError'),
-          variant: "destructive"
-        });
       }
-    } catch (error) {
-      console.error('Error creating supply:', error);
-      toast({
-        title: t('common.error'),
-        description: t('fuelSupplies.modal.createError'),
-        variant: "destructive"
-      });
     } finally {
       setIsCreating(false);
     }
-  };
-
-  const handleViewSupply = (supply: SupplyListItem) => {
-    // Implement view supply functionality
-    console.log('View supply:', supply);
   };
 
   // Handler for editing a supply
@@ -325,6 +189,13 @@ export const FuelSuppliesPage: React.FC = () => {
     // Find provider and tank from the data in supply
     const tank = tanks.find(t => t.fuel_type?.name === supply.fuelType);
     const provider = providers.find(p => p.name === supply.supplier);
+
+    if (!tank || !provider) {
+      console.error('Could not find tank or provider for the selected supply');
+      // Optionally, show a toast notification to the user
+      // toast({ title: 'Error', description: 'Could not find tank or provider.' });
+      return;
+    }
     
     // Convert the supply data to the format expected by the dialog
     setCreateSupplyData({
@@ -352,107 +223,10 @@ export const FuelSuppliesPage: React.FC = () => {
     
     try {
       setIsEditing(true);
+      const success = await suppliesService.updateSupply(currentSupply.id, createSupplyData);
       
-      // Validate required fields (similar to create)
-      if (!createSupplyData.provider_id) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.selectProvider'),
-          variant: "destructive"
-        });
-        setIsEditing(false);
-        return;
-      }
-      
-      if (!createSupplyData.tank_id) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.selectTank'),
-          variant: "destructive"
-        });
-        setIsEditing(false);
-        return;
-      }
-      
-      if (!createSupplyData.quantity_liters || createSupplyData.quantity_liters <= 0) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.enterValidQuantity'),
-          variant: "destructive"
-        });
-        setIsEditing(false);
-        return;
-      }
-      
-      if (!createSupplyData.price_per_liter || createSupplyData.price_per_liter <= 0) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.enterValidPrice'),
-          variant: "destructive"
-        });
-        setIsEditing(false);
-        return;
-      }
-      
-      if (!createSupplyData.delivery_date) {
-        toast({
-          title: t('common.error'),
-          description: t('fuelSupplies.modal.validation.enterValidDate'),
-          variant: "destructive"
-        });
-        setIsEditing(false);
-        return;
-      }
-      
-      // Calculate total_cost and prepare update data
-      const totalCost = createSupplyData.quantity_liters * createSupplyData.price_per_liter;
-      
-      // Ensure delivery_date is in ISO format
-      let formattedDeliveryDate = createSupplyData.delivery_date;
-      try {
-        // Handle both date-time and date-only inputs
-        if (!formattedDeliveryDate.includes('T')) {
-          formattedDeliveryDate = new Date(formattedDeliveryDate).toISOString();
-        } else if (!formattedDeliveryDate.includes('Z')) {
-          // Append Z if it's missing to indicate UTC time
-          formattedDeliveryDate = new Date(formattedDeliveryDate).toISOString();
-        }
-      } catch (e) {
-        console.error('Error formatting delivery date:', e);
-        // Fallback to current date if there's an error
-        formattedDeliveryDate = new Date().toISOString();
-      }
-      
-      const supplyData = {
-        provider_id: createSupplyData.provider_id,
-        tank_id: createSupplyData.tank_id,
-        quantity_liters: Number(createSupplyData.quantity_liters),
-        price_per_liter: Number(createSupplyData.price_per_liter),
-        total_cost: Number(totalCost.toFixed(2)),
-        delivery_date: formattedDeliveryDate,
-        payment_status: createSupplyData.payment_status || 'pending',
-        comments: createSupplyData.comments || ''
-      };
-      
-      // Debug info always in console for troubleshooting
-      console.log('Updating supply with data:', JSON.stringify(supplyData, null, 2));
-      
-      // Send API request to update supply
-      const response = await fuelSuppliesApi.updateFuelSupply(currentSupply.id, supplyData);
-      
-      // Log the full response for debugging
-      console.log('Update supply response:', JSON.stringify(response, null, 2));
-      
-      if (response.data) {
-        // Show success message
-        toast({
-          title: t('common.success'),
-          description: t('fuelSupplies.modal.updateSuccess', 'Supply updated successfully'),
-          variant: "success"
-        });
-        
-        // Refresh supplies list and reset form
-        refreshData();
+      if (success) {
+        // Reset form
         setCreateSupplyData({
           provider_id: '',
           tank_id: '',
@@ -466,21 +240,7 @@ export const FuelSuppliesPage: React.FC = () => {
         // Close dialogs
         setIsEditDialogOpen(false);
         setCurrentSupply(null);
-      } else {
-        // Show error message
-        toast({
-          title: t('common.error'),
-          description: response.error?.message || t('common.unknownError'),
-          variant: "destructive"
-        });
       }
-    } catch (error) {
-      console.error('Error updating supply:', error);
-      toast({
-        title: t('common.error'),
-        description: t('fuelSupplies.modal.updateError', 'Error updating supply'),
-        variant: "destructive"
-      });
     } finally {
       setIsEditing(false);
     }
@@ -499,38 +259,17 @@ export const FuelSuppliesPage: React.FC = () => {
     try {
       setIsDeleting(true);
       
-      // Send API request to delete supply
-      const response = await fuelSuppliesApi.deleteFuelSupply(supplyToDelete.id);
+      // Store the ID of the item to be deleted
+      const idToDelete = supplyToDelete.id;
       
-      if (response.data?.success) {
-        // Show success message
-        toast({
-          title: t('common.success'),
-          description: t('fuelSupplies.modal.deleteSuccess', 'Supply deleted successfully'),
-          variant: "success"
-        });
-        
-        // Refresh supplies list
-        refreshData();
-      } else {
-        // Show error message
-        toast({
-          title: t('common.error'),
-          description: response.error?.message || t('common.unknownError'),
-          variant: "destructive"
-        });
+      const success = await suppliesService.deleteSupply(idToDelete);
+      
+      if (success) {
+        setShowDeleteConfirm(false);
+        setSupplyToDelete(null);
       }
-    } catch (error) {
-      console.error('Error deleting supply:', error);
-      toast({
-        title: t('common.error'),
-        description: t('fuelSupplies.modal.deleteError', 'Error deleting supply'),
-        variant: "destructive"
-      });
     } finally {
       setIsDeleting(false);
-      setShowDeleteConfirm(false);
-      setSupplyToDelete(null);
     }
   };
 
@@ -570,33 +309,6 @@ export const FuelSuppliesPage: React.FC = () => {
       description: 'Confirmed deliveries'
     }
   ];
-
-  // Status styling helpers
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'received':
-        return 'bg-green-50 text-green-700 border-green-200';
-      case 'pending':
-        return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-      case 'verified':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
-      default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'received':
-        return <StatusIcons.Success className="w-4 h-4" />;
-      case 'pending':
-        return <TimeIcons.Clock className="w-4 h-4" />;
-      case 'verified':
-        return <CheckCircle className="w-4 h-4" />;
-      default:
-        return <AlertCircle className="w-4 h-4" />;
-    }
-  };
 
   // Filter supplies based on filter criteria
   const filteredSupplies = useMemo(() => {
@@ -654,106 +366,18 @@ export const FuelSuppliesPage: React.FC = () => {
       ]}
     >
       <div className="space-y-6">
-        {/* Quick Stats Overview */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-black dark:text-[#EEEFE7]">
-              {t('fuelSupplies.overview')}
-            </h3>
-            <div className="flex gap-2">
-              <button 
-                onClick={loadSupplies}
-                disabled={isLoading}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-card border border-border rounded-lg hover:shadow-md transition-all duration-200 disabled:opacity-50"
-              >
-                <ActionIcons.Refresh className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                {t('common.refresh')}
-              </button>
-              <button 
-                onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-all duration-200"
-              >
-                <PlusCircle className="w-4 h-4" />
-                {t('fuelSupplies.addSupply')}
-              </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickStats.map((stat, index) => (
-              <StatsCard
-                key={index}
-                title={stat.title}
-                value={stat.value}
-                icon={stat.icon}
-                color={stat.color}
-                description={stat.description}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Filters and Controls */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex bg-muted rounded-lg p-1">
-              <button
-                onClick={() => handleViewModeChange('grid')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-card text-card-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <NavigationIcons.Grid className="h-4 w-4 mr-2 inline" />
-                {t('fuelSupplies.view.grid')}
-              </button>
-              <button
-                onClick={() => handleViewModeChange('table')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === 'table'
-                    ? 'bg-card text-card-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <NavigationIcons.Table className="h-4 w-4 mr-2 inline" />
-                {t('fuelSupplies.view.table')}
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <select
-                value={filters.fuelType}
-                onChange={(e) => handleFiltersChange({...filters, fuelType: e.target.value})}
-                className="px-3 py-2 bg-card border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-              >
-                <option value="all">{t('fuelSupplies.filters.allFuelTypes')}</option>
-                {fuelTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-              <select
-                value={filters.status}
-                onChange={(e) => handleFiltersChange({...filters, status: e.target.value})}
-                className="px-3 py-2 bg-card border border-border rounded-lg text-card-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-              >
-                <option value="all">{t('fuelSupplies.status.all')}</option>
-                <option value="pending">{t('fuelSupplies.status.pending')}</option>
-                <option value="received">{t('fuelSupplies.status.received')}</option>
-                <option value="verified">{t('fuelSupplies.status.verified')}</option>
-              </select>
-              <div className="relative">
-                <ActionIcons.Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder={t('fuelSupplies.filters.search')}
-                  value={filters.search}
-                  onChange={(e) => handleFiltersChange({...filters, search: e.target.value})}
-                  className="pl-10 pr-4 py-2 bg-card border border-border rounded-lg text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Header and Controls Section */}
+        <FuelSuppliesHeader
+          quickStats={quickStats}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+          onAddSupply={() => setShowCreateModal(true)}
+          onRefresh={() => suppliesService.loadSupplies()}
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          isLoading={isLoading}
+          fuelTypes={fuelTypes}
+        />
 
         {/* Development Debug Panel */}
         {import.meta.env.DEV && import.meta.env.VITE_DEBUG_UI === 'true' && (
@@ -791,87 +415,25 @@ export const FuelSuppliesPage: React.FC = () => {
           <h4 className="text-md font-semibold text-card-foreground mb-4">
             {t('fuelSupplies.directory')} ({filteredSupplies.length})
           </h4>
-          {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {t('fuelSupplies.loadingSupplies')}
-            </div>
-          ) : error ? (
+          
+          {error ? (
             <div className="text-center py-8 text-destructive">
               <p>{t('fuelSupplies.errorLoadingSupplies')}: {error.message}</p>
                 <Button variant="outline" className="mt-4" onClick={refreshData}>
                 {t('fuelSupplies.retry')}
                 </Button>
-              </div>
-          ) : filteredSupplies.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {t('fuelSupplies.noSuppliesFound')}
             </div>
           ) : viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredSupplies.map((supply) => (
-                <div
-                  key={supply.id}
-                  className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
-                        <Package className="w-5 h-5 text-accent-foreground" />
-                      </div>
-                      <div>
-                        <h5 className="font-semibold text-card-foreground">
-                          {supply.supplier}
-                        </h5>
-                        <p className="text-xs text-muted-foreground">{supply.fuelType}</p>
-                      </div>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs border inline-flex items-center gap-1 ${getStatusColor(supply.status)}`}>
-                      {getStatusIcon(supply.status)}
-                      <span className="capitalize">{supply.status}</span>
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 text-sm mb-3">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>{t('fuelSupplies.fields.quantity')}:</span>
-                      <span className="text-card-foreground font-medium">{supply.quantity} L</span>
-                    </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>{t('fuelSupplies.fields.pricePerLiter')}:</span>
-                      <span className="text-card-foreground font-medium">{supply.pricePerLiter} ֏</span>
-                    </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>{t('fuelSupplies.fields.totalCost')}:</span>
-                      <span className="text-card-foreground font-medium">{supply.totalCost} ֏</span>
-                    </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>{t('fuelSupplies.fields.deliveryDate')}:</span>
-                      <span className="text-card-foreground font-medium">{new Date(supply.deliveryDate).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-3 border-t border-border">
-                    <button
-                      onClick={() => handleEditSupply(supply)}
-                      className="p-2 text-xs text-muted-foreground hover:text-foreground bg-background rounded-md hover:bg-muted transition-colors"
-                    >
-                      <ActionIcons.Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="p-2 text-xs text-muted-foreground hover:text-destructive bg-background rounded-md hover:bg-destructive/10 transition-colors"
-                      onClick={() => handleDeleteSupply(supply)}
-                    >
-                      <ActionIcons.Delete className="w-4 h-4" />
-                    </button>
-                  </div>
-              </div>
-              ))}
-              </div>
+            <FuelSuppliesGrid
+              supplies={filteredSupplies}
+              onEdit={handleEditSupply}
+              onDelete={handleDeleteSupply}
+              isLoading={isLoading}
+            />
             ) : (
               <FuelSuppliesTable 
                 data={filteredSupplies}
               isLoading={isLoading}
-                onView={handleViewSupply}
                 onEdit={handleEditSupply}
               onDelete={handleDeleteSupply}
               />
@@ -904,47 +466,12 @@ export const FuelSuppliesPage: React.FC = () => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog
+      <DeleteSupplyDialog
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
-      >
-        <AlertDialogContent className="bg-background border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
-              {t('fuelSupplies.modal.deleteConfirmationTitle')}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
-              {t('fuelSupplies.modal.deleteConfirmationMessage')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel className="bg-background text-foreground border-border hover:bg-muted hover:text-foreground">
-              {t('fuelSupplies.modal.deleteCancel')}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDeleteSupply}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground font-medium"
-            >
-              {isDeleting ? (
-                <>
-                  <span className="mr-2">
-                    <svg className="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </span>
-                  {t('common.deleting')}
-                </>
-              ) : (
-                <>
-                  <ActionIcons.Delete className="mr-2 h-4 w-4" />
-                  {t('fuelSupplies.modal.deleteConfirm')}
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={confirmDeleteSupply}
+        isDeleting={isDeleting}
+      />
     </WindowContainer>
   );
 };

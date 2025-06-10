@@ -20,6 +20,9 @@ export * from "./fuel-prices.types";
 // Export all from fuel types (main FuelSale interface)
 export * from "./fuel.types";
 
+// Export filling systems types
+export * from "./filling-systems.types";
+
 // Base interfaces for other exports
 interface RefuelEntry {
   id: string;
